@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.assertj.core.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -1266,7 +1267,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     Long.MAX_VALUE,
                     APPROVED_STATUS.statusText(),
                     (existing) -> {
-                      throw new RuntimeException("unexpected");
+                      fail("unexpected edit entry found");
+                      throw new RuntimeException("unexpected edit entry found");
                     }))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID:");
@@ -1274,26 +1276,100 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   @Test
   public void editStatus_updatedStatusIsDuplicate_throws() throws Exception {
-    assertThat(true).isFalse();
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
+            .build();
+
+    // We update the "rejected" status entry so that it's text is the same as the
+    // "approved" status entry.
+    DuplicateStatusException exc =
+        catchThrowableOfType(
+            () ->
+                ps.editStatus(
+                    program.id,
+                    REJECTED_STATUS.statusText(),
+                    (existingStatus) -> {
+                      return StatusDefinitions.Status.builder()
+                          .setStatusText(APPROVED_STATUS.statusText())
+                          .setLocalizedStatusText(
+                              LocalizedStrings.withDefaultValue("New status text"))
+                          .setEmailBodyText("A new email")
+                          .setLocalizedEmailBodyText(
+                              Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
+                          .build();
+                    }),
+            DuplicateStatusException.class);
+    assertThat(exc.userFacingMessage()).contains("A status with name Approved already exists");
   }
 
   @Test
   public void editStatus_missingStatus_returnsError() throws Exception {
-    assertThat(true).isFalse();
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.editStatus(
+            program.id,
+            REJECTED_STATUS.statusText(),
+            (existingStatus) -> {
+              fail("unexpected edit entry found");
+              throw new RuntimeException("unexpected edit entry found");
+            });
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of(
+                "The status being edited no longer exists and may have been modified in a"
+                    + " separate window."));
   }
 
   @Test
   public void deleteStatus() throws Exception {
-    assertThat(true).isFalse();
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
+            .build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.deleteStatus(program.id, APPROVED_STATUS.statusText());
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().statusDefinitions().getStatuses())
+        .isEqualTo(ImmutableList.of(REJECTED_STATUS));
+    assertThat(ps.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+        .isEqualTo(ImmutableList.of(REJECTED_STATUS));
   }
 
   @Test
   public void deleteStatus_programNotFound_throws() throws Exception {
-    assertThat(true).isFalse();
+    assertThatThrownBy(() -> ps.deleteStatus(Long.MAX_VALUE, APPROVED_STATUS.statusText()))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
   }
 
   @Test
   public void deleteStatus_missingStatus_returnsError() throws Exception {
-    assertThat(true).isFalse();
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.deleteStatus(program.id, REJECTED_STATUS.statusText());
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of(
+                "The status being deleted no longer exists and may have been deleted in a"
+                    + " separate window."));
+    assertThat(ps.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+        .isEqualTo(ImmutableList.of(APPROVED_STATUS));
   }
 }
