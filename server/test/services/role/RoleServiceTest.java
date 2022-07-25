@@ -14,7 +14,6 @@ import repository.UserRepository;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramService;
 import support.ProgramBuilder;
 
 public class RoleServiceTest extends ResetPostgres {
@@ -153,61 +152,6 @@ public class RoleServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void makeProgramAdmins_blockGlobalAdmin() throws ProgramNotFoundException {
-    String globalAdminEmail = "global@admin";
-    Account globalAdmin = new Account();
-    globalAdmin.setEmailAddress(globalAdminEmail);
-    globalAdmin.setGlobalAdmin(true);
-    globalAdmin.save();
-
-    String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
-
-    RoleService serviceWithGlobalAdminDisabled =
-        new RoleService(
-            instanceOf(ProgramService.class),
-            instanceOf(UserRepository.class),
-            /* allowGlobalAdmins= */ false);
-
-    assertThat(
-            serviceWithGlobalAdminDisabled.makeProgramAdmins(
-                program.id, ImmutableSet.of(globalAdminEmail)))
-        .isEqualTo(
-            Optional.of(
-                CiviFormError.of(
-                    String.format(
-                        "The following are already CiviForm admins and could not be added as"
-                            + " program admins: %s",
-                        globalAdminEmail))));
-  }
-
-  @Test
-  public void makeProgramAdmins_allowGlobalAdmin() throws ProgramNotFoundException {
-    String globalAdminEmail = "global@admin";
-    Account globalAdmin = new Account();
-    globalAdmin.setEmailAddress(globalAdminEmail);
-    globalAdmin.setGlobalAdmin(true);
-    globalAdmin.save();
-
-    String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
-
-    RoleService serviceWithGlobalAdminEnabled =
-        new RoleService(
-            instanceOf(ProgramService.class),
-            instanceOf(UserRepository.class),
-            /* allowGlobalAdmins= */ true);
-    assertThat(
-            serviceWithGlobalAdminEnabled.makeProgramAdmins(
-                program.id, ImmutableSet.of(globalAdminEmail)))
-        .isEmpty();
-
-    globalAdmin = userRepository.lookupAccountByEmail(globalAdminEmail).get();
-
-    assertThat(globalAdmin.getAdministeredProgramNames()).containsOnly(programName);
-  }
-
-  @Test
   public void removeProgramAdmins_succeeds() throws ProgramNotFoundException {
     String programName = "to remove";
     ProgramDefinition toRemove = ProgramBuilder.newDraftProgram(programName).buildDefinition();
@@ -242,5 +186,26 @@ public class RoleServiceTest extends ResetPostgres {
   public void removeProgramAdmins_noProgram_throwsProgramNotFoundException() {
     assertThatThrownBy(() -> service.removeProgramAdmins(1234L, ImmutableSet.of("test")))
         .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void makeProgramAdmins_blockGlobalAdmin() throws ProgramNotFoundException {
+    String globalAdminEmail = "global@admin";
+    Account globalAdmin = new Account();
+    globalAdmin.setEmailAddress(globalAdminEmail);
+    globalAdmin.setGlobalAdmin(true);
+    globalAdmin.save();
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    assertThat(service.makeProgramAdmins(program.id, ImmutableSet.of(globalAdminEmail)))
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "The following are already CiviForm admins and could not be added as"
+                            + " program admins: %s",
+                        globalAdminEmail))));
   }
 }
