@@ -1,7 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -41,10 +41,11 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withNonExistantProgram_notFound() {
-    assertThrows(
-        NotChangeableException.class,
-        () ->
-            controller.edit(fakeRequest().build(), /* programId= */ 1, /* blockDefinitionId= */ 1));
+    assertThatThrownBy(
+            () ->
+                controller.edit(
+                    fakeRequest().build(), /* programId= */ 1, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
   }
 
   @Test
@@ -60,9 +61,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void edit_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
-    assertThrows(
-        NotChangeableException.class,
-        () -> controller.edit(fakeRequest().build(), programId, /* blockDefinitionId= */ 1));
+    assertThatThrownBy(
+            () -> controller.edit(fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
   }
 
   @Test
@@ -272,17 +273,16 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void update_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
-    assertThrows(
-        NotChangeableException.class,
-        () -> controller.update(fakeRequest().build(), programId, /* blockDefinitionId= */ 1));
+    assertThatThrownBy(
+            () -> controller.update(fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
   }
 
   @Test
   public void destroy_activeProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
-    assertThrows(
-        NotChangeableException.class,
-        () -> controller.destroy(programId, /* blockDefinitionId= */ 1));
+    assertThatThrownBy(() -> controller.destroy(programId, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
   }
 
   @Test

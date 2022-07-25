@@ -31,6 +31,7 @@ import services.question.types.DropdownQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import views.html.helper.CSRF;
 
@@ -177,103 +178,107 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void edit_invalidIDReturnsBadRequest() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    controller
-        .edit(request, 9999L)
-        .thenAccept(
-            result -> {
-              assertThat(result.status()).isEqualTo(BAD_REQUEST);
-            })
-        .toCompletableFuture()
-        .join();
+    Result result = controller.edit(request, 9999L).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void edit_returnsRedirectWhenEditingQuestionWithExistingDraft() {
+    Question publishedQuestion = testQuestionBank.applicantName();
+    Question draftQuestion =
+        testQuestionBank.maybeSave(
+            this.createNameQuestionDuplicate(publishedQuestion), LifecycleStage.DRAFT);
+
+    // sanity check that the new question has different id.
+    assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Result result = controller.edit(request, publishedQuestion.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.edit(draftQuestion.id).url());
   }
 
   @Test
   public void edit_returnsPopulatedForm() {
     Question question = testQuestionBank.applicantName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    controller
-        .edit(request, question.id)
-        .thenAccept(
-            result -> {
-              assertThat(result.status()).isEqualTo(OK);
-              assertThat(contentAsString(result)).contains("Edit name question");
-              assertThat(contentAsString(result))
-                  .contains(CSRF.getToken(request.asScala()).value());
-              assertThat(contentAsString(result)).contains("Sample Question of type:");
-            })
-        .toCompletableFuture()
-        .join();
+    Result result = controller.edit(request, question.id).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Edit name question");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+    assertThat(contentAsString(result)).contains("Sample Question of type:");
   }
 
   @Test
   public void edit_repeatedQuestion_hasEnumeratorName() {
     Question repeatedQuestion = testQuestionBank.applicantHouseholdMemberName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    controller
-        .edit(request, repeatedQuestion.id)
-        .thenAccept(
-            result -> {
-              assertThat(result.status()).isEqualTo(OK);
-              assertThat(contentAsString(result)).contains("Edit name question");
-              assertThat(contentAsString(result)).contains("applicant household members");
-              assertThat(contentAsString(result))
-                  .contains(CSRF.getToken(request.asScala()).value());
-              assertThat(contentAsString(result)).contains("Sample Question of type:");
-            })
-        .toCompletableFuture()
-        .join();
+    Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Edit name question");
+    assertThat(contentAsString(result)).contains("applicant household members");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+    assertThat(contentAsString(result)).contains("Sample Question of type:");
   }
 
   @Test
-  public void index_returnsQuestions() {
+  public void index_returnsQuestions() throws Exception {
     testQuestionBank.applicantAddress();
-    testQuestionBank.applicantName();
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    // Create a draft version of an already published question and ensure that it isn't
+    // double-counted in the rendered total number of questions.
+    QuestionDefinition updatedQuestion =
+        new QuestionDefinitionBuilder(nameQuestion).clearId().build();
+    testQuestionBank.maybeSave(updatedQuestion, LifecycleStage.DRAFT);
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    controller
-        .index(request)
-        .thenAccept(
-            result -> {
-              assertThat(result.status()).isEqualTo(OK);
-              assertThat(result.contentType()).hasValue("text/html");
-              assertThat(result.charset()).hasValue("utf-8");
-              assertThat(contentAsString(result)).contains("Total Questions: 2");
-              assertThat(contentAsString(result)).contains("All Questions");
-            })
-        .toCompletableFuture()
-        .join();
+    Result result = controller.index(request).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(result.charset()).hasValue("utf-8");
+    // We include the trailing "<" to ensure we don't partially match
+    // 200 rather than 2.
+    assertThat(contentAsString(result)).contains("Total Questions: 2<");
+    assertThat(contentAsString(result)).contains("All Questions");
+
+    // Now add a new draft question and ensure that it is included in the total.
+    QuestionDefinition newDraftQuestion =
+        new QuestionDefinitionBuilder(nameQuestion)
+            .clearId()
+            .setName(nameQuestion.getName() + "-new-question-name")
+            .build();
+    testQuestionBank.maybeSave(newDraftQuestion, LifecycleStage.DRAFT);
+
+    result = controller.index(request).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(result.charset()).hasValue("utf-8");
+    // We include the trailing "<" to ensure we don't partially match
+    // 300 rather than 3.
+    assertThat(contentAsString(result)).contains("Total Questions: 3<");
+    assertThat(contentAsString(result)).contains("All Questions");
   }
 
   @Test
   public void index_withNoQuestions() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    controller
-        .index(request)
-        .thenAccept(
-            result -> {
-              assertThat(result.status()).isEqualTo(OK);
-              assertThat(result.contentType()).hasValue("text/html");
-              assertThat(result.charset()).hasValue("utf-8");
-              assertThat(contentAsString(result)).contains("Total Questions: 0");
-              assertThat(contentAsString(result)).contains("All Questions");
-            })
-        .toCompletableFuture()
-        .join();
+    Result result = controller.index(request).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(result.charset()).hasValue("utf-8");
+    assertThat(contentAsString(result)).contains("Total Questions: 0");
+    assertThat(contentAsString(result)).contains("All Questions");
   }
 
   @Test
   public void index_showsMessageFlash() {
     Request request = addCSRFToken(Helpers.fakeRequest().flash("message", "has message")).build();
-    controller
-        .index(request)
-        .thenAccept(
-            result -> {
-              assertThat(result.status()).isEqualTo(OK);
-              assertThat(result.contentType()).hasValue("text/html");
-              assertThat(result.charset()).hasValue("utf-8");
-              assertThat(contentAsString(result)).contains("has message");
-            })
-        .toCompletableFuture()
-        .join();
+    Result result = controller.index(request).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(result.charset()).hasValue("utf-8");
+    assertThat(contentAsString(result)).contains("has message");
   }
 
   @Test
@@ -299,12 +304,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     // We can only update draft questions, so save this in the DRAFT version.
     Question originalNameQuestion =
         testQuestionBank.maybeSave(
-            new NameQuestionDefinition(
-                "applicant name",
-                Optional.empty(),
-                "name of applicant",
-                LocalizedStrings.of(Locale.US, "what is your name?"),
-                LocalizedStrings.of(Locale.US, "help text")),
+            this.createNameQuestionDuplicate(testQuestionBank.applicantName()),
             LifecycleStage.DRAFT);
     assertThat(originalNameQuestion.getQuestionTags()).isEmpty();
 
@@ -474,5 +474,15 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.update(requestBuilder.build(), question.id, "invalid_type");
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  private NameQuestionDefinition createNameQuestionDuplicate(Question question) {
+    QuestionDefinition def = question.getQuestionDefinition();
+    return new NameQuestionDefinition(
+        def.getName(),
+        Optional.empty(),
+        def.getDescription(),
+        def.getQuestionText(),
+        def.getQuestionHelpText());
   }
 }

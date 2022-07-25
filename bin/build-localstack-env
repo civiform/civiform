@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new docker image for running the localstack container and optionally push to Docker Hub if PUSH_LOCALSTACK_IMAGE is set to anything.
+# DOC: Build a new docker image for running the localstack container and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
 
 source bin/lib.sh
 
@@ -13,13 +13,13 @@ docker build \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
   localstack/
 
-if [[ "$PUSH_LOCALSTACK_IMAGE" ]]; then
+if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
 
-  # push the new image to the Docker Hub registry
   docker tag \
     civiform-localstack:latest \
-    docker.io/civiform/civiform-localstack:latest
+    civiform/civiform-localstack:latest
 
+  # push the new image to the Docker Hub registry
   docker push docker.io/civiform/civiform-localstack:latest
 fi

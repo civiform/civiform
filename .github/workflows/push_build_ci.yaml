@@ -1,0 +1,102 @@
+name: push_build_ci
+
+on:
+  push:
+    branches: main
+
+  # Setting this enables manually triggering workflow in the GitHub UI
+  # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
+  workflow_dispatch: {}
+
+permissions: read-all
+
+# Build and push the civiform/civiform, and civiform-dev docker image on each push
+# to master.  Also re-build the dependancy docker images only if their code has changed.
+# On a manual trigger, re-build all the images.
+jobs:
+  build_civiform:
+    runs-on: ubuntu-latest
+    # Only build the latest version.
+    strategy:
+      matrix:
+        version: ['prod', 'dev']
+        include:
+          - version: prod
+            image: 'civiform/civiform:latest'
+            script: 'bin/build-prod'
+          - version: dev
+            image: 'civiform/civiform-dev:latest'
+            script: 'bin/build-dev'
+    concurrency:
+      group: build_civiform-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Run build-${{ matrix.version }} ${{ matrix.image }}
+        id: build_and_push
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: ${{ matrix.script }}
+
+  build_dependancies:
+    runs-on: ubuntu-latest
+    # Only one at a time (but don't cancel currently running jobs).
+    strategy:
+      matrix:
+        version: ['formatter', 'localstack', 'browser_test', 'oidc']
+        include:
+          - version: formatter
+            image: 'civiform/formatter:latest'
+            script: 'bin/build-formatter'
+            file_pattern: 'formatter/'
+          - version: localstack
+            image: 'civiform/civiform-localstack:latest'
+            script: 'bin/build-localstack-env'
+            file_pattern: 'localstack/'
+          - version: browser_test
+            image: 'civiform/civiform-browser-test:latest'
+            script: 'bin/build-browser-tests'
+            file_pattern: 'browser-test/'
+          - version: oidc
+            image: 'civiform/oidc-provider:latest'
+            script: 'bin/build-dev-oidc'
+            file_pattern: 'test-support/'
+    concurrency:
+      group: build_dependancies-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.4
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+
+      - name: Check build & push
+        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}"
+
+      - name: Skip build & push
+        if: ${{ github.event_name != 'workflow_dispatch' && !contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+
+      - name: Run build-${{ matrix.version }} ${{ matrix.image }}
+        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        id: build_and_push
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: ${{ matrix.script }}

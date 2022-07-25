@@ -1,7 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ApiKeyGrants;
 import io.ebean.DataIntegrityException;
@@ -59,11 +59,10 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     ApiKeyGrants grants = new ApiKeyGrants();
     ApiKey apiKey = new ApiKey(grants);
 
-    CompletionException exception =
-        assertThrows(
-            CompletionException.class, () -> repo.insert(apiKey).toCompletableFuture().join());
-
-    assertThat(exception.getCause()).isInstanceOf(DataIntegrityException.class);
-    assertThat(exception.getCause().getMessage()).contains("violates not-null constraint");
+    assertThatThrownBy(() -> repo.insert(apiKey).toCompletableFuture().join())
+        .isInstanceOf(CompletionException.class)
+        .cause()
+        .isInstanceOf(DataIntegrityException.class)
+        .hasMessageContaining("violates not-null constraint");
   }
 }

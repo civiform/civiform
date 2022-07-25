@@ -57,7 +57,7 @@ public class RoleService {
     ProgramDefinition program = programService.getProgramDefinition(programId);
     // Filter out CiviForm admins from the list of emails - a CiviForm admin cannot be a program
     // admin.
-    ImmutableSet<String> sysAdminEmails =
+    ImmutableSet<String> globalAdminEmails =
         getGlobalAdmins().stream()
             .map(Account::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
@@ -66,7 +66,7 @@ public class RoleService {
     String errorMessageString = "";
 
     for (String email : accountEmails) {
-      if (sysAdminEmails.contains(email)) {
+      if (globalAdminEmails.contains(email)) {
         invalidEmailBuilder.add(email);
       } else {
         Optional<CiviFormError> maybeError = userRepository.addAdministeredProgram(email, program);

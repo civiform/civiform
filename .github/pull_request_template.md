@@ -8,6 +8,7 @@ Describe the change as it should be communicated to partners in the release note
 
 ### Checklist
 
+- [ ] Added the correct label: < feature | bug | dependencies | infrastructure | ignore-for-release >
 - [ ] Created tests which fail without the change (if possible)
 - [ ] Extended the README / documentation, if necessary
 

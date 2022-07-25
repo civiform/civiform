@@ -5,4 +5,9 @@ module.exports = {
     '^.+\\.(ts)$': 'ts-jest',
   },
   globalSetup: './src/delete_database.ts',
+  globals: {
+    'ts-jest': {
+      tsconfig: 'src/tsconfig.json',
+    },
+  },
 }

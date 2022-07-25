@@ -25,6 +25,8 @@ for arg; do
   set -- "$@" "$arg"
 done
 
+yarn install
+
 if (($debug == 1)); then
   DEBUG="pw:api" BASE_URL="${SERVER_URL}" yarn test "$@"
 else

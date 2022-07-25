@@ -1,7 +1,7 @@
 package auth.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ProfileFactory;
 import auth.oidc.applicant.IdcsProfileAdapter;
@@ -105,16 +105,10 @@ public class OidcProviderTest extends ResetPostgres {
   public void Test_get(String name, String wantResponseType, ImmutableMap<String, String> c) {
     Config config = ConfigFactory.parseMap(c);
 
-    OidcProvider oidcProvider;
-    try {
-      oidcProvider =
-          new IdcsProvider(
-              config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
+    OidcProvider oidcProvider =
+        new IdcsProvider(
+            config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
 
-    } catch (RuntimeException e) {
-      fail(e);
-      return;
-    }
     OidcClient client = oidcProvider.get();
 
     assertThat(client.getCallbackUrl()).isEqualTo(c.get("base_url") + "/callback");
@@ -189,18 +183,15 @@ public class OidcProviderTest extends ResetPostgres {
   @Parameters(method = "provideConfigsForInvalidConfig")
   public void get_invalidConfig(String name, ImmutableMap<String, String> c) {
     Config bad_secret_config = ConfigFactory.parseMap(c);
-    OidcProvider badOidcProvider;
-    try {
-      badOidcProvider =
-          new IdcsProvider(
-              bad_secret_config,
-              profileFactory,
-              CfTestHelpers.userRepositoryProvider(userRepository));
-      badOidcProvider.get();
-      fail("Initilizing without correct config should cause runtimeException");
-    } catch (RuntimeException e) {
-      // pass
-      return;
-    }
+    assertThatThrownBy(
+            () -> {
+              OidcProvider badOidcProvider =
+                  new IdcsProvider(
+                      bad_secret_config,
+                      profileFactory,
+                      CfTestHelpers.userRepositoryProvider(userRepository));
+              badOidcProvider.get();
+            })
+        .isInstanceOf(RuntimeException.class);
   }
 }

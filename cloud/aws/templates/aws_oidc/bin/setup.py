@@ -11,8 +11,12 @@ class Setup(AwsSetupTemplate):
 
     def get_current_user(self):
         get_current_command = "aws sts get-caller-identity --query UserId --output text"
-        return subprocess.run(
+        current_user_process = subprocess.run(
             shlex.split(get_current_command), capture_output=True)
+        current_user = current_user_process.stdout.decode("ascii")
+        if not current_user:
+            raise RuntimeError("Could not find the logged in user")
+        return current_user
 
     def pre_terraform_setup(self):
         print(" - Running the setup script in terraform")

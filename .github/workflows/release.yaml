@@ -1,0 +1,25 @@
+name: Create release
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: 'The commit SHA on main for this release'
+        required: true
+
+      release_number:
+        description: 'The number for this release e.g. v1.2.3'
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run bin/create-release
+        run: 'bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }}'

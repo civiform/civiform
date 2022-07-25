@@ -1,56 +1,170 @@
+import {Page} from 'playwright'
 import {
-  startSession,
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
   loginAsAdmin,
-  loginAsTestUser,
+  loginAsGuest,
   logout,
   selectApplicantLanguage,
-  AdminQuestions,
-  AdminPrograms,
-  ApplicantQuestions,
-  waitForPageJsLoad,
-  endSession,
+  startSession,
+  resetSession,
 } from './support'
 
-describe('input validation for number questions', () => {
-  it('displays error message for non-numeric characters in input', async () => {
-    const {browser, page} = await startSession()
-    page.setDefaultTimeout(4000)
+describe('Number question for applicant flow', () => {
+  let pageObject: Page
+  const numberInputError = 'div.cf-question-number-error'
 
-    // Set up test program and question
-    const questionName = 'single-number'
-    const programName = 'number test program'
-    await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
+  beforeAll(async () => {
+    const {page} = await startSession()
+    pageObject = page
+  })
 
-    await adminQuestions.addNumberQuestion({questionName})
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      [questionName],
-      programName,
-    )
+  afterEach(async () => {
+    await resetSession(pageObject)
+  })
 
-    // Switch to applicant view and open an application for the new program
-    await logout(page)
-    await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
-    const applicant = new ApplicantQuestions(page)
-    await applicant.applyProgram(programName)
-    await applicant.validateHeader('en-US')
+  describe('single number question', () => {
+    let applicantQuestions: ApplicantQuestions
+    const programName = 'test program for single number'
 
-    const testValues = ['12e3', '12E3', '-123', '1.23']
-    const numberInput = 'div.cf-question-number input'
-    const numberInputError = 'div.cf-question-number-error'
+    beforeAll(async () => {
+      // As admin, create program with single number question.
+      await loginAsAdmin(pageObject)
+      const adminQuestions = new AdminQuestions(pageObject)
+      const adminPrograms = new AdminPrograms(pageObject)
+      applicantQuestions = new ApplicantQuestions(pageObject)
 
-    for (const testValue of testValues) {
-      await page.type(numberInput, testValue)
-      await applicant.clickNext()
-      expect([testValue, await page.isHidden(numberInputError)]).toStrictEqual([
-        testValue,
+      await adminQuestions.addNumberQuestion({
+        questionName: 'fave-number-q',
+      })
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['fave-number-q'],
+        programName,
+      )
+
+      await logout(pageObject)
+    })
+
+    it('with valid number submits successfully', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerNumberQuestion('8')
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.submitFromReviewPage(programName)
+    })
+
+    it('with no input does not submit', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      // Leave field blank.
+      await applicantQuestions.clickNext()
+
+      const numberId = '.cf-question-number'
+      expect(await pageObject.innerText(numberId)).toContain(
+        'This question is required.',
+      )
+    })
+
+    it('with non-numeric inputs does not submit', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      const testValues = ['12e3', '12E3', '-123', '1.23']
+
+      for (const testValue of testValues) {
+        await applicantQuestions.answerNumberQuestion(testValue)
+        await applicantQuestions.clickNext()
+        expect(await pageObject.isHidden(numberInputError)).toEqual(false)
+        await applicantQuestions.answerNumberQuestion('')
+      }
+    })
+  })
+
+  describe('multiple number questions', () => {
+    let applicantQuestions: ApplicantQuestions
+    const programName = 'test program for multiple numbers'
+
+    beforeAll(async () => {
+      await loginAsAdmin(pageObject)
+      const adminQuestions = new AdminQuestions(pageObject)
+      const adminPrograms = new AdminPrograms(pageObject)
+      applicantQuestions = new ApplicantQuestions(pageObject)
+
+      await adminQuestions.addNumberQuestion({
+        questionName: 'my-number-q',
+      })
+      await adminQuestions.addNumberQuestion({
+        questionName: 'your-number-q',
+      })
+
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockWithOptional(
+        programName,
+        'Optional question block',
+        ['my-number-q'],
+        'your-number-q', // optional
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishAllPrograms()
+
+      await logout(pageObject)
+    })
+
+    it('with valid numbers submits successfully', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerNumberQuestion('100', 0)
+      await applicantQuestions.answerNumberQuestion('33', 1)
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.submitFromReviewPage(programName)
+    })
+
+    it('with unanswered optional question submits successfully', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      // Only answer required question.
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerNumberQuestion('33', 1)
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.submitFromReviewPage(programName)
+    })
+
+    it('with first invalid does not submit', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerNumberQuestion('-10', 0)
+      await applicantQuestions.answerNumberQuestion('33', 1)
+      await applicantQuestions.clickNext()
+
+      expect(await pageObject.isHidden(numberInputError)).toEqual(false)
+    })
+
+    it('with second invalid does not submit', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerNumberQuestion('10', 0)
+      await applicantQuestions.answerNumberQuestion('-5', 1)
+      await applicantQuestions.clickNext()
+
+      expect(await pageObject.isHidden(numberInputError + ' >> nth=1')).toEqual(
         false,
-      ])
-      await page.fill(numberInput, '')
-    }
-
-    await endSession(browser)
+      )
+    })
   })
 })

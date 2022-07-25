@@ -5,6 +5,10 @@
 # Untrail trailing slashes
 GET /*path/ controllers.UntrailingController.untrail(path: String)
 
+# Redirect automatic requests from the browser to the specified favicon.
+GET     /favicon.ico    controllers.HomeController.favicon()
+GET     /favicon.png    controllers.HomeController.favicon()
+
 # The landing page
 GET     /                           controllers.HomeController.index(request: Request)
 GET     /playIndex                  controllers.HomeController.playIndex()
@@ -128,6 +132,7 @@ GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.Prog
 
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
+GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsupportedBrowser()
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)

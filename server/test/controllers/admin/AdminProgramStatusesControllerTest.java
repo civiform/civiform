@@ -1,7 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
@@ -34,9 +34,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_missingProgram() throws ProgramNotFoundException {
-    assertThrows(
-        ProgramNotFoundException.class,
-        () -> controller.index(fakeRequest().build(), Long.MAX_VALUE));
+  public void index_missingProgram() {
+    assertThatThrownBy(() -> controller.index(fakeRequest().build(), Long.MAX_VALUE))
+        .isInstanceOf(ProgramNotFoundException.class);
   }
 }

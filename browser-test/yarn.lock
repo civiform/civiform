@@ -664,10 +664,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.40.tgz#76ee88ae03650de8064a6cf75b8d95f9f4a16090"
   integrity sha512-UXdBxNGqTMtm7hCwh9HtncFVLrXoqA3oJW30j6XWp5BH/wu3mVeaxo7cq5benFdBw34HB3XDT2TRPI7rXZ+mDg==
 
-"@types/node@16.11.43":
-  version "16.11.43"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.43.tgz#555e5a743f76b6b897d47f945305b618525ddbe6"
-  integrity sha512-GqWykok+3uocgfAJM8imbozrqLnPyTrpFlrryURQlw1EesPUCx5XxTiucWDSFF9/NUEXDuD4bnvHm8xfVGWTpQ==
+"@types/node@16.11.45":
+  version "16.11.45"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.45.tgz#155b13a33c665ef2b136f7f245fa525da419e810"
+  integrity sha512-3rKg/L5x0rofKuuUt5zlXzOnKyIHXmIu5R8A0TuNDMF2062/AOIDBciFIjToLEJ/9F9DzkHNot+BpNsMI1OLdQ==
 
 "@types/prettier@^2.1.5":
   version "2.6.3"
@@ -2633,22 +2633,22 @@ pkg-dir@^4.1.0, pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-core@1.23.1:
-  version "1.23.1"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.23.1.tgz#af02bd7568af1017e477433b1b003ba84e1eb312"
-  integrity sha512-9CXsE0gawph4KXl6oUaa0ehHRySZjHvly4TybcBXDvzK3N3o6L/eZ8Q6iVWUiMn0LLS5bRFxo1qEtOETlYJxjw==
+playwright-core@1.23.4:
+  version "1.23.4"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.23.4.tgz#e8a45e549faf6bfad24a0e9998e451979514d41e"
+  integrity sha512-h5V2yw7d8xIwotjyNrkLF13nV9RiiZLHdXeHo+nVJIYGVlZ8U2qV0pMxNJKNTvfQVT0N8/A4CW6/4EW2cOcTiA==
 
 playwright-core@>=1.2.0:
   version "1.22.2"
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.22.2.tgz#ed2963d79d71c2a18d5a6fd25b60b9f0a344661a"
   integrity sha512-w/hc/Ld0RM4pmsNeE6aL/fPNWw8BWit2tg+TfqJ3+p59c6s3B6C8mXvXrIPmfQEobkcFDc+4KirNzOQ+uBSP1Q==
 
-playwright@1.23.1:
-  version "1.23.1"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.23.1.tgz#b029885e995aa1f9626aac851410c5ef615718f4"
-  integrity sha512-+lgiy1JZMNPwpBp5tsUdjTGxuJ+lXZbtSKmMDc0/f1oVsNDXXA+r7zeC9Kzd+4jSHteoJJocargxVx2Mn1o2kw==
+playwright@1.23.4:
+  version "1.23.4"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.23.4.tgz#a9641a8d523fafdc58a5a2b59efe3496dec49c8d"
+  integrity sha512-NUPOLMpd8WydmwZFllST/YZ7cImgDDDrvcaq7Gj2vAjNg0jYCndFJt6HHtbkOPSIlRo4BaQYlbFx6meq1r1FXQ==
   dependencies:
-    playwright-core "1.23.1"
+    playwright-core "1.23.4"
 
 prelude-ls@~1.1.2:
   version "1.1.2"
@@ -3064,10 +3064,10 @@ ts-node-dev@2.0.0:
     ts-node "^10.4.0"
     tsconfig "^7.0.0"
 
-ts-node@10.8.2:
-  version "10.8.2"
-  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.8.2.tgz#3185b75228cef116bf82ffe8762594f54b2a23f2"
-  integrity sha512-LYdGnoGddf1D6v8REPtIH+5iq/gTDuZqv2/UJUU7tKjuEU8xVZorBM+buCGNjj+pGEud+sOoM4CX3/YzINpENA==
+ts-node@10.9.1:
+  version "10.9.1"
+  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.9.1.tgz#e73de9102958af9e1f0b168a6ff320e25adcff4b"
+  integrity sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==
   dependencies:
     "@cspotcode/source-map-support" "^0.8.0"
     "@tsconfig/node10" "^1.0.7"
