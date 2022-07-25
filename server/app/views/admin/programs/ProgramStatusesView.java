@@ -22,6 +22,7 @@ import java.util.OptionalLong;
 import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
 import play.data.Form;
+import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
@@ -47,11 +48,14 @@ public final class ProgramStatusesView extends BaseHtmlView {
   public static final String DELETE_STATUS_TEXT_NAME = "deleteStatusText";
 
   private final AdminLayout layout;
+  private final FormFactory formFactory;
   private final MessagesApi messagesApi;
 
   @Inject
-  public ProgramStatusesView(AdminLayoutFactory layoutFactory, MessagesApi messagesApi) {
+  public ProgramStatusesView(
+      AdminLayoutFactory layoutFactory, FormFactory formFactory, MessagesApi messagesApi) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.formFactory = formFactory;
     this.messagesApi = checkNotNull(messagesApi);
   }
 
@@ -68,14 +72,14 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
-    Modal createStatusModal =
-        makeStatusEditModal(
-            request,
-            program,
-            /* maybeStatus= */ Optional.empty(),
-            isFormForCurrentStatus(Optional.empty(), maybeStatusForm)
-                ? maybeStatusForm
-                : Optional.empty());
+    final Form<ProgramStatusesForm> createStatusForm;
+    if (isFormForCurrentStatus(Optional.empty(), maybeStatusForm)) {
+      createStatusForm = maybeStatusForm.get();
+    } else {
+      createStatusForm =
+          formFactory.form(ProgramStatusesForm.class).fill(new ProgramStatusesForm());
+    }
+    Modal createStatusModal = makeStatusUpdateModal(request, program, createStatusForm);
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
@@ -154,9 +158,16 @@ public final class ProgramStatusesView extends BaseHtmlView {
         statuses.stream()
             .map(
                 s -> {
-                  boolean formIsForStatus = isFormForCurrentStatus(Optional.of(s), maybeStatusForm);
-                  return renderStatusItem(
-                      request, program, s, formIsForStatus ? maybeStatusForm : Optional.empty());
+                  final Form<ProgramStatusesForm> statusEditForm;
+                  if (isFormForCurrentStatus(Optional.of(s), maybeStatusForm)) {
+                    statusEditForm = maybeStatusForm.get();
+                  } else {
+                    statusEditForm =
+                        formFactory
+                            .form(ProgramStatusesForm.class)
+                            .fill(ProgramStatusesForm.fromStatus(s));
+                  }
+                  return renderStatusItem(request, program, s, statusEditForm);
                 })
             .collect(ImmutableList.toImmutableList());
     // Combine all the DivTags into a rendered list, and collect all Modals into one collection.
@@ -186,18 +197,15 @@ public final class ProgramStatusesView extends BaseHtmlView {
    * @param request The associated request.
    * @param program The program to render program statuses for.
    * @param status The status to render, as read from the existing program definition.
-   * @param maybeStatusForm Set if the form is being rendered in response to an attempt to create /
-   *     edit a program status. Note that while the view itself may render multiple program
-   *     statuses, the provided form will correspond to creating / editing a single program status.
-   * @return
+   * @param statusEditForm A form containing the values / validation errors to use when rendering
+   *     the status edit form.
    */
   private Pair<DivTag, ImmutableList<Modal>> renderStatusItem(
       Http.Request request,
       ProgramDefinition program,
       StatusDefinitions.Status status,
-      Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
-    Modal editStatusModal =
-        makeStatusEditModal(request, program, Optional.of(status), maybeStatusForm);
+      Form<ProgramStatusesForm> statusEditForm) {
+    Modal editStatusModal = makeStatusUpdateModal(request, program, statusEditForm);
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
@@ -289,29 +297,14 @@ public final class ProgramStatusesView extends BaseHtmlView {
         maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
     return maybeEditForm.isPresent()
         && wantconfiguredStatusText.equalsIgnoreCase(
-            maybeEditForm.get().value().get().getconfiguredStatusText());
+            maybeEditForm.get().value().get().getConfiguredStatusText());
   }
 
-  private Modal makeStatusEditModal(
-      Http.Request request,
-      ProgramDefinition program,
-      Optional<StatusDefinitions.Status> maybeStatus,
-      Optional<Form<ProgramStatusesForm>> maybeEditForm) {
+  private Modal makeStatusUpdateModal(
+      Http.Request request, ProgramDefinition program, Form<ProgramStatusesForm> form) {
     // TODO(#2752): Pop the modal open on error on page load.
-    final String configuredStatusText;
-    final String statusText;
-    final String emailBody;
-    if (maybeEditForm.isPresent()) {
-      ProgramStatusesForm values = maybeEditForm.get().value().get();
-      configuredStatusText = values.getconfiguredStatusText();
-      statusText = values.getStatusText();
-      emailBody = values.getEmailBody();
-    } else {
-      configuredStatusText = maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
-      statusText = configuredStatusText;
-      emailBody = maybeStatus.map(s -> s.emailBodyText().orElse("")).orElse("");
-    }
     Messages messages = messagesApi.preferred(request);
+    ProgramStatusesForm formData = form.value().get();
 
     FormTag content =
         form()
@@ -323,20 +316,17 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 input()
                     .isHidden()
                     .withName(ProgramStatusesForm.CONFIGURED_STATUS_TEXT_FORM_NAME)
-                    .withValue(configuredStatusText),
-                renderFormGlobalErrors(messages, maybeEditForm),
+                    .withValue(formData.getConfiguredStatusText()),
+                renderFormGlobalErrors(messages, form),
                 FieldWithLabel.input()
                     .setFieldName(ProgramStatusesForm.STATUS_TEXT_FORM_NAME)
                     .setLabelText("Status name (required)")
                     // TODO(#2617): Potentially move placeholder text to an actual
                     // description.
                     .setPlaceholderText("Enter status name here")
-                    .setValue(statusText)
+                    .setValue(formData.getStatusText())
                     .setFieldErrors(
-                        messages,
-                        maybeEditForm
-                            .map(f -> f.errors(ProgramStatusesForm.STATUS_TEXT_FORM_NAME))
-                            .orElse(ImmutableList.of()))
+                        messages, form.errors(ProgramStatusesForm.STATUS_TEXT_FORM_NAME))
                     .getInputTag(),
                 div()
                     .withClasses(Styles.PT_8)
@@ -348,12 +338,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             // description.
                             .setPlaceholderText("Notify the Applicant about the status change")
                             .setRows(OptionalLong.of(5))
-                            .setValue(emailBody)
+                            .setValue(formData.getEmailBody())
                             .setFieldErrors(
-                                messages,
-                                maybeEditForm
-                                    .map(f -> f.errors(ProgramStatusesForm.EMAIL_BODY_FORM_NAME))
-                                    .orElse(ImmutableList.of()))
+                                messages, form.errors(ProgramStatusesForm.EMAIL_BODY_FORM_NAME))
                             .getTextareaTag()),
                 div()
                     .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
@@ -362,15 +349,17 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         // TODO(#2752): Add a cancel button that clears state.
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     return Modal.builder(randomModalId(), content)
-        .setModalTitle(configuredStatusText.isEmpty() ? "Create a new status" : "Edit this status")
+        .setModalTitle(
+            formData.getConfiguredStatusText().isEmpty()
+                ? "Create a new status"
+                : "Edit this status")
         .setWidth(Width.HALF)
         .build();
   }
 
-  private DivTag renderFormGlobalErrors(
-      Messages messages, Optional<Form<ProgramStatusesForm>> maybeEditForm) {
+  private DivTag renderFormGlobalErrors(Messages messages, Form<ProgramStatusesForm> form) {
     ImmutableList<String> errors =
-        maybeEditForm.map(Form::globalErrors).orElse(ImmutableList.of()).stream()
+        form.globalErrors().stream()
             .map(e -> e.format(messages))
             .collect(ImmutableList.toImmutableList());
     return errors.isEmpty()

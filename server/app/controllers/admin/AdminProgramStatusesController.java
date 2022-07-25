@@ -124,7 +124,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       throws ProgramNotFoundException, DuplicateStatusException {
     // An empty "configuredStatusText" parameter indicates that a new
     // status should be created.
-    if (formData.getconfiguredStatusText().isEmpty()) {
+    if (formData.getConfiguredStatusText().isEmpty()) {
       return service.appendStatus(
           program.id(),
           StatusDefinitions.Status.builder()
@@ -137,7 +137,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
     }
     return service.editStatus(
         program.id(),
-        formData.getconfiguredStatusText(),
+        formData.getConfiguredStatusText(),
         (existingStatus) -> {
           return StatusDefinitions.Status.builder()
               .setStatusText(formData.getStatusText())

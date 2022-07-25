@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import play.data.validation.Constraints.Validatable;
 import play.data.validation.ValidationError;
+import services.program.StatusDefinitions;
 
 /** Form for creating / editing program statuses. */
 public final class ProgramStatusesForm implements Validatable<List<ValidationError>> {
@@ -33,11 +34,20 @@ public final class ProgramStatusesForm implements Validatable<List<ValidationErr
     this.emailBody = "";
   }
 
-  public String getconfiguredStatusText() {
+  /** Initializes a ProgramStatusesForm from the given status object. */
+  public static ProgramStatusesForm fromStatus(StatusDefinitions.Status status) {
+    ProgramStatusesForm form = new ProgramStatusesForm();
+    form.setConfiguredStatusText(status.statusText());
+    form.setStatusText(status.statusText());
+    form.setEmailBody(status.emailBodyText().orElse(""));
+    return form;
+  }
+
+  public String getConfiguredStatusText() {
     return checkNotNull(configuredStatusText);
   }
 
-  public void setconfiguredStatusText(String value) {
+  public void setConfiguredStatusText(String value) {
     configuredStatusText = checkNotNull(value).trim();
   }
 
