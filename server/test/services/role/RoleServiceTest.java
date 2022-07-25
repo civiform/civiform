@@ -199,8 +199,7 @@ public class RoleServiceTest extends ResetPostgres {
     String programName = "test program";
     Program program = ProgramBuilder.newDraftProgram(programName).build();
 
-    assertThat(
-            service.makeProgramAdmins(program.id, ImmutableSet.of(globalAdminEmail)))
+    assertThat(service.makeProgramAdmins(program.id, ImmutableSet.of(globalAdminEmail)))
         .isEqualTo(
             Optional.of(
                 CiviFormError.of(
@@ -208,5 +207,5 @@ public class RoleServiceTest extends ResetPostgres {
                         "The following are already CiviForm admins and could not be added as"
                             + " program admins: %s",
                         globalAdminEmail))));
-  }
+      }
 }
