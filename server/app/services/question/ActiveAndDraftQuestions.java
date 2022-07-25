@@ -86,10 +86,12 @@ public final class ActiveAndDraftQuestions {
   }
 
   public Optional<QuestionDefinition> getActiveQuestionDefinition(String name) {
-    return versionedByName.get(name).first();
+    return versionedByName.containsKey(name) ? versionedByName.get(name).first() : Optional.empty();
   }
 
   public Optional<QuestionDefinition> getDraftQuestionDefinition(String name) {
-    return versionedByName.get(name).second();
+    return versionedByName.containsKey(name)
+        ? versionedByName.get(name).second()
+        : Optional.empty();
   }
 }

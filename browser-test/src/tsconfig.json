@@ -2,9 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
-    // Fix errors and set to true.
-    // TODO(https://github.com/seattle-uat/civiform/issues/2955)
-    "strict": false,
+    "strict": true,
     "module": "commonjs",
     "noEmit": true
   },
