@@ -5,7 +5,6 @@ import java.util.Optional;
 
 @AutoValue
 public abstract class SearchParameters {
-  public static final SearchParameters EMPTY = SearchParameters.builder().build();
 
   public abstract Optional<String> search();
 

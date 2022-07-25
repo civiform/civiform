@@ -83,28 +83,21 @@ public class TrustedIntermediaryController {
       return notFound();
     }
     SearchParameters searchParameters =  SearchParameters.builder().setSearch(search).setSearchDate(searchDate).build();
-    try {
       ImmutableList<Account> managedAccounts =
         trustedIntermediaryGroup.get().getManagedAccounts(searchParameters);
-    }
-    catch(DateTimeParseException e)
-    {
-      routes.TrustedIntermediaryController.dashboard(
-        Optional.empty(), Optional.empty(), Optional.empty()).flashing("error","Incorrect Date entered");
-    }
-    PaginationInfo<Account> pageInfo =
+      PaginationInfo<Account> pageInfo =
         PaginationInfo.paginate(managedAccounts, PAGE_SIZE, page.get());
-
-    return ok(
+      return ok(
         tiDashboardView.render(
-            trustedIntermediaryGroup.get(),
-            civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
-            pageInfo.getPageItems(),
-            pageInfo.getPageCount(),
-            pageInfo.getPage(),
-            searchParameters,
-            request,
-            messagesApi.preferred(request)));
+          trustedIntermediaryGroup.get(),
+          civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
+          pageInfo.getPageItems(),
+          pageInfo.getPageCount(),
+          pageInfo.getPage(),
+          searchParameters,
+          request,
+          messagesApi.preferred(request)));
+
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -130,7 +123,6 @@ public class TrustedIntermediaryController {
     if (Strings.isNullOrEmpty(form.get().getDob())) {
       return redirectToDashboardWithUpdateDateOfBirthError("Date Of Birth is required.", form);
     }
-
       Applicant applicant =
           userRepository.lookupApplicant(applicantId).toCompletableFuture().join().get();
       applicant.getApplicantData().setDateOfBirth(form.get().getDob());
@@ -138,7 +130,7 @@ public class TrustedIntermediaryController {
 
     return redirect(
         routes.TrustedIntermediaryController.dashboard(
-            Optional.empty(), Optional.empty(), Optional.empty())).flashing("Invalid Date entered" );
+            Optional.empty(), Optional.empty(), Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)

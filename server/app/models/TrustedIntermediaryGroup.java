@@ -1,12 +1,15 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.SearchParameters;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -21,6 +24,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "ti_organizations")
 public class TrustedIntermediaryGroup extends BaseModel {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TrustedIntermediaryGroup.class);
 
   @OneToMany(mappedBy = "memberOfGroup")
   private List<Account> tiAccounts;
@@ -55,21 +59,26 @@ public class TrustedIntermediaryGroup extends BaseModel {
     return this.description;
   }
 
-  public ImmutableList<Account> getManagedAccounts(SearchParameters searchParameters) throws DateTimeParseException {
+  public ImmutableList<Account> getManagedAccounts(SearchParameters searchParameters) {
     ImmutableList<Account> allAccounts = getManagedAccounts();
-    allAccounts = allAccounts.stream()
+    try {
+      allAccounts = allAccounts.stream()
         .filter(account -> {
-          if(searchParameters.search().isPresent())
-          {
+          if (searchParameters.search().isPresent()) {
             return account.getApplicantName().toLowerCase(Locale.ROOT).contains(searchParameters.search().get().toLowerCase(Locale.ROOT));
           }
-          if(searchParameters.searchDate().isPresent()) {
+          if (searchParameters.searchDate().isPresent() && !searchParameters.searchDate().isEmpty() && account.getApplicantDateOfBirth().isPresent()) {
             LocalDate localDate =
               LocalDate.parse(searchParameters.searchDate().get(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            return account.getApplicantDateOfBirth().equals(localDate);
+            return account.getApplicantDateOfBirth().get().equals(localDate);
           }
           return false;
         }).collect(ImmutableList.toImmutableList());
+    }
+    catch(DateTimeParseException e)
+    {
+      LOGGER.warn("Unformatted Date Entered - " + searchParameters.searchDate().get());
+    }
     return allAccounts;
   }
 }

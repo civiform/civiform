@@ -25,7 +25,7 @@ describe('Trusted intermediaries', () => {
     await endSession(browser)
   })
 
-  it('Fill Form To Add New ApplicantIn TI Dashboard', async () => {
+  it('expect Dashboard Contain Client', async () => {
     await loginAsTrustedIntermediary(page)
 
     const tiDashboard = new TiDashboard(page)
@@ -38,11 +38,31 @@ describe('Trusted intermediaries', () => {
       lastName: 'last',
       dobDate: '2021-10-10',
     }
-    await tiDashboard.fillFormForNewClients(client)
+    await tiDashboard.createClient(client)
     await tiDashboard.checkInnerTableForClientInformation(client)
   })
 
-  it('Search For Client In TI Dashboard', async () => {
+  it('expect Client Date Of Birth to be Updated', async () => {
+    await loginAsTrustedIntermediary(page)
+
+    const tiDashboard = new TiDashboard(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-10-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.checkInnerTableForClientInformation(client)
+    await tiDashboard.updateClientDateOfBirth(client,'2021-12-12')
+    await waitForPageJsLoad(page)
+    await tiDashboard.checkUpdatedDateOfBirth(client,'2021-12-12')
+  })
+
+  it('search For Client In TI Dashboard', async () => {
     await loginAsTrustedIntermediary(page)
 
     const tiDashboard = new TiDashboard(page)
@@ -55,7 +75,7 @@ describe('Trusted intermediaries', () => {
       lastName: 'last1',
       dobDate: '2021-10-10',
     }
-    await tiDashboard.fillFormForNewClients(client1)
+    await tiDashboard.createClient(client1)
     const client2: ClientInformation = {
       emailAddress: 'fake2@sample.com',
       firstName: 'first2',
@@ -63,7 +83,7 @@ describe('Trusted intermediaries', () => {
       lastName: 'last2',
       dobDate: '2021-11-10',
     }
-    await tiDashboard.fillFormForNewClients(client2)
+    await tiDashboard.createClient(client2)
     const client3: ClientInformation = {
       emailAddress: 'fake3@sample.com',
       firstName: 'first3',
@@ -71,13 +91,13 @@ describe('Trusted intermediaries', () => {
       lastName: 'last3',
       dobDate: '2021-12-10',
     }
-    await tiDashboard.fillFormForNewClients(client3)
+    await tiDashboard.createClient(client3)
 
-    await tiDashboard.searchByDob(client3.dobDate)
+    await tiDashboard.searchByDateOfBirth(client3.dobDate)
     await waitForPageJsLoad(page)
     await tiDashboard.checkInnerTableForClientInformation(client3)
-    await tiDashboard.checkInnterTableNotToConatain(client1)
-    await tiDashboard.checkInnterTableNotToConatain(client2)
+    await tiDashboard.checkInnerTableNotToContainClient(client1)
+    await tiDashboard.checkInnerTableNotToContainClient(client2)
   })
 
   it('managing trusted intermediary ', async () => {
