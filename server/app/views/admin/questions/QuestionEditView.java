@@ -39,7 +39,7 @@ import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /** Renders a page for editing a question. */
 public final class QuestionEditView extends BaseHtmlView {
@@ -206,16 +206,16 @@ public final class QuestionEditView extends BaseHtmlView {
     return div()
         .withId("question-form")
         .withClasses(
-            Styles.BORDER_GRAY_400,
-            Styles.BORDER_R,
-            Styles.P_6,
-            Styles.FLEX,
-            Styles.FLEX_COL,
-            Styles.H_FULL,
-            Styles.OVERFLOW_HIDDEN,
-            Styles.OVERFLOW_Y_AUTO,
-            Styles.RELATIVE,
-            Styles.W_2_5)
+            "border-gray-400",
+            "border-r",
+            "p-6",
+            "flex",
+            "flex-col",
+            "h-full",
+            "overflow-hidden",
+            "overflow-y-auto",
+            "relative",
+            "w-2/5")
         .with(renderHeader(title))
         .with(multiOptionQuestionField(questionForm));
   }
@@ -230,17 +230,17 @@ public final class QuestionEditView extends BaseHtmlView {
                     // Add "hidden" to other classes, so that the template is not shown
                     .withClasses(
                         ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-                        Styles.HIDDEN,
-                        Styles.FLEX,
-                        Styles.FLEX_ROW,
-                        Styles.MB_4));
+                        "hidden",
+                        "flex",
+                        "flex-row",
+                        "mb-4"));
     if (questionForm instanceof MultiOptionQuestionForm) {
       multiOptionQuestionField.with(
           FieldWithLabel.number()
               .setFieldName("nextAvailableId")
               .setValue(((MultiOptionQuestionForm) questionForm).getNextAvailableId())
               .getNumberTag()
-              .withClasses(Styles.HIDDEN));
+              .withClasses("hidden"));
     }
     return multiOptionQuestionField;
   }
@@ -257,7 +257,7 @@ public final class QuestionEditView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.create(
                     questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Create").withClass(Styles.M_4));
+        .with(submitButton("Create").withClass("m-4"));
 
     return formTag;
   }
@@ -274,7 +274,7 @@ public final class QuestionEditView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Update").withClass(Styles.ML_2));
+        .with(submitButton("Update").withClass("ml-2"));
     return formTag;
   }
 
@@ -327,7 +327,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setValue(questionForm.getQuestionHelpText())
             .getTextareaTag();
     if (questionType.equals(QuestionType.STATIC)) { // Hide help text for static questions.
-      questionHelpTextField.withClasses(Styles.HIDDEN);
+      questionHelpTextField.withClasses("hidden");
     }
 
     formTag
@@ -405,7 +405,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setOptions(options)
         .setValue(selectedType.name())
         .getSelectTag()
-        .withClasses(Styles.HIDDEN);
+        .withClasses("hidden");
   }
 
   /**
@@ -461,12 +461,12 @@ public final class QuestionEditView extends BaseHtmlView {
             + " \"this.parent.parent\", etc.")
         .withId("repeated-question-information")
         .withClasses(
-            Styles.HIDDEN,
-            Styles.TEXT_BLUE_500,
-            Styles.TEXT_SM,
-            Styles.P_2,
-            Styles.FONT_MONO,
-            Styles.BORDER_4,
-            Styles.BORDER_BLUE_400);
+            "hidden",
+            "text-blue-500",
+            "text-sm",
+            "p-2",
+            "font-mono",
+            "border-4",
+            "border-blue-400");
   }
 }

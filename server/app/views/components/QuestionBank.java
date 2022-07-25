@@ -26,13 +26,13 @@ import services.question.types.QuestionDefinition;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
   private static final SvgTag PLUS_ICON =
       Icons.svg(Icons.PLUS, 24)
-          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6)
+          .withClasses("flex-shrink-0", "h-12", "w-6")
           .attr("fill", "currentColor")
           .attr("stroke-width", "2")
           .attr("stroke-linecap", "round")
@@ -78,13 +78,13 @@ public class QuestionBank {
     InputTag csrfTag = this.maybeCsrfTag.get();
     FormTag questionForm = form(csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
 
-    DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
+    DivTag innerDiv = div().withClasses("shadow-lg", "overflow-hidden", "h-full");
     questionForm.with(innerDiv);
     DivTag contentDiv =
-        div().withClasses(Styles.RELATIVE, Styles.GRID, Styles.GAP_6, Styles.PX_5, Styles.PY_6);
+        div().withClasses("relative", "grid", "gap-6", "px-5", "py-6");
     innerDiv.with(contentDiv);
 
-    H1Tag headerDiv = h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
+    H1Tag headerDiv = h1("Question bank").withClasses("mx-2", "-mb-3", "text-xl");
     contentDiv.withId("question-bank-questions").with(headerDiv);
 
     InputTag filterInput =
@@ -94,21 +94,21 @@ public class QuestionBank {
             .withName("questionFilter")
             .withPlaceholder("Filter questions")
             .withClasses(
-                Styles.H_10,
-                Styles.PX_10,
-                Styles.PR_5,
-                Styles.W_FULL,
-                Styles.ROUNDED_FULL,
-                Styles.TEXT_SM,
-                Styles.BORDER,
-                Styles.BORDER_GRAY_200,
-                Styles.SHADOW,
-                StyleUtils.focus(Styles.OUTLINE_NONE));
+                "h-10",
+                "px-10",
+                "pr-5",
+                "w-full",
+                "rounded-full",
+                "text-sm",
+                "border",
+                "border-gray-200",
+                "shadow",
+                StyleUtils.focus("outline-none"));
 
-    SvgTag filterIcon = Icons.svg(Icons.SEARCH, 56).withClasses(Styles.H_4, Styles.W_4);
+    SvgTag filterIcon = Icons.svg(Icons.SEARCH, 56).withClasses("h-4", "w-4");
     DivTag filterIconDiv =
-        div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
-    DivTag filterDiv = div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
+        div().withClasses("absolute", "ml-4", "mt-3", "mr-4").with(filterIcon);
+    DivTag filterDiv = div().withClasses("relative").with(filterIconDiv).with(filterInput);
     contentDiv.with(filterDiv);
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
@@ -129,18 +129,18 @@ public class QuestionBank {
             .withId("add-question-" + definition.getId())
             .withClasses(
                 ReferenceClasses.QUESTION_BANK_ELEMENT,
-                Styles.RELATIVE,
-                Styles._M_3,
-                Styles.P_3,
-                Styles.FLEX,
-                Styles.ITEMS_START,
-                Styles.ROUNDED_LG,
-                Styles.BORDER,
-                Styles.BORDER_TRANSPARENT,
-                Styles.TRANSITION_ALL,
-                Styles.TRANSFORM,
+                "relative",
+                "-m-3",
+                "p-3",
+                "flex",
+                "items-start",
+                "rounded-lg",
+                "border",
+                "border-transparent",
+                "transition-all",
+                "transform",
                 StyleUtils.hover(
-                    Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
+                    "scale-105", "text-gray-800", "border", "border-gray-100"));
 
     ButtonTag addButton =
         TagCreator.button(text(definition.getName()))
@@ -152,13 +152,13 @@ public class QuestionBank {
 
     SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)
-            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+            .withClasses("flex-shrink-0", "h-12", "w-6");
     DivTag content =
         div()
-            .withClasses(Styles.ML_4)
+            .withClasses("ml-4")
             .with(
                 p(definition.getName()),
-                p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
+                p(definition.getDescription()).withClasses("mt-1", "text-sm"),
                 addButton);
     return questionDiv.with(PLUS_ICON, icon, content);
   }

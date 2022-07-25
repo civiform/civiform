@@ -21,7 +21,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /**
  * Provides a form for selecting an applicant's preferred language. Note that we cannot use Play's
@@ -75,7 +75,7 @@ public class ApplicantInformationView extends BaseHtmlView {
             .addMainContent(formContent);
     bundle.addMainContent(
         h1(messages.at(MessageKey.CONTENT_APPLICANT_INFORMATION.getKeyName()))
-            .withClasses(Styles.SR_ONLY));
+            .withClasses("sr-only"));
 
     // We probably don't want the nav bar here (or we need it somewhat different - no dropdown.)
     return layout.renderWithNav(request, userName, messages, bundle);

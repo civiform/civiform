@@ -29,7 +29,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Renders a page for program admins to view programs they administer. */
 public class ProgramAdministratorProgramListView extends BaseHtmlView {
@@ -62,9 +62,9 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
     String title = "Your programs";
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_20)
+            .withClasses("px-20")
             .with(
-                h1(title).withClasses(Styles.MY_4),
+                h1(title).withClasses("my-4"),
                 each(
                     programs.getProgramNames().stream()
                         .filter(programName -> authorizedPrograms.contains(programName))
@@ -107,34 +107,34 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
     DivTag topContent =
         div(
                 div(
-                    p(programStatusText).withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700),
+                    p(programStatusText).withClasses("text-sm", "text-gray-700"),
                     div(programTitleText)
                         .withClasses(
-                            Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)),
-                p().withClasses(Styles.FLEX_GROW),
+                            "text-black", "font-bold", "text-xl", "mb-2")),
+                p().withClasses("flex-grow"),
                 div(p(blockCountText), p(questionCountText))
                     .withClasses(
-                        Styles.TEXT_RIGHT,
-                        Styles.TEXT_XS,
-                        Styles.TEXT_GRAY_700,
-                        Styles.MR_2,
-                        StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4)))
-            .withClasses(Styles.FLEX);
+                        "text-right",
+                        "text-xs",
+                        "text-gray-700",
+                        "mr-2",
+                        StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, "mr-4")))
+            .withClasses("flex");
 
     DivTag midContent =
         div(programDescriptionText)
-            .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.MB_8, Styles.LINE_CLAMP_3);
+            .withClasses("text-gray-700", "text-base", "mb-8", "line-clamp-3");
 
     DivTag bottomContent =
         div(
-                p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
-                p().withClasses(Styles.FLEX_GROW),
+                p(lastEditText).withClasses("text-gray-700", "italic"),
+                p().withClasses("flex-grow"),
                 maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram))
-            .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
+            .withClasses("flex", "text-sm", "w-full");
 
     LabelTag programDeepLink =
         label("Deep link, use this URL to link to this program from outside of CiviForm:")
-            .withClasses(Styles.W_FULL)
+            .withClasses("w-full")
             .with(
                 input()
                     .withValue(
@@ -144,17 +144,17 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
                                 .url())
                     .isDisabled()
                     .isReadonly()
-                    .withClasses(Styles.W_FULL, Styles.MB_2)
+                    .withClasses("w-full", "mb-2")
                     .withType("text"));
 
     DivTag innerDiv =
         div(topContent, midContent, programDeepLink, bottomContent)
             .withClasses(
-                Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
+                "border", "border-gray-300", "bg-white", "rounded", "p-4");
 
     return div(innerDiv)
         .withClasses(
-            ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+            ReferenceClasses.ADMIN_PROGRAM_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
   private String extractProgramStatusText(
@@ -184,7 +184,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
           .setId("program-view-apps-link-" + activeProgram.get().id())
           .setHref(viewApplicationsLink)
           .setText(text)
-          .setStyles(Styles.MR_2)
+          .setStyles("mr-2")
           .asAnchorText();
     } else {
       return div();

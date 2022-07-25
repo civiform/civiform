@@ -34,7 +34,7 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.AdminStyles;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 public final class ProgramStatusesView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -57,7 +57,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     Modal createStatusModal = makeStatusModal(Optional.empty());
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-2")
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
@@ -65,20 +65,20 @@ public final class ProgramStatusesView extends BaseHtmlView {
 
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_4)
+            .withClasses("px-4")
             .with(
                 div()
                     .withClasses(
-                        Styles.FLEX,
-                        Styles.ITEMS_CENTER,
-                        Styles.SPACE_X_4,
-                        Styles.MT_12,
-                        Styles.MB_10)
+                        "flex",
+                        "items-center",
+                        "space-x-4",
+                        "mt-12",
+                        "mb-10")
                     .with(
                         h1(
                             String.format(
                                 "Manage application statuses for %s", program.adminName())),
-                        div().withClass(Styles.FLEX_GROW),
+                        div().withClass("flex-grow"),
                         renderManageTranslationsLink(program),
                         createStatusTriggerButton),
                 statusContainerAndModals.getLeft());
@@ -116,12 +116,12 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .with(
                 p(numResultsText),
                 div()
-                    .withClasses(Styles.MT_6, Styles.BORDER, Styles.ROUNDED_MD, Styles.DIVIDE_Y)
+                    .withClasses("mt-6", "border", "rounded-md", "divide-y")
                     .with(statusTagsAndModals.stream().map(Pair::getLeft))
                     .condWith(
                         statuses.isEmpty(),
                         p("No statuses have been created yet")
-                            .withClasses(Styles.ML_4, Styles.MY_4))),
+                            .withClasses("ml-4", "my-4"))),
         statusTagsAndModals.stream().map(Pair::getRight).collect(ImmutableList.toImmutableList()));
   }
 
@@ -134,40 +134,40 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return Pair.of(
         div()
             .withClasses(
-                Styles.PL_7,
-                Styles.PR_6,
-                Styles.PY_9,
-                Styles.FONT_NORMAL,
-                Styles.SPACE_X_2,
-                Styles.FLEX,
-                Styles.ITEMS_CENTER,
-                StyleUtils.hover(Styles.BG_GRAY_100))
+                "pl-7",
+                "pr-6",
+                "py-9",
+                "font-normal",
+                "space-x-2",
+                "flex",
+                "items-center",
+                StyleUtils.hover("bg-gray-100"))
             .with(
                 div()
-                    .withClass(Styles.W_1_4)
+                    .withClass("w-1/4")
                     .with(
                         // TODO(#2752): Optional SVG icon for status attribute.
-                        span(status.statusName()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
+                        span(status.statusName()).withClasses("ml-2", "break-words")),
                 div()
                     .with(
-                        p().withClass(Styles.TEXT_SM)
+                        p().withClass("text-sm")
                             .with(
                                 span("Edited on "),
                                 span(dateConverter.renderDate(status.lastEdited()))
-                                    .withClass(Styles.FONT_SEMIBOLD)))
+                                    .withClass("font-semibold")))
                     .condWith(
                         !status.emailContent().isEmpty(),
                         p().withClasses(
-                                Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
+                                "mt-1", "text-xs", "flex", "items-center")
                             .with(
                                 Icons.svg(Icons.EMAIL, 22)
                                     // TODO(#2752): Once SVG icon sizes are consistent, just set
                                     // size to 18.
                                     .withWidth("18")
                                     .withHeight("18")
-                                    .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
+                                    .withClasses("mr-2", "inline-block"),
                                 span("Applicant notification email added"))),
-                div().withClass(Styles.FLEX_GROW),
+                div().withClass("flex-grow"),
                 makeSvgTextButton("Delete", Icons.DELETE)
                     .withClass(AdminStyles.TERTIARY_BUTTON_STYLES),
                 editStatusTriggerButton),
@@ -177,7 +177,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private Modal makeStatusModal(Optional<ApplicationStatus> status) {
     FormTag content =
         form()
-            .withClasses(Styles.PX_6, Styles.PY_2)
+            .withClasses("px-6", "py-2")
             .with(
                 FieldWithLabel.input()
                     .setLabelText("Status name (required)")
@@ -187,7 +187,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .setValue(status.map(ApplicationStatus::statusName))
                     .getInputTag(),
                 div()
-                    .withClasses(Styles.PT_8)
+                    .withClasses("pt-8")
                     .with(
                         FieldWithLabel.textArea()
                             .setLabelText("Applicant status change email")
@@ -196,9 +196,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .setValue(status.map(ApplicationStatus::emailContent))
                             .getTextareaTag()),
                 div()
-                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                    .withClasses("flex", "mt-5", "space-x-2")
                     .with(
-                        div().withClass(Styles.FLEX_GROW),
+                        div().withClass("flex-grow"),
                         // TODO(#2752): Add a cancel button that clears state.
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     // We prepend a "a-" since element IDs must start with an alphabetic character, whereas UUIDs

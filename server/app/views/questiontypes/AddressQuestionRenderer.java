@@ -13,7 +13,7 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /** Renders an address question. */
 public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
@@ -65,7 +65,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .getInputTag(),
                 /** Third line of address entry: City, State, Zip */
                 div()
-                    .withClasses(Styles.GRID, Styles.GRID_COLS_3, Styles.GAP_2)
+                    .withClasses("grid", "grid-cols-3", "gap-2")
                     .with(
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getCityPath().toString())

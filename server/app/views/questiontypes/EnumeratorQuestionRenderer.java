@@ -23,7 +23,7 @@ import views.components.FieldWithLabel;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Renders an enumerator question. */
 public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
@@ -36,10 +36,10 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   public static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
           ReferenceClasses.ENUMERATOR_FIELD,
-          Styles.GRID,
-          Styles.GRID_COLS_2,
-          Styles.GAP_4,
-          Styles.MB_4);
+          "grid",
+          "grid-cols-2",
+          "gap-4",
+          "mb-4");
 
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -84,7 +84,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 localizedEntityType)))
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
-                        StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)));
+                        StyleUtils.disabled("bg-gray-200", "text-gray-400")));
 
     return enumeratorQuestionFormContent;
   }
@@ -146,7 +146,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
     return enumeratorField(
             messages, localizedEntityType, contextualizedPath, Optional.empty(), Optional.empty())
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
-        .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
+        .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, "hidden"));
   }
 
   /**
@@ -158,6 +158,6 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
         .withId(DELETE_ENTITY_TEMPLATE_ID)
         .withName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
         .isDisabled() // do not submit this with the form
-        .withClasses(Styles.HIDDEN);
+        .withClasses("hidden");
   }
 }

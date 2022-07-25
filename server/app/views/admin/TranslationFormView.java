@@ -18,7 +18,7 @@ import services.LocalizedStrings;
 import views.BaseHtmlView;
 import views.components.LinkElement;
 import views.style.AdminStyles;
-import views.style.Styles;
+
 
 /**
  * Contains helper methods for rendering a form allow an admin to translate a given entity, such as
@@ -36,7 +36,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
   /** Render a list of languages, with the currently selected language underlined. */
   public DivTag renderLanguageLinks(long entityId, Locale currentlySelected) {
     return div()
-        .withClasses(Styles.M_2)
+        .withClasses("m-2")
         .with(
             each(
                 supportedLocales,

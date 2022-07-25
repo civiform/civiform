@@ -28,7 +28,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
@@ -60,10 +60,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
     DivTag contentDiv =
         div()
             .withId("application-view")
-            .withClasses(Styles.PX_20)
+            .withClasses("px-20")
             .with(
-                h2("Program: " + programName).withClasses(Styles.MY_4),
-                h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
+                h2("Program: " + programName).withClasses("my-4"),
+                h1(applicantNameWithApplicationId).withClasses("my-4"),
                 renderDownloadButton(programId, applicationId),
                 each(
                     blocks,
@@ -88,31 +88,31 @@ public final class ProgramApplicationView extends BaseHtmlView {
       long programId, Block block, Collection<AnswerData> answers) {
     DivTag topContent =
         div()
-            .withClasses(Styles.FLEX)
+            .withClasses("flex")
             .with(
                 div(
                     div(block.getName())
                         .withClasses(
-                            Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)))
-            .with(p().withClasses(Styles.FLEX_GROW))
-            .with(p(block.getDescription()).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC));
+                            "text-black", "font-bold", "text-xl", "mb-2")))
+            .with(p().withClasses("flex-grow"))
+            .with(p(block.getDescription()).withClasses("text-gray-700", "italic"));
 
     DivTag mainContent =
         div()
-            .withClasses(Styles.W_FULL)
+            .withClasses("w-full")
             .with(each(answers, answer -> renderAnswer(programId, answer)));
 
     DivTag innerDiv =
         div(topContent, mainContent)
             .withClasses(
-                Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
+                "border", "border-gray-300", "bg-white", "rounded", "p-4");
 
     return div(innerDiv)
         .withClasses(
             ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD,
-            Styles.W_FULL,
-            Styles.SHADOW_LG,
-            Styles.MB_4);
+            "w-full",
+            "shadow-lg",
+            "mb-4");
   }
 
   private DivTag renderAnswer(long programId, AnswerData answerData) {
@@ -128,20 +128,20 @@ public final class ProgramApplicationView extends BaseHtmlView {
       answerContent = div(answerData.answerText());
     }
     return div()
-        .withClasses(Styles.FLEX)
+        .withClasses("flex")
         .with(
             div()
-                .withClasses(Styles.MB_8)
+                .withClasses("mb-8")
                 .with(
                     div(answerData.questionDefinition().getName())
-                        .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, Styles.LINE_CLAMP_3)))
-        .with(p().withClasses(Styles.W_8))
+                        .withClasses("text-gray-400", "text-base", "line-clamp-3")))
+        .with(p().withClasses("w-8"))
         .with(
-            answerContent.withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.LINE_CLAMP_3))
-        .with(p().withClasses(Styles.FLEX_GROW))
+            answerContent.withClasses("text-gray-700", "text-base", "line-clamp-3"))
+        .with(p().withClasses("flex-grow"))
         .with(
             div("Answered on " + date)
                 .withClasses(
-                    Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
+                    "flex-auto", "text-right", "font-light", "text-xs"));
   }
 }

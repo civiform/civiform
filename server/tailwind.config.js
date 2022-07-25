@@ -3,8 +3,7 @@ module.exports = {
     enabled: true,
     content: [
       './app/assets/javascripts/*.ts',
-      './app/views/style/Styles.java',
-      './app/views/style/BaseStyles.java',
+      './app/views/**/*.java',
     ],
     extract: {
       java: (content) => {

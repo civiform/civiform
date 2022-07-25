@@ -63,6 +63,8 @@ for i in {1..60}; do
   fi
 done &
 
+docker::run_shell_command npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --watch &
+
 echo "Civiform starting locally at http://localhost:9000/loginForm"
 
 # Attach to the civiform container.
@@ -70,3 +72,4 @@ docker::compose_dev up civiform \
   --force-recreate \
   --no-deps \
   --no-log-prefix
+

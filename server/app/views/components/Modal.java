@@ -9,7 +9,7 @@ import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /** Utility class for rendering a modal box. */
 public class Modal {
@@ -60,8 +60,8 @@ public class Modal {
   private DivTag getModalHeader() {
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
-        .with(div(modalTitle).withClasses(Styles.TEXT_LG))
-        .with(div().withClasses(Styles.FLEX_GROW))
+        .with(div(modalTitle).withClasses("text-lg"))
+        .with(div().withClasses("flex-grow"))
         .with(div("x").withId(modalId + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON));
   }
 
@@ -124,10 +124,10 @@ public class Modal {
   }
 
   public enum Width {
-    DEFAULT(Styles.W_AUTO),
-    HALF(Styles.W_1_2),
-    THIRD(Styles.W_1_3),
-    FOURTH(Styles.W_1_4);
+    DEFAULT("w-auto"),
+    HALF("w-1/2"),
+    THIRD("w-1/3"),
+    FOURTH("w-1/4");
 
     private final String width;
 

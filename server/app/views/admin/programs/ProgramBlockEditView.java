@@ -45,7 +45,7 @@ import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Renders a page for an admin to edit the configuration for a single block of a program. */
 public class ProgramBlockEditView extends BaseHtmlView {
@@ -103,13 +103,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(title)
-            .addMainStyles(Styles.FLEX, Styles.FLEX_COL)
+            .addMainStyles("flex", "flex-col")
             .addMainContent(
                 addFormEndpoints(csrfTag, programDefinition.id(), blockId),
                 layout.renderProgramInfo(programDefinition),
                 div()
                     .withId("program-block-info")
-                    .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
+                    .withClasses("flex", "flex-grow", "-mx-2")
                     .with(blockOrderPanel(request, programDefinition, blockId))
                     .with(
                         blockEditPanel(
@@ -167,18 +167,18 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withAction(blockDeleteAction);
 
     return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm)
-        .withClasses(Styles.HIDDEN);
+        .withClasses("hidden");
   }
 
   private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
     DivTag ret =
         div()
             .withClasses(
-                Styles.SHADOW_LG,
-                Styles.PT_6,
-                Styles.W_1_5,
-                Styles.BORDER_R,
-                Styles.BORDER_GRAY_200);
+                "shadow-lg",
+                "pt-6",
+                "w-1/5",
+                "border-r",
+                "border-gray-200");
     ret.with(
         renderBlockList(
             request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
@@ -186,7 +186,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         submitButton("Add Screen")
             .withId("add-block-button")
             .withForm(CREATE_BLOCK_FORM_ID)
-            .withClasses(Styles.M_4));
+            .withClasses("m-4"));
     return ret;
   }
 
@@ -210,23 +210,23 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
       DivTag moveButtons =
           blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
-      String selectedClasses = blockDefinition.id() == focusedBlockId ? Styles.BG_GRAY_100 : "";
+      String selectedClasses = blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
       DivTag blockTag =
           div()
               .withClasses(
-                  Styles.FLEX,
-                  Styles.FLEX_ROW,
-                  Styles.GAP_2,
-                  Styles.PY_2,
-                  Styles.PX_4,
-                  Styles.BORDER,
-                  Styles.BORDER_WHITE,
-                  StyleUtils.hover(Styles.BORDER_GRAY_300),
+                  "flex",
+                  "flex-row",
+                  "gap-2",
+                  "py-2",
+                  "px-4",
+                  "border",
+                  "border-white",
+                  StyleUtils.hover("border-gray-300"),
                   selectedClasses)
               .with(
-                  a().withClasses(Styles.FLEX_GROW, Styles.OVERFLOW_HIDDEN)
+                  a().withClasses("flex-grow", "overflow-hidden")
                       .withHref(editBlockLink)
-                      .with(p(blockName), p(questionCountText).withClasses(Styles.TEXT_SM)))
+                      .with(p(blockName), p(questionCountText).withClasses("text-sm")))
               .with(moveButtons);
 
       container.with(blockTag);
@@ -254,7 +254,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
     // Move up button is invisible for the first block
     String moveUpInvisible =
-        blockDefinition.id() == blockDefinitions.get(0).id() ? Styles.INVISIBLE : "";
+        blockDefinition.id() == blockDefinitions.get(0).id() ? "invisible" : "";
     DivTag moveUp =
         div()
             .withClass(moveUpInvisible)
@@ -271,11 +271,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
     // Move down button is invisible for the last block
     String moveDownInvisible =
         blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id()
-            ? Styles.INVISIBLE
+            ? "invisible"
             : "";
     DivTag moveDown =
         div()
-            .withClasses(Styles.TRANSFORM, Styles.ROTATE_180, moveDownInvisible)
+            .withClasses("transform", "rotate-180", moveDownInvisible)
             .with(
                 form()
                     .withAction(moveDownFormAction)
@@ -284,7 +284,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
     DivTag moveButtons =
-        div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.SELF_CENTER).with(moveUp, moveDown);
+        div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
     return moveButtons;
   }
 
@@ -305,9 +305,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
     DivTag blockInfoDisplay =
         div()
             .with(
-                div(blockForm.getName()).withClasses(Styles.TEXT_XL, Styles.FONT_BOLD, Styles.PY_2))
-            .with(div(blockForm.getDescription()).withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE))
-            .withClasses(Styles.M_4);
+                div(blockForm.getName()).withClasses("text-xl", "font-bold", "py-2"))
+            .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
+            .withClasses("m-4");
 
     DivTag predicateDisplay =
         renderPredicate(
@@ -318,7 +318,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             allQuestions);
 
     // Add buttons to change the block.
-    DivTag buttons = div().withClasses(Styles.MX_4, Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4);
+    DivTag buttons = div().withClasses("mx-4", "flex", "flex-row", "gap-4");
     buttons.with(blockDescriptionModalButton);
     if (blockDefinitionIsEnumerator) {
       buttons.with(
@@ -329,7 +329,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?
     if (program.blockDefinitions().size() > 1) {
-      buttons.with(div().withClass(Styles.FLEX_GROW));
+      buttons.with(div().withClass("flex-grow"));
       buttons.with(
           submitButton("Delete Screen")
               .withId("delete-block-button")
@@ -338,12 +338,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
               .withCondTitle(
                   !canDelete, "A screen can only be deleted when it has no repeated screens.")
               .withClasses(
-                  Styles.MX_4,
-                  Styles.MY_1,
-                  Styles.BG_RED_500,
-                  StyleUtils.hover(Styles.BG_RED_700),
-                  Styles.INLINE,
-                  StyleUtils.disabled(Styles.OPACITY_50)));
+                  "mx-4",
+                  "my-1",
+                  "bg-red-500",
+                  StyleUtils.hover("bg-red-700"),
+                  "inline",
+                  StyleUtils.disabled("opacity-50")));
     }
 
     DivTag programQuestions = div();
@@ -359,7 +359,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     pqd.optional())));
 
     return div()
-        .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
+        .withClasses("flex-auto", "py-6")
         .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions);
   }
 
@@ -374,10 +374,10 @@ public class ProgramBlockEditView extends BaseHtmlView {
             ? "This screen is always shown."
             : predicate.get().toDisplayString(blockName, questions);
     return div()
-        .withClasses(Styles.M_4)
+        .withClasses("m-4")
         .with(
-            div("Visibility condition").withClasses(Styles.TEXT_LG, Styles.FONT_BOLD, Styles.PY_2))
-        .with(div(currentBlockStatus).withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE))
+            div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
+        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"))
         .with(
             redirectButton(
                 ReferenceClasses.EDIT_PREDICATE_BUTTON,
@@ -396,25 +396,25 @@ public class ProgramBlockEditView extends BaseHtmlView {
         div()
             .withClasses(
                 ReferenceClasses.PROGRAM_QUESTION,
-                Styles.MX_4,
-                Styles.MY_2,
-                Styles.BORDER,
-                Styles.BORDER_GRAY_200,
-                Styles.PX_4,
-                Styles.PY_2,
-                Styles.FLEX,
-                Styles.GAP_4,
-                Styles.ITEMS_CENTER,
-                StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
+                "mx-4",
+                "my-2",
+                "border",
+                "border-gray-200",
+                "px-4",
+                "py-2",
+                "flex",
+                "gap-4",
+                "items-center",
+                StyleUtils.hover("text-gray-800", "bg-gray-100"));
 
     SvgTag icon =
         Icons.questionTypeSvg(questionDefinition.getQuestionType(), 24)
-            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+            .withClasses("flex-shrink-0", "h-12", "w-6");
     DivTag content =
         div()
-            .withClass(Styles.FLEX_GROW)
+            .withClass("flex-grow")
             .with(p(questionDefinition.getName()))
-            .with(p(questionDefinition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM));
+            .with(p(questionDefinition.getDescription()).withClasses("mt-1", "text-sm"));
 
     Optional<FormTag> maybeOptionalToggle =
         optionalToggle(
@@ -444,36 +444,36 @@ public class ProgramBlockEditView extends BaseHtmlView {
     ButtonTag optionalButton =
         TagCreator.button()
             .withClasses(
-                Styles.FLEX,
-                Styles.GAP_2,
-                Styles.ITEMS_CENTER,
-                isOptional ? Styles.TEXT_BLACK : Styles.TEXT_GRAY_400,
-                Styles.FONT_MEDIUM,
-                Styles.BG_TRANSPARENT,
-                Styles.ROUNDED_FULL,
-                StyleUtils.hover(Styles.BG_GRAY_400, Styles.TEXT_GRAY_300))
+                "flex",
+                "gap-2",
+                "items-center",
+                isOptional ? "text-black" : "text-gray-400",
+                "font-medium",
+                "bg-transparent",
+                "rounded-full",
+                StyleUtils.hover("bg-gray-400", "text-gray-300"))
             .withType("submit")
             .with(p("optional").withClasses("hover-group:text-white"))
             .with(
                 div()
-                    .withClasses(Styles.RELATIVE)
+                    .withClasses("relative")
                     .with(
                         div()
                             .withClasses(
-                                isOptional ? Styles.BG_BLUE_600 : Styles.BG_GRAY_600,
-                                Styles.W_14,
-                                Styles.H_8,
-                                Styles.ROUNDED_FULL))
+                                isOptional ? "bg-blue-600" : "bg-gray-600",
+                                "w-14",
+                                "h-8",
+                                "rounded-full"))
                     .with(
                         div()
                             .withClasses(
-                                Styles.ABSOLUTE,
-                                Styles.BG_WHITE,
-                                isOptional ? Styles.RIGHT_1 : Styles.LEFT_1,
-                                Styles.TOP_1,
-                                Styles.W_6,
-                                Styles.H_6,
-                                Styles.ROUNDED_FULL)));
+                                "absolute",
+                                "bg-white",
+                                isOptional ? "right-1" : "left-1",
+                                "top-1",
+                                "w-6",
+                                "h-6",
+                                "rounded-full")));
     String toggleOptionalAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
@@ -504,7 +504,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 "An enumerator question can only be removed from the screen when the screen has no"
                     + " repeated screens.")
             .withClasses(
-                ReferenceClasses.REMOVE_QUESTION_BUTTON, canRemove ? "" : Styles.OPACITY_50);
+                ReferenceClasses.REMOVE_QUESTION_BUTTON, canRemove ? "" : "opacity-50");
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
@@ -560,15 +560,15 @@ public class ProgramBlockEditView extends BaseHtmlView {
                         .setLabelText("Screen description")
                         .setValue(blockForm.getDescription())
                         .getTextareaTag())
-                .withClasses(Styles.MX_4),
+                .withClasses("mx-4"),
             submitButton("Save")
                 .withId("update-block-button")
                 .withClasses(
-                    Styles.MX_4,
-                    Styles.MY_1,
-                    Styles.INLINE,
-                    Styles.OPACITY_100,
-                    StyleUtils.disabled(Styles.OPACITY_50))
+                    "mx-4",
+                    "my-1",
+                    "inline",
+                    "opacity-100",
+                    StyleUtils.disabled("opacity-50"))
                 .isDisabled());
     return Modal.builder("block-description-modal", blockDescriptionForm)
         .setModalTitle(modalTitle)

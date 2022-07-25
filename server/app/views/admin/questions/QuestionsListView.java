@@ -32,7 +32,7 @@ import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
@@ -57,7 +57,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .addMainContent(
                 renderHeader(title),
                 renderAddQuestionLink(),
-                div(renderQuestionTable(activeAndDraftQuestions, request)).withClasses(Styles.M_4),
+                div(renderQuestionTable(activeAndDraftQuestions, request)).withClasses("m-4"),
                 renderSummary(activeAndDraftQuestions));
 
     if (maybeFlash.isPresent()) {
@@ -78,13 +78,13 @@ public final class QuestionsListView extends BaseHtmlView {
         div()
             .withId(dropdownId)
             .withClasses(
-                Styles.BORDER,
-                Styles.BG_WHITE,
-                Styles.TEXT_GRAY_600,
-                Styles.SHADOW_LG,
-                Styles.ABSOLUTE,
-                Styles.MT_3,
-                Styles.HIDDEN);
+                "border",
+                "bg-white",
+                "text-gray-600",
+                "shadow-lg",
+                "absolute",
+                "mt-3",
+                "hidden");
 
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
@@ -93,23 +93,23 @@ public final class QuestionsListView extends BaseHtmlView {
           a().withHref(link)
               .withId(String.format("create-%s-question", typeString))
               .withClasses(
-                  Styles.BLOCK,
-                  Styles.P_3,
-                  Styles.BG_WHITE,
-                  Styles.TEXT_GRAY_600,
-                  StyleUtils.hover(Styles.BG_GRAY_100, Styles.TEXT_GRAY_800))
+                  "block",
+                  "p-3",
+                  "bg-white",
+                  "text-gray-600",
+                  StyleUtils.hover("bg-gray-100", "text-gray-800"))
               .with(
                   Icons.questionTypeSvg(type, 24)
                       .withClasses(
-                          Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6, Styles.MR_1, Styles.TEXT_SM))
+                          "inline-block", "h-6", "w-6", "mr-1", "text-sm"))
               .with(
                   p(type.getLabel())
                       .withClasses(
-                          Styles.ML_2,
-                          Styles.MR_4,
-                          Styles.INLINE,
-                          Styles.TEXT_SM,
-                          Styles.UPPERCASE));
+                          "ml-2",
+                          "mr-4",
+                          "inline",
+                          "text-sm",
+                          "uppercase"));
       dropdown.with(linkTag);
     }
     return linkButton.with(dropdown);
@@ -120,14 +120,14 @@ public final class QuestionsListView extends BaseHtmlView {
     // where we have a single entry for a question that is active and has a draft.
     return div(String.format(
             "Total Questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
-        .withClasses(Styles.FLOAT_RIGHT, Styles.TEXT_BASE, Styles.PX_4, Styles.MY_2);
+        .withClasses("float-right", "text-base", "px-4", "my-2");
   }
 
   /** Renders the full table. */
   private TableTag renderQuestionTable(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     return table()
-        .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
+        .withClasses("border", "border-gray-300", "shadow-md", "w-full")
         .with(renderQuestionTableHeaderRow())
         .with(
             tbody(
@@ -144,17 +144,17 @@ public final class QuestionsListView extends BaseHtmlView {
   /** Render the question table header row. */
   private TheadTag renderQuestionTableHeaderRow() {
     return thead(
-        tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
-            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-            .with(th("Supported languages").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_6))
+        tr().withClasses("border-b", "bg-gray-200", "text-left")
+            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"))
+            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3"))
+            .with(th("Supported languages").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/6"))
             .with(
                 th("Actions")
                     .withClasses(
                         BaseStyles.TABLE_CELL_STYLES,
-                        Styles.TEXT_RIGHT,
-                        Styles.PR_8,
-                        Styles.W_1_6)));
+                        "text-right",
+                        "pr-8",
+                        "w-1/6")));
   }
 
   /**
@@ -173,9 +173,9 @@ public final class QuestionsListView extends BaseHtmlView {
     QuestionDefinition latestDefinition = draftDefinition.orElseGet(() -> activeDefinition.get());
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
-            Styles.BORDER_B,
-            Styles.BORDER_GRAY_300,
-            StyleUtils.even(Styles.BG_GRAY_100))
+            "border-b",
+            "border-gray-300",
+            StyleUtils.even("bg-gray-100"))
         .with(renderInfoCell(latestDefinition))
         .with(renderQuestionTextCell(latestDefinition))
         .with(renderSupportedLanguages(latestDefinition))
@@ -183,9 +183,9 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private TdTag renderInfoCell(QuestionDefinition definition) {
-    return td().with(div(definition.getName()).withClasses(Styles.FONT_SEMIBOLD))
-        .with(div(definition.getDescription()).withClasses(Styles.TEXT_XS))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    return td().with(div(definition.getName()).withClasses("font-semibold"))
+        .with(div(definition.getDescription()).withClasses("text-xs"))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
   private TdTag renderQuestionTextCell(QuestionDefinition definition) {
@@ -202,9 +202,9 @@ public final class QuestionsListView extends BaseHtmlView {
     } catch (TranslationNotFoundException e) { // Ignore. Leaving blank
     }
 
-    return td().with(div(questionText).withClasses(Styles.FONT_SEMIBOLD))
-        .with(div(questionHelpText).withClasses(Styles.TEXT_XS))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    return td().with(div(questionText).withClasses("font-semibold"))
+        .with(div(questionHelpText).withClasses("text-xs"))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
   /**
@@ -217,7 +217,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .map(locale -> locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE))
             .collect(Collectors.joining(", "));
     return td().with(div(formattedLanguages))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
   private ATag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
@@ -226,7 +226,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .setId("edit-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
-        .setStyles(Styles.MR_2)
+        .setStyles("mr-2")
         .asAnchorText();
   }
 
@@ -239,7 +239,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .setId("translate-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
-        .setStyles(Styles.MR_2)
+        .setStyles("mr-2")
         .asAnchorText();
   }
 
@@ -249,7 +249,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .setId("view-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
-        .setStyles(Styles.MR_2)
+        .setStyles("mr-2")
         .asAnchorText();
   }
 
@@ -258,7 +258,7 @@ public final class QuestionsListView extends BaseHtmlView {
       Optional<QuestionDefinition> draft,
       DeletionStatus deletionStatus,
       Http.Request request) {
-    TdTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
+    TdTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, "text-right");
     if (active.isPresent()) {
       if (draft.isEmpty()) {
         // Active without a draft.
@@ -296,7 +296,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .setId("discard-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
-        .setStyles(Styles.MR_2)
+        .setStyles("mr-2")
         .asHiddenFormLink(request);
   }
 
@@ -308,7 +308,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .setId("restore-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
-        .setStyles(Styles.MR_2)
+        .setStyles("mr-2")
         .asHiddenFormLink(request);
   }
 
@@ -320,7 +320,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .setId("archive-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
-        .setStyles(Styles.MR_2)
+        .setStyles("mr-2")
         .asHiddenFormLink(request);
   }
 }

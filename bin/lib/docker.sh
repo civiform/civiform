@@ -157,3 +157,17 @@ function docker::do_dockerhub_login() {
       --username $DOCKER_HUB_USERNAME \
       --password-stdin docker.io
 }
+
+TAILWIND_ARGS='npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --watch'
+
+function docker::run_tailwind() {
+  echo "Starting tailwind build watch loop"
+  CMD="docker::compose_dev exec -d civiform npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --watch"
+  echo "Running $CMD"
+  docker::compose_dev exec -d civiform npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --watch &
+}
+
+function docker::run_tailwind_browser_test() {
+  echo "Starting tailwind build watch loop"
+  docker::compose_browser_test exec -d civiform npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --watch &
+}

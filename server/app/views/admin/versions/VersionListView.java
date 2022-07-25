@@ -36,7 +36,7 @@ import views.components.LinkElement;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Renders a page for viewing all versions. */
 public class VersionListView extends BaseHtmlView {
@@ -86,7 +86,7 @@ public class VersionListView extends BaseHtmlView {
   private TableTag renderPastVersionTable(
       ImmutableList<Version> olderVersions, Http.Request request) {
     return table()
-        .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
+        .withClasses("border", "border-gray-300", "shadow-md", "w-full")
         .with(renderVersionTableHeaderRow())
         .with(
             tbody(
@@ -97,17 +97,17 @@ public class VersionListView extends BaseHtmlView {
 
   private TheadTag renderVersionTableHeaderRow() {
     return thead(
-        tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
+        tr().withClasses("border-b", "bg-gray-200", "text-left")
             .with(
-                th("ID").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5),
-                th("Publish Time").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5),
-                th("Programs").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5),
-                th("Questions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5),
-                th("Publish").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5)));
+                th("ID").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-2/5"),
+                th("Publish Time").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-2/5"),
+                th("Programs").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-2/5"),
+                th("Questions").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-2/5"),
+                th("Publish").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-2/5")));
   }
 
   private TrTag renderOlderVersionRow(Version olderVersion, Http.Request request) {
-    return tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
+    return tr().withClasses("border-b", "bg-gray-200", "text-left")
         .with(
             td(olderVersion.id.toString()),
             td(dateConverter.renderDateTime(olderVersion.getSubmitTime())),
@@ -118,7 +118,7 @@ public class VersionListView extends BaseHtmlView {
                     .setId("set-version-live-" + olderVersion.id)
                     .setHref(routes.AdminVersionController.setVersionLive(olderVersion.id).url())
                     .setText("Set Live")
-                    .setStyles(Styles.MR_2)
+                    .setStyles("mr-2")
                     .asHiddenForm(request)));
   }
 
@@ -132,18 +132,18 @@ public class VersionListView extends BaseHtmlView {
                 div(
                     div(String.format("%s: Version %d", version.getLifecycleStage(), version.id))
                         .withClasses(
-                            Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)),
-                p().withClasses(Styles.FLEX_GROW),
+                            "text-black", "font-bold", "text-xl", "mb-2")),
+                p().withClasses("flex-grow"),
                 div(
                         p("Programs: " + version.getPrograms().size()),
                         p("Questions: " + version.getQuestions().size()))
                     .withClasses(
-                        Styles.TEXT_RIGHT,
-                        Styles.TEXT_XS,
-                        Styles.TEXT_GRAY_700,
-                        Styles.MR_2,
-                        StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4)))
-            .withClasses(Styles.FLEX);
+                        "text-right",
+                        "text-xs",
+                        "text-gray-700",
+                        "mr-2",
+                        StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, "mr-4")))
+            .withClasses("flex");
 
     String listOfPrograms =
         version.getPrograms().stream()
@@ -159,25 +159,25 @@ public class VersionListView extends BaseHtmlView {
 
     DivTag midContent =
         div(listOfPrograms)
-            .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.MB_8, Styles.LINE_CLAMP_3);
+            .withClasses("text-gray-700", "text-base", "mb-8", "line-clamp-3");
 
     DivTag bottomContent =
         div(
             p(String.format(
                     "Last updated: " + dateConverter.renderDateTime(version.getSubmitTime())))
-                .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
-            p().withClasses(Styles.FLEX_GROW));
+                .withClasses("text-gray-700", "italic"),
+            p().withClasses("flex-grow"));
 
     DivTag innerDiv =
         div(div(topContent, midContent, bottomContent)
                 .withClasses(
-                    Styles.BORDER,
-                    Styles.BORDER_GRAY_300,
-                    Styles.BG_WHITE,
-                    Styles.ROUNDED,
-                    Styles.P_4))
+                    "border",
+                    "border-gray-300",
+                    "bg-white",
+                    "rounded",
+                    "p-4"))
             .withClasses(
-                ReferenceClasses.ADMIN_VERSION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+                ReferenceClasses.ADMIN_VERSION_CARD, "w-full", "shadow-lg", "mb-4");
     return innerDiv;
   }
 }
