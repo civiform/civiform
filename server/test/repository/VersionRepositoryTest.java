@@ -54,12 +54,12 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withBlock("Screen 1")
             .withRequiredQuestion(secondQuestion)
             .build();
-    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
-    secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
+    Question secondQuestionDraft = resourceCreator.insertQuestion("second-question");
+    secondQuestionDraft.addVersion(versionRepository.getDraftVersion()).save();
     Program secondProgramDraft =
         ProgramBuilder.newDraftProgram("bar")
             .withBlock("Screen 1")
-            .withRequiredQuestion(secondQuestionUpdated)
+            .withRequiredQuestion(secondQuestionDraft)
             .build();
 
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
@@ -69,7 +69,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(secondProgramDraft.id);
     assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
-        .containsExactlyInAnyOrder(secondQuestionUpdated.id);
+        .containsExactlyInAnyOrder(secondQuestionDraft.id);
 
     Version oldDraft = versionRepository.getDraftVersion();
     Version oldActive = versionRepository.getActiveVersion();
@@ -89,7 +89,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
-        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionDraft.id);
   }
 
   @Test
