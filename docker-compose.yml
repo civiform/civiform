@@ -90,4 +90,5 @@ services:
       - WHITELABEL_LOGO_WITH_NAME_URL
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
+      - FAVICON_URL
     command: ~run -Dconfig.file=conf/application.dev.conf

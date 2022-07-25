@@ -53,7 +53,7 @@ describe('create dropdown question with options', () => {
     )
 
     // Assert there are three options present
-    var questionSettingsDiv = await page.innerHTML('#question-settings')
+    let questionSettingsDiv = await page.innerHTML('#question-settings')
     expect(questionSettingsDiv.match(/<input/g)).toHaveLength(3)
 
     // Remove first option - use :visible to not select the hidden template
@@ -77,7 +77,7 @@ describe('create dropdown question with options', () => {
 
     // Edit the question
     await adminQuestions.gotoQuestionEditPage(questionName)
-    var questionSettingsDiv = await page.innerHTML('#question-settings')
+    questionSettingsDiv = await page.innerHTML('#question-settings')
     expect(questionSettingsDiv.match(/<input/g)).toHaveLength(4)
 
     await endSession(browser)

@@ -1,15 +1,12 @@
 import {
   startSession,
-  loginAsProgramAdmin,
   loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
   endSession,
   logout,
   loginAsGuest,
   selectApplicantLanguage,
   ApplicantQuestions,
-  userDisplayName,
 } from './support'
 
 describe('Hide a program that should not be public yet', () => {
@@ -18,7 +15,6 @@ describe('Hide a program that should not be public yet', () => {
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
     // Create a hidden program
@@ -46,7 +42,6 @@ describe('Hide a program that should not be public yet', () => {
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
     // Create a hidden program

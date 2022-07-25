@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.14.1_1-alpine-slim AS stage1
+FROM eclipse-temurin:11.0.15_10-jdk-alpine AS stage1
 
 ENV SBT_VERSION "1.6.2"
 ENV INSTALL_DIR /usr/local
@@ -30,7 +30,7 @@ RUN cd "${PROJECT_LOC}" && \
 
 # This is a common trick to shrink container sizes. We discard everything added
 # during the build phase and use only the inflated artifacts created by sbt dist.
-FROM adoptopenjdk/openjdk11:jdk-11.0.14.1_1-alpine-slim AS stage2
+FROM eclipse-temurin:11.0.15_10-jre-alpine AS stage2
 COPY --from=stage1 /civiform-server-0.0.1 /civiform-server-0.0.1
 
 # Upgrade packages for stage2 to include latest versions.

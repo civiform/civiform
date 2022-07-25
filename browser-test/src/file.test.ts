@@ -9,7 +9,6 @@ import {
   dropTables,
   seedCanonicalQuestions,
   resetSession,
-  endSession,
   selectApplicantLanguage,
   startSession,
 } from './support'
@@ -18,7 +17,7 @@ describe('file upload applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const {browser, page} = await startSession()
+    const {page} = await startSession()
     await dropTables(page)
     await seedCanonicalQuestions(page)
     await resetSession(page)
