@@ -7,9 +7,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -392,26 +394,16 @@ public final class ProgramServiceImpl implements ProgramService {
                   "The status being edited no longer exists and may have been modified in a"
                       + " separate window.")));
     }
-    ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
+    List<StatusDefinitions.Status> statusesCopy =
+        Lists.newArrayList(program.statusDefinitions().getStatuses());
     StatusDefinitions.Status editedStatus =
-        statusReplacer.apply(statuses.get(statusNameToIndex.get(toReplaceStatusName)));
+        statusReplacer.apply(statusesCopy.get(statusNameToIndex.get(toReplaceStatusName)));
     if (!toReplaceStatusName.equals(editedStatus.statusText())
         && statusNameToIndex.containsKey(editedStatus.statusText())) {
       throw new DuplicateStatusException(editedStatus.statusText());
     }
-    program
-        .statusDefinitions()
-        .setStatuses(
-            IntStream.range(0, statuses.size())
-                .boxed()
-                .map(
-                    i -> {
-                      if (i.equals(statusNameToIndex.get(toReplaceStatusName))) {
-                        return editedStatus;
-                      }
-                      return statuses.get(i);
-                    })
-                .collect(ImmutableList.toImmutableList()));
+    statusesCopy.set(statusNameToIndex.get(toReplaceStatusName), editedStatus);
+    program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
@@ -434,16 +426,10 @@ public final class ProgramServiceImpl implements ProgramService {
                   "The status being deleted no longer exists and may have been deleted in a"
                       + " separate window.")));
     }
-    ImmutableList<StatusDefinitions.Status> existingStatuses =
-        program.statusDefinitions().getStatuses();
-    program
-        .statusDefinitions()
-        .setStatuses(
-            IntStream.range(0, existingStatuses.size())
-                .boxed()
-                .filter(i -> !i.equals(statusNameToIndex.get(toRemoveStatusName)))
-                .map(i -> existingStatuses.get(i))
-                .collect(ImmutableList.toImmutableList()));
+    List<StatusDefinitions.Status> statusesCopy =
+        Lists.newArrayList(program.statusDefinitions().getStatuses());
+    statusesCopy.remove((int) statusNameToIndex.get(toRemoveStatusName));
+    program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
@@ -456,8 +442,7 @@ public final class ProgramServiceImpl implements ProgramService {
       ImmutableList<StatusDefinitions.Status> statuses) {
     return IntStream.range(0, statuses.size())
         .boxed()
-        .collect(
-            ImmutableMap.toImmutableMap(i -> statuses.get(i).statusText(), i -> i, (s1, s2) -> s1));
+        .collect(ImmutableMap.toImmutableMap(i -> statuses.get(i).statusText(), i -> i));
   }
 
   @Override

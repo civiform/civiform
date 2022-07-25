@@ -104,7 +104,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
-                "originalStatusText", "",
+                "configuredStatusText", "",
                 "statusText", "foo",
                 "emailBody", "some email content"));
 
@@ -139,7 +139,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
-                "originalStatusText", "Approved",
+                "configuredStatusText", "Approved",
                 "statusText", "Foo",
                 "emailBody", "Updated email content"));
 
@@ -171,7 +171,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
-                "originalStatusText", APPROVED_STATUS.statusText(),
+                "configuredStatusText", APPROVED_STATUS.statusText(),
                 "statusText", "",
                 "emailBody", "Some email body"));
 
@@ -193,7 +193,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
-                "originalStatusText", APPROVED_STATUS.statusText(),
+                "configuredStatusText", APPROVED_STATUS.statusText(),
                 "statusText", REJECTED_STATUS.statusText(),
                 "emailBody", "Some email body"));
 
@@ -216,7 +216,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
-                "originalStatusText", "non-existent-original-status",
+                "configuredStatusText", "non-existent-original-status",
                 "statusText", "Updated status",
                 "emailBody", "Some email body"));
 
@@ -239,7 +239,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
-                "originalStatusText", "",
+                "configuredStatusText", "",
                 "statusText", REJECTED_STATUS.statusText(),
                 "emailBody", "Some email body"));
 

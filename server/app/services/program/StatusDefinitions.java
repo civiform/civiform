@@ -19,7 +19,7 @@ public class StatusDefinitions {
 
   @JsonCreator
   public StatusDefinitions(@JsonProperty("statuses") ImmutableList<Status> statuses) {
-    assertStatusNamesUnique(statuses);
+    assertStatusNamesNonEmptyAndUnique(statuses);
     this.statuses = statuses;
   }
 
@@ -39,15 +39,18 @@ public class StatusDefinitions {
    * <p>The order of the items will be maintained and used as the natural order of the statuses.
    */
   public void setStatuses(ImmutableList<Status> statuses) {
-    assertStatusNamesUnique(statuses);
+    assertStatusNamesNonEmptyAndUnique(statuses);
     this.statuses = statuses;
   }
 
-  private static void assertStatusNamesUnique(ImmutableList<Status> statuses) {
+  private static void assertStatusNamesNonEmptyAndUnique(ImmutableList<Status> statuses) {
     Preconditions.checkState(
         statuses.stream().map(Status::statusText).collect(ImmutableSet.toImmutableSet()).size()
             == statuses.size(),
         "The provided set of statuses must have unique statusTexts.");
+    Preconditions.checkState(
+        statuses.stream().map(Status::statusText).noneMatch(String::isEmpty),
+        "The provided set of statuses may not contain empty statusTexts.");
   }
 
   /**

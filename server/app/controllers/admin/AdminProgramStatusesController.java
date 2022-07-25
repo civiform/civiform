@@ -7,7 +7,7 @@ import auth.Authorizers;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
-import forms.admin.ProgramStatusesEditForm;
+import forms.admin.ProgramStatusesForm;
 import java.util.Optional;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
@@ -68,9 +68,9 @@ public final class AdminProgramStatusesController extends CiviFormController {
 
   /**
    * Creates a new status or updates an existing status associated with the program. Creation is
-   * signified by the "originalStatusText" form parameter being set to empty. Updates are signified
-   * by the "originalStatusText" form parameter being set to a status that already exists in the
-   * current program definition.
+   * signified by the "configuredStatusText" form parameter being set to empty. Updates are
+   * signified by the "configuredStatusText" form parameter being set to a status that already
+   * exists in the current program definition.
    *
    * <p>If a status is created, it's appended to the end of the list of current statuses. If a
    * status is edited, it's replaced in-line.
@@ -85,10 +85,10 @@ public final class AdminProgramStatusesController extends CiviFormController {
     ProgramDefinition program = service.getProgramDefinition(programId);
     int previousStatusCount = program.statusDefinitions().getStatuses().size();
 
-    Form<ProgramStatusesEditForm> form =
+    Form<ProgramStatusesForm> form =
         formFactory
-            .form(ProgramStatusesEditForm.class)
-            .bindFromRequest(request, ProgramStatusesEditForm.FIELD_NAMES.toArray(new String[0]));
+            .form(ProgramStatusesForm.class)
+            .bindFromRequest(request, ProgramStatusesForm.FIELD_NAMES.toArray(new String[0]));
     if (form.hasErrors()) {
       // Redirecting to the index view would re-render the statuses and lose
       // any form values / errors. Instead, re-render the view at this URL
@@ -104,7 +104,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // any form values / errors. Instead, re-render the view at this URL
       // whenever there is are form validation errors, which preserves the
       // form values.
-      form = form.withError(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage());
+      form = form.withError(ProgramStatusesForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage());
       return ok(statusesView.render(request, program, Optional.of(form)));
     }
     final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();
@@ -120,11 +120,11 @@ public final class AdminProgramStatusesController extends CiviFormController {
   }
 
   private ErrorAnd<ProgramDefinition, CiviFormError> createOrEditStatusFromFormData(
-      ProgramDefinition program, ProgramStatusesEditForm formData)
+      ProgramDefinition program, ProgramStatusesForm formData)
       throws ProgramNotFoundException, DuplicateStatusException {
-    // An empty "originalStatusText" parameter indicates that a new
+    // An empty "configuredStatusText" parameter indicates that a new
     // status should be created.
-    if (formData.getOriginalStatusText().isEmpty()) {
+    if (formData.getconfiguredStatusText().isEmpty()) {
       return service.appendStatus(
           program.id(),
           StatusDefinitions.Status.builder()
@@ -137,7 +137,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
     }
     return service.editStatus(
         program.id(),
-        formData.getOriginalStatusText(),
+        formData.getconfiguredStatusText(),
         (existingStatus) -> {
           return StatusDefinitions.Status.builder()
               .setStatusText(formData.getStatusText())

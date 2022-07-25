@@ -389,8 +389,9 @@ public interface ProgramService {
    *
    * @param programId The program to update.
    * @param toReplaceStatusName The name of the status that should be updated.
-   * @param statusReplacer A function single argument function that maps the existing status to the
-   *     value it should be updated to.
+   * @param statusReplacer A single argument function that maps the existing status to the value it
+   *     should be updated to. The existing status is provided in case the caller might want to
+   *     preserve values from the previous status (e.g. localized text).
    * @throws ProgramNotFoundException If the specified Program could not be found.
    * @throws DuplicateStatusException If the updated status already exists in the list of available
    *     statuses for application review.
