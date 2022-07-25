@@ -55,6 +55,15 @@ public final class ProgramStatusesView extends BaseHtmlView {
     this.messagesApi = checkNotNull(messagesApi);
   }
 
+  /**
+   * Renders a list of program statuses along with modal create / edit / delete forms.
+   *
+   * @param request The associated request.
+   * @param program The program to render program statuses for.
+   * @param maybeStatusForm Set if the form is being rendered in response to an attempt to create /
+   *     edit a program status. Note that while the view itself may render multiple program
+   *     statuses, the provided form will correspond to creating / editing a single program status.
+   */
   public Content render(
       Http.Request request,
       ProgramDefinition program,
@@ -63,15 +72,17 @@ public final class ProgramStatusesView extends BaseHtmlView {
         makeStatusEditModal(
             request,
             program,
-            Optional.empty(),
-            formForCurrentStatus(Optional.empty(), maybeStatusForm));
+            /* maybeStatus= */ Optional.empty(),
+            isFormForCurrentStatus(Optional.empty(), maybeStatusForm)
+                ? maybeStatusForm
+                : Optional.empty());
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
-        renderStatusContainer(request, program, maybeStatusForm);
+        renderProgramStatusesContainer(request, program, maybeStatusForm);
 
     DivTag contentDiv =
         div()
@@ -122,10 +133,20 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return asRedirectButton(button, linkDestination);
   }
 
-  private Pair<DivTag, ImmutableList<Modal>> renderStatusContainer(
+  /**
+   * Renders the set of program statuses as well as any modals related to editing / deleting the
+   * statuses.
+   *
+   * @param request The associated request.
+   * @param program The program to render program statuses for.
+   * @param maybeStatusForm Set if the form is being rendered in response to an attempt to create /
+   *     edit a program status. Note that while the view itself may render multiple program
+   *     statuses, the provided form will correspond to creating / editing a single program status.
+   */
+  private Pair<DivTag, ImmutableList<Modal>> renderProgramStatusesContainer(
       Http.Request request,
       ProgramDefinition program,
-      Optional<Form<ProgramStatusesForm>> maybeEditForm) {
+      Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
     ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
@@ -133,11 +154,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
         statuses.stream()
             .map(
                 s -> {
+                  boolean formIsForStatus = isFormForCurrentStatus(Optional.of(s), maybeStatusForm);
                   return renderStatusItem(
-                      request, program, s, formForCurrentStatus(Optional.of(s), maybeEditForm));
+                      request, program, s, formIsForStatus ? maybeStatusForm : Optional.empty());
                 })
             .collect(ImmutableList.toImmutableList());
-    return Pair.of(
+    // Combine all the DivTags into a rendered list, and collect all Modals into one collection.
+    DivTag statusesContainer =
         div()
             .with(
                 p(numResultsText),
@@ -147,20 +170,34 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .condWith(
                         statuses.isEmpty(),
                         p("No statuses have been created yet")
-                            .withClasses(Styles.ML_4, Styles.MY_4))),
+                            .withClasses(Styles.ML_4, Styles.MY_4)));
+    ImmutableList<Modal> modals =
         statusTagsAndModals.stream()
             .map(Pair::getRight)
             .flatMap(Collection::stream)
-            .collect(ImmutableList.toImmutableList()));
+            .collect(ImmutableList.toImmutableList());
+    return Pair.of(statusesContainer, modals);
   }
 
+  /**
+   * Renders a given program status, optionally consulting the request data for values / form
+   * errors.
+   *
+   * @param request The associated request.
+   * @param program The program to render program statuses for.
+   * @param status The status to render, as read from the existing program definition.
+   * @param maybeStatusForm Set if the form is being rendered in response to an attempt to create /
+   *     edit a program status. Note that while the view itself may render multiple program
+   *     statuses, the provided form will correspond to creating / editing a single program status.
+   * @return
+   */
   private Pair<DivTag, ImmutableList<Modal>> renderStatusItem(
       Http.Request request,
       ProgramDefinition program,
       StatusDefinitions.Status status,
-      Optional<Form<ProgramStatusesForm>> maybeEditForm) {
+      Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
     Modal editStatusModal =
-        makeStatusEditModal(request, program, Optional.of(status), maybeEditForm);
+        makeStatusEditModal(request, program, Optional.of(status), maybeStatusForm);
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
@@ -242,19 +279,17 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   /**
-   * Returns the form if it matches the current status object being rendered. The page has multiple
-   * inline modals for editing and creating statuses.
+   * Returns whether the form matches the current status object being rendered. The page has
+   * multiple inline modals for editing and creating statuses.
    */
-  private Optional<Form<ProgramStatusesForm>> formForCurrentStatus(
+  private boolean isFormForCurrentStatus(
       Optional<StatusDefinitions.Status> maybeStatus,
       Optional<Form<ProgramStatusesForm>> maybeEditForm) {
     String wantconfiguredStatusText =
         maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
     return maybeEditForm.isPresent()
-            && wantconfiguredStatusText.equalsIgnoreCase(
-                maybeEditForm.get().value().get().getconfiguredStatusText())
-        ? maybeEditForm
-        : Optional.empty();
+        && wantconfiguredStatusText.equalsIgnoreCase(
+            maybeEditForm.get().value().get().getconfiguredStatusText());
   }
 
   private Modal makeStatusEditModal(
@@ -263,9 +298,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Optional<StatusDefinitions.Status> maybeStatus,
       Optional<Form<ProgramStatusesForm>> maybeEditForm) {
     // TODO(#2752): Pop the modal open on error on page load.
-    String configuredStatusText;
-    String statusText;
-    String emailBody;
+    final String configuredStatusText;
+    final String statusText;
+    final String emailBody;
     if (maybeEditForm.isPresent()) {
       ProgramStatusesForm values = maybeEditForm.get().value().get();
       configuredStatusText = values.getconfiguredStatusText();
@@ -273,7 +308,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
       emailBody = values.getEmailBody();
     } else {
       configuredStatusText = maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
-      statusText = maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
+      statusText = configuredStatusText;
       emailBody = maybeStatus.map(s -> s.emailBodyText().orElse("")).orElse("");
     }
     Messages messages = messagesApi.preferred(request);
