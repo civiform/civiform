@@ -187,4 +187,26 @@ public class RoleServiceTest extends ResetPostgres {
     assertThatThrownBy(() -> service.removeProgramAdmins(1234L, ImmutableSet.of("test")))
         .isInstanceOf(ProgramNotFoundException.class);
   }
+
+  @Test
+  public void makeProgramAdmins_blockGlobalAdmin() throws ProgramNotFoundException {
+    String globalAdminEmail = "global@admin";
+    Account globalAdmin = new Account();
+    globalAdmin.setEmailAddress(globalAdminEmail);
+    globalAdmin.setGlobalAdmin(true);
+    globalAdmin.save();
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    assertThat(
+            service.makeProgramAdmins(program.id, ImmutableSet.of(globalAdminEmail)))
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "The following are already CiviForm admins and could not be added as"
+                            + " program admins: %s",
+                        globalAdminEmail))));
+  }
 }
