@@ -32,6 +32,10 @@ public class DateConverter {
     return DateTimeFormatter.ISO_DATE.withZone(zoneId).format(instant);
   }
 
+  public LocalDate parseStringtoLocalDate(String dateString) {
+    return LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+  }
+
   /**
    * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
    * Instant} at the beginning of the day in local time zone.
@@ -53,8 +57,8 @@ public class DateConverter {
     ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
   }
-  public String formatDate(LocalDate date)
-  {
+
+  public String formatDate(LocalDate date) {
     return date.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
   }
 }

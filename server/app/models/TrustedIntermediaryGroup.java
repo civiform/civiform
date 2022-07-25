@@ -1,18 +1,13 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import repository.SearchParameters;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An EBean mapped class that represents a group of trusted intermediaries, usually corresponding to
@@ -57,28 +52,5 @@ public class TrustedIntermediaryGroup extends BaseModel {
 
   public String getDescription() {
     return this.description;
-  }
-
-  public ImmutableList<Account> getManagedAccounts(SearchParameters searchParameters) {
-    ImmutableList<Account> allAccounts = getManagedAccounts();
-    try {
-      allAccounts = allAccounts.stream()
-        .filter(account -> {
-          if (searchParameters.search().isPresent()) {
-            return account.getApplicantName().toLowerCase(Locale.ROOT).contains(searchParameters.search().get().toLowerCase(Locale.ROOT));
-          }
-          if (searchParameters.searchDate().isPresent() && !searchParameters.searchDate().isEmpty() && account.getApplicantDateOfBirth().isPresent()) {
-            LocalDate localDate =
-              LocalDate.parse(searchParameters.searchDate().get(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            return account.getApplicantDateOfBirth().get().equals(localDate);
-          }
-          return false;
-        }).collect(ImmutableList.toImmutableList());
-    }
-    catch(DateTimeParseException e)
-    {
-      LOGGER.warn("Unformatted Date Entered - " + searchParameters.searchDate().get());
-    }
-    return allAccounts;
   }
 }

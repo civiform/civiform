@@ -1,34 +1,32 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.hr;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.tr;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
-import static j2html.TagCreator.input;
+import static j2html.TagCreator.tr;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.ti.routes;
-import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
@@ -48,6 +46,7 @@ import views.style.*;
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ApplicantLayout layout;
+
   @Inject
   public TrustedIntermediaryDashboardView(ApplicantLayout layout) {
     this.layout = checkNotNull(layout);
@@ -95,8 +94,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private FormTag renderSearchForm(
-    Http.Request request, SearchParameters searchParameters) {
+  private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
     return form()
         .withClass(Styles.W_1_4)
         .withMethod("GET")
@@ -149,7 +147,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             totalPageCount,
             pageNumber ->
                 routes.TrustedIntermediaryController.dashboard(
-                    searchParameters.search(), searchParameters.searchDate(), Optional.of(pageNumber))));
+                    searchParameters.search(),
+                    searchParameters.searchDate(),
+                    Optional.of(pageNumber))));
   }
 
   private DivTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
@@ -255,21 +255,22 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     }
     Optional<LocalDate> current_Dob = newestApplicant.get().getApplicantData().getDateOfBirth();
     return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.FONT_SEMIBOLD)
-      .with(
-        form()
-          .withClass(Styles.FLEX)
-          .withMethod("POST")
-          .withAction(
-            routes.TrustedIntermediaryController.updateDateOfBirth(tiGroup.id, account.id)
-              .url())
-          .with(
-            input()
-              .withId("date-of-birth-update")
-              .withName("dob")
-              .withType("date")
-              .withValue(current_Dob.isPresent()? current_Dob.get().toString():""),
-            makeCsrfTokenInputTag(request),
-            submitButton("add DOB").withClasses( Styles.UPPERCASE,Styles.TEXT_XS,Styles.ML_3)));
+        .with(
+            form()
+                .withClass(Styles.FLEX)
+                .withMethod("POST")
+                .withAction(
+                    routes.TrustedIntermediaryController.updateDateOfBirth(tiGroup.id, account.id)
+                        .url())
+                .with(
+                    input()
+                        .withId("date-of-birth-update")
+                        .withName("dob")
+                        .withType("date")
+                        .withValue(current_Dob.isPresent() ? current_Dob.get().toString() : ""),
+                    makeCsrfTokenInputTag(request),
+                    submitButton("add DOB")
+                        .withClasses(Styles.UPPERCASE, Styles.TEXT_XS, Styles.ML_3)));
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {

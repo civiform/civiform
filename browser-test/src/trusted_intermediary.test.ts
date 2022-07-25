@@ -57,9 +57,9 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client)
     await tiDashboard.checkInnerTableForClientInformation(client)
-    await tiDashboard.updateClientDateOfBirth(client,'2021-12-12')
+    await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
     await waitForPageJsLoad(page)
-    await tiDashboard.checkUpdatedDateOfBirth(client,'2021-12-12')
+    await tiDashboard.checkUpdatedDateOfBirth(client, '2021-12-12')
   })
 
   it('search For Client In TI Dashboard', async () => {

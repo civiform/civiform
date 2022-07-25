@@ -19,15 +19,13 @@ export class TiDashboard {
     await this.page.fill('label:has-text("Date Of Birth")', client.dobDate)
     await this.page.click('text ="Add"')
   }
-asyn checkUpdatedDateOfBirth(client: ClientInformation,newDob : string)
-{
+  async checkUpdatedDateOfBirth(client: ClientInformation, newDob: string) {
     const tableInnerText = await this.page.innerText('table')
     expect(tableInnerText).toContain(this.convertToMMDDYYYY(newDob))
     expect(tableInnerText).toContain(client.emailAddress)
     expect(tableInnerText).toContain(client.firstName)
     expect(tableInnerText).toContain(client.lastName)
-
-}
+  }
   async checkInnerTableForClientInformation(client: ClientInformation) {
     const tableInnerText = await this.page.innerText('table')
     expect(tableInnerText).toContain(this.convertToMMDDYYYY(client.dobDate))
@@ -51,8 +49,7 @@ asyn checkUpdatedDateOfBirth(client: ClientInformation,newDob : string)
     const arr = dobDate.split('-')
     return arr[1] + '-' + arr[2] + '-' + arr[0]
   }
-  async updateClientDateOfBirth(client : ClientInformation,newDobDate : string)
-  {
+  async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
     await this.page.fill('label:has-text("Date Of Birth")', dobDate)
     await this.page.click('text ="Add DOB"')
   }
