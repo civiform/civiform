@@ -83,8 +83,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
 
   @Test
   public void testUpdateDOBFunctionWithExistingDob() {
-    Http.RequestBuilder requestBuilder =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-10-05")));
+
     TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
     AddApplicantToTrustedIntermediaryGroupForm form =
         new AddApplicantToTrustedIntermediaryGroupForm();
@@ -95,8 +94,10 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     repo.createNewApplicantForTrustedIntermediaryGroup(form, group);
     Optional<Applicant> applicant =
         repo.lookupApplicantByEmail("sample3@example.com").toCompletableFuture().join();
+    Http.RequestBuilder requestBuilder =
+      addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-10-05")));
     Result result =
-        tiController.updateDateOfBirth(group.id, applicant.get().id, requestBuilder.build());
+        tiController.updateDateOfBirth(applicant.get().id, requestBuilder.build());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<Applicant> finalApplicant =
         repo.lookupApplicant(applicant.get().id).toCompletableFuture().join();

@@ -25,7 +25,7 @@ describe('Trusted intermediaries', () => {
     await endSession(browser)
   })
 
-  it('expect Dashboard Contain Client', async () => {
+  it('expect Dashboard Contain New Client', async () => {
     await loginAsTrustedIntermediary(page)
 
     const tiDashboard = new TiDashboard(page)

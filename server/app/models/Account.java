@@ -156,16 +156,21 @@ public class Account extends BaseModel {
    * unnecessary.
    */
   public String getApplicantName() {
-    return this.getApplicants().stream()
-        .max(Comparator.comparing(Applicant::getWhenCreated))
-        .map(u -> u.getApplicantData().getApplicantName().orElse("<Unnamed User>"))
-        .orElse("<Unnamed User>");
+   Optional<Applicant> newestApplicant = newestApplicant();
+   if(newestApplicant.isPresent() && newestApplicant.get().getApplicantData().getApplicantName().isPresent())
+   {
+     return newestApplicant.get().getApplicantData().getApplicantName().get();
+   }
+    return "<Unnamed User>";
   }
 
   public Optional<LocalDate> getApplicantDateOfBirth() {
-    return this.getApplicants().stream()
-        .max(Comparator.comparing(Applicant::getWhenCreated))
-        .map(u -> u.getApplicantData().getDateOfBirth())
-        .orElse(Optional.empty());
+    Optional<Applicant> newestApplicant = newestApplicant();
+    if(newestApplicant.isPresent() && newestApplicant.get().getApplicantData().getDateOfBirth().isPresent()) {
+      return newestApplicant.get().getApplicantData().getDateOfBirth();
+    }
+
+  return Optional.empty();
   }
+
 }

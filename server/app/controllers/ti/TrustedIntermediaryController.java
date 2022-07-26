@@ -102,7 +102,7 @@ public class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result updateDateOfBirth(Long tiId, Long applicantId, Http.Request request) {
+  public Result updateDateOfBirth(Long applicantId, Http.Request request) {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
 
     if (civiformProfile.isEmpty()) {
@@ -112,9 +112,6 @@ public class TrustedIntermediaryController {
         userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
-    }
-    if (!trustedIntermediaryGroup.get().id.equals(tiId)) {
-      return unauthorized();
     }
     Form<UpdateApplicantDob> form =
         formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);

@@ -1,5 +1,6 @@
 import {Page} from 'playwright'
-
+//This class is to test Civiform's TI to add new clients and search functionality
+//It requires the tests to be logged as a TI
 export class TiDashboard {
   public page!: Page
 

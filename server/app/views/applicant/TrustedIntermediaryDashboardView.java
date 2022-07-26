@@ -75,7 +75,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderHeader("Clients"),
                 renderSearchForm(request, searchParameters),
                 renderTIApplicantsTable(
-                    managedAccounts, searchParameters, page, totalPageCount, tiGroup, request),
+                    managedAccounts, searchParameters, page, totalPageCount, request),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
@@ -126,7 +126,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       SearchParameters searchParameters,
       int page,
       int totalPageCount,
-      TrustedIntermediaryGroup tiGroup,
       Http.Request request) {
     DivTag main =
         div(table()
@@ -139,7 +138,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                             managedAccounts.stream()
                                 .sorted(Comparator.comparing(Account::getApplicantName))
                                 .collect(Collectors.toList()),
-                            account -> renderApplicantRow(account, tiGroup, request)))))
+                            account -> renderApplicantRow(account, request)))))
             .withClasses(Styles.MB_16);
     return main.with(
         renderPaginationDiv(
@@ -234,7 +233,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private TrTag renderApplicantRow(
-      Account applicant, TrustedIntermediaryGroup tiGroup, Http.Request request) {
+      Account applicant, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
@@ -243,11 +242,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderInfoCell(applicant))
         .with(renderApplicantInfoCell(applicant))
         .with(renderActionsCell(applicant))
-        .with(renderDateOfBirthCell(applicant, tiGroup, request));
+        .with(renderDateOfBirthCell(applicant,request));
   }
 
   private TdTag renderDateOfBirthCell(
-      Account account, TrustedIntermediaryGroup tiGroup, Http.Request request) {
+      Account account, Http.Request request) {
 
     Optional<Applicant> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
@@ -260,7 +259,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 .withClass(Styles.FLEX)
                 .withMethod("POST")
                 .withAction(
-                    routes.TrustedIntermediaryController.updateDateOfBirth(tiGroup.id, account.id)
+                    routes.TrustedIntermediaryController.updateDateOfBirth(account.id)
                         .url())
                 .with(
                     input()

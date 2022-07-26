@@ -79,7 +79,7 @@ POST    /admin/tiGroups/:id/removeTi                                      contro
 
 GET     /admin/tiDash                                                     controllers.ti.TrustedIntermediaryController.dashboard(request: Request,  search: java.util.Optional[String], searchDate: java.util.Optional[String],  page: java.util.Optional[Integer])
 POST    /admin/tiGroups/:id/addApplicant                                  controllers.ti.TrustedIntermediaryController.addApplicant(id: Long, request: Request)
-POST    /admin/tiGroups/:id/updateDateOfBirth/:applicantId                controllers.ti.TrustedIntermediaryController.updateDateOfBirth(id: Long, applicantId: Long, request: Request)
+POST    /admin/tiGroups/updateDateOfBirth/:applicantId                controllers.ti.TrustedIntermediaryController.updateDateOfBirth(applicantId: Long, request: Request)
 # Controller for admins only, related to applications
 GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String])
 GET     /admin/programs/:programId/applications/allJson                   controllers.admin.AdminApplicationController.downloadAllJson(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
