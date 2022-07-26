@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import java.util.Locale;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import java.util.Optional;
@@ -13,7 +12,6 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.play.java.Secure;
-import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
@@ -29,8 +27,8 @@ public class HomeController extends Controller {
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
-  private final Langs langs;
   private final Optional<String> faviconURL;
+  private final LanguageUtils languageUtils;
 
   @Inject
   public HomeController(
@@ -39,13 +37,13 @@ public class HomeController extends Controller {
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
-      Langs langs) {
+      LanguageUtils languageUitls) {
     checkNotNull(configuration);
     this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
-    this.langs = checkNotNull(langs);
+    this.languageUitls = checkNotNull(languageUitls);
     this.faviconURL =
         Optional.ofNullable(Strings.emptyToNull(configuration.getString("whitelabel.favicon_url")));
   }
@@ -71,15 +69,11 @@ public class HomeController extends Controller {
           .getApplicant()
           .thenApplyAsync(
               applicant -> {
+                // Attempt to set default language for the applicant.
+                applicant = languageUtils.maybeSetDefaultLocale(applicant);
+                ApplicantData data = applicant.getApplicantData();
                 // If the applicant has not yet set their preferred language, redirect to
                 // the information controller to ask for preferred language.
-                ApplicantData data = applicant.getApplicantData();
-                if (langs.availables().size() <= 1 && !data.hasPreferredLocale()) {
-                  data.setPreferredLocale(
-                      langs.availables().isEmpty()
-                          ? Locale.US
-                          : langs.availables().get(0).toLocale());
-                }
                 if (data.hasPreferredLocale()) {
                   return redirect(
                           controllers.applicant.routes.ApplicantProgramsController.index(

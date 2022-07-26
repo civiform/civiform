@@ -10,6 +10,7 @@ import static play.test.Helpers.route;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,6 +81,7 @@ public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
     Applicant applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
 
     HomeController controller =
         new HomeController(
@@ -87,7 +89,7 @@ public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(MessagesApi.class),
             instanceOf(HttpExecutionContext.class),
-            mockLangs);
+            languageUtils);
     Result result =
         controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
     assertThat(result.redirectLocation())
@@ -96,10 +98,11 @@ public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testLanguageSelectorNoLanguage() {
+  public void testLanguageSelectorNotShownOneLanguage() {
     Applicant applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
-    when(mockLangs.availables()).thenReturn(ImmutableList.of());
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
 
     HomeController controller =
         new HomeController(
@@ -107,7 +110,29 @@ public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(MessagesApi.class),
             instanceOf(HttpExecutionContext.class),
-            mockLangs);
+            languageUtils);
+    Result result =
+        controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
+    assertThat(result.redirectLocation())
+        .contains(
+            controllers.applicant.routes.ApplicantProgramsController.index(applicant.id).url());
+  }
+
+  @Test
+  public void testLanguageSelectorNotSupportedLanguage() {
+    Applicant applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.CHINESE);
+    Langs mockLangs = Mockito.mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
+
+    HomeController controller =
+        new HomeController(
+            instanceOf(LoginForm.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(HttpExecutionContext.class),
+            languageUtils);
     Result result =
         controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
     assertThat(result.redirectLocation())
