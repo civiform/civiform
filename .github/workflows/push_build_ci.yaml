@@ -42,7 +42,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Run build-${{ matrix.version }} ${{ matrix.image }}
+      - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
         id: build_and_push
         env:
           DOCKER_BUILDKIT: 1
@@ -101,7 +101,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
         if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
 
-      - name: Run build-${{ matrix.version }} ${{ matrix.image }}
+      - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
         if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
         id: build_and_push
         env:
