@@ -51,7 +51,7 @@ export class TiDashboard {
     return arr[1] + '-' + arr[2] + '-' + arr[0]
   }
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
-    await this.page.fill('label:has-text("Date Of Birth")', dobDate)
+    await this.page.fill('#date-of-birth-update', newDobDate)
     await this.page.click('text ="Add DOB"')
   }
 }

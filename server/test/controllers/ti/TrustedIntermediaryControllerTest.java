@@ -102,6 +102,6 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Optional<Applicant> finalApplicant =
         repo.lookupApplicant(applicant.get().id).toCompletableFuture().join();
     assertThat(finalApplicant.get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-07-10");
+        .isEqualTo("2022-10-05");
   }
 }
