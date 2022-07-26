@@ -1,4 +1,4 @@
-name: ci
+name: push_cloud_tests
 
 on:
   push:

@@ -8,6 +8,7 @@ resource "aws_kms_key" "civiform_kms_key" {
   }
   description             = "KMS key for civiform"
   deletion_window_in_days = 10
+  enable_key_rotation     = true
 }
 
 # Create a random generated password to use for postgres_password.

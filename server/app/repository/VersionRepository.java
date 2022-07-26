@@ -36,7 +36,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 
 /** A repository object for dealing with versioning of questions and programs. */
-public class VersionRepository {
+public final class VersionRepository {
 
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
   private final Database database;
@@ -260,7 +260,7 @@ public class VersionRepository {
   // Update the referenced question IDs in all leaf nodes. Since nodes are immutable, we
   // recursively recreate the tree with updated leaf nodes.
   @VisibleForTesting
-  protected PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
+  PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
     switch (current.getType()) {
       case AND:
         AndNode and = current.getAndNode();

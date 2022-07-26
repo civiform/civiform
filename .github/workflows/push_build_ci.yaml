@@ -1,4 +1,4 @@
-name: ci
+name: push_build_ci
 
 on:
   push:
@@ -10,17 +10,28 @@ on:
 
 permissions: read-all
 
-# Two builds running at once can cause a race condition.
-concurrency:
-  group: builders
-  cancel-in-progress: true
-
 # Build and push the civiform/civiform, and civiform-dev docker image on each push
 # to master.  Also re-build the dependancy docker images only if their code has changed.
 # On a manual trigger, re-build all the images.
 jobs:
-  build_prod:
+  build_civiform:
     runs-on: ubuntu-latest
+    # Only build the latest version.
+    strategy:
+      matrix:
+        version: ['prod', 'dev']
+        include:
+          - version: prod
+            image: 'civiform/civiform:latest'
+            script: 'bin/build-prod'
+            platform: 'linux/amd64'
+          - version: dev
+            image: 'civiform/civiform-dev:latest'
+            script: 'bin/build-dev'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
+    concurrency:
+      group: build_civiform-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,129 +39,72 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Run build-prod civiform:latest
+      - name: Run build-${{ matrix.version }} ${{ matrix.image }}
         id: build_and_push
         env:
           DOCKER_BUILDKIT: 1
           PUSH_IMAGE: 1
+          PLATFORM: ${{ matrix.platform }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: bin/build-prod
+        run: ${{ matrix.script }}
 
-  build_dev:
+  build_dependancies:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and push new development image to docker hub
-        id: build_dev
-        env:
-          DOCKER_BUILDKIT: 1
-          PUSH_IMAGE: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: bin/build-dev
-
-  build_formatter:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - id: file_change
-        uses: trilom/file-changes-action@v1.2.4
-        if: ${{ github.event_name == 'push' }}
-        with:
-          output: 'json'
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Run build-formatter
-        id: build_formatter
-        env:
-          DOCKER_BUILDKIT: 1
-          PUSH_IMAGE: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: bin/build-formatter
-        if: ${{ github.event_name != 'push' }} ||  contains(toJSON(steps.file_changes.outputs.files), 'formatter/')
-
-  build_localstack:
-    runs-on: ubuntu-latest
+    # Only one at a time (but don't cancel currently running jobs).
+    strategy:
+      matrix:
+        version: ['formatter', 'localstack', 'browser_test', 'oidc']
+        include:
+          - version: formatter
+            image: 'civiform/formatter:latest'
+            script: 'bin/build-formatter'
+            file_pattern: 'formatter/'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
+          - version: localstack
+            image: 'civiform/civiform-localstack:latest'
+            script: 'bin/build-localstack-env'
+            file_pattern: 'localstack/'
+            platform: 'linux/amd64'
+          - version: browser_test
+            image: 'civiform/civiform-browser-test:latest'
+            script: 'bin/build-browser-tests'
+            file_pattern: 'browser-test/'
+            platform: 'linux/amd64'
+          - version: oidc
+            image: 'civiform/oidc-provider:latest'
+            script: 'bin/build-dev-oidc'
+            file_pattern: 'test-support/'
+            platform: 'linux/amd64'
+    concurrency:
+      group: build_dependancies-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
-        if: ${{ github.event_name == 'push' }}
-        with:
-          output: 'json'
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+
+      - name: Check build & push
+        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}"
+
+      - name: Skip build & push
+        if: ${{ github.event_name != 'workflow_dispatch' && !contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
 
-      - name: Run build-localstack-env and push to Docker Hub.
-        id: build_and_push_localstack_env
+      - name: Run build-${{ matrix.version }} ${{ matrix.image }}
+        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        id: build_and_push
         env:
           DOCKER_BUILDKIT: 1
           PUSH_IMAGE: 1
+          PLATFORM: ${{ matrix.platform }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: bin/build-localstack-env
-        if: ${{ github.event_name != 'push' }} || contains(toJSON(steps.file_changes.outputs.files), 'localstack/')
-
-  build_browser_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - id: file_changes
-        uses: trilom/file-changes-action@v1.2.4
-        if: ${{ github.event_name == 'push' }}
-        with:
-          output: 'json'
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Run build-browser-tests and push to Docker Hub.
-        id: build_and_pushbrowser_tests
-        env:
-          DOCKER_BUILDKIT: 1
-          PUSH_IMAGE: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: bin/build-browser-tests
-        if: ${{ github.event_name != 'push' }} || contains(toJSON(steps.file_changes.outputs.files), 'browser-test/')
-
-  build_oidc:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - id: file_changes
-        uses: trilom/file-changes-action@v1.2.4
-        if: ${{ github.event_name == 'push' }}
-        with:
-          output: 'json'
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Run build-browser-tests and push to Docker Hub.
-        id: build_and_pushbrowser_tests
-        env:
-          DOCKER_BUILDKIT: 1
-          PUSH_IMAGE: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: bin/build-dev-oidc
-        if: ${{ github.event_name != 'push' }} || contains(toJSON(steps.file_changes.outputs.files), 'test-support/')
+        run: ${{ matrix.script }}

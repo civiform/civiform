@@ -1,5 +1,6 @@
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
+import * as assert from 'assert'
 
 type QuestionParams = {
   questionName: string
@@ -74,14 +75,15 @@ export class AdminQuestions {
   }
 
   async expectMultiOptionBlankOptionError(options: String[]) {
-    const questionSettings = await this.page.$('#question-settings')
-    const errors = await questionSettings.$$('.cf-multi-option-input-error')
+    const errors = await this.page.locator(
+      '#question-settings .cf-multi-option-input-error',
+    )
     // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
-    for (let i in errors) {
+    for (let i = 0; i < options.length; i++) {
       if (options[i] === '') {
-        expect(await errors[i].isHidden()).toEqual(false)
+        expect(await errors.nth(i).isHidden()).toEqual(false)
       } else {
-        expect(await errors[i].isHidden()).toEqual(true)
+        expect(await errors.nth(i).isHidden()).toEqual(true)
       }
     }
   }
@@ -96,9 +98,9 @@ export class AdminQuestions {
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
     await this.page.fill('label:has-text("Name")', questionName)
-    await this.page.fill('label:has-text("Description")', description)
-    await this.page.fill('label:has-text("Question Text")', questionText)
-    await this.page.fill('label:has-text("Question help text")', helpText)
+    await this.page.fill('label:has-text("Description")', description ?? '')
+    await this.page.fill('label:has-text("Question Text")', questionText ?? '')
+    await this.page.fill('label:has-text("Question help text")', helpText ?? '')
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })
@@ -464,11 +466,11 @@ export class AdminQuestions {
       )
     }
 
-    for (var index in options) {
+    assert(options)
+    for (let index = 0; index < options.length; index++) {
       await this.page.click('#add-new-option')
-      var matchIndex = Number(index) + 1
       await this.page.fill(
-        `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
+        `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
         options[index],
       )
     }
@@ -506,9 +508,10 @@ export class AdminQuestions {
       exportOption,
     })
 
-    for (let index in options) {
+    assert(options)
+    for (let index = 0; index < options.length; index++) {
       await this.page.click('#add-new-option')
-      let matchIndex = Number(index) + 1
+      const matchIndex = index + 1
       await this.changeMultiOptionAnswer(matchIndex, options[index])
     }
 
@@ -736,11 +739,11 @@ export class AdminQuestions {
       exportOption,
     })
 
-    for (var index in options) {
+    assert(options)
+    for (let index = 0; index < options.length; index++) {
       await this.page.click('#add-new-option')
-      var matchIndex = Number(index) + 1
       await this.page.fill(
-        `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
+        `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
         options[index],
       )
     }
