@@ -9,7 +9,6 @@ import static play.test.Helpers.route;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import com.typesafe.config.Config;
 import java.util.List;
 import java.util.Locale;
 import models.Applicant;
@@ -20,6 +19,7 @@ import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.direct.AnonymousClient;
 import org.pac4j.core.client.finder.ClientFinder;
+import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.engine.DefaultSecurityLogic;
