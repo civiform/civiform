@@ -35,6 +35,7 @@ jobs:
     concurrency:
       group: build_civiform-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
+    name: Build civiform ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -81,6 +82,7 @@ jobs:
             platform: 'linux/amd64'
     concurrency:
       group: build_dependancies-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
+    name: Build civiform dependancy ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
