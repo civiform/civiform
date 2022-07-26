@@ -20,14 +20,17 @@ if [[ "${PLATFORM}" ]]; then
 fi
 
 # Build the multi-platform image
+echo "start ${IMAGE} build"
 docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 
 # Load the image from the cache
+echo "load ${IMAGE} build"
 docker buildx build --load "${BUILD_ARGS[@]}"
 
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
   # Push the image from the cache to dockerhub
+  echo "push ${IMAGE} build"
   docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
 docker tag "civiform/${IMAGE}:latest" "civiform-${IMAGE}:latest"
