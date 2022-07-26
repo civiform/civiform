@@ -20,10 +20,10 @@ describe('view program statuses', () => {
   let pageObject: Page
   const programName = 'test program with statuses'
   beforeAll(async () => {
-    await dropTables(page)
-    await seedCanonicalQuestions(page)
     const {page} = await startSession()
     pageObject = page
+    await dropTables(page)
+    await seedCanonicalQuestions(page)
   })
 
   describe('with program statuses', () => {
