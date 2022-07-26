@@ -241,7 +241,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
               .setExpiration(expiration())
               .setBucket(bucket())
               .setKeyPrefix(key().replace("${filename}", ""))
-              .setContentLengthRange(1, 1024 * MB_TO_BYTES)
+              .setContentLengthRange(1, 20 * MB_TO_BYTES)
               .setSuccessActionRedirect(successActionRedirect())
               .setCredential(credential())
               .setAlgorithm(algorithm())
