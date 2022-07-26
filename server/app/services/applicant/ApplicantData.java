@@ -156,7 +156,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     return readDate(WellKnownPaths.APPLICANT_DOB);
   }
 
-  public void setDateOfBirth(String dateString) {
-    putDate(WellKnownPaths.APPLICANT_DOB, dateString);
+  public void setDateOfBirth(String dateOfBirth) {
+    putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
   }
 }

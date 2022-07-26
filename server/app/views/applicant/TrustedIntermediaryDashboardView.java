@@ -253,7 +253,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES);
     }
-    Optional<LocalDate> current_Dob = newestApplicant.get().getApplicantData().getDateOfBirth();
+    Optional<LocalDate> currentDob = newestApplicant.get().getApplicantData().getDateOfBirth();
     return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.FONT_SEMIBOLD)
         .with(
             form()
@@ -267,7 +267,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .withId("date-of-birth-update")
                         .withName("dob")
                         .withType("date")
-                        .withValue(current_Dob.isPresent() ? current_Dob.get().toString() : ""),
+                        .withValue(currentDob.isPresent() ? currentDob.get().toString() : ""),
                     makeCsrfTokenInputTag(request),
                     submitButton("add DOB")
                         .withClasses(Styles.UPPERCASE, Styles.TEXT_XS, Styles.ML_3)));

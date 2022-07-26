@@ -58,7 +58,7 @@ public class DateConverter {
     return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
   }
 
-  public String formatDate(LocalDate date) {
-    return date.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+  public LocalDate getCurrentDateForZoneId() {
+    return LocalDate.now(this.zoneId);
   }
 }

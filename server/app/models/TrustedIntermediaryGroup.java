@@ -6,8 +6,6 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An EBean mapped class that represents a group of trusted intermediaries, usually corresponding to
@@ -19,7 +17,6 @@ import org.slf4j.LoggerFactory;
 @Entity
 @Table(name = "ti_organizations")
 public class TrustedIntermediaryGroup extends BaseModel {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TrustedIntermediaryGroup.class);
 
   @OneToMany(mappedBy = "memberOfGroup")
   private List<Account> tiAccounts;
