@@ -26,11 +26,11 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
 import repository.ProgramRepository;
+import repository.UserRepository;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 import views.applicant.ApplicantUpsellCreateAccountView;
-import repository.UserRepository;
 
 public class RedirectControllerTest extends WithMockedProfiles {
   private ProgramDefinition programDefinition;

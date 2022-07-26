@@ -7,9 +7,9 @@ import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
 
-import com.typesafe.config.Config;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.typesafe.config.Config;
 import java.util.List;
 import java.util.Locale;
 import models.Applicant;
