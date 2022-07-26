@@ -30,6 +30,7 @@ import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 import views.applicant.ApplicantUpsellCreateAccountView;
+import repository.UserRepository;
 
 public class RedirectControllerTest extends WithMockedProfiles {
   private ProgramDefinition programDefinition;
