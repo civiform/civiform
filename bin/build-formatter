@@ -7,7 +7,7 @@ export DOCKER_BUILDKIT=1
 
 PLATFORM="${PLATFORM:-"linux/amd64"}"
 
-docker buildx build --platform="${PLATFORM}" \
+docker buildx build --load --platform="${PLATFORM}" \
   -t civiform/formatter:latest \
   -f formatter/formatter.Dockerfile \
   --cache-from civiform/formatter:latest \

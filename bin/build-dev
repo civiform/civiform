@@ -8,7 +8,7 @@ export DOCKER_BUILDKIT=1
 PLATFORM="${PLATFORM:-"linux/amd64"}" # default to x86-64 when platform not specified
 
 # Build the new development image.
-docker buildx build --platform="${PLATFORM}" \
+docker buildx build --load --platform="${PLATFORM}" \
   -t civiform-dev:latest \
   --cache-from civiform/civiform-dev:latest \
   --build-arg BUILDKIT_INLINE_CACHE=1 \

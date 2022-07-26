@@ -92,19 +92,20 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' }}
 
       - name: Check build & push
+        id: check_build
         if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
-        run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}"
+        run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}" && echo "::set-output name=build::true"
 
       - name: Skip build & push
-        if: ${{ github.event_name != 'workflow_dispatch' && !contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        if: ${{ steps.check_build.outputs.build != true }}
         run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        if: ${{ steps.check_build.outputs.build == true }}
 
       - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
-        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        if: ${{ steps.check_build.outputs.build == true }}
         id: build_and_push
         env:
           DOCKER_BUILDKIT: 1

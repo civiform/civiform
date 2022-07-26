@@ -14,7 +14,7 @@ echo "Building ${SNAPSHOT_TAG}..."
 
 PLATFORM="${PLATFORM:-"linux/amd64"}"
 
-docker buildx build --platform="${PLATFORM}" \
+docker buildx build --load --platform="${PLATFORM}" \
   -f prod.Dockerfile \
   -t civiform:latest \
   --cache-from civiform/civiform:latest \

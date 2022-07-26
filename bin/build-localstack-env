@@ -9,7 +9,7 @@ PLATFORM="${PLATFORM:-"linux/amd64"}"
 
 # A separate image is to include our customizations for
 # https://github.com/seattle-uat/civiform/issues/2639.
-docker buildx build --platform="${PLATFORM}" \
+docker buildx build --load --platform="${PLATFORM}" \
   -t civiform-localstack:latest \
   -f localstack/localstack.Dockerfile \
   --cache-from civiform/civiform-localstack:latest \
