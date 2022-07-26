@@ -41,6 +41,7 @@ public class SimpleStorage implements StorageClient {
   private final Credentials credentials;
   private final String bucket;
   private final Client client;
+  private final Config config;
 
   @Inject
   public SimpleStorage(
@@ -51,8 +52,8 @@ public class SimpleStorage implements StorageClient {
       ApplicationLifecycle appLifecycle) {
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
-    this.bucket = checkNotNull(config).getString(AWS_S3_BUCKET_CONF_PATH);
-
+    this.config = checkNotNull(config);
+    this.bucket = this.config.getString(AWS_S3_BUCKET_CONF_PATH);
     if (environment.isDev()) {
       client = new LocalStackClient(config);
     } else if (environment.isTest()) {
