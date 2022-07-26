@@ -28,7 +28,9 @@ jobs:
         with:
           file: server/code-coverage/report/jacoco.xml
           verbose: true
-          fail_ci_if_error: true
+          # TODO(#2976): Convert this back to true once code coverage
+          # integration is working again.
+          fail_ci_if_error: false
 
   run_browser_tests_aws:
     strategy:
