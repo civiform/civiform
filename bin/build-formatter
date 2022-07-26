@@ -3,8 +3,11 @@
 # DOC: Build a new formatter docker image, and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
 
 source bin/lib.sh
+export DOCKER_BUILDKIT=1
 
-docker build \
+PLATFORM="${PLATFORM:-"linux/amd64"}"
+
+docker buildx build --platform="${PLATFORM}" \
   -t civiform/formatter:latest \
   -f formatter/formatter.Dockerfile \
   --cache-from civiform/formatter:latest \

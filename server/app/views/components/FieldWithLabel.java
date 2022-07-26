@@ -325,7 +325,6 @@ public class FieldWithLabel {
 
   /** Public final tag getters * */
   public DivTag getTextareaTag() throws RuntimeException {
-    genRandIdIfEmpty();
     if (isTagTypeTextarea()) {
       TextareaTag textareaFieldTag = TagCreator.textarea();
       applyAttributesFromSet(textareaFieldTag);
@@ -389,7 +388,7 @@ public class FieldWithLabel {
             fieldErrors.isEmpty() || !showFieldErrors ? Styles.HIDDEN : "");
   }
 
-  protected void genRandIdIfEmpty() {
+  private void genRandIdIfEmpty() {
     // In order for the labels to be associated with the fields (mandatory for screen readers)
     // we need an id.  Generate a reasonable one if none is provided.
     if (this.id.isEmpty()) {
@@ -481,6 +480,7 @@ public class FieldWithLabel {
 
   protected <T extends EmptyTag<T> & IChecked<T> & IName<T> & IDisabled<T>>
       LabelTag checkboxApplyAttrsAndGenLabel(T fieldTag) throws RuntimeException {
+    genRandIdIfEmpty();
     // Apply attributes
     applyAttrsGenFieldErrorsInfo(fieldTag);
 
@@ -492,6 +492,7 @@ public class FieldWithLabel {
   }
 
   protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
+    genRandIdIfEmpty();
     // Apply attributes
     FieldErrorsInfo fieldErrorsInfo = applyAttrsGenFieldErrorsInfo(fieldTag);
     LabelTag labelTag = genLabelTag();
