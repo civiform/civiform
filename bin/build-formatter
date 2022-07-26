@@ -14,13 +14,13 @@ BUILD_ARGS=(-f "${DOCKERFILE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   "${LOCATION}")
 
-PLATFORM_ARG=""
+PLATFORM_ARG=()
 if [[ "${PLATFORM}" ]]; then
-  PLATFORM_ARG="--platform=${PLATFORM}"
+  PLATFORM_ARG=(--platform "${PLATFORM}")
 fi
 
 # Build the multi-platform image
-docker buildx build "${PLATFORM_ARG}" "${BUILD_ARGS[@]}"
+docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 
 # Load the image from the cache
 docker buildx build --load "${BUILD_ARGS[@]}"
@@ -28,6 +28,6 @@ docker buildx build --load "${BUILD_ARGS[@]}"
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
   # Push the image from the cache to dockerhub
-  docker buildx build --push "${PLATFORM_ARG}" "${BUILD_ARGS[@]}"
+  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
 docker tag "civiform/${IMAGE}:latest" "civiform-${IMAGE}:latest"

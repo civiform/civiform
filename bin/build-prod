@@ -26,10 +26,10 @@ BUILD_ARGS=(-f "${DOCKERFILE}"
   "${LOCATION}")
 
 readonly PLATFORM="${PLATFORM:-"linux/amd64"}" # default to x86-64 when platform not specified
-readonly PLATFORM_ARG="--platform=${PLATFORM}"
+readonly PLATFORM_ARG=(--platform "${PLATFORM}")
 
 # Build the multi-platform image
-docker buildx build "${PLATFORM_ARG}" "${BUILD_ARGS[@]}"
+docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 
 # Load the image from the cache
 docker buildx build --load "${BUILD_ARGS[@]}"
@@ -37,7 +37,7 @@ docker buildx build --load "${BUILD_ARGS[@]}"
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
   # Push the image from the cache to dockerhub
-  docker buildx build --push "${PLATFORM_ARG}" "${BUILD_ARGS[@]}"
+  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
 
 docker tag "civiform/${IMAGE}:latest" "${IMAGE}:latest"
