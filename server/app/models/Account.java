@@ -156,26 +156,26 @@ public class Account extends BaseModel {
    * unnecessary.
    */
   public String getApplicantName() {
-   Optional<Applicant> newestApplicant = newestApplicant();
-   if(newestApplicant.isPresent() && newestApplicant.get().getApplicantData().getApplicantName().isPresent())
-   {
-     return newestApplicant.get().getApplicantData().getApplicantName().get();
-   }
+    Optional<Applicant> newestApplicant = newestApplicant();
+    if (newestApplicant.isPresent()
+        && newestApplicant.get().getApplicantData().getApplicantName().isPresent()) {
+      return newestApplicant.get().getApplicantData().getApplicantName().get();
+    }
     return "<Unnamed User>";
   }
   /**
-   * Returns the Date of Birth, as an Optional LocalDate, of the most-recently created Applicant associated with this
-   * Account. There is no particular reason for an Account to have more than one Applicant - this
-   * was a capability we built but did not use - so the ordering is somewhat arbitrary
-   * unnecessary.
+   * Returns the Date of Birth, as an Optional LocalDate, of the most-recently created Applicant
+   * associated with this Account. There is no particular reason for an Account to have more than
+   * one Applicant - this was a capability we built but did not use - so the ordering is somewhat
+   * arbitrary unnecessary.
    */
   public Optional<LocalDate> getApplicantDateOfBirth() {
     Optional<Applicant> newestApplicant = newestApplicant();
-    if(newestApplicant.isPresent() && newestApplicant.get().getApplicantData().getDateOfBirth().isPresent()) {
+    if (newestApplicant.isPresent()
+        && newestApplicant.get().getApplicantData().getDateOfBirth().isPresent()) {
       return newestApplicant.get().getApplicantData().getDateOfBirth();
     }
 
-  return Optional.empty();
+    return Optional.empty();
   }
-
 }

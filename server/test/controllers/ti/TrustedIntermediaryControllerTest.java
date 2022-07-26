@@ -95,9 +95,8 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Optional<Applicant> applicant =
         repo.lookupApplicantByEmail("sample3@example.com").toCompletableFuture().join();
     Http.RequestBuilder requestBuilder =
-      addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-10-05")));
-    Result result =
-        tiController.updateDateOfBirth(applicant.get().id, requestBuilder.build());
+        addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-10-05")));
+    Result result = tiController.updateDateOfBirth(applicant.get().id, requestBuilder.build());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<Applicant> finalApplicant =
         repo.lookupApplicant(applicant.get().id).toCompletableFuture().join();

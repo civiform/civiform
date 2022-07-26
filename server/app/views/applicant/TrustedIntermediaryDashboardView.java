@@ -232,8 +232,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
-  private TrTag renderApplicantRow(
-      Account applicant, Http.Request request) {
+  private TrTag renderApplicantRow(Account applicant, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
@@ -242,11 +241,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderInfoCell(applicant))
         .with(renderApplicantInfoCell(applicant))
         .with(renderActionsCell(applicant))
-        .with(renderDateOfBirthCell(applicant,request));
+        .with(renderDateOfBirthCell(applicant, request));
   }
 
-  private TdTag renderDateOfBirthCell(
-      Account account, Http.Request request) {
+  private TdTag renderDateOfBirthCell(Account account, Http.Request request) {
 
     Optional<Applicant> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
@@ -259,8 +257,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 .withClass(Styles.FLEX)
                 .withMethod("POST")
                 .withAction(
-                    routes.TrustedIntermediaryController.updateDateOfBirth(account.id)
-                        .url())
+                    routes.TrustedIntermediaryController.updateDateOfBirth(account.id).url())
                 .with(
                     input()
                         .withId("date-of-birth-update")
