@@ -3,9 +3,12 @@
 # DOC: Build a new development docker image and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
 
 source bin/lib.sh
+export DOCKER_BUILDKIT=1
+
+PLATFORM="${PLATFORM:-"linux/amd64"}" # default to x86-64 when platform not specified
 
 # Build the new development image.
-docker build \
+docker buildx build --platform="${PLATFORM}" \
   -t civiform-dev:latest \
   --cache-from civiform/civiform-dev:latest \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
