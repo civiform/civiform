@@ -7,6 +7,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import controllers.LanguageUtils;
 import controllers.routes;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -25,7 +26,6 @@ import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantUpsellCreateAccountView;
-import controllers.LanguageUtils;
 
 /**
  * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
