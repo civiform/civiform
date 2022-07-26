@@ -181,7 +181,7 @@ export const seedCanonicalQuestions = async (page: Page) => {
 
 export const closeWarningMessage = async (page: Page) => {
   // The warning message may be in the way of this link
-  var element = await page.$('#warning-message-dismiss')
+  const element = await page.$('#warning-message-dismiss')
 
   if (element !== null) {
     await element

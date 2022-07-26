@@ -74,7 +74,7 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 
-  async expectMultiOptionBlankOptionError(options: String[]) {
+  async expectMultiOptionBlankOptionError(options: string[]) {
     const errors = await this.page.locator(
       '#question-settings .cf-multi-option-input-error',
     )
@@ -344,25 +344,25 @@ export class AdminQuestions {
   }
 
   async updateAllQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.updateQuestion(questions[i])
     }
   }
 
   async createNewVersionForQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.createNewVersion(questions[i])
     }
   }
 
   async expectDraftQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.expectDraftQuestionExist(questions[i])
     }
   }
 
   async expectActiveQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.expectActiveQuestionExist(questions[i])
     }
   }

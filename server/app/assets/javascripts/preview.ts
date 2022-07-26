@@ -54,7 +54,7 @@ class PreviewController {
         PreviewController.onTextChanged,
         false,
       )
-      let text = (<HTMLInputElement>textInput).value
+      const text = (<HTMLInputElement>textInput).value
       if (text.length > 0) {
         PreviewController.updateQuestionText(text)
       }
@@ -68,7 +68,7 @@ class PreviewController {
         PreviewController.onHelpTextChanged,
         false,
       )
-      let helpText = (<HTMLInputElement>helpTextInput).value
+      const helpText = (<HTMLInputElement>helpTextInput).value
       if (helpText.length > 0) {
         PreviewController.setTextAndHighlightEnumeratorReferences(
           PreviewController.QUESTION_HELP_TEXT_CLASS,
@@ -85,7 +85,7 @@ class PreviewController {
         PreviewController.onEnumeratorSelectorChanged,
         false,
       )
-      let enumerator = (<HTMLInputElement>enumeratorSelector).value
+      const enumerator = (<HTMLInputElement>enumeratorSelector).value
       const repeatedQuestionInformation = document.querySelector(
         PreviewController.REPEATED_QUESTION_INFORMATION_ID,
       )
@@ -100,7 +100,7 @@ class PreviewController {
         PreviewController.onEntityTypeChanged,
         false,
       )
-      let entityType = (<HTMLInputElement>entityTypeInput).value
+      const entityType = (<HTMLInputElement>entityTypeInput).value
       if (entityType.length > 0) {
         PreviewController.setAllMatchingPlaceholders(
           PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' input',
@@ -115,7 +115,7 @@ class PreviewController {
   }
 
   static onTextChanged(e: Event) {
-    let text = (<HTMLInputElement>e.target).value
+    const text = (<HTMLInputElement>e.target).value
     PreviewController.updateQuestionText(text)
   }
 
@@ -128,12 +128,12 @@ class PreviewController {
     const useAdvancedFormatting =
       questionType && questionType.textContent === 'STATIC'
     if (useAdvancedFormatting) {
-      let contentElement = PreviewController.formatText(text, true)
+      const contentElement = PreviewController.formatText(text, true)
       contentElement.classList.add('text-sm')
       contentElement.classList.add('font-normal')
       contentElement.classList.add('pr-16')
 
-      let contentParent = document.querySelector(
+      const contentParent = document.querySelector(
         PreviewController.QUESTION_TEXT_CLASS,
       ) as Element
       if (contentParent) {
@@ -164,7 +164,7 @@ class PreviewController {
     const repeatedQuestionInformation = document.querySelector(
       PreviewController.REPEATED_QUESTION_INFORMATION_ID,
     )
-    let enumerator = (<HTMLInputElement>e.target).value
+    const enumerator = (<HTMLInputElement>e.target).value
     repeatedQuestionInformation.classList.toggle('hidden', enumerator === '')
   }
 
@@ -229,9 +229,9 @@ class PreviewController {
     const ret = document.createElement('div')
     const lines = text.split('\n')
     for (let i = 0; i < lines.length; i++) {
-      let currentLine = lines[i].trim()
+      const currentLine = lines[i].trim()
       if (currentLine.startsWith(this.accordionHeader)) {
-        let title = currentLine.substring(4)
+        const title = currentLine.substring(4)
         let content = ''
         let next = i + 1
         while (
@@ -244,7 +244,7 @@ class PreviewController {
         i = next - 1
         ret.appendChild(PreviewController.buildAccordion(title, content))
       } else if (currentLine.startsWith(this.bulletedItem)) {
-        let listItems = [currentLine.substring(2).trim()]
+        const listItems = [currentLine.substring(2).trim()]
         let next = i + 1
         while (
           next < lines.length &&
@@ -269,16 +269,16 @@ class PreviewController {
   }
 
   static buildAccordion(title: string, content: string): Element {
-    let childContent = PreviewController.formatText(
+    const childContent = PreviewController.formatText(
       content,
       /* preserveEmptyLines = */ true,
     )
-    let accordion = document.createElement('div')
+    const accordion = document.createElement('div')
     this.accordionClasses.forEach((accordionClass) =>
       accordion.classList.add(accordionClass),
     )
 
-    let accordionHeader = document.createElement('div')
+    const accordionHeader = document.createElement('div')
     accordionHeader.addEventListener('click', (event: Event) => {
       const parentAccordion = (event.target as Element).closest('.cf-accordion')
       if (parentAccordion) {
@@ -289,14 +289,14 @@ class PreviewController {
       accordionHeader.classList.add(headerClass),
     )
 
-    let accordionTitle = document.createElement('div')
+    const accordionTitle = document.createElement('div')
     this.accordionTitleClasses.forEach((titleClass) =>
       accordionHeader.classList.add(titleClass),
     )
     accordionTitle.textContent = title
     accordionHeader.appendChild(accordionTitle)
 
-    let accordionButton = document.createElement('div')
+    const accordionButton = document.createElement('div')
     accordionHeader.appendChild(accordionButton)
 
     accordion.appendChild(accordionHeader)
@@ -322,4 +322,4 @@ class PreviewController {
   }
 }
 
-let previewController = new PreviewController()
+const previewController = new PreviewController()

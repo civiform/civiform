@@ -120,7 +120,7 @@ class ToastController {
     }
   }
 
-  private getToastIcon(type: String): Element {
+  private getToastIcon(type: string): Element {
     const svgContainer = document.createElement('div')
     svgContainer.classList.add('flex-none', 'pr-2')
 
@@ -224,4 +224,4 @@ type ToastMessage = {
   type: string
 }
 
-let toastController = new ToastController()
+const toastController = new ToastController()

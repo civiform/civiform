@@ -80,7 +80,7 @@ class AdminPrograms {
   /**
    * Attempts to copy the given content to the clipboard.
    * @param content
-   * @returns bool indicating whether the content was copied to the clipboard
+   * @return bool indicating whether the content was copied to the clipboard
    */
   static async tryCopyToClipboard(content: string): Promise<boolean> {
     if (!window.navigator['clipboard']) {

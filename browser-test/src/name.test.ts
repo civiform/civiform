@@ -216,7 +216,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // Optional question has an error.
-      let error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
+      const error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
       expect(await error?.isHidden()).toEqual(false)
     })
 

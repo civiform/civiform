@@ -186,7 +186,7 @@ function addEnumeratorListeners() {
   })
 
   // Whenever an input is added, we need to add a change listener.
-  let mutationObserver = new MutationObserver((records: MutationRecord[]) => {
+  const mutationObserver = new MutationObserver((records: MutationRecord[]) => {
     for (const record of records) {
       for (const newNode of Array.from(record.addedNodes)) {
         const newInputs = Array.from(

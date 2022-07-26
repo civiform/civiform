@@ -89,4 +89,4 @@ class AdminValidationController {
   }
 }
 
-let adminValidationController = new AdminValidationController()
+const adminValidationController = new AdminValidationController()

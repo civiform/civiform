@@ -34,4 +34,4 @@ class ModalController {
   }
 }
 
-let modalController = new ModalController()
+const modalController = new ModalController()
