@@ -3,8 +3,11 @@
 # DOC: Build a new fake oidc docker image, and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
 
 source bin/lib.sh
+export DOCKER_BUILDKIT=1
 
-docker build \
+PLATFORM="${PLATFORM:-"linux/amd64"}"
+
+docker buildx build --platform="${PLATFORM}" \
   -t civiform/oidc-provider:latest \
   -f test-support/oidc.Dockerfile \
   --cache-from civiform/oidc-provider:latest \

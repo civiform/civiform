@@ -1,4 +1,5 @@
-FROM --platform=$BUILDPLATFORM eclipse-temurin:11.0.15_10-jdk-alpine
+# syntax=docker/dockerfile:1
+FROM --platform=$BUILDPLATFORM alpine
 
 ENV SBT_VERSION "1.6.2"
 ENV INSTALL_DIR /usr/local
@@ -14,7 +15,7 @@ RUN set -o pipefail && \
   apk update && \
   apk add --upgrade apk-tools && \
   apk upgrade --available && \
-  apk add --no-cache --update bash wget npm git openssh ncurses
+  apk add --no-cache --update openjdk11 bash wget npm git openssh ncurses
 
 RUN set -o pipefail && \
   npm install -g npm@8.5.1

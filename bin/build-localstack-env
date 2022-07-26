@@ -3,10 +3,13 @@
 # DOC: Build a new docker image for running the localstack container and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
 
 source bin/lib.sh
+export DOCKER_BUILDKIT=1
+
+PLATFORM="${PLATFORM:-"linux/amd64"}"
 
 # A separate image is to include our customizations for
 # https://github.com/seattle-uat/civiform/issues/2639.
-docker build \
+docker buildx build --platform="${PLATFORM}" \
   -t civiform-localstack:latest \
   -f localstack/localstack.Dockerfile \
   --cache-from civiform/civiform-localstack:latest \
