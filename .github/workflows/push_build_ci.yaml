@@ -93,7 +93,7 @@ jobs:
 
       - name: Check build & push
         id: check_build
-        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) || contains(toJSON(steps.file_changes.outputs.files), matrix.script) || contains(toJSON(steps.file_changes.outputs.files), ".github") }}
         run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}" && echo "::set-output name=build::true"
 
       - name: Skip build & push
