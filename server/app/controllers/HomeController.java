@@ -37,13 +37,13 @@ public class HomeController extends Controller {
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
-      LanguageUtils languageUitls) {
+      LanguageUtils languageUtils) {
     checkNotNull(configuration);
     this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
-    this.languageUitls = checkNotNull(languageUitls);
+    this.languageUtils = checkNotNull(languageUtils);
     this.faviconURL =
         Optional.ofNullable(Strings.emptyToNull(configuration.getString("whitelabel.favicon_url")));
   }

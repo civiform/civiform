@@ -79,6 +79,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     Applicant applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
 
     RedirectController controller =
         new RedirectController(
@@ -88,7 +89,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(ProgramRepository.class),
             instanceOf(ApplicantUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
-            mockLangs);
+            languageUtils);
     Result result =
         controller
             .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
@@ -106,6 +107,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     Applicant applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
+    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
 
     RedirectController controller =
         new RedirectController(
@@ -115,7 +117,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(ProgramRepository.class),
             instanceOf(ApplicantUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
-            mockLangs);
+            languageUtils);
     Result result =
         controller
             .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
