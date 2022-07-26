@@ -45,4 +45,7 @@ RUN set -o pipefail && \
 ARG image_tag
 ENV CIVIFORM_IMAGE_TAG=$image_tag
 
+ARG git_commit_sha
+LABEL civiform.git.commit_sha=$git_commit_sha
+
 CMD ["/civiform-server-0.0.1/bin/civiform-server", "-Dconfig.file=/civiform-server-0.0.1/conf/application.conf"]

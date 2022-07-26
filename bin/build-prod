@@ -6,6 +6,7 @@ source bin/lib.sh
 
 export DOCKER_BUILDKIT=1
 readonly SHORT_SHA="$(git rev-parse --short HEAD)"
+readonly GIT_SHA="$(git rev-parse HEAD)"
 readonly DATE_IN_UNIX_SECONDS="$(date +%s)"
 readonly SNAPSHOT_TAG="SNAPSHOT-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}"
 
@@ -18,6 +19,7 @@ docker buildx build --platform="${PLATFORM}" \
   -t civiform:latest \
   --cache-from civiform/civiform:latest \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
+  --build-arg "git_commit_sha=${GIT_SHA}" \
   --build-arg "image_tag=${SNAPSHOT_TAG}" \
   .
 
