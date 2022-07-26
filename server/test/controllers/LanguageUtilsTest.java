@@ -1,8 +1,14 @@
 package controllers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import models.Applicant;
 import org.junit.Test;
+import org.mockito.Mockito;
+import play.i18n.Lang;
 import play.i18n.Langs;
 import repository.UserRepository;
 

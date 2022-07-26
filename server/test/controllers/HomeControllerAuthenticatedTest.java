@@ -29,6 +29,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.UserRepository;
 import views.LoginForm;
 
 public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
@@ -85,27 +86,7 @@ public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
 
     HomeController controller =
         new HomeController(
-            instanceOf(LoginForm.class),
-            instanceOf(ProfileUtils.class),
-            instanceOf(MessagesApi.class),
-            instanceOf(HttpExecutionContext.class),
-            languageUtils);
-    Result result =
-        controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramsController.index(applicant.id).url());
-  }
-
-  @Test
-  public void testLanguageSelectorNotShownOneLanguage() {
-    Applicant applicant = createApplicantWithMockedProfile();
-    Langs mockLangs = Mockito.mock(Langs.class);
-    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
-    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
-
-    HomeController controller =
-        new HomeController(
+            instanceOf(Config.class),
             instanceOf(LoginForm.class),
             instanceOf(ProfileUtils.class),
             instanceOf(MessagesApi.class),
@@ -128,6 +109,7 @@ public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
 
     HomeController controller =
         new HomeController(
+            instanceOf(Config.class),
             instanceOf(LoginForm.class),
             instanceOf(ProfileUtils.class),
             instanceOf(MessagesApi.class),
