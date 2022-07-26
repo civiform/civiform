@@ -124,6 +124,8 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   @Override
   public abstract String serviceName();
 
+  public abstract int fileLimitMb();
+
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -209,6 +211,12 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
     /** Get serviceName. This is used to build the credential and the signing key. */
     abstract String serviceName();
 
+    /** Set fileLimitMb. This is used to build the credential and the signing key. */
+    abstract Builder setFileLimitMb(int fileLimitMb);
+
+    /** Get fileLimitMb. This is used to build the credential and the signing key. */
+    abstract int fileLimitMb();
+
     /** Build the request. This is called by the custom public build method. */
     abstract SignedS3UploadRequest autoBuild();
 
@@ -241,7 +249,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
               .setExpiration(expiration())
               .setBucket(bucket())
               .setKeyPrefix(key().replace("${filename}", ""))
-              .setContentLengthRange(1, 20 * MB_TO_BYTES)
+              .setContentLengthRange(1, fileLimitMb() * MB_TO_BYTES)
               .setSuccessActionRedirect(successActionRedirect())
               .setCredential(credential())
               .setAlgorithm(algorithm())
