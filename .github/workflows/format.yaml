@@ -44,7 +44,7 @@ jobs:
           args: --check .
 
       - name: Run ESLint
-        run: npx eslint . --ext .js,.jsx,.ts,.tsx
+        run: eslint . --ext .js,.jsx,.ts,.tsx
 
       - name: show diff
         run: git add .; git diff --exit-code HEAD

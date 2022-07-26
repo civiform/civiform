@@ -49,7 +49,7 @@ echo 'Done formatting with prettier'
 echo 'Start formatting with eslint'
 npx eslint \
   --fix \
-  {server/app/assets/javascripts,test-support,browser-test}
+  {server/app/assets/javascripts,server/tailwind.config.js,test-support,browser-test}
 echo 'Done formatting with eslint'
 
 echo 'Start format shell'
