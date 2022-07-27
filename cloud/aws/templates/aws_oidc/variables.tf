@@ -58,6 +58,12 @@ variable "favicon_url" {
   default     = "https://civiform.us/favicon.png"
 }
 
+variable "vpc_name" {
+  type        = string
+  description = "Name of the VPC"
+  default     = "civiform-vpc"
+}
+
 variable "vpc_cidr" {
   type        = string
   description = "Cidr for VPC"
