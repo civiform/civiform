@@ -8,6 +8,7 @@ export {AdminPrograms} from './admin_programs'
 export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantQuestions} from './applicant_questions'
+export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, waitForPageJsLoad} from './wait'
 import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
 export {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD}
@@ -111,6 +112,11 @@ export const loginAsTrustedIntermediary = async (page: Page) => {
 export const loginAsGuest = async (page: Page) => {
   await page.click('#guest')
   await waitForPageJsLoad(page)
+}
+
+export const setLangEsUS = async (page: Page) => {
+  await page.click('text=Español')
+  await page.click('text=Submit')
 }
 
 export const loginAsTestUser = async (page: Page) => {

@@ -39,7 +39,7 @@ public class LanguageSelector {
         langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
   }
 
-  public Lang getPreferredLangage(Http.Request request) {
+  public Lang getPreferredLangage(Http.RequestHeader request) {
     return messagesApi.preferred(request).lang();
   }
 
