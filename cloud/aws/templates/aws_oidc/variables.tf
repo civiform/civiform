@@ -60,8 +60,8 @@ variable "favicon_url" {
 
 variable "vpc_name" {
   type        = string
-  description = "Name of the VPC for the database"
-  default     = "civiform_rds_vpc"
+  description = "Name of the VPC"
+  default     = "civiform-vpc"
 }
 
 variable "vpc_cidr" {
