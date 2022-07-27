@@ -1,7 +1,7 @@
 import axe = require('axe-core')
 
 interface CustomMatchers<R = unknown> {
-  toHaveNoViolations(): R
+  toHaveNoA11yViolations(): R
 }
 
 declare global {
@@ -14,7 +14,7 @@ declare global {
 
 // Custom matcher that outputs accessibility violations using axe.
 expect.extend({
-  toHaveNoViolations(results: axe.AxeResults) {
+  toHaveNoA11yViolations(results: axe.AxeResults) {
     const numViolations = results.violations.length
     const pass = numViolations == 0
     if (pass) {

@@ -306,6 +306,6 @@ export class ApplicantQuestions {
       return axe.run()
     })
 
-    expect(results).toHaveNoViolations()
+    expect(results).toHaveNoA11yViolations()
   }
 }
