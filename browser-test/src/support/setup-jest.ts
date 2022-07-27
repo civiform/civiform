@@ -1,6 +1,5 @@
 import axe = require('axe-core')
 
-//  https://jestjs.io/docs/expect
 interface CustomMatchers<R = unknown> {
   toHaveNoViolations(): R
 }
@@ -13,7 +12,7 @@ declare global {
   }
 }
 
-// Print out all accessibility violations, and link to how to fix?
+// Custom matcher that outputs accessibility violations using axe.
 expect.extend({
   toHaveNoViolations(results: axe.AxeResults) {
     const numViolations = results.violations.length
