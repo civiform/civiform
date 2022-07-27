@@ -20,3 +20,22 @@ variable "db_tier_type" {
   description = "vm tier type to run db instance"
   default     = "db-f1-micro"
 }
+
+variable "http_port" {
+  type        = number
+  description = "The container port application runs on"
+  default     = 9000
+}
+
+variable "project_id" {
+  type        = string
+  description = "The Id of the project"
+  default     = "civiform-demo"
+}
+
+variable "civiform_image_name" {
+  type        = string
+  description = "the image name postfix for civiform."
+  default     = "civiform:latest"
+}
+
