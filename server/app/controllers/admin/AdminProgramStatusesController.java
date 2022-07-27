@@ -4,7 +4,6 @@ import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
-import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import forms.admin.ProgramStatusesForm;
@@ -67,10 +66,11 @@ public final class AdminProgramStatusesController extends CiviFormController {
   }
 
   /**
-   * Creates a new status or updates an existing status associated with the program. Creation is
-   * signified by the "configuredStatusText" form parameter being set to empty. Updates are
-   * signified by the "configuredStatusText" form parameter being set to a status that already
-   * exists in the current program definition.
+   * Creates a new status or updates an existing status associated with the program.
+   *
+   * <p>Creation is signified by the "configuredStatusText" form parameter being set to empty.
+   * Updates are signified by the "configuredStatusText" form parameter being set to a status that
+   * already exists in the current program definition.
    *
    * <p>If a status is created, it's appended to the end of the list of current statuses. If a
    * status is edited, it's replaced in-line.
@@ -111,12 +111,9 @@ public final class AdminProgramStatusesController extends CiviFormController {
     if (mutateResult.isError()) {
       return redirect(indexUrl).flashing("error", joinErrors(mutateResult.getErrors()));
     }
-    return redirect(indexUrl)
-        .flashing(
-            "success",
-            previousStatusCount == mutateResult.getResult().statusDefinitions().getStatuses().size()
-                ? "Status updated"
-                : "Status created");
+    boolean isUpdate =
+        previousStatusCount == mutateResult.getResult().statusDefinitions().getStatuses().size();
+    return redirect(indexUrl).flashing("success", isUpdate ? "Status updated" : "Status created");
   }
 
   private ErrorAnd<ProgramDefinition, CiviFormError> createOrEditStatusFromFormData(
@@ -125,29 +122,35 @@ public final class AdminProgramStatusesController extends CiviFormController {
     // An empty "configuredStatusText" parameter indicates that a new
     // status should be created.
     if (formData.getConfiguredStatusText().isEmpty()) {
-      return service.appendStatus(
-          program.id(),
+      StatusDefinitions.Status.Builder newStatusBuilder =
           StatusDefinitions.Status.builder()
               .setStatusText(formData.getStatusText())
-              .setLocalizedStatusText(LocalizedStrings.withDefaultValue(formData.getStatusText()))
-              .setEmailBodyText(formData.getEmailBody())
-              .setLocalizedEmailBodyText(
-                  Optional.of(LocalizedStrings.withDefaultValue(formData.getEmailBody())))
-              .build());
+              .setLocalizedStatusText(LocalizedStrings.withDefaultValue(formData.getStatusText()));
+      if (!formData.getEmailBody().isBlank()) {
+        newStatusBuilder =
+            newStatusBuilder
+                .setEmailBodyText(formData.getEmailBody())
+                .setLocalizedEmailBodyText(
+                    Optional.of(LocalizedStrings.withDefaultValue(formData.getEmailBody())));
+      }
+      return service.appendStatus(program.id(), newStatusBuilder.build());
     }
     return service.editStatus(
         program.id(),
         formData.getConfiguredStatusText(),
         (existingStatus) -> {
-          return StatusDefinitions.Status.builder()
-              .setStatusText(formData.getStatusText())
-              .setEmailBodyText(formData.getEmailBody())
-              // Note: We preserve the existing localized status / email body
-              // text so that existing translated content isn't destroyed upon
-              // editing status.
-              .setLocalizedStatusText(existingStatus.localizedStatusText())
-              .setLocalizedEmailBodyText(existingStatus.localizedEmailBodyText())
-              .build();
+          StatusDefinitions.Status.Builder builder =
+              StatusDefinitions.Status.builder()
+                  .setStatusText(formData.getStatusText())
+                  // Note: We preserve the existing localized status / email body
+                  // text so that existing translated content isn't destroyed upon
+                  // editing status.
+                  .setLocalizedStatusText(existingStatus.localizedStatusText())
+                  .setLocalizedEmailBodyText(existingStatus.localizedEmailBodyText());
+          if (!formData.getEmailBody().isBlank()) {
+            builder = builder.setEmailBodyText(formData.getEmailBody());
+          }
+          return builder.build();
         });
   }
 
@@ -165,10 +168,12 @@ public final class AdminProgramStatusesController extends CiviFormController {
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     String rawDeleteStatusText = requestData.get(ProgramStatusesView.DELETE_STATUS_TEXT_NAME);
-    if (Strings.isNullOrEmpty(rawDeleteStatusText)) {
+    // TODO(#2752): Consider only trimming the user-provided data before serializing
+    // to a program's statuses here and when editing a status.
+    final String deleteStatusText = rawDeleteStatusText != null ? rawDeleteStatusText.trim() : "";
+    if (deleteStatusText.isBlank()) {
       return badRequest("missing or empty status text");
     }
-    final String deleteStatusText = rawDeleteStatusText.trim();
 
     final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();
     ErrorAnd<ProgramDefinition, CiviFormError> deleteStatusResult =

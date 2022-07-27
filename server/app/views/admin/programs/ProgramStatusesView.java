@@ -73,7 +73,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
       ProgramDefinition program,
       Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
     final Form<ProgramStatusesForm> createStatusForm;
-    if (isFormForCurrentStatus(Optional.empty(), maybeStatusForm)) {
+    if (isFormForStatus(/* maybeStatus= */ Optional.empty(), maybeStatusForm)) {
       createStatusForm = maybeStatusForm.get();
     } else {
       createStatusForm =
@@ -159,7 +159,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .map(
                 s -> {
                   final Form<ProgramStatusesForm> statusEditForm;
-                  if (isFormForCurrentStatus(Optional.of(s), maybeStatusForm)) {
+                  if (isFormForStatus(Optional.of(s), maybeStatusForm)) {
                     statusEditForm = maybeStatusForm.get();
                   } else {
                     statusEditForm =
@@ -287,16 +287,16 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   /**
-   * Returns whether the form matches the current status object being rendered. The page has
-   * multiple inline modals for editing and creating statuses.
+   * Returns whether the form matches the status object being rendered. The page has multiple inline
+   * modals for editing and creating statuses.
    */
-  private boolean isFormForCurrentStatus(
+  private static boolean isFormForStatus(
       Optional<StatusDefinitions.Status> maybeStatus,
       Optional<Form<ProgramStatusesForm>> maybeEditForm) {
-    String wantconfiguredStatusText =
+    String wantConfiguredStatusText =
         maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
     return maybeEditForm.isPresent()
-        && wantconfiguredStatusText.equalsIgnoreCase(
+        && wantConfiguredStatusText.equalsIgnoreCase(
             maybeEditForm.get().value().get().getConfiguredStatusText());
   }
 

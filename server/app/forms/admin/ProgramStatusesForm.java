@@ -46,7 +46,7 @@ public final class ProgramStatusesForm implements Validatable<List<ValidationErr
   }
 
   public String getConfiguredStatusText() {
-    return checkNotNull(configuredStatusText);
+    return configuredStatusText;
   }
 
   public void setConfiguredStatusText(String value) {
@@ -54,7 +54,7 @@ public final class ProgramStatusesForm implements Validatable<List<ValidationErr
   }
 
   public String getStatusText() {
-    return checkNotNull(statusText);
+    return statusText;
   }
 
   public void setStatusText(String value) {
@@ -62,7 +62,7 @@ public final class ProgramStatusesForm implements Validatable<List<ValidationErr
   }
 
   public String getEmailBody() {
-    return checkNotNull(emailBody);
+    return emailBody;
   }
 
   public void setEmailBody(String value) {
