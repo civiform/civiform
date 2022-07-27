@@ -26,35 +26,45 @@ public class LanguageUtilsTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testOneLanguageSetDefaultNonUs() {
+  public void testOneLanguageSetDefault() {
     Applicant applicant = createApplicantWithMockedProfile();
     assertThat(applicant.getApplicantData().hasPreferredLocale()).isFalse();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("ko")));
     LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
     applicant = languageUtils.maybeSetDefaultLocale(applicant);
-    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.KOREA);
-  }
-
-  @Test
-  public void testOneLanguageSetDefault() {
-    Applicant applicant = createApplicantWithMockedProfile();
-    assertThat(applicant.getApplicantData().hasPreferredLocale()).isFalse();
-    Langs mockLangs = Mockito.mock(Langs.class);
-    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
-    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
-    applicant = languageUtils.maybeSetDefaultLocale(applicant);
-    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.US);
+    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.KOREAN);
   }
 
   @Test
   public void testNoLanguageSetDefaultUs() {
     Applicant applicant = createApplicantWithMockedProfile();
-    applicant.getApplicantData().setPreferredLocale(Locale.CHINA);
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
     applicant = languageUtils.maybeSetDefaultLocale(applicant);
     assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.US);
+  }
+
+  @Test
+  public void testNoLanguageKeepPreferredLanguageIfSet() {
+    Applicant applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.KOREAN);
+    Langs mockLangs = Mockito.mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of());
+    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
+    applicant = languageUtils.maybeSetDefaultLocale(applicant);
+    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.KOREAN);
+  }
+
+  @Test
+  public void testOneLanguageKeepPreferredLanguageIfSet() {
+    Applicant applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.KOREAN);
+    Langs mockLangs = Mockito.mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
+    applicant = languageUtils.maybeSetDefaultLocale(applicant);
+    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.KOREAN);
   }
 }
