@@ -95,6 +95,11 @@ public final class VersionRepository {
               activeQuestion ->
                   !draftQuestionNames.contains(activeQuestion.getQuestionDefinition().getName()))
           // For each active question not associated with the draft, associate it with the draft.
+          // The relationship between Questions and Versions is many-to-may. When updating the
+          // relationship, one of the EBean models needs to be saved. We update the Version
+          // side of the relationship rather than the Question side in order to prevent the
+          // save causing the "updated" timestamp to be changed for a Question. We intend for
+          // that timestamp only to be updated for actual changes to the question.
           .forEach(activeQuestionNotInDraft -> draft.addQuestion(activeQuestionNotInDraft));
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE).save();
