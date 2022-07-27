@@ -52,8 +52,8 @@ public class SimpleStorage implements StorageClient {
       ApplicationLifecycle appLifecycle) {
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
-    this.bucket = config.getString(AWS_S3_BUCKET_CONF_PATH);
-    this.fileLimitMb = config.getInt(AWS_S3_FILE_LIMIT_CONF_PATH);
+    this.bucket = checkNotNull(config).getString(AWS_S3_BUCKET_CONF_PATH);
+    this.fileLimitMb = checkNotNull(config).getInt(AWS_S3_FILE_LIMIT_CONF_PATH);
     if (environment.isDev()) {
       client = new LocalStackClient(config);
     } else if (environment.isTest()) {
