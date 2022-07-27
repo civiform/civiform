@@ -92,6 +92,16 @@ describe('file upload applicant flow', () => {
       const error = await pageObject.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
     })
+
+    // Failing because no associated label
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.validateAccessibility()
+    })
   })
 
   // Optional file upload.

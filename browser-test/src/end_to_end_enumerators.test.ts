@@ -134,9 +134,13 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
     await applicantQuestions.clickNext()
 
+    // Validate that enumerators are accessible
+    await applicantQuestions.validateAccessibility()
+
     // Put in two things in the enumerator question
     await applicantQuestions.addEnumeratorAnswer('Bugs')
     await applicantQuestions.addEnumeratorAnswer('Daffy')
+
     await applicantQuestions.clickNext()
 
     // FIRST REPEATED ENTITY

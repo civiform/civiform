@@ -197,5 +197,14 @@ describe('Text question for applicant flow', () => {
         'Must contain at most 20 characters.',
       )
     })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.validateAccessibility()
+    })
   })
 })

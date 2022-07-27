@@ -163,6 +163,15 @@ describe('name applicant flow', () => {
       error = await pageObject.$(`${NAME_LAST}-error >> nth=1`)
       expect(await error?.isHidden()).toEqual(false)
     })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.validateAccessibility()
+    })
   })
 
   // One optional name followed by one required name.

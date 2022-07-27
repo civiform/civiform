@@ -118,5 +118,14 @@ describe('Email question for applicant flow', () => {
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.validateAccessibility()
+    })
   })
 })
