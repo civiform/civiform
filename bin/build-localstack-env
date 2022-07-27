@@ -1,28 +1,37 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new docker image for running the localstack container and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
+# DOC: Build a new docker image for running the localstack container and optionally push to Docker Hub if PUSH_IMAGE is set to anything. Builds for "linux/amd64" unless PLATFORM is set
 
 source bin/lib.sh
-export DOCKER_BUILDKIT=1
 
-PLATFORM="${PLATFORM:-"linux/amd64"}"
+IMAGE="civiform-localstack"
+LOCATION="localstack/"
+DOCKERFILE="localstack/localstack.Dockerfile"
 
-# A separate image is to include our customizations for
-# https://github.com/seattle-uat/civiform/issues/2639.
-docker buildx build --platform="${PLATFORM}" \
-  -t civiform-localstack:latest \
-  -f localstack/localstack.Dockerfile \
-  --cache-from civiform/civiform-localstack:latest \
-  --build-arg BUILDKIT_INLINE_CACHE=1 \
-  localstack/
+BUILD_ARGS=(-f "${DOCKERFILE}"
+  -t "civiform/${IMAGE}:latest"
+  --cache-from "civiform/${IMAGE}"
+  --build-arg BUILDKIT_INLINE_CACHE=1
+  "${LOCATION}")
+
+PLATFORM_ARG=()
+if [[ "${PLATFORM}" ]]; then
+  PLATFORM_ARG=(--platform "${PLATFORM}")
+fi
+
+# Build the multi-platform image
+echo "start ${IMAGE} build"
+docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+
+# Load the image from the cache
+echo "load ${IMAGE} build"
+docker buildx build --load "${BUILD_ARGS[@]}"
 
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
-
-  docker tag \
-    civiform-localstack:latest \
-    civiform/civiform-localstack:latest
-
-  # push the new image to the Docker Hub registry
-  docker push docker.io/civiform/civiform-localstack:latest
+  # Push the image from the cache to dockerhub
+  echo "push ${IMAGE} build"
+  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
+
+docker tag "civiform/${IMAGE}:latest" "${IMAGE}:latest"
