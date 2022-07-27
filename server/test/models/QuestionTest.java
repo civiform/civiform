@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
@@ -185,5 +186,41 @@ public class QuestionTest extends ResetPostgres {
         (EnumeratorQuestionDefinition) found.getQuestionDefinition();
 
     assertThat(enumerator.getEntityType()).isEqualTo(entityType);
+  }
+
+  @Test
+  public void testTimestamps() throws Exception {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            "test", Optional.of(10L), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    Question initialQuestion = new Question(questionDefinition);
+    initialQuestion.save();
+
+    assertThat(initialQuestion.getCreateTime()).isNotEmpty();
+    assertThat(initialQuestion.getLastModifiedTime()).isNotEmpty();
+
+    // Ensure a freshly loaded copy has the same timestamps.
+    Question freshlyLoaded =
+        repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
+    assertThat(freshlyLoaded.getCreateTime()).isEqualTo(initialQuestion.getCreateTime());
+    assertThat(freshlyLoaded.getLastModifiedTime())
+        .isEqualTo(initialQuestion.getLastModifiedTime());
+
+    // Update the copy.
+    // When persisting models with @WhenModified fields, EBean
+    // truncates the persisted timestamp to milliseconds:
+    // https://github.com/seattle-uat/civiform/pull/2499#issuecomment-1133325484.
+    // Sleep for a few milliseconds to ensure that a subsequent
+    // update would have a distinct timestamp.
+    TimeUnit.MILLISECONDS.sleep(5);
+    freshlyLoaded.markAsDirty();
+    freshlyLoaded.save();
+
+    Question afterUpdate =
+        repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
+    assertThat(afterUpdate.getCreateTime()).isEqualTo(initialQuestion.getCreateTime());
+    assertThat(afterUpdate.getLastModifiedTime()).isPresent();
+    assertThat(afterUpdate.getLastModifiedTime().get())
+        .isAfter(initialQuestion.getLastModifiedTime().get());
   }
 }
