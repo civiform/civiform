@@ -1,14 +1,16 @@
 package services.applicant;
 
 import auth.CiviFormProfile;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
-import models.LifecycleStage;
 import repository.TimeFilter;
+import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 
@@ -83,15 +85,6 @@ public interface ApplicantService {
   ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       Application application, ProgramDefinition programDefinition);
 
-  /**
-   * Return all programs that are appropriate to serve to an applicant - which is any active program
-   * that is public and any program where they have an application in the draft stage.
-   *
-   * <p>The programs do not have question definitions loaded into its program question definitions.
-   */
-  CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>> relevantPrograms(
-      long applicantId);
-
   /** Return the name of the given applicant id. */
   CompletionStage<Optional<String>> getName(long applicantId);
 
@@ -99,9 +92,65 @@ public interface ApplicantService {
   CompletionStage<Optional<String>> getEmail(long applicantId);
 
   /**
-   * Return a filtered set of applications, including applications from previous versions, with
-   * program, applicant, and account associations eager loaded. Results are ordered by application
-   * ID in ascending order.
+   * Return a filtered set of applications for all applicants, including applications from previous
+   * versions, with program, applicant, and account associations eager loaded. Results are ordered
+   * by application ID in ascending order.
    */
   ImmutableList<Application> getApplications(TimeFilter submitTimeFilter);
+
+  /**
+   * Return all programs that are appropriate to serve to an applicant. Appropriate programs are
+   * those where the applicant:
+   *
+   * <ul>
+   *   <li>Has a draft application
+   *   <li>Has previously applied
+   *   <li>Any other programs that are public
+   * </ul>
+   */
+  CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId);
+
+  /**
+   * Relevant program data to be shown to the applicant, including the time at which the applicant
+   * most recently submitted an application for some version of the program.
+   */
+  @AutoValue
+  public abstract static class ApplicantProgramData {
+    public abstract ProgramDefinition program();
+
+    public abstract Optional<Instant> latestSubmittedApplicationTime();
+
+    static ApplicantProgramData create(
+        ProgramDefinition program, Optional<Instant> latestSubmittedApplicationTime) {
+      return new AutoValue_ApplicantService_ApplicantProgramData(
+          program, latestSubmittedApplicationTime);
+    }
+  }
+
+  /**
+   * A categorized list of relevant {@link ApplicantProgramData}s to be displayed to the applicant.
+   */
+  @AutoValue
+  public abstract static class RelevantPrograms {
+    public abstract ImmutableList<ApplicantProgramData> inProgress();
+
+    public abstract ImmutableList<ApplicantProgramData> submitted();
+
+    public abstract ImmutableList<ApplicantProgramData> unapplied();
+
+    static Builder builder() {
+      return new AutoValue_ApplicantService_RelevantPrograms.Builder();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+      abstract Builder setInProgress(ImmutableList<ApplicantProgramData> value);
+
+      abstract Builder setSubmitted(ImmutableList<ApplicantProgramData> value);
+
+      abstract Builder setUnapplied(ImmutableList<ApplicantProgramData> value);
+
+      abstract RelevantPrograms build();
+    }
+  }
 }

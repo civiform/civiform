@@ -8,28 +8,38 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
+import models.DisplayMode;
 import models.LifecycleStage;
+import models.Program;
 import models.StoredFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.UserRepository;
+import repository.VersionRepository;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationSubmissionException;
@@ -45,10 +55,11 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 /** Implementation class for ApplicantService interface. */
-public class ApplicantServiceImpl implements ApplicantService {
+public final class ApplicantServiceImpl implements ApplicantService {
 
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
+  private final VersionRepository versionRepository;
   private final StoredFileRepository storedFileRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
@@ -59,11 +70,13 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
+  private final Logger logger = LoggerFactory.getLogger(ApplicantServiceImpl.class);
 
   @Inject
   public ApplicantServiceImpl(
       ApplicationRepository applicationRepository,
       UserRepository userRepository,
+      VersionRepository versionRepository,
       StoredFileRepository storedFileRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
@@ -72,6 +85,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
+    this.versionRepository = checkNotNull(versionRepository);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
@@ -297,12 +311,6 @@ public class ApplicantServiceImpl implements ApplicantService {
             httpExecutionContext.current());
   }
 
-  @Override
-  public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
-      relevantPrograms(long applicantId) {
-    return userRepository.programsForApplicant(applicantId);
-  }
-
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
     String viewLink =
@@ -402,6 +410,149 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public ImmutableList<Application> getApplications(TimeFilter submitTimeFilter) {
     return applicationRepository.getApplications(submitTimeFilter);
+  }
+
+  @Override
+  public CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId) {
+    // Note: The Program model associated with the application is eagerly loaded.
+    CompletableFuture<ImmutableSet<Application>> applicationsFuture =
+        applicationRepository
+            .getApplicationsForApplicant(
+                applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
+            .toCompletableFuture();
+    ImmutableList<ProgramDefinition> activePrograms =
+        versionRepository.getActiveVersion().getPrograms().stream()
+            .map(Program::getProgramDefinition)
+            .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
+            .collect(ImmutableList.toImmutableList());
+
+    return applicationsFuture.thenApplyAsync(
+        applications -> {
+          checkForDuplicateDrafts(applications);
+          return relevantProgramsForApplicant(activePrograms, applications);
+        },
+        httpExecutionContext.current());
+  }
+
+  private RelevantPrograms relevantProgramsForApplicant(
+      ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
+    // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
+    // provided active programs contains duplicate entries with the same adminName. In this
+    // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
+    // construction where the same key is provided twice. Using Collectors.toMap would just
+    // use the last provided key.
+    ImmutableMap<String, ProgramDefinition> activeProgramNames =
+        ImmutableMap.copyOf(
+            activePrograms.stream()
+                .collect(Collectors.toMap(ProgramDefinition::adminName, pdef -> pdef)));
+
+    // When new revisions of Programs are created, they have distinct IDs but retain the
+    // same adminName. In order to find the most recent draft / active application,
+    // we first group by the unique program name rather than the ID.
+    Map<String, Map<LifecycleStage, Optional<Application>>> mostRecentApplicationsByProgram =
+        applications.stream()
+            .collect(
+                Collectors.groupingBy(
+                    a -> {
+                      return a.getProgram().getProgramDefinition().adminName();
+                    },
+                    Collectors.groupingBy(
+                        Application::getLifecycleStage,
+                        // In practice, we don't expect an applicant to have multiple
+                        // DRAFT or ACTIVE applications for a given program. Grabbing the latest
+                        // application here guards against that case, should it occur.
+                        Collectors.maxBy(
+                            Comparator.<Application, Instant>comparing(
+                                    a -> {
+                                      return a.getSubmitTime() != null
+                                          ? a.getSubmitTime()
+                                          : Instant.ofEpochMilli(0);
+                                    })
+                                .thenComparing(Application::getCreateTime)))));
+
+    ImmutableList.Builder<ApplicantProgramData> inProgressPrograms = ImmutableList.builder();
+    ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
+    ImmutableList.Builder<ApplicantProgramData> unappliedPrograms = ImmutableList.builder();
+
+    Set<String> programNamesWithApplications = Sets.newHashSet();
+    mostRecentApplicationsByProgram.forEach(
+        (programName, appByStage) -> {
+          Optional<Application> maybeDraftApp =
+              appByStage.getOrDefault(LifecycleStage.DRAFT, Optional.empty());
+          Optional<Application> maybeSubmittedApp =
+              appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
+          Optional<Instant> latestSubmittedApplicationTime =
+              maybeSubmittedApp.map(Application::getSubmitTime);
+          if (maybeDraftApp.isPresent()) {
+            inProgressPrograms.add(
+                ApplicantProgramData.create(
+                    maybeDraftApp.get().getProgram().getProgramDefinition(),
+                    latestSubmittedApplicationTime));
+            programNamesWithApplications.add(programName);
+          } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
+            ProgramDefinition programDef = activeProgramNames.get(programName);
+            submittedPrograms.add(
+                ApplicantProgramData.create(programDef, latestSubmittedApplicationTime));
+            programNamesWithApplications.add(programName);
+          }
+        });
+
+    Set<String> unappliedActivePrograms =
+        Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
+    unappliedActivePrograms.forEach(
+        programName -> {
+          unappliedPrograms.add(
+              ApplicantProgramData.create(activeProgramNames.get(programName), Optional.empty()));
+        });
+
+    // Ensure each list is ordered by database ID for consistent ordering.
+    return RelevantPrograms.builder()
+        .setInProgress(sortByProgramId(inProgressPrograms.build()))
+        .setSubmitted(sortByProgramId(submittedPrograms.build()))
+        .setUnapplied(sortByProgramId(unappliedPrograms.build()))
+        .build();
+  }
+
+  private ImmutableList<ApplicantProgramData> sortByProgramId(
+      ImmutableList<ApplicantProgramData> programs) {
+    return programs.stream()
+        .sorted(Comparator.comparing(p -> p.program().id()))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private void checkForDuplicateDrafts(ImmutableSet<Application> applications) {
+    // Add logging to better understand a bug where some applicants were seeing
+    // duplicates of programs for which they had draft applications. We can remove
+    // this logging once we determine and resolve the root cause of the duplicate
+    // draft applications.
+    Collection<Map<LifecycleStage, List<Application>>> groupedByStatus =
+        applications.stream()
+            .collect(
+                Collectors.groupingBy(
+                    a -> {
+                      return a.getProgram().getProgramDefinition().adminName();
+                    },
+                    Collectors.groupingBy(Application::getLifecycleStage)))
+            .values();
+    for (Map<LifecycleStage, List<Application>> programAppsMap : groupedByStatus) {
+      List<Application> draftApplications =
+          programAppsMap.getOrDefault(LifecycleStage.DRAFT, Lists.newArrayList());
+      if (draftApplications.size() > 1) {
+        String joinedProgramIds =
+            String.join(
+                ", ",
+                draftApplications.stream()
+                    .map(a -> String.format("%d", a.getProgram().getProgramDefinition().id()))
+                    .collect(ImmutableList.toImmutableList()));
+        logger.debug(
+            String.format(
+                "DEBUG LOG ID: 98afa07855eb8e69338b5af13236a6b7. Program"
+                    + " Admin Name: %1$s, Duplicate Program Definition"
+                    + " ids: %2$s.",
+                draftApplications.get(0).getProgram().getProgramDefinition().adminName(),
+                joinedProgramIds));
+      }
+    }
   }
 
   /**
