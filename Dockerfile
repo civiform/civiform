@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM --platform=$BUILDPLATFORM alpine
+FROM alpine
 
 ENV SBT_VERSION "1.6.2"
 ENV INSTALL_DIR /usr/local
