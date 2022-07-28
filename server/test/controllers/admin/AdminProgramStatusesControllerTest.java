@@ -12,7 +12,6 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Program;
@@ -42,8 +41,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
           .setEmailBodyText("Approved email body")
-          .setLocalizedEmailBodyText(
-              Optional.of(LocalizedStrings.withDefaultValue("Approved email body")))
+          .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("Approved email body"))
           .build();
 
   private static final StatusDefinitions.Status REJECTED_STATUS =
@@ -51,8 +49,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
           .setStatusText("Rejected")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Rejected"))
           .setEmailBodyText("Rejected email body")
-          .setLocalizedEmailBodyText(
-              Optional.of(LocalizedStrings.withDefaultValue("Rejected email body")))
+          .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("Rejected email body"))
           .build();
 
   private static final ImmutableList<StatusDefinitions.Status> ORIGINAL_STATUSES =
@@ -124,7 +121,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
                     .setLocalizedStatusText(LocalizedStrings.withDefaultValue("foo"))
                     .setEmailBodyText("some email content")
                     .setLocalizedEmailBodyText(
-                        Optional.of(LocalizedStrings.withDefaultValue("some email content")))
+                        LocalizedStrings.withDefaultValue("some email content"))
                     .build()));
   }
 
@@ -147,17 +144,21 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.flash().data())
         .containsExactlyEntriesOf(ImmutableMap.of("success", "Status updated"));
 
+    StatusDefinitions.Status.Builder expectedStatusBuilder =
+        StatusDefinitions.Status.builder()
+            .setStatusText("Foo")
+            .setLocalizedStatusText(APPROVED_STATUS.localizedStatusText())
+            .setEmailBodyText("Updated email content");
+    if (APPROVED_STATUS.localizedEmailBodyText().isPresent()) {
+      expectedStatusBuilder =
+          expectedStatusBuilder.setLocalizedEmailBodyText(
+              APPROVED_STATUS.localizedEmailBodyText().get());
+    }
+    StatusDefinitions.Status expectedStatus = expectedStatusBuilder.build();
+
     // Load the updated program and ensure status the status is present.
     assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
-        .isEqualTo(
-            ImmutableList.of(
-                StatusDefinitions.Status.builder()
-                    .setStatusText("Foo")
-                    .setLocalizedStatusText(APPROVED_STATUS.localizedStatusText())
-                    .setEmailBodyText("Updated email content")
-                    .setLocalizedEmailBodyText(APPROVED_STATUS.localizedEmailBodyText())
-                    .build(),
-                REJECTED_STATUS));
+        .isEqualTo(ImmutableList.of(expectedStatus, REJECTED_STATUS));
   }
 
   @Test
