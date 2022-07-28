@@ -6,6 +6,7 @@ import forms.BlockForm;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 import models.Application;
 import models.Program;
 import play.libs.F;
@@ -370,7 +371,44 @@ public interface ProgramService {
   /** Get the slugs for all programs. */
   ImmutableSet<String> getAllProgramSlugs();
 
-  /** Set the statuses available for application reviews. */
-  ErrorAnd<ProgramDefinition, CiviFormError> setStatuses(long programId, StatusDefinitions statuses)
+  /**
+   * Appends a new status available for application reviews.
+   *
+   * @param programId The program to update.
+   * @param status The status that should be appended.
+   * @throws ProgramNotFoundException If the specified Program could not be found.
+   * @throws DuplicateStatusException If the provided status to already exists in the list of
+   *     available statuses for application review.
+   */
+  ErrorAnd<ProgramDefinition, CiviFormError> appendStatus(
+      long programId, StatusDefinitions.Status status)
+      throws ProgramNotFoundException, DuplicateStatusException;
+
+  /**
+   * Updates an existing status this is available for application reviews.
+   *
+   * @param programId The program to update.
+   * @param toReplaceStatusName The name of the status that should be updated.
+   * @param statusReplacer A single argument function that maps the existing status to the value it
+   *     should be updated to. The existing status is provided in case the caller might want to
+   *     preserve values from the previous status (e.g. localized text).
+   * @throws ProgramNotFoundException If the specified Program could not be found.
+   * @throws DuplicateStatusException If the updated status already exists in the list of available
+   *     statuses for application review.
+   */
+  ErrorAnd<ProgramDefinition, CiviFormError> editStatus(
+      long programId,
+      String toReplaceStatusName,
+      Function<StatusDefinitions.Status, StatusDefinitions.Status> statusReplacer)
+      throws ProgramNotFoundException, DuplicateStatusException;
+
+  /**
+   * Removes an existing status from the list of available statuses for application reviews.
+   *
+   * @param programId The program to update.
+   * @param toRemoveStatusName The name of the status that should be removed.
+   * @throws ProgramNotFoundException If the specified Program could not be found.
+   */
+  ErrorAnd<ProgramDefinition, CiviFormError> deleteStatus(long programId, String toRemoveStatusName)
       throws ProgramNotFoundException;
 }

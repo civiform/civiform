@@ -3,6 +3,8 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.assertj.core.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -1162,31 +1164,209 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(found.hasOrderedBlockDefinitions()).isTrue();
   }
 
-  @Test
-  public void updateStatuses_programNotFound_throws() throws Exception {
+  private static final StatusDefinitions.Status APPROVED_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Approved")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
+          .setEmailBodyText("I'm an email!")
+          .setLocalizedEmailBodyText(LocalizedStrings.of(Locale.US, "I'm a US email!"))
+          .build();
 
-    assertThatThrownBy(() -> ps.setStatuses(1000L, new StatusDefinitions()))
-        .isInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID: 1000");
+  private static final StatusDefinitions.Status REJECTED_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Rejected")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Rejected"))
+          .setEmailBodyText("I'm a rejection email!")
+          .setLocalizedEmailBodyText(LocalizedStrings.of(Locale.US, "I'm a US rejection email!"))
+          .build();
+
+  @Test
+  public void appendStatus() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram().build();
+    assertThat(program.getStatusDefinitions().getStatuses()).isEmpty();
+
+    final ErrorAnd<ProgramDefinition, CiviFormError> firstResult =
+        ps.appendStatus(program.id, APPROVED_STATUS);
+
+    assertThat(firstResult.isError()).isFalse();
+    assertThat(firstResult.getResult().statusDefinitions().getStatuses())
+        .containsExactly(APPROVED_STATUS);
+
+    // Ensure that appending to a non-empty list actually appends.
+    ErrorAnd<ProgramDefinition, CiviFormError> secondResult =
+        ps.appendStatus(program.id, REJECTED_STATUS);
+
+    assertThat(secondResult.isError()).isFalse();
+    assertThat(secondResult.getResult().statusDefinitions().getStatuses())
+        .containsExactly(APPROVED_STATUS, REJECTED_STATUS);
   }
 
   @Test
-  public void updateAndGetStatuses() throws Exception {
-    Program program = ProgramBuilder.newActiveProgram().build();
+  public void appendStatus_programNotFound_throws() throws Exception {
+    assertThatThrownBy(() -> ps.appendStatus(Long.MAX_VALUE, APPROVED_STATUS))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
 
-    var status =
+  @Test
+  public void appendStatus_duplicateStatus_throws() throws Exception {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+
+    var newApprovedStatus =
         StatusDefinitions.Status.builder()
-            .setStatusText("Approved")
-            .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
-            .setEmailBodyText("I'm an email!")
-            .setLocalizedEmailBodyText(LocalizedStrings.of(Locale.US, "I'm a US email!"))
+            .setStatusText(APPROVED_STATUS.statusText())
+            .setLocalizedStatusText(LocalizedStrings.withDefaultValue(APPROVED_STATUS.statusText()))
+            .setEmailBodyText("A new email")
+            .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("A new US email"))
+            .build();
+
+    DuplicateStatusException exc =
+        catchThrowableOfType(
+            () -> ps.appendStatus(program.id, newApprovedStatus), DuplicateStatusException.class);
+    assertThat(exc.userFacingMessage()).contains("A status with name Approved already exists");
+  }
+
+  @Test
+  public void editStatus() throws Exception {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+
+    var editedStatus =
+        StatusDefinitions.Status.builder()
+            .setStatusText("New status text")
+            .setLocalizedStatusText(LocalizedStrings.withDefaultValue("New status text"))
+            .setEmailBodyText("A new email")
+            .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("A new US email"))
             .build();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.setStatuses(program.id, new StatusDefinitions(ImmutableList.of(status)));
-
+        ps.editStatus(
+            program.id,
+            APPROVED_STATUS.statusText(),
+            (existing) -> {
+              assertThat(existing).isEqualTo(APPROVED_STATUS);
+              return editedStatus;
+            });
     assertThat(result.isError()).isFalse();
-    StatusDefinitions gotStatusDef = result.getResult().statusDefinitions();
-    assertThat(gotStatusDef.getStatuses()).containsExactly(status);
+    assertThat(result.getResult().statusDefinitions().getStatuses()).containsExactly(editedStatus);
+  }
+
+  @Test
+  public void editStatus_programNotFound_throws() throws Exception {
+    assertThatThrownBy(
+            () ->
+                ps.editStatus(
+                    Long.MAX_VALUE,
+                    APPROVED_STATUS.statusText(),
+                    (existing) -> {
+                      fail("unexpected edit entry found");
+                      throw new RuntimeException("unexpected edit entry found");
+                    }))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void editStatus_updatedStatusIsDuplicate_throws() throws Exception {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
+            .build();
+
+    // We update the "rejected" status entry so that it's text is the same as the
+    // "approved" status entry.
+    DuplicateStatusException exc =
+        catchThrowableOfType(
+            () ->
+                ps.editStatus(
+                    program.id,
+                    REJECTED_STATUS.statusText(),
+                    (existingStatus) -> {
+                      return StatusDefinitions.Status.builder()
+                          .setStatusText(APPROVED_STATUS.statusText())
+                          .setLocalizedStatusText(
+                              LocalizedStrings.withDefaultValue("New status text"))
+                          .setEmailBodyText("A new email")
+                          .setLocalizedEmailBodyText(
+                              LocalizedStrings.withDefaultValue("A new US email"))
+                          .build();
+                    }),
+            DuplicateStatusException.class);
+    assertThat(exc.userFacingMessage()).contains("A status with name Approved already exists");
+  }
+
+  @Test
+  public void editStatus_missingStatus_returnsError() throws Exception {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.editStatus(
+            program.id,
+            REJECTED_STATUS.statusText(),
+            (existingStatus) -> {
+              fail("unexpected edit entry found");
+              throw new RuntimeException("unexpected edit entry found");
+            });
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of(
+                "The status being edited no longer exists and may have been modified in a"
+                    + " separate window."));
+  }
+
+  @Test
+  public void deleteStatus() throws Exception {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
+            .build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.deleteStatus(program.id, APPROVED_STATUS.statusText());
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().statusDefinitions().getStatuses())
+        .isEqualTo(ImmutableList.of(REJECTED_STATUS));
+    assertThat(ps.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+        .isEqualTo(ImmutableList.of(REJECTED_STATUS));
+  }
+
+  @Test
+  public void deleteStatus_programNotFound_throws() throws Exception {
+    assertThatThrownBy(() -> ps.deleteStatus(Long.MAX_VALUE, APPROVED_STATUS.statusText()))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void deleteStatus_missingStatus_returnsError() throws Exception {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.deleteStatus(program.id, REJECTED_STATUS.statusText());
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of(
+                "The status being deleted no longer exists and may have been deleted in a"
+                    + " separate window."));
+    assertThat(ps.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+        .isEqualTo(ImmutableList.of(APPROVED_STATUS));
   }
 }

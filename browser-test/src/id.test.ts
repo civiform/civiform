@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Id question for applicant flow', () => {
@@ -198,6 +199,15 @@ describe('Id question for applicant flow', () => {
       expect(await pageObject.innerText(identificationId)).toContain(
         'Must contain only numbers.',
       )
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })
