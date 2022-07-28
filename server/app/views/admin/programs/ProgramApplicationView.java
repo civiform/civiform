@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
@@ -63,8 +62,20 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses(Styles.PX_20)
             .with(
                 h2("Program: " + programName).withClasses(Styles.MY_4),
-                h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
-                renderDownloadButton(programId, applicationId),
+                div()
+                    .withClasses(Styles.MY_4, Styles.FLEX)
+                    .with(
+                        p(applicantNameWithApplicationId)
+                            .withClasses(
+                                Styles.MY_4,
+                                Styles.TEXT_BLACK,
+                                Styles.FONT_BOLD,
+                                Styles.TEXT_XL,
+                                Styles.MB_2),
+                        // Spread out the items, so the following are right
+                        // aligned.
+                        p().withClasses(Styles.FLEX_GROW),
+                        renderDownloadButton(programId, applicationId)),
                 each(
                     blocks,
                     block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))));
