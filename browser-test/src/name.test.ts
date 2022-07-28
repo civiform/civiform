@@ -9,6 +9,7 @@ import {
   resetSession,
   selectApplicantLanguage,
   startSession,
+  validateAccessibility,
 } from './support'
 
 const NAME_FIRST = '.cf-name-first'
@@ -170,7 +171,7 @@ describe('name applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.validateAccessibility()
+      await validateAccessibility(pageObject)
     })
   })
 

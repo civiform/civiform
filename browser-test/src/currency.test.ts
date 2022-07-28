@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('currency applicant flow', () => {
@@ -165,7 +166,7 @@ describe('currency applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.validateAccessibility()
+      await validateAccessibility(pageObject)
     })
   })
 })

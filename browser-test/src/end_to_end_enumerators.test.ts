@@ -7,6 +7,7 @@ import {
   ApplicantQuestions,
   selectApplicantLanguage,
   endSession,
+  validateAccessibility,
   waitForPageJsLoad,
 } from './support'
 
@@ -135,7 +136,7 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.clickNext()
 
     // Validate that enumerators are accessible
-    await applicantQuestions.validateAccessibility()
+    await validateAccessibility(pageObject)
 
     // Put in two things in the enumerator question
     await applicantQuestions.addEnumeratorAnswer('Bugs')

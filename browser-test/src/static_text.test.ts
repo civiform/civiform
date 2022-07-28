@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Static text question for applicant flow', () => {
@@ -60,6 +61,6 @@ describe('Static text question for applicant flow', () => {
 
     await applicantQuestions.applyProgram(programName)
 
-    await applicantQuestions.validateAccessibility()
+    await validateAccessibility(pageObject)
   })
 })

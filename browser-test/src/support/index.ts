@@ -1,3 +1,4 @@
+import axe = require('axe-core')
 import {Browser, BrowserContext, chromium, Page} from 'playwright'
 import * as path from 'path'
 import {waitForPageJsLoad} from './wait'
@@ -192,4 +193,14 @@ export const closeWarningMessage = async (page: Page) => {
         ),
       )
   }
+}
+
+export const validateAccessibility = async (page: Page) => {
+  // Inject axe and run accessibility test.
+  await page.addScriptTag({path: 'node_modules/axe-core/axe.min.js'})
+  const results = await page.evaluate(() => {
+    return axe.run()
+  })
+
+  expect(results).toHaveNoA11yViolations()
 }

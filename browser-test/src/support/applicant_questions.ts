@@ -1,7 +1,6 @@
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {waitForPageJsLoad} from './wait'
-import axe = require('axe-core')
 
 export class ApplicantQuestions {
   public page!: Page
@@ -297,15 +296,5 @@ export class ApplicantQuestions {
 
   async seeStaticQuestion(questionText: string) {
     expect(await this.page.textContent('html')).toContain(questionText)
-  }
-
-  async validateAccessibility() {
-    // Inject axe and run.
-    await this.page.addScriptTag({path: 'node_modules/axe-core/axe.min.js'})
-    const results = await this.page.evaluate(() => {
-      return axe.run()
-    })
-
-    expect(results).toHaveNoA11yViolations()
   }
 }

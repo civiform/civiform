@@ -9,6 +9,7 @@ import {
   resetSession,
   selectApplicantLanguage,
   startSession,
+  validateAccessibility,
 } from './support'
 
 describe('address applicant flow', () => {
@@ -250,7 +251,7 @@ describe('address applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.validateAccessibility()
+      await validateAccessibility(pageObject)
     })
   })
 

@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Number question for applicant flow', () => {
@@ -173,7 +174,7 @@ describe('Number question for applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.validateAccessibility()
+      await validateAccessibility(pageObject)
     })
   })
 })

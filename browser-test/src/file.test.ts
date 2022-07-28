@@ -11,6 +11,7 @@ import {
   resetSession,
   selectApplicantLanguage,
   startSession,
+  validateAccessibility,
 } from './support'
 
 describe('file upload applicant flow', () => {
@@ -100,7 +101,7 @@ describe('file upload applicant flow', () => {
 
     //   await applicantQuestions.applyProgram(programName)
 
-    //   await applicantQuestions.validateAccessibility()
+    //   await validateAccessibility(pageObject)
     // })
   })
 
