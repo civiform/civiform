@@ -40,7 +40,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      - name: Set up Docker QEMU
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Check if we should push
@@ -106,6 +107,9 @@ jobs:
       - name: Skip build & push
         if: ${{ steps.check_build.outputs.build != 'build' }}
         run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}" "${{steps.check_build.outputs.build}}"
+
+      - name: Set up Docker QEMU
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
