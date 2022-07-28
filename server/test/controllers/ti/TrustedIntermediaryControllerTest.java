@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
+
+import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.junit.Before;
@@ -49,7 +51,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "lastName",
                         "last",
                         "emailAddress",
-                        "sample@fake.com")));
+                        "sample1@fake.com")));
     TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
     Result result = tiController.addApplicant(group.id, requestBuilder.build());
     assertThat(result.flash().get("error")).isEqualTo("providedDateOfBirth cannot be null");
@@ -92,15 +94,14 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     form.setLastName("bar");
     form.setDob("2022-07-10");
     repo.createNewApplicantForTrustedIntermediaryGroup(form, group);
-    Optional<Applicant> applicant =
-        repo.lookupApplicantByEmail("sample3@example.com").toCompletableFuture().join();
+    Optional<Account> account =
+        repo.lookupAccountByEmail("sample3@example.com");
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-10-05")));
-    Result result = tiController.updateDateOfBirth(applicant.get().id, requestBuilder.build());
+        addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-05-05")));
+    Result result = tiController.updateDateOfBirth(account.get().id, requestBuilder.build());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Optional<Applicant> finalApplicant =
-        repo.lookupApplicant(applicant.get().id).toCompletableFuture().join();
-    assertThat(finalApplicant.get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-10-05");
+    Optional<Applicant> applicant = repo.lookupAccount(account.get().id).get().newestApplicant();
+    assertThat(applicant.get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-05-05");
   }
 }

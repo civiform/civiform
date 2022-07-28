@@ -174,8 +174,14 @@ public class Account extends BaseModel {
     if (newestApplicant.isPresent()
         && newestApplicant.get().getApplicantData().getDateOfBirth().isPresent()) {
       return newestApplicant.get().getApplicantData().getDateOfBirth();
+      }
+       return Optional.empty();
     }
 
-    return Optional.empty();
-  }
+  /*  return this.getApplicants().stream()
+      .max(Comparator.comparing(Applicant::getWhenCreated))
+      .map(u -> u.getApplicantData().getDateOfBirth())
+      .orElse(Optional.empty());
+
+  }*/
 }

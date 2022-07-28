@@ -1,7 +1,7 @@
 import {Page} from 'playwright'
 //This class is to test Civiform's TI to add new clients and search functionality
 //It requires the tests to be logged as a TI
-export class TiDashboard {
+export class TIDashboard {
   public page!: Page
 
   constructor(page: Page) {
@@ -21,25 +21,22 @@ export class TiDashboard {
     await this.page.click('text ="Add"')
   }
   async checkUpdatedDateOfBirth(client: ClientInformation, newDob: string) {
-    const tableInnerText = await this.page.innerText('table')
-    expect(tableInnerText).toContain(this.convertToMMDDYYYY(newDob))
-    expect(tableInnerText).toContain(client.emailAddress)
-    expect(tableInnerText).toContain(client.firstName)
-    expect(tableInnerText).toContain(client.lastName)
+    expect(`.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(newDob)}")`)
+    expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`)
+    expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`)
+    expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
   }
   async checkInnerTableForClientInformation(client: ClientInformation) {
-    const tableInnerText = await this.page.innerText('table')
-    expect(tableInnerText).toContain(this.convertToMMDDYYYY(client.dobDate))
-    expect(tableInnerText).toContain(client.emailAddress)
-    expect(tableInnerText).toContain(client.firstName)
-    expect(tableInnerText).toContain(client.lastName)
+    expect(`.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(client.dobDate)}")`)
+    expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`)
+    expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`)
+    expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
   }
   async checkInnerTableNotToContainClient(client: ClientInformation) {
-    const tableInnerText = await this.page.innerText('table')
-    expect(tableInnerText).not.toContain(this.convertToMMDDYYYY(client.dobDate))
-    expect(tableInnerText).not.toContain(client.emailAddress)
-    expect(tableInnerText).not.toContain(client.firstName)
-    expect(tableInnerText).not.toContain(client.lastName)
+    expect(`.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(client.dobDate)}")`).toBe(false)
+    expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`).toBe(false)
+    expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`).toBe(false)
+    expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`).toBe(false)
   }
   async searchByDateOfBirth(dobDate: string) {
     await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
@@ -47,12 +44,12 @@ export class TiDashboard {
   }
   convertToMMDDYYYY(dobDate: string): string {
     //Input format :  '2021-10-10' YYYY-MM-DD O/p- MM-DD-YYYY
-    const arr = dobDate.split('-')
-    return arr[1] + '-' + arr[2] + '-' + arr[0]
+    const [year, month, day] = dobDate.split('-')
+    return `${month}-${day}-${year}`
   }
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
-    await this.page.fill('#date-of-birth-update', newDobDate)
-    await this.page.click('text ="Add DOB"')
+    await this.page.locator('id=date-of-birth-update').fill('newDobDate');
+    await this.page.click('text ="add DOB"')
   }
 }
 //This class helps to test the TrustesIntermediary dashboard changes

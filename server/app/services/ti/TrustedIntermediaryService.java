@@ -38,30 +38,32 @@ public class TrustedIntermediaryService {
   public ImmutableList<Account> filterAccountsBySearchParams(
       SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
     ImmutableList<Account> allAccounts = tiGroup.getManagedAccounts();
-    allAccounts =
+    if(searchParameters.search().isPresent() || searchParameters.searchDate().isPresent()) {
+      allAccounts =
         allAccounts.stream()
-            .filter(
-                account -> {
-                  if (searchParameters.search().isPresent()) {
-                    return account
-                        .getApplicantName()
-                        .toLowerCase(Locale.ROOT)
-                        .contains(searchParameters.search().get().toLowerCase(Locale.ROOT));
-                  }
-                  if (searchParameters.searchDate().isPresent()
-                      && !searchParameters.searchDate().isEmpty()
-                      && account.getApplicantDateOfBirth().isPresent()) {
-                    LocalDate searchDate =
-                        dateConverter.parseStringtoLocalDate(searchParameters.searchDate().get());
-                    return account.getApplicantDateOfBirth().get().equals(searchDate);
-                  }
-                  return false;
-                })
-            .collect(ImmutableList.toImmutableList());
+          .filter(
+            account -> {
+              if (searchParameters.search().isPresent()) {
+                return account
+                  .getApplicantName()
+                  .toLowerCase(Locale.ROOT)
+                  .contains(searchParameters.search().get().toLowerCase(Locale.ROOT));
+              }
+              if (searchParameters.searchDate().isPresent()
+                && !searchParameters.searchDate().isEmpty()
+                && account.getApplicantDateOfBirth().isPresent()) {
+                LocalDate searchDate =
+                  dateConverter.parseStringtoLocalDate(searchParameters.searchDate().get());
+                return account.getApplicantDateOfBirth().get().equals(searchDate);
+              }
+              return false;
+            })
+          .collect(ImmutableList.toImmutableList());
+    }
     return allAccounts;
   }
 
-  public void checkFormForDobUpdate(Form<UpdateApplicantDob> form, Long applicantId)
+  public Optional<Applicant> checkFormForDobUpdate(Form<UpdateApplicantDob> form, Long accountId)
       throws FormHasErrorException, ApplicantNotFoundException, DateOfBirthNotInPastException,
           IncorrectDateFormatException, MissingDateOfBirthException {
     if (form.hasErrors()) {
@@ -79,16 +81,15 @@ public class TrustedIntermediaryService {
     } catch (DateTimeParseException e) {
       throw e;
     }
-    if (isDobInPast(dobDate.get())) {
+    if (!isDobInPast(dobDate.get())) {
       throw new DateOfBirthNotInPastException("The Date of Birth cannot be in future");
     }
-    Optional<Applicant> optionalApplicant = userRepository.lookupApplicantSync(applicantId);
-    if (optionalApplicant.isEmpty()) {
-      throw new ApplicantNotFoundException(applicantId);
+    Optional<Account> optionalAccount = userRepository.lookupAccount(accountId);
+
+    if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
+      throw new ApplicantNotFoundException(accountId);
     }
-    Applicant applicant = optionalApplicant.get();
-    applicant.getApplicantData().setDateOfBirth(form.get().getDob());
-    userRepository.updateApplicant(applicant);
+    return optionalAccount.get().newestApplicant();
   }
 
   private boolean isDobInPast(LocalDate dobDate) {

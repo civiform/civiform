@@ -17,6 +17,7 @@ import forms.UpdateApplicantDob;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
+import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -27,6 +28,7 @@ import play.mvc.Result;
 import repository.SearchParameters;
 import repository.UserRepository;
 import services.PaginationInfo;
+import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.ti.*;
 import views.applicant.TrustedIntermediaryDashboardView;
@@ -102,32 +104,31 @@ public class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result updateDateOfBirth(Long applicantId, Http.Request request) {
+  public Result updateDateOfBirth(Long accountId, Http.Request request) {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
 
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
+
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
         userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
+
     Form<UpdateApplicantDob> form =
-        formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);
+      formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);
     try {
-      tiService.checkFormForDobUpdate(form, applicantId);
-    } catch (IncorrectDateFormatException e) {
-      redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage(), form);
-    } catch (MissingDateOfBirthException e) {
-      redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage(), form);
-    } catch (ApplicantNotFoundException e) {
-      redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage(), form);
-    } catch (FormHasErrorException e) {
-      redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage(), form);
-    } catch (DateOfBirthNotInPastException e) {
+      Optional<Applicant>optionalApplicant = tiService.checkFormForDobUpdate(form, accountId);
+      Applicant applicant = optionalApplicant.get();
+      applicant.getApplicantData().setDateOfBirth(form.get().getDob());
+      userRepository.updateApplicant(applicant).toCompletableFuture().join();
+    } catch (IncorrectDateFormatException | MissingDateOfBirthException | ApplicantNotFoundException | FormHasErrorException |DateOfBirthNotInPastException  e) {
+      System.out.println(e.getLocalizedMessage());
       redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage(), form);
     }
+
 
     return redirect(
         routes.TrustedIntermediaryController.dashboard(

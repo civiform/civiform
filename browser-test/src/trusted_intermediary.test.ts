@@ -5,7 +5,7 @@ import {
   loginAsTrustedIntermediary,
   endSession,
   AdminTIGroups,
-  TiDashboard,
+  TIDashboard,
   ClientInformation,
   waitForPageJsLoad,
 } from './support'
@@ -28,7 +28,7 @@ describe('Trusted intermediaries', () => {
   it('expect Dashboard Contain New Client', async () => {
     await loginAsTrustedIntermediary(page)
 
-    const tiDashboard = new TiDashboard(page)
+    const tiDashboard = new TIDashboard(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client: ClientInformation = {
@@ -42,10 +42,10 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.checkInnerTableForClientInformation(client)
   })
 
-  it('expect Client Date Of Birth to be Updated', async () => {
+  fit('expect Client Date Of Birth to be Updated', async () => {
     await loginAsTrustedIntermediary(page)
 
-    const tiDashboard = new TiDashboard(page)
+    const tiDashboard = new TIDashboard(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client: ClientInformation = {
@@ -58,14 +58,13 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await tiDashboard.checkInnerTableForClientInformation(client)
     await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
-    await waitForPageJsLoad(page)
     await tiDashboard.checkUpdatedDateOfBirth(client, '2021-12-12')
   })
 
   it('search For Client In TI Dashboard', async () => {
     await loginAsTrustedIntermediary(page)
 
-    const tiDashboard = new TiDashboard(page)
+    const tiDashboard = new TIDashboard(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client1: ClientInformation = {
