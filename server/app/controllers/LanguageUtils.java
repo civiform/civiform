@@ -2,7 +2,6 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Locale;
 import javax.inject.Inject;
 import models.Applicant;
 import play.i18n.Langs;
@@ -26,7 +25,9 @@ public final class LanguageUtils {
       return applicant;
     }
     data.setPreferredLocale(
-        langs.availables().isEmpty() ? LocalizedStrings.DEFAULT_LOCALE : langs.availables().get(0).toLocale());
+        langs.availables().isEmpty()
+            ? LocalizedStrings.DEFAULT_LOCALE
+            : langs.availables().get(0).toLocale());
     userRepository.updateApplicant(applicant).toCompletableFuture().join();
     return applicant;
   }

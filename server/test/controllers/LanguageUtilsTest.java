@@ -44,7 +44,8 @@ public class LanguageUtilsTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
     applicant = languageUtils.maybeSetDefaultLocale(applicant);
-    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(LocalizedStrings.DEFAULT_LOCALE);
+    assertThat(applicant.getApplicantData().preferredLocale())
+        .isEqualTo(LocalizedStrings.DEFAULT_LOCALE);
   }
 
   @Test
