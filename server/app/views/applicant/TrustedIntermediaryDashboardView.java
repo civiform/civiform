@@ -100,13 +100,18 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withMethod("GET")
         .withAction(
             routes.TrustedIntermediaryController.dashboard(
-                    Optional.empty(), Optional.empty(), Optional.empty())
+                    /* paramName=  nameQuery */
+                    Optional.empty(),
+                    /* paramName=  searchDate */
+                    Optional.empty(),
+                    /* paramName=  page */
+                    Optional.empty())
                 .url())
         .with(
             FieldWithLabel.input()
                 .setId("search")
                 .setFieldName("search")
-                .setValue(searchParameters.search().orElse(""))
+                .setValue(searchParameters.nameQuery().orElse(""))
                 .setLabelText("SearchText")
                 .getInputTag()
                 .withClasses(Styles.W_FULL),
@@ -146,7 +151,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             totalPageCount,
             pageNumber ->
                 routes.TrustedIntermediaryController.dashboard(
-                    searchParameters.search(),
+                    searchParameters.nameQuery(),
                     searchParameters.searchDate(),
                     Optional.of(pageNumber))));
   }

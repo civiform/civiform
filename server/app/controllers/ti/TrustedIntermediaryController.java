@@ -67,12 +67,12 @@ public class TrustedIntermediaryController {
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result dashboard(
       Http.Request request,
-      Optional<String> search,
+      Optional<String> nameQuery,
       Optional<String> searchDate,
       Optional<Integer> page) {
     if (page.isEmpty()) {
       return redirect(
-          routes.TrustedIntermediaryController.dashboard(search, searchDate, Optional.of(1)));
+          routes.TrustedIntermediaryController.dashboard(nameQuery, searchDate, Optional.of(1)));
     }
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
@@ -84,7 +84,7 @@ public class TrustedIntermediaryController {
       return notFound();
     }
     SearchParameters searchParameters =
-        SearchParameters.builder().setSearch(search).setSearchDate(searchDate).build();
+        SearchParameters.builder().setNameQuery(nameQuery).setSearchDate(searchDate).build();
     ImmutableList<Account> managedAccounts =
         tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
     PaginationInfo<Account> pageInfo =
@@ -131,7 +131,7 @@ public class TrustedIntermediaryController {
 
     return redirect(
         routes.TrustedIntermediaryController.dashboard(
-            /* paramName=  search */
+            /* paramName=  nameQuery */
             Optional.empty(),
             /* paramName=  searchDate */
             Optional.empty(),
@@ -172,7 +172,7 @@ public class TrustedIntermediaryController {
           form.get(), trustedIntermediaryGroup.get());
       return redirect(
           routes.TrustedIntermediaryController.dashboard(
-              /* paramName=  search */
+              /* paramName=  nameQuery */
               Optional.empty(),
               /* paramName=  searchDate */
               Optional.empty(),
@@ -194,7 +194,7 @@ public class TrustedIntermediaryController {
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
-                /* paramName=  search */
+                /* paramName=  nameQuery */
                 Optional.empty(),
                 /* paramName=  searchDate */
                 Optional.empty(),
@@ -212,7 +212,7 @@ public class TrustedIntermediaryController {
       String errorMessage, Form<UpdateApplicantDob> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
-                /* paramName=  search */
+                /* paramName=  nameQuery */
                 Optional.empty(),
                 /* paramName=  searchDate */
                 Optional.empty(),

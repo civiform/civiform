@@ -6,7 +6,7 @@ import java.util.Optional;
 @AutoValue
 public abstract class SearchParameters {
 
-  public abstract Optional<String> search();
+  public abstract Optional<String> nameQuery();
 
   public abstract Optional<String> searchDate();
 
@@ -16,7 +16,7 @@ public abstract class SearchParameters {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract SearchParameters.Builder setSearch(Optional<String> v);
+    public abstract SearchParameters.Builder setNameQuery(Optional<String> v);
 
     public abstract SearchParameters.Builder setSearchDate(Optional<String> v);
 

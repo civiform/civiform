@@ -45,20 +45,11 @@ export class TIDashboard {
   }
 
   async checkInnerTableNotToContainClient(client: ClientInformation) {
-    expect(
-      `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
-        client.dobDate,
-      )}")`,
-    ).toBe(false)
-    expect(
-      `.cf-admin-question-table-row:has-text("${client.emailAddress}")`,
-    ).toBe(false)
-    expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`).toBe(
-      false,
-    )
-    expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`).toBe(
-      false,
-    )
+    const tableInnerText = await this.page.innerText('table')
+    expect(tableInnerText).not.toContain(this.convertToMMDDYYYY(client.dobDate))
+    expect(tableInnerText).not.toContain(client.emailAddress)
+    expect(tableInnerText).not.toContain(client.firstName)
+    expect(tableInnerText).not.toContain(client.lastName)
   }
 
   async searchByDateOfBirth(dobDate: string) {

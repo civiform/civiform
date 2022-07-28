@@ -29,32 +29,43 @@ public class TrustedIntermediaryService {
     this.userRepository = Preconditions.checkNotNull(userRepository);
   }
 
+  /**
+   * Gets all the TrustedIntermediaryAccount managed by the given TI Group with/without filtering
+   *
+   * @param searchParameters - This object contains a search and a searchDate attribute. If both are
+   *     empty- an unfiltered list of accounts is returned. If search is present- a match between
+   *     the Account holder's name and the search param is performed If searchDate is present - a
+   *     match between the Account holder's Date of Birth and the SearchDate is performed -the
+   *     matched results are collected and sent as an Immutable List
+   * @param tiGroup - this is TrustedIntermediaryGroup for which the list of associated account is
+   *     requested. This is needed to fetch all the accounts from the user repository.
+   */
   public ImmutableList<Account> getManagedAccounts(
       SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
     ImmutableList<Account> allAccounts = tiGroup.getManagedAccounts();
-    if (searchParameters.search().isPresent() || searchParameters.searchDate().isPresent()) {
-      allAccounts =
-          allAccounts.stream()
-              .filter(
-                  account -> {
-                    if (searchParameters.search().isPresent()) {
-                      return account
-                          .getApplicantName()
-                          .toLowerCase(Locale.ROOT)
-                          .contains(searchParameters.search().get().toLowerCase(Locale.ROOT));
-                    }
-                    if (searchParameters.searchDate().isPresent()
-                        && !searchParameters.searchDate().isEmpty()
-                        && account.getApplicantDateOfBirth().isPresent()) {
-                      LocalDate searchDate =
-                          dateConverter.parseStringtoLocalDate(searchParameters.searchDate().get());
-                      return account.getApplicantDateOfBirth().get().equals(searchDate);
-                    }
-                    return false;
-                  })
-              .collect(ImmutableList.toImmutableList());
+    if (searchParameters.nameQuery().isEmpty() && searchParameters.searchDate().isEmpty()) {
+      return allAccounts;
     }
-    return allAccounts;
+    return allAccounts.stream()
+        .filter(
+            account ->
+                account.getApplicantDateOfBirth().isPresent()
+                    && searchParameters.searchDate().isPresent()
+                    && !searchParameters.searchDate().isEmpty()
+                    && account
+                        .getApplicantDateOfBirth()
+                        .get()
+                        .equals(
+                            dateConverter.parseStringtoLocalDate(
+                                searchParameters.searchDate().get())))
+        .filter(
+            account ->
+                searchParameters.nameQuery().isPresent()
+                    && account
+                        .getApplicantName()
+                        .toLowerCase(Locale.ROOT)
+                        .contains(searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))
+        .collect(ImmutableList.toImmutableList());
   }
 
   public void updateApplicantDateOfBirth(Long accountId, Form<UpdateApplicantDob> form)
