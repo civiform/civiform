@@ -1,43 +1,32 @@
 package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
 
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import com.typesafe.config.Config;
 import java.util.List;
-import java.util.Locale;
-import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.direct.AnonymousClient;
 import org.pac4j.core.client.finder.ClientFinder;
+import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.engine.DefaultSecurityLogic;
-import play.i18n.Lang;
-import play.i18n.Langs;
-import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.UserRepository;
-import views.LoginForm;
+import play.test.WithApplication;
 
-public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
+public class HomeControllerAuthenticatedTest extends WithApplication {
+
   @Before
   public void setUp() {
-    resetDatabase();
     // Get the config, and hack it so that all requests appear authorized.
-    org.pac4j.core.config.Config config = instanceOf(org.pac4j.core.config.Config.class);
+    Config config = instanceOf(Config.class);
     AnonymousClient client = AnonymousClient.INSTANCE;
     config.setClients(new Clients(client));
 
@@ -63,62 +52,5 @@ public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
     assertThat(result.status()).isEqualTo(HttpConstants.OK);
-  }
-
-  @Test
-  public void testLanguageSelectorShown() {
-    Applicant applicant = createApplicantWithMockedProfile();
-    HomeController controller = instanceOf(HomeController.class);
-    Result result =
-        controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
-    ;
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantInformationController.edit(applicant.id).url());
-  }
-
-  @Test
-  public void testLanguageSelectorNotShownOneLanguage() {
-    Applicant applicant = createApplicantWithMockedProfile();
-    Langs mockLangs = Mockito.mock(Langs.class);
-    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
-    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
-
-    HomeController controller =
-        new HomeController(
-            instanceOf(Config.class),
-            instanceOf(LoginForm.class),
-            instanceOf(ProfileUtils.class),
-            instanceOf(MessagesApi.class),
-            instanceOf(HttpExecutionContext.class),
-            languageUtils);
-    Result result =
-        controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramsController.index(applicant.id).url());
-  }
-
-  @Test
-  public void testLanguageSelectorNotSupportedLanguage() {
-    Applicant applicant = createApplicantWithMockedProfile();
-    applicant.getApplicantData().setPreferredLocale(Locale.CHINESE);
-    Langs mockLangs = Mockito.mock(Langs.class);
-    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
-    LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
-
-    HomeController controller =
-        new HomeController(
-            instanceOf(Config.class),
-            instanceOf(LoginForm.class),
-            instanceOf(ProfileUtils.class),
-            instanceOf(MessagesApi.class),
-            instanceOf(HttpExecutionContext.class),
-            languageUtils);
-    Result result =
-        controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramsController.index(applicant.id).url());
   }
 }
