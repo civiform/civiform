@@ -25,16 +25,26 @@ RUN set -o pipefail && \
   wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
   echo -ne "- with sbt ${SBT_VERSION}\n" >> /root/.built
 
+RUN mkdir -p "${PROJECT_LOC}"
+WORKDIR "${PROJECT_LOC}"
+
+RUN sbt update
+
+COPY "${PROJECT_NAME}"/package* .
+RUN npm install
+
+# Don't copy the project source until here, so everything above gets cached.
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
-COPY entrypoint.sh /entrypoint.sh
 
 # We need to save the build assets to a seperate directory (pushRemoteCache)
-RUN cd "${PROJECT_LOC}" && \
-  npm install && \
-  sbt update && \
-  sbt compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
+RUN sbt update compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
 
+COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
+# Save build results to anonymous volumes for reuse
+VOLUME [ "/usr/src/server/target","/usr/src/server/project/project", "/usr/src/server/project/target", "/usr/src/server/node_modules", "/usr/src/server/.bsp/","/usr/src/server/public/stylesheets/" ]
+# The server code is it's own volume
+VOLUME ["/usr/src/server"]
+
 EXPOSE 9000
-WORKDIR "${PROJECT_HOME}/${PROJECT_NAME}"
