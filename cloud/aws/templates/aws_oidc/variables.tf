@@ -230,6 +230,13 @@ variable "civiform_applicant_idp" {
   default     = ""
 }
 
+
+variable "applicant_oidc_discovery_uri" {
+  type        = string
+  description = "Discovery URI"
+  default     = ""
+}
+
 variable "custom_hostname" {
   type        = string
   description = "The custom hostname this app is deployed on"

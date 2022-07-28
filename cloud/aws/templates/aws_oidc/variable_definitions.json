@@ -31,6 +31,12 @@
     "tfvar": true,
     "type": "string"
   },
+  "APPLICANT_OIDC_DISCOVERY_URI": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "APPLICANT_OIDC_RESPONSE_MODE": {
     "required": false,
     "secret": false,
