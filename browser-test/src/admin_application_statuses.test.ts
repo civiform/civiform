@@ -12,9 +12,11 @@ import {
   AdminQuestions,
   AdminPrograms,
   endSession,
-  isLocalDevEnvironment, getUserAdminName,
+  isLocalDevEnvironment,
+  getUserAdminName,
+  userDisplayName,
 } from './support'
-import {Page} from "playwright";
+import {Page} from 'playwright'
 
 describe('view program statuses', () => {
   let pageObject: Page
@@ -26,38 +28,38 @@ describe('view program statuses', () => {
   })
 
   describe('with program statuses', () => {
-    let userName: String
+    let userName: string
 
     beforeAll(async () => {
-    // Timeout for clicks and element fills. If your selector fails to locate
-    // the HTML element, the test hangs. If you find the tests time out, you
-    // want to verify that your selectors are working as expected first.
-    // Because all tests are run concurrently, it could be that your selector
-    // selects a different entity from another test.
-    pageObject.setDefaultTimeout(4000)
+      // Timeout for clicks and element fills. If your selector fails to locate
+      // the HTML element, the test hangs. If you find the tests time out, you
+      // want to verify that your selectors are working as expected first.
+      // Because all tests are run concurrently, it could be that your selector
+      // selects a different entity from another test.
+      pageObject.setDefaultTimeout(4000)
 
-    await loginAsAdmin(pageObject)
-    //const adminQuestions = new AdminQuestions(pageObject)
-    const adminPrograms = new AdminPrograms(pageObject)
-    const applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(pageObject)
+      //const adminQuestions = new AdminQuestions(pageObject)
+      const adminPrograms = new AdminPrograms(pageObject)
+      const applicantQuestions = new ApplicantQuestions(pageObject)
 
-    await adminPrograms.addAndPublishProgramWithQuestions( ['Name'], programName )
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.publishProgram(programName)
+      await adminPrograms.expectActiveProgram(programName)
 
-    await logout(pageObject)
-    await loginAsTestUser(pageObject)
-    await selectApplicantLanguage(pageObject, 'English')
+      await logout(pageObject)
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
       userName = await getUserAdminName(pageObject)
 
-    await applicantQuestions.applyProgram(programName)
+      //await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await pageObject.screenshot({ path: 'tmp/applyClickNext.png', fullPage: true })
 
-    // Applicant fills out first application block.
-    await applicantQuestions.answerNameQuestion('sarah', 'smith')
-    await applicantQuestions.clickNext()
+      // Applicant submits answers from review pageObject.
+      await applicantQuestions.submitFromPreviewPage(programName)
 
-    // Applicant submits answers from review pageObject.
-    await applicantQuestions.submitFromReviewPage(programName)
-
-    await logout(pageObject)
+      await logout(pageObject)
     })
 
     it('Shows status options', async () => {
@@ -65,7 +67,11 @@ describe('view program statuses', () => {
       const adminPrograms = new AdminPrograms(pageObject)
 
       await adminPrograms.viewApplications(programName)
+      await pageObject.screenshot({ path: 'tmp/applicantfind.png', fullPage: true })
 
-  })
+      await adminPrograms.viewApplicationForApplicant(userDisplayName())
+
+      expect(await adminPrograms.expectStatusSelectorVisible())
+    })
   })
 })
