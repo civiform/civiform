@@ -13,13 +13,13 @@ declare global {
 }
 
 // Custom matcher that outputs accessibility violations using axe.
+// See https://jestjs.io/docs/expect#expectextendmatchers for more info on custom matchers in jest.
 expect.extend({
   toHaveNoA11yViolations(results: axe.AxeResults) {
     const numViolations = results.violations.length
-    const pass = numViolations == 0
-    if (pass) {
+    if (numViolations == 0) {
       return {
-        message: () => `Expected axe accessibility violations, found none`,
+        message: () => 'Expected axe accessibility violations, found none',
         pass: true,
       }
     } else {
