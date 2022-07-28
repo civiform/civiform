@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.LocalizedStrings;
 
@@ -45,8 +44,7 @@ public class StatusDefinitions {
 
   private static void assertStatusNamesNonEmptyAndUnique(ImmutableList<Status> statuses) {
     Preconditions.checkState(
-        statuses.stream().map(Status::statusText).collect(ImmutableSet.toImmutableSet()).size()
-            == statuses.size(),
+        statuses.stream().map(Status::statusText).distinct().count() == statuses.size(),
         "The provided set of statuses must have unique statusTexts.");
     Preconditions.checkState(
         statuses.stream().map(Status::statusText).noneMatch(String::isEmpty),

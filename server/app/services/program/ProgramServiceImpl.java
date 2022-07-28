@@ -398,6 +398,7 @@ public final class ProgramServiceImpl implements ProgramService {
         Lists.newArrayList(program.statusDefinitions().getStatuses());
     StatusDefinitions.Status editedStatus =
         statusReplacer.apply(statusesCopy.get(statusNameToIndex.get(toReplaceStatusName)));
+    // If the status name was changed and it matches another status, issue an error.
     if (!toReplaceStatusName.equals(editedStatus.statusText())
         && statusNameToIndex.containsKey(editedStatus.statusText())) {
       throw new DuplicateStatusException(editedStatus.statusText());
@@ -428,7 +429,7 @@ public final class ProgramServiceImpl implements ProgramService {
     }
     List<StatusDefinitions.Status> statusesCopy =
         Lists.newArrayList(program.statusDefinitions().getStatuses());
-    statusesCopy.remove((int) statusNameToIndex.get(toRemoveStatusName));
+    statusesCopy.remove(statusNameToIndex.get(toRemoveStatusName).intValue());
     program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
 
     return ErrorAnd.of(

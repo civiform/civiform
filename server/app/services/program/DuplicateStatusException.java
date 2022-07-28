@@ -8,8 +8,12 @@ public final class DuplicateStatusException extends Exception {
   private final String userFacingMessage;
 
   public DuplicateStatusException(String statusName) {
-    super();
-    this.userFacingMessage = String.format("A status with name %s already exists", statusName);
+    super(makeUserFacingMessage(statusName));
+    this.userFacingMessage = makeUserFacingMessage(statusName);
+  }
+
+  private static String makeUserFacingMessage(String statusName) {
+    return String.format("A status with name %s already exists", statusName);
   }
 
   /** Returns an error message suitable for displaying to an end-user. */
