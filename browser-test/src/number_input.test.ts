@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Number question for applicant flow', () => {
@@ -165,6 +166,15 @@ describe('Number question for applicant flow', () => {
       expect(await pageObject.isHidden(numberInputError + ' >> nth=1')).toEqual(
         false,
       )
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

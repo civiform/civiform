@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Static text question for applicant flow', () => {
@@ -52,5 +53,14 @@ describe('Static text question for applicant flow', () => {
 
     const staticId = '.cf-question-static'
     expect(await pageObject.innerText(staticId)).toContain(staticText)
+  })
+
+  it('has no accessiblity violations', async () => {
+    await loginAsGuest(pageObject)
+    await selectApplicantLanguage(pageObject, 'English')
+
+    await applicantQuestions.applyProgram(programName)
+
+    await validateAccessibility(pageObject)
   })
 })

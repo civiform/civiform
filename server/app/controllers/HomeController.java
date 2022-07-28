@@ -28,6 +28,7 @@ public class HomeController extends Controller {
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
   private final Optional<String> faviconURL;
+  private final LanguageUtils languageUtils;
 
   @Inject
   public HomeController(
@@ -35,12 +36,14 @@ public class HomeController extends Controller {
       LoginForm form,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext httpExecutionContext,
+      LanguageUtils languageUtils) {
     checkNotNull(configuration);
     this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.languageUtils = checkNotNull(languageUtils);
     this.faviconURL =
         Optional.ofNullable(Strings.emptyToNull(configuration.getString("whitelabel.favicon_url")));
   }
@@ -66,9 +69,11 @@ public class HomeController extends Controller {
           .getApplicant()
           .thenApplyAsync(
               applicant -> {
+                // Attempt to set default language for the applicant.
+                applicant = languageUtils.maybeSetDefaultLocale(applicant);
+                ApplicantData data = applicant.getApplicantData();
                 // If the applicant has not yet set their preferred language, redirect to
                 // the information controller to ask for preferred language.
-                ApplicantData data = applicant.getApplicantData();
                 if (data.hasPreferredLocale()) {
                   return redirect(
                           controllers.applicant.routes.ApplicantProgramsController.index(
