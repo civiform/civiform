@@ -18,6 +18,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.TextareaTag;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -270,6 +271,13 @@ public class FieldWithLabel {
   public FieldWithLabel setFieldErrors(Messages messages, ValidationError error) {
     this.messages = messages;
     this.fieldErrors = ImmutableSet.of(error);
+
+    return this;
+  }
+
+  public FieldWithLabel setFieldErrors(Messages messages, List<ValidationError> errors) {
+    this.messages = messages;
+    this.fieldErrors = ImmutableSet.copyOf(errors);
 
     return this;
   }
