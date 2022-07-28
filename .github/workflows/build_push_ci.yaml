@@ -73,17 +73,17 @@ jobs:
             image: 'civiform/civiform-localstack:latest'
             script: 'bin/build-localstack-env'
             file_pattern: 'localstack/'
-            platform: 'linux/amd64'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: browser_test
             image: 'civiform/civiform-browser-test:latest'
             script: 'bin/build-browser-tests'
             file_pattern: 'browser-test/'
-            platform: 'linux/amd64'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: oidc
             image: 'civiform/oidc-provider:latest'
             script: 'bin/build-dev-oidc'
             file_pattern: 'test-support/'
-            platform: 'linux/amd64'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
     concurrency:
       group: build_dependancies-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
     name: Build civiform dependancy ${{ matrix.version }} for ${{ matrix.platform }}
