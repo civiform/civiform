@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import models.Applicant;
 import play.i18n.Langs;
 import repository.UserRepository;
+import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 
 public final class LanguageUtils {
@@ -25,8 +26,8 @@ public final class LanguageUtils {
       return applicant;
     }
     data.setPreferredLocale(
-        langs.availables().isEmpty() ? Locale.US : langs.availables().get(0).toLocale());
-    userRepository.updateApplicant(applicant);
+        langs.availables().isEmpty() ? LocalizedStrings.DEFAULT_LOCALE : langs.availables().get(0).toLocale());
+    userRepository.updateApplicant(applicant).toCompletableFuture().join();
     return applicant;
   }
 }

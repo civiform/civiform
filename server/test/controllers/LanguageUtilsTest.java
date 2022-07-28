@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Langs;
 import repository.UserRepository;
+import services.LocalizedStrings;
 
 public class LanguageUtilsTest extends WithMockedProfiles {
   @Test
@@ -43,7 +44,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
     applicant = languageUtils.maybeSetDefaultLocale(applicant);
-    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.US);
+    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(LocalizedStrings.DEFAULT_LOCALE);
   }
 
   @Test
