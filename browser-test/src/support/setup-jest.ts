@@ -13,7 +13,8 @@ declare global {
 }
 
 // Custom matcher that outputs accessibility violations using axe.
-// See https://jestjs.io/docs/expect#expectextendmatchers for more info on custom matchers in jest.
+// See https://jestjs.io/docs/expect#expectextendmatchers and
+// https://jestjs.io/docs/configuration#setupfilesafterenv-array for more info on custom matchers in jest.
 expect.extend({
   toHaveNoA11yViolations(results: axe.AxeResults) {
     const numViolations = results.violations.length
