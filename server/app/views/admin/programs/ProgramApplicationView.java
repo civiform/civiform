@@ -67,10 +67,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     .with(
                         p(applicantNameWithApplicationId)
                             .withClasses(
-                                Styles.MY_4,
-                                Styles.TEXT_BLACK,
-                                Styles.TEXT_2XL,
-                                Styles.MB_2),
+                                Styles.MY_4, Styles.TEXT_BLACK, Styles.TEXT_2XL, Styles.MB_2),
                         // Spread out the items, so the following are right
                         // aligned.
                         p().withClasses(Styles.FLEX_GROW),
