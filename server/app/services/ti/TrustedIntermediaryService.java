@@ -29,13 +29,7 @@ public class TrustedIntermediaryService {
     this.userRepository = Preconditions.checkNotNull(userRepository);
   }
 
-  public ImmutableList<Account> retriveSearchResult(
-      SearchParameters searchParameters,
-      Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup) {
-    return filterAccountsBySearchParams(searchParameters, trustedIntermediaryGroup.get());
-  }
-
-  public ImmutableList<Account> filterAccountsBySearchParams(
+  public ImmutableList<Account> getManagedAccounts(
       SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
     ImmutableList<Account> allAccounts = tiGroup.getManagedAccounts();
     if (searchParameters.search().isPresent() || searchParameters.searchDate().isPresent()) {
@@ -63,7 +57,7 @@ public class TrustedIntermediaryService {
     return allAccounts;
   }
 
-  public Optional<Applicant> checkFormForDobUpdate(Form<UpdateApplicantDob> form, Long accountId)
+  public void updateApplicantDateOfBirth(Long accountId, Form<UpdateApplicantDob> form)
       throws FormHasErrorException, ApplicantNotFoundException, DateOfBirthNotInPastException,
           IncorrectDateFormatException, MissingDateOfBirthException {
     if (form.hasErrors()) {
@@ -89,7 +83,9 @@ public class TrustedIntermediaryService {
     if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
     }
-    return optionalAccount.get().newestApplicant();
+    Applicant applicant = optionalAccount.get().newestApplicant().get();
+    applicant.getApplicantData().setDateOfBirth(form.get().getDob());
+    userRepository.updateApplicant(applicant).toCompletableFuture().join();
   }
 
   private boolean isDobInPast(LocalDate dobDate) {

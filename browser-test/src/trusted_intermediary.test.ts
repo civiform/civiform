@@ -42,7 +42,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.checkInnerTableForClientInformation(client)
   })
 
-  fit('expect Client Date Of Birth to be Updated', async () => {
+  it('expect Client Date Of Birth to be Updated', async () => {
     await loginAsTrustedIntermediary(page)
 
     const tiDashboard = new TIDashboard(page)

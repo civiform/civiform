@@ -163,6 +163,7 @@ public class Account extends BaseModel {
     }
     return "<Unnamed User>";
   }
+
   /**
    * Returns the Date of Birth, as an Optional LocalDate, of the most-recently created Applicant
    * associated with this Account. There is no particular reason for an Account to have more than
@@ -177,11 +178,4 @@ public class Account extends BaseModel {
     }
     return Optional.empty();
   }
-
-  /*  return this.getApplicants().stream()
-      .max(Comparator.comparing(Applicant::getWhenCreated))
-      .map(u -> u.getApplicantData().getDateOfBirth())
-      .orElse(Optional.empty());
-
-  }*/
 }

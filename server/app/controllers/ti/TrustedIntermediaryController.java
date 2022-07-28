@@ -17,7 +17,6 @@ import forms.UpdateApplicantDob;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
-import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -87,7 +86,7 @@ public class TrustedIntermediaryController {
     SearchParameters searchParameters =
         SearchParameters.builder().setSearch(search).setSearchDate(searchDate).build();
     ImmutableList<Account> managedAccounts =
-        tiService.retriveSearchResult(searchParameters, trustedIntermediaryGroup);
+        tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
     PaginationInfo<Account> pageInfo =
         PaginationInfo.paginate(managedAccounts, PAGE_SIZE, page.get());
     return ok(
@@ -119,10 +118,8 @@ public class TrustedIntermediaryController {
     Form<UpdateApplicantDob> form =
         formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);
     try {
-      Optional<Applicant> optionalApplicant = tiService.checkFormForDobUpdate(form, accountId);
-      Applicant applicant = optionalApplicant.get();
-      applicant.getApplicantData().setDateOfBirth(form.get().getDob());
-      userRepository.updateApplicant(applicant).toCompletableFuture().join();
+      tiService.updateApplicantDateOfBirth(accountId, form);
+
     } catch (IncorrectDateFormatException
         | MissingDateOfBirthException
         | ApplicantNotFoundException
@@ -134,11 +131,11 @@ public class TrustedIntermediaryController {
 
     return redirect(
         routes.TrustedIntermediaryController.dashboard(
-            /* paramName=  search*/
+            /* paramName=  search */
             Optional.empty(),
-            /* paramName=  searchDate*/
+            /* paramName=  searchDate */
             Optional.empty(),
-            /* paramName=  page*/
+            /* paramName=  page */
             Optional.empty()));
   }
 
@@ -175,11 +172,11 @@ public class TrustedIntermediaryController {
           form.get(), trustedIntermediaryGroup.get());
       return redirect(
           routes.TrustedIntermediaryController.dashboard(
-              /* paramName=  search*/
+              /* paramName=  search */
               Optional.empty(),
-              /* paramName=  searchDate*/
+              /* paramName=  searchDate */
               Optional.empty(),
-              /* paramName=  page*/
+              /* paramName=  page */
               Optional.empty()));
     } catch (EmailAddressExistsException e) {
       String trustedIntermediaryUrl = baseUrl + "/trustedIntermediaries";
@@ -197,11 +194,11 @@ public class TrustedIntermediaryController {
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
-                /* paramName=  search*/
+                /* paramName=  search */
                 Optional.empty(),
-                /* paramName=  searchDate*/
+                /* paramName=  searchDate */
                 Optional.empty(),
-                /* paramName=  page*/
+                /* paramName=  page */
                 Optional.empty()))
         .flashing("error", errorMessage)
         .flashing("providedFirstName", form.get().getFirstName())
@@ -215,11 +212,11 @@ public class TrustedIntermediaryController {
       String errorMessage, Form<UpdateApplicantDob> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
-                /* paramName=  search*/
+                /* paramName=  search */
                 Optional.empty(),
-                /* paramName=  searchDate*/
+                /* paramName=  searchDate */
                 Optional.empty(),
-                /* paramName=  page*/
+                /* paramName=  page */
                 Optional.empty()))
         .flashing("error", errorMessage)
         .flashing("providedDateOfBirth", form.get().getDob());
