@@ -3,7 +3,6 @@ name: push_build_ci
 on:
   push:
     branches: main
-
   # Setting this enables manually triggering workflow in the GitHub UI
   # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch: {}
@@ -37,11 +36,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      - name: Set up Docker QEMU
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Check if we should push
-        if: ${{ (github.event_name == 'workflow_dispatch') ||  ${{ (github.event_name == 'push')
+        if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
         run: echo "PUSH=1" >> $GITHUB_ENV
       - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
         id: build_and_push
@@ -69,17 +69,17 @@ jobs:
             image: 'civiform/civiform-localstack:latest'
             script: 'bin/build-localstack-env'
             file_pattern: 'localstack/'
-            platform: 'linux/amd64'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: browser_test
             image: 'civiform/civiform-browser-test:latest'
             script: 'bin/build-browser-tests'
             file_pattern: 'browser-test/'
-            platform: 'linux/amd64'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: oidc
             image: 'civiform/oidc-provider:latest'
             script: 'bin/build-dev-oidc'
             file_pattern: 'test-support/'
-            platform: 'linux/amd64'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
     concurrency:
       group: build_dependancies-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
     name: Build civiform dependancy ${{ matrix.version }} for ${{ matrix.platform }}
@@ -104,12 +104,15 @@ jobs:
         if: ${{ steps.check_build.outputs.build != 'build' }}
         run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}" "${{steps.check_build.outputs.build}}"
 
+      - name: Set up Docker QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         if: ${{ steps.check_build.outputs.build == 'build' }}
 
       - name: Check if we should push
-        if: ${{ (github.event_name == 'workflow_dispatch') ||  ${{ (github.event_name == 'push')
+        if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
         run: echo "PUSH=1" >> $GITHUB_ENV
 
       - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
