@@ -291,7 +291,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
    * field being empty).
    */
   private static boolean isCreationForm(Optional<Form<ProgramStatusesForm>> maybeForm) {
-    return maybeForm.get().value().get().getConfiguredStatusText().isEmpty();
+    return maybeForm.map(f -> f.value().get().getConfiguredStatusText().isEmpty()).orElse(false);
   }
 
   /**
