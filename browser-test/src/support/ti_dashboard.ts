@@ -21,22 +21,40 @@ export class TIDashboard {
     await this.page.click('text ="Add"')
   }
   async checkUpdatedDateOfBirth(client: ClientInformation, newDob: string) {
-    expect(`.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(newDob)}")`)
+    expect(
+      `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
+        newDob,
+      )}")`,
+    )
     expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`)
     expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`)
     expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
   }
   async checkInnerTableForClientInformation(client: ClientInformation) {
-    expect(`.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(client.dobDate)}")`)
+    expect(
+      `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
+        client.dobDate,
+      )}")`,
+    )
     expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`)
     expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`)
     expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
   }
   async checkInnerTableNotToContainClient(client: ClientInformation) {
-    expect(`.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(client.dobDate)}")`).toBe(false)
-    expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`).toBe(false)
-    expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`).toBe(false)
-    expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`).toBe(false)
+    expect(
+      `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
+        client.dobDate,
+      )}")`,
+    ).toBe(false)
+    expect(
+      `.cf-admin-question-table-row:has-text("${client.emailAddress}")`,
+    ).toBe(false)
+    expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`).toBe(
+      false,
+    )
+    expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`).toBe(
+      false,
+    )
   }
   async searchByDateOfBirth(dobDate: string) {
     await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
@@ -48,7 +66,7 @@ export class TIDashboard {
     return `${month}-${day}-${year}`
   }
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
-    await this.page.locator('id=date-of-birth-update').fill('newDobDate');
+    await this.page.locator('id=date-of-birth-update').fill('newDobDate')
     await this.page.click('text ="add DOB"')
   }
 }

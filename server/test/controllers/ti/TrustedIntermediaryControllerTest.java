@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
-
 import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
@@ -94,8 +93,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     form.setLastName("bar");
     form.setDob("2022-07-10");
     repo.createNewApplicantForTrustedIntermediaryGroup(form, group);
-    Optional<Account> account =
-        repo.lookupAccountByEmail("sample3@example.com");
+    Optional<Account> account = repo.lookupAccountByEmail("sample3@example.com");
     Http.RequestBuilder requestBuilder =
         addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-05-05")));
     Result result = tiController.updateDateOfBirth(account.get().id, requestBuilder.build());

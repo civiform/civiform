@@ -28,7 +28,6 @@ import play.mvc.Result;
 import repository.SearchParameters;
 import repository.UserRepository;
 import services.PaginationInfo;
-import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.ti.*;
 import views.applicant.TrustedIntermediaryDashboardView;
@@ -118,17 +117,20 @@ public class TrustedIntermediaryController {
     }
 
     Form<UpdateApplicantDob> form =
-      formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);
+        formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);
     try {
-      Optional<Applicant>optionalApplicant = tiService.checkFormForDobUpdate(form, accountId);
+      Optional<Applicant> optionalApplicant = tiService.checkFormForDobUpdate(form, accountId);
       Applicant applicant = optionalApplicant.get();
       applicant.getApplicantData().setDateOfBirth(form.get().getDob());
       userRepository.updateApplicant(applicant).toCompletableFuture().join();
-    } catch (IncorrectDateFormatException | MissingDateOfBirthException | ApplicantNotFoundException | FormHasErrorException |DateOfBirthNotInPastException  e) {
+    } catch (IncorrectDateFormatException
+        | MissingDateOfBirthException
+        | ApplicantNotFoundException
+        | FormHasErrorException
+        | DateOfBirthNotInPastException e) {
       System.out.println(e.getLocalizedMessage());
       redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage(), form);
     }
-
 
     return redirect(
         routes.TrustedIntermediaryController.dashboard(

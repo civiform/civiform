@@ -122,11 +122,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private DivTag renderTIApplicantsTable(
-    ImmutableList<Account> managedAccounts,
-    SearchParameters searchParameters,
-    int page,
-    int totalPageCount,
-    Http.Request request) {
+      ImmutableList<Account> managedAccounts,
+      SearchParameters searchParameters,
+      int page,
+      int totalPageCount,
+      Http.Request request) {
     DivTag main =
         div(table()
                 .withClasses(
@@ -263,7 +263,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .withId("date-of-birth-update")
                         .withName("dob")
                         .withType("date")
-                      .withValue(currentDob.isPresent()?currentDob.get().toString():""),
+                        .withValue(currentDob.isPresent() ? currentDob.get().toString() : ""),
                     makeCsrfTokenInputTag(request),
                     submitButton("Update DOB")
                         .withClasses(Styles.UPPERCASE, Styles.TEXT_XS, Styles.ML_3)));

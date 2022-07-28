@@ -38,27 +38,27 @@ public class TrustedIntermediaryService {
   public ImmutableList<Account> filterAccountsBySearchParams(
       SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
     ImmutableList<Account> allAccounts = tiGroup.getManagedAccounts();
-    if(searchParameters.search().isPresent() || searchParameters.searchDate().isPresent()) {
+    if (searchParameters.search().isPresent() || searchParameters.searchDate().isPresent()) {
       allAccounts =
-        allAccounts.stream()
-          .filter(
-            account -> {
-              if (searchParameters.search().isPresent()) {
-                return account
-                  .getApplicantName()
-                  .toLowerCase(Locale.ROOT)
-                  .contains(searchParameters.search().get().toLowerCase(Locale.ROOT));
-              }
-              if (searchParameters.searchDate().isPresent()
-                && !searchParameters.searchDate().isEmpty()
-                && account.getApplicantDateOfBirth().isPresent()) {
-                LocalDate searchDate =
-                  dateConverter.parseStringtoLocalDate(searchParameters.searchDate().get());
-                return account.getApplicantDateOfBirth().get().equals(searchDate);
-              }
-              return false;
-            })
-          .collect(ImmutableList.toImmutableList());
+          allAccounts.stream()
+              .filter(
+                  account -> {
+                    if (searchParameters.search().isPresent()) {
+                      return account
+                          .getApplicantName()
+                          .toLowerCase(Locale.ROOT)
+                          .contains(searchParameters.search().get().toLowerCase(Locale.ROOT));
+                    }
+                    if (searchParameters.searchDate().isPresent()
+                        && !searchParameters.searchDate().isEmpty()
+                        && account.getApplicantDateOfBirth().isPresent()) {
+                      LocalDate searchDate =
+                          dateConverter.parseStringtoLocalDate(searchParameters.searchDate().get());
+                      return account.getApplicantDateOfBirth().get().equals(searchDate);
+                    }
+                    return false;
+                  })
+              .collect(ImmutableList.toImmutableList());
     }
     return allAccounts;
   }
