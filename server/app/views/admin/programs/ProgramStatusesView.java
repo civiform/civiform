@@ -73,7 +73,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
       ProgramDefinition program,
       Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
     final Form<ProgramStatusesForm> createStatusForm;
-    if (isFormForStatus(maybeStatusForm, /* maybeStatus= */ Optional.empty())) {
+    if (isCreationForm(maybeStatusForm)) {
       createStatusForm = maybeStatusForm.get();
     } else {
       createStatusForm =
@@ -159,7 +159,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .map(
                 s -> {
                   final Form<ProgramStatusesForm> statusEditForm;
-                  if (isFormForStatus(maybeStatusForm, Optional.of(s))) {
+                  if (isFormForStatus(maybeStatusForm, s)) {
                     statusEditForm = maybeStatusForm.get();
                   } else {
                     statusEditForm =
@@ -287,17 +287,23 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   /**
+   * Returns whether the form is for creating a new status (signified by the "configuredStatusText"
+   * field being empty).
+   */
+  private static boolean isCreationForm(Optional<Form<ProgramStatusesForm>> maybeForm) {
+    return maybeForm.get().value().get().getConfiguredStatusText().isEmpty();
+  }
+
+  /**
    * Returns whether the form matches the status object being rendered. The page has multiple inline
    * modals for editing and creating statuses.
    */
   private static boolean isFormForStatus(
-      Optional<Form<ProgramStatusesForm>> maybeEditForm,
-      Optional<StatusDefinitions.Status> maybeStatus) {
-    String wantConfiguredStatusText =
-        maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
+      Optional<Form<ProgramStatusesForm>> maybeEditForm, StatusDefinitions.Status status) {
     return maybeEditForm.isPresent()
-        && wantConfiguredStatusText.equalsIgnoreCase(
-            maybeEditForm.get().value().get().getConfiguredStatusText());
+        && status
+            .statusText()
+            .equalsIgnoreCase(maybeEditForm.get().value().get().getConfiguredStatusText());
   }
 
   private Modal makeStatusUpdateModal(
