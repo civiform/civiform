@@ -7,7 +7,6 @@ import static play.test.Helpers.fakeRequest;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
