@@ -95,14 +95,14 @@ describe('file upload applicant flow', () => {
     })
 
     // TODO(#2988) Enable test once a11y issues are fixed.
-    // it('has no accessiblity violations', async () => {
-    //   await loginAsGuest(pageObject)
-    //   await selectApplicantLanguage(pageObject, 'English')
+    it.skip('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
 
-    //   await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(programName)
 
-    //   await validateAccessibility(pageObject)
-    // })
+      await validateAccessibility(pageObject)
+    })
   })
 
   // Optional file upload.
