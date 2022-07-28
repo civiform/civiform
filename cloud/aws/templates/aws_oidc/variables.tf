@@ -230,17 +230,6 @@ variable "civiform_applicant_idp" {
   default     = ""
 }
 
-variable "applicant_oidc_client_id" {
-  type        = string
-  description = "Client ID"
-  default     = ""
-}
-
-variable "applicant_oidc_client_secret" {
-  type        = string
-  description = "Client Secret"
-  default     = ""
-}
 
 variable "applicant_oidc_discovery_uri" {
   type        = string
