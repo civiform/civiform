@@ -44,7 +44,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Check if we should push
-        if: ${{ (github.event_name == 'workflow_dispatch') ||  ${{ (github.event_name == 'push')
+        if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
         run: echo "PUSH=1" >> $GITHUB_ENV
       - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
         id: build_and_push
@@ -112,7 +112,7 @@ jobs:
         if: ${{ steps.check_build.outputs.build == 'build' }}
 
       - name: Check if we should push
-        if: ${{ (github.event_name == 'workflow_dispatch') ||  ${{ (github.event_name == 'push')
+        if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
         run: echo "PUSH=1" >> $GITHUB_ENV
 
       - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
