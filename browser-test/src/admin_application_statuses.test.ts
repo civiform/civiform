@@ -34,6 +34,7 @@ describe('view program statuses', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       const applicantQuestions = new ApplicantQuestions(pageObject)
 
+      // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithoutStatusesName)
       await adminPrograms.publishProgram(programWithoutStatusesName)
       await adminPrograms.expectActiveProgram(programWithoutStatusesName)
@@ -42,14 +43,14 @@ describe('view program statuses', () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
+      // Submit an application.
       await applicantQuestions.clickApplyProgramButton(programWithoutStatusesName)
-
       await applicantQuestions.submitFromPreviewPage(programWithoutStatusesName)
 
       await logout(pageObject)
     })
 
-    it('Does not Show status options', async () => {
+    it('does not Show status options', async () => {
       await loginAsProgramAdmin(pageObject)
       const adminPrograms = new AdminPrograms(pageObject)
 
@@ -57,7 +58,6 @@ describe('view program statuses', () => {
 
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
 
-      await pageObject.screenshot({ path: 'tmp/applicantionpage.png', fullPage: true })
       expect(await adminPrograms.expectStatusSelectorVisible()).toBeFalsy()
     })
   })
