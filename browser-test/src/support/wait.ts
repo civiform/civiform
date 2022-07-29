@@ -25,3 +25,12 @@ export const clickAndWaitForModal = async (page: Page, modalId: string) => {
   await page.click(`#${modalId}-button`)
   await page.waitForSelector(`#${modalId}:not(.hidden)`)
 }
+
+/**
+ * Waits for any modal to be displayed.
+ */
+export const waitForAnyModal = async (page: Page): Promise<HTMLElement> => {
+  return (await page.waitForSelector(
+    '.cf-modal:not(.hidden)',
+  )) as unknown as HTMLElement
+}

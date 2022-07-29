@@ -231,6 +231,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return Pair.of(
         div()
             .withClasses(
+                ReferenceClasses.ADMIN_PROGRAM_STATUS_ITEM,
                 Styles.PL_7,
                 Styles.PR_6,
                 Styles.PY_9,
