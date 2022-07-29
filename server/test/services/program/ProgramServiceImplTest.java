@@ -1168,7 +1168,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
-          .setEmailBodyText(Optional.of("I'm an email!"))
           .setLocalizedEmailBodyText(Optional.of(LocalizedStrings.of(Locale.US, "I'm a US email!")))
           .build();
 
@@ -1176,7 +1175,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Rejected")
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Rejected"))
-          .setEmailBodyText(Optional.of("I'm a rejection email!"))
           .setLocalizedEmailBodyText(
               Optional.of(LocalizedStrings.of(Locale.US, "I'm a US rejection email!")))
           .build();
@@ -1220,7 +1218,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
         StatusDefinitions.Status.builder()
             .setStatusText(APPROVED_STATUS.statusText())
             .setLocalizedStatusText(LocalizedStrings.withDefaultValue(APPROVED_STATUS.statusText()))
-            .setEmailBodyText(Optional.of("A new email"))
             .setLocalizedEmailBodyText(
                 Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
             .build();
@@ -1242,7 +1239,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
         StatusDefinitions.Status.builder()
             .setStatusText("New status text")
             .setLocalizedStatusText(LocalizedStrings.withDefaultValue("New status text"))
-            .setEmailBodyText(Optional.of("A new email"))
             .setLocalizedEmailBodyText(
                 Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
             .build();
@@ -1295,7 +1291,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
                           .setStatusText(APPROVED_STATUS.statusText())
                           .setLocalizedStatusText(
                               LocalizedStrings.withDefaultValue("New status text"))
-                          .setEmailBodyText(Optional.of("A new email"))
                           .setLocalizedEmailBodyText(
                               Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
                           .build();
