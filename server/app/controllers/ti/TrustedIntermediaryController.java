@@ -188,8 +188,7 @@ public class TrustedIntermediaryController {
     }
   }
 
-  private Result redirectToDashboardWithError(
-      String errorMessage) {
+  private Result redirectToDashboardWithError(String errorMessage) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
                 /* paramName=  nameQuery */
@@ -201,8 +200,7 @@ public class TrustedIntermediaryController {
         .flashing("error", errorMessage);
   }
 
-  private Result redirectToDashboardWithUpdateDateOfBirthError(
-      String errorMessage) {
+  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
                 /* paramName=  nameQuery */
