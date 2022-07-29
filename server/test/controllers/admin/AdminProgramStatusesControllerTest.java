@@ -94,6 +94,26 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void index_ok_noEmailForStatus() throws ProgramNotFoundException {
+    Program program =
+        ProgramBuilder.newDraftProgram("test name", "test description")
+            .withStatusDefinitions(
+                new StatusDefinitions(
+                    ImmutableList.of(
+                        StatusDefinitions.Status.builder()
+                            .setStatusText("Status with no email")
+                            .setLocalizedStatusText(
+                                LocalizedStrings.withDefaultValue("Status with no email"))
+                            .build())))
+            .build();
+
+    Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Status with no email");
+  }
+
+  @Test
   public void index_createNewStatus() throws ProgramNotFoundException {
     Program program =
         ProgramBuilder.newDraftProgram("test name", "test description")
