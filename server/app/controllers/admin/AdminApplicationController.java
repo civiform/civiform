@@ -261,11 +261,10 @@ public class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    String programName;
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    String programName = program.adminName();
 
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      programName = program.adminName();
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
     } catch (CompletionException e) {
       return unauthorized();
@@ -294,6 +293,7 @@ public class AdminApplicationController extends CiviFormController {
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    var statusDefinitions = program.statusDefinitions();
 
     return ok(
         applicationView.render(
@@ -302,7 +302,8 @@ public class AdminApplicationController extends CiviFormController {
             applicationId,
             applicantNameWithApplicationId,
             blocks,
-            answers));
+            answers,
+            statusDefinitions));
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
