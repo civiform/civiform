@@ -111,5 +111,6 @@ public final class ReferenceClasses {
   public static final String RADIO_INPUT = "cf-radio-input";
   public static final String RADIO_OPTION = "cf-radio-option";
   public static final String MODAL = "cf-modal";
+  public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
 }

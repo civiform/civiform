@@ -25,6 +25,14 @@ export class AdminProgramStatuses {
     await waitForPageJsLoad(this.page)
   }
 
+  async expectCreateStatusModalWithError(expectErrorContains: string) {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain('Create a new status')
+    if (!!expectErrorContains) {
+      expect(await modal.innerText()).toContain(expectErrorContains)
+    }
+  }
+
   async expectStatusExists(statusName: string, expectEmailExists: boolean) {
     const statusLocator = this.page.locator(
       this.programStatusItemSelector(statusName),

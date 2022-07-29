@@ -1,4 +1,5 @@
 import {
+  dismissModal,
   startSession,
   logout,
   loginAsGuest,
@@ -33,30 +34,42 @@ describe('modify program statuses', () => {
   })
 
   describe('new status creation', () => {
-    it('creates a new status with no email', async () => {
-      const programName = 'test program create statuses'
-      const adminPrograms = new AdminPrograms(pageObject)
-      const adminProgramStatuses = new AdminProgramStatuses(pageObject)
+    let adminPrograms: AdminPrograms
+    let adminProgramStatuses: AdminProgramStatuses
+    const programName = 'test program create statuses'
+
+    beforeAll(async () => {
+      adminPrograms = new AdminPrograms(pageObject)
+      adminProgramStatuses = new AdminProgramStatuses(pageObject)
+
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+    })
 
-      // Click create status and set to empty.
-      await adminProgramStatuses.addStatus('First status')
+    it('creates a new status with no email', async () => {
+      await adminProgramStatuses.addStatus('Status with no email')
       await adminPrograms.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.expectStatusExists('First status', false)
+      await adminProgramStatuses.expectStatusExists(
+        'Status with no email',
+        false,
+      )
     })
 
     it('creates a new status with email', async () => {
-      const programName = 'test program create statuses with email'
-      const adminPrograms = new AdminPrograms(pageObject)
-      const adminProgramStatuses = new AdminProgramStatuses(pageObject)
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
-
-      // Click create status and set to empty.
-      await adminProgramStatuses.addStatus('Second status', 'An email')
+      await adminProgramStatuses.addStatus('Status with email', 'An email')
       await adminPrograms.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.expectStatusExists('Second status', true)
+      await adminProgramStatuses.expectStatusExists('Status with email', true)
+    })
+
+    it('fails to create status with an existing name', async () => {
+      await adminProgramStatuses.addStatus('Existing status')
+      await adminPrograms.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.addStatus('Existing status')
+      await adminPrograms.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.expectCreateStatusModalWithError(
+        'A status with name Existing status already exists',
+      )
+      await dismissModal(pageObject)
     })
   })
 })
