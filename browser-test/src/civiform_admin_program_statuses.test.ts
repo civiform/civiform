@@ -61,6 +61,15 @@ describe('modify program statuses', () => {
       await adminProgramStatuses.expectStatusExists('Status with email', true)
     })
 
+    it('fails to create status with an empty name', async () => {
+      await adminProgramStatuses.addStatus('')
+      await adminPrograms.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.expectCreateStatusModalWithError(
+        'This field is required',
+      )
+      await dismissModal(pageObject)
+    })
+
     it('fails to create status with an existing name', async () => {
       await adminProgramStatuses.addStatus('Existing status')
       await adminPrograms.expectProgramManageStatusesPage(programName)
