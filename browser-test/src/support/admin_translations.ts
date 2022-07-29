@@ -28,7 +28,7 @@ export class AdminTranslations {
     // If there are multi-option inputs to translate, fill them in
     // with the provided translations in configText
     const optionInputs = await this.page.$$('[name="options[]"]')
-    for (var index = 0; index < optionInputs.length; index++) {
+    for (let index = 0; index < optionInputs.length; index++) {
       await optionInputs[index].fill(configText[index])
     }
 

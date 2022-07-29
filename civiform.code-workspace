@@ -17,5 +17,11 @@
 			"**/.bloop": true
 		},
 		"java.configuration.updateBuildConfiguration": "automatic"
-	}
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "rvest.vs-code-prettier-eslint"
+    ]
+  }
 }
