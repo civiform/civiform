@@ -302,7 +302,7 @@ public class AdminApplicationController extends CiviFormController {
             applicantNameWithApplicationId,
             blocks,
             answers,
-           program.statusDefinitions());
+            program.statusDefinitions()));
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
