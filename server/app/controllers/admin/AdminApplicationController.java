@@ -265,7 +265,7 @@ public class AdminApplicationController extends CiviFormController {
     String programName = program.adminName();
 
     try {
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      checkProgramAdminAuthorization(profileUtils, request, programName).join();
     } catch (CompletionException e) {
       return unauthorized();
     }
@@ -293,7 +293,6 @@ public class AdminApplicationController extends CiviFormController {
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
-    var statusDefinitions = program.statusDefinitions();
 
     return ok(
         applicationView.render(
@@ -303,7 +302,7 @@ public class AdminApplicationController extends CiviFormController {
             applicantNameWithApplicationId,
             blocks,
             answers,
-            statusDefinitions));
+           program.statusDefinitions());
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */

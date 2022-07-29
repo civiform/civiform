@@ -22,13 +22,6 @@ describe('view program statuses', () => {
 
   describe('without program statuses', () => {
     beforeAll(async () => {
-      // Timeout for clicks and element fills. If your selector fails to locate
-      // the HTML element, the test hangs. If you find the tests time out, you
-      // want to verify that your selectors are working as expected first.
-      // Because all tests are run concurrently, it could be that your selector
-      // selects a different entity from another test.
-      pageObject.setDefaultTimeout(4000)
-
       await loginAsAdmin(pageObject)
       const adminPrograms = new AdminPrograms(pageObject)
       const applicantQuestions = new ApplicantQuestions(pageObject)
