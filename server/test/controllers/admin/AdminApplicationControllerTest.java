@@ -14,10 +14,9 @@ import repository.ResetPostgres;
 import support.ProgramBuilder;
 
 public class AdminApplicationControllerTest extends ResetPostgres {
-  // NOTE: the controller asserts the user is valid on the program that applications are requestd
-  // for.
-  // However, we currently have no pattern for setting a profile in a test request, so we can't make
-  // affirmative tests.
+  // NOTE: the controller asserts the user is valid on the program that applications are requested
+  // for. However, we currently have no pattern for setting a profile in a test request, so we can't
+  // make affirmative tests.
   private AdminApplicationController controller;
 
   @Before
