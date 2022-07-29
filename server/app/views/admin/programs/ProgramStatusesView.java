@@ -308,6 +308,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
 
   private Modal makeStatusUpdateModal(
       Http.Request request, ProgramDefinition program, Form<ProgramStatusesForm> form) {
+    // TODO(#2752): If an email is already configured, add a warning that setting it to empty
+    // will clear any other localized text.
     // TODO(#2752): Pop the modal open on error on page load.
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
