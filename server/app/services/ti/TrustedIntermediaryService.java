@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
+import org.slf4j.LoggerFactory;
 import play.data.Form;
 import repository.SearchParameters;
 import repository.UserRepository;
@@ -46,12 +47,21 @@ public class TrustedIntermediaryService {
     if (searchParameters.nameQuery().isEmpty() && searchParameters.searchDate().isEmpty()) {
       return allAccounts;
     }
+    try {
+      return searchAccounts(searchParameters, allAccounts);
+    } catch (DateTimeParseException e) {
+      LoggerFactory.getLogger(TrustedIntermediaryService.class)
+          .info("Unformed String is Entered" + searchParameters.searchDate().get());
+    }
+    return allAccounts;
+  }
+
+  private ImmutableList<Account> searchAccounts(
+      SearchParameters searchParameters, ImmutableList<Account> allAccounts) {
     return allAccounts.stream()
         .filter(
             account ->
                 account.getApplicantDateOfBirth().isPresent()
-                    && searchParameters.searchDate().isPresent()
-                    && !searchParameters.searchDate().isEmpty()
                     && account
                         .getApplicantDateOfBirth()
                         .get()
