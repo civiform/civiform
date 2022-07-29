@@ -63,7 +63,7 @@
     "values": ["prod", "staging", "dev", "test"]
   },
   "CUSTOM_HOSTNAME": {
-    "required": true,
+    "required": false,
     "secret": false,
     "tfvar": true,
     "type": "string"
