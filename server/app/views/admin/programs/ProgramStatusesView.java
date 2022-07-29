@@ -72,14 +72,18 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
+    final boolean displayOnLoad;
     final Form<ProgramStatusesForm> createStatusForm;
     if (isCreationForm(maybeStatusForm)) {
       createStatusForm = maybeStatusForm.get();
+      displayOnLoad = true;
     } else {
       createStatusForm =
           formFactory.form(ProgramStatusesForm.class).fill(new ProgramStatusesForm());
+      displayOnLoad = false;
     }
-    Modal createStatusModal = makeStatusUpdateModal(request, program, createStatusForm);
+    Modal createStatusModal =
+        makeStatusUpdateModal(request, program, createStatusForm, displayOnLoad);
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
@@ -159,15 +163,19 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .map(
                 s -> {
                   final Form<ProgramStatusesForm> statusEditForm;
+                  final boolean displayEditFormOnLoad;
                   if (isFormForStatus(maybeStatusForm, s)) {
                     statusEditForm = maybeStatusForm.get();
+                    displayEditFormOnLoad = true;
                   } else {
                     statusEditForm =
                         formFactory
                             .form(ProgramStatusesForm.class)
                             .fill(ProgramStatusesForm.fromStatus(s));
+                    displayEditFormOnLoad = false;
                   }
-                  return renderStatusItem(request, program, s, statusEditForm);
+                  return renderStatusItem(
+                      request, program, s, statusEditForm, displayEditFormOnLoad);
                 })
             .collect(ImmutableList.toImmutableList());
     // Combine all the DivTags into a rendered list, and collect all Modals into one collection.
@@ -199,13 +207,15 @@ public final class ProgramStatusesView extends BaseHtmlView {
    * @param status The status to render, as read from the existing program definition.
    * @param statusEditForm A form containing the values / validation errors to use when rendering
    *     the status edit form.
+   * @param displayOnLoad Whether the edit modal should be displayed on page load.
    */
   private Pair<DivTag, ImmutableList<Modal>> renderStatusItem(
       Http.Request request,
       ProgramDefinition program,
       StatusDefinitions.Status status,
-      Form<ProgramStatusesForm> statusEditForm) {
-    Modal editStatusModal = makeStatusUpdateModal(request, program, statusEditForm);
+      Form<ProgramStatusesForm> statusEditForm,
+      boolean displayOnLoad) {
+    Modal editStatusModal = makeStatusUpdateModal(request, program, statusEditForm, displayOnLoad);
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
@@ -307,10 +317,12 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Modal makeStatusUpdateModal(
-      Http.Request request, ProgramDefinition program, Form<ProgramStatusesForm> form) {
+      Http.Request request,
+      ProgramDefinition program,
+      Form<ProgramStatusesForm> form,
+      boolean displayOnLoad) {
     // TODO(#2752): If an email is already configured, add a warning that setting it to empty
     // will clear any other localized text.
-    // TODO(#2752): Pop the modal open on error on page load.
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
 
@@ -362,6 +374,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 ? "Create a new status"
                 : "Edit this status")
         .setWidth(Width.HALF)
+        .setDisplayOnLoad(displayOnLoad)
         .build();
   }
 
