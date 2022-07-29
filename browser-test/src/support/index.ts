@@ -148,10 +148,10 @@ export const userDisplayName = () => {
 /**
  * Get the ID the system has assigned the logged in applicant.
  */
-export const getUserId = async (page: Page) =>{
+export const getUserId = async (page: Page) => {
   const matches = page.url().match(/applicants\/(\d+)\//)
   if (matches) {
-    return matches[1];
+    return matches[1]
   }
   return 'no user id found'
 }
@@ -159,10 +159,9 @@ export const getUserId = async (page: Page) =>{
 /**
  * Get the display name that will appear to admins for the logged in applicant.
  */
-export const getUserAdminName = async (page: Page) =>{
+export const getUserAdminName = async (page: Page) => {
   const userId = await getUserId(page)
   return `Guest (${userId})`
-
 }
 
 /**
