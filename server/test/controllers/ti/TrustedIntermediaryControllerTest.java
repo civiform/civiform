@@ -36,24 +36,25 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     data = profileFactory.createFakeTrustedIntermediary();
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void addApplicantTestWithMissingDob() {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(
-            Helpers.fakeRequest()
-                .bodyForm(
-                    ImmutableMap.of(
-                        "firstName",
-                        "first",
-                        "middleName",
-                        "middle",
-                        "lastName",
-                        "last",
-                        "emailAddress",
-                        "sample1@fake.com")));
+      addCSRFToken(
+        Helpers.fakeRequest()
+          .bodyForm(
+            ImmutableMap.of(
+              "firstName",
+              "first",
+              "middleName",
+              "middle",
+              "lastName",
+              "last",
+              "emailAddress",
+              "sample1@fake.com")));
     TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
-    Result result = tiController.addApplicant(group.id, requestBuilder.build());
-    assertThat(result.flash().get("error")).isEqualTo("providedDateOfBirth cannot be null");
+    Result result = tiController.addApplicant(group.id +2, requestBuilder.build());
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().get("error").get()).isEqualTo("Date Of Birth required.");
   }
 
   @Test
