@@ -69,7 +69,7 @@ module "td" {
             "Resource" : [aws_kms_key.civiform_kms_key.arn]
           },
         ]
-        }
+      }
     )
   ]
 
