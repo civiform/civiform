@@ -453,6 +453,10 @@ export class AdminPrograms {
     ).not.toBeNull()
   }
 
+  async expectStatusSelectorVisible() {
+    await this.page.isVisible('#status-selector')
+  }
+
   async getJson(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
