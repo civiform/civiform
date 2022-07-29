@@ -1,7 +1,6 @@
 package controllers.ti;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.SEE_OTHER;
 
@@ -51,17 +50,13 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "lastName",
                         "last",
                         "emailAddress",
-                        "sample1@fake.com")));
+                        "sample1@fake.com",
+                        "dob",
+                        "")));
     TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
-
-    IllegalArgumentException thrown =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> {
-              tiController.addApplicant(group.id + 2, requestBuilder.build());
-            });
-    assertThat(thrown.getMessage())
-        .isEqualTo("requirement failed: Flash value for providedDateOfBirth cannot be null");
+    Result result = tiController.addApplicant(group.id + 2, requestBuilder.build());
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().get("error").get()).isEqualTo("Date Of Birth required.");
   }
 
   @Test

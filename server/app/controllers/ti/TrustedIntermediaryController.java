@@ -126,7 +126,7 @@ public class TrustedIntermediaryController {
         | ApplicantNotFoundException
         | FormHasErrorException
         | DateOfBirthNotInPastException e) {
-      redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage(), form);
+      return redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage());
     }
 
     return redirect(
@@ -194,12 +194,13 @@ public class TrustedIntermediaryController {
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
-                /* paramName=  nameQuery */
-                Optional.empty(),
-                /* paramName=  searchDate */
-                Optional.empty(),
-                /* paramName=  page */
-                Optional.empty()))
+                    /* paramName=  nameQuery */
+                    Optional.empty(),
+                    /* paramName=  searchDate */
+                    Optional.empty(),
+                    /* paramName=  page */
+                    Optional.of(1))
+                .url())
         .flashing("error", errorMessage)
         .flashing("providedFirstName", form.value().get().getFirstName())
         .flashing("providedMiddleName", form.value().get().getMiddleName())
@@ -208,18 +209,16 @@ public class TrustedIntermediaryController {
         .flashing("providedDateOfBirth", form.value().get().getDob());
   }
 
-  private Result redirectToDashboardWithUpdateDateOfBirthError(
-      String errorMessage, Form<UpdateApplicantDob> form) {
+  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
-                /* paramName=  nameQuery */
-                Optional.empty(),
-                /* paramName=  searchDate */
-                Optional.empty(),
-                /* paramName=  page */
-                Optional.empty()))
-        .flashing("error", errorMessage)
-        .flashing(
-            "providedDateOfBirth", form.get().getDob() != null ? form.value().get().getDob() : "");
+                    /* paramName=  nameQuery */
+                    Optional.empty(),
+                    /* paramName=  searchDate */
+                    Optional.empty(),
+                    /* paramName=  page */
+                    Optional.of(1))
+                .url())
+        .flashing("error", errorMessage);
   }
 }

@@ -9,6 +9,7 @@ public final class AddApplicantToTrustedIntermediaryGroupForm {
   private String emailAddress;
 
   public String getFirstName() {
+
     return firstName;
   }
 
