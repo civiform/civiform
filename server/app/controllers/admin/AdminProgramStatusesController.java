@@ -129,9 +129,9 @@ public final class AdminProgramStatusesController extends CiviFormController {
       if (!formData.getEmailBody().isBlank()) {
         newStatusBuilder =
             newStatusBuilder
-                .setEmailBodyText(formData.getEmailBody())
+                .setEmailBodyText(Optional.of(formData.getEmailBody()))
                 .setLocalizedEmailBodyText(
-                    LocalizedStrings.withDefaultValue(formData.getEmailBody()));
+                    Optional.of(LocalizedStrings.withDefaultValue(formData.getEmailBody())));
       }
       return service.appendStatus(program.id(), newStatusBuilder.build());
     }
@@ -150,10 +150,10 @@ public final class AdminProgramStatusesController extends CiviFormController {
                   // editing status.
                   .setLocalizedStatusText(existingStatus.localizedStatusText());
           if (existingStatus.localizedEmailBodyText().isPresent()) {
-            builder.setLocalizedEmailBodyText(existingStatus.localizedEmailBodyText().get());
+            builder.setLocalizedEmailBodyText(existingStatus.localizedEmailBodyText());
           }
           if (!formData.getEmailBody().isBlank()) {
-            builder.setEmailBodyText(formData.getEmailBody());
+            builder.setEmailBodyText(Optional.of(formData.getEmailBody()));
           }
           return builder.build();
         });
