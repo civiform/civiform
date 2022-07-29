@@ -89,6 +89,23 @@ export class AdminPrograms {
     await this.expectProgramEditPage(programName)
   }
 
+  async gotoDraftProgramManageStatusesPage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        'Draft',
+        ':text("Manage application statuses")',
+      ),
+    )
+    await waitForPageJsLoad(this.page)
+    await this.expectProgramManageStatusesPage(programName)
+  }
+
   async gotoDraftProgramManageTranslationsPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -151,6 +168,12 @@ export class AdminPrograms {
   async expectProgramEditPage(programName: string = '') {
     expect(await this.page.innerText('h1')).toContain(
       `Edit program: ${programName}`,
+    )
+  }
+
+  async expectProgramManageStatusesPage(programName: string) {
+    expect(await this.page.innerText('h1')).toContain(
+      `Manage application statuses for ${programName}`,
     )
   }
 
