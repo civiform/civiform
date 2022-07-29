@@ -86,10 +86,10 @@ public class StatusDefinitions {
       public abstract Builder setLocalizedStatusText(LocalizedStrings value);
 
       @JsonProperty("email_body")
-      public abstract Builder setEmailBodyText(String value);
+      public abstract Builder setEmailBodyText(Optional<String> value);
 
       @JsonProperty("email_body_localized")
-      public abstract Builder setLocalizedEmailBodyText(LocalizedStrings value);
+      public abstract Builder setLocalizedEmailBodyText(Optional<LocalizedStrings> value);
 
       public abstract Status build();
     }
