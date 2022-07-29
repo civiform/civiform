@@ -146,25 +146,6 @@ export const userDisplayName = () => {
 }
 
 /**
- * Get the ID the system has assigned the logged in applicant.
- */
-export const getUserId = async (page: Page) => {
-  const matches = page.url().match(/applicants\/(\d+)\//)
-  if (matches) {
-    return matches[1]
-  }
-  return 'no user id found'
-}
-
-/**
- * Get the display name that will appear to admins for the logged in applicant.
- */
-export const getUserAdminName = async (page: Page) => {
-  const userId = await getUserId(page)
-  return `Guest (${userId})`
-}
-
-/**
  * The option to select a language is only shown once for a given applicant. If this is
  * the first time they see this page, select the given language. Otherwise continue.
  */
