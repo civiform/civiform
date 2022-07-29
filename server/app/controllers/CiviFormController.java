@@ -27,6 +27,11 @@ public class CiviFormController extends Controller {
     return profileUtils.currentUserProfile(request).orElseThrow().checkAuthorization(applicantId);
   }
 
+  /**
+   * Checks that the profile in {@code request} is an admin for {@code programName}.
+   *
+   * @throws java.util.NoSuchElementException if there is not profile in request.
+   */
   protected CompletableFuture<Void> checkProgramAdminAuthorization(
       ProfileUtils profileUtils, Http.Request request, String programName) {
     return profileUtils
