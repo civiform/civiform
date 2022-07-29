@@ -235,8 +235,7 @@ public class HtmlBundle {
     if (displayOnLoadModalCount > 1) {
       logger.warn(
           String.format(
-              "Multiple modals found containing display on load. Got: %d",
-              displayOnLoadModalCount));
+              "Multiple (%d) modals found containing display on load.", displayOnLoadModalCount));
     }
     modals.forEach(modal -> modalContainer.with(modal.getContainerTag()));
     return modalContainer;
