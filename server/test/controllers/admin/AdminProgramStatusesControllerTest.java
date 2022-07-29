@@ -220,6 +220,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data())
         .containsExactlyEntriesOf(ImmutableMap.of("success", "Status updated"));
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     String originalFrenchStatusText =
         WITH_TRANSLATIONS_STATUS.localizedStatusText().get(Locale.FRENCH);
@@ -265,6 +266,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data())
         .containsExactlyEntriesOf(ImmutableMap.of("success", "Status updated"));
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     String originalFrenchStatusText =
         WITH_TRANSLATIONS_STATUS.localizedStatusText().get(Locale.FRENCH);
