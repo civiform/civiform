@@ -125,7 +125,6 @@ public class TrustedIntermediaryController {
         | ApplicantNotFoundException
         | FormHasErrorException
         | DateOfBirthNotInPastException e) {
-      System.out.println(e.getLocalizedMessage());
       redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage(), form);
     }
 

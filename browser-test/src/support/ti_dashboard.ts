@@ -1,7 +1,7 @@
 import {Page} from 'playwright'
 
-//This class is to test Civiform's TI to add new clients and search functionality
-//It requires the tests to be logged as a TI
+// This class is to test Civiform's TI to add new clients and search functionality
+// It requires the tests to be logged as a TI
 export class TIDashboard {
   public page!: Page
 
@@ -19,7 +19,7 @@ export class TIDashboard {
     await this.page.fill('label:has-text("Middle Name")', client.middleName)
     await this.page.fill('label:has-text("Last Name")', client.lastName)
     await this.page.fill('label:has-text("Date Of Birth")', client.dobDate)
-    await this.page.click('text ="Add"')
+    await this.page.click('text="Add"')
   }
 
   async checkUpdatedDateOfBirth(client: ClientInformation, newDob: string) {
@@ -68,8 +68,8 @@ export class TIDashboard {
   }
 }
 
-//This class helps to test the TrustesIntermediary dashboard changes
-//We should be logged as a TI to use this class
+// This class helps to test the TrustesIntermediary dashboard changes
+// We should be logged as a TI to use this class
 export interface ClientInformation {
   emailAddress: string
   firstName: string
