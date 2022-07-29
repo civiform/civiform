@@ -21,7 +21,6 @@ describe('view program statuses', () => {
   })
 
   describe('without program statuses', () => {
-
     beforeAll(async () => {
       // Timeout for clicks and element fills. If your selector fails to locate
       // the HTML element, the test hangs. If you find the tests time out, you
@@ -44,7 +43,9 @@ describe('view program statuses', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       // Submit an application.
-      await applicantQuestions.clickApplyProgramButton(programWithoutStatusesName)
+      await applicantQuestions.clickApplyProgramButton(
+        programWithoutStatusesName,
+      )
       await applicantQuestions.submitFromPreviewPage(programWithoutStatusesName)
 
       await logout(pageObject)
