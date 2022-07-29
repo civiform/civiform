@@ -12,6 +12,7 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Program;
@@ -40,16 +41,18 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
-          .setEmailBodyText("Approved email body")
-          .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("Approved email body"))
+          .setEmailBodyText(Optional.of("Approved email body"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.withDefaultValue("Approved email body")))
           .build();
 
   private static final StatusDefinitions.Status REJECTED_STATUS =
       StatusDefinitions.Status.builder()
           .setStatusText("Rejected")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Rejected"))
-          .setEmailBodyText("Rejected email body")
-          .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("Rejected email body"))
+          .setEmailBodyText(Optional.of("Rejected email body"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.withDefaultValue("Rejected email body")))
           .build();
 
   private static final ImmutableList<StatusDefinitions.Status> ORIGINAL_STATUSES =
@@ -91,6 +94,26 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void index_ok_noEmailForStatus() throws ProgramNotFoundException {
+    Program program =
+        ProgramBuilder.newDraftProgram("test name", "test description")
+            .withStatusDefinitions(
+                new StatusDefinitions(
+                    ImmutableList.of(
+                        StatusDefinitions.Status.builder()
+                            .setStatusText("Status with no email")
+                            .setLocalizedStatusText(
+                                LocalizedStrings.withDefaultValue("Status with no email"))
+                            .build())))
+            .build();
+
+    Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Status with no email");
+  }
+
+  @Test
   public void index_createNewStatus() throws ProgramNotFoundException {
     Program program =
         ProgramBuilder.newDraftProgram("test name", "test description")
@@ -119,9 +142,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
                 StatusDefinitions.Status.builder()
                     .setStatusText("foo")
                     .setLocalizedStatusText(LocalizedStrings.withDefaultValue("foo"))
-                    .setEmailBodyText("some email content")
+                    .setEmailBodyText(Optional.of("some email content"))
                     .setLocalizedEmailBodyText(
-                        LocalizedStrings.withDefaultValue("some email content"))
+                        Optional.of(LocalizedStrings.withDefaultValue("some email content")))
                     .build()));
   }
 
@@ -148,11 +171,10 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         StatusDefinitions.Status.builder()
             .setStatusText("Foo")
             .setLocalizedStatusText(APPROVED_STATUS.localizedStatusText())
-            .setEmailBodyText("Updated email content");
+            .setEmailBodyText(Optional.of("Updated email content"));
     if (APPROVED_STATUS.localizedEmailBodyText().isPresent()) {
       expectedStatusBuilder =
-          expectedStatusBuilder.setLocalizedEmailBodyText(
-              APPROVED_STATUS.localizedEmailBodyText().get());
+          expectedStatusBuilder.setLocalizedEmailBodyText(APPROVED_STATUS.localizedEmailBodyText());
     }
     StatusDefinitions.Status expectedStatus = expectedStatusBuilder.build();
 

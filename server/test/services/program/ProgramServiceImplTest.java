@@ -1168,16 +1168,17 @@ public class ProgramServiceImplTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
-          .setEmailBodyText("I'm an email!")
-          .setLocalizedEmailBodyText(LocalizedStrings.of(Locale.US, "I'm a US email!"))
+          .setEmailBodyText(Optional.of("I'm an email!"))
+          .setLocalizedEmailBodyText(Optional.of(LocalizedStrings.of(Locale.US, "I'm a US email!")))
           .build();
 
   private static final StatusDefinitions.Status REJECTED_STATUS =
       StatusDefinitions.Status.builder()
           .setStatusText("Rejected")
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Rejected"))
-          .setEmailBodyText("I'm a rejection email!")
-          .setLocalizedEmailBodyText(LocalizedStrings.of(Locale.US, "I'm a US rejection email!"))
+          .setEmailBodyText(Optional.of("I'm a rejection email!"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.of(Locale.US, "I'm a US rejection email!")))
           .build();
 
   @Test
@@ -1219,8 +1220,9 @@ public class ProgramServiceImplTest extends ResetPostgres {
         StatusDefinitions.Status.builder()
             .setStatusText(APPROVED_STATUS.statusText())
             .setLocalizedStatusText(LocalizedStrings.withDefaultValue(APPROVED_STATUS.statusText()))
-            .setEmailBodyText("A new email")
-            .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("A new US email"))
+            .setEmailBodyText(Optional.of("A new email"))
+            .setLocalizedEmailBodyText(
+                Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
             .build();
 
     DuplicateStatusException exc =
@@ -1240,8 +1242,9 @@ public class ProgramServiceImplTest extends ResetPostgres {
         StatusDefinitions.Status.builder()
             .setStatusText("New status text")
             .setLocalizedStatusText(LocalizedStrings.withDefaultValue("New status text"))
-            .setEmailBodyText("A new email")
-            .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("A new US email"))
+            .setEmailBodyText(Optional.of("A new email"))
+            .setLocalizedEmailBodyText(
+                Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
             .build();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -1292,9 +1295,9 @@ public class ProgramServiceImplTest extends ResetPostgres {
                           .setStatusText(APPROVED_STATUS.statusText())
                           .setLocalizedStatusText(
                               LocalizedStrings.withDefaultValue("New status text"))
-                          .setEmailBodyText("A new email")
+                          .setEmailBodyText(Optional.of("A new email"))
                           .setLocalizedEmailBodyText(
-                              LocalizedStrings.withDefaultValue("A new US email"))
+                              Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
                           .build();
                     }),
             DuplicateStatusException.class);
