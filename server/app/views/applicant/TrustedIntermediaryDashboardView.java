@@ -112,8 +112,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 .url())
         .with(
             FieldWithLabel.input()
-                .setId("search")
-                .setFieldName("search")
+                .setId("name-duery")
+                .setFieldName("nameQuery")
                 .setValue(searchParameters.nameQuery().orElse(""))
                 .setLabelText("Search by Name")
                 .getInputTag()

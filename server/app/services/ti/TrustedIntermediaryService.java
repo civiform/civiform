@@ -61,20 +61,22 @@ public class TrustedIntermediaryService {
     return allAccounts.stream()
         .filter(
             account ->
-                account.getApplicantDateOfBirth().isPresent()
-                    && account
-                        .getApplicantDateOfBirth()
-                        .get()
-                        .equals(
-                            dateConverter.parseStringtoLocalDate(
-                                searchParameters.searchDate().get())))
-        .filter(
-            account ->
-                searchParameters.nameQuery().isPresent()
-                    && account
-                        .getApplicantName()
-                        .toLowerCase(Locale.ROOT)
-                        .contains(searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))
+                ((account.getApplicantDateOfBirth().isPresent()
+                        && searchParameters.searchDate().isPresent()
+                        && !searchParameters.searchDate().get().isEmpty()
+                        && account
+                            .getApplicantDateOfBirth()
+                            .get()
+                            .equals(
+                                dateConverter.parseStringtoLocalDate(
+                                    searchParameters.searchDate().get())))
+                    || (searchParameters.nameQuery().isPresent()
+                        && !searchParameters.nameQuery().get().isEmpty()
+                        && account
+                            .getApplicantName()
+                            .toLowerCase(Locale.ROOT)
+                            .contains(
+                                searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))
         .collect(ImmutableList.toImmutableList());
   }
 

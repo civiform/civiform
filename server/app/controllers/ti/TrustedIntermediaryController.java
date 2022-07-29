@@ -85,6 +85,7 @@ public class TrustedIntermediaryController {
     }
     SearchParameters searchParameters =
         SearchParameters.builder().setNameQuery(nameQuery).setSearchDate(searchDate).build();
+
     ImmutableList<Account> managedAccounts =
         tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
     PaginationInfo<Account> pageInfo =
@@ -125,7 +126,7 @@ public class TrustedIntermediaryController {
         | ApplicantNotFoundException
         | FormHasErrorException
         | DateOfBirthNotInPastException e) {
-      redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage());
+      redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage(), form);
     }
 
     return redirect(
@@ -155,16 +156,16 @@ public class TrustedIntermediaryController {
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory.form(AddApplicantToTrustedIntermediaryGroupForm.class).bindFromRequest(request);
     if (form.hasErrors()) {
-      return redirectToDashboardWithError(form.errors().get(0).message());
+      return redirectToDashboardWithError(form.errors().get(0).message(), form);
     }
     if (Strings.isNullOrEmpty(form.get().getFirstName())) {
-      return redirectToDashboardWithError("First name required.");
+      return redirectToDashboardWithError("First name required.", form);
     }
     if (Strings.isNullOrEmpty(form.get().getLastName())) {
-      return redirectToDashboardWithError("Last name required.");
+      return redirectToDashboardWithError("Last name required.", form);
     }
     if (Strings.isNullOrEmpty(form.get().getDob())) {
-      return redirectToDashboardWithError("Date Of Birth required.");
+      return redirectToDashboardWithError("Date Of Birth required.", form);
     }
     try {
       userRepository.createNewApplicantForTrustedIntermediaryGroup(
@@ -184,11 +185,13 @@ public class TrustedIntermediaryController {
           "Email address already in use.  Cannot create applicant if an account already exists. "
               + " Direct applicant to sign in and go to"
               + " "
-              + trustedIntermediaryUrl);
+              + trustedIntermediaryUrl,
+          form);
     }
   }
 
-  private Result redirectToDashboardWithError(String errorMessage) {
+  private Result redirectToDashboardWithError(
+      String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
                 /* paramName=  nameQuery */
@@ -197,10 +200,16 @@ public class TrustedIntermediaryController {
                 Optional.empty(),
                 /* paramName=  page */
                 Optional.empty()))
-        .flashing("error", errorMessage);
+        .flashing("error", errorMessage)
+        .flashing("providedFirstName", form.value().get().getFirstName())
+        .flashing("providedMiddleName", form.value().get().getMiddleName())
+        .flashing("providedLastName", form.value().get().getLastName())
+        .flashing("providedEmail", form.value().get().getEmailAddress())
+        .flashing("providedDateOfBirth", form.value().get().getDob());
   }
 
-  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
+  private Result redirectToDashboardWithUpdateDateOfBirthError(
+      String errorMessage, Form<UpdateApplicantDob> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
                 /* paramName=  nameQuery */
@@ -209,6 +218,8 @@ public class TrustedIntermediaryController {
                 Optional.empty(),
                 /* paramName=  page */
                 Optional.empty()))
-        .flashing("error", errorMessage);
+        .flashing("error", errorMessage)
+        .flashing(
+            "providedDateOfBirth", form.get().getDob() != null ? form.value().get().getDob() : "");
   }
 }
