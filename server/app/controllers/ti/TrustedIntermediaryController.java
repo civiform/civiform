@@ -13,6 +13,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import forms.UpdateApplicantDob;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
@@ -23,9 +24,11 @@ import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.SearchParameters;
 import repository.UserRepository;
 import services.PaginationInfo;
-import services.ti.EmailAddressExistsException;
+import services.applicant.exception.ApplicantNotFoundException;
+import services.ti.*;
 import views.applicant.TrustedIntermediaryDashboardView;
 
 /**
@@ -41,6 +44,7 @@ public class TrustedIntermediaryController {
   private final MessagesApi messagesApi;
   private final FormFactory formFactory;
   private final String baseUrl;
+  private final TrustedIntermediaryService tiService;
 
   @Inject
   public TrustedIntermediaryController(
@@ -49,19 +53,26 @@ public class TrustedIntermediaryController {
       FormFactory formFactory,
       MessagesApi messagesApi,
       TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
-      Config config) {
+      Config config,
+      TrustedIntermediaryService tiService) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
     this.userRepository = Preconditions.checkNotNull(userRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
     this.baseUrl = Preconditions.checkNotNull(config).getString("base_url");
+    this.tiService = Preconditions.checkNotNull(tiService);
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result dashboard(Http.Request request, Optional<String> search, Optional<Integer> page) {
+  public Result dashboard(
+      Http.Request request,
+      Optional<String> nameQuery,
+      Optional<String> searchDate,
+      Optional<Integer> page) {
     if (page.isEmpty()) {
-      return redirect(routes.TrustedIntermediaryController.dashboard(search, Optional.of(1)));
+      return redirect(
+          routes.TrustedIntermediaryController.dashboard(nameQuery, searchDate, Optional.of(1)));
     }
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
@@ -72,11 +83,13 @@ public class TrustedIntermediaryController {
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
+    SearchParameters searchParameters =
+        SearchParameters.builder().setNameQuery(nameQuery).setSearchDate(searchDate).build();
+
     ImmutableList<Account> managedAccounts =
-        trustedIntermediaryGroup.get().getManagedAccounts(search);
+        tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
     PaginationInfo<Account> pageInfo =
         PaginationInfo.paginate(managedAccounts, PAGE_SIZE, page.get());
-
     return ok(
         tiDashboardView.render(
             trustedIntermediaryGroup.get(),
@@ -84,9 +97,46 @@ public class TrustedIntermediaryController {
             pageInfo.getPageItems(),
             pageInfo.getPageCount(),
             pageInfo.getPage(),
-            search,
+            searchParameters,
             request,
             messagesApi.preferred(request)));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.TI)
+  public Result updateDateOfBirth(Long accountId, Http.Request request) {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+
+    if (civiformProfile.isEmpty()) {
+      return unauthorized();
+    }
+
+    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
+        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return notFound();
+    }
+
+    Form<UpdateApplicantDob> form =
+        formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);
+    try {
+      tiService.updateApplicantDateOfBirth(accountId, form);
+
+    } catch (IncorrectDateFormatException
+        | MissingDateOfBirthException
+        | ApplicantNotFoundException
+        | FormHasErrorException
+        | DateOfBirthNotInPastException e) {
+      return redirectToDashboardWithUpdateDateOfBirthError(e.getLocalizedMessage());
+    }
+
+    return redirect(
+        routes.TrustedIntermediaryController.dashboard(
+            /* paramName=  nameQuery */
+            Optional.empty(),
+            /* paramName=  searchDate */
+            Optional.empty(),
+            /* paramName=  page */
+            Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -114,11 +164,20 @@ public class TrustedIntermediaryController {
     if (Strings.isNullOrEmpty(form.get().getLastName())) {
       return redirectToDashboardWithError("Last name required.", form);
     }
+    if (Strings.isNullOrEmpty(form.get().getDob())) {
+      return redirectToDashboardWithError("Date Of Birth required.", form);
+    }
     try {
       userRepository.createNewApplicantForTrustedIntermediaryGroup(
           form.get(), trustedIntermediaryGroup.get());
       return redirect(
-          routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()));
+          routes.TrustedIntermediaryController.dashboard(
+              /* paramName=  nameQuery */
+              Optional.empty(),
+              /* paramName=  searchDate */
+              Optional.empty(),
+              /* paramName=  page */
+              Optional.empty()));
     } catch (EmailAddressExistsException e) {
       String trustedIntermediaryUrl = baseUrl + "/trustedIntermediaries";
 
@@ -134,12 +193,32 @@ public class TrustedIntermediaryController {
   private Result redirectToDashboardWithError(
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
-            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()))
+            routes.TrustedIntermediaryController.dashboard(
+                    /* paramName=  nameQuery */
+                    Optional.empty(),
+                    /* paramName=  searchDate */
+                    Optional.empty(),
+                    /* paramName=  page */
+                    Optional.of(1))
+                .url())
         .flashing("error", errorMessage)
-        .flashing("providedFirstName", form.get().getFirstName())
-        .flashing("providedMiddleName", form.get().getMiddleName())
-        .flashing("providedLastName", form.get().getLastName())
-        .flashing("providedEmail", form.get().getEmailAddress())
-        .flashing("providedDob", form.get().getDob());
+        .flashing("providedFirstName", form.value().get().getFirstName())
+        .flashing("providedMiddleName", form.value().get().getMiddleName())
+        .flashing("providedLastName", form.value().get().getLastName())
+        .flashing("providedEmail", form.value().get().getEmailAddress())
+        .flashing("providedDateOfBirth", form.value().get().getDob());
+  }
+
+  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
+    return redirect(
+            routes.TrustedIntermediaryController.dashboard(
+                    /* paramName=  nameQuery */
+                    Optional.empty(),
+                    /* paramName=  searchDate */
+                    Optional.empty(),
+                    /* paramName=  page */
+                    Optional.of(1))
+                .url())
+        .flashing("error", errorMessage);
   }
 }

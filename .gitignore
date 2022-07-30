@@ -8,6 +8,7 @@ RUNNING_PID
 .Dockerfile.swp
 .idea/
 *.swp
+*.dump
 .bsp/
 .DS_Store
 .secrets

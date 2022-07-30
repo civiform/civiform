@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -155,9 +156,26 @@ public class Account extends BaseModel {
    * unnecessary.
    */
   public String getApplicantName() {
-    return this.getApplicants().stream()
-        .max(Comparator.comparing(Applicant::getWhenCreated))
-        .map(u -> u.getApplicantData().getApplicantName().orElse("<Unnamed User>"))
-        .orElse("<Unnamed User>");
+    Optional<Applicant> newestApplicant = newestApplicant();
+    if (newestApplicant.isPresent()
+        && newestApplicant.get().getApplicantData().getApplicantName().isPresent()) {
+      return newestApplicant.get().getApplicantData().getApplicantName().get();
+    }
+    return "<Unnamed User>";
+  }
+
+  /**
+   * Returns the Date of Birth, as an Optional LocalDate, of the most-recently created Applicant
+   * associated with this Account. There is no particular reason for an Account to have more than
+   * one Applicant - this was a capability we built but did not use - so the ordering is somewhat
+   * arbitrary unnecessary.
+   */
+  public Optional<LocalDate> getApplicantDateOfBirth() {
+    Optional<Applicant> newestApplicant = newestApplicant();
+    if (newestApplicant.isPresent()
+        && newestApplicant.get().getApplicantData().getDateOfBirth().isPresent()) {
+      return newestApplicant.get().getApplicantData().getDateOfBirth();
+    }
+    return Optional.empty();
   }
 }

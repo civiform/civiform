@@ -1,7 +1,7 @@
 package forms;
 
 /** Form for adding an applicant to a trusted intermediary group. */
-public class AddApplicantToTrustedIntermediaryGroupForm {
+public final class AddApplicantToTrustedIntermediaryGroupForm {
   private String firstName;
   private String middleName;
   private String lastName;
@@ -9,6 +9,7 @@ public class AddApplicantToTrustedIntermediaryGroupForm {
   private String emailAddress;
 
   public String getFirstName() {
+
     return firstName;
   }
 
