@@ -2,7 +2,7 @@ import {ElementHandle, Page} from 'playwright'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
 
 export class AdminProgramStatuses {
-  public page!: Page
+  private page!: Page
 
   constructor(page: Page) {
     this.page = page
