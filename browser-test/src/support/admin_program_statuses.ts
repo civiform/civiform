@@ -1,5 +1,5 @@
 import {ElementHandle, Page} from 'playwright'
-import {waitForAnyModal, waitForPageJsLoad} from './wait'
+import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
 
 export class AdminProgramStatuses {
   private page!: Page
@@ -111,6 +111,34 @@ export class AdminProgramStatuses {
     const deleteHandle = (await modal.$('button:has-text("Delete")'))!
     await deleteHandle.click()
     await waitForPageJsLoad(this.page)
+  }
+
+  async expectExistingStatusEmail({
+    statusName,
+    expectedEmailBody,
+  }: {
+    statusName: string
+    expectedEmailBody: string
+  }) {
+    await this.page.click(
+      this.programStatusItemSelector(statusName) + ' button:has-text("Edit")',
+    )
+
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain('Edit this status')
+
+    // We perform selectors within the modal since using the typical
+    // selectors will match multiple modals on the page.
+    const emailInputHandle = (await modal.$(
+      'text="Applicant status change email" input',
+    ))!
+    const emailBody = await emailInputHandle.inputValue()
+
+    // Close the modal prior to any assertions to avoid affecting
+    // subsequent tests.
+    await dismissModal(this.page)
+
+    expect(emailBody).toEqual(expectedEmailBody)
   }
 
   async expectProgramManageStatusesPage(programName: string) {

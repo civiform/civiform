@@ -22,8 +22,8 @@ describe('modify program statuses', () => {
     await loginAsAdmin(pageObject)
   })
 
-  describe('initial status list', () => {
-    it('new program has no statuses', async () => {
+  describe('statuses list', () => {
+    it('creates a new program and has no statuses', async () => {
       // Add a draft program, no questions are needed.
       const programName = 'test program without statuses'
       await adminPrograms.addProgram(programName)
@@ -139,7 +139,7 @@ describe('modify program statuses', () => {
       await adminProgramStatuses.expectStatusNotExists(secondStatusName)
     })
 
-    it('edits an existing status and configures email', async () => {
+    it('edits an existing status, configures email, and deletes the configured email', async () => {
       await adminProgramStatuses.editStatus(firstStatusName, {
         editedStatusName: firstStatusName,
         editedEmailBody: 'An email body',
@@ -148,6 +148,40 @@ describe('modify program statuses', () => {
       await adminProgramStatuses.expectStatusExists({
         statusName: firstStatusName,
         expectEmailExists: true,
+      })
+      await adminProgramStatuses.expectExistingStatusEmail({
+        statusName: firstStatusName,
+        expectedEmailBody: 'An email body',
+      })
+
+      // Edit the configured email.
+      await adminProgramStatuses.editStatus(firstStatusName, {
+        editedStatusName: firstStatusName,
+        editedEmailBody: 'Updated email body',
+      })
+      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.expectStatusExists({
+        statusName: firstStatusName,
+        expectEmailExists: true,
+      })
+      await adminProgramStatuses.expectExistingStatusEmail({
+        statusName: firstStatusName,
+        expectedEmailBody: 'Updated email body',
+      })
+
+      // Delete the configured email (e.g. set to empty).
+      await adminProgramStatuses.editStatus(firstStatusName, {
+        editedStatusName: firstStatusName,
+        editedEmailBody: '',
+      })
+      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.expectStatusExists({
+        statusName: firstStatusName,
+        expectEmailExists: false,
+      })
+      await adminProgramStatuses.expectExistingStatusEmail({
+        statusName: firstStatusName,
+        expectedEmailBody: '',
       })
     })
   })
