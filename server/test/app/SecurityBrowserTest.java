@@ -113,6 +113,23 @@ public class SecurityBrowserTest extends BaseBrowserTest {
   }
 
   @Test
+  public void basicOidcProviderCentralLogout() {
+    loginWithSimulatedIdcs();
+    goTo(routes.HomeController.securePlayIndex());
+    assertThat(browser.pageSource()).contains("You are logged in.");
+    logout();
+    assertThat(browser.url())
+        .contains("logout?returnToURL=http%3A%2F%2Flocalhost%3A19001%2F&clientId=foo")
+        .as("redirects to login provider");
+    goTo(routes.HomeController.index());
+    assertThat(browser.pageSource()).contains("Don't have an account?");
+    goTo(routes.LoginController.applicantLogin(Optional.empty()));
+    // Verify we don't auto-login.
+    assertThat(browser.pageSource())
+        .contains("the client is asking you to confirm previously given authorization");
+  }
+
+  @Test
   public void mergeLogins() {
     // First, log in as guest and get the applicant ID.
     loginAsGuest();

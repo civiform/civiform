@@ -38,6 +38,9 @@ public class CfTestHelpers {
             "idcs.discovery_uri",
             String.format("http://%s:%d/.well-known/openid-configuration", host, port))
         .put("base_url", String.format("http://localhost:%d", Helpers.testServerPort()))
+        .put("auth.oidc_post_logout_param", "returnToURL")
+        .put("auth.oidc_logout_client_id_param", "clientId")
+        .put("auth.oidc_provider_logout", true)
         .build();
   }
 

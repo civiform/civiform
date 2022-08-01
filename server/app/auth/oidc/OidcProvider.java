@@ -29,7 +29,7 @@ import repository.UserRepository;
 public abstract class OidcProvider implements Provider<OidcClient> {
 
   private static final Logger logger = LoggerFactory.getLogger(OidcProvider.class);
-  protected final Config configuration;
+  protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final String baseUrl;
@@ -38,7 +38,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
-    this.configuration = checkNotNull(configuration);
+    this.civiformConfig = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
     this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
 
@@ -121,8 +121,8 @@ public abstract class OidcProvider implements Provider<OidcClient> {
    * prepended with "<attributePrefix>."
    */
   protected final Optional<String> getBaseConfigurationValue(String name) {
-    if (configuration.hasPath(name)) {
-      return Optional.ofNullable(configuration.getString(name));
+    if (civiformConfig.hasPath(name)) {
+      return Optional.ofNullable(civiformConfig.getString(name));
     }
     return Optional.empty();
   }
@@ -179,7 +179,9 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     Optional<String> providerName = getProviderName();
     OidcConfiguration config = new OidcConfiguration();
 
+    config.setLogoutUrl("https://civiform-staging.us.auth0.com/v2/logout");
     config.setClientId(clientID);
+
     config.setSecret(clientSecret);
     config.setDiscoveryURI(discoveryURI);
 
@@ -197,17 +199,18 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     if (providerName.isPresent()) {
       client.setName(providerName.get());
     }
-
     client.setCallbackUrl(callbackURL);
     client.setProfileCreator(getProfileAdapter(config, client));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
+    client.setLogoutActionBuilder(new CiviformOidcLogoutActionBuilder(civiformConfig, config, clientID));
+
     try {
       client.init();
     } catch (Exception e) {
       logger.error("Error while initilizing OIDC provider", e);
       throw e;
     }
-
+    logger.debug("Client: " + client.toString());
     var providerMetadata = client.getConfiguration().getProviderMetadata();
     logger.debug("Provider metadata: " + providerMetadata.toString());
     if (providerMetadata.supportsAuthorizationResponseIssuerParam()
