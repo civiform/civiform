@@ -9,9 +9,10 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
-describe('applicant navigation flow', () => {
+describe('Applicant navigation flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
@@ -126,6 +127,111 @@ describe('applicant navigation flow', () => {
       expect(await pageObject.innerText('h1')).toContain(
         'Program application preview',
       )
+    })
+
+    it('login page has no accessiblity violations', async () => {
+      // Verify we are on login page.
+      expect(await pageObject.innerText('head')).toContain('Login')
+      await validateAccessibility(pageObject)
+    })
+
+    it('language selection page has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+
+      // Verify we are on language selection page.
+      expect(await pageObject.innerText('main')).toContain(
+        'Please select your preferred language.',
+      )
+      await validateAccessibility(pageObject)
+    })
+
+    it('program list page has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      // Verify we are on program list page.
+      expect(await pageObject.innerText('h1')).toContain('Get benefits')
+      await validateAccessibility(pageObject)
+    })
+
+    // TODO(#3016): Enable test after fixing h1 a11y issue.
+    it.skip('program details page has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+      await applicantQuestions.clickProgramDetails(programName)
+
+      // Verify we are on program details page. Url should end in "/programs/{program ID}"
+      expect(pageObject.url()).toMatch(/\/programs\/[0-9]+$/)
+      await validateAccessibility(pageObject)
+    })
+
+    it('program preview page has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+      await applicantQuestions.clickApplyProgramButton(programName)
+
+      // Verify we are on program preview page.
+      expect(await pageObject.innerText('h1')).toContain(
+        'Program application preview',
+      )
+      await validateAccessibility(pageObject)
+    })
+
+    it('program review page has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+      await applicantQuestions.applyProgram(programName)
+
+      // Answer all program questions
+      await applicantQuestions.answerDateQuestion('2021-11-01')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'Ames',
+        '54321',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+
+      // Verify we are on program review page.
+      expect(await pageObject.innerText('h1')).toContain(
+        'Program application review',
+      )
+      await validateAccessibility(pageObject)
+    })
+
+    it('program submission page has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+      await applicantQuestions.applyProgram(programName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerDateQuestion('2021-11-01')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'Ames',
+        '54321',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage(programName)
+
+      // Verify we are on program submission page.
+      expect(await pageObject.innerText('h1')).toContain(
+        'Application confirmation',
+      )
+      await validateAccessibility(pageObject)
     })
   })
 
