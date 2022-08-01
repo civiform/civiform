@@ -13,6 +13,7 @@ import java.util.Set;
 import models.Program;
 import models.Question;
 import models.Version;
+import repository.VersionRepository;
 import services.DeletionStatus;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
@@ -37,7 +38,10 @@ public final class ActiveAndDraftQuestions {
       referencingActiveProgramsByName;
   private final boolean draftHasEdits;
 
-  public ActiveAndDraftQuestions(Version active, Version draft, Version withEditsDraft) {
+  public ActiveAndDraftQuestions(VersionRepository repository) {
+    Version active = repository.getActiveVersion();
+    Version draft = repository.getDraftVersion();
+    Version withEditsDraft = repository.previewPublishNewSynchronizedVersion();
     ImmutableMap<String, QuestionDefinition> activeNames =
         active.getQuestions().stream()
             .map(Question::getQuestionDefinition)

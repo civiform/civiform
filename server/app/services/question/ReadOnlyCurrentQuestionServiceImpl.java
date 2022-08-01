@@ -1,17 +1,14 @@
 package services.question;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import models.LifecycleStage;
 import models.Question;
 import models.Version;
+import repository.VersionRepository;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -28,16 +25,9 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
   private final ActiveAndDraftQuestions activeAndDraftQuestions;
 
-  public ReadOnlyCurrentQuestionServiceImpl(
-      Version activeVersion, Version draftVersion, Version withEditsVersion) {
-    checkNotNull(activeVersion);
-    checkState(
-        activeVersion.getLifecycleStage().equals(LifecycleStage.ACTIVE),
-        "Supposedly active version not ACTIVE");
-    checkNotNull(draftVersion);
-    checkState(
-        draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
-        "Supposedly draft version not DRAFT");
+  public ReadOnlyCurrentQuestionServiceImpl(VersionRepository repository) {
+    Version activeVersion = repository.getActiveVersion();
+    Version draftVersion = repository.getDraftVersion();
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     Set<String> namesFoundInDraft = new HashSet<>();
@@ -65,8 +55,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
     }
     questionsById = questionIdMap.build();
     upToDateQuestions = upToDateBuilder.build();
-    activeAndDraftQuestions =
-        new ActiveAndDraftQuestions(activeVersion, draftVersion, withEditsVersion);
+    activeAndDraftQuestions = new ActiveAndDraftQuestions(repository);
   }
 
   @Override

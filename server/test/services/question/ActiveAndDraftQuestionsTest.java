@@ -259,11 +259,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   private ActiveAndDraftQuestions newActiveAndDraftQuestions() {
-    Version draftWithEditsVersion = versionRepository.previewPublishNewSynchronizedVersion();
-    return new ActiveAndDraftQuestions(
-        versionRepository.getActiveVersion(),
-        versionRepository.getDraftVersion(),
-        draftWithEditsVersion);
+    return new ActiveAndDraftQuestions(versionRepository);
   }
 
   private void addTombstoneToVersion(Version version, Question question) {

@@ -3,11 +3,12 @@ package services.question;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import models.LifecycleStage;
 import models.Question;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
+import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -15,23 +16,20 @@ import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
-public class ReadOnlyCurrentQuestionServiceImplTest {
+public class ReadOnlyCurrentQuestionServiceImplTest extends ResetPostgres {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
-  private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyCurrentQuestionServiceImpl(
-          new Version(LifecycleStage.ACTIVE),
-          new Version(LifecycleStage.DRAFT),
-          new Version(LifecycleStage.DRAFT));
+  private VersionRepository versionRepository;
+
   private NameQuestionDefinition nameQuestion;
   private AddressQuestionDefinition addressQuestion;
   private TextQuestionDefinition basicQuestion;
   private ImmutableList<QuestionDefinition> questions;
-  private ReadOnlyQuestionService service;
 
   @Before
   public void setupQuestions() {
+    versionRepository = instanceOf(VersionRepository.class);
     nameQuestion =
         (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
     addressQuestion =
@@ -39,27 +37,18 @@ public class ReadOnlyCurrentQuestionServiceImplTest {
     basicQuestion =
         (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
-    service =
-        new ReadOnlyCurrentQuestionServiceImpl(
-            new Version(LifecycleStage.ACTIVE) {
-              @Override
-              public ImmutableList<Question> getQuestions() {
-                return questions.stream()
-                    .map(q -> new Question(q))
-                    .collect(ImmutableList.toImmutableList());
-              }
-            },
-            new Version(LifecycleStage.DRAFT),
-            new Version(LifecycleStage.DRAFT));
   }
 
   @Test
   public void getAll_returnsEmpty() {
-    assertThat(emptyService.getAllQuestions()).isEmpty();
+    var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
+    assertThat(service.getAllQuestions()).isEmpty();
   }
 
   @Test
   public void getAllQuestions() {
+    addQuestionsToVersion(versionRepository.getActiveVersion(), questions);
+    var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
     assertThat(service.getAllQuestions().size()).isEqualTo(3);
   }
 
@@ -68,22 +57,11 @@ public class ReadOnlyCurrentQuestionServiceImplTest {
     QuestionDefinition enumeratorQuestion =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
 
-    service =
-        new ReadOnlyCurrentQuestionServiceImpl(
-            new Version(LifecycleStage.ACTIVE) {
-              @Override
-              public ImmutableList<Question> getQuestions() {
-                return ImmutableList.<QuestionDefinition>builder()
-                    .addAll(questions)
-                    .add(enumeratorQuestion)
-                    .build()
-                    .stream()
-                    .map(q -> new Question(q))
-                    .collect(ImmutableList.toImmutableList());
-              }
-            },
-            new Version(LifecycleStage.DRAFT),
-            new Version(LifecycleStage.DRAFT));
+    addQuestionsToVersion(versionRepository.getActiveVersion(), questions);
+    addQuestionsToVersion(
+        versionRepository.getActiveVersion(), ImmutableList.of(enumeratorQuestion));
+
+    var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
 
     assertThat(service.getAllEnumeratorQuestions().size()).isEqualTo(1);
     assertThat(service.getAllEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
@@ -93,7 +71,25 @@ public class ReadOnlyCurrentQuestionServiceImplTest {
 
   @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
+    addQuestionsToVersion(versionRepository.getActiveVersion(), questions);
     long questionId = nameQuestion.getId();
+
+    var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
+
     assertThat(service.getQuestionDefinition(questionId)).isEqualTo(nameQuestion);
+  }
+
+  private void addQuestionsToVersion(Version version, ImmutableList<QuestionDefinition> questions) {
+    questions.stream()
+        .forEach(
+            q -> {
+              Question dbQuestion = new Question(q);
+              // While we can initialize the Question model from an existing QuestionDefinition,
+              // an attempt to update the M2M between versions and questions will not fail silently.
+              // This is presumably due to EBean considering the Question as "dirty" or unpersisted.
+              dbQuestion.save();
+              version.addQuestion(dbQuestion);
+            });
+    version.save();
   }
 }
