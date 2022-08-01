@@ -260,6 +260,18 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
+  async returnToProgramsFromSubmissionPage() {
+    // Assert that we're on the submission page.
+    expect(await this.page.innerText('h1')).toContain(
+      'Application confirmation',
+    )
+    await this.page.click('text="Apply to another program"')
+    await waitForPageJsLoad(this.page)
+
+    // Ensure that we redirected to the programs list page.
+    expect(this.page.url().split('/').pop()).toEqual('programs')
+  }
+
   async submitFromReviewPage(programName: string) {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain(
