@@ -14,7 +14,13 @@ export class AdminProgramStatuses {
     ).toContain('No statuses have been created yet')
   }
 
-  async expectStatusExists(statusName: string, expectEmailExists: boolean) {
+  async expectStatusExists({
+    statusName,
+    expectEmailExists,
+  }: {
+    statusName: string
+    expectEmailExists: boolean
+  }) {
     const statusLocator = this.page.locator(
       this.programStatusItemSelector(statusName),
     )
@@ -37,7 +43,14 @@ export class AdminProgramStatuses {
     expect(await statusLocator.isVisible()).toEqual(false)
   }
 
-  async createStatus(statusName: string, emailBody = '') {
+  async createStatus(
+    statusName: string,
+    {
+      emailBody,
+    }: {
+      emailBody?: string
+    } = {},
+  ) {
     await this.page.click('button:has-text("Create a new status")')
 
     const modal = await waitForAnyModal(this.page)
@@ -48,7 +61,7 @@ export class AdminProgramStatuses {
     const emailFieldHandle = (await modal.$(
       'text="Applicant status change email"',
     ))!
-    await emailFieldHandle.fill(emailBody)
+    await emailFieldHandle.fill(emailBody || '')
 
     const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
     await confirmHandle.click()
@@ -65,8 +78,10 @@ export class AdminProgramStatuses {
 
   async editStatus(
     originalStatusName: string,
-    editedStatusName: string,
-    editedEmailBody = '',
+    {
+      editedStatusName,
+      editedEmailBody = '',
+    }: {editedStatusName: string; editedEmailBody?: string},
   ) {
     await this.page.click(
       this.programStatusItemSelector(originalStatusName) +
@@ -107,13 +122,13 @@ export class AdminProgramStatuses {
     await waitForPageJsLoad(this.page)
   }
 
-  programStatusItemSelector(statusName: string): string {
-    return `.cf-admin-program-status-item:has(:text("${statusName}"))`
-  }
-
   async expectProgramManageStatusesPage(programName: string) {
     expect(await this.page.innerText('h1')).toContain(
       `Manage application statuses for ${programName}`,
     )
+  }
+
+  private programStatusItemSelector(statusName: string): string {
+    return `.cf-admin-program-status-item:has(:text("${statusName}"))`
   }
 }

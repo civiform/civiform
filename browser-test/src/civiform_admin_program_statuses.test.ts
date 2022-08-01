@@ -46,16 +46,21 @@ describe('modify program statuses', () => {
     it('creates a new status with no email', async () => {
       await adminProgramStatuses.createStatus('Status with no email')
       await adminPrograms.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.expectStatusExists(
-        'Status with no email',
-        false,
-      )
+      await adminProgramStatuses.expectStatusExists({
+        statusName: 'Status with no email',
+        expectEmailExists: false,
+      })
     })
 
     it('creates a new status with email', async () => {
-      await adminProgramStatuses.createStatus('Status with email', 'An email')
+      await adminProgramStatuses.createStatus('Status with email', {
+        emailBody: 'An email',
+      })
       await adminPrograms.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.expectStatusExists('Status with email', true)
+      await adminProgramStatuses.expectStatusExists({
+        statusName: 'Status with email',
+        expectEmailExists: true,
+      })
     })
 
     it('fails to create status with an empty name', async () => {
@@ -93,12 +98,20 @@ describe('modify program statuses', () => {
       await adminPrograms.expectProgramManageStatusesPage(programName)
       await adminProgramStatuses.createStatus(secondStatusName)
       await adminPrograms.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.expectStatusExists(firstStatusName, false)
-      await adminProgramStatuses.expectStatusExists(secondStatusName, false)
+      await adminProgramStatuses.expectStatusExists({
+        statusName: firstStatusName,
+        expectEmailExists: false,
+      })
+      await adminProgramStatuses.expectStatusExists({
+        statusName: secondStatusName,
+        expectEmailExists: false,
+      })
     })
 
     it('fails to edit status when providing an existing status name', async () => {
-      await adminProgramStatuses.editStatus(firstStatusName, secondStatusName)
+      await adminProgramStatuses.editStatus(firstStatusName, {
+        editedStatusName: secondStatusName,
+      })
       await adminPrograms.expectProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectEditStatusModalWithError(
         `A status with name ${secondStatusName} already exists`,
@@ -107,7 +120,9 @@ describe('modify program statuses', () => {
     })
 
     it('fails to edit status with an empty name', async () => {
-      await adminProgramStatuses.editStatus(firstStatusName, '')
+      await adminProgramStatuses.editStatus(firstStatusName, {
+        editedStatusName: '',
+      })
       await adminPrograms.expectProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectEditStatusModalWithError(
         'This field is required',
@@ -116,26 +131,27 @@ describe('modify program statuses', () => {
     })
 
     it('edits an existing status name', async () => {
-      await adminProgramStatuses.editStatus(
-        secondStatusName,
-        'Updated status name',
-      )
+      await adminProgramStatuses.editStatus(secondStatusName, {
+        editedStatusName: 'Updated status name',
+      })
       await adminPrograms.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.expectStatusExists(
-        'Updated status name',
-        false,
-      )
+      await adminProgramStatuses.expectStatusExists({
+        statusName: 'Updated status name',
+        expectEmailExists: false,
+      })
       await adminProgramStatuses.expectStatusNotExists(secondStatusName)
     })
 
     it('edits an existing status and configures email', async () => {
-      await adminProgramStatuses.editStatus(
-        firstStatusName,
-        firstStatusName,
-        'An email body',
-      )
+      await adminProgramStatuses.editStatus(firstStatusName, {
+        editedStatusName: firstStatusName,
+        editedEmailBody: 'An email body',
+      })
       await adminPrograms.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.expectStatusExists(firstStatusName, true)
+      await adminProgramStatuses.expectStatusExists({
+        statusName: firstStatusName,
+        expectEmailExists: true,
+      })
     })
   })
 
@@ -153,15 +169,24 @@ describe('modify program statuses', () => {
       await adminPrograms.expectProgramManageStatusesPage(programName)
       await adminProgramStatuses.createStatus(secondStatusName)
       await adminPrograms.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.expectStatusExists(firstStatusName, false)
-      await adminProgramStatuses.expectStatusExists(secondStatusName, false)
+      await adminProgramStatuses.expectStatusExists({
+        statusName: firstStatusName,
+        expectEmailExists: false,
+      })
+      await adminProgramStatuses.expectStatusExists({
+        statusName: secondStatusName,
+        expectEmailExists: false,
+      })
     })
 
     it('deletes an existing status', async () => {
       await adminProgramStatuses.deleteStatus(firstStatusName)
       await adminPrograms.expectProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectStatusNotExists(firstStatusName)
-      await adminProgramStatuses.expectStatusExists(secondStatusName, false)
+      await adminProgramStatuses.expectStatusExists({
+        statusName: secondStatusName,
+        expectEmailExists: false,
+      })
     })
   })
 })
