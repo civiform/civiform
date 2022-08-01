@@ -139,6 +139,20 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   @Test
+  public void getDeletionStatus_notReferencedByProgramButStillReferencedByVersion() {
+    Question activeVersionQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    versionRepository.getActiveVersion().addQuestion(activeVersionQuestion).save();
+
+    Question draftVersionQuestion = resourceCreator.insertQuestion("draft-version-question");
+    versionRepository.getDraftVersion().addQuestion(draftVersionQuestion).save();
+
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
+        .isEqualTo(DeletionStatus.DELETABLE);
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus("draft-version-question"))
+        .isEqualTo(DeletionStatus.DELETABLE);
+  }
+
+  @Test
   public void getDeletionStatus_tombstoned() {
     Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(question).save();
@@ -247,7 +261,9 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   private ActiveAndDraftQuestions newActiveAndDraftQuestions() {
     Version draftWithEditsVersion = versionRepository.previewPublishNewSynchronizedVersion();
     return new ActiveAndDraftQuestions(
-        versionRepository.getActiveVersion(), versionRepository.getDraftVersion(), draftWithEditsVersion);
+        versionRepository.getActiveVersion(),
+        versionRepository.getDraftVersion(),
+        draftWithEditsVersion);
   }
 
   private void addTombstoneToVersion(Version version, Question question) {
