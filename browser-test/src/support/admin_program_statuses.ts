@@ -129,10 +129,10 @@ export class AdminProgramStatuses {
 
     // We perform selectors within the modal since using the typical
     // selectors will match multiple modals on the page.
-    const emailInputHandle = (await modal.$(
-      'text="Applicant status change email" input',
+    const emailFieldHandle = (await modal.$(
+      'text="Applicant status change email"',
     ))!
-    const emailBody = await emailInputHandle.inputValue()
+    const emailBody = await emailFieldHandle.inputValue()
 
     // Close the modal prior to any assertions to avoid affecting
     // subsequent tests.
