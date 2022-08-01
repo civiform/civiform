@@ -1,6 +1,5 @@
 import {
   startSession,
-  loginAsProgramAdmin,
   loginAsAdmin,
   AdminQuestions,
   AdminPrograms,
@@ -9,7 +8,6 @@ import {
   loginAsTestUser,
   selectApplicantLanguage,
   ApplicantQuestions,
-  userDisplayName,
 } from './support'
 
 describe('optional application flow', () => {

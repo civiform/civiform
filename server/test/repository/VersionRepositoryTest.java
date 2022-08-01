@@ -3,13 +3,12 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import java.time.Instant;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -71,6 +70,13 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(secondQuestionUpdated.id);
 
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
+    assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id);
+
     Version oldDraft = versionRepository.getDraftVersion();
     Version oldActive = versionRepository.getActiveVersion();
 
@@ -124,6 +130,29 @@ public class VersionRepositoryTest extends ResetPostgres {
         .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
+    oldActive.refresh();
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+
+    // The newly created draft should not contain any questions or programs.
+    assertThat(versionRepository.getDraftVersion().getPrograms()).isEmpty();
+    assertThat(versionRepository.getDraftVersion().getQuestions()).isEmpty();
+
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionDraft.id);
+  }
+
+  private Question insertActiveQuestion(String name) {
+    Question q = resourceCreator.insertQuestion(name);
+    q.addVersion(versionRepository.getActiveVersion()).save();
+    return q;
+  }
+
+  private Question insertDraftQuestion(String name) {
+    Question q = resourceCreator.insertQuestion(name);
+    q.addVersion(versionRepository.getDraftVersion()).save();
+    return q;
   }
 
   @Test
@@ -135,13 +164,27 @@ public class VersionRepositoryTest extends ResetPostgres {
             resourceCreator.insertDraftProgram("draft"),
             resourceCreator.insertActiveProgram("active_with_draft"),
             resourceCreator.insertDraftProgram("active_with_draft"));
-    Map<String, Instant> beforeTimestamps =
+    ImmutableMap<String, Instant> beforeProgramTimestamps =
         programs.stream()
             .map(Program::getProgramDefinition)
             .collect(
-                Collectors.toMap(
+                ImmutableMap.toImmutableMap(
                     v -> String.format("%d %s", v.id(), v.adminName()),
                     v -> v.lastModifiedTime().orElseThrow()));
+
+    ImmutableList<Question> questions =
+        ImmutableList.of(
+            insertActiveQuestion("active"),
+            insertActiveQuestion("other_active"),
+            insertDraftQuestion("draft"),
+            insertActiveQuestion("active_with_draft"),
+            insertDraftQuestion("active_with-draft"));
+    ImmutableMap<String, Instant> beforeQuestionTimestamps =
+        questions.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    v -> String.format("%d %s", v.id, v.getQuestionDefinition().getName()),
+                    v -> v.getLastModifiedTime().orElseThrow()));
 
     // When persisting models with @WhenModified fields, EBean
     // truncates the persisted timestamp to milliseconds:
@@ -151,9 +194,9 @@ public class VersionRepositoryTest extends ResetPostgres {
     TimeUnit.MILLISECONDS.sleep(5);
     versionRepository.publishNewSynchronizedVersion();
 
-    // Refresh each program to ensure they get the newest DB state after
+    // Refresh each program / question to ensure they get the newest DB state after
     // publishing.
-    Map<String, Instant> afterTimestamps =
+    ImmutableMap<String, Instant> afterProgramTimestamps =
         programs.stream()
             .map(
                 p ->
@@ -165,11 +208,26 @@ public class VersionRepositoryTest extends ResetPostgres {
                         .orElseThrow()
                         .getProgramDefinition())
             .collect(
-                Collectors.toMap(
+                ImmutableMap.toImmutableMap(
                     v -> String.format("%d %s", v.id(), v.adminName()),
                     v -> v.lastModifiedTime().orElseThrow()));
+    ImmutableMap<String, Instant> afterQuestionTimestamps =
+        questions.stream()
+            .map(
+                q ->
+                    DB.getDefault()
+                        .find(Question.class)
+                        .where()
+                        .eq("id", q.id)
+                        .findOneOrEmpty()
+                        .orElseThrow())
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    v -> String.format("%d %s", v.id, v.getQuestionDefinition().getName()),
+                    v -> v.getLastModifiedTime().orElseThrow()));
 
-    assertThat(beforeTimestamps).isEqualTo(afterTimestamps);
+    assertThat(beforeProgramTimestamps).isEqualTo(afterProgramTimestamps);
+    assertThat(beforeQuestionTimestamps).isEqualTo(afterQuestionTimestamps);
   }
 
   @Test

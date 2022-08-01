@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.LocalizedStrings;
@@ -17,6 +18,7 @@ public class StatusDefinitions {
 
   @JsonCreator
   public StatusDefinitions(@JsonProperty("statuses") ImmutableList<Status> statuses) {
+    assertStatusNamesNonEmptyAndUnique(statuses);
     this.statuses = statuses;
   }
 
@@ -36,7 +38,17 @@ public class StatusDefinitions {
    * <p>The order of the items will be maintained and used as the natural order of the statuses.
    */
   public void setStatuses(ImmutableList<Status> statuses) {
+    assertStatusNamesNonEmptyAndUnique(statuses);
     this.statuses = statuses;
+  }
+
+  private static void assertStatusNamesNonEmptyAndUnique(ImmutableList<Status> statuses) {
+    Preconditions.checkState(
+        statuses.stream().map(Status::statusText).distinct().count() == statuses.size(),
+        "The provided set of statuses must have unique statusTexts.");
+    Preconditions.checkState(
+        statuses.stream().map(Status::statusText).noneMatch(String::isEmpty),
+        "The provided set of statuses may not contain empty statusTexts.");
   }
 
   /**
@@ -74,10 +86,10 @@ public class StatusDefinitions {
       public abstract Builder setLocalizedStatusText(LocalizedStrings value);
 
       @JsonProperty("email_body")
-      public abstract Builder setEmailBodyText(String value);
+      public abstract Builder setEmailBodyText(Optional<String> value);
 
       @JsonProperty("email_body_localized")
-      public abstract Builder setLocalizedEmailBodyText(LocalizedStrings value);
+      public abstract Builder setLocalizedEmailBodyText(Optional<LocalizedStrings> value);
 
       public abstract Status build();
     }

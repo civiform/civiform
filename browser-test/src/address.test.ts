@@ -1,3 +1,4 @@
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -8,10 +9,11 @@ import {
   resetSession,
   selectApplicantLanguage,
   startSession,
+  validateAccessibility,
 } from './support'
 
 describe('address applicant flow', () => {
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()
@@ -23,7 +25,7 @@ describe('address applicant flow', () => {
   })
 
   describe('single required address question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single address'
 
     beforeAll(async () => {
@@ -55,13 +57,13 @@ describe('address applicant flow', () => {
         'Ames',
         '54321',
       )
-      let error = await pageObject.$('.cf-address-street-1-error')
+      let error = pageObject.locator('.cf-address-street-1-error')
       expect(await error.isHidden()).toEqual(true)
-      error = await pageObject.$('.cf-address-city-error')
+      error = pageObject.locator('.cf-address-city-error')
       expect(await error.isHidden()).toEqual(true)
-      error = await pageObject.$('.cf-address-state-error')
+      error = pageObject.locator('.cf-address-state-error')
       expect(await error.isHidden()).toEqual(true)
-      error = await pageObject.$('.cf-address-zip-error')
+      error = pageObject.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(true)
     })
 
@@ -90,13 +92,13 @@ describe('address applicant flow', () => {
       await applicantQuestions.answerAddressQuestion('', '', '', '', '')
       await applicantQuestions.clickNext()
 
-      let error = await pageObject.$('.cf-address-street-1-error')
+      let error = pageObject.locator('.cf-address-street-1-error')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-city-error')
+      error = pageObject.locator('.cf-address-city-error')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-state-error')
+      error = pageObject.locator('.cf-address-state-error')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-zip-error')
+      error = pageObject.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(false)
     })
 
@@ -114,13 +116,13 @@ describe('address applicant flow', () => {
       )
       await applicantQuestions.clickNext()
 
-      let error = await pageObject.$('.cf-address-zip-error')
+      let error = pageObject.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(false)
     })
   })
 
   describe('multiple address questions', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple addresses'
 
     beforeAll(async () => {
@@ -186,23 +188,23 @@ describe('address applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has errors.
-      let error = await pageObject.$('.cf-address-street-1-error >> nth=0')
+      let error = pageObject.locator('.cf-address-street-1-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-city-error >> nth=0')
+      error = pageObject.locator('.cf-address-city-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-state-error >> nth=0')
+      error = pageObject.locator('.cf-address-state-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-zip-error >> nth=0')
+      error = pageObject.locator('.cf-address-zip-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
 
       // Second question has no errors.
-      error = await pageObject.$('.cf-address-street-1-error >> nth=1')
+      error = pageObject.locator('.cf-address-street-1-error >> nth=1')
       expect(await error.isHidden()).toEqual(true)
-      error = await pageObject.$('.cf-address-city-error >> nth=1')
+      error = pageObject.locator('.cf-address-city-error >> nth=1')
       expect(await error.isHidden()).toEqual(true)
-      error = await pageObject.$('.cf-address-state-error >> nth=1')
+      error = pageObject.locator('.cf-address-state-error >> nth=1')
       expect(await error.isHidden()).toEqual(true)
-      error = await pageObject.$('.cf-address-zip-error >> nth=1')
+      error = pageObject.locator('.cf-address-zip-error >> nth=1')
       expect(await error.isHidden()).toEqual(true)
     })
 
@@ -223,30 +225,39 @@ describe('address applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has no errors.
-      let error = await pageObject.$('.cf-address-street-1-error >> nth=0')
+      let error = pageObject.locator('.cf-address-street-1-error >> nth=0')
       expect(await error.isHidden()).toEqual(true)
-      error = await pageObject.$('.cf-address-city-error >> nth=0')
+      error = pageObject.locator('.cf-address-city-error >> nth=0')
       expect(await error.isHidden()).toEqual(true)
-      error = await pageObject.$('.cf-address-state-error >> nth=0')
+      error = pageObject.locator('.cf-address-state-error >> nth=0')
       expect(await error.isHidden()).toEqual(true)
-      error = await pageObject.$('.cf-address-zip-error >> nth=0')
+      error = pageObject.locator('.cf-address-zip-error >> nth=0')
       expect(await error.isHidden()).toEqual(true)
 
       // Second question has errors.
-      error = await pageObject.$('.cf-address-street-1-error >> nth=1')
+      error = pageObject.locator('.cf-address-street-1-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-city-error >> nth=1')
+      error = pageObject.locator('.cf-address-city-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-state-error >> nth=1')
+      error = pageObject.locator('.cf-address-state-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-zip-error >> nth=1')
+      error = pageObject.locator('.cf-address-zip-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 
   // One optional address followed by one required address.
   describe('optional address question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for optional address'
 
     beforeAll(async () => {
@@ -316,11 +327,11 @@ describe('address applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has errors.
-      let error = await pageObject.$('.cf-address-city-error >> nth=0')
+      let error = pageObject.locator('.cf-address-city-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-state-error >> nth=0')
+      error = pageObject.locator('.cf-address-state-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = await pageObject.$('.cf-address-zip-error >> nth=0')
+      error = pageObject.locator('.cf-address-zip-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
     })
 
@@ -336,25 +347,25 @@ describe('address applicant flow', () => {
 
       it('does not submit', async () => {
         // Second question has errors.
-        let error = await pageObject.$('.cf-address-street-1-error >> nth=1')
+        let error = pageObject.locator('.cf-address-street-1-error >> nth=1')
         expect(await error.isHidden()).toEqual(false)
-        error = await pageObject.$('.cf-address-city-error >> nth=1')
+        error = pageObject.locator('.cf-address-city-error >> nth=1')
         expect(await error.isHidden()).toEqual(false)
-        error = await pageObject.$('.cf-address-state-error >> nth=1')
+        error = pageObject.locator('.cf-address-state-error >> nth=1')
         expect(await error.isHidden()).toEqual(false)
-        error = await pageObject.$('.cf-address-zip-error >> nth=1')
+        error = pageObject.locator('.cf-address-zip-error >> nth=1')
         expect(await error.isHidden()).toEqual(false)
       })
 
       it('optional has no errors', async () => {
         // First question has no errors.
-        let error = await pageObject.$('.cf-address-street-1-error >> nth=0')
+        let error = pageObject.locator('.cf-address-street-1-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
-        error = await pageObject.$('.cf-address-city-error >> nth=0')
+        error = pageObject.locator('.cf-address-city-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
-        error = await pageObject.$('.cf-address-state-error >> nth=0')
+        error = pageObject.locator('.cf-address-state-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
-        error = await pageObject.$('.cf-address-zip-error >> nth=0')
+        error = pageObject.locator('.cf-address-zip-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
       })
     })

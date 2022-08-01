@@ -7,6 +7,7 @@ import controllers.admin.NotChangeableException;
 import controllers.api.BadApiRequestException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -54,6 +55,13 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   @Override
   public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
+
+    // Unwrap exceptions thrown within a CompletableFuture, to handle the
+    // original error stack trace.
+    if (exception instanceof CompletionException) {
+      exception = exception.getCause();
+    }
+
     // Exceptions that reach here will generate 500s. Here we convert certain ones to different user
     // visible states. Note: there are methods on the parent that handle dev and prod separately.
     Optional<Throwable> match = findThrowableByTypes(exception, BAD_REQUEST_EXCEPTION_TYPES);

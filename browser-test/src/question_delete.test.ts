@@ -3,12 +3,11 @@ import {
   loginAsAdmin,
   AdminQuestions,
   AdminPrograms,
-  endSession,
 } from './support'
 
 describe('deleting question lifecycle', () => {
   it('create, publish, delete unused questions', async () => {
-    const {browser, page} = await startSession()
+    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)

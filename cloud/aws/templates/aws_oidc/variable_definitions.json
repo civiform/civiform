@@ -31,18 +31,6 @@
     "tfvar": true,
     "type": "string"
   },
-  "APPLICANT_OIDC_CLIENT_ID": {
-    "required": true,
-    "secret": true,
-    "tfvar": true,
-    "type": "string"
-  },
-  "APPLICANT_OIDC_CLIENT_SECRET": {
-    "required": true,
-    "secret": true,
-    "tfvar": true,
-    "type": "string"
-  },
   "APPLICANT_OIDC_DISCOVERY_URI": {
     "required": true,
     "secret": false,

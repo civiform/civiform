@@ -1,4 +1,5 @@
-import {Browser, chromium, Page} from 'playwright'
+import axe = require('axe-core')
+import {Browser, BrowserContext, chromium, Page} from 'playwright'
 import * as path from 'path'
 import {waitForPageJsLoad} from './wait'
 export {AdminApiKeys} from './admin_api_keys'
@@ -18,7 +19,7 @@ export const isLocalDevEnvironment = () => {
   )
 }
 
-function makeBrowserContext(browser: Browser) {
+function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   if (process.env.RECORD_VIDEO) {
     // https://playwright.dev/docs/videos
     // Docs state that videos are only saved upon
@@ -52,7 +53,11 @@ function makeBrowserContext(browser: Browser) {
   }
 }
 
-export const startSession = async () => {
+export const startSession = async (): Promise<{
+  browser: Browser
+  context: BrowserContext
+  page: Page
+}> => {
   const browser = await chromium.launch()
   const context = await makeBrowserContext(browser)
   const page = await context.newPage()
@@ -188,4 +193,14 @@ export const closeWarningMessage = async (page: Page) => {
         ),
       )
   }
+}
+
+export const validateAccessibility = async (page: Page) => {
+  // Inject axe and run accessibility test.
+  await page.addScriptTag({path: 'node_modules/axe-core/axe.min.js'})
+  const results = await page.evaluate(() => {
+    return axe.run()
+  })
+
+  expect(results).toHaveNoA11yViolations()
 }

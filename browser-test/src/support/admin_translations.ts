@@ -20,7 +20,7 @@ export class AdminTranslations {
   async editQuestionTranslations(
     text: string,
     helpText: string,
-    configText = [],
+    configText: string[] = [],
   ) {
     await this.page.fill('#localize-question-text', text)
     await this.page.fill('#localize-question-help-text', helpText)

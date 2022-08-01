@@ -4,20 +4,34 @@
 
 source bin/lib.sh
 
-docker build \
-  -t civiform-browser-test:latest \
-  -f browser-test/playwright.Dockerfile \
-  --cache-from civiform/civiform-browser-test:latest \
-  --build-arg BUILDKIT_INLINE_CACHE=1 \
-  browser-test/
+IMAGE="civiform-browser-test"
+LOCATION="browser-test/"
+DOCKERFILE="browser-test/playwright.Dockerfile"
+
+BUILD_ARGS=("-f" "${DOCKERFILE}"
+  -t "civiform/${IMAGE}:latest"
+  --cache-from "civiform/${IMAGE}"
+  --build-arg BUILDKIT_INLINE_CACHE=1
+  "${LOCATION}")
+
+PLATFORM_ARG=()
+if [[ "${PLATFORM}" ]]; then
+  PLATFORM_ARG=(--platform "${PLATFORM}")
+fi
+
+# Build the multi-platform image
+echo "start ${IMAGE} build"
+docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+
+# Load the image from the cache
+echo "load ${IMAGE} build"
+docker buildx build --load "${BUILD_ARGS[@]}"
 
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
-
-  docker tag \
-    civiform-browser-test:latest \
-    civiform/civiform-browser-test:latest
-
-  # Push the new image to the Docker Hub registry
-  docker push docker.io/civiform/civiform-browser-test:latest
+  # Push the image from the cache to dockerhub
+  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+  echo "push ${IMAGE} build"
 fi
+
+docker tag "civiform/${IMAGE}:latest" "${IMAGE}:latest"

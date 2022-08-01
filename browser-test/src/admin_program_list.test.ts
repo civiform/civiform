@@ -1,17 +1,10 @@
-import {
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
-} from './support'
+import {startSession, loginAsAdmin, AdminPrograms, endSession} from './support'
 
 describe('Most recently updated program is at top of list.', () => {
   it('sorts by last updated, preferring draft over active', async () => {
     const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
     const programOne = 'list test program one'

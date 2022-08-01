@@ -1,3 +1,4 @@
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -8,10 +9,11 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Radio button question for applicant flow', () => {
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()
@@ -23,7 +25,7 @@ describe('Radio button question for applicant flow', () => {
   })
 
   describe('single radio button question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single radio button'
 
     beforeAll(async () => {
@@ -73,7 +75,7 @@ describe('Radio button question for applicant flow', () => {
   })
 
   describe('multiple radio button questions', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple radio button qs'
 
     beforeAll(async () => {
@@ -127,6 +129,15 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage(programName)
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

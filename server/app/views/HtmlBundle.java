@@ -7,9 +7,11 @@ import static j2html.TagCreator.footer;
 import static j2html.TagCreator.head;
 import static j2html.TagCreator.header;
 import static j2html.TagCreator.html;
+import static j2html.TagCreator.link;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.title;
 
+import com.google.common.base.Strings;
 import j2html.tags.Tag;
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.DivTag;
@@ -24,6 +26,9 @@ import j2html.tags.specialized.ScriptTag;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.twirl.api.Content;
 import views.components.Modal;
 import views.components.ToastMessage;
@@ -31,8 +36,11 @@ import views.style.BaseStyles;
 
 /** The HtmlBundle class stores all of the data necessary for rendering a page. */
 public class HtmlBundle {
+  private static final Logger logger = LoggerFactory.getLogger(HtmlBundle.class);
+
   private String pageTitle;
   private String language = "en";
+  private Optional<String> faviconURL = Optional.empty();
 
   private ArrayList<String> bodyStyles = new ArrayList<>();
   private ArrayList<Tag> footerContent = new ArrayList<>();
@@ -125,6 +133,10 @@ public class HtmlBundle {
     return pageTitle;
   }
 
+  public String getFavicon() {
+    return faviconURL.orElse("");
+  }
+
   public HtmlBundle setLanguage(String lang) {
     language = lang;
     return this;
@@ -132,6 +144,11 @@ public class HtmlBundle {
 
   public HtmlBundle setTitle(String title) {
     pageTitle = title;
+    return this;
+  }
+
+  public HtmlBundle setFavicon(String url) {
+    faviconURL = Optional.ofNullable(Strings.emptyToNull(url));
     return this;
   }
 
@@ -163,6 +180,7 @@ public class HtmlBundle {
    *
    * <ul>
    *   <li>page title
+   *   <li>favicon link
    *   <li>page metadata
    *   <li>CSS styles
    *   <li>javascript that needs to run immediately
@@ -170,7 +188,14 @@ public class HtmlBundle {
    */
   private HeadTag renderHead() {
     // TODO: Throw exception if page title is not set.
-    return head().with(title(pageTitle)).with(metadata).with(stylesheets).with(headScripts);
+    return head()
+        .with(title(pageTitle))
+        // The "orElse" value is never used, but it must be included because the
+        // "withHref" evaluates even if the "condWith" is false.
+        .condWith(faviconURL.isPresent(), link().withRel("icon").withHref(faviconURL.orElse("")))
+        .with(metadata)
+        .with(stylesheets)
+        .with(headScripts);
   }
 
   private HeaderTag renderHeader() {
@@ -203,6 +228,15 @@ public class HtmlBundle {
             .withId("modal-container")
             .withClasses(BaseStyles.MODAL_CONTAINER)
             .with(div().withId("modal-glass-pane").withClasses(BaseStyles.MODAL_GLASS_PANE));
+    // Validate that only one modal has the "displayOnLoad" setting, since popping multiple
+    // modals doesn't make sense. A warning is logged rather than throwing since client-side
+    // code will choose the first modal with the attribute.
+    long displayOnLoadModalCount = modals.stream().filter(Modal::displayOnLoad).count();
+    if (displayOnLoadModalCount > 1) {
+      logger.warn(
+          String.format(
+              "Multiple (%d) modals found containing display on load.", displayOnLoadModalCount));
+    }
     modals.forEach(modal -> modalContainer.with(modal.getContainerTag()));
     return modalContainer;
   }

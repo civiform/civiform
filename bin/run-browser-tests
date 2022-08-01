@@ -6,10 +6,15 @@ source bin/lib.sh
 docker::set_project_name_browser_tests
 bin/pull-image
 
-docker run --ipc=host --rm -it \
-  -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
-  -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
-  -v "$(pwd)/browser-test/tmp:/usr/src/civiform-browser-tests/tmp" \
+docker volume create browser-tests-node-modules
+
+# Run browser tests from within the civiform-browser-test container. We map
+# full browser-test local directory to the container so that it uses local changes.
+# Additionally we map node_modules to a separate volume so that it doesn't
+# conflict with node_modules created locally.
+docker run --rm -it \
+  -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
+  -v "browser-tests-node-modules:/usr/src/civiform-browser-tests/node_modules" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform/civiform-browser-test:latest \
