@@ -1,4 +1,13 @@
-FROM --platform=$BUILDPLATFORM eclipse-temurin:11.0.15_10-jdk-alpine
+# syntax=docker/dockerfile:1
+
+# The eclipse-temurin image and the standard openJDK11 fails to run on M1 Macs because it is incompatible with ARM architecture. This
+# workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
+# Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
+
+FROM eclipse-temurin:11.0.16_8-jdk-alpine as amd64
+FROM bellsoft/liberica-openjdk-alpine:11.0.16-8 as arm64
+
+FROM ${TARGETARCH}
 
 ENV SBT_VERSION "1.6.2"
 ENV INSTALL_DIR /usr/local
@@ -14,7 +23,7 @@ RUN set -o pipefail && \
   apk update && \
   apk add --upgrade apk-tools && \
   apk upgrade --available && \
-  apk add --no-cache --update bash wget npm git openssh ncurses
+  apk add --no-cache --update openjdk11 bash wget npm git openssh ncurses
 
 RUN set -o pipefail && \
   npm install -g npm@8.5.1

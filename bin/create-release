@@ -72,7 +72,7 @@ def main():
         exit(1)
 
     check_gh_auth_response = requests.get(
-        'https://api.github.com/repos/seattle-uat/civiform',
+        'https://api.github.com/repos/civiform/civiform',
         headers={'Authorization': f'token {gh_token}'})
     if check_gh_auth_response.status_code != 200:
         print(
@@ -187,7 +187,7 @@ def main():
 
     print('Creating GitHub release')
 
-    create_release_url = 'https://api.github.com/repos/seattle-uat/civiform/releases'
+    create_release_url = 'https://api.github.com/repos/civiform/civiform/releases'
     create_release_body = {
         'tag_name': release_number,
         'name': release_number,

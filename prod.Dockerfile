@@ -1,4 +1,6 @@
-FROM eclipse-temurin:11.0.15_10-jdk-alpine AS stage1
+# syntax=docker/dockerfile:1
+# For production images, use the adoptium.net official JRE & JDK docker images.
+FROM --platform=$BUILDPLATFORM eclipse-temurin:11.0.16_8-jdk-alpine AS stage1
 
 ENV SBT_VERSION "1.6.2"
 ENV INSTALL_DIR /usr/local
@@ -30,7 +32,7 @@ RUN cd "${PROJECT_LOC}" && \
 
 # This is a common trick to shrink container sizes. We discard everything added
 # during the build phase and use only the inflated artifacts created by sbt dist.
-FROM eclipse-temurin:11.0.15_10-jre-alpine AS stage2
+FROM eclipse-temurin:11.0.16_8-jre-alpine AS stage2
 COPY --from=stage1 /civiform-server-0.0.1 /civiform-server-0.0.1
 
 # Upgrade packages for stage2 to include latest versions.
@@ -42,5 +44,8 @@ RUN set -o pipefail && \
 
 ARG image_tag
 ENV CIVIFORM_IMAGE_TAG=$image_tag
+
+ARG git_commit_sha
+LABEL civiform.git.commit_sha=$git_commit_sha
 
 CMD ["/civiform-server-0.0.1/bin/civiform-server", "-Dconfig.file=/civiform-server-0.0.1/conf/application.conf"]

@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Date question for applicant flow', () => {
@@ -118,6 +119,15 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage(programName)
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

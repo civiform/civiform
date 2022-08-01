@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('currency applicant flow', () => {
@@ -157,6 +158,15 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(currencyError)).toEqual(false)
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

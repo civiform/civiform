@@ -60,8 +60,8 @@ variable "favicon_url" {
 
 variable "vpc_name" {
   type        = string
-  description = "Name of the VPC for the database"
-  default     = "civiform_rds_vpc"
+  description = "Name of the VPC"
+  default     = "civiform-vpc"
 }
 
 variable "vpc_cidr" {
@@ -230,17 +230,6 @@ variable "civiform_applicant_idp" {
   default     = ""
 }
 
-variable "applicant_oidc_client_id" {
-  type        = string
-  description = "Client ID"
-  default     = ""
-}
-
-variable "applicant_oidc_client_secret" {
-  type        = string
-  description = "Client Secret"
-  default     = ""
-}
 
 variable "applicant_oidc_discovery_uri" {
   type        = string

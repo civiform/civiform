@@ -7,6 +7,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import controllers.LanguageUtils;
 import controllers.routes;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -38,6 +39,7 @@ public class RedirectController extends CiviFormController {
   private final ProgramRepository programRepository;
   private final ApplicantUpsellCreateAccountView upsellView;
   private final MessagesApi messagesApi;
+  private final LanguageUtils languageUtils;
 
   @Inject
   public RedirectController(
@@ -46,13 +48,15 @@ public class RedirectController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramRepository programRepository,
       ApplicantUpsellCreateAccountView upsellView,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      LanguageUtils languageUtils) {
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.profileUtils = checkNotNull(profileUtils);
     this.programRepository = checkNotNull(programRepository);
     this.upsellView = checkNotNull(upsellView);
     this.messagesApi = checkNotNull(messagesApi);
+    this.languageUtils = checkNotNull(languageUtils);
   }
 
   public CompletionStage<Result> programByName(Http.Request request, String programName) {
@@ -78,7 +82,10 @@ public class RedirectController extends CiviFormController {
               }
 
               Applicant applicant = applicantFuture.join();
-
+              // Attempt to set default language for the applicant.
+              applicant = languageUtils.maybeSetDefaultLocale(applicant);
+              // If the applicant has not yet set their preferred language, redirect to
+              // the information controller to ask for preferred language.
               if (!applicant.getApplicantData().hasPreferredLocale()) {
                 return redirect(
                         controllers.applicant.routes.ApplicantInformationController.edit(

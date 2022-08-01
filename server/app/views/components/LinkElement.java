@@ -46,7 +46,6 @@ public class LinkElement {
   private static final String RIGHT_ALIGNED_LINK_BUTTON_STYLES =
       StyleUtils.joinStyles(
           Styles.FLOAT_RIGHT,
-          Styles._MT_14,
           Styles.INLINE_BLOCK,
           Styles.CURSOR_POINTER,
           Styles.P_2,
