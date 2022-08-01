@@ -1,6 +1,7 @@
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {clickAndWaitForModal, waitForPageJsLoad} from './wait'
+import {AdminProgramStatuses} from './admin_program_statuses'
 
 export class AdminPrograms {
   public page!: Page
@@ -103,7 +104,8 @@ export class AdminPrograms {
       ),
     )
     await waitForPageJsLoad(this.page)
-    await this.expectProgramManageStatusesPage(programName)
+    const adminProgramStatuses = new AdminProgramStatuses(this.page)
+    await adminProgramStatuses.expectProgramManageStatusesPage(programName)
   }
 
   async gotoDraftProgramManageTranslationsPage(programName: string) {
@@ -168,12 +170,6 @@ export class AdminPrograms {
   async expectProgramEditPage(programName: string = '') {
     expect(await this.page.innerText('h1')).toContain(
       `Edit program: ${programName}`,
-    )
-  }
-
-  async expectProgramManageStatusesPage(programName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      `Manage application statuses for ${programName}`,
     )
   }
 

@@ -1,4 +1,4 @@
-import {Page} from 'playwright'
+import {ElementHandle, Page} from 'playwright'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
 
 export class AdminProgramStatuses {
@@ -56,15 +56,11 @@ export class AdminProgramStatuses {
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain('Create a new status')
 
-    const statusFieldHandle = (await modal.$('text="Status name (required)"'))!
-    await statusFieldHandle.fill(statusName)
-    const emailFieldHandle = (await modal.$(
-      'text="Applicant status change email"',
-    ))!
-    await emailFieldHandle.fill(emailBody || '')
-
-    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
-    await confirmHandle.click()
+    emailBody = emailBody || ''
+    await this.fillStatusUpdateModalValuesAndSubmit(modal, {
+      statusName,
+      emailBody,
+    })
     await waitForPageJsLoad(this.page)
   }
 
@@ -91,15 +87,10 @@ export class AdminProgramStatuses {
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain('Edit this status')
 
-    const statusFieldHandle = (await modal.$('text="Status name (required)"'))!
-    await statusFieldHandle.fill(editedStatusName)
-    const emailFieldHandle = (await modal.$(
-      'text="Applicant status change email"',
-    ))!
-    await emailFieldHandle.fill(editedEmailBody)
-
-    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
-    await confirmHandle.click()
+    await this.fillStatusUpdateModalValuesAndSubmit(modal, {
+      statusName: editedStatusName,
+      emailBody: editedEmailBody,
+    })
     await waitForPageJsLoad(this.page)
   }
 
@@ -126,6 +117,29 @@ export class AdminProgramStatuses {
     expect(await this.page.innerText('h1')).toContain(
       `Manage application statuses for ${programName}`,
     )
+  }
+
+  private async fillStatusUpdateModalValuesAndSubmit(
+    modal: ElementHandle<HTMLElement>,
+    {
+      statusName,
+      emailBody,
+    }: {
+      statusName: string
+      emailBody: string
+    },
+  ) {
+    // We perform selectors within the modal since using the typical
+    // page.fill with a selector will match multiple modals on the page.
+    const statusFieldHandle = (await modal.$('text="Status name (required)"'))!
+    await statusFieldHandle.fill(statusName)
+    const emailFieldHandle = (await modal.$(
+      'text="Applicant status change email"',
+    ))!
+    await emailFieldHandle.fill(emailBody || '')
+
+    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+    await confirmHandle.click()
   }
 
   private programStatusItemSelector(statusName: string): string {
