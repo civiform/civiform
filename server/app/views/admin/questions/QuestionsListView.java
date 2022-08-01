@@ -141,18 +141,19 @@ public final class QuestionsListView extends BaseHtmlView {
   private TheadTag renderQuestionTableHeaderRow() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
-            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-            .with(th("Supported languages").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_6))
+            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_12))
+            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_3_12))
             .with(
-                th("Referencing programs").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_6))
+                th("Supported languages").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_12))
+            .with(
+                th("Referencing programs").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_12))
             .with(
                 th("Actions")
                     .withClasses(
                         BaseStyles.TABLE_CELL_STYLES,
                         Styles.TEXT_RIGHT,
                         Styles.PR_8,
-                        Styles.W_1_6)));
+                        Styles.W_2_12)));
   }
 
   /**
@@ -186,7 +187,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private TdTag renderInfoCell(QuestionDefinition definition) {
     return td().with(div(definition.getName()).withClasses(Styles.FONT_SEMIBOLD))
         .with(div(definition.getDescription()).withClasses(Styles.TEXT_XS))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+        .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
   private TdTag renderQuestionTextCell(QuestionDefinition definition) {
@@ -205,7 +206,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     return td().with(div(questionText).withClasses(Styles.FONT_SEMIBOLD))
         .with(div(questionHelpText).withClasses(Styles.TEXT_XS))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+        .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
   /**
@@ -217,8 +218,7 @@ public final class QuestionsListView extends BaseHtmlView {
         definition.getSupportedLocales().stream()
             .map(locale -> locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE))
             .collect(Collectors.joining(", "));
-    return td().with(div(formattedLanguages))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    return td().with(div(formattedLanguages)).withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
   private TdTag renderReferencingPrograms(
@@ -236,7 +236,7 @@ public final class QuestionsListView extends BaseHtmlView {
                     span(String.format("%d draft", referencingPrograms.draftReferences().size()))
                         .withClass(Styles.FONT_SEMIBOLD))
                 .with(span(" programs").withClasses(Styles.FONT_SEMIBOLD)))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+        .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
   private ATag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
