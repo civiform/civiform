@@ -132,15 +132,6 @@ public class VersionRepositoryTest extends ResetPostgres {
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
     oldActive.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
-
-    // The newly created draft should not contain any questions or programs.
-    assertThat(versionRepository.getDraftVersion().getPrograms()).isEmpty();
-    assertThat(versionRepository.getDraftVersion().getQuestions()).isEmpty();
-
-    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
-        .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
-    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
-        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionDraft.id);
   }
 
   private Question insertActiveQuestion(String name) {

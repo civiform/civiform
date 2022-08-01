@@ -216,19 +216,15 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     // newDraftProgram automatically adds the program to the draft version.
     ProgramBuilder.newDraftProgram("foo").withBlock("Screen 1").build();
 
-    // TODO(#2788): Allow archiving questions that aren't referenced in the draft
-    // version of the program.
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
-        .isEqualTo(DeletionStatus.NOT_DELETABLE);
+        .isEqualTo(DeletionStatus.DELETABLE);
 
     // Adding a draft edit of the question continues to be considered deletable.
     Question questionDraft = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersion().addQuestion(questionDraft).save();
 
-    // TODO(#2788): Allow archiving questions that aren't referenced in the draft
-    // version of the program.
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
-        .isEqualTo(DeletionStatus.NOT_DELETABLE);
+        .isEqualTo(DeletionStatus.DELETABLE);
   }
 
   @Test
@@ -249,8 +245,9 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   private ActiveAndDraftQuestions newActiveAndDraftQuestions() {
+    Version draftWithEditsVersion = versionRepository.previewPublishNewSynchronizedVersion();
     return new ActiveAndDraftQuestions(
-        versionRepository.getActiveVersion(), versionRepository.getDraftVersion());
+        versionRepository.getActiveVersion(), versionRepository.getDraftVersion(), draftWithEditsVersion);
   }
 
   private void addTombstoneToVersion(Version version, Question question) {
