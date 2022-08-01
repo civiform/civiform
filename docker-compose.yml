@@ -39,7 +39,6 @@ services:
 
   civiform:
     image: civiform-dev
-    restart: always
     links:
       - 'db:database'
       - 'dev-oidc'
