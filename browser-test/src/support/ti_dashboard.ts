@@ -22,7 +22,7 @@ export class TIDashboard {
     await this.page.click('text="Add"')
   }
 
-  async checkUpdatedDateOfBirth(client: ClientInformation, newDob: string) {
+  async expectClientDateOfBirthUpdated(client: ClientInformation, newDob: string) {
     expect(
       `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
         newDob,
@@ -33,7 +33,7 @@ export class TIDashboard {
     expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
   }
 
-  async checkInnerTableForClientInformation(client: ClientInformation) {
+  async expectDashboardContainClient(client: ClientInformation) {
     expect(
       `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
         client.dobDate,
@@ -44,7 +44,7 @@ export class TIDashboard {
     expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
   }
 
-  async checkInnerTableNotToContainClient(client: ClientInformation) {
+  async expectDashboardNotContainClient(client: ClientInformation) {
     const tableInnerText = await this.page.innerText('table')
     expect(tableInnerText).not.toContain(this.convertToMMDDYYYY(client.dobDate))
     expect(tableInnerText).not.toContain(client.emailAddress)

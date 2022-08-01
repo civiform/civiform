@@ -28,7 +28,7 @@ import repository.SearchParameters;
 import repository.UserRepository;
 import services.PaginationInfo;
 import services.applicant.exception.ApplicantNotFoundException;
-import services.ti.*;
+import services.ti.TrustedIntermediaryService;
 import views.applicant.TrustedIntermediaryDashboardView;
 
 /**

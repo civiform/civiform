@@ -37,9 +37,9 @@ describe('Trusted intermediaries', () => {
       dobDate: '2021-06-10',
     }
     await tiDashboard.createClient(client)
-    await tiDashboard.checkInnerTableForClientInformation(client)
+    await tiDashboard.expectDashboardContainClient(client)
     await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
-    await tiDashboard.checkUpdatedDateOfBirth(client, '2021-12-12')
+    await tiDashboard.expectClientDateOfBirthUpdated(client, '2021-12-12')
   })
 
   it('expect Dashboard Contain New Client', async () => {
@@ -56,7 +56,7 @@ describe('Trusted intermediaries', () => {
       dobDate: '2021-05-10',
     }
     await tiDashboard.createClient(client)
-    await tiDashboard.checkInnerTableForClientInformation(client)
+    await tiDashboard.expectDashboardContainClient(client)
   })
 
   it('search For Client In TI Dashboard', async () => {
@@ -92,9 +92,9 @@ describe('Trusted intermediaries', () => {
 
     await tiDashboard.searchByDateOfBirth(client3.dobDate)
     await waitForPageJsLoad(page)
-    await tiDashboard.checkInnerTableForClientInformation(client3)
-    await tiDashboard.checkInnerTableNotToContainClient(client1)
-    await tiDashboard.checkInnerTableNotToContainClient(client2)
+    await tiDashboard.expectDashboardContainClient(client3)
+    await tiDashboard.expectDashboardNotContainClient(client1)
+    await tiDashboard.expectDashboardNotContainClient(client2)
   })
 
   it('managing trusted intermediary ', async () => {
