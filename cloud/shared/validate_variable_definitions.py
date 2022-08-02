@@ -79,7 +79,8 @@ class ValidateVariableDefinitions:
         if validator:
             errors.extend(validator(variable_definition))
         else:
-            errors.append("Unknown or missing 'type' field.")
+            supported_typed = list(type_specific_validators.keys())
+            errors.append(f"Unknown or missing 'type' field. Supported types {supported_typed}")
 
         return errors
 

@@ -168,11 +168,10 @@ module "td" {
 }
 
 module "ecs_fargate_service" {
-  source        = "cn-terraform/ecs-fargate-service/aws"
-  name_prefix   = var.app_prefix
-  desired_count = 0 # TODO: set this to actual value
-  # TODO: use https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
-  default_certificate_arn = "arn:aws:acm:us-east-1:664198874744:certificate/1f04bb7f-aab7-444a-8fea-398a3ec34e39"
+  source                  = "cn-terraform/ecs-fargate-service/aws"
+  name_prefix             = var.app_prefix
+  desired_count           = var.fargate_desired_task_count
+  default_certificate_arn = var.ssl_certificate_arn
   ssl_policy              = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
   vpc_id                  = module.vpc.vpc_id
   task_definition_arn     = module.td.aws_ecs_task_definition_td_arn
