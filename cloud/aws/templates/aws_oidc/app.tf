@@ -151,7 +151,13 @@ module "td" {
       "awslogs-region"        = var.aws_region
       "awslogs-stream-prefix" = "ecs"
       "awslogs-group"         = module.aws_cw_logs.logs_path
-      "awslogs-create-group"  = "true",
+      "awslogs-create-group"  = "true"
+      # Use https://docs.docker.com/config/containers/logging/awslogs/#awslogs-multiline-pattern
+      # Logs are streamed via container's stdout. Each line is considered a
+      # separate log messsage. To collect stacktraces, which take multiple line,
+      # to a single event we consider all lines which start with a whitespace character to be
+      # part of the previous line and not a standalone event.
+      "awslogs-multiline-pattern" = "^[^\\s]"
     }
     secretOptions = null
   }
