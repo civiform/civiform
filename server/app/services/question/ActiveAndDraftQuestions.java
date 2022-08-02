@@ -102,42 +102,41 @@ public final class ActiveAndDraftQuestions {
                     QuestionDefinition::getId, QuestionDefinition::getName));
     Map<String, Set<ProgramReference>> result = Maps.newHashMap();
     for (Program program : version.getPrograms()) {
-      ImmutableList<String> programQuestionNames =
-          program.getProgramDefinition().blockDefinitions().stream()
-              .map(BlockDefinition::programQuestionDefinitions)
-              .flatMap(ImmutableList::stream)
-              .map(ProgramQuestionDefinition::id)
-              .filter(questionIdToNameLookup::containsKey)
-              .map(questionIdToNameLookup::get)
-              .collect(ImmutableList.toImmutableList());
-      for (String questionName : programQuestionNames) {
-        if (!result.containsKey(questionName)) {
-          result.put(questionName, Sets.newHashSet());
-        }
-        int blockIndex = -1;
-        for (int bi = 0; bi < program.getProgramDefinition().blockDefinitions().size(); bi++) {
-          BlockDefinition bd = program.getProgramDefinition().blockDefinitions().get(bi);
-          for (ProgramQuestionDefinition pqd : bd.programQuestionDefinitions()) {
-            if (blockIndex > -1) {
-              continue;
-            }
-            if (questionIdToNameLookup.get(pqd.id()).equals(questionName)) {
-              blockIndex = bi + 1;
-            }
-          }
+      ProgramDefinition programDefinition = program.getProgramDefinition();
+      ImmutableList<Pair<String, BlockDefinition>> referencedQuestions =
+          buildReferencedQuestions(programDefinition, questionIdToNameLookup);
+      for (Pair<String, BlockDefinition> referencedQuestion : referencedQuestions) {
+        if (!result.containsKey(referencedQuestion.first())) {
+          result.put(referencedQuestion.first(), Sets.newHashSet());
         }
         result
-            .get(questionName)
+            .get(referencedQuestion.first())
             .add(
                 ProgramReference.builder()
-                    .setProgramDefinition(program.getProgramDefinition())
-                    .setBlockDefinitionId(blockIndex)
+                    .setProgramDefinition(programDefinition)
+                    .setBlockDefinitionId(referencedQuestion.second().id())
                     .build());
       }
     }
     return result.entrySet().stream()
         .collect(
             ImmutableMap.toImmutableMap(e -> e.getKey(), e -> ImmutableSet.copyOf(e.getValue())));
+  }
+
+  private static ImmutableList<Pair<String, BlockDefinition>> buildReferencedQuestions(
+      ProgramDefinition program, ImmutableMap<Long, String> questionIdToNameLookup) {
+    ImmutableList.Builder<Pair<String, BlockDefinition>> resultBuilder = ImmutableList.builder();
+    for (BlockDefinition block : program.blockDefinitions()) {
+      for (ProgramQuestionDefinition pqd : block.programQuestionDefinitions()) {
+        if (!questionIdToNameLookup.containsKey(pqd.id())) {
+          continue;
+        }
+        String questionName = questionIdToNameLookup.get(pqd.id());
+        resultBuilder.add(Pair.create(questionName, block));
+      }
+    }
+
+    return resultBuilder.build();
   }
 
   public DeletionStatus getDeletionStatus(String questionName) {
