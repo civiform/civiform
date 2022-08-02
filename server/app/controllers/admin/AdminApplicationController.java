@@ -266,8 +266,6 @@ public class AdminApplicationController extends CiviFormController {
     String programName = program.adminName();
 
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      programName = program.adminName();
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();

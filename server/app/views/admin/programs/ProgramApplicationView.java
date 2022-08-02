@@ -82,7 +82,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        renderStatusOptionsDropdown(statusDefinitions))
+                        div()
+                            .withClasses(Styles.FLEX)
+                            .with(
+                                div("Status: ").withClass(Styles.SELF_CENTER),
+                                renderStatusOptionsSelector(statusDefinitions)))
                     .with(renderDownloadButton(programId, applicationId)))
             .with(
                 each(
@@ -165,11 +169,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private static SelectTag renderStatusOptionsDropdown(StatusDefinitions statusDefinitions) {
+  private static SelectTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
     SelectTag dropdownTag =
         select()
-            .withId("select-status")
             .withClasses(
+                ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR,
                 Styles.OUTLINE_NONE,
                 Styles.PX_3,
                 Styles.PY_1,
