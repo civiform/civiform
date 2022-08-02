@@ -16,8 +16,6 @@ import views.style.Styles;
 /** Utility class for rendering a modal box. */
 public final class Modal {
 
-  public static final String MODAL_OPENER_FOR_ATTRIBUTE = "data-modal-opener-for";
-
   private final String modalId;
   private final ContainerTag<?> content;
   private final String modalTitle;
@@ -58,10 +56,6 @@ public final class Modal {
 
   public String getTriggerButtonId() {
     return modalId + "-button";
-  }
-
-  public String getModalId() {
-    return modalId;
   }
 
   public boolean displayOnLoad() {

@@ -4,24 +4,13 @@
 class ModalController {
   /** Find the modals, and add on-click listeners on their respective buttons to toggle them. */
   static attachModalListeners(modalContainer: Element, modal: Element) {
-    // Connect the modal to its button.
+    // Connect the modal to its button
     const modalButton = document.querySelector(`#${modal.id}-button`)
     if (modalButton) {
       modalButton.addEventListener('click', function () {
         ModalController.toggleModal(modalContainer, modal)
       })
     }
-
-    // Connect the modal to any other elements that have an attribute signify
-    // they can open a given modal.
-    const modalOpeners = Array.from(
-      document.querySelectorAll(`[data-modal-opener-for="${modal.id}"]`),
-    )
-    modalOpeners.forEach((modalOpener) => {
-      modalOpener.addEventListener('click', function () {
-        ModalController.toggleModal(modalContainer, modal)
-      })
-    })
 
     const modalClose = document.querySelector(`#${modal.id}-close`)
     if (modalClose) {

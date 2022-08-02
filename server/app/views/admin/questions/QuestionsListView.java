@@ -265,9 +265,7 @@ public final class QuestionsListView extends BaseHtmlView {
     ContainerTag referencingProgramsCountContainer = referencingProgramsCount;
     if (maybeReferencingProgramsModal.isPresent()) {
       referencingProgramsCountContainer =
-          a().attr(
-                  Modal.MODAL_OPENER_FOR_ATTRIBUTE,
-                  maybeReferencingProgramsModal.get().getModalId())
+          a().withId(maybeReferencingProgramsModal.get().getTriggerButtonId())
               .withClasses(Styles.DECORATION_SOLID, Styles.CURSOR_POINTER)
               .with(referencingProgramsCount);
     }
