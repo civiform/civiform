@@ -200,7 +200,7 @@ public final class ActiveAndDraftQuestions {
     /** Returns a set of references to the question in the ACTIVE version. */
     public abstract ImmutableSet<ReferencingProgram> activeReferences();
 
-    private static Builder builder() {
+    static Builder builder() {
       return new AutoValue_ActiveAndDraftQuestions_ReferencingPrograms.Builder();
     }
 
@@ -223,7 +223,7 @@ public final class ActiveAndDraftQuestions {
     /** Returns the block ID that references the question. */
     public abstract long blockDefinitionId();
 
-    private static Builder builder() {
+    static Builder builder() {
       return new AutoValue_ActiveAndDraftQuestions_ReferencingProgram.Builder();
     }
 
