@@ -40,6 +40,7 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -180,6 +181,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     // Combine all the DivTags into a rendered list, and collect all Modals into one collection.
     DivTag statusesContainer =
         div()
+            .withClass(ReferenceClasses.ADMIN_PROGRAM_STATUS_LIST)
             .with(
                 p(numResultsText),
                 div()
@@ -228,6 +230,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return Pair.of(
         div()
             .withClasses(
+                ReferenceClasses.ADMIN_PROGRAM_STATUS_ITEM,
                 Styles.PL_7,
                 Styles.PR_6,
                 Styles.PY_9,

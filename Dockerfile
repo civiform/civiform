@@ -19,30 +19,67 @@ ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME server
 ENV PROJECT_LOC "${PROJECT_HOME}/${PROJECT_NAME}"
 
+
+########################################################
+### First, add dependancies that don't often change. ###
+########################################################
+
+# Update and add system dependancies
 RUN set -o pipefail && \
   apk update && \
   apk add --upgrade apk-tools && \
   apk upgrade --available && \
   apk add --no-cache --update openjdk11 bash wget npm git openssh ncurses
 
-RUN set -o pipefail && \
-  npm install -g npm@8.5.1
+# Install npm (node)
+RUN npm install -g npm@8.5.1
 
+# Download sbt
 RUN set -o pipefail && \
   mkdir -p "${SBT_HOME}" && \
   wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
   echo -ne "- with sbt ${SBT_VERSION}\n" >> /root/.built
 
+# Make the project dir and install sbt
+# (cannot do it in root dir)
+RUN mkdir -p "${PROJECT_LOC}"
+WORKDIR "${PROJECT_LOC}"
+
+# SBT downloads a lot at run-time.
+RUN sbt update
+
+########################################################
+### Install dependancies and build the server,       ###
+### In order of how frequently the files change      ###
+########################################################
+
+# Copy the node package files (package.json and package-lock.json)
+# and save them to the npm cache.
+# Do this before the rest of the server code, so they don't
+# get re-downloaded every time code changes.
+COPY "${PROJECT_NAME}"/package* .
+RUN npm install
+
+# Copy over the remainder of the server code
+# Everything below here is re-run whenever any file changes.
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
-COPY entrypoint.sh /entrypoint.sh
 
 # We need to save the build assets to a seperate directory (pushRemoteCache)
-RUN cd "${PROJECT_LOC}" && \
-  npm install && \
-  sbt update && \
-  sbt compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
+RUN sbt update compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
 
+########################################################
+### Get the volumes and startup commands set up       ###
+########################################################
+
+COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
+# Save build results to anonymous volumes for reuse
+# We do this first, so they don't get shadowed by the
+# local server directory when running locally.
+VOLUME [ "/usr/src/server/target","/usr/src/server/project/project", "/usr/src/server/project/target", "/usr/src/server/node_modules", "/usr/src/server/.bsp/","/usr/src/server/public/stylesheets/" ]
+# Then map the server code to a volume, which can be shadowed
+# locally.
+VOLUME ["/usr/src/server"]
+
 EXPOSE 9000
-WORKDIR "${PROJECT_HOME}/${PROJECT_NAME}"

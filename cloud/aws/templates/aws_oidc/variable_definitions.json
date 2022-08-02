@@ -14,7 +14,7 @@
     "type": "string"
   },
   "BASE_URL": {
-    "required": false,
+    "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"

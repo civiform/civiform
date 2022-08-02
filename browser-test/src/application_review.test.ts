@@ -13,7 +13,7 @@ import {
   userDisplayName,
 } from './support'
 
-describe('normal application flow', () => {
+describe('Program admin review of submitted applications', () => {
   it('all major steps', async () => {
     const {browser, page} = await startSession()
     page.setDefaultTimeout(5000)

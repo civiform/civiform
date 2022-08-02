@@ -6,10 +6,11 @@ export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
 export {AdminPrograms} from './admin_programs'
+export {AdminProgramStatuses} from './admin_program_statuses'
 export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantQuestions} from './applicant_questions'
-export {clickAndWaitForModal, waitForPageJsLoad} from './wait'
+export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
 export {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD}
 
