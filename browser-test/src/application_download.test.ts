@@ -110,6 +110,7 @@ describe('normal application flow', () => {
     await applicantQuestions.answerNumberQuestion('1600')
     await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage(programName)
+    await applicantQuestions.returnToProgramsFromSubmissionPage()
 
     // Apply to the program again as the same user
     await applicantQuestions.clickApplyProgramButton(programName)
