@@ -86,8 +86,16 @@ public final class ActiveAndDraftQuestions {
                     }));
   }
 
+  /**
+   * Inspects the provided version and returns a map who's key is the question name and value is a
+   * set of programs that reference the given question in this version.
+   */
   private static ImmutableMap<String, ImmutableSet<ReferencingProgram>> buildReferencingProgramsMap(
       Version version) {
+    // Different versions of a question can have distinct IDs while still
+    // retaining the same "name". A given program has a reference only to a specific
+    // question ID. This map allows us to easily cache the mapping from a question ID
+    // to a logical question "name".
     ImmutableMap<Long, String> questionIdToNameLookup =
         version.getQuestions().stream()
             .map(Question::getQuestionDefinition)
@@ -97,18 +105,20 @@ public final class ActiveAndDraftQuestions {
     Map<String, Set<ReferencingProgram>> result = Maps.newHashMap();
     for (Program program : version.getPrograms()) {
       ProgramDefinition programDefinition = program.getProgramDefinition();
-      ImmutableList<Pair<String, BlockDefinition>> referencedQuestions =
-          buildReferencedQuestions(programDefinition, questionIdToNameLookup);
-      for (Pair<String, BlockDefinition> referencedQuestion : referencedQuestions) {
-        if (!result.containsKey(referencedQuestion.first())) {
-          result.put(referencedQuestion.first(), Sets.newHashSet());
+      ImmutableList<Pair<String, BlockDefinition>> questionReferences =
+          buildQuestionReferences(programDefinition, questionIdToNameLookup);
+      for (Pair<String, BlockDefinition> questionReference : questionReferences) {
+        String questionName = questionReference.first();
+        BlockDefinition referencingBlock = questionReference.second();
+        if (!result.containsKey(questionName)) {
+          result.put(questionName, Sets.newHashSet());
         }
         result
-            .get(referencedQuestion.first())
+            .get(questionName)
             .add(
                 ReferencingProgram.builder()
                     .setProgramDefinition(programDefinition)
-                    .setBlockDefinitionId(referencedQuestion.second().id())
+                    .setBlockDefinitionId(referencingBlock.id())
                     .build());
       }
     }
@@ -117,7 +127,8 @@ public final class ActiveAndDraftQuestions {
             ImmutableMap.toImmutableMap(e -> e.getKey(), e -> ImmutableSet.copyOf(e.getValue())));
   }
 
-  private static ImmutableList<Pair<String, BlockDefinition>> buildReferencedQuestions(
+  /** Returns a list of question names along with the block referencing them for a given program. */
+  private static ImmutableList<Pair<String, BlockDefinition>> buildQuestionReferences(
       ProgramDefinition program, ImmutableMap<Long, String> questionIdToNameLookup) {
     ImmutableList.Builder<Pair<String, BlockDefinition>> resultBuilder = ImmutableList.builder();
     for (BlockDefinition block : program.blockDefinitions()) {
@@ -129,7 +140,6 @@ public final class ActiveAndDraftQuestions {
         resultBuilder.add(Pair.create(questionName, block));
       }
     }
-
     return resultBuilder.build();
   }
 
