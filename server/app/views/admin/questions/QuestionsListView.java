@@ -281,9 +281,9 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private Optional<Modal> makeReferencingProgramsModal(
       String questionName, ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms) {
-    ImmutableSet<ActiveAndDraftQuestions.ProgramReference> activeProgramReferences =
+    ImmutableSet<ActiveAndDraftQuestions.ReferencingProgram> activeProgramReferences =
         referencingPrograms.activeReferences();
-    ImmutableSet<ActiveAndDraftQuestions.ProgramReference> draftProgramReferences =
+    ImmutableSet<ActiveAndDraftQuestions.ReferencingProgram> draftProgramReferences =
         referencingPrograms.draftReferences().orElse(ImmutableSet.of());
 
     if (activeProgramReferences.isEmpty() && draftProgramReferences.isEmpty()) {

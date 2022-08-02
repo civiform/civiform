@@ -33,9 +33,9 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final Optional<ImmutableMap<String, ImmutableSet<ProgramReference>>>
+  private final Optional<ImmutableMap<String, ImmutableSet<ReferencingProgram>>>
       referencingDraftProgramsByName;
-  private final ImmutableMap<String, ImmutableSet<ProgramReference>>
+  private final ImmutableMap<String, ImmutableSet<ReferencingProgram>>
       referencingActiveProgramsByName;
 
   public ActiveAndDraftQuestions(VersionRepository repository) {
@@ -86,7 +86,7 @@ public final class ActiveAndDraftQuestions {
                     }));
   }
 
-  private static ImmutableMap<String, ImmutableSet<ProgramReference>> buildReferencingProgramsMap(
+  private static ImmutableMap<String, ImmutableSet<ReferencingProgram>> buildReferencingProgramsMap(
       Version version) {
     ImmutableMap<Long, String> questionIdToNameLookup =
         version.getQuestions().stream()
@@ -94,7 +94,7 @@ public final class ActiveAndDraftQuestions {
             .collect(
                 ImmutableMap.toImmutableMap(
                     QuestionDefinition::getId, QuestionDefinition::getName));
-    Map<String, Set<ProgramReference>> result = Maps.newHashMap();
+    Map<String, Set<ReferencingProgram>> result = Maps.newHashMap();
     for (Program program : version.getPrograms()) {
       ProgramDefinition programDefinition = program.getProgramDefinition();
       ImmutableList<Pair<String, BlockDefinition>> referencedQuestions =
@@ -106,7 +106,7 @@ public final class ActiveAndDraftQuestions {
         result
             .get(referencedQuestion.first())
             .add(
-                ProgramReference.builder()
+                ReferencingProgram.builder()
                     .setProgramDefinition(programDefinition)
                     .setBlockDefinitionId(referencedQuestion.second().id())
                     .build());
@@ -177,14 +177,18 @@ public final class ActiveAndDraftQuestions {
         .build();
   }
 
+  /** Contains sets of programs in the active and draft versions that reference a given question. */
   @AutoValue
   public abstract static class ReferencingPrograms {
 
-    ReferencingPrograms() {}
+    /**
+     * Returns a set of references to the question in the DRAFT version. This returns
+     * Optional.empty() if there are no edited programs or questions in the DRAFT version.
+     */
+    public abstract Optional<ImmutableSet<ReferencingProgram>> draftReferences();
 
-    public abstract Optional<ImmutableSet<ProgramReference>> draftReferences();
-
-    public abstract ImmutableSet<ProgramReference> activeReferences();
+    /** Returns a set of references to the question in the ACTIVE version. */
+    public abstract ImmutableSet<ReferencingProgram> activeReferences();
 
     private static Builder builder() {
       return new AutoValue_ActiveAndDraftQuestions_ReferencingPrograms.Builder();
@@ -192,22 +196,25 @@ public final class ActiveAndDraftQuestions {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setDraftReferences(Optional<ImmutableSet<ProgramReference>> v);
+      abstract Builder setDraftReferences(Optional<ImmutableSet<ReferencingProgram>> v);
 
-      abstract Builder setActiveReferences(ImmutableSet<ProgramReference> v);
+      abstract Builder setActiveReferences(ImmutableSet<ReferencingProgram> v);
 
       abstract ReferencingPrograms build();
     }
   }
 
+  /** Represents a specific program's reference to a given question. */
   @AutoValue
-  public abstract static class ProgramReference {
+  public abstract static class ReferencingProgram {
+    /** Returns the program that references the question. */
     public abstract ProgramDefinition programDefinition();
 
+    /** Returns the block ID that references the question. */
     public abstract long blockDefinitionId();
 
     private static Builder builder() {
-      return new AutoValue_ActiveAndDraftQuestions_ProgramReference.Builder();
+      return new AutoValue_ActiveAndDraftQuestions_ReferencingProgram.Builder();
     }
 
     @AutoValue.Builder
@@ -216,7 +223,7 @@ public final class ActiveAndDraftQuestions {
 
       abstract Builder setBlockDefinitionId(long value);
 
-      abstract ProgramReference build();
+      abstract ReferencingProgram build();
     }
   }
 }

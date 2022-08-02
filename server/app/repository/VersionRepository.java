@@ -56,6 +56,12 @@ public final class VersionRepository {
     publishNewSynchronizedVersion(false);
   }
 
+  /**
+   * Simulates publishing a new version of all programs and questions. All DRAFT programs/questions
+   * will become ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the
+   * next version. This method will not mutate the database and will return an updated Version
+   * corresponding to what would be the new ACTIVE version.
+   */
   public Version previewPublishNewSynchronizedVersion() {
     return publishNewSynchronizedVersion(true);
   }
