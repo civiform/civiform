@@ -1,7 +1,7 @@
 import {Page} from 'playwright'
 
 export class AdminTIGroups {
-  public page!: Page
+  private page!: Page
 
   constructor(page: Page) {
     this.page = page
