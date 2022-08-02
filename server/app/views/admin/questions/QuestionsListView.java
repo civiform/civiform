@@ -7,9 +7,11 @@ import static j2html.TagCreator.each;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.SpanTag;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
@@ -136,7 +138,7 @@ public final class QuestionsListView extends BaseHtmlView {
   /** Renders the full table. */
   private Pair<TableTag, ImmutableList<Modal>> renderQuestionTable(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
-    ImmutableList<Pair<TrTag, Modal>> tableRowAndModals =
+    ImmutableList<Pair<TrTag, Optional<Modal>>> tableRowAndModals =
         activeAndDraftQuestions.getQuestionNames().stream()
             .map(
                 (questionName) ->
@@ -148,7 +150,11 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(renderQuestionTableHeaderRow())
             .with(tbody(each(tableRowAndModals, (tableRowAndModal) -> tableRowAndModal.getLeft())));
     ImmutableList<Modal> modals =
-        tableRowAndModals.stream().map(Pair::getRight).collect(ImmutableList.toImmutableList());
+        tableRowAndModals.stream()
+            .map(Pair::getRight)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(ImmutableList.toImmutableList());
     return Pair.of(tableTag, modals);
   }
 
@@ -176,7 +182,7 @@ public final class QuestionsListView extends BaseHtmlView {
    *
    * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.
    */
-  private Pair<TrTag, Modal> renderQuestionTableRow(
+  private Pair<TrTag, Optional<Modal>> renderQuestionTableRow(
       String questionName, ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     Optional<QuestionDefinition> activeDefinition =
         activeAndDraftQuestions.getActiveQuestionDefinition(questionName);
@@ -187,7 +193,7 @@ public final class QuestionsListView extends BaseHtmlView {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
     QuestionDefinition latestDefinition = draftDefinition.orElseGet(() -> activeDefinition.get());
-    Pair<TdTag, Modal> referencingProgramAndModal =
+    Pair<TdTag, Optional<Modal>> referencingProgramAndModal =
         renderReferencingPrograms(questionName, activeAndDraftQuestions);
     TrTag rowTag =
         tr().withClasses(
@@ -240,15 +246,48 @@ public final class QuestionsListView extends BaseHtmlView {
     return td().with(div(formattedLanguages)).withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
-  private Pair<TdTag, Modal> renderReferencingPrograms(
+  private Pair<TdTag, Optional<Modal>> renderReferencingPrograms(
       String questionName, ActiveAndDraftQuestions activeAndDraftQuestions) {
     ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
         activeAndDraftQuestions.getReferencingPrograms(questionName);
 
+    Optional<Modal> maybeReferencingProgramsModal =
+        makeReferencingProgramsModal(questionName, referencingPrograms);
+
+    SpanTag referencingProgramsCount =
+        span(String.format("%d active", referencingPrograms.activeReferences().size()))
+            .condWith(
+                activeAndDraftQuestions.draftHasEdits(),
+                span(String.format(" & %d draft", referencingPrograms.draftReferences().size()))
+                    .with(span(" programs")))
+            .withClass(Styles.FONT_SEMIBOLD);
+
+    ContainerTag referencingProgramsCountContainer = referencingProgramsCount;
+    if (maybeReferencingProgramsModal.isPresent()) {
+      referencingProgramsCountContainer =
+          a().attr(
+                  Modal.MODAL_OPENER_FOR_ATTRIBUTE,
+                  maybeReferencingProgramsModal.get().getModalId())
+              .withClasses(Styles.DECORATION_SOLID, Styles.CURSOR_POINTER)
+              .with(referencingProgramsCount);
+    }
+
+    TdTag tag =
+        td().with(p().with(span("Used across "), referencingProgramsCountContainer))
+            .withClasses(BaseStyles.TABLE_CELL_STYLES);
+    return Pair.of(tag, maybeReferencingProgramsModal);
+  }
+
+  private Optional<Modal> makeReferencingProgramsModal(
+      String questionName, ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms) {
     ImmutableSet<ActiveAndDraftQuestions.ProgramReference> activeProgramReferences =
         referencingPrograms.activeReferences();
     ImmutableSet<ActiveAndDraftQuestions.ProgramReference> draftProgramReferences =
         referencingPrograms.draftReferences();
+
+    if (activeProgramReferences.isEmpty() && draftProgramReferences.isEmpty()) {
+      return Optional.empty();
+    }
 
     DivTag referencingProgramModalContent =
         div()
@@ -315,33 +354,14 @@ public final class QuestionsListView extends BaseHtmlView {
                                                   .asAnchorText());
                                     }))),
                 p("Note: This list does not automatically refresh. If edits are made to a program"
-                      + " in a separate tab, they won't be reflected until the page has been"
-                      + " refreshed.")
+                        + " in a separate tab, they won't be reflected until the page has been"
+                        + " refreshed.")
                     .withClass(Styles.TEXT_SM));
-
-    Modal modal =
+    return Optional.of(
         Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
             .setModalTitle(String.format("Programs including %s", questionName))
             .setWidth(Width.HALF)
-            .build();
-    TdTag tag =
-        td().with(
-                p().with(
-                        span("Used across "),
-                        a().attr(Modal.MODAL_OPENER_FOR_ATTRIBUTE, modal.getModalId())
-                            .withClasses(
-                                Styles.FONT_SEMIBOLD,
-                                Styles.DECORATION_SOLID,
-                                Styles.CURSOR_POINTER)
-                            .with(
-                                span(String.format("%d active", activeProgramReferences.size()))
-                                    .condWith(
-                                        activeAndDraftQuestions.draftHasEdits(),
-                                        span(String.format(
-                                                " & %d draft", draftProgramReferences.size()))
-                                            .with(span(" programs"))))))
-            .withClasses(BaseStyles.TABLE_CELL_STYLES);
-    return Pair.of(tag, modal);
+            .build());
   }
 
   private ATag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
