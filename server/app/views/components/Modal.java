@@ -7,6 +7,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
+import java.util.UUID;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -71,6 +72,12 @@ public final class Modal {
         .with(div(modalTitle).withClasses(Styles.TEXT_LG))
         .with(div().withClasses(Styles.FLEX_GROW))
         .with(div("x").withId(modalId + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON));
+  }
+
+  public static String randomModalId() {
+    // We prepend a "a-" since element IDs must start with an alphabetic character, whereas UUIDs
+    // can start with a numeric character.
+    return "a-" + UUID.randomUUID().toString();
   }
 
   public static ModalBuilder builder(String modalId, ContainerTag<?> content) {

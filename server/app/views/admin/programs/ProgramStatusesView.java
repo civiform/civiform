@@ -19,7 +19,6 @@ import j2html.tags.specialized.FormTag;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
 import play.data.Form;
 import play.data.FormFactory;
@@ -287,13 +286,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                 submitButton("Delete")
                                     .withClass(AdminStyles.SECONDARY_BUTTON_STYLES))));
 
-    return Modal.builder(randomModalId(), content).setModalTitle("Delete this status").build();
-  }
-
-  private static String randomModalId() {
-    // We prepend a "a-" since element IDs must start with an alphabetic character, whereas UUIDs
-    // can start with a numeric character.
-    return "a-" + UUID.randomUUID().toString();
+    return Modal.builder(Modal.randomModalId(), content)
+        .setModalTitle("Delete this status")
+        .build();
   }
 
   /**
@@ -366,7 +361,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         div().withClass(Styles.FLEX_GROW),
                         // TODO(#2752): Add a cancel button that clears state.
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
-    return Modal.builder(randomModalId(), content)
+    return Modal.builder(Modal.randomModalId(), content)
         .setModalTitle(
             formData.getConfiguredStatusText().isEmpty()
                 ? "Create a new status"
