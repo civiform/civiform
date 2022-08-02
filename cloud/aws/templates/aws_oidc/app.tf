@@ -55,7 +55,6 @@ module "td" {
               aws_secretsmanager_secret.adfs_discovery_uri_secret.arn,
               aws_secretsmanager_secret.applicant_oidc_client_secret_secret.arn,
               aws_secretsmanager_secret.applicant_oidc_client_id_secret.arn,
-              aws_secretsmanager_secret.applicant_oidc_discovery_uri_secret.arn,
             ]
           },
           {
@@ -98,10 +97,6 @@ module "td" {
     {
       name      = "ADFS_CLIENT_ID"
       valueFrom = aws_secretsmanager_secret_version.applicant_oidc_client_id_secret_version.arn
-    },
-    {
-      name      = "APPLICANT_OIDC_DISCOVERY_URI"
-      valueFrom = aws_secretsmanager_secret_version.applicant_oidc_discovery_uri_secret_version.arn
     },
     {
       name      = "APPLICANT_OIDC_CLIENT_ID"
@@ -148,6 +143,7 @@ module "td" {
     APPLICANT_OIDC_FIRST_NAME_ATTRIBUTE  = var.applicant_oidc_first_name_attribute
     APPLICANT_OIDC_MIDDLE_NAME_ATTRIBUTE = var.applicant_oidc_middle_name_attribute
     APPLICANT_OIDC_LAST_NAME_ATTRIBUTE   = var.applicant_oidc_last_name_attribute
+    APPLICANT_OIDC_DISCOVERY_URI         = var.applicant_oidc_discovery_uri
   }
   log_configuration = {
     logDriver = "awslogs"
@@ -170,7 +166,7 @@ module "ecs_fargate_service" {
   name_prefix   = var.app_prefix
   desired_count = 0 # TODO: set this to actual value
   # TODO: use https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
-  default_certificate_arn = "arn:aws:acm:us-east-1:664198874744:certificate/2b765469-2ddd-4b03-94b4-fc670e80f84b"
+  default_certificate_arn = "arn:aws:acm:us-east-1:664198874744:certificate/1f04bb7f-aab7-444a-8fea-398a3ec34e39"
   ssl_policy              = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
   vpc_id                  = module.vpc.vpc_id
   task_definition_arn     = module.td.aws_ecs_task_definition_td_arn
