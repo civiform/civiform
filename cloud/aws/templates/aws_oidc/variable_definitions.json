@@ -5,7 +5,7 @@
     "tfvar": true,
     "type": "string",
     "value_regex": "[a-z0-9]{1}[a-z0-9-]+",
-    "value_regex_error_message": "only lowercase alphanumeric characters and hyphens allowed"
+    "value_regex_error_message": "only lowercase alphanumeric characters and hyphens allowed."
   },
   "STAGING_HOSTNAME": {
     "required": false,
@@ -17,19 +17,24 @@
     "required": true,
     "secret": false,
     "tfvar": true,
-    "type": "string"
+    "type": "string",
+    "value_regex": "https?://[^\\s]+",
+    "value_regex_error_message": "needs to be a url that starts with http(s)://."
   },
   "CIVIFORM_APPLICANT_IDP": {
     "required": true,
     "secret": false,
     "tfvar": true,
-    "type": "string"
+    "type": "enum",
+    "values": ["idcs", "generic-oidc", "adfs", "disabled"]
   },
   "APPLICANT_OIDC_PROVIDER_NAME": {
     "required": false,
     "secret": false,
     "tfvar": true,
-    "type": "string"
+    "type": "string",
+    "value_regex": "[^\\s]+",
+    "value_regex_error_message": "needs to be url safe. No spaces are allowed."
   },
   "APPLICANT_OIDC_DISCOVERY_URI": {
     "required": true,
