@@ -32,9 +32,8 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
-      referencingDraftProgramsByName;
-  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
+  private final ImmutableMap<String, ImmutableSet<ProgramReference>> referencingDraftProgramsByName;
+  private final ImmutableMap<String, ImmutableSet<ProgramReference>>
       referencingActiveProgramsByName;
   private final boolean draftHasEdits;
 
@@ -63,7 +62,7 @@ public final class ActiveAndDraftQuestions {
 
     draftHasEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
     referencingActiveProgramsByName = buildReferencingProgramsMap(active);
-    ImmutableMap<String, ImmutableSet<ProgramDefinition>> withEditsDraftReferences =
+    ImmutableMap<String, ImmutableSet<ProgramReference>> withEditsDraftReferences =
         buildReferencingProgramsMap(withEditsDraft);
     if (draftHasEdits) {
       referencingDraftProgramsByName = withEditsDraftReferences;
@@ -93,7 +92,7 @@ public final class ActiveAndDraftQuestions {
                     }));
   }
 
-  private static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
+  private static ImmutableMap<String, ImmutableSet<ProgramReference>> buildReferencingProgramsMap(
       Version version) {
     ImmutableMap<Long, String> questionIdToNameLookup =
         version.getQuestions().stream()
@@ -101,7 +100,7 @@ public final class ActiveAndDraftQuestions {
             .collect(
                 ImmutableMap.toImmutableMap(
                     QuestionDefinition::getId, QuestionDefinition::getName));
-    Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
+    Map<String, Set<ProgramReference>> result = Maps.newHashMap();
     for (Program program : version.getPrograms()) {
       ImmutableList<String> programQuestionNames =
           program.getProgramDefinition().blockDefinitions().stream()
@@ -115,7 +114,25 @@ public final class ActiveAndDraftQuestions {
         if (!result.containsKey(questionName)) {
           result.put(questionName, Sets.newHashSet());
         }
-        result.get(questionName).add(program.getProgramDefinition());
+        int blockIndex = -1;
+        for (int bi = 0; bi < program.getProgramDefinition().blockDefinitions().size(); bi++) {
+          BlockDefinition bd = program.getProgramDefinition().blockDefinitions().get(bi);
+          for (ProgramQuestionDefinition pqd : bd.programQuestionDefinitions()) {
+            if (blockIndex > -1) {
+              continue;
+            }
+            if (questionIdToNameLookup.get(pqd.id()).equals(questionName)) {
+              blockIndex = bi + 1;
+            }
+          }
+        }
+        result
+            .get(questionName)
+            .add(
+                ProgramReference.builder()
+                    .setProgramDefinition(program.getProgramDefinition())
+                    .setBlockDefinitionId(blockIndex)
+                    .build());
       }
     }
     return result.entrySet().stream()
@@ -157,9 +174,9 @@ public final class ActiveAndDraftQuestions {
 
     ReferencingPrograms() {}
 
-    public abstract ImmutableSet<ProgramDefinition> draftReferences();
+    public abstract ImmutableSet<ProgramReference> draftReferences();
 
-    public abstract ImmutableSet<ProgramDefinition> activeReferences();
+    public abstract ImmutableSet<ProgramReference> activeReferences();
 
     private static Builder builder() {
       return new AutoValue_ActiveAndDraftQuestions_ReferencingPrograms.Builder();
@@ -167,11 +184,31 @@ public final class ActiveAndDraftQuestions {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setDraftReferences(ImmutableSet<ProgramDefinition> v);
+      abstract Builder setDraftReferences(ImmutableSet<ProgramReference> v);
 
-      abstract Builder setActiveReferences(ImmutableSet<ProgramDefinition> v);
+      abstract Builder setActiveReferences(ImmutableSet<ProgramReference> v);
 
       abstract ReferencingPrograms build();
+    }
+  }
+
+  @AutoValue
+  public abstract static class ProgramReference {
+    public abstract ProgramDefinition programDefinition();
+
+    public abstract long blockDefinitionId();
+
+    private static Builder builder() {
+      return new AutoValue_ActiveAndDraftQuestions_ProgramReference.Builder();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+      abstract Builder setProgramDefinition(ProgramDefinition value);
+
+      abstract Builder setBlockDefinitionId(long value);
+
+      abstract ProgramReference build();
     }
   }
 }

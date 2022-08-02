@@ -14,9 +14,11 @@ class ModalController {
 
     // Connect the modal to any other elements that have an attribute signify
     // they can open a given modal.
-    const modalOpeners = Array.from(document.querySelectorAll(`[data-modal-opener-for="${modal.id}"]`));
+    const modalOpeners = Array.from(
+      document.querySelectorAll(`[data-modal-opener-for="${modal.id}"]`),
+    )
     modalOpeners.forEach((modalOpener) => {
-      modalOpener.addEventListener('click', function() {
+      modalOpener.addEventListener('click', function () {
         ModalController.toggleModal(modalContainer, modal)
       })
     })

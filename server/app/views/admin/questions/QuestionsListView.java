@@ -22,7 +22,6 @@ import play.twirl.api.Content;
 import services.DeletionStatus;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
-import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -246,55 +245,83 @@ public final class QuestionsListView extends BaseHtmlView {
     ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
         activeAndDraftQuestions.getReferencingPrograms(questionName);
 
-    ImmutableSet<ProgramDefinition> activeProgramReferences =
+    ImmutableSet<ActiveAndDraftQuestions.ProgramReference> activeProgramReferences =
         referencingPrograms.activeReferences();
-    ImmutableSet<ProgramDefinition> draftProgramReferences = referencingPrograms.draftReferences();
+    ImmutableSet<ActiveAndDraftQuestions.ProgramReference> draftProgramReferences =
+        referencingPrograms.draftReferences();
 
     DivTag referencingProgramModalContent =
         div()
-            .withClasses(Styles.PX_4, Styles.PY_2)
+            .withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6)
             .with(
-                p(
-                    "Note: This list does not automatically refresh. If edits are made in a"
-                        + " separate tab, they won't be reflected until the page has been"
-                        + " refreshed."),
-                p("Active references:"))
-            .condWith(activeProgramReferences.isEmpty(), p("None"))
-            .condWith(
-                !activeProgramReferences.isEmpty(),
                 div()
-                    .with(
-                        p("Note: Already published programs cannot be viewed."),
+                    .with(p("Active programs:").withClass(Styles.FONT_SEMIBOLD))
+                    .condWith(activeProgramReferences.isEmpty(), p("None").withClass(Styles.PL_5))
+                    .condWith(
+                        !activeProgramReferences.isEmpty(),
+                        div()
+                            .with(
+                                ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                                    .with(
+                                        each(
+                                            activeProgramReferences,
+                                            programReference -> {
+                                              return li().with(
+                                                      span(
+                                                          programReference
+                                                                  .programDefinition()
+                                                                  .adminName()
+                                                              + " - "),
+                                                      new LinkElement()
+                                                          .setText("View")
+                                                          .setHref(
+                                                              controllers.admin.routes
+                                                                  .AdminProgramBlocksController
+                                                                  .edit(
+                                                                      programReference
+                                                                          .programDefinition()
+                                                                          .id(),
+                                                                      programReference
+                                                                          .blockDefinitionId())
+                                                                  .url())
+                                                          .opensInNewTab()
+                                                          .asAnchorText());
+                                            })))),
+                div()
+                    .with(p("Draft programs:").withClass(Styles.FONT_SEMIBOLD))
+                    .condWith(draftProgramReferences.isEmpty(), p("None").withClass(Styles.PL_5))
+                    .condWith(
+                        !draftProgramReferences.isEmpty(),
                         ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
                             .with(
                                 each(
-                                    activeProgramReferences,
-                                    program -> {
-                                      return li(program.adminName());
-                                    }))))
-            .with(p("Draft references:"))
-            .condWith(draftProgramReferences.isEmpty(), p("None"))
-            .condWith(
-                !draftProgramReferences.isEmpty(),
-                ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
-                    .with(
-                        each(
-                            draftProgramReferences,
-                            program -> {
-                              return li(
-                                  new LinkElement()
-                                      .setText(program.adminName())
-                                      .setHref(
-                                          controllers.admin.routes.AdminProgramBlocksController
-                                              .index(program.id())
-                                              .url())
-                                      .opensInNewTab()
-                                      .asAnchorText());
-                            })));
+                                    draftProgramReferences,
+                                    programReference -> {
+                                      return li().with(
+                                              span(
+                                                  programReference.programDefinition().adminName()
+                                                      + " - "),
+                                              new LinkElement()
+                                                  .setText("View")
+                                                  .setHref(
+                                                      controllers.admin.routes
+                                                          .AdminProgramBlocksController.edit(
+                                                              programReference
+                                                                  .programDefinition()
+                                                                  .id(),
+                                                              programReference.blockDefinitionId())
+                                                          .url())
+                                                  .opensInNewTab()
+                                                  .asAnchorText());
+                                    }))),
+                p("Note: This list does not automatically refresh. If edits are made to a program"
+                      + " in a separate tab, they won't be reflected until the page has been"
+                      + " refreshed.")
+                    .withClass(Styles.TEXT_SM));
 
     Modal modal =
         Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
-            .setModalTitle(String.format("Programs referencing %s", questionName))
+            .setModalTitle(String.format("Programs including %s", questionName))
             .setWidth(Width.HALF)
             .build();
     TdTag tag =
