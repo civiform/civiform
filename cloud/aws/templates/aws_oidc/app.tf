@@ -168,9 +168,9 @@ module "td" {
 }
 
 module "ecs_fargate_service" {
-  source        = "cn-terraform/ecs-fargate-service/aws"
-  name_prefix   = var.app_prefix
-  desired_count = var.fargate_desired_task_count
+  source                  = "cn-terraform/ecs-fargate-service/aws"
+  name_prefix             = var.app_prefix
+  desired_count           = var.fargate_desired_task_count
   default_certificate_arn = var.ssl_certificate_arn
   ssl_policy              = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
   vpc_id                  = module.vpc.vpc_id
