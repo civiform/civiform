@@ -3039,6 +3039,7 @@ public final class Styles {
   public static final String EASE_IN = "ease-in";
   public static final String EASE_OUT = "ease-out";
   public static final String EASE_IN_OUT = "ease-in-out";
+  public static final String DECORATION_SOLID = "decoration-solid";
   public static final String DURATION_75 = "duration-75";
   public static final String DURATION_100 = "duration-100";
   public static final String DURATION_150 = "duration-150";

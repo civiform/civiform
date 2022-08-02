@@ -301,15 +301,18 @@ public final class QuestionsListView extends BaseHtmlView {
         td().with(
                 p().with(
                         span("Used across "),
-                        span(String.format("%d active", activeProgramReferences.size()))
-                            .withClasses(Styles.FONT_SEMIBOLD))
-                    .condWith(
-                        activeAndDraftQuestions.draftHasEdits(),
-                        span(" & ").withClasses(Styles.FONT_SEMIBOLD),
-                        span(String.format("%d draft", draftProgramReferences.size()))
-                            .withClass(Styles.FONT_SEMIBOLD))
-                    .with(span(" programs").withClasses(Styles.FONT_SEMIBOLD)),
-                button("Look").withId(modal.getTriggerButtonId()))
+                        a().attr(Modal.MODAL_OPENER_FOR_ATTRIBUTE, modal.getModalId())
+                            .withClasses(
+                                Styles.FONT_SEMIBOLD,
+                                Styles.DECORATION_SOLID,
+                                Styles.CURSOR_POINTER)
+                            .with(
+                                span(String.format("%d active", activeProgramReferences.size()))
+                                    .condWith(
+                                        activeAndDraftQuestions.draftHasEdits(),
+                                        span(String.format(
+                                                " & %d draft", draftProgramReferences.size()))
+                                            .with(span(" programs"))))))
             .withClasses(BaseStyles.TABLE_CELL_STYLES);
     return Pair.of(tag, modal);
   }
