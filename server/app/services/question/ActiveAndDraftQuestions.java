@@ -32,10 +32,10 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final ImmutableMap<String, ImmutableSet<ProgramReference>> referencingDraftProgramsByName;
+  private final Optional<ImmutableMap<String, ImmutableSet<ProgramReference>>>
+      referencingDraftProgramsByName;
   private final ImmutableMap<String, ImmutableSet<ProgramReference>>
       referencingActiveProgramsByName;
-  private final boolean draftHasEdits;
 
   public ActiveAndDraftQuestions(VersionRepository repository) {
     Version active = repository.getActiveVersion();
@@ -60,14 +60,12 @@ public final class ActiveAndDraftQuestions {
                           Optional.ofNullable(draftNames.get(name)));
                     }));
 
-    draftHasEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
     referencingActiveProgramsByName = buildReferencingProgramsMap(active);
-    ImmutableMap<String, ImmutableSet<ProgramReference>> withEditsDraftReferences =
-        buildReferencingProgramsMap(withEditsDraft);
+    boolean draftHasEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
     if (draftHasEdits) {
-      referencingDraftProgramsByName = withEditsDraftReferences;
+      referencingDraftProgramsByName = Optional.of(buildReferencingProgramsMap(withEditsDraft));
     } else {
-      referencingDraftProgramsByName = buildReferencingProgramsMap(draft);
+      referencingDraftProgramsByName = Optional.empty();
     }
 
     ImmutableSet<String> tombstonedQuestionNames =
@@ -78,7 +76,8 @@ public final class ActiveAndDraftQuestions {
                 ImmutableMap.toImmutableMap(
                     questionName -> questionName,
                     questionName -> {
-                      if (withEditsDraftReferences
+                      if (referencingDraftProgramsByName
+                          .orElse(referencingActiveProgramsByName)
                           .getOrDefault(questionName, ImmutableSet.of())
                           .isEmpty()) {
                         if (tombstonedQuestionNames.contains(questionName)) {
@@ -160,12 +159,9 @@ public final class ActiveAndDraftQuestions {
   public ReferencingPrograms getReferencingPrograms(String name) {
     return ReferencingPrograms.builder()
         .setActiveReferences(referencingActiveProgramsByName.getOrDefault(name, ImmutableSet.of()))
-        .setDraftReferences(referencingDraftProgramsByName.getOrDefault(name, ImmutableSet.of()))
+        .setDraftReferences(
+            referencingDraftProgramsByName.map(r -> r.getOrDefault(name, ImmutableSet.of())))
         .build();
-  }
-
-  public boolean draftHasEdits() {
-    return draftHasEdits;
   }
 
   @AutoValue
@@ -173,7 +169,7 @@ public final class ActiveAndDraftQuestions {
 
     ReferencingPrograms() {}
 
-    public abstract ImmutableSet<ProgramReference> draftReferences();
+    public abstract Optional<ImmutableSet<ProgramReference>> draftReferences();
 
     public abstract ImmutableSet<ProgramReference> activeReferences();
 
@@ -183,7 +179,7 @@ public final class ActiveAndDraftQuestions {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setDraftReferences(ImmutableSet<ProgramReference> v);
+      abstract Builder setDraftReferences(Optional<ImmutableSet<ProgramReference>> v);
 
       abstract Builder setActiveReferences(ImmutableSet<ProgramReference> v);
 

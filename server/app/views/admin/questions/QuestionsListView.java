@@ -257,9 +257,12 @@ public final class QuestionsListView extends BaseHtmlView {
     SpanTag referencingProgramsCount =
         span(String.format("%d active", referencingPrograms.activeReferences().size()))
             .condWith(
-                activeAndDraftQuestions.draftHasEdits(),
-                span(String.format(" & %d draft", referencingPrograms.draftReferences().size()))
-                    .with(span(" programs")))
+                referencingPrograms.draftReferences().isPresent(),
+                span(
+                    String.format(
+                        " & %d draft",
+                        referencingPrograms.draftReferences().map(ImmutableSet::size).orElse(0))))
+            .with(span(" programs"))
             .withClass(Styles.FONT_SEMIBOLD);
 
     ContainerTag referencingProgramsCountContainer = referencingProgramsCount;
@@ -281,7 +284,7 @@ public final class QuestionsListView extends BaseHtmlView {
     ImmutableSet<ActiveAndDraftQuestions.ProgramReference> activeProgramReferences =
         referencingPrograms.activeReferences();
     ImmutableSet<ActiveAndDraftQuestions.ProgramReference> draftProgramReferences =
-        referencingPrograms.draftReferences();
+        referencingPrograms.draftReferences().orElse(ImmutableSet.of());
 
     if (activeProgramReferences.isEmpty() && draftProgramReferences.isEmpty()) {
       return Optional.empty();
