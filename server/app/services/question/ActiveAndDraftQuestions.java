@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -68,25 +69,19 @@ public final class ActiveAndDraftQuestions {
       referencingDraftProgramsByName = Optional.empty();
     }
 
-    ImmutableSet<String> tombstonedQuestionNames =
-        ImmutableSet.copyOf(withEditsDraft.getTombstonedQuestionNames());
     deletionStatusByName =
-        versionedByName.keySet().stream()
+        activeNames.keySet().stream()
             .collect(
                 ImmutableMap.toImmutableMap(
                     questionName -> questionName,
                     questionName -> {
-                      if (referencingDraftProgramsByName
-                          .orElse(referencingActiveProgramsByName)
-                          .getOrDefault(questionName, ImmutableSet.of())
-                          .isEmpty()) {
-                        if (tombstonedQuestionNames.contains(questionName)) {
-                          return DeletionStatus.PENDING_DELETION;
-                        } else {
-                          return DeletionStatus.DELETABLE;
-                        }
-                      } else {
+                      if (draft.getTombstonedQuestionNames().contains(questionName)) {
+                        return DeletionStatus.PENDING_DELETION;
+                      } else if (isNotDeletable(
+                          active, draft, activeNames, draftNames, questionName)) {
                         return DeletionStatus.NOT_DELETABLE;
+                      } else {
+                        return DeletionStatus.DELETABLE;
                       }
                     }));
   }
@@ -136,6 +131,24 @@ public final class ActiveAndDraftQuestions {
     }
 
     return resultBuilder.build();
+  }
+
+  private static boolean isNotDeletable(
+      Version active,
+      Version draft,
+      ImmutableMap<String, QuestionDefinition> activeNames,
+      ImmutableMap<String, QuestionDefinition> draftNames,
+      String questionName) {
+    return Streams.concat(active.getPrograms().stream(), draft.getPrograms().stream())
+        .anyMatch(
+            program -> {
+              QuestionDefinition activeQuestion = activeNames.get(questionName);
+              QuestionDefinition draftQuestion = draftNames.get(questionName);
+              ProgramDefinition programDefinition = program.getProgramDefinition();
+              if (activeQuestion != null && programDefinition.hasQuestion(activeQuestion)) {
+                return true;
+              } else return draftQuestion != null && programDefinition.hasQuestion(draftQuestion);
+            });
   }
 
   public DeletionStatus getDeletionStatus(String questionName) {
