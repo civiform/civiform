@@ -14,6 +14,8 @@ public final class ReferenceClasses {
       "cf-admin-program-card-list-placeholder";
   public static final String ADMIN_PROGRAM_CARD = "cf-admin-program-card";
   public static final String ADMIN_PROGRAM_CARD_TITLE = "cf-program-title";
+  public static final String ADMIN_PROGRAM_STATUS_LIST = "cf-admin-program-status-list";
+  public static final String ADMIN_PROGRAM_STATUS_ITEM = "cf-admin-program-status-item";
   public static final String ADMIN_QUESTION_TABLE_ROW = "cf-admin-question-table-row";
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
@@ -109,4 +111,6 @@ public final class ReferenceClasses {
   public static final String RADIO_INPUT = "cf-radio-input";
   public static final String RADIO_OPTION = "cf-radio-option";
   public static final String MODAL = "cf-modal";
+  public static final String MODAL_CLOSE = "cf-modal-close";
+  public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
 }

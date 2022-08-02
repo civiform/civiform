@@ -1,6 +1,7 @@
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {clickAndWaitForModal, waitForPageJsLoad} from './wait'
+import {AdminProgramStatuses} from './admin_program_statuses'
 
 export class AdminPrograms {
   public page!: Page
@@ -87,6 +88,24 @@ export class AdminPrograms {
     )
     await waitForPageJsLoad(this.page)
     await this.expectProgramEditPage(programName)
+  }
+
+  async gotoDraftProgramManageStatusesPage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        'Draft',
+        ':text("Manage application statuses")',
+      ),
+    )
+    await waitForPageJsLoad(this.page)
+    const adminProgramStatuses = new AdminProgramStatuses(this.page)
+    await adminProgramStatuses.expectProgramManageStatusesPage(programName)
   }
 
   async gotoDraftProgramManageTranslationsPage(programName: string) {

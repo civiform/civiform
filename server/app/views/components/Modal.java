@@ -9,18 +9,20 @@ import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Utility class for rendering a modal box. */
-public class Modal {
+public final class Modal {
 
-  private String modalId;
-  private ContainerTag<?> content;
-  private String modalTitle;
-  private String triggerButtonText;
-  private Optional<ButtonTag> triggerButtonContent;
-  private String buttonStyles;
-  private Width width;
+  private final String modalId;
+  private final ContainerTag<?> content;
+  private final String modalTitle;
+  private final String triggerButtonText;
+  private final Optional<ButtonTag> triggerButtonContent;
+  private final String buttonStyles;
+  private final Width width;
+  private final boolean displayOnLoad;
 
   private Modal(ModalBuilder builder) {
     this.modalId = builder.modalId;
@@ -30,14 +32,16 @@ public class Modal {
     this.triggerButtonContent = builder.triggerButtonContent;
     this.buttonStyles = builder.buttonStyles;
     this.width = builder.width;
+    this.displayOnLoad = builder.displayOnLoad;
   }
 
   public DivTag getContainerTag() {
-    return div()
-        .withId(modalId)
-        .withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL, width.getStyle())
-        .with(getModalHeader())
-        .with(getContent());
+    String modalStyles =
+        StyleUtils.joinStyles(ReferenceClasses.MODAL, BaseStyles.MODAL, width.getStyle());
+    if (displayOnLoad) {
+      modalStyles = StyleUtils.joinStyles(modalStyles, ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
+    }
+    return div().withId(modalId).withClasses(modalStyles).with(getModalHeader()).with(getContent());
   }
 
   public ButtonTag getButton() {
@@ -53,6 +57,10 @@ public class Modal {
     return modalId + "-button";
   }
 
+  public boolean displayOnLoad() {
+    return displayOnLoad;
+  }
+
   private DivTag getContent() {
     return div(content).withClasses(BaseStyles.MODAL_CONTENT);
   }
@@ -62,14 +70,17 @@ public class Modal {
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle).withClasses(Styles.TEXT_LG))
         .with(div().withClasses(Styles.FLEX_GROW))
-        .with(div("x").withId(modalId + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON));
+        .with(
+            div("x")
+                .withId(modalId + "-close")
+                .withClasses(ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON));
   }
 
   public static ModalBuilder builder(String modalId, ContainerTag<?> content) {
     return new ModalBuilder(modalId, content);
   }
 
-  public static class ModalBuilder {
+  public static final class ModalBuilder {
 
     private String modalId;
     private ContainerTag<?> content;
@@ -81,6 +92,7 @@ public class Modal {
 
     private Optional<ButtonTag> triggerButtonContent = Optional.empty();
     private Width width = Width.DEFAULT;
+    private boolean displayOnLoad = false;
 
     public ModalBuilder(String modalId, ContainerTag<?> content) {
       this.modalId = modalId;
@@ -109,6 +121,11 @@ public class Modal {
 
     public ModalBuilder setWidth(Width width) {
       this.width = width;
+      return this;
+    }
+
+    public ModalBuilder setDisplayOnLoad(boolean value) {
+      this.displayOnLoad = value;
       return this;
     }
 

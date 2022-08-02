@@ -12,6 +12,7 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Program;
@@ -29,6 +30,7 @@ import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramStatusesView;
+import views.style.ReferenceClasses;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramStatusesControllerTest extends ResetPostgres {
@@ -40,16 +42,18 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
-          .setEmailBodyText("Approved email body")
-          .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("Approved email body"))
+          .setEmailBodyText(Optional.of("Approved email body"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.withDefaultValue("Approved email body")))
           .build();
 
   private static final StatusDefinitions.Status REJECTED_STATUS =
       StatusDefinitions.Status.builder()
           .setStatusText("Rejected")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Rejected"))
-          .setEmailBodyText("Rejected email body")
-          .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("Rejected email body"))
+          .setEmailBodyText(Optional.of("Rejected email body"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.withDefaultValue("Rejected email body")))
           .build();
 
   private static final ImmutableList<StatusDefinitions.Status> ORIGINAL_STATUSES =
@@ -88,10 +92,32 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("No statuses have been created yet");
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
   }
 
   @Test
-  public void index_createNewStatus() throws ProgramNotFoundException {
+  public void index_ok_noEmailForStatus() throws ProgramNotFoundException {
+    Program program =
+        ProgramBuilder.newDraftProgram("test name", "test description")
+            .withStatusDefinitions(
+                new StatusDefinitions(
+                    ImmutableList.of(
+                        StatusDefinitions.Status.builder()
+                            .setStatusText("Status with no email")
+                            .setLocalizedStatusText(
+                                LocalizedStrings.withDefaultValue("Status with no email"))
+                            .build())))
+            .build();
+
+    Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Status with no email");
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
+  }
+
+  @Test
+  public void update_createNewStatus() throws ProgramNotFoundException {
     Program program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
@@ -108,6 +134,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data())
         .containsExactlyEntriesOf(ImmutableMap.of("success", "Status created"));
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     // Load the updated program and ensure status the status is present.
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -119,14 +146,14 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
                 StatusDefinitions.Status.builder()
                     .setStatusText("foo")
                     .setLocalizedStatusText(LocalizedStrings.withDefaultValue("foo"))
-                    .setEmailBodyText("some email content")
+                    .setEmailBodyText(Optional.of("some email content"))
                     .setLocalizedEmailBodyText(
-                        LocalizedStrings.withDefaultValue("some email content"))
+                        Optional.of(LocalizedStrings.withDefaultValue("some email content")))
                     .build()));
   }
 
   @Test
-  public void index_editExistingStatus() throws ProgramNotFoundException {
+  public void update_editExistingStatus() throws ProgramNotFoundException {
     Program program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
@@ -143,16 +170,16 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data())
         .containsExactlyEntriesOf(ImmutableMap.of("success", "Status updated"));
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     StatusDefinitions.Status.Builder expectedStatusBuilder =
         StatusDefinitions.Status.builder()
             .setStatusText("Foo")
             .setLocalizedStatusText(APPROVED_STATUS.localizedStatusText())
-            .setEmailBodyText("Updated email content");
+            .setEmailBodyText(Optional.of("Updated email content"));
     if (APPROVED_STATUS.localizedEmailBodyText().isPresent()) {
       expectedStatusBuilder =
-          expectedStatusBuilder.setLocalizedEmailBodyText(
-              APPROVED_STATUS.localizedEmailBodyText().get());
+          expectedStatusBuilder.setLocalizedEmailBodyText(APPROVED_STATUS.localizedEmailBodyText());
     }
     StatusDefinitions.Status expectedStatus = expectedStatusBuilder.build();
 
@@ -162,7 +189,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_emptyStatusParam() throws ProgramNotFoundException {
+  public void update_emptyStatusParam() throws ProgramNotFoundException {
     Program program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
@@ -178,13 +205,14 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(Helpers.contentAsString(result)).contains("This field is required");
+    assertThat(contentAsString(result)).containsOnlyOnce(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
   @Test
-  public void index_editStatusNameAlreadyExists() throws ProgramNotFoundException {
+  public void update_editStatusNameAlreadyExists() throws ProgramNotFoundException {
     Program program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
@@ -201,13 +229,14 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(Helpers.contentAsString(result))
         .contains("A status with name Rejected already exists");
+    assertThat(contentAsString(result)).containsOnlyOnce(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
   @Test
-  public void index_editUnrecognizedStatusName() throws ProgramNotFoundException {
+  public void update_editUnrecognizedStatusName() throws ProgramNotFoundException {
     Program program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
@@ -224,13 +253,14 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data().getOrDefault("error", ""))
         .contains("The status being edited no longer exists");
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
   }
 
   @Test
-  public void index_createStatusNameAlreadyExists() throws ProgramNotFoundException {
+  public void update_createStatusNameAlreadyExists() throws ProgramNotFoundException {
     Program program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
@@ -247,6 +277,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(Helpers.contentAsString(result))
         .contains("A status with name Rejected already exists");
+    assertThat(contentAsString(result)).containsOnlyOnce(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ORIGINAL_STATUSES);
@@ -288,6 +319,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data())
         .containsExactlyEntriesOf(ImmutableMap.of("success", "Status deleted"));
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     // Load the updated program and ensure status the status is present.
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
@@ -308,6 +340,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(result.flash().data()).containsKey("error");
     assertThat(result.flash().data().getOrDefault("error", ""))
         .contains("The status being deleted no longer exists");
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     // Load the updated program and ensure statuses weren't updated.
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
