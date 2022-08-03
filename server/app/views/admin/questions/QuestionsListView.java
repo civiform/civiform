@@ -303,37 +303,16 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6)
             .with(
                 div()
-                    .with(p("Active programs:").withClass(Styles.FONT_SEMIBOLD))
-                    .condWith(activeProgramReferences.isEmpty(), p("None").withClass(Styles.PL_5))
-                    .condWith(
-                        !activeProgramReferences.isEmpty(),
-                        div()
-                            .with(
-                                ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
-                                    .with(
-                                        each(
-                                            activeProgramReferences,
-                                            programReference -> {
-                                              return li(programReference.adminName())
-                                                  .withClasses(
-                                                      ReferenceClasses
-                                                          .ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE);
-                                            })))),
+                    .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE)
+                    .with(
+                        referencingProgramList(
+                            "Active programs:", referencingPrograms.activeReferences())),
                 div()
-                    .with(p("Draft programs:").withClass(Styles.FONT_SEMIBOLD))
-                    .condWith(draftProgramReferences.isEmpty(), p("None").withClass(Styles.PL_5))
-                    .condWith(
-                        !draftProgramReferences.isEmpty(),
-                        ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
-                            .with(
-                                each(
-                                    draftProgramReferences,
-                                    programReference -> {
-                                      return li(programReference.adminName())
-                                          .withClasses(
-                                              ReferenceClasses
-                                                  .ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT);
-                                    }))),
+                    .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
+                    .with(
+                        referencingProgramList(
+                            "Draft programs:",
+                            referencingPrograms.draftReferences().orElse(ImmutableSet.of()))),
                 p("Note: This list does not automatically refresh. If edits are made to a program"
                         + " in a separate tab, they won't be reflected until the page has been"
                         + " refreshed.")
@@ -343,6 +322,28 @@ public final class QuestionsListView extends BaseHtmlView {
             .setModalTitle(String.format("Programs including %s", questionName))
             .setWidth(Width.HALF)
             .build());
+  }
+
+  private DivTag referencingProgramList(
+      String title, ImmutableSet<ProgramDefinition> referencingPrograms) {
+    ImmutableList<ProgramDefinition> sortedReferencingPrograms =
+        referencingPrograms.stream()
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    return div()
+        .with(p(title).withClass(Styles.FONT_SEMIBOLD))
+        .condWith(sortedReferencingPrograms.isEmpty(), p("None").withClass(Styles.PL_5))
+        .condWith(
+            !sortedReferencingPrograms.isEmpty(),
+            div()
+                .with(
+                    ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                        .with(
+                            each(
+                                sortedReferencingPrograms,
+                                programReference -> {
+                                  return li(programReference.adminName());
+                                }))));
   }
 
   private ATag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
