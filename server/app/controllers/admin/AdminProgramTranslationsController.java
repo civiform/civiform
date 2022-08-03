@@ -88,8 +88,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
                 request,
                 updatedLocale,
                 program,
-                displayName,
-                displayDescription,
+                Optional.of(displayName),
+                Optional.of(displayDescription),
                 Optional.of(errorMessage)));
       }
       return redirect(routes.AdminProgramController.index().url());

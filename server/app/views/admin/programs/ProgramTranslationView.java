@@ -46,22 +46,6 @@ public final class ProgramTranslationView extends TranslationFormView {
       Http.Request request,
       Locale locale,
       ProgramDefinition program,
-      String localizedName,
-      String localizedDescription,
-      Optional<String> errors) {
-    return render(
-        request,
-        locale,
-        program,
-        Optional.of(localizedName),
-        Optional.of(localizedDescription),
-        errors);
-  }
-
-  public Content render(
-      Http.Request request,
-      Locale locale,
-      ProgramDefinition program,
       Optional<String> localizedName,
       Optional<String> localizedDescription,
       Optional<String> errors) {
@@ -71,7 +55,10 @@ public final class ProgramTranslationView extends TranslationFormView {
             .url();
     FormTag form =
         renderTranslationForm(
-            request, locale, formAction, formFields(localizedName, localizedDescription));
+            request,
+            locale,
+            formAction,
+            formFields(program, locale, localizedName, localizedDescription));
 
     String title = String.format("Manage program translations: %s", program.adminName());
 
@@ -92,7 +79,10 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<FieldsetTag> formFields(
-      Optional<String> localizedName, Optional<String> localizedDescription) {
+      ProgramDefinition program,
+      Locale locale,
+      Optional<String> localizedName,
+      Optional<String> localizedDescription) {
     ImmutableList.Builder<FieldsetTag> result =
         ImmutableList.<FieldsetTag>builder()
             .add(
@@ -104,14 +94,12 @@ public final class ProgramTranslationView extends TranslationFormView {
                             .setId("localize-display-name")
                             .setFieldName("displayName")
                             .setLabelText("Program name")
-                            .setScreenReaderText("Program display name")
                             .setValue(localizedName)
                             .getInputTag(),
                         FieldWithLabel.input()
                             .setId("localize-display-description")
                             .setFieldName("displayDescription")
                             .setLabelText("Program description")
-                            .setScreenReaderText("Program description")
                             .setValue(localizedDescription)
                             .getInputTag()));
     if (statusTrackingEnabled) {
