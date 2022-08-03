@@ -92,6 +92,8 @@ public class ApplicationRepository {
       ImmutableList<Application> drafts =
           oldApplications.stream()
               .filter(app -> app.getLifecycleStage().equals(LifecycleStage.DRAFT))
+              // TODO(#3045): Revert this after the issue is fixed in prod. Desired behavior is to fail.
+              // Sort by create time DESC. We want the latest draft to be the first in the list.
               .sorted((app1, app2) -> app1.getCreateTime().isAfter(app2.getCreateTime()) ? -1 : 1)
               .collect(ImmutableList.toImmutableList());
       if (drafts.size() > 1) {
