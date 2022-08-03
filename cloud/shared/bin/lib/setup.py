@@ -38,7 +38,6 @@ def main():
     ###############################################################################
 
     terraform_template_dir = config_loader.get_template_dir()
-    app_prefix = config_loader.app_prefix
     Setup = load_setup_class(terraform_template_dir)
 
     template_setup = Setup(config_loader)
@@ -84,9 +83,6 @@ def main():
             "terraform", f"-chdir={terraform_template_dir}", "apply",
             "-input=false", f"-var-file={config_loader.tfvars_filename}"
         ]
-
-        if not config_loader.is_dev():
-            tf_apply_args.append("-auto-approve")
 
         print(" - Run terraform apply in setup.py")
         subprocess.check_call(tf_apply_args)
