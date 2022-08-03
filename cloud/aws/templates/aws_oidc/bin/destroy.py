@@ -17,4 +17,5 @@ class Destroy(AwsSetupTemplate):
             self._make_backend_override()
 
     def post_terraform_destroy(self):
-        self._tf_run_for_aws(is_destroy=True)
+        # Don't destroy s3 state bucket as it's marked as indestructible.
+        pass
