@@ -55,7 +55,12 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains("Manage Question Translations", "English", "Spanish", "what is your name?");
+        .contains(
+            String.format(
+                "Manage Question Translations: %s", question.getQuestionDefinition().getName()),
+            "English",
+            "Spanish",
+            "what is your name?");
   }
 
   @Test
@@ -146,7 +151,10 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains("Manage Question Translations", "Question text cannot be blank");
+        .contains(
+            String.format(
+                "Manage Question Translations: %s", question.getQuestionDefinition().getName()),
+            "Question text cannot be blank");
   }
 
   /** Creates a draft question, since only draft questions are editable. */

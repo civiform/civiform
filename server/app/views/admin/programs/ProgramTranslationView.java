@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.program.ProgramDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -44,14 +45,14 @@ public class ProgramTranslationView extends TranslationFormView {
   public Content render(
       Http.Request request,
       Locale locale,
-      long programId,
+      ProgramDefinition program,
       String localizedName,
       String localizedDescription,
       Optional<String> errors) {
     return render(
         request,
         locale,
-        programId,
+        program,
         Optional.of(localizedName),
         Optional.of(localizedDescription),
         errors);
@@ -60,25 +61,25 @@ public class ProgramTranslationView extends TranslationFormView {
   public Content render(
       Http.Request request,
       Locale locale,
-      long programId,
+      ProgramDefinition program,
       Optional<String> localizedName,
       Optional<String> localizedDescription,
       Optional<String> errors) {
     String formAction =
         controllers.admin.routes.AdminProgramTranslationsController.update(
-                programId, locale.toLanguageTag())
+                program.id(), locale.toLanguageTag())
             .url();
     FormTag form =
         renderTranslationForm(
             request, locale, formAction, formFields(localizedName, localizedDescription));
 
-    String title = "Manage program translations";
+    String title = String.format("Manage program translations: %s", program.adminName());
 
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(renderHeader(title), renderLanguageLinks(programId, locale), form);
+            .addMainContent(renderHeader(title), renderLanguageLinks(program.id(), locale), form);
 
     errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
 

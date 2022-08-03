@@ -122,7 +122,7 @@ export class AdminPrograms {
       ),
     )
     await waitForPageJsLoad(this.page)
-    await this.expectProgramManageTranslationsPage()
+    await this.expectProgramManageTranslationsPage(programName)
   }
 
   async gotoManageProgramAdminsPage(programName: string) {
@@ -173,9 +173,9 @@ export class AdminPrograms {
     )
   }
 
-  async expectProgramManageTranslationsPage() {
+  async expectProgramManageTranslationsPage(programName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage program translations',
+      `Manage program translations: ${programName}`,
     )
   }
 

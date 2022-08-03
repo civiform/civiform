@@ -17,6 +17,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
@@ -85,7 +86,11 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_validationErrors_rendersEditFormWithMessages() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withName("Internal program name")
+            .withLocalizedName(LocalizedStrings.DEFAULT_LOCALE, "External program name")
+            .build();
     Http.RequestBuilder requestBuilder =
         fakeRequest().bodyForm(ImmutableMap.of("displayName", "", "displayDescription", ""));
 
@@ -94,7 +99,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains(
-            "Manage program translations",
+            String.format("Manage program translations: Internal program name"),
             "program display name cannot be blank",
             "program display description cannot be blank");
   }

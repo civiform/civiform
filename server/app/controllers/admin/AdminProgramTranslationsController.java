@@ -43,21 +43,17 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     for the given locale
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Http.Request request, long id, String locale) {
-    try {
-      ProgramDefinition program = service.getProgramDefinition(id);
-      Locale localeToEdit = Locale.forLanguageTag(locale);
-      return ok(
-          translationView.render(
-              request,
-              localeToEdit,
-              program.id(),
-              program.localizedName().maybeGet(localeToEdit),
-              program.localizedDescription().maybeGet(localeToEdit),
-              Optional.empty()));
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", id));
-    }
+  public Result edit(Http.Request request, long id, String locale) throws ProgramNotFoundException {
+    ProgramDefinition program = service.getProgramDefinition(id);
+    Locale localeToEdit = Locale.forLanguageTag(locale);
+    return ok(
+        translationView.render(
+            request,
+            localeToEdit,
+            program,
+            program.localizedName().maybeGet(localeToEdit),
+            program.localizedDescription().maybeGet(localeToEdit),
+            Optional.empty()));
   }
 
   /**
@@ -70,7 +66,9 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     same {@link ProgramTranslationView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Http.Request request, long id, String locale) {
+  public Result update(Http.Request request, long id, String locale)
+      throws ProgramNotFoundException {
+    ProgramDefinition program = service.getProgramDefinition(id);
     Form<ProgramTranslationForm> translationForm = formFactory.form(ProgramTranslationForm.class);
     if (translationForm.hasErrors()) {
       return badRequest();
@@ -82,14 +80,14 @@ public class AdminProgramTranslationsController extends CiviFormController {
 
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateLocalization(id, updatedLocale, displayName, displayDescription);
+          service.updateLocalization(program.id(), updatedLocale, displayName, displayDescription);
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return ok(
             translationView.render(
                 request,
                 updatedLocale,
-                id,
+                program,
                 displayName,
                 displayDescription,
                 Optional.of(errorMessage)));

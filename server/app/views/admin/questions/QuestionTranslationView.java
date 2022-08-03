@@ -60,7 +60,7 @@ public class QuestionTranslationView extends TranslationFormView {
 
     FormTag form = renderTranslationForm(request, locale, formAction, inputFields.build());
 
-    String title = "Manage Question Translations";
+    String title = String.format("Manage Question Translations: %s", question.getName());
 
     HtmlBundle htmlBundle =
         layout

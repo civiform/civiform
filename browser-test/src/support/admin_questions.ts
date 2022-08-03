@@ -230,7 +230,7 @@ export class AdminQuestions {
       ),
     )
     await waitForPageJsLoad(this.page)
-    await this.expectQuestionTranslationPage()
+    await this.expectQuestionTranslationPage(questionName)
   }
 
   async expectQuestionEditPage(questionName: string) {
@@ -240,9 +240,9 @@ export class AdminQuestions {
     ).toEqual(questionName)
   }
 
-  async expectQuestionTranslationPage() {
+  async expectQuestionTranslationPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Question Translations',
+      `Manage Question Translations: ${questionName}`,
     )
   }
 
