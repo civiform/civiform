@@ -22,8 +22,8 @@ export class AdminTranslations {
     helpText: string,
     configText: string[] = [],
   ) {
-    await this.page.fill('#localize-question-text', text)
-    await this.page.fill('#localize-question-help-text', helpText)
+    await this.page.fill('label:has-text("Question text")', text)
+    await this.page.fill('label:has-text("Question help text")', helpText)
 
     // If there are multi-option inputs to translate, fill them in
     // with the provided translations in configText

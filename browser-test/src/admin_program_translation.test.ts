@@ -204,9 +204,9 @@ describe('Admin can manage translations', () => {
     // View the question translations and check that the Spanish translations are still there.
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
-    expect(
-      await page.getAttribute('#localize-question-text', 'value'),
-    ).toContain('something different')
+    expect(await page.inputValue('label:has-text("Question text")')).toContain(
+      'something different',
+    )
     await endSession(browser)
   })
 
@@ -238,11 +238,11 @@ describe('Admin can manage translations', () => {
     // View the question translations and check that the Spanish translations for question help text are gone.
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
+    expect(await page.inputValue('label:has-text("Question text")')).toContain(
+      'something different',
+    )
     expect(
-      await page.getAttribute('#localize-question-text', 'value'),
-    ).toContain('something different')
-    expect(
-      await page.getAttribute('#localize-question-help-text', 'value'),
+      await page.inputValue('label:has-text("Question help text")'),
     ).toEqual('')
 
     await endSession(browser)

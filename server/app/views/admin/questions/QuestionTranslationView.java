@@ -120,7 +120,6 @@ public final class QuestionTranslationView extends TranslationFormView {
         div()
             .with(
                 FieldWithLabel.input()
-                    .setId("localize-question-text")
                     .setFieldName("questionText")
                     .setLabelText("Question text")
                     .setValue(questionText.maybeGet(locale))
@@ -133,7 +132,6 @@ public final class QuestionTranslationView extends TranslationFormView {
           div()
               .with(
                   FieldWithLabel.input()
-                      .setId("localize-question-help-text")
                       .setFieldName("questionHelpText")
                       .setLabelText("Question help text")
                       .setValue(helpText.maybeGet(locale))
