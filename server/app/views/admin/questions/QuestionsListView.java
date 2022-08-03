@@ -25,6 +25,7 @@ import play.twirl.api.Content;
 import services.DeletionStatus;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
+import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -284,21 +285,13 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private Optional<Modal> makeReferencingProgramsModal(
       String questionName, ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms) {
-    ImmutableList<ActiveAndDraftQuestions.ReferencingProgram> activeProgramReferences =
+    ImmutableList<ProgramDefinition> activeProgramReferences =
         referencingPrograms.activeReferences().stream()
-            .sorted(
-                Comparator.comparing(
-                    (ref) -> {
-                      return ref.programDefinition().adminName();
-                    }))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
-    ImmutableList<ActiveAndDraftQuestions.ReferencingProgram> draftProgramReferences =
+    ImmutableList<ProgramDefinition> draftProgramReferences =
         referencingPrograms.draftReferences().orElse(ImmutableSet.of()).stream()
-            .sorted(
-                Comparator.comparing(
-                    (ref) -> {
-                      return ref.programDefinition().adminName();
-                    }))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
 
     if (activeProgramReferences.isEmpty() && draftProgramReferences.isEmpty()) {
@@ -321,29 +314,10 @@ public final class QuestionsListView extends BaseHtmlView {
                                         each(
                                             activeProgramReferences,
                                             programReference -> {
-                                              return li().withClasses(
+                                              return li(programReference.adminName())
+                                                  .withClasses(
                                                       ReferenceClasses
-                                                          .ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE)
-                                                  .with(
-                                                      span(
-                                                          programReference
-                                                                  .programDefinition()
-                                                                  .adminName()
-                                                              + " - "),
-                                                      new LinkElement()
-                                                          .setText("View")
-                                                          .setHref(
-                                                              controllers.admin.routes
-                                                                  .AdminProgramBlocksController
-                                                                  .edit(
-                                                                      programReference
-                                                                          .programDefinition()
-                                                                          .id(),
-                                                                      programReference
-                                                                          .blockDefinitionId())
-                                                                  .url())
-                                                          .opensInNewTab()
-                                                          .asAnchorText());
+                                                          .ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE);
                                             })))),
                 div()
                     .with(p("Draft programs:").withClass(Styles.FONT_SEMIBOLD))
@@ -355,25 +329,10 @@ public final class QuestionsListView extends BaseHtmlView {
                                 each(
                                     draftProgramReferences,
                                     programReference -> {
-                                      return li().withClasses(
+                                      return li(programReference.adminName())
+                                          .withClasses(
                                               ReferenceClasses
-                                                  .ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
-                                          .with(
-                                              span(
-                                                  programReference.programDefinition().adminName()
-                                                      + " - "),
-                                              new LinkElement()
-                                                  .setText("View")
-                                                  .setHref(
-                                                      controllers.admin.routes
-                                                          .AdminProgramBlocksController.edit(
-                                                              programReference
-                                                                  .programDefinition()
-                                                                  .id(),
-                                                              programReference.blockDefinitionId())
-                                                          .url())
-                                                  .opensInNewTab()
-                                                  .asAnchorText());
+                                                  .ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT);
                                     }))),
                 p("Note: This list does not automatically refresh. If edits are made to a program"
                         + " in a separate tab, they won't be reflected until the page has been"

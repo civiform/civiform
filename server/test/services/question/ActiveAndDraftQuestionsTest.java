@@ -7,12 +7,12 @@ import java.util.Optional;
 import models.Program;
 import models.Question;
 import models.Version;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.DeletionStatus;
+import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
@@ -339,18 +339,15 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(
             result.activeReferences().stream()
-                .map(ar -> Pair.of(ar.programDefinition().id(), ar.blockDefinitionId()))
+                .map(ProgramDefinition::id)
                 .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(
-            ImmutableSet.of(
-                Pair.of(firstProgramActive.id, 1L), Pair.of(secondProgramActive.id, 2L)));
+        .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
     assertThat(result.draftReferences()).isPresent();
     assertThat(
             result.draftReferences().get().stream()
-                .map(ar -> Pair.of(ar.programDefinition().id(), ar.blockDefinitionId()))
+                .map(ProgramDefinition::id)
                 .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(
-            ImmutableSet.of(Pair.of(secondProgramDraft.id, 3L), Pair.of(thirdProgramDraft.id, 1L)));
+        .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
   }
 
   @Test
@@ -396,18 +393,15 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(
             result.activeReferences().stream()
-                .map(ar -> Pair.of(ar.programDefinition().id(), ar.blockDefinitionId()))
+                .map(ProgramDefinition::id)
                 .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(
-            ImmutableSet.of(
-                Pair.of(firstProgramActive.id, 1L), Pair.of(secondProgramActive.id, 2L)));
+        .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
     assertThat(result.draftReferences()).isPresent();
     assertThat(
             result.draftReferences().get().stream()
-                .map(ar -> Pair.of(ar.programDefinition().id(), ar.blockDefinitionId()))
+                .map(ProgramDefinition::id)
                 .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(
-            ImmutableSet.of(Pair.of(secondProgramDraft.id, 3L), Pair.of(thirdProgramDraft.id, 1L)));
+        .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
   }
 
   @Test

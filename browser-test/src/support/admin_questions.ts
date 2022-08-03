@@ -203,9 +203,7 @@ export class AdminQuestions {
     const draftReferenceNames = await Promise.all(
       draftReferences.map((reference) => reference.innerText()),
     )
-    expect(draftReferenceNames).toEqual(
-      expectedDraftProgramReferences.map((expected) => `${expected} - View`),
-    )
+    expect(draftReferenceNames).toEqual(expectedDraftProgramReferences)
 
     const activeReferences = await modal.$$(
       '.cf-admin-question-program-reference-counts-active',
@@ -213,9 +211,7 @@ export class AdminQuestions {
     const activeReferenceNames = await Promise.all(
       activeReferences.map((reference) => reference.innerText()),
     )
-    expect(activeReferenceNames).toEqual(
-      expectedActiveProgramReferences.map((expected) => `${expected} - View`),
-    )
+    expect(activeReferenceNames).toEqual(expectedActiveProgramReferences)
 
     await dismissModal(this.page)
   }

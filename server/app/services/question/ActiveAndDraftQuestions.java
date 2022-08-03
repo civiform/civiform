@@ -33,9 +33,9 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final Optional<ImmutableMap<String, ImmutableSet<ReferencingProgram>>>
+  private final Optional<ImmutableMap<String, ImmutableSet<ProgramDefinition>>>
       referencingDraftProgramsByName;
-  private final ImmutableMap<String, ImmutableSet<ReferencingProgram>>
+  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
       referencingActiveProgramsByName;
 
   public ActiveAndDraftQuestions(VersionRepository repository) {
@@ -90,7 +90,7 @@ public final class ActiveAndDraftQuestions {
    * Inspects the provided version and returns a map who's key is the question name and value is a
    * set of programs that reference the given question in this version.
    */
-  private static ImmutableMap<String, ImmutableSet<ReferencingProgram>> buildReferencingProgramsMap(
+  private static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
       Version version) {
     // Different versions of a question can have distinct IDs while still
     // retaining the same "name". A given program has a reference only to a specific
@@ -102,45 +102,26 @@ public final class ActiveAndDraftQuestions {
             .collect(
                 ImmutableMap.toImmutableMap(
                     QuestionDefinition::getId, QuestionDefinition::getName));
-    Map<String, Set<ReferencingProgram>> result = Maps.newHashMap();
+    Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
     for (Program program : version.getPrograms()) {
-      ProgramDefinition programDefinition = program.getProgramDefinition();
-      ImmutableList<Pair<String, BlockDefinition>> questionReferences =
-          buildQuestionReferences(programDefinition, questionIdToNameLookup);
-      for (Pair<String, BlockDefinition> questionReference : questionReferences) {
-        String questionName = questionReference.first();
-        BlockDefinition referencingBlock = questionReference.second();
+      ImmutableList<String> programQuestionNames =
+          program.getProgramDefinition().blockDefinitions().stream()
+              .map(BlockDefinition::programQuestionDefinitions)
+              .flatMap(ImmutableList::stream)
+              .map(ProgramQuestionDefinition::id)
+              .filter(questionIdToNameLookup::containsKey)
+              .map(questionIdToNameLookup::get)
+              .collect(ImmutableList.toImmutableList());
+      for (String questionName : programQuestionNames) {
         if (!result.containsKey(questionName)) {
           result.put(questionName, Sets.newHashSet());
         }
-        result
-            .get(questionName)
-            .add(
-                ReferencingProgram.builder()
-                    .setProgramDefinition(programDefinition)
-                    .setBlockDefinitionId(referencingBlock.id())
-                    .build());
+        result.get(questionName).add(program.getProgramDefinition());
       }
     }
     return result.entrySet().stream()
         .collect(
             ImmutableMap.toImmutableMap(e -> e.getKey(), e -> ImmutableSet.copyOf(e.getValue())));
-  }
-
-  /** Returns a list of question names along with the block referencing them for a given program. */
-  private static ImmutableList<Pair<String, BlockDefinition>> buildQuestionReferences(
-      ProgramDefinition program, ImmutableMap<Long, String> questionIdToNameLookup) {
-    ImmutableList.Builder<Pair<String, BlockDefinition>> resultBuilder = ImmutableList.builder();
-    for (BlockDefinition block : program.blockDefinitions()) {
-      for (ProgramQuestionDefinition pqd : block.programQuestionDefinitions()) {
-        if (!questionIdToNameLookup.containsKey(pqd.id())) {
-          continue;
-        }
-        String questionName = questionIdToNameLookup.get(pqd.id());
-        resultBuilder.add(Pair.create(questionName, block));
-      }
-    }
-    return resultBuilder.build();
   }
 
   private static boolean isNotDeletable(
@@ -195,10 +176,10 @@ public final class ActiveAndDraftQuestions {
      * Returns a set of references to the question in the DRAFT version. This returns
      * Optional.empty() if there are no edited programs or questions in the DRAFT version.
      */
-    public abstract Optional<ImmutableSet<ReferencingProgram>> draftReferences();
+    public abstract Optional<ImmutableSet<ProgramDefinition>> draftReferences();
 
     /** Returns a set of references to the question in the ACTIVE version. */
-    public abstract ImmutableSet<ReferencingProgram> activeReferences();
+    public abstract ImmutableSet<ProgramDefinition> activeReferences();
 
     static Builder builder() {
       return new AutoValue_ActiveAndDraftQuestions_ReferencingPrograms.Builder();
@@ -206,34 +187,11 @@ public final class ActiveAndDraftQuestions {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setDraftReferences(Optional<ImmutableSet<ReferencingProgram>> v);
+      abstract Builder setDraftReferences(Optional<ImmutableSet<ProgramDefinition>> v);
 
-      abstract Builder setActiveReferences(ImmutableSet<ReferencingProgram> v);
+      abstract Builder setActiveReferences(ImmutableSet<ProgramDefinition> v);
 
       abstract ReferencingPrograms build();
-    }
-  }
-
-  /** Represents a specific program's reference to a given question. */
-  @AutoValue
-  public abstract static class ReferencingProgram {
-    /** Returns the program that references the question. */
-    public abstract ProgramDefinition programDefinition();
-
-    /** Returns the block ID that references the question. */
-    public abstract long blockDefinitionId();
-
-    static Builder builder() {
-      return new AutoValue_ActiveAndDraftQuestions_ReferencingProgram.Builder();
-    }
-
-    @AutoValue.Builder
-    abstract static class Builder {
-      abstract Builder setProgramDefinition(ProgramDefinition value);
-
-      abstract Builder setBlockDefinitionId(long value);
-
-      abstract ReferencingProgram build();
     }
   }
 }
