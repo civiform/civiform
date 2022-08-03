@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -95,14 +96,14 @@ public class ApplicationRepository {
               // TODO(#3045): Revert this after the issue is fixed in prod. Desired behavior is to
               // fail.
               // Sort by create time DESC. We want the latest draft to be the first in the list.
-              .sorted((app1, app2) -> app1.getCreateTime().isAfter(app2.getCreateTime()) ? -1 : 1)
+              .sorted(Comparator.comparing(Application::getCreateTime).reversed())
               .collect(ImmutableList.toImmutableList());
       if (drafts.size() > 1) {
         // TODO(#3045): Revert this after the issue is fixed in prod. Desired behavior is to fail.
         logger.error(
-            String.format(
-                "Found more than one DRAFT application for applicant %d, program %d.",
-                applicant.id, program.id));
+            "Found more than one DRAFT application for applicant {}, program {}.",
+            applicant.id,
+            program.id);
       }
 
       Application application =
