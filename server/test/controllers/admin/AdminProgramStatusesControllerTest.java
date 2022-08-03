@@ -56,7 +56,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
               Optional.of(LocalizedStrings.withDefaultValue("Rejected email body")))
           .build();
 
-  private static final StatusDefinitions.Status WITH_TRANSLATIONS_STATUS =
+  private static final StatusDefinitions.Status WITH_STATUS_TRANSLATIONS =
       StatusDefinitions.Status.builder()
           .setStatusText("With translations")
           .setLocalizedStatusText(
@@ -73,7 +73,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
           .build();
 
   private static final ImmutableList<StatusDefinitions.Status> ORIGINAL_STATUSES =
-      ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, WITH_TRANSLATIONS_STATUS);
+      ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS);
 
   @Before
   public void setup() {
@@ -159,7 +159,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             ImmutableList.of(
                 APPROVED_STATUS,
                 REJECTED_STATUS,
-                WITH_TRANSLATIONS_STATUS,
+                WITH_STATUS_TRANSLATIONS,
                 StatusDefinitions.Status.builder()
                     .setStatusText("foo")
                     .setLocalizedStatusText(LocalizedStrings.withDefaultValue("foo"))
@@ -198,7 +198,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     // Load the updated program and ensure status the status is present.
     assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
-        .isEqualTo(ImmutableList.of(expectedStatus, REJECTED_STATUS, WITH_TRANSLATIONS_STATUS));
+        .isEqualTo(ImmutableList.of(expectedStatus, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS));
   }
 
   @Test
@@ -223,9 +223,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     String originalFrenchStatusText =
-        WITH_TRANSLATIONS_STATUS.localizedStatusText().get(Locale.FRENCH);
+        WITH_STATUS_TRANSLATIONS.localizedStatusText().get(Locale.FRENCH);
     String originalFrenchEmailBodyText =
-        WITH_TRANSLATIONS_STATUS.localizedEmailBodyText().get().get(Locale.FRENCH);
+        WITH_STATUS_TRANSLATIONS.localizedEmailBodyText().get().get(Locale.FRENCH);
     StatusDefinitions.Status expectedStatus =
         StatusDefinitions.Status.builder()
             .setStatusText("Foo")
@@ -269,7 +269,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
     String originalFrenchStatusText =
-        WITH_TRANSLATIONS_STATUS.localizedStatusText().get(Locale.FRENCH);
+        WITH_STATUS_TRANSLATIONS.localizedStatusText().get(Locale.FRENCH);
     StatusDefinitions.Status expectedStatus =
         StatusDefinitions.Status.builder()
             .setStatusText("Foo")
@@ -422,7 +422,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     // Load the updated program and ensure status the status is present.
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.statusDefinitions().getStatuses())
-        .isEqualTo(ImmutableList.of(APPROVED_STATUS, WITH_TRANSLATIONS_STATUS));
+        .isEqualTo(ImmutableList.of(APPROVED_STATUS, WITH_STATUS_TRANSLATIONS));
   }
 
   @Test
