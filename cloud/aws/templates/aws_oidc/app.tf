@@ -52,7 +52,6 @@ module "td" {
               aws_secretsmanager_secret.app_secret_key_secret.arn,
               aws_secretsmanager_secret.adfs_secret_secret.arn,
               aws_secretsmanager_secret.adfs_client_id_secret.arn,
-              aws_secretsmanager_secret.adfs_discovery_uri_secret.arn,
               aws_secretsmanager_secret.applicant_oidc_client_secret_secret.arn,
               aws_secretsmanager_secret.applicant_oidc_client_id_secret.arn,
             ]
@@ -85,10 +84,6 @@ module "td" {
     {
       name      = "SECRET_KEY"
       valueFrom = aws_secretsmanager_secret_version.app_secret_key_secret_version.arn
-    },
-    {
-      name      = "ADFS_DISCOVERY_URI"
-      valueFrom = aws_secretsmanager_secret_version.adfs_discovery_uri_secret_version.arn
     },
     {
       name      = "ADFS_SECRET"
@@ -144,6 +139,7 @@ module "td" {
     APPLICANT_OIDC_MIDDLE_NAME_ATTRIBUTE = var.applicant_oidc_middle_name_attribute
     APPLICANT_OIDC_LAST_NAME_ATTRIBUTE   = var.applicant_oidc_last_name_attribute
     APPLICANT_OIDC_DISCOVERY_URI         = var.applicant_oidc_discovery_uri
+    ADFS_DISCOVERY_URI                   = var.adfs_discovery_uri
   }
   log_configuration = {
     logDriver = "awslogs"
