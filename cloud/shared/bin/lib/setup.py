@@ -47,6 +47,7 @@ def main():
     image_tag = config_loader.get_config_var("IMAGE_TAG")
     log_args = f"\"{image_tag}\" {current_user}"
 
+    print("Writing TF Vars file")
     terraform_tfvars_path = os.path.join(
         terraform_template_dir, config_loader.tfvars_filename)
 
@@ -58,7 +59,6 @@ def main():
     try:
         print("Starting pre-terraform setup")
         template_setup.pre_terraform_setup()
-        # return
         ###############################################################################
         # Terraform Init/Plan/Apply
         ###############################################################################
