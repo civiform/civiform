@@ -2,8 +2,6 @@ package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.fieldset;
-import static j2html.TagCreator.legend;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.DivTag;
@@ -26,7 +24,6 @@ import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
-import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating question information. */
 public final class QuestionTranslationView extends TranslationFormView {
@@ -134,7 +131,8 @@ public final class QuestionTranslationView extends TranslationFormView {
                   defaultLocaleTextHint(helpText)));
     }
 
-    return fields.build();
+    return ImmutableList.of(
+        div().with(fieldSetForFields("Question details (visible to applicants)", fields.build())));
   }
 
   private ImmutableList<DivTag> multiOptionQuestionFields(
@@ -157,12 +155,7 @@ public final class QuestionTranslationView extends TranslationFormView {
     }
 
     return ImmutableList.of(
-        div()
-            .with(
-                fieldset()
-                    .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-                    .with(legend("Answer options"))
-                    .with(optionFieldsBuilder.build())));
+        div().with(fieldSetForFields("Answer options", optionFieldsBuilder.build())));
   }
 
   private ImmutableList<DivTag> enumeratorQuestionFields(

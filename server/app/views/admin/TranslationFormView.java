@@ -3,13 +3,16 @@ package views.admin;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import play.i18n.Lang;
@@ -96,6 +99,15 @@ public abstract class TranslationFormView extends BaseHtmlView {
   }
 
   protected final DivTag defaultLocaleTextHint(LocalizedStrings localizedStrings) {
-    return div().with(p(String.format("English text: %s", localizedStrings.getDefault())));
+    return div()
+        .withClasses(Styles.W_2_3, Styles.ML_2, Styles.P_2, Styles.TEXT_SM, Styles.BG_GRAY_200)
+        .with(p("Default text:").withClass(Styles.FONT_MEDIUM), p(localizedStrings.getDefault()));
+  }
+
+  protected final FieldsetTag fieldSetForFields(String legendText, ImmutableList<DivTag> fields) {
+    return fieldset()
+        .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
+        .with(
+            legend(legendText), div().withClasses(Styles.FLEX_ROW, Styles.SPACE_Y_4).with(fields));
   }
 }

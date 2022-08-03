@@ -3,8 +3,6 @@ package views.admin.programs;
 import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.fieldset;
-import static j2html.TagCreator.legend;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -27,7 +25,6 @@ import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
-import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
@@ -84,10 +81,9 @@ public final class ProgramTranslationView extends TranslationFormView {
     ImmutableList.Builder<FieldsetTag> result =
         ImmutableList.<FieldsetTag>builder()
             .add(
-                fieldset()
-                    .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-                    .with(
-                        legend("Program details (visible to applicants)"),
+                fieldSetForFields(
+                    "Program details (visible to applicants)",
+                    ImmutableList.of(
                         div()
                             .with(
                                 FieldWithLabel.input()
@@ -103,7 +99,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     .setLabelText("Program description")
                                     .setValue(localizedDescription)
                                     .getInputTag(),
-                                defaultLocaleTextHint(program.localizedDescription()))));
+                                defaultLocaleTextHint(program.localizedDescription())))));
     if (statusTrackingEnabled) {
       // TODO(#2752): Use real statuses from the program.
       ImmutableList<ApplicationStatus> statusesWithEmail =
@@ -112,10 +108,9 @@ public final class ProgramTranslationView extends TranslationFormView {
               ApplicationStatus.create("Needs more information", "Other email content"));
       for (ApplicationStatus s : statusesWithEmail) {
         result.add(
-            fieldset()
-                .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-                .with(
-                    legend(String.format("Application status: %s", s.statusName())),
+            fieldSetForFields(
+                String.format("Application status: %s", s.statusName()),
+                ImmutableList.of(
                     div()
                         .with(
                             FieldWithLabel.input()
@@ -134,7 +129,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setRows(OptionalLong.of(8))
                                 .getTextareaTag(),
                             defaultLocaleTextHint(
-                                LocalizedStrings.withDefaultValue(s.emailContent())))));
+                                LocalizedStrings.withDefaultValue(s.emailContent()))))));
       }
     }
     return result.build();
