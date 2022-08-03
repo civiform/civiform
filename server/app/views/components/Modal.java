@@ -70,7 +70,10 @@ public final class Modal {
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle).withClasses(Styles.TEXT_LG))
         .with(div().withClasses(Styles.FLEX_GROW))
-        .with(div("x").withId(modalId + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON));
+        .with(
+            div("x")
+                .withId(modalId + "-close")
+                .withClasses(ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON));
   }
 
   public static ModalBuilder builder(String modalId, ContainerTag<?> content) {

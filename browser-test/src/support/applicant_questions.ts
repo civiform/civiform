@@ -182,6 +182,13 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickProgramDetails(programName: string) {
+    await this.page.click(
+      `.cf-application-card:has-text("${programName}") >> text=Program details`,
+    )
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
@@ -253,6 +260,18 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
+  async returnToProgramsFromSubmissionPage() {
+    // Assert that we're on the submission page.
+    expect(await this.page.innerText('h1')).toContain(
+      'Application confirmation',
+    )
+    await this.page.click('text="Apply to another program"')
+    await waitForPageJsLoad(this.page)
+
+    // Ensure that we redirected to the programs list page.
+    expect(this.page.url().split('/').pop()).toEqual('programs')
+  }
+
   async submitFromReviewPage(programName: string) {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain(
@@ -262,12 +281,6 @@ export class ApplicantQuestions {
     // Click on submit button.
     await this.page.click('text="Submit"')
     await waitForPageJsLoad(this.page)
-
-    await this.page.click('text="Apply to another program"')
-    await waitForPageJsLoad(this.page)
-
-    // Ensure that we redirected to the programs list page.
-    expect(await this.page.url().split('/').pop()).toEqual('programs')
   }
 
   async submitFromPreviewPage(programName: string) {
@@ -279,12 +292,6 @@ export class ApplicantQuestions {
     // Click on submit button.
     await this.page.click('text="Submit"')
     await waitForPageJsLoad(this.page)
-
-    await this.page.click('text="Apply to another program"')
-    await waitForPageJsLoad(this.page)
-
-    // Ensure that we redirected to the programs list page.
-    expect(await this.page.url().split('/').pop()).toEqual('programs')
   }
 
   async validateHeader(lang: string) {

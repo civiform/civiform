@@ -156,15 +156,3 @@ resource "aws_secretsmanager_secret_version" "applicant_oidc_client_id_secret_ve
   secret_id     = aws_secretsmanager_secret.applicant_oidc_client_id_secret.id
   secret_string = " "
 }
-
-# Creating a AWS secret for applicant_oidc_discovery_uri
-resource "aws_secretsmanager_secret" "applicant_oidc_discovery_uri_secret" {
-  name       = "${var.app_prefix}-applicant_oidc_discovery_uri"
-  kms_key_id = aws_kms_key.civiform_kms_key.arn
-}
-
-# Creating a AWS secret versions for applicant_oidc_discovery_uri
-resource "aws_secretsmanager_secret_version" "applicant_oidc_discovery_uri_secret_version" {
-  secret_id     = aws_secretsmanager_secret.applicant_oidc_discovery_uri_secret.id
-  secret_string = " "
-}
