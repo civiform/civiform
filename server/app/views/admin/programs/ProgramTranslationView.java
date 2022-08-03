@@ -91,7 +91,6 @@ public final class ProgramTranslationView extends TranslationFormView {
                         div()
                             .with(
                                 FieldWithLabel.input()
-                                    .setId("localize-display-name")
                                     .setFieldName("displayName")
                                     .setLabelText("Program name")
                                     .setValue(localizedName)
@@ -100,7 +99,6 @@ public final class ProgramTranslationView extends TranslationFormView {
                         div()
                             .with(
                                 FieldWithLabel.input()
-                                    .setId("localize-display-description")
                                     .setFieldName("displayDescription")
                                     .setLabelText("Program description")
                                     .setValue(localizedDescription)
