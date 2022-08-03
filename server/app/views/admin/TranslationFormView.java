@@ -34,7 +34,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
   }
 
   /** Render a list of languages, with the currently selected language underlined. */
-  public DivTag renderLanguageLinks(long entityId, Locale currentlySelected) {
+  protected final DivTag renderLanguageLinks(long entityId, Locale currentlySelected) {
     return div()
         .withClasses(Styles.M_2)
         .with(
@@ -77,7 +77,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * Renders a form that allows an admin to enter localized text for an entity's applicant-visible
    * fields.
    */
-  protected <T extends Tag<T>> FormTag renderTranslationForm(
+  protected final <T extends Tag<T>> FormTag renderTranslationForm(
       Http.Request request, Locale locale, String formAction, ImmutableList<T> formFieldContent) {
     FormTag form =
         form()

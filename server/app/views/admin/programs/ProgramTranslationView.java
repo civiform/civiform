@@ -28,7 +28,7 @@ import views.components.ToastMessage;
 import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
-public class ProgramTranslationView extends TranslationFormView {
+public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
   private final boolean statusTrackingEnabled;
 
