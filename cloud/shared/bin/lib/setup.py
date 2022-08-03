@@ -59,6 +59,7 @@ def main():
     try:
         print("Starting pre-terraform setup")
         template_setup.pre_terraform_setup()
+
         ###############################################################################
         # Terraform Init/Plan/Apply
         ###############################################################################
