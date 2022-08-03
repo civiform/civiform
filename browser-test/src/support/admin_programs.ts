@@ -160,11 +160,11 @@ export class AdminPrograms {
 
   // TODO(clouser): More fine-grained selectors for this and active.
   async expectDraftProgram(programName: string) {
-    await this.page.isVisible(this.programCardSelector(programName, 'Draft'))
+    expect(await this.page.isVisible(this.programCardSelector(programName, 'Draft')))
   }
 
   async expectActiveProgram(programName: string) {
-    await this.page.isVisible(this.programCardSelector(programName, 'Active'))
+    expect(await this.page.isVisible(this.programCardSelector(programName, 'Active')))
   }
 
   async expectProgramEditPage(programName: string = '') {
