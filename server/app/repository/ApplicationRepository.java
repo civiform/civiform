@@ -92,9 +92,11 @@ public class ApplicationRepository {
       ImmutableList<Application> drafts =
           oldApplications.stream()
               .filter(app -> app.getLifecycleStage().equals(LifecycleStage.DRAFT))
+              .sorted((app1, app2) -> app1.getCreateTime().isAfter(app2.getCreateTime()) ? -1 : 1)
               .collect(ImmutableList.toImmutableList());
       if (drafts.size() > 1) {
-        throw new RuntimeException(
+        // TODO(#3045): Revert this after the issue is fixed in prod. Desired behavior is to fail.
+        logger.error(
             String.format(
                 "Found more than one DRAFT application for applicant %d, program %d.",
                 applicant.id, program.id));

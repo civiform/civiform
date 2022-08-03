@@ -1,7 +1,6 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -103,7 +102,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_twoDraftsThrowsException() {
+  public void submitApplication_twoDraftsReturnsLatest() {
     Applicant applicant = saveApplicant("Alice");
     Program program = createDraftProgram("Program");
     Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
@@ -111,29 +110,23 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
     appDraft2.save();
 
-    assertThatThrownBy(
-            () ->
-                repo.submitApplication(applicant, program, Optional.empty())
-                    .toCompletableFuture()
-                    .join())
-        .isInstanceOf(RuntimeException.class)
-        .cause()
-        .hasMessageContaining("Found more than one DRAFT application");
+    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
 
+    assertThat(appDraft2.getCreateTime()).isAfter(appDraft1.getCreateTime());
     assertThat(
             repo.getApplication(appDraft1.id)
                 .toCompletableFuture()
                 .join()
                 .get()
                 .getLifecycleStage())
-        .isEqualTo(LifecycleStage.DRAFT);
+        .isEqualTo(LifecycleStage.OBSOLETE);
     assertThat(
             repo.getApplication(appDraft2.id)
                 .toCompletableFuture()
                 .join()
                 .get()
                 .getLifecycleStage())
-        .isEqualTo(LifecycleStage.DRAFT);
+        .isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test
