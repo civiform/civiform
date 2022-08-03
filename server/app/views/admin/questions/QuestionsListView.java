@@ -16,6 +16,7 @@ import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -275,16 +276,30 @@ public final class QuestionsListView extends BaseHtmlView {
 
     TdTag tag =
         td().with(p().with(span("Used across "), referencingProgramsCountContainer))
-            .withClasses(BaseStyles.TABLE_CELL_STYLES);
+            .withClasses(
+                ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS,
+                BaseStyles.TABLE_CELL_STYLES);
     return Pair.of(tag, maybeReferencingProgramsModal);
   }
 
   private Optional<Modal> makeReferencingProgramsModal(
       String questionName, ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms) {
-    ImmutableSet<ActiveAndDraftQuestions.ReferencingProgram> activeProgramReferences =
-        referencingPrograms.activeReferences();
-    ImmutableSet<ActiveAndDraftQuestions.ReferencingProgram> draftProgramReferences =
-        referencingPrograms.draftReferences().orElse(ImmutableSet.of());
+    ImmutableList<ActiveAndDraftQuestions.ReferencingProgram> activeProgramReferences =
+        referencingPrograms.activeReferences().stream()
+            .sorted(
+                Comparator.comparing(
+                    (ref) -> {
+                      return ref.programDefinition().adminName();
+                    }))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ActiveAndDraftQuestions.ReferencingProgram> draftProgramReferences =
+        referencingPrograms.draftReferences().orElse(ImmutableSet.of()).stream()
+            .sorted(
+                Comparator.comparing(
+                    (ref) -> {
+                      return ref.programDefinition().adminName();
+                    }))
+            .collect(ImmutableList.toImmutableList());
 
     if (activeProgramReferences.isEmpty() && draftProgramReferences.isEmpty()) {
       return Optional.empty();
@@ -306,7 +321,10 @@ public final class QuestionsListView extends BaseHtmlView {
                                         each(
                                             activeProgramReferences,
                                             programReference -> {
-                                              return li().with(
+                                              return li().withClasses(
+                                                      ReferenceClasses
+                                                          .ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE)
+                                                  .with(
                                                       span(
                                                           programReference
                                                                   .programDefinition()
@@ -337,7 +355,10 @@ public final class QuestionsListView extends BaseHtmlView {
                                 each(
                                     draftProgramReferences,
                                     programReference -> {
-                                      return li().with(
+                                      return li().withClasses(
+                                              ReferenceClasses
+                                                  .ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
+                                          .with(
                                               span(
                                                   programReference.programDefinition().adminName()
                                                       + " - "),
