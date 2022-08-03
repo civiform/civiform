@@ -2,41 +2,23 @@ package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import models.Question;
-import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.question.exceptions.QuestionNotFoundException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
 public class ReadOnlyCurrentQuestionServiceImplTest extends ResetPostgres {
 
-  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
-
   private VersionRepository versionRepository;
-
-  private NameQuestionDefinition nameQuestion;
-  private AddressQuestionDefinition addressQuestion;
-  private TextQuestionDefinition basicQuestion;
-  private ImmutableList<QuestionDefinition> questions;
+  private TestQuestionBank testQuestionBank;
 
   @Before
   public void setupQuestions() {
     versionRepository = instanceOf(VersionRepository.class);
-    nameQuestion =
-        (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
-    addressQuestion =
-        (AddressQuestionDefinition) testQuestionBank.applicantAddress().getQuestionDefinition();
-    basicQuestion =
-        (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
-    questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
+    testQuestionBank = new TestQuestionBank(true);
   }
 
   @Test
@@ -47,49 +29,38 @@ public class ReadOnlyCurrentQuestionServiceImplTest extends ResetPostgres {
 
   @Test
   public void getAllQuestions() {
-    addQuestionsToVersion(versionRepository.getActiveVersion(), questions);
+    // The question bank initializes these in the active version.
+    testQuestionBank.applicantName();
+    testQuestionBank.applicantAddress();
+    testQuestionBank.applicantFavoriteColor();
     var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
     assertThat(service.getAllQuestions().size()).isEqualTo(3);
   }
 
   @Test
   public void getEnumeratorQuestions() {
-    QuestionDefinition enumeratorQuestion =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
-
-    addQuestionsToVersion(versionRepository.getActiveVersion(), questions);
-    addQuestionsToVersion(
-        versionRepository.getActiveVersion(), ImmutableList.of(enumeratorQuestion));
+    // The question bank initializes this question in the active version.
+    Question enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
 
     var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
 
     assertThat(service.getAllEnumeratorQuestions().size()).isEqualTo(1);
-    assertThat(service.getAllEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
+    assertThat(service.getAllEnumeratorQuestions().get(0))
+        .isEqualTo(enumeratorQuestion.getQuestionDefinition());
     assertThat(service.getUpToDateEnumeratorQuestions().size()).isEqualTo(1);
-    assertThat(service.getUpToDateEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
+    assertThat(service.getUpToDateEnumeratorQuestions().get(0))
+        .isEqualTo(enumeratorQuestion.getQuestionDefinition());
   }
 
   @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
-    addQuestionsToVersion(versionRepository.getActiveVersion(), questions);
-    long questionId = nameQuestion.getId();
+    // The question bank initializes these in the active version.
+    Question nameQuestion = testQuestionBank.applicantName();
+    long questionId = nameQuestion.id;
 
     var service = new ReadOnlyCurrentQuestionServiceImpl(versionRepository);
 
-    assertThat(service.getQuestionDefinition(questionId)).isEqualTo(nameQuestion);
-  }
-
-  private void addQuestionsToVersion(Version version, ImmutableList<QuestionDefinition> questions) {
-    questions.stream()
-        .forEach(
-            q -> {
-              Question dbQuestion = new Question(q);
-              // While we can initialize the Question model from an existing QuestionDefinition,
-              // an attempt to update the M2M between versions and questions will not fail silently.
-              // This is presumably due to EBean considering the Question as "dirty" or unpersisted.
-              dbQuestion.save();
-              version.addQuestion(dbQuestion);
-            });
-    version.save();
+    assertThat(service.getQuestionDefinition(questionId))
+        .isEqualTo(nameQuestion.getQuestionDefinition());
   }
 }
