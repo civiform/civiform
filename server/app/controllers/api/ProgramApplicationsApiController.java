@@ -91,7 +91,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
             .orElse(new IdentifierBasedPaginationSpec<>(pageSize, Long.MAX_VALUE));
 
     return programService
-        .getProgramDefinitionAsync(programSlug)
+        .getActiveProgramDefinitionAsync(programSlug)
         .thenApplyAsync(
             programDefinition -> {
               PaginationResult<Application> paginationResult;

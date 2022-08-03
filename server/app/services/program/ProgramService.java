@@ -53,7 +53,7 @@ public interface ProgramService {
    *     ProgramNotFoundException is thrown when the future completes and ID does not correspond to
    *     a real Program
    */
-  CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
+  CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(long id);
 
   /**
    * Get the definition of a given program asynchronously. Gets the active version for the slug.
@@ -63,7 +63,7 @@ public interface ProgramService {
    *     ProgramNotFoundException is thrown when the future completes and slug does not correspond
    *     to a real Program
    */
-  CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug);
+  CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug);
 
   /**
    * Create a new program with an empty block.

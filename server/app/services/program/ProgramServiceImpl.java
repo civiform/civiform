@@ -70,7 +70,7 @@ public final class ProgramServiceImpl implements ProgramService {
   @Override
   public ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException {
     try {
-      return getProgramDefinitionAsync(id).toCompletableFuture().join();
+      return getActiveProgramDefinitionAsync(id).toCompletableFuture().join();
     } catch (CompletionException e) {
       if (e.getCause() instanceof ProgramNotFoundException) {
         throw new ProgramNotFoundException(id);
@@ -86,7 +86,7 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
+  public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
         .thenComposeAsync(
@@ -101,7 +101,7 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug) {
+  public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug) {
     return programRepository
         .getForSlug(programSlug)
         .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
