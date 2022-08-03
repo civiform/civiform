@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
@@ -92,5 +93,9 @@ public abstract class TranslationFormView extends BaseHtmlView {
                             locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
                     .withId("update-localizations-button"));
     return form;
+  }
+
+  protected final DivTag defaultLocaleTextHint(LocalizedStrings localizedStrings) {
+    return div().with(p(String.format("English text: %s", localizedStrings.getDefault())));
   }
 }

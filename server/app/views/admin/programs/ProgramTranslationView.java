@@ -2,6 +2,7 @@ package views.admin.programs;
 
 import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.legend;
 
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -55,10 +57,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             .url();
     FormTag form =
         renderTranslationForm(
-            request,
-            locale,
-            formAction,
-            formFields(program, locale, localizedName, localizedDescription));
+            request, locale, formAction, formFields(program, localizedName, localizedDescription));
 
     String title = String.format("Manage program translations: %s", program.adminName());
 
@@ -80,7 +79,6 @@ public final class ProgramTranslationView extends TranslationFormView {
 
   private ImmutableList<FieldsetTag> formFields(
       ProgramDefinition program,
-      Locale locale,
       Optional<String> localizedName,
       Optional<String> localizedDescription) {
     ImmutableList.Builder<FieldsetTag> result =
@@ -90,18 +88,24 @@ public final class ProgramTranslationView extends TranslationFormView {
                     .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
                     .with(
                         legend("Program details (visible to applicants)"),
-                        FieldWithLabel.input()
-                            .setId("localize-display-name")
-                            .setFieldName("displayName")
-                            .setLabelText("Program name")
-                            .setValue(localizedName)
-                            .getInputTag(),
-                        FieldWithLabel.input()
-                            .setId("localize-display-description")
-                            .setFieldName("displayDescription")
-                            .setLabelText("Program description")
-                            .setValue(localizedDescription)
-                            .getInputTag()));
+                        div()
+                            .with(
+                                FieldWithLabel.input()
+                                    .setId("localize-display-name")
+                                    .setFieldName("displayName")
+                                    .setLabelText("Program name")
+                                    .setValue(localizedName)
+                                    .getInputTag(),
+                                defaultLocaleTextHint(program.localizedName())),
+                        div()
+                            .with(
+                                FieldWithLabel.input()
+                                    .setId("localize-display-description")
+                                    .setFieldName("displayDescription")
+                                    .setLabelText("Program description")
+                                    .setValue(localizedDescription)
+                                    .getInputTag(),
+                                defaultLocaleTextHint(program.localizedDescription()))));
     if (statusTrackingEnabled) {
       // TODO(#2752): Use real statuses from the program.
       ImmutableList<ApplicationStatus> statusesWithEmail =
@@ -114,17 +118,25 @@ public final class ProgramTranslationView extends TranslationFormView {
                 .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
                 .with(
                     legend(String.format("Application status: %s", s.statusName())),
-                    FieldWithLabel.input()
-                        .setLabelText("Status name")
-                        .setScreenReaderText("Status name")
-                        .setValue(s.statusName())
-                        .getInputTag(),
-                    FieldWithLabel.textArea()
-                        .setLabelText("Email content")
-                        .setScreenReaderText("Email content")
-                        .setValue(s.emailContent())
-                        .setRows(OptionalLong.of(8))
-                        .getTextareaTag()));
+                    div()
+                        .with(
+                            FieldWithLabel.input()
+                                .setLabelText("Status name")
+                                .setScreenReaderText("Status name")
+                                .setValue(s.statusName())
+                                .getInputTag(),
+                            defaultLocaleTextHint(
+                                LocalizedStrings.withDefaultValue(s.statusName()))),
+                    div()
+                        .with(
+                            FieldWithLabel.textArea()
+                                .setLabelText("Email content")
+                                .setScreenReaderText("Email content")
+                                .setValue(s.emailContent())
+                                .setRows(OptionalLong.of(8))
+                                .getTextareaTag(),
+                            defaultLocaleTextHint(
+                                LocalizedStrings.withDefaultValue(s.emailContent())))));
       }
     }
     return result.build();

@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.legend;
-import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.DivTag;
@@ -107,10 +106,6 @@ public final class QuestionTranslationView extends TranslationFormView {
       default:
         return ImmutableList.of();
     }
-  }
-
-  private DivTag defaultLocaleTextHint(LocalizedStrings localizedStrings) {
-    return div().with(p(String.format("English text: %s", localizedStrings.getDefault())));
   }
 
   private ImmutableList<DivTag> questionTextFields(
