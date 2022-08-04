@@ -9,7 +9,7 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
-import j2html.tags.Tag;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
@@ -81,8 +81,11 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * Renders a form that allows an admin to enter localized text for an entity's applicant-visible
    * fields.
    */
-  protected final <T extends Tag<T>> FormTag renderTranslationForm(
-      Http.Request request, Locale locale, String formAction, ImmutableList<T> formFieldContent) {
+  protected final FormTag renderTranslationForm(
+      Http.Request request,
+      Locale locale,
+      String formAction,
+      ImmutableList<DomContent> formFieldContent) {
     FormTag form =
         form()
             .withMethod("POST")
@@ -104,7 +107,8 @@ public abstract class TranslationFormView extends BaseHtmlView {
         .with(p("Default text:").withClass(Styles.FONT_MEDIUM), p(localizedStrings.getDefault()));
   }
 
-  protected final FieldsetTag fieldSetForFields(String legendText, ImmutableList<DivTag> fields) {
+  protected final FieldsetTag fieldSetForFields(
+      String legendText, ImmutableList<DomContent> fields) {
     return fieldset()
         .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
         .with(

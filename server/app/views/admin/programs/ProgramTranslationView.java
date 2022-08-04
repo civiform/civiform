@@ -7,7 +7,7 @@ import static j2html.TagCreator.div;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-import j2html.tags.specialized.FieldsetTag;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -74,12 +74,12 @@ public final class ProgramTranslationView extends TranslationFormView {
     return routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag()).url();
   }
 
-  private ImmutableList<FieldsetTag> formFields(
+  private ImmutableList<DomContent> formFields(
       ProgramDefinition program,
       Optional<String> localizedName,
       Optional<String> localizedDescription) {
-    ImmutableList.Builder<FieldsetTag> result =
-        ImmutableList.<FieldsetTag>builder()
+    ImmutableList.Builder<DomContent> result =
+        ImmutableList.<DomContent>builder()
             .add(
                 fieldSetForFields(
                     "Program details (visible to applicants)",

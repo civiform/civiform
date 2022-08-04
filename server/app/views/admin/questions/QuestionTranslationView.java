@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
-import j2html.tags.specialized.DivTag;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -53,15 +53,18 @@ public final class QuestionTranslationView extends TranslationFormView {
             .url();
 
     // Add form fields for questions.
-    ImmutableList<DivTag> inputFields =
-        ImmutableList.<DivTag>builder()
-            .addAll(
+    ImmutableList.Builder<DomContent> inputFieldsBuilder =
+        ImmutableList.<DomContent>builder()
+            .add(
                 questionTextFields(
-                    locale, question.getQuestionText(), question.getQuestionHelpText()))
-            .addAll(getQuestionTypeSpecificFields(question, locale))
-            .build();
+                    locale, question.getQuestionText(), question.getQuestionHelpText()));
+    Optional<DomContent> questionTypeSpecificContent =
+        getQuestionTypeSpecificContent(question, locale);
+    if (questionTypeSpecificContent.isPresent()) {
+      inputFieldsBuilder.add(questionTypeSpecificContent.get());
+    }
 
-    FormTag form = renderTranslationForm(request, locale, formAction, inputFields);
+    FormTag form = renderTranslationForm(request, locale, formAction, inputFieldsBuilder.build());
 
     String title = String.format("Manage Question Translations: %s", question.getName());
 
@@ -83,7 +86,7 @@ public final class QuestionTranslationView extends TranslationFormView {
         .url();
   }
 
-  private ImmutableList<DivTag> getQuestionTypeSpecificFields(
+  private Optional<DomContent> getQuestionTypeSpecificContent(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
       case CHECKBOX: // fallthrough intended
@@ -101,13 +104,13 @@ public final class QuestionTranslationView extends TranslationFormView {
       case NUMBER: // fallthrough intended
       case TEXT: // fallthrough intended
       default:
-        return ImmutableList.of();
+        return Optional.empty();
     }
   }
 
-  private ImmutableList<DivTag> questionTextFields(
+  private DomContent questionTextFields(
       Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
-    ImmutableList.Builder<DivTag> fields = ImmutableList.builder();
+    ImmutableList.Builder<DomContent> fields = ImmutableList.builder();
     fields.add(
         div()
             .with(
@@ -131,16 +134,15 @@ public final class QuestionTranslationView extends TranslationFormView {
                   defaultLocaleTextHint(helpText)));
     }
 
-    return ImmutableList.of(
-        div().with(fieldSetForFields("Question details (visible to applicants)", fields.build())));
+    return fieldSetForFields("Question details (visible to applicants)", fields.build());
   }
 
-  private ImmutableList<DivTag> multiOptionQuestionFields(
+  private Optional<DomContent> multiOptionQuestionFields(
       ImmutableList<QuestionOption> options, Locale toUpdate) {
     if (options.isEmpty()) {
-      return ImmutableList.of();
+      return Optional.empty();
     }
-    ImmutableList.Builder<DivTag> optionFieldsBuilder = ImmutableList.builder();
+    ImmutableList.Builder<DomContent> optionFieldsBuilder = ImmutableList.builder();
     for (int optionIdx = 0; optionIdx < options.size(); optionIdx++) {
       QuestionOption option = options.get(optionIdx);
       optionFieldsBuilder.add(
@@ -154,13 +156,12 @@ public final class QuestionTranslationView extends TranslationFormView {
                   defaultLocaleTextHint(option.optionText())));
     }
 
-    return ImmutableList.of(
-        div().with(fieldSetForFields("Answer options", optionFieldsBuilder.build())));
+    return Optional.of(fieldSetForFields("Answer options", optionFieldsBuilder.build()));
   }
 
-  private ImmutableList<DivTag> enumeratorQuestionFields(
+  private Optional<DomContent> enumeratorQuestionFields(
       LocalizedStrings entityType, Locale toUpdate) {
-    return ImmutableList.of(
+    return Optional.of(
         div()
             .with(
                 FieldWithLabel.input()
