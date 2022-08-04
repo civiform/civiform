@@ -204,7 +204,7 @@ describe('Admin can manage translations', () => {
     // View the question translations and check that the Spanish translations are still there.
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
-    expect(await page.inputValue('label:has-text("Question text")')).toContain(
+    expect(await page.inputValue('text=Question text')).toContain(
       'something different',
     )
     await endSession(browser)
