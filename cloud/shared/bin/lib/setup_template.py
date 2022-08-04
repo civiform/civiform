@@ -2,6 +2,8 @@
 import shutil
 import tempfile
 import shutil
+
+from cloud.shared.bin.lib.config_loader import ConfigLoader
 """
 Template Setup
 
@@ -13,8 +15,8 @@ class SetupTemplate:
 
     log_file_path = None
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config: ConfigLoader):
+        self.config: ConfigLoader = config
 
     def _make_backend_override(self):
         current_directory = self.config.get_template_dir()
