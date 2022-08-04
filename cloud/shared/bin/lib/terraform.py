@@ -2,6 +2,7 @@ import subprocess
 import os
 import shutil
 import shlex
+from typing import Optional
 
 from cloud.shared.bin.lib.config_loader import ConfigLoader
 
@@ -10,7 +11,7 @@ from cloud.shared.bin.lib.config_loader import ConfigLoader
 def perform_apply(
         config_loader: ConfigLoader,
         is_destroy=False,
-        terraform_template_dir=None):
+        terraform_template_dir: Optional[str] = None):
     '''Generates terraform variable files and runs terraform init and apply.'''
     if not terraform_template_dir:
         terraform_template_dir = config_loader.get_template_dir()
