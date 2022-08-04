@@ -101,12 +101,17 @@ public abstract class TranslationFormView extends BaseHtmlView {
     return form;
   }
 
+  /**
+   * Returns a div containing the default text to be translated. This allows for admins to more
+   * easily identify which text to translate.
+   */
   protected final DivTag defaultLocaleTextHint(LocalizedStrings localizedStrings) {
     return div()
         .withClasses(Styles.W_2_3, Styles.ML_2, Styles.P_2, Styles.TEXT_SM, Styles.BG_GRAY_200)
         .with(p("Default text:").withClass(Styles.FONT_MEDIUM), p(localizedStrings.getDefault()));
   }
 
+  /** Creates a fieldset wrapping several form fields to be rendered. */
   protected final FieldsetTag fieldSetForFields(
       String legendText, ImmutableList<DomContent> fields) {
     return fieldset()
