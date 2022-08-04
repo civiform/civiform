@@ -1,7 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -61,6 +61,6 @@ public class ApplicantDataTest {
     data.setFailedUpdates(ImmutableMap.of(samplePath, "invalid_value"));
 
     assertThat(data.getFailedUpdates()).isEqualTo(ImmutableMap.of(samplePath, "invalid_value"));
-    assertThrows(IllegalStateException.class, () -> data.asJsonString());
+    assertThatThrownBy(() -> data.asJsonString()).isInstanceOf(IllegalStateException.class);
   }
 }
