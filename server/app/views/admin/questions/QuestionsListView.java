@@ -3,6 +3,8 @@ package views.admin.questions;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
+import annotations.BindingAnnotations.NonDefaultLocales;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -11,6 +13,7 @@ import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import play.mvc.Http;
@@ -37,10 +40,14 @@ import views.style.Styles;
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final Optional<Locale> firstLocaleForTranslations;
 
   @Inject
-  public QuestionsListView(AdminLayoutFactory layoutFactory) {
+  public QuestionsListView(
+      AdminLayoutFactory layoutFactory,
+      @NonDefaultLocales ImmutableList<Locale> nonDefaultSupportedLocales) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
+    this.firstLocaleForTranslations = checkNotNull(nonDefaultSupportedLocales).stream().findFirst();
   }
 
   /** Renders a page with a table view of all questions. */
@@ -230,17 +237,22 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private ATag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
+  private Optional<ATag> renderQuestionTranslationLink(
+      QuestionDefinition definition, String linkText) {
+    if (firstLocaleForTranslations.isEmpty()) {
+      return Optional.empty();
+    }
     String link =
         controllers.admin.routes.AdminQuestionTranslationsController.edit(
-                definition.getId(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
+                definition.getId(), firstLocaleForTranslations.get().toLanguageTag())
             .url();
-    return new LinkElement()
-        .setId("translate-question-link-" + definition.getId())
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asAnchorText();
+    return Optional.of(
+        new LinkElement()
+            .setId("translate-question-link-" + definition.getId())
+            .setHref(link)
+            .setText(linkText)
+            .setStyles(Styles.MR_2)
+            .asAnchorText());
   }
 
   private ATag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
@@ -268,14 +280,21 @@ public final class QuestionsListView extends BaseHtmlView {
         // Active with a draft.
         td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
         td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-        td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"))
-            .with(br());
+        Optional<ATag> maybeTranslationLink =
+            renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →");
+        if (maybeTranslationLink.isPresent()) {
+          td.with(maybeTranslationLink.get(), br());
+        }
         td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request)).with(br());
       }
     } else if (draft.isPresent()) {
       // First revision of a question.
       td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →")).with(br());
+      Optional<ATag> maybeTranslationLink =
+          renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →");
+      if (maybeTranslationLink.isPresent()) {
+        td.with(maybeTranslationLink.get(), br());
+      }
     }
     // Add Archive options.
     if (active.isPresent()) {

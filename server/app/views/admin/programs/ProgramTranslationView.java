@@ -4,6 +4,7 @@ import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
+import annotations.BindingAnnotations.NonDefaultLocales;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
@@ -13,7 +14,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
-import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
@@ -34,9 +34,9 @@ public final class ProgramTranslationView extends TranslationFormView {
   @Inject
   public ProgramTranslationView(
       AdminLayoutFactory layoutFactory,
-      Langs langs,
+      @NonDefaultLocales ImmutableList<Locale> nonDefaultLocales,
       @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
-    super(langs);
+    super(nonDefaultLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.statusTrackingEnabled = statusTrackingEnabled;
   }

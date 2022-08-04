@@ -1,5 +1,7 @@
 package controllers.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.translation.ProgramTranslationForm;
@@ -28,9 +30,9 @@ public class AdminProgramTranslationsController extends CiviFormController {
   @Inject
   public AdminProgramTranslationsController(
       ProgramService service, ProgramTranslationView translationView, FormFactory formFactory) {
-    this.service = service;
-    this.translationView = translationView;
-    this.formFactory = formFactory;
+    this.service = checkNotNull(service);
+    this.translationView = checkNotNull(translationView);
+    this.formFactory = checkNotNull(formFactory);
   }
 
   /**

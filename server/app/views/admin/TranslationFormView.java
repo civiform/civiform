@@ -1,6 +1,5 @@
 package views.admin;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -15,8 +14,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
-import play.i18n.Lang;
-import play.i18n.Langs;
 import play.mvc.Http;
 import services.LocalizedStrings;
 import views.BaseHtmlView;
@@ -30,11 +27,10 @@ import views.style.Styles;
  */
 public abstract class TranslationFormView extends BaseHtmlView {
 
-  private final ImmutableList<Locale> supportedLocales;
+  private final ImmutableList<Locale> nonDefaultLocales;
 
-  public TranslationFormView(Langs langs) {
-    this.supportedLocales =
-        langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
+  public TranslationFormView(ImmutableList<Locale> nonDefaultLocales) {
+    this.nonDefaultLocales = nonDefaultLocales;
   }
 
   /** Render a list of languages, with the currently selected language underlined. */
@@ -43,7 +39,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
         .withClasses(Styles.M_2)
         .with(
             each(
-                supportedLocales,
+                nonDefaultLocales,
                 locale -> {
                   String linkDestination = languageLinkDestination(entityId, locale);
                   return renderLanguageLink(
