@@ -76,7 +76,7 @@ describe('create and edit predicates', () => {
     )
 
     // Return to the first screen and answer it so that the second screen is hidden
-    page.click('text=Edit') // first screen edit
+    await page.click('text=Edit') // first screen edit
     await applicant.answerTextQuestion('hide me')
     await applicant.clickNext()
 
@@ -163,7 +163,7 @@ describe('create and edit predicates', () => {
     )
 
     // Return to the first screen and answer it so that the second screen is shown
-    page.click('text=Edit') // first screen edit
+    await page.click('text=Edit') // first screen edit
     await applicant.answerTextQuestion('show me')
     await applicant.clickNext()
 

@@ -7,28 +7,34 @@ from setup_class_loader import load_destroy_class
 Destroy.py destroys the setup
 """
 
-###############################################################################
-# Load and Validate Inputs
-###############################################################################
 
-## Load the Config and Definitions
-config_loader = ConfigLoader()
+def main():
+    ###############################################################################
+    # Load and Validate Inputs
+    ###############################################################################
 
-validation_errors = config_loader.load_config()
-if validation_errors:
-    new_line = '\n\t'
-    exit(
-        f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}"
-    )
+    ## Load the Config and Definitions
+    config_loader = ConfigLoader()
 
-###############################################################################
-# Load Setup Class for the specific template directory
-###############################################################################
+    validation_errors = config_loader.load_config()
+    if validation_errors:
+        new_line = '\n\t'
+        exit(
+            f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}"
+        )
 
-template_dir = config_loader.get_template_dir()
-Destroy = load_destroy_class(template_dir)
+    ###############################################################################
+    # Load Setup Class for the specific template directory
+    ###############################################################################
 
-template_destroy = Destroy(config_loader)
-template_destroy.pre_terraform_destroy()
-terraform.perform_apply(config_loader, is_destroy=True)
-template_destroy.post_terraform_destroy()
+    template_dir = config_loader.get_template_dir()
+    Destroy = load_destroy_class(template_dir)
+
+    template_destroy = Destroy(config_loader)
+    template_destroy.pre_terraform_destroy()
+    terraform.perform_apply(config_loader, is_destroy=True)
+    template_destroy.post_terraform_destroy()
+
+
+if __name__ == "__main__":
+    main()
