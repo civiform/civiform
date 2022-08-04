@@ -55,7 +55,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
     }
     questionsById = questionIdMap.build();
     upToDateQuestions = upToDateBuilder.build();
-    activeAndDraftQuestions = new ActiveAndDraftQuestions(repository);
+    activeAndDraftQuestions = ActiveAndDraftQuestions.buildFromCurrentVersions(repository);
   }
 
   @Override

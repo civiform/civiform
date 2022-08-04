@@ -415,7 +415,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   private ActiveAndDraftQuestions newActiveAndDraftQuestions() {
-    return new ActiveAndDraftQuestions(versionRepository);
+    return ActiveAndDraftQuestions.buildFromCurrentVersions(versionRepository);
   }
 
   private void addTombstoneToVersion(Version version, Question question) {

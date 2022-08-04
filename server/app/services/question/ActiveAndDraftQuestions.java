@@ -39,10 +39,18 @@ public final class ActiveAndDraftQuestions {
       referencingActiveProgramsByName;
   private final boolean draftVersionHasAnyEdits;
 
-  public ActiveAndDraftQuestions(VersionRepository repository) {
-    Version active = repository.getActiveVersion();
-    Version draft = repository.getDraftVersion();
-    Version withEditsDraft = repository.previewPublishNewSynchronizedVersion();
+  /**
+   * Queries the existing active and draft versions and builds a snapshotted view of the question
+   * state.
+   */
+  public static ActiveAndDraftQuestions buildFromCurrentVersions(VersionRepository repository) {
+    return new ActiveAndDraftQuestions(
+        repository.getActiveVersion(),
+        repository.getDraftVersion(),
+        repository.previewPublishNewSynchronizedVersion());
+  }
+
+  private ActiveAndDraftQuestions(Version active, Version draft, Version withDraftEdits) {
     ImmutableMap<String, QuestionDefinition> activeNames =
         active.getQuestions().stream()
             .map(Question::getQuestionDefinition)
@@ -65,7 +73,7 @@ public final class ActiveAndDraftQuestions {
     draftVersionHasAnyEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
     referencingActiveProgramsByName = buildReferencingProgramsMap(active);
     referencingDraftProgramsByName =
-        draftVersionHasAnyEdits ? buildReferencingProgramsMap(withEditsDraft) : ImmutableMap.of();
+        draftVersionHasAnyEdits ? buildReferencingProgramsMap(withDraftEdits) : ImmutableMap.of();
 
     deletionStatusByName =
         activeNames.keySet().stream()
