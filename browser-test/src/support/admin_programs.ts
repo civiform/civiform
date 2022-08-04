@@ -477,6 +477,12 @@ export class AdminPrograms {
     ).not.toBeNull()
   }
 
+  async isStatusSelectorVisible(): Promise<boolean> {
+    return this.applicationFrame()
+      .locator('.cf-program-admin-status-selector-label:has-text("Status:")')
+      .isVisible()
+  }
+
   async getJson(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
