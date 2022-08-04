@@ -33,10 +33,11 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final Optional<ImmutableMap<String, ImmutableSet<ProgramDefinition>>>
+  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
       referencingDraftProgramsByName;
   private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
       referencingActiveProgramsByName;
+  private final boolean draftVersionHasAnyEdits;
 
   public ActiveAndDraftQuestions(VersionRepository repository) {
     Version active = repository.getActiveVersion();
@@ -61,13 +62,10 @@ public final class ActiveAndDraftQuestions {
                           Optional.ofNullable(draftNames.get(name)));
                     }));
 
+    draftVersionHasAnyEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
     referencingActiveProgramsByName = buildReferencingProgramsMap(active);
-    boolean draftHasEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
-    if (draftHasEdits) {
-      referencingDraftProgramsByName = Optional.of(buildReferencingProgramsMap(withEditsDraft));
-    } else {
-      referencingDraftProgramsByName = Optional.empty();
-    }
+    referencingDraftProgramsByName =
+        draftVersionHasAnyEdits ? buildReferencingProgramsMap(withEditsDraft) : ImmutableMap.of();
 
     deletionStatusByName =
         activeNames.keySet().stream()
@@ -163,20 +161,20 @@ public final class ActiveAndDraftQuestions {
   public ReferencingPrograms getReferencingPrograms(String name) {
     return ReferencingPrograms.builder()
         .setActiveReferences(referencingActiveProgramsByName.getOrDefault(name, ImmutableSet.of()))
-        .setDraftReferences(
-            referencingDraftProgramsByName.map(r -> r.getOrDefault(name, ImmutableSet.of())))
+        .setDraftReferences(referencingDraftProgramsByName.getOrDefault(name, ImmutableSet.of()))
         .build();
+  }
+
+  public boolean draftVersionHasAnyEdits() {
+    return draftVersionHasAnyEdits;
   }
 
   /** Contains sets of programs in the active and draft versions that reference a given question. */
   @AutoValue
   public abstract static class ReferencingPrograms {
 
-    /**
-     * Returns a set of references to the question in the DRAFT version. This returns
-     * Optional.empty() if there are no edited programs or questions in the DRAFT version.
-     */
-    public abstract Optional<ImmutableSet<ProgramDefinition>> draftReferences();
+    /** Returns a set of references to the question in the DRAFT version. */
+    public abstract ImmutableSet<ProgramDefinition> draftReferences();
 
     /** Returns a set of references to the question in the ACTIVE version. */
     public abstract ImmutableSet<ProgramDefinition> activeReferences();
@@ -187,7 +185,7 @@ public final class ActiveAndDraftQuestions {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setDraftReferences(Optional<ImmutableSet<ProgramDefinition>> v);
+      abstract Builder setDraftReferences(ImmutableSet<ProgramDefinition> v);
 
       abstract Builder setActiveReferences(ImmutableSet<ProgramDefinition> v);
 

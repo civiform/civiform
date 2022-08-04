@@ -280,6 +280,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .isEqualTo(
             ActiveAndDraftQuestions.ReferencingPrograms.builder()
                 .setActiveReferences(ImmutableSet.of())
+                .setDraftReferences(ImmutableSet.of())
                 .build());
 
     // Make an edit of the question in the draft version and leave it unreferenced.
@@ -292,8 +293,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .isEqualTo(
             ActiveAndDraftQuestions.ReferencingPrograms.builder()
                 .setActiveReferences(ImmutableSet.of())
-                // Not Optional.empty because the draft version actually has edits applied.
-                .setDraftReferences(Optional.of(ImmutableSet.of()))
+                .setDraftReferences(ImmutableSet.of())
                 .build());
   }
 
@@ -342,9 +342,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
                 .map(ProgramDefinition::id)
                 .collect(ImmutableSet.toImmutableSet()))
         .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
-    assertThat(result.draftReferences()).isPresent();
     assertThat(
-            result.draftReferences().get().stream()
+            result.draftReferences().stream()
                 .map(ProgramDefinition::id)
                 .collect(ImmutableSet.toImmutableSet()))
         .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
@@ -396,9 +395,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
                 .map(ProgramDefinition::id)
                 .collect(ImmutableSet.toImmutableSet()))
         .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
-    assertThat(result.draftReferences()).isPresent();
     assertThat(
-            result.draftReferences().get().stream()
+            result.draftReferences().stream()
                 .map(ProgramDefinition::id)
                 .collect(ImmutableSet.toImmutableSet()))
         .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
@@ -412,6 +410,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .isEqualTo(
             ActiveAndDraftQuestions.ReferencingPrograms.builder()
                 .setActiveReferences(ImmutableSet.of())
+                .setDraftReferences(ImmutableSet.of())
                 .build());
   }
 

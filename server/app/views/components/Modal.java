@@ -78,9 +78,9 @@ public final class Modal {
   }
 
   public static String randomModalId() {
-    // We prepend a "a-" since element IDs must start with an alphabetic character, whereas UUIDs
+    // We prepend a "uuid-" since element IDs must start with an alphabetic character, whereas UUIDs
     // can start with a numeric character.
-    return "a-" + UUID.randomUUID().toString();
+    return "uuid-" + UUID.randomUUID().toString();
   }
 
   public static ModalBuilder builder(String modalId, ContainerTag<?> content) {

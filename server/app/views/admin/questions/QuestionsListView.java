@@ -271,11 +271,8 @@ public final class QuestionsListView extends BaseHtmlView {
     SpanTag referencingProgramsCount =
         span(String.format("%d active", referencingPrograms.activeReferences().size()))
             .condWith(
-                referencingPrograms.draftReferences().isPresent(),
-                span(
-                    String.format(
-                        " & %d draft",
-                        referencingPrograms.draftReferences().map(ImmutableSet::size).orElse(0))))
+                activeAndDraftQuestions.draftVersionHasAnyEdits(),
+                span(String.format(" & %d draft", referencingPrograms.draftReferences().size())))
             .with(span(" programs"))
             .withClass(Styles.FONT_SEMIBOLD);
 
@@ -302,7 +299,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
     ImmutableList<ProgramDefinition> draftProgramReferences =
-        referencingPrograms.draftReferences().orElse(ImmutableSet.of()).stream()
+        referencingPrograms.draftReferences().stream()
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
 
@@ -323,8 +320,7 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
                     .with(
                         referencingProgramList(
-                            "Draft programs:",
-                            referencingPrograms.draftReferences().orElse(ImmutableSet.of()))),
+                            "Draft programs:", referencingPrograms.draftReferences())),
                 p("Note: This list does not automatically refresh. If edits are made to a program"
                         + " in a separate tab, they won't be reflected until the page has been"
                         + " refreshed.")
