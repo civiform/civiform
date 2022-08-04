@@ -167,10 +167,10 @@ export class AdminPrograms {
 
   async expectActiveProgram(programName: string) {
     expect(
-      await this.page
-        .isVisible(this.programCardSelector(programName, 'Active'))
-        .toBe(true),
-    )
+      await this.page.isVisible(
+        this.programCardSelector(programName, 'Active'),
+      ),
+    ).toBe(true)
   }
 
   async expectProgramEditPage(programName: string = '') {
