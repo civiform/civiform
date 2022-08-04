@@ -2,10 +2,16 @@ import subprocess
 import os
 import shutil
 import shlex
+from typing import Optional
+
+from cloud.shared.bin.lib.config_loader import ConfigLoader
 
 
 # TODO(#2741): When using this for Azure make sure to setup backend bucket prior to calling these functions.
-def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
+def perform_apply(
+        config_loader: ConfigLoader,
+        is_destroy=False,
+        terraform_template_dir: Optional[str] = None):
     '''Generates terraform variable files and runs terraform init and apply.'''
     if not terraform_template_dir:
         terraform_template_dir = config_loader.get_template_dir()
@@ -19,10 +25,12 @@ def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
             shlex.split(f'{terraform_cmd} init -upgrade -reconfigure'))
     else:
         print(" - Run terraform init -upgrade -reconfigure")
-        subprocess.check_call(
-            shlex.split(
-                f'{terraform_cmd} init -input=false -upgrade -backend-config={os.getenv("BACKEND_VARS_FILENAME")}'
-            ))
+        init_cmd = f'{terraform_cmd} init -input=false -upgrade'
+        # backend vars file can be absent when pre-terraform setup is running
+        if os.path.exists(os.path.join(terraform_template_dir,
+                                       config_loader.backend_vars_filename)):
+            init_cmd += f' -backend-config={config_loader.backend_vars_filename}'
+        subprocess.check_call(shlex.split(init_cmd))
 
     if os.path.exists(os.path.join(terraform_template_dir, tf_vars_filename)):
         print(
@@ -40,7 +48,7 @@ def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
     return True
 
 
-def copy_backend_override(config_loader):
+def copy_backend_override(config_loader: ConfigLoader):
     ''' 
     Copies the terraform backend_override to backend_override.tf (used to
     make backend local instead of a shared state for dev deploys)
