@@ -27,15 +27,4 @@ public final class BindingAnnotations {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface EnUsLang {}
-
-  /**
-   * Holds a list of {@link java.util.Locale} objects representing the non-default (e.g. "en-US")
-   * set of supported locales. This is typically used in translations.
-   *
-   * <p>Note: If the set of supported locales is ONLY English, the results can be an empty list.
-   */
-  @Qualifier
-  @Target({FIELD, PARAMETER, METHOD})
-  @Retention(RUNTIME)
-  public @interface NonDefaultLocales {}
 }

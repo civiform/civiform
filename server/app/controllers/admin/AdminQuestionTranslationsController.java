@@ -2,10 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import annotations.BindingAnnotations.NonDefaultLocales;
 import auth.Authorizers;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import forms.translation.EnumeratorQuestionTranslationForm;
 import forms.translation.MultiOptionQuestionTranslationForm;
@@ -14,7 +11,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -23,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.TranslationHelper;
 import services.question.QuestionService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
@@ -38,8 +35,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   private final QuestionService questionService;
   private final QuestionTranslationView translationView;
   private final FormFactory formFactory;
-  private final ImmutableMap<String, Locale> supportedTranslationLocales;
-  private final Optional<Locale> firstLocaleForTranslations;
+  private final TranslationHelper translationHelper;
 
   @Inject
   public AdminQuestionTranslationsController(
@@ -47,15 +43,12 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       QuestionService questionService,
       QuestionTranslationView translationView,
       FormFactory formFactory,
-      @NonDefaultLocales ImmutableList<Locale> nonDefaultSupportedLocales) {
-    this.httpExecutionContext = httpExecutionContext;
-    this.questionService = questionService;
-    this.translationView = translationView;
-    this.formFactory = formFactory;
-    this.supportedTranslationLocales =
-        checkNotNull(nonDefaultSupportedLocales).stream()
-            .collect(ImmutableMap.toImmutableMap(Locale::toLanguageTag, Function.identity()));
-    this.firstLocaleForTranslations = checkNotNull(nonDefaultSupportedLocales).stream().findFirst();
+      TranslationHelper translationHelper) {
+    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.questionService = checkNotNull(questionService);
+    this.translationView = checkNotNull(translationView);
+    this.formFactory = checkNotNull(formFactory);
+    this.translationHelper = checkNotNull(translationHelper);
   }
 
   /**
@@ -70,20 +63,13 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> edit(Http.Request request, long id, String locale) {
-    if (!supportedTranslationLocales.containsKey(locale)) {
-      if (firstLocaleForTranslations.isPresent()) {
-        // TODO(clouser): Toast.
-        // Redirect to the first locale in the list with a toast indicating edits cannot be made.
-        return CompletableFuture.completedFuture(
-            redirect(
-                controllers.admin.routes.AdminQuestionTranslationsController.edit(
-                        id, firstLocaleForTranslations.get().toLanguageTag())
-                    .url()));
-      } else {
-        throw new RuntimeException("TODO(clouser): Should not be hit");
-      }
+    Optional<Locale> maybeLocaleToEdit = translationHelper.getSupportedLocale(locale);
+    if (maybeLocaleToEdit.isEmpty()) {
+      // TODO(clouser): Toast.
+      return CompletableFuture.completedFuture(
+          redirect(routes.AdminQuestionController.index().url()));
     }
-    Locale localeToEdit = supportedTranslationLocales.get(locale);
+    Locale localeToEdit = maybeLocaleToEdit.get();
 
     return questionService
         .getReadOnlyQuestionService()
@@ -110,19 +96,13 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> update(Http.Request request, long id, String locale) {
-    if (!supportedTranslationLocales.containsKey(locale)) {
-      if (firstLocaleForTranslations.isPresent()) {
-        // Redirect to the first locale in the list with a toast indicating edits cannot be made.
-        return CompletableFuture.completedFuture(
-            redirect(
-                controllers.admin.routes.AdminQuestionTranslationsController.edit(
-                        id, firstLocaleForTranslations.get().toLanguageTag())
-                    .url()));
-      } else {
-        throw new RuntimeException("TODO(clouser): Should not be hit");
-      }
+    Optional<Locale> maybeLocaleToUpdate = translationHelper.getSupportedLocale(locale);
+    if (maybeLocaleToUpdate.isEmpty()) {
+      // TODO(clouser): Toast.
+      return CompletableFuture.completedFuture(
+          redirect(routes.AdminQuestionController.index().url()));
     }
-    Locale updateLocale = supportedTranslationLocales.get(locale);
+    Locale localeToUpdate = maybeLocaleToUpdate.get();
 
     return questionService
         .getReadOnlyQuestionService()
@@ -133,7 +113,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                 QuestionTranslationForm form =
                     buildFormFromRequest(request, toUpdate.getQuestionType());
                 QuestionDefinition definitionWithUpdates =
-                    form.builderWithUpdates(toUpdate, updateLocale).build();
+                    form.builderWithUpdates(toUpdate, localeToUpdate).build();
 
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
                     questionService.update(definitionWithUpdates);
@@ -142,7 +122,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                   String errorMessage = joinErrors(result.getErrors());
                   return ok(
                       translationView.renderErrors(
-                          request, updateLocale, definitionWithUpdates, errorMessage));
+                          request, localeToUpdate, definitionWithUpdates, errorMessage));
                 }
 
                 return redirect(routes.AdminQuestionController.index().url());

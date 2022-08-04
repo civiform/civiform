@@ -3,8 +3,6 @@ package views.admin.questions;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
-import annotations.BindingAnnotations.NonDefaultLocales;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -20,6 +18,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeletionStatus;
 import services.LocalizedStrings;
+import services.TranslationHelper;
 import services.TranslationNotFoundException;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
@@ -43,11 +42,10 @@ public final class QuestionsListView extends BaseHtmlView {
   private final Optional<Locale> firstLocaleForTranslations;
 
   @Inject
-  public QuestionsListView(
-      AdminLayoutFactory layoutFactory,
-      @NonDefaultLocales ImmutableList<Locale> nonDefaultSupportedLocales) {
+  public QuestionsListView(AdminLayoutFactory layoutFactory, TranslationHelper translationHelper) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
-    this.firstLocaleForTranslations = checkNotNull(nonDefaultSupportedLocales).stream().findFirst();
+    this.firstLocaleForTranslations =
+        checkNotNull(translationHelper).localesForTranslation().stream().findFirst();
   }
 
   /** Renders a page with a table view of all questions. */

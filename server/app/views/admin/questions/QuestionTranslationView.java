@@ -3,7 +3,6 @@ package views.admin.questions;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
-import annotations.BindingAnnotations.NonDefaultLocales;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
@@ -13,6 +12,7 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
+import services.TranslationHelper;
 import services.question.QuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -32,9 +32,8 @@ public final class QuestionTranslationView extends TranslationFormView {
 
   @Inject
   public QuestionTranslationView(
-      AdminLayoutFactory layoutFactory,
-      @NonDefaultLocales ImmutableList<Locale> nonDefaultLocales) {
-    super(nonDefaultLocales);
+      AdminLayoutFactory layoutFactory, TranslationHelper translationHelper) {
+    super(translationHelper);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
   }
 

@@ -3,7 +3,6 @@ package modules;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import annotations.BindingAnnotations.EnUsLang;
-import annotations.BindingAnnotations.NonDefaultLocales;
 import annotations.BindingAnnotations.Now;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
@@ -13,12 +12,9 @@ import com.typesafe.config.Config;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Locale;
 import play.i18n.Lang;
-import play.i18n.Langs;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import services.LocalizedStrings;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantServiceImpl;
 import services.program.ProgramService;
@@ -49,15 +45,6 @@ public class MainModule extends AbstractModule {
   @EnUsLang
   public Messages provideEnUsMessages(MessagesApi messagesApi) {
     return messagesApi.preferred(ImmutableList.of(Lang.forCode("en-US")));
-  }
-
-  @Provides
-  @NonDefaultLocales
-  public ImmutableList<Locale> nonDefaultSupportedLocales(Langs langs) {
-    return langs.availables().stream()
-        .map(Lang::toLocale)
-        .filter(locale -> !LocalizedStrings.DEFAULT_LOCALE.equals(locale))
-        .collect(ImmutableList.toImmutableList());
   }
 
   @Provides
