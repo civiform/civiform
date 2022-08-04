@@ -44,6 +44,26 @@ public class LocalizedStringsTest {
   }
 
   @Test
+  public void updateDefaultTranslation_addsANewOne() {
+    LocalizedStrings strings = LocalizedStrings.of();
+
+    LocalizedStrings subject = strings.updateDefaultTranslation("hello");
+
+    assertThat(subject.translations())
+        .containsExactlyEntriesOf(ImmutableMap.of(LocalizedStrings.DEFAULT_LOCALE, "hello"));
+  }
+
+  @Test
+  public void updateDefaultTranslation_updatesExistingOne() {
+    LocalizedStrings strings = LocalizedStrings.of(LocalizedStrings.DEFAULT_LOCALE, "old");
+
+    LocalizedStrings subject = strings.updateDefaultTranslation("new");
+
+    assertThat(subject.translations())
+        .containsExactlyEntriesOf(ImmutableMap.of(LocalizedStrings.DEFAULT_LOCALE, "new"));
+  }
+
+  @Test
   public void updateTranslation_addsANewOne() {
     LocalizedStrings strings = LocalizedStrings.of();
 

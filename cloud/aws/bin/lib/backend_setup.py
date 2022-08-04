@@ -7,6 +7,6 @@ def setup_backend_config(config):
     with open(backend_file_location, 'w') as f:
         f.write(f'bucket         = "{config.app_prefix}-backendstate"\n')
         f.write(f'key            = "tfstate/terraform.tfstate"\n')
-        f.write(f'region         = "us-east-1"\n')
+        f.write(f'region         = "{config.aws_region}"\n')
         f.write(f'dynamodb_table = "{config.app_prefix}-locktable"\n')
         f.write(f'encrypt        = true\n')

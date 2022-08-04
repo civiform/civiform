@@ -52,10 +52,8 @@ module "td" {
               aws_secretsmanager_secret.app_secret_key_secret.arn,
               aws_secretsmanager_secret.adfs_secret_secret.arn,
               aws_secretsmanager_secret.adfs_client_id_secret.arn,
-              aws_secretsmanager_secret.adfs_discovery_uri_secret.arn,
               aws_secretsmanager_secret.applicant_oidc_client_secret_secret.arn,
               aws_secretsmanager_secret.applicant_oidc_client_id_secret.arn,
-              aws_secretsmanager_secret.applicant_oidc_discovery_uri_secret.arn,
             ]
           },
           {
@@ -88,20 +86,12 @@ module "td" {
       valueFrom = aws_secretsmanager_secret_version.app_secret_key_secret_version.arn
     },
     {
-      name      = "ADFS_DISCOVERY_URI"
-      valueFrom = aws_secretsmanager_secret_version.adfs_discovery_uri_secret_version.arn
-    },
-    {
       name      = "ADFS_SECRET"
       valueFrom = aws_secretsmanager_secret_version.adfs_secret_secret_version.arn
     },
     {
       name      = "ADFS_CLIENT_ID"
       valueFrom = aws_secretsmanager_secret_version.applicant_oidc_client_id_secret_version.arn
-    },
-    {
-      name      = "APPLICANT_OIDC_DISCOVERY_URI"
-      valueFrom = aws_secretsmanager_secret_version.applicant_oidc_discovery_uri_secret_version.arn
     },
     {
       name      = "APPLICANT_OIDC_CLIENT_ID"
@@ -148,6 +138,8 @@ module "td" {
     APPLICANT_OIDC_FIRST_NAME_ATTRIBUTE  = var.applicant_oidc_first_name_attribute
     APPLICANT_OIDC_MIDDLE_NAME_ATTRIBUTE = var.applicant_oidc_middle_name_attribute
     APPLICANT_OIDC_LAST_NAME_ATTRIBUTE   = var.applicant_oidc_last_name_attribute
+    APPLICANT_OIDC_DISCOVERY_URI         = var.applicant_oidc_discovery_uri
+    ADFS_DISCOVERY_URI                   = var.adfs_discovery_uri
   }
   log_configuration = {
     logDriver = "awslogs"
@@ -155,7 +147,13 @@ module "td" {
       "awslogs-region"        = var.aws_region
       "awslogs-stream-prefix" = "ecs"
       "awslogs-group"         = module.aws_cw_logs.logs_path
-      "awslogs-create-group"  = "true",
+      "awslogs-create-group"  = "true"
+      # Use https://docs.docker.com/config/containers/logging/awslogs/#awslogs-multiline-pattern
+      # Logs are streamed via container's stdout. Each line is considered a
+      # separate log messsage. To collect stacktraces, which take multiple line,
+      # to a single event we consider all lines which start with a whitespace character to be
+      # part of the previous line and not a standalone event.
+      "awslogs-multiline-pattern" = "^[^\\s]"
     }
     secretOptions = null
   }
@@ -166,11 +164,10 @@ module "td" {
 }
 
 module "ecs_fargate_service" {
-  source        = "cn-terraform/ecs-fargate-service/aws"
-  name_prefix   = var.app_prefix
-  desired_count = 0 # TODO: set this to actual value
-  # TODO: use https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
-  default_certificate_arn = "arn:aws:acm:us-east-1:664198874744:certificate/2b765469-2ddd-4b03-94b4-fc670e80f84b"
+  source                  = "cn-terraform/ecs-fargate-service/aws"
+  name_prefix             = var.app_prefix
+  desired_count           = var.fargate_desired_task_count
+  default_certificate_arn = var.ssl_certificate_arn
   ssl_policy              = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
   vpc_id                  = module.vpc.vpc_id
   task_definition_arn     = module.td.aws_ecs_task_definition_td_arn

@@ -78,6 +78,7 @@ describe('optional application flow', () => {
 
     // Submit the first program
     await applicantQuestions.submitFromReviewPage(programName)
+    await applicantQuestions.returnToProgramsFromSubmissionPage()
 
     // Complete the second program
     await applicantQuestions.applyProgram(programName2)

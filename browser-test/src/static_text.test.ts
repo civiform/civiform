@@ -51,8 +51,7 @@ describe('Static text question for applicant flow', () => {
 
     await applicantQuestions.applyProgram(programName)
 
-    const staticId = '.cf-question-static'
-    expect(await pageObject.innerText(staticId)).toContain(staticText)
+    await applicantQuestions.seeStaticQuestion(staticText)
   })
 
   it('has no accessiblity violations', async () => {

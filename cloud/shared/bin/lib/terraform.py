@@ -32,27 +32,11 @@ def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
             f'Aborting the script. {tf_vars_filename} does not exist in {terraform_template_dir} directory'
         )
 
-    print(" - Run terraform plan")
-    terraform_plan_out_file = 'terraform_plan'
-    plan_arguments = f'{terraform_cmd} plan -input=false -out={terraform_plan_out_file} -var-file={tf_vars_filename}'
-    if is_destroy:
-        plan_arguments += " -destroy"
-    subprocess.check_call(shlex.split(plan_arguments))
-
-    if config_loader.is_test():
-        return True
-
     print(" - Run terraform apply")
-    terraform_apply_cmd = f'{terraform_cmd} apply -input=false -json'
-    if config_loader.is_dev():
-        subprocess.check_call(
-            shlex.split(f'{terraform_apply_cmd} {terraform_plan_out_file}'))
-    else:
-        subprocess.check_call(
-            shlex.split(
-                f'{terraform_apply_cmd} -auto-approve {terraform_plan_out_file}'
-            ))
-
+    terraform_apply_cmd = f'{terraform_cmd} apply -input=false -var-file={tf_vars_filename}'
+    if is_destroy:
+        terraform_apply_cmd += " -destroy"
+    subprocess.check_call(shlex.split(terraform_apply_cmd))
     return True
 
 

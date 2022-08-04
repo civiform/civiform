@@ -41,6 +41,7 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -181,6 +182,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     // Combine all the DivTags into a rendered list, and collect all Modals into one collection.
     DivTag statusesContainer =
         div()
+            .withClass(ReferenceClasses.ADMIN_PROGRAM_STATUS_LIST)
             .with(
                 p(numResultsText),
                 div()
@@ -229,6 +231,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return Pair.of(
         div()
             .withClasses(
+                ReferenceClasses.ADMIN_PROGRAM_STATUS_ITEM,
                 Styles.PL_7,
                 Styles.PR_6,
                 Styles.PY_9,
@@ -245,7 +248,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         span(status.statusText()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
                 div()
                     .condWith(
-                        status.emailBodyText().isPresent(),
+                        status.localizedEmailBodyText().isPresent(),
                         p().withClasses(
                                 Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                             .with(
@@ -321,6 +324,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
       ProgramDefinition program,
       Form<ProgramStatusesForm> form,
       boolean displayOnLoad) {
+    // TODO(#2752): If an email is already configured, add a warning that setting it to empty
+    // will clear any other localized text.
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
 
