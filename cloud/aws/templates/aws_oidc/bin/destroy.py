@@ -16,5 +16,9 @@ class Destroy(AwsSetupTemplate):
         # when config is dev then the state is stored locally and no clean up
         # required
         if not self.config.is_dev():
-            print('Not destroying S3 bucket that contains terraform state. ' + 'You have to destroy it manually:')
-            print(f'https://s3.console.aws.amazon.com/s3/buckets/{self.config.app_prefix}-backendstate')
+            print(
+                'Not destroying S3 bucket that contains terraform state. ' +
+                'You have to destroy it manually:')
+            print(
+                f'https://s3.console.aws.amazon.com/s3/buckets/{self.config.app_prefix}-backendstate'
+            )

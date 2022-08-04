@@ -4,7 +4,6 @@ import tempfile
 import shutil
 
 from cloud.shared.bin.lib.config_loader import ConfigLoader
-
 """
 Template Setup
 
