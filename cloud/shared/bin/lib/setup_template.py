@@ -44,7 +44,7 @@ class SetupTemplate:
         return False
 
     def post_terraform_setup(self):
-        print(" - TODO: Post terraform setup.")
+        raise NotImplementedError('post-terraform setup is not needed in AWS')
 
     def cleanup(self):
         print(" - TODO: cleanup. Upload log files.")
