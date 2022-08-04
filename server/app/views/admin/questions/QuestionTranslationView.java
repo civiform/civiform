@@ -118,8 +118,8 @@ public final class QuestionTranslationView extends TranslationFormView {
                     .setFieldName("questionText")
                     .setLabelText("Question text")
                     .setValue(questionText.maybeGet(locale))
-                    .getInputTag(),
-                defaultLocaleTextHint(questionText)));
+                    .getInputTag())
+            .condWith(!isDefaultLocale(locale), defaultLocaleTextHint(questionText)));
 
     // Help text is optional - only show if present.
     if (!helpText.isEmpty()) {
@@ -130,8 +130,8 @@ public final class QuestionTranslationView extends TranslationFormView {
                       .setFieldName("questionHelpText")
                       .setLabelText("Question help text")
                       .setValue(helpText.maybeGet(locale))
-                      .getInputTag(),
-                  defaultLocaleTextHint(helpText)));
+                      .getInputTag())
+              .condWith(!isDefaultLocale(locale), defaultLocaleTextHint(helpText)));
     }
 
     return fieldSetForFields("Question details (visible to applicants)", fields.build());
@@ -152,8 +152,8 @@ public final class QuestionTranslationView extends TranslationFormView {
                       .setFieldName("options[]")
                       .setLabelText(String.format("Answer option #%d", optionIdx + 1))
                       .setValue(option.optionText().maybeGet(toUpdate).orElse(""))
-                      .getInputTag(),
-                  defaultLocaleTextHint(option.optionText())));
+                      .getInputTag())
+              .condWith(!isDefaultLocale(toUpdate), defaultLocaleTextHint(option.optionText())));
     }
 
     return Optional.of(fieldSetForFields("Answer options", optionFieldsBuilder.build()));
@@ -168,7 +168,7 @@ public final class QuestionTranslationView extends TranslationFormView {
                     .setFieldName("entityType")
                     .setLabelText("What is being enumerated")
                     .setValue(entityType.maybeGet(toUpdate).orElse(""))
-                    .getInputTag(),
-                defaultLocaleTextHint(entityType)));
+                    .getInputTag())
+            .condWith(!isDefaultLocale(toUpdate), defaultLocaleTextHint(entityType)));
   }
 }

@@ -54,7 +54,10 @@ public final class ProgramTranslationView extends TranslationFormView {
             .url();
     FormTag form =
         renderTranslationForm(
-            request, locale, formAction, formFields(program, localizedName, localizedDescription));
+            request,
+            locale,
+            formAction,
+            formFields(program, locale, localizedName, localizedDescription));
 
     String title = String.format("Manage program translations: %s", program.adminName());
 
@@ -76,6 +79,7 @@ public final class ProgramTranslationView extends TranslationFormView {
 
   private ImmutableList<DomContent> formFields(
       ProgramDefinition program,
+      Locale locale,
       Optional<String> localizedName,
       Optional<String> localizedDescription) {
     ImmutableList.Builder<DomContent> result =
@@ -90,7 +94,9 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     .setFieldName("displayName")
                                     .setLabelText("Program name")
                                     .setValue(localizedName)
-                                    .getInputTag(),
+                                    .getInputTag())
+                            .condWith(
+                                !isDefaultLocale(locale),
                                 defaultLocaleTextHint(program.localizedName())),
                         div()
                             .with(
@@ -98,7 +104,9 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     .setFieldName("displayDescription")
                                     .setLabelText("Program description")
                                     .setValue(localizedDescription)
-                                    .getInputTag(),
+                                    .getInputTag())
+                            .condWith(
+                                !isDefaultLocale(locale),
                                 defaultLocaleTextHint(program.localizedDescription())))));
     if (statusTrackingEnabled) {
       // TODO(#2752): Use real statuses from the program.
@@ -117,7 +125,9 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setLabelText("Status name")
                                 .setScreenReaderText("Status name")
                                 .setValue(s.statusName())
-                                .getInputTag(),
+                                .getInputTag())
+                        .condWith(
+                            !isDefaultLocale(locale),
                             defaultLocaleTextHint(
                                 LocalizedStrings.withDefaultValue(s.statusName()))),
                     div()
@@ -127,7 +137,9 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setScreenReaderText("Email content")
                                 .setValue(s.emailContent())
                                 .setRows(OptionalLong.of(8))
-                                .getTextareaTag(),
+                                .getTextareaTag())
+                        .condWith(
+                            !isDefaultLocale(locale),
                             defaultLocaleTextHint(
                                 LocalizedStrings.withDefaultValue(s.emailContent()))))));
       }
