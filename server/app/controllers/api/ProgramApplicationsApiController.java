@@ -28,7 +28,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
 /** API controller for admin access to a specific program's applications. */
-public class ProgramApplicationsApiController extends CiviFormApiController {
+public final class ProgramApplicationsApiController extends CiviFormApiController {
 
   public static final String PROGRAM_SLUG_PARAM_NAME = "programSlug";
   public static final String FROM_DATE_PARAM_NAME = "fromDate";
