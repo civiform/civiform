@@ -62,7 +62,7 @@ public final class RedirectController extends CiviFormController {
     this.languageUtils = checkNotNull(languageUtils);
   }
 
-  public CompletionStage<Result> programByName(Http.Request request, String programSlug) {
+  public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     if (profile.isEmpty()) {

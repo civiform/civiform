@@ -65,7 +65,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void programByName_redirectsToPreviousProgramVersionForExistingApplications() {
+  public void programBySlug_redirectsToPreviousProgramVersionForExistingApplications() {
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
     Applicant applicant = createApplicantWithMockedProfile();
     applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
@@ -78,7 +78,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
 
     Result result =
         instanceOf(RedirectController.class)
-            .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -90,12 +90,12 @@ public class RedirectControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void programByName_testLanguageSelectorShown() {
+  public void programBySlug_testLanguageSelectorShown() {
     Applicant applicant = createApplicantWithMockedProfile();
     RedirectController controller = instanceOf(RedirectController.class);
     Result result =
         controller
-            .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -105,7 +105,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void programByName_testLanguageSelectorNotShownOneLanguage() {
+  public void programBySlug_testLanguageSelectorNotShownOneLanguage() {
     Applicant applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
@@ -122,7 +122,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             languageUtils);
     Result result =
         controller
-            .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
@@ -133,7 +133,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void programByName_testLanguageSelectorNotShownNoLanguage() {
+  public void programBySlug_testLanguageSelectorNotShownNoLanguage() {
     Applicant applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
@@ -150,7 +150,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             languageUtils);
     Result result =
         controller
-            .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
