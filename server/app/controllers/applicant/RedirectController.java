@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.inject.Inject;
 import models.Applicant;
 import models.LifecycleStage;
@@ -80,7 +79,7 @@ public final class RedirectController extends CiviFormController {
             (Applicant applicant) -> {
               // Attempt to set default language for the applicant.
               applicant = languageUtils.maybeSetDefaultLocale(applicant);
-              final AtomicLong applicantId = new AtomicLong(applicant.id);
+              final long applicantId = applicant.id;
 
               // If the applicant has not yet set their preferred language, redirect to
               // the information controller to ask for preferred language.
@@ -88,12 +87,12 @@ public final class RedirectController extends CiviFormController {
                 return CompletableFuture.completedFuture(
                     redirect(
                             controllers.applicant.routes.ApplicantInformationController.edit(
-                                applicantId.get()))
+                                applicantId))
                         .withSession(
                             request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri())));
               }
 
-              return getProgramVersionForApplicant(applicantId.get(), programSlug)
+              return getProgramVersionForApplicant(applicantId, programSlug)
                   .thenComposeAsync(
                       (Optional<ProgramDefinition> programForExistingApplication) -> {
                         // Check to see if the applicant already has an application
@@ -104,11 +103,10 @@ public final class RedirectController extends CiviFormController {
                               redirect(
                                   controllers.applicant.routes.ApplicantProgramReviewController
                                       .preview(
-                                          applicantId.get(),
-                                          programForExistingApplication.get().id())));
+                                          applicantId, programForExistingApplication.get().id())));
                         }
 
-                        return redirectToActiveProgram(applicantId.get(), programSlug);
+                        return redirectToActiveProgram(applicantId, programSlug);
                       },
                       httpContext.current());
             },

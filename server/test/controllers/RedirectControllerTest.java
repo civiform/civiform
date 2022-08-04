@@ -9,7 +9,10 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.RedirectController;
 import java.util.List;
+import java.util.Locale;
 import models.Applicant;
+import models.Application;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -26,6 +29,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
 import repository.UserRepository;
+import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
@@ -61,7 +65,32 @@ public class RedirectControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testLanguageSelectorShown() {
+  public void programByName_redirectsToPreviousProgramVersionForExistingApplications() {
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    Applicant applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
+    applicant.save();
+    Application app =
+        new Application(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    app.save();
+    resourceCreator().insertDraftProgram(programDefinition.adminName());
+    versionRepository.publishNewSynchronizedVersion();
+
+    Result result =
+        instanceOf(RedirectController.class)
+            .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.redirectLocation())
+        .contains(
+            controllers.applicant.routes.ApplicantProgramReviewController.preview(
+                    applicant.id, programDefinition.id())
+                .url());
+  }
+
+  @Test
+  public void programByName_testLanguageSelectorShown() {
     Applicant applicant = createApplicantWithMockedProfile();
     RedirectController controller = instanceOf(RedirectController.class);
     Result result =
@@ -69,14 +98,14 @@ public class RedirectControllerTest extends WithMockedProfiles {
             .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
-    ;
+
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantInformationController.edit(applicant.id).url());
   }
 
   @Test
-  public void testLanguageSelectorNotShownOneLanguage() {
+  public void programByName_testLanguageSelectorNotShownOneLanguage() {
     Applicant applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
@@ -104,7 +133,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testLanguageSelectorNotShownNoLanguage() {
+  public void programByName_testLanguageSelectorNotShownNoLanguage() {
     Applicant applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
