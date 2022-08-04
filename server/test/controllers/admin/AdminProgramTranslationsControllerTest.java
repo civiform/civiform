@@ -1,8 +1,8 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -19,6 +19,7 @@ import repository.ProgramRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
 public class AdminProgramTranslationsControllerTest extends ResetPostgres {
@@ -33,7 +34,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_rendersFormWithExistingNameAndDescription() {
+  public void edit_rendersFormWithExistingNameAndDescription() throws ProgramNotFoundException {
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
 
     Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id, "en-US");
@@ -45,9 +46,8 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_programNotFound_returnsNotFound() {
-    Result result = controller.edit(addCSRFToken(fakeRequest()).build(), 1000L, "en-US");
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThatThrownBy(() -> controller.edit(addCSRFToken(fakeRequest()).build(), 1000L, "en-US"))
+        .isInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
@@ -79,18 +79,25 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_programNotFound() {
-    Result result = controller.update(addCSRFToken(fakeRequest()).build(), 1000L, "en-US");
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThatThrownBy(() -> controller.update(addCSRFToken(fakeRequest()).build(), 1000L, "en-US"))
+        .isInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
-  public void update_validationErrors_rendersEditFormWithMessages() {
+  public void update_validationErrors_rendersEditFormWithMessages()
+      throws ProgramNotFoundException {
+    Program initialProgram =
+        ProgramBuilder.newDraftProgram().withName("Internal program name").build();
+    // ProgamBuilder initialized the localized name and doesn't currently support
+    // providing an addition value for withLocalizedName. Manually update in the
+    // case where we want them to diverge.
     Program program =
-        ProgramBuilder.newDraftProgram()
-            .withName("Internal program name")
-            .withLocalizedName(LocalizedStrings.DEFAULT_LOCALE, "External program name")
-            .build();
+        initialProgram.getProgramDefinition().toBuilder()
+            .setLocalizedName(LocalizedStrings.withDefaultValue("External program name"))
+            .build()
+            .toProgram();
+    program.update();
+
     Http.RequestBuilder requestBuilder =
         fakeRequest().bodyForm(ImmutableMap.of("displayName", "", "displayDescription", ""));
 
