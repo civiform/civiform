@@ -158,7 +158,6 @@ export class AdminPrograms {
     await this.expectEditPredicatePage(blockName)
   }
 
-  // TODO(clouser): More fine-grained selectors for this and active.
   async expectDraftProgram(programName: string) {
     expect(
       await this.page.isVisible(this.programCardSelector(programName, 'Draft')),
