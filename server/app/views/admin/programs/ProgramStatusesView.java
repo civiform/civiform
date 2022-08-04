@@ -248,7 +248,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         span(status.statusText()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
                 div()
                     .condWith(
-                        status.emailBodyText().isPresent(),
+                        status.localizedEmailBodyText().isPresent(),
                         p().withClasses(
                                 Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                             .with(
@@ -324,6 +324,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
       ProgramDefinition program,
       Form<ProgramStatusesForm> form,
       boolean displayOnLoad) {
+    // TODO(#2752): If an email is already configured, add a warning that setting it to empty
+    // will clear any other localized text.
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
 

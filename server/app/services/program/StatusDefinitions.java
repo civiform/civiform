@@ -66,9 +66,6 @@ public class StatusDefinitions {
     @JsonProperty("status_localized")
     public abstract LocalizedStrings localizedStatusText();
 
-    @JsonProperty("email_body")
-    public abstract Optional<String> emailBodyText();
-
     @JsonProperty("email_body_localized")
     public abstract Optional<LocalizedStrings> localizedEmailBodyText();
 
@@ -84,9 +81,6 @@ public class StatusDefinitions {
 
       @JsonProperty("status_localized")
       public abstract Builder setLocalizedStatusText(LocalizedStrings value);
-
-      @JsonProperty("email_body")
-      public abstract Builder setEmailBodyText(Optional<String> value);
 
       @JsonProperty("email_body_localized")
       public abstract Builder setLocalizedEmailBodyText(Optional<LocalizedStrings> value);

@@ -228,6 +228,11 @@ public abstract class LocalizedStrings {
         .orElseThrow(() -> new TranslationNotFoundException(locale));
   }
 
+  /** Returns a new set of localized strings with a new translation in the default locale. */
+  public LocalizedStrings updateDefaultTranslation(String string) {
+    return updateTranslation(DEFAULT_LOCALE, string);
+  }
+
   /**
    * Returns a new set of localized strings with a new translation.
    *
