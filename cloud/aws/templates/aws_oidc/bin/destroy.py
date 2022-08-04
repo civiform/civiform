@@ -1,9 +1,5 @@
 #! /usr/bin/env python3
 
-import os
-import subprocess
-import shutil
-
 from cloud.aws.templates.aws_oidc.bin.aws_template import AwsSetupTemplate
 """
 Destroy the setup
