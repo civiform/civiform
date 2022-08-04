@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import models.Application;
-import models.Program;
 import play.libs.F;
 import repository.TimeFilter;
 import services.CiviFormError;
@@ -355,9 +354,6 @@ public interface ProgramService {
    * global admins if none.
    */
   ImmutableList<String> getNotificationEmailAddresses(String programName);
-
-  /** Get all other programs with the same name. */
-  ImmutableList<Program> getOtherProgramVersions(long programId);
 
   /** Get all versions of the program with a version matching programId, including that one */
   ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId);

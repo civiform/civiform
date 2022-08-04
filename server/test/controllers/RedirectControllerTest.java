@@ -25,10 +25,10 @@ import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
-import repository.ProgramRepository;
 import repository.UserRepository;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
+import services.program.ProgramService;
 import support.ProgramBuilder;
 import views.applicant.ApplicantUpsellCreateAccountView;
 
@@ -87,7 +87,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(HttpExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
-            instanceOf(ProgramRepository.class),
+            instanceOf(ProgramService.class),
             instanceOf(ApplicantUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
             languageUtils);
@@ -115,7 +115,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(HttpExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
-            instanceOf(ProgramRepository.class),
+            instanceOf(ProgramService.class),
             instanceOf(ApplicantUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
             languageUtils);

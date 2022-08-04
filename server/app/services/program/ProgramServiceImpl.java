@@ -713,13 +713,6 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ImmutableList<Program> getOtherProgramVersions(long programId) {
-    return programRepository.getAllProgramVersions(programId).stream()
-        .filter(program -> program.id != programId)
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  @Override
   public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
     return programRepository.getAllProgramVersions(programId).stream()
         .map(program -> syncProgramAssociations(program).toCompletableFuture().join())
