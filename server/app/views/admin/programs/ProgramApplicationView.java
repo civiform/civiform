@@ -85,7 +85,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         div()
                             .withClasses(Styles.FLEX)
                             .with(
-                                div("Status: ").withClass(Styles.SELF_CENTER),
+                                div("Status:")
+                                    .withClasses(
+                                        Styles.SELF_CENTER,
+                                        ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR_LABEL),
                                 renderStatusOptionsSelector(statusDefinitions)))
                     .with(renderDownloadButton(programId, applicationId)))
             .with(
@@ -173,7 +176,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
     SelectTag dropdownTag =
         select()
             .withClasses(
-                ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR,
                 Styles.OUTLINE_NONE,
                 Styles.PX_3,
                 Styles.PY_1,

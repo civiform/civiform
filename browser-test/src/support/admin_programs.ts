@@ -477,10 +477,10 @@ export class AdminPrograms {
     ).not.toBeNull()
   }
 
-  async expectStatusSelectorVisible() {
-    await this.page.isVisible(
-      `.cf-program-admin-status-selector:has-text("Status:")`,
-    )
+  async isStatusSelectorVisible(): Promise<boolean> {
+    return this.applicationFrame()
+      .locator('.cf-program-admin-status-selector-label:has-text("Status:")')
+      .isVisible()
   }
 
   async getJson(applyFilters: boolean) {
