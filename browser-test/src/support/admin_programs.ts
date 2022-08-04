@@ -158,13 +158,18 @@ export class AdminPrograms {
     await this.expectEditPredicatePage(blockName)
   }
 
-  // TODO(clouser): More fine-grained selectors for this and active.
   async expectDraftProgram(programName: string) {
-    await this.page.isVisible(this.programCardSelector(programName, 'Draft'))
+    expect(
+      await this.page.isVisible(this.programCardSelector(programName, 'Draft')),
+    ).toBe(true)
   }
 
   async expectActiveProgram(programName: string) {
-    await this.page.isVisible(this.programCardSelector(programName, 'Active'))
+    expect(
+      await this.page.isVisible(
+        this.programCardSelector(programName, 'Active'),
+      ),
+    ).toBe(true)
   }
 
   async expectProgramEditPage(programName: string = '') {
@@ -470,6 +475,12 @@ export class AdminPrograms {
         .locator(this.selectWithinApplicationBlock(blockName, 'a'))
         .getAttribute('href'),
     ).not.toBeNull()
+  }
+
+  async isStatusSelectorVisible(): Promise<boolean> {
+    return this.applicationFrame()
+      .locator('.cf-program-admin-status-selector-label:has-text("Status:")')
+      .isVisible()
   }
 
   async getJson(applyFilters: boolean) {

@@ -28,6 +28,12 @@ class ConfigLoader:
         return os.environ['APP_PREFIX']
 
     @property
+    def aws_region(self):
+        # NOTE: should we make AWS_REGION required and avoid having a default
+        # value here?
+        return os.environ.get('AWS_REGION', 'us-east-1')
+
+    @property
     def civiform_mode(self):
         return os.environ['CIVIFORM_MODE']
 
