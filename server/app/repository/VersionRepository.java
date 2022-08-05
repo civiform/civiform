@@ -53,12 +53,32 @@ public final class VersionRepository {
    * ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the next version.
    */
   public void publishNewSynchronizedVersion() {
+    publishNewSynchronizedVersion(PublishMode.PUBLISH_CHANGES);
+  }
+
+  /**
+   * Simulates publishing a new version of all programs and questions. All DRAFT programs/questions
+   * will become ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the
+   * next version. This method will not mutate the database and will return an updated Version
+   * corresponding to what would be the new ACTIVE version.
+   */
+  public Version previewPublishNewSynchronizedVersion() {
+    return publishNewSynchronizedVersion(PublishMode.DRY_RUN);
+  }
+
+  private enum PublishMode {
+    DRY_RUN,
+    PUBLISH_CHANGES,
+  }
+
+  private Version publishNewSynchronizedVersion(PublishMode publishMode) {
     try {
+      // Regardless of whether changes are published or not, we still perform
+      // this operation inside of a transaction in order to ensure we have
+      // consistent reads.
       database.beginTransaction();
       Version draft = getDraftVersion();
       Version active = getActiveVersion();
-      Preconditions.checkState(
-          draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
 
       ImmutableSet<String> draftProgramsNames = draft.getProgramsNames();
       ImmutableSet<String> draftQuestionNames = draft.getQuestionNames();
@@ -102,10 +122,26 @@ public final class VersionRepository {
           // that timestamp only to be updated for actual changes to the question.
           .forEach(activeQuestionNotInDraft -> draft.addQuestion(activeQuestionNotInDraft));
       // Move forward the ACTIVE version.
-      active.setLifecycleStage(LifecycleStage.OBSOLETE).save();
-      draft.setLifecycleStage(LifecycleStage.ACTIVE).save();
-      draft.refresh();
+      active.setLifecycleStage(LifecycleStage.OBSOLETE);
+      draft.setLifecycleStage(LifecycleStage.ACTIVE);
+
+      switch (publishMode) {
+        case PUBLISH_CHANGES:
+          Preconditions.checkState(
+              draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
+          draft.save();
+          active.save();
+          draft.refresh();
+          active.refresh();
+          break;
+        case DRY_RUN:
+          break;
+        default:
+          throw new RuntimeException(String.format("unrecognized publishMode: %s", publishMode));
+      }
       database.commitTransaction();
+
+      return draft;
     } finally {
       database.endTransaction();
     }
