@@ -131,23 +131,6 @@ resource "aws_secretsmanager_secret_version" "adfs_client_id_secret_version" {
   secret_string = " "
 }
 
-# Creating a AWS secret for adfs_discovery_uri
-resource "aws_secretsmanager_secret" "adfs_discovery_uri_secret" {
-  tags = {
-    Name = "${var.app_prefix} Civiform ADFS Discovery URI Secret"
-    Type = "Civiform ADFS Discovery URI Secret"
-  }
-  name                    = "${var.app_prefix}-adfs_discovery_uri"
-  kms_key_id              = aws_kms_key.civiform_kms_key.arn
-  recovery_window_in_days = local.secret_recovery_window_in_days
-}
-
-# Creating a AWS secret versions for adfs_discovery_uri
-resource "aws_secretsmanager_secret_version" "adfs_discovery_uri_secret_version" {
-  secret_id     = aws_secretsmanager_secret.adfs_discovery_uri_secret.id
-  secret_string = " "
-}
-
 # Creating a AWS secret for applicant_oidc_secret
 resource "aws_secretsmanager_secret" "applicant_oidc_client_secret_secret" {
   name                    = "${var.app_prefix}-applicant_oidc_client_secret"

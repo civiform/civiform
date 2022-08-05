@@ -51,7 +51,7 @@ describe('Static text question for applicant flow', () => {
 
     await applicantQuestions.applyProgram(programName)
 
-    applicantQuestions.seeStaticQuestion(staticText)
+    await applicantQuestions.seeStaticQuestion(staticText)
   })
 
   it('has no accessiblity violations', async () => {

@@ -323,7 +323,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
   public void getProgramDefinitionAsync_getsRequestedProgram() {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
 
-    CompletionStage<ProgramDefinition> found = ps.getProgramDefinitionAsync(programDefinition.id());
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveProgramDefinitionAsync(programDefinition.id());
 
     assertThat(found.toCompletableFuture().join().adminName())
         .isEqualTo(programDefinition.adminName());
@@ -334,7 +335,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
-        ps.getProgramDefinitionAsync(programDefinition.id() + 1);
+        ps.getActiveProgramDefinitionAsync(programDefinition.id() + 1);
 
     assertThatThrownBy(() -> found.toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)
@@ -352,7 +353,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .buildDefinition();
 
     ProgramDefinition found =
-        ps.getProgramDefinitionAsync(program.id()).toCompletableFuture().join();
+        ps.getActiveProgramDefinitionAsync(program.id()).toCompletableFuture().join();
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
@@ -1159,7 +1160,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             mapper.writeValueAsString(unorderedBlockDefinitions), programId);
     DB.sqlUpdate(updateString).execute();
 
-    ProgramDefinition found = ps.getProgramDefinitionAsync(programId).toCompletableFuture().get();
+    ProgramDefinition found =
+        ps.getActiveProgramDefinitionAsync(programId).toCompletableFuture().get();
 
     assertThat(found.hasOrderedBlockDefinitions()).isTrue();
   }
@@ -1168,7 +1170,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
-          .setEmailBodyText(Optional.of("I'm an email!"))
           .setLocalizedEmailBodyText(Optional.of(LocalizedStrings.of(Locale.US, "I'm a US email!")))
           .build();
 
@@ -1176,7 +1177,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Rejected")
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Rejected"))
-          .setEmailBodyText(Optional.of("I'm a rejection email!"))
           .setLocalizedEmailBodyText(
               Optional.of(LocalizedStrings.of(Locale.US, "I'm a US rejection email!")))
           .build();
@@ -1220,7 +1220,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
         StatusDefinitions.Status.builder()
             .setStatusText(APPROVED_STATUS.statusText())
             .setLocalizedStatusText(LocalizedStrings.withDefaultValue(APPROVED_STATUS.statusText()))
-            .setEmailBodyText(Optional.of("A new email"))
             .setLocalizedEmailBodyText(
                 Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
             .build();
@@ -1242,7 +1241,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
         StatusDefinitions.Status.builder()
             .setStatusText("New status text")
             .setLocalizedStatusText(LocalizedStrings.withDefaultValue("New status text"))
-            .setEmailBodyText(Optional.of("A new email"))
             .setLocalizedEmailBodyText(
                 Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
             .build();
@@ -1295,7 +1293,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
                           .setStatusText(APPROVED_STATUS.statusText())
                           .setLocalizedStatusText(
                               LocalizedStrings.withDefaultValue("New status text"))
-                          .setEmailBodyText(Optional.of("A new email"))
                           .setLocalizedEmailBodyText(
                               Optional.of(LocalizedStrings.withDefaultValue("A new US email")))
                           .build();

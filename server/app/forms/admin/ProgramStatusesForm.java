@@ -8,6 +8,7 @@ import java.util.List;
 import play.data.validation.Constraints.Validatable;
 import play.data.validation.Constraints.Validate;
 import play.data.validation.ValidationError;
+import services.LocalizedStrings;
 import services.program.StatusDefinitions;
 
 /** Form for creating / editing program statuses. */
@@ -41,7 +42,9 @@ public final class ProgramStatusesForm implements Validatable<List<ValidationErr
     ProgramStatusesForm form = new ProgramStatusesForm();
     form.setConfiguredStatusText(status.statusText());
     form.setStatusText(status.statusText());
-    form.setEmailBody(status.emailBodyText().orElse(""));
+    // Extract the English email body if email has been configured.
+    String emailBody = status.localizedEmailBodyText().map(LocalizedStrings::getDefault).orElse("");
+    form.setEmailBody(emailBody);
     return form;
   }
 

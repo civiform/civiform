@@ -19,7 +19,6 @@ import j2html.tags.specialized.FormTag;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
 import play.data.Form;
 import play.data.FormFactory;
@@ -248,7 +247,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         span(status.statusText()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
                 div()
                     .condWith(
-                        status.emailBodyText().isPresent(),
+                        status.localizedEmailBodyText().isPresent(),
                         p().withClasses(
                                 Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                             .with(
@@ -290,13 +289,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                 submitButton("Delete")
                                     .withClass(AdminStyles.SECONDARY_BUTTON_STYLES))));
 
-    return Modal.builder(randomModalId(), content).setModalTitle("Delete this status").build();
-  }
-
-  private static String randomModalId() {
-    // We prepend a "a-" since element IDs must start with an alphabetic character, whereas UUIDs
-    // can start with a numeric character.
-    return "a-" + UUID.randomUUID().toString();
+    return Modal.builder(Modal.randomModalId(), content)
+        .setModalTitle("Delete this status")
+        .build();
   }
 
   /**
@@ -324,6 +319,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
       ProgramDefinition program,
       Form<ProgramStatusesForm> form,
       boolean displayOnLoad) {
+    // TODO(#2752): If an email is already configured, add a warning that setting it to empty
+    // will clear any other localized text.
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
 
@@ -369,7 +366,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         div().withClass(Styles.FLEX_GROW),
                         // TODO(#2752): Add a cancel button that clears state.
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
-    return Modal.builder(randomModalId(), content)
+    return Modal.builder(Modal.randomModalId(), content)
         .setModalTitle(
             formData.getConfiguredStatusText().isEmpty()
                 ? "Create a new status"
