@@ -25,7 +25,7 @@ import views.style.Styles;
 public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final FileUploadQuestion fileUploadQuestion;
-  // The ID used to associate the file input field with its label for screen readers.
+  // The ID used to associate the file input field with its screen reader label.
   private final String fileInputId;
 
   public static DivTag renderFileKeyField(

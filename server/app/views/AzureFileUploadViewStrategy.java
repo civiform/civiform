@@ -23,7 +23,6 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   @Override
   protected ImmutableList<InputTag> fileUploadFields(
       Optional<StorageUploadRequest> request, String fileInputId) {
-    // Need to add either label here or pass in an id to use.
     if (request.isEmpty()) {
       return ImmutableList.of();
     }
