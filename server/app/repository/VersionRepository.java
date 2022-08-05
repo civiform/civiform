@@ -121,6 +121,15 @@ public final class VersionRepository {
           // save causing the "updated" timestamp to be changed for a Question. We intend for
           // that timestamp only to be updated for actual changes to the question.
           .forEach(activeQuestionNotInDraft -> draft.addQuestion(activeQuestionNotInDraft));
+
+      // Remove any questions / programs both added and archived in the current version.
+      draft.getQuestions().stream()
+          .filter(questionIsDeletedInDraft)
+          .forEach(questionToDelete -> draft.removeQuestion(questionToDelete));
+      draft.getPrograms().stream()
+          .filter(programIsDeletedInDraft)
+          .forEach(programToDelete -> draft.removeProgram(programToDelete));
+
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       draft.setLifecycleStage(LifecycleStage.ACTIVE);

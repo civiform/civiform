@@ -37,6 +37,40 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void testPublish_tombstonesProgramsAndQuestionsOnlyCreatedInTheDraftVersion() {
+    Question draftOnlyQuestion = resourceCreator.insertQuestion("draft-only-question");
+    draftOnlyQuestion.addVersion(versionRepository.getDraftVersion()).save();
+
+    Program draftOnlyProgram =
+        ProgramBuilder.newDraftProgram("draft-only-program").withBlock("Screen 1").build();
+
+    Version draftForTombstoning = versionRepository.getDraftVersion();
+    assertThat(draftForTombstoning.addTombstoneForQuestion(draftOnlyQuestion)).isTrue();
+    assertThat(draftForTombstoning.addTombstoneForProgramForTest(draftOnlyProgram)).isTrue();
+
+    assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
+    assertThat(versionRepository.getActiveVersion().getTombstonedProgramNames()).isEmpty();
+    assertThat(versionRepository.getActiveVersion().getQuestions()).isEmpty();
+    assertThat(versionRepository.getActiveVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(draftOnlyProgram.id);
+    assertThat(versionRepository.getDraftVersion().getTombstonedProgramNames())
+        .containsExactly(draftOnlyProgram.getProgramDefinition().adminName());
+    assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(draftOnlyQuestion.id);
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .containsExactly(draftOnlyQuestion.getQuestionDefinition().getName());
+
+    // Publish and ensure that both the program and question aren't carried forward.
+    Version updated = versionRepository.previewPublishNewSynchronizedVersion();
+    assertThat(updated.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(updated.getPrograms()).isEmpty();
+    assertThat(updated.getTombstonedProgramNames()).isEmpty();
+    assertThat(updated.getQuestions()).isEmpty();
+    assertThat(updated.getTombstonedQuestionNames()).isEmpty();
+  }
+
+  @Test
   public void testPublish() {
     Question firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();

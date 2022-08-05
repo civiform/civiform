@@ -1,5 +1,6 @@
 package models;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.annotation.DbArray;
@@ -68,9 +69,17 @@ public final class Version extends BaseModel {
     return this;
   }
 
+  public boolean removeProgram(Program program) {
+    return this.programs.remove(program);
+  }
+
   public Version addQuestion(Question question) {
     this.questions.add(question);
     return this;
+  }
+
+  public boolean removeQuestion(Question question) {
+    return this.questions.remove(question);
   }
 
   public Version setLifecycleStage(LifecycleStage lifecycleStage) {
@@ -161,8 +170,7 @@ public final class Version extends BaseModel {
     if (this.questionIsTombstoned(question.getQuestionDefinition().getName())) {
       return false;
     }
-    this.tombstonedQuestionNames.add(question.getQuestionDefinition().getName());
-    return true;
+    return this.tombstonedQuestionNames.add(question.getQuestionDefinition().getName());
   }
 
   public boolean removeTombstoneForQuestion(Question question) {
@@ -170,6 +178,17 @@ public final class Version extends BaseModel {
       this.tombstonedQuestionNames = new ArrayList<>();
     }
     return this.tombstonedQuestionNames.remove(question.getQuestionDefinition().getName());
+  }
+
+  @VisibleForTesting
+  public boolean addTombstoneForProgramForTest(Program program) {
+    if (this.tombstonedProgramNames == null) {
+      this.tombstonedProgramNames = new ArrayList<>();
+    }
+    if (this.programIsTombstoned(program.getProgramDefinition().adminName())) {
+      return false;
+    }
+    return this.tombstonedProgramNames.add(program.getProgramDefinition().adminName());
   }
 
   public boolean hasAnyChanges() {
