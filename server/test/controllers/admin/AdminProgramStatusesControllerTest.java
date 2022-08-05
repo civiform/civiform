@@ -12,6 +12,7 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -24,6 +25,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -42,7 +44,6 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
-          .setEmailBodyText(Optional.of("Approved email body"))
           .setLocalizedEmailBodyText(
               Optional.of(LocalizedStrings.withDefaultValue("Approved email body")))
           .build();
@@ -51,13 +52,28 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Rejected")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Rejected"))
-          .setEmailBodyText(Optional.of("Rejected email body"))
           .setLocalizedEmailBodyText(
               Optional.of(LocalizedStrings.withDefaultValue("Rejected email body")))
           .build();
 
+  private static final StatusDefinitions.Status WITH_STATUS_TRANSLATIONS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("With translations")
+          .setLocalizedStatusText(
+              LocalizedStrings.create(
+                  ImmutableMap.of(
+                      Locale.US, "With translations",
+                      Locale.FRENCH, "With translations (French)")))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.create(
+                      ImmutableMap.of(
+                          Locale.US, "A translatable email body",
+                          Locale.FRENCH, "A translatable email body (French)"))))
+          .build();
+
   private static final ImmutableList<StatusDefinitions.Status> ORIGINAL_STATUSES =
-      ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS);
+      ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS);
 
   @Before
   public void setup() {
@@ -143,10 +159,10 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             ImmutableList.of(
                 APPROVED_STATUS,
                 REJECTED_STATUS,
+                WITH_STATUS_TRANSLATIONS,
                 StatusDefinitions.Status.builder()
                     .setStatusText("foo")
                     .setLocalizedStatusText(LocalizedStrings.withDefaultValue("foo"))
-                    .setEmailBodyText(Optional.of("some email content"))
                     .setLocalizedEmailBodyText(
                         Optional.of(LocalizedStrings.withDefaultValue("some email content")))
                     .build()));
@@ -172,20 +188,102 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         .containsExactlyEntriesOf(ImmutableMap.of("success", "Status updated"));
     assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
 
-    StatusDefinitions.Status.Builder expectedStatusBuilder =
+    StatusDefinitions.Status expectedStatus =
         StatusDefinitions.Status.builder()
             .setStatusText("Foo")
-            .setLocalizedStatusText(APPROVED_STATUS.localizedStatusText())
-            .setEmailBodyText(Optional.of("Updated email content"));
-    if (APPROVED_STATUS.localizedEmailBodyText().isPresent()) {
-      expectedStatusBuilder =
-          expectedStatusBuilder.setLocalizedEmailBodyText(APPROVED_STATUS.localizedEmailBodyText());
-    }
-    StatusDefinitions.Status expectedStatus = expectedStatusBuilder.build();
+            .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Foo"))
+            .setLocalizedEmailBodyText(
+                Optional.of(LocalizedStrings.withDefaultValue("Updated email content")))
+            .build();
 
     // Load the updated program and ensure status the status is present.
     assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
-        .isEqualTo(ImmutableList.of(expectedStatus, REJECTED_STATUS));
+        .isEqualTo(ImmutableList.of(expectedStatus, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS));
+  }
+
+  @Test
+  public void update_editExistingStatusPreservesNonDefaultLocaleTranslations()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    Program program =
+        ProgramBuilder.newDraftProgram("test name", "test description")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .build();
+
+    Result result =
+        makeCreateOrUpdateRequest(
+            program.id,
+            ImmutableMap.of(
+                "configuredStatusText", "With translations",
+                "statusText", "Foo",
+                "emailBody", "Updated email content"));
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().data())
+        .containsExactlyEntriesOf(ImmutableMap.of("success", "Status updated"));
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
+
+    String originalFrenchStatusText =
+        WITH_STATUS_TRANSLATIONS.localizedStatusText().get(Locale.FRENCH);
+    String originalFrenchEmailBodyText =
+        WITH_STATUS_TRANSLATIONS.localizedEmailBodyText().get().get(Locale.FRENCH);
+    StatusDefinitions.Status expectedStatus =
+        StatusDefinitions.Status.builder()
+            .setStatusText("Foo")
+            .setLocalizedStatusText(
+                LocalizedStrings.create(
+                    ImmutableMap.of(Locale.US, "Foo", Locale.FRENCH, originalFrenchStatusText)))
+            .setLocalizedEmailBodyText(
+                Optional.of(
+                    LocalizedStrings.create(
+                        ImmutableMap.of(
+                            Locale.US,
+                            "Updated email content",
+                            Locale.FRENCH,
+                            originalFrenchEmailBodyText))))
+            .build();
+
+    // Load the updated program and ensure the status is present.
+    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+        .isEqualTo(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, expectedStatus));
+  }
+
+  @Test
+  public void update_editExistingStatusClearEmailClearsTranslatedEmailContent()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    Program program =
+        ProgramBuilder.newDraftProgram("test name", "test description")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .build();
+
+    Result result =
+        makeCreateOrUpdateRequest(
+            program.id,
+            ImmutableMap.of(
+                "configuredStatusText", "With translations",
+                "statusText", "Foo",
+                "emailBody", ""));
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().data())
+        .containsExactlyEntriesOf(ImmutableMap.of("success", "Status updated"));
+    assertThat(contentAsString(result)).doesNotContain(ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
+
+    String originalFrenchStatusText =
+        WITH_STATUS_TRANSLATIONS.localizedStatusText().get(Locale.FRENCH);
+    StatusDefinitions.Status expectedStatus =
+        StatusDefinitions.Status.builder()
+            .setStatusText("Foo")
+            .setLocalizedStatusText(
+                LocalizedStrings.create(
+                    ImmutableMap.of(Locale.US, "Foo", Locale.FRENCH, originalFrenchStatusText)))
+            // Explicitly not calling setLocalizedEmailBodyText since we expect
+            // the value to be cleared entirely when an empty English email is
+            // provided from the request.
+            .build();
+
+    // Load the updated program and ensure the status is present.
+    assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
+        .isEqualTo(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, expectedStatus));
   }
 
   @Test
@@ -324,7 +422,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     // Load the updated program and ensure status the status is present.
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
     assertThat(updatedProgram.statusDefinitions().getStatuses())
-        .isEqualTo(ImmutableList.of(APPROVED_STATUS));
+        .isEqualTo(ImmutableList.of(APPROVED_STATUS, WITH_STATUS_TRANSLATIONS));
   }
 
   @Test

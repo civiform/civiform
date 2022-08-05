@@ -51,17 +51,18 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
             .withClasses(Styles.MY_8, Styles.M_AUTO);
 
+    String pageTitle =
+        params.programTitle()
+            + " — "
+            + (params.blockIndex() + 1)
+            + " of "
+            + params.totalBlockCount();
+
     HtmlBundle bundle =
         layout
             .getBundle()
-            .setTitle(params.programTitle())
-            .addMainContent(
-                h1(params.programTitle()
-                        + " "
-                        + (params.blockIndex() + 1)
-                        + " of "
-                        + params.totalBlockCount())
-                    .withClasses(Styles.SR_ONLY))
+            .setTitle(pageTitle)
+            .addMainContent(h1(pageTitle).withClasses(Styles.SR_ONLY))
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),

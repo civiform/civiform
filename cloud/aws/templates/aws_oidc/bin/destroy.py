@@ -1,9 +1,5 @@
 #! /usr/bin/env python3
 
-import os
-import subprocess
-import shutil
-
 from cloud.aws.templates.aws_oidc.bin.aws_template import AwsSetupTemplate
 """
 Destroy the setup
@@ -17,4 +13,12 @@ class Destroy(AwsSetupTemplate):
             self._make_backend_override()
 
     def post_terraform_destroy(self):
-        self._tf_run_for_aws(is_destroy=True)
+        # when config is dev then the state is stored locally and no clean up
+        # required
+        if not self.config.is_dev():
+            print(
+                'Not destroying S3 bucket that contains terraform state. ' +
+                'You have to destroy it manually:')
+            print(
+                f'https://s3.console.aws.amazon.com/s3/buckets/{self.config.app_prefix}-backendstate'
+            )
