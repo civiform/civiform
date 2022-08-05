@@ -12,7 +12,8 @@ import services.cloud.aws.SignedS3UploadRequest;
 public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
-  protected ImmutableList<InputTag> fileUploadFields(Optional<StorageUploadRequest> request) {
+  protected ImmutableList<InputTag> fileUploadFields(
+      Optional<StorageUploadRequest> request, String fileInputId) {
     if (request.isEmpty()) {
       return ImmutableList.of();
     }
@@ -49,7 +50,12 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     // after that. See #2653 /
     // https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
     // for more context.
-    builder.add(input().withType("file").withName("file").withAccept(MIME_TYPES_IMAGES_AND_PDF));
+    builder.add(
+        input()
+            .withId(fileInputId)
+            .withType("file")
+            .withName("file")
+            .withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
 
