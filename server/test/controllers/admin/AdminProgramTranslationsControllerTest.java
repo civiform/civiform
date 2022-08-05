@@ -152,7 +152,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   private Program createProgram(
       String adminName, LocalizedStrings localizedName, LocalizedStrings localizedDescription) {
     Program initialProgram = ProgramBuilder.newDraftProgram(adminName).build();
-    // ProgamBuilder initializes the localized name and doesn't currently support providding
+    // ProgramBuilder initializes the localized name and doesn't currently support providing
     // overrides. Here we manually update the localized string in a separate update.
     Program program =
         initialProgram.getProgramDefinition().toBuilder()
