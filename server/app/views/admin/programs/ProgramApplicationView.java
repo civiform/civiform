@@ -5,6 +5,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.select;
@@ -82,14 +83,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        div()
-                            .withClasses(Styles.FLEX)
-                            .with(
-                                div("Status:")
-                                    .withClasses(
-                                        Styles.SELF_CENTER,
-                                        ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR_LABEL),
-                                renderStatusOptionsSelector(statusDefinitions)))
+                        renderStatusOptionsSelector(statusDefinitions))
                     .with(renderDownloadButton(programId, applicationId)))
             .with(
                 each(
@@ -172,11 +166,21 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private static SelectTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+  private static DivTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+    final String SELECTOR_ID = "status-selector";
+    DivTag container =
+        div()
+            .withClasses(Styles.FLEX)
+            .with(
+                label("Status:")
+                    .withClasses(
+                        Styles.SELF_CENTER, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR_LABEL)
+                    .withFor(SELECTOR_ID));
+
     SelectTag dropdownTag =
         select()
+            .withId(SELECTOR_ID)
             .withClasses(
-                ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR,
                 Styles.OUTLINE_NONE,
                 Styles.PX_3,
                 Styles.PY_1,
@@ -189,8 +193,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 Styles.TEXT_XS,
                 StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
 
-    // When no status is currently set, add an empty option.
-    dropdownTag.with(option("").withValue(""));
+    // Add the options available to the admin.
+    // When no status is currently applied to the application, add an empty option that is selected.
+    dropdownTag.with(option("").withValue("").isSelected());
 
     // Add statuses in the order they're provided.
     statusDefinitions
@@ -201,6 +206,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
               OptionTag optionTag = option(value).withValue(value);
               dropdownTag.with(optionTag);
             });
-    return dropdownTag;
+    return container.with(dropdownTag);
   }
 }

@@ -484,13 +484,9 @@ export class AdminPrograms {
   }
 
   async getStatusOption(): Promise<string> {
-    const selectedValue = this.applicationFrame()
-      .locator('.cf-program-admin-status-selector')
-      .evaluate((el: HTMLSelectElement) => el.options[el.selectedIndex].value)
-    // @ts-ignore
-    return selectedValue === null
-      ? 'selected option was not found'
-      : selectedValue
+    return this.applicationFrame()
+      .locator('.cf-program-admin-status-selector-label')
+      .inputValue()
   }
 
   async getJson(applyFilters: boolean) {
