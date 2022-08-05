@@ -3,6 +3,8 @@ package views.admin.programs;
 import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.legend;
+import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -24,7 +26,9 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
@@ -78,11 +82,20 @@ public final class ProgramTranslationView extends TranslationFormView {
       ProgramDefinition program,
       Optional<String> localizedName,
       Optional<String> localizedDescription) {
+    String programDetailsLink =
+        controllers.admin.routes.AdminProgramController.edit(program.id()).url();
     ImmutableList.Builder<DomContent> result =
         ImmutableList.<DomContent>builder()
             .add(
                 fieldSetForFields(
-                    "Program details (visible to applicants)",
+                    legend()
+                        .with(
+                            span("Applicant-visible program details"),
+                            new LinkElement()
+                                .setText("(edit default)")
+                                .setHref(programDetailsLink)
+                                .setStyles(Styles.ML_2)
+                                .asAnchorText()),
                     ImmutableList.of(
                         div()
                             .with(
@@ -101,15 +114,25 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     .getInputTag(),
                                 defaultLocaleTextHint(program.localizedDescription())))));
     if (statusTrackingEnabled) {
+      String programStatusesLink =
+          controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
       // TODO(#2752): Use real statuses from the program.
       ImmutableList<ApplicationStatus> statusesWithEmail =
           ImmutableList.of(
               ApplicationStatus.create("Approved", "Some email content"),
               ApplicationStatus.create("Needs more information", "Other email content"));
+
       for (ApplicationStatus s : statusesWithEmail) {
         result.add(
             fieldSetForFields(
-                String.format("Application status: %s", s.statusName()),
+                legend()
+                    .with(
+                        span(String.format("Application status: %s", s.statusName())),
+                        new LinkElement()
+                            .setText("(edit default)")
+                            .setHref(programStatusesLink)
+                            .setStyles(Styles.ML_2)
+                            .asAnchorText()),
                 ImmutableList.of(
                     div()
                         .with(

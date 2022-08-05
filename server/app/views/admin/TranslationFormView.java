@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
@@ -14,6 +13,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LegendTag;
 import java.util.Locale;
 import play.mvc.Http;
 import services.LocalizedStrings;
@@ -111,10 +111,9 @@ public abstract class TranslationFormView extends BaseHtmlView {
 
   /** Creates a fieldset wrapping several form fields to be rendered. */
   protected final FieldsetTag fieldSetForFields(
-      String legendText, ImmutableList<DomContent> fields) {
+      LegendTag legendContent, ImmutableList<DomContent> fields) {
     return fieldset()
         .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-        .with(
-            legend(legendText), div().withClasses(Styles.FLEX_ROW, Styles.SPACE_Y_4).with(fields));
+        .with(legendContent, div().withClasses(Styles.FLEX_ROW, Styles.SPACE_Y_4).with(fields));
   }
 }
