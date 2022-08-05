@@ -54,10 +54,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             .url();
     FormTag form =
         renderTranslationForm(
-            request,
-            locale,
-            formAction,
-            formFields(program, locale, localizedName, localizedDescription));
+            request, locale, formAction, formFields(program, localizedName, localizedDescription));
 
     String title = String.format("Manage program translations: %s", program.adminName());
 
@@ -79,7 +76,6 @@ public final class ProgramTranslationView extends TranslationFormView {
 
   private ImmutableList<DomContent> formFields(
       ProgramDefinition program,
-      Locale locale,
       Optional<String> localizedName,
       Optional<String> localizedDescription) {
     ImmutableList.Builder<DomContent> result =
