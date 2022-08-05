@@ -17,6 +17,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
@@ -27,7 +28,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.LocalizedStrings;
+import services.TranslationHelper;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
 import views.BaseHtmlView;
@@ -51,13 +52,19 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private final AdminLayout layout;
   private final FormFactory formFactory;
   private final MessagesApi messagesApi;
+  private final Optional<Locale> firstLocaleForTranslations;
 
   @Inject
   public ProgramStatusesView(
-      AdminLayoutFactory layoutFactory, FormFactory formFactory, MessagesApi messagesApi) {
+      AdminLayoutFactory layoutFactory,
+      FormFactory formFactory,
+      MessagesApi messagesApi,
+      TranslationHelper translationHelper) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.formFactory = formFactory;
     this.messagesApi = checkNotNull(messagesApi);
+    this.firstLocaleForTranslations =
+        checkNotNull(translationHelper).localesForTranslation().stream().findFirst();
   }
 
   /**
@@ -93,25 +100,22 @@ public final class ProgramStatusesView extends BaseHtmlView {
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
         renderProgramStatusesContainer(request, program, maybeStatusForm);
 
-    DivTag contentDiv =
+    DivTag topBarDiv =
         div()
-            .withClasses(Styles.PX_4)
+            .withClasses(
+                Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12, Styles.MB_10)
             .with(
-                div()
-                    .withClasses(
-                        Styles.FLEX,
-                        Styles.ITEMS_CENTER,
-                        Styles.SPACE_X_4,
-                        Styles.MT_12,
-                        Styles.MB_10)
-                    .with(
-                        h1(
-                            String.format(
-                                "Manage application statuses for %s", program.adminName())),
-                        div().withClass(Styles.FLEX_GROW),
-                        renderManageTranslationsLink(program),
-                        createStatusTriggerButton),
-                statusContainerAndModals.getLeft());
+                h1(String.format("Manage application statuses for %s", program.adminName())),
+                div().withClass(Styles.FLEX_GROW));
+
+    Optional<ButtonTag> maybeManageTranslationsLink = renderManageTranslationsLink(program);
+    if (maybeManageTranslationsLink.isPresent()) {
+      topBarDiv.with(maybeManageTranslationsLink.get());
+    }
+    topBarDiv.with(createStatusTriggerButton);
+
+    DivTag contentDiv =
+        div().withClasses(Styles.PX_4).with(topBarDiv, statusContainerAndModals.getLeft());
 
     HtmlBundle htmlBundle =
         layout
@@ -131,15 +135,18 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ButtonTag renderManageTranslationsLink(ProgramDefinition program) {
+  private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
+    if (firstLocaleForTranslations.isEmpty()) {
+      return Optional.empty();
+    }
     String linkDestination =
         routes.AdminProgramTranslationsController.edit(
-                program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
+                program.id(), firstLocaleForTranslations.get().toLanguageTag())
             .url();
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);
-    return asRedirectButton(button, linkDestination);
+    return Optional.of(asRedirectButton(button, linkDestination));
   }
 
   /**

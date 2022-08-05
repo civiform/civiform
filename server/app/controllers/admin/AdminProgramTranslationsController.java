@@ -15,6 +15,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.TranslationHelper;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -26,13 +27,18 @@ public class AdminProgramTranslationsController extends CiviFormController {
   private final ProgramService service;
   private final ProgramTranslationView translationView;
   private final FormFactory formFactory;
+  private final TranslationHelper translationHelper;
 
   @Inject
   public AdminProgramTranslationsController(
-      ProgramService service, ProgramTranslationView translationView, FormFactory formFactory) {
+      ProgramService service,
+      ProgramTranslationView translationView,
+      FormFactory formFactory,
+      TranslationHelper translationHelper) {
     this.service = checkNotNull(service);
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
+    this.translationHelper = checkNotNull(translationHelper);
   }
 
   /**
@@ -47,7 +53,12 @@ public class AdminProgramTranslationsController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, long id, String locale) throws ProgramNotFoundException {
     ProgramDefinition program = service.getProgramDefinition(id);
-    Locale localeToEdit = Locale.forLanguageTag(locale);
+    Optional<Locale> maybeLocaleToEdit = translationHelper.getSupportedLocale(locale);
+    if (maybeLocaleToEdit.isEmpty()) {
+      // TODO(clouser): Toast.
+      return redirect(routes.AdminProgramController.index().url());
+    }
+    Locale localeToEdit = maybeLocaleToEdit.get();
     return ok(
         translationView.render(
             request,
@@ -71,24 +82,30 @@ public class AdminProgramTranslationsController extends CiviFormController {
   public Result update(Http.Request request, long id, String locale)
       throws ProgramNotFoundException {
     ProgramDefinition program = service.getProgramDefinition(id);
+    Optional<Locale> maybeLocaleToUpdate = translationHelper.getSupportedLocale(locale);
+    if (maybeLocaleToUpdate.isEmpty()) {
+      // TODO(clouser): Toast.
+      return redirect(routes.AdminProgramController.index().url());
+    }
+    Locale localeToUpdate = maybeLocaleToUpdate.get();
+
     Form<ProgramTranslationForm> translationForm = formFactory.form(ProgramTranslationForm.class);
     if (translationForm.hasErrors()) {
       return badRequest();
     }
     ProgramTranslationForm translations = translationForm.bindFromRequest(request).get();
-    Locale updatedLocale = Locale.forLanguageTag(locale);
     String displayName = translations.getDisplayName();
     String displayDescription = translations.getDisplayDescription();
 
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateLocalization(program.id(), updatedLocale, displayName, displayDescription);
+          service.updateLocalization(program.id(), localeToUpdate, displayName, displayDescription);
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return ok(
             translationView.render(
                 request,
-                updatedLocale,
+                localeToUpdate,
                 program,
                 Optional.of(displayName),
                 Optional.of(displayDescription),
