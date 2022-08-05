@@ -483,6 +483,16 @@ export class AdminPrograms {
       .isVisible()
   }
 
+  async getStatusOption(): Promise<string> {
+    const selectedValue = this.applicationFrame()
+      .locator('.cf-program-admin-status-selector')
+      .evaluate((el: HTMLSelectElement) => el.options[el.selectedIndex].value)
+    // @ts-ignore
+    return selectedValue === null
+      ? 'selected option was not found'
+      : selectedValue
+  }
+
   async getJson(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {

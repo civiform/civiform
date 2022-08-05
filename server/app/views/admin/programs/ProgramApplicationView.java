@@ -176,6 +176,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     SelectTag dropdownTag =
         select()
             .withClasses(
+                ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR,
                 Styles.OUTLINE_NONE,
                 Styles.PX_3,
                 Styles.PY_1,
@@ -187,6 +188,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 Styles.BG_WHITE,
                 Styles.TEXT_XS,
                 StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
+
+    // When no status is currently set, add an empty option.
+    dropdownTag.with(option("").withValue(""));
 
     // Add statuses in the order they're provided.
     statusDefinitions
