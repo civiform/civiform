@@ -8,7 +8,7 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-describe('modify program statuses', () => {
+describe.skip('modify program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let adminProgramStatuses: AdminProgramStatuses
