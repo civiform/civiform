@@ -102,8 +102,8 @@ describe('view program statuses', () => {
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(true)
     })
 
-    it('shows default option as blank', async () => {
-      expect(await adminPrograms.getStatusOption()).toBe('')
+    it('shows default option as placeholder', async () => {
+      expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
     })
   })
 })
