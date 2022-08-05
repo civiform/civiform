@@ -55,8 +55,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
     ProgramDefinition program = service.getProgramDefinition(id);
     Optional<Locale> maybeLocaleToEdit = translationHelper.getSupportedLocale(locale);
     if (maybeLocaleToEdit.isEmpty()) {
-      // TODO(clouser): Toast.
-      return redirect(routes.AdminProgramController.index().url());
+      return redirect(routes.AdminProgramController.index().url())
+          .flashing("error", String.format("Unsupported locale: %s", locale));
     }
     Locale localeToEdit = maybeLocaleToEdit.get();
     return ok(
@@ -84,8 +84,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
     ProgramDefinition program = service.getProgramDefinition(id);
     Optional<Locale> maybeLocaleToUpdate = translationHelper.getSupportedLocale(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
-      // TODO(clouser): Toast.
-      return redirect(routes.AdminProgramController.index().url());
+      return redirect(routes.AdminProgramController.index().url())
+          .flashing("error", String.format("Unsupported locale: %s", locale));
     }
     Locale localeToUpdate = maybeLocaleToUpdate.get();
 

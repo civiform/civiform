@@ -49,10 +49,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Renders a page with a table view of all questions. */
-  public Content render(
-      ActiveAndDraftQuestions activeAndDraftQuestions,
-      Optional<String> maybeFlash,
-      Http.Request request) {
+  public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     String title = "All Questions";
 
     HtmlBundle htmlBundle =
@@ -65,10 +62,13 @@ public final class QuestionsListView extends BaseHtmlView {
                 div(renderQuestionTable(activeAndDraftQuestions, request)).withClasses(Styles.M_4),
                 renderSummary(activeAndDraftQuestions));
 
-    if (maybeFlash.isPresent()) {
-      // Right now, we only show success messages when this page is rendered with maybeFlash set,
-      // so we use the success ToastMessage type by default.
-      htmlBundle.addToastMessages(ToastMessage.success(maybeFlash.get()).setDismissible(false));
+    Http.Flash flash = request.flash();
+    if (flash.get("success").isPresent()) {
+      htmlBundle.addToastMessages(
+          ToastMessage.success(flash.get("success").get()).setDismissible(false));
+    } else if (flash.get("error").isPresent()) {
+      htmlBundle.addToastMessages(
+          ToastMessage.error(flash.get("error").get()).setDismissible(false));
     }
 
     return layout.renderCentered(htmlBundle);

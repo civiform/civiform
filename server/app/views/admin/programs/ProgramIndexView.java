@@ -37,6 +37,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
+import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -117,6 +118,14 @@ public final class ProgramIndexView extends BaseHtmlView {
             .addModals(demographicsCsvModal)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
     maybePublishModal.ifPresent(htmlBundle::addModals);
+
+    Http.Flash flash = request.flash();
+    if (flash.get("error").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
+    } else if (flash.get("success").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
+    }
+
     return layout.renderCentered(htmlBundle);
   }
 

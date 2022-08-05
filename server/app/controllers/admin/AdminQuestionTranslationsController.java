@@ -65,9 +65,9 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   public CompletionStage<Result> edit(Http.Request request, long id, String locale) {
     Optional<Locale> maybeLocaleToEdit = translationHelper.getSupportedLocale(locale);
     if (maybeLocaleToEdit.isEmpty()) {
-      // TODO(clouser): Toast.
       return CompletableFuture.completedFuture(
-          redirect(routes.AdminQuestionController.index().url()));
+          redirect(routes.AdminQuestionController.index().url())
+              .flashing("error", String.format("Unsupported locale: %s", locale)));
     }
     Locale localeToEdit = maybeLocaleToEdit.get();
 
@@ -100,7 +100,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     if (maybeLocaleToUpdate.isEmpty()) {
       // TODO(clouser): Toast.
       return CompletableFuture.completedFuture(
-          redirect(routes.AdminQuestionController.index().url()));
+          redirect(routes.AdminQuestionController.index().url())
+              .flashing("error", String.format("Unsupported locale: %s", locale)));
     }
     Locale localeToUpdate = maybeLocaleToUpdate.get();
 
