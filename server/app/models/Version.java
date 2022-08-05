@@ -171,4 +171,11 @@ public final class Version extends BaseModel {
     }
     return this.tombstonedQuestionNames.remove(question.getQuestionDefinition().getName());
   }
+
+  public boolean hasAnyChanges() {
+    return tombstonedQuestionNames.size() > 0
+        || tombstonedProgramNames.size() > 0
+        || questions.size() > 0
+        || programs.size() > 0;
+  }
 }

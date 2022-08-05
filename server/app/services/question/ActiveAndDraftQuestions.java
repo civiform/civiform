@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.collect.Streams;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -70,25 +69,32 @@ public final class ActiveAndDraftQuestions {
                           Optional.ofNullable(draftNames.get(name)));
                     }));
 
-    draftVersionHasAnyEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
+    draftVersionHasAnyEdits = draft.hasAnyChanges();
     referencingActiveProgramsByName = buildReferencingProgramsMap(active);
     referencingDraftProgramsByName =
         draftVersionHasAnyEdits ? buildReferencingProgramsMap(withDraftEdits) : ImmutableMap.of();
 
+    ImmutableSet<String> tombstonedQuestionNames =
+        ImmutableSet.copyOf(withDraftEdits.getTombstonedQuestionNames());
     deletionStatusByName =
-        activeNames.keySet().stream()
+        versionedByName.keySet().stream()
             .collect(
                 ImmutableMap.toImmutableMap(
                     questionName -> questionName,
                     questionName -> {
-                      if (draft.getTombstonedQuestionNames().contains(questionName)) {
-                        return DeletionStatus.PENDING_DELETION;
-                      } else if (isNotDeletable(
-                          active, draft, activeNames, draftNames, questionName)) {
+                      final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
+                          referencesToExamine =
+                              draftVersionHasAnyEdits
+                                  ? referencingDraftProgramsByName
+                                  : referencingActiveProgramsByName;
+                      if (!referencesToExamine
+                          .getOrDefault(questionName, ImmutableSet.of())
+                          .isEmpty()) {
                         return DeletionStatus.NOT_DELETABLE;
-                      } else {
-                        return DeletionStatus.DELETABLE;
                       }
+                      return tombstonedQuestionNames.contains(questionName)
+                          ? DeletionStatus.PENDING_DELETION
+                          : DeletionStatus.DELETABLE;
                     }));
   }
 
@@ -128,24 +134,6 @@ public final class ActiveAndDraftQuestions {
     return result.entrySet().stream()
         .collect(
             ImmutableMap.toImmutableMap(e -> e.getKey(), e -> ImmutableSet.copyOf(e.getValue())));
-  }
-
-  private static boolean isNotDeletable(
-      Version active,
-      Version draft,
-      ImmutableMap<String, QuestionDefinition> activeNames,
-      ImmutableMap<String, QuestionDefinition> draftNames,
-      String questionName) {
-    return Streams.concat(active.getPrograms().stream(), draft.getPrograms().stream())
-        .anyMatch(
-            program -> {
-              QuestionDefinition activeQuestion = activeNames.get(questionName);
-              QuestionDefinition draftQuestion = draftNames.get(questionName);
-              ProgramDefinition programDefinition = program.getProgramDefinition();
-              if (activeQuestion != null && programDefinition.hasQuestion(activeQuestion)) {
-                return true;
-              } else return draftQuestion != null && programDefinition.hasQuestion(draftQuestion);
-            });
   }
 
   public DeletionStatus getDeletionStatus(String questionName) {
