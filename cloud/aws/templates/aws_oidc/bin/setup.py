@@ -4,6 +4,7 @@ import subprocess
 import shlex
 import shutil
 
+from cloud.aws.templates.aws_oidc.bin.aws import Aws
 from cloud.aws.templates.aws_oidc.bin.aws_template import AwsSetupTemplate
 from cloud.aws.bin.lib import backend_setup
 
@@ -36,13 +37,10 @@ class Setup(AwsSetupTemplate):
         return True
 
     def post_terraform_setup(self):
+        aws = Aws(self.config)
+        secrets = aws.get_all_secrets()
+        adfs = aws.get_secret_by_name(secrets, f'{self.config.app_prefix}-adfs_client_id')
+        print(aws.get_secret_value(adfs))
+        aws.set_secret_value(adfs, "fdfdf")
+        print(aws.get_secret_value(adfs))
 
-        out = subprocess.check_output(['aws', 'secretsmanager', 'list-secrets', '--output=json', f'--region={self.config.aws_region}'])
-        secrets = json.loads(out.decode("ascii"))
-        print(self._get_secret_by_name(secrets, f'{self.config.app_prefix}-adfs_client_id'))
-
-    def _get_secret_by_name(self, secrets: dict, name: str) -> dict:
-        for secret in secrets['SecretList']:
-            if secret['Name'] == name:
-                return secret
-        raise ValueError(f'Secret with name {name} is not found. Was it succesfully created?')

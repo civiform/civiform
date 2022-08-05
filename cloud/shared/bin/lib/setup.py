@@ -115,6 +115,7 @@ def main():
             check=True)
         print("Deployment Failed :(", file=sys.stderr)
         print("error:", err)
+        print(err)
 
     finally:
         template_setup.cleanup()
