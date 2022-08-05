@@ -33,7 +33,7 @@ describe('view program references from question view', () => {
   })
 
   it('shows results for referencing programs', async () => {
-    const questionName = 'address-q'
+    const questionName = 'question-references-q'
     await adminQuestions.addAddressQuestion({questionName})
 
     // Add a reference to the question in the second block. We'll later assert
