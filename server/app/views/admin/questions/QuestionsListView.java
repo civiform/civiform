@@ -277,7 +277,7 @@ public final class QuestionsListView extends BaseHtmlView {
         td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
         td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
         Optional<ATag> maybeTranslationLink =
-            renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →");
+            renderQuestionTranslationLink(draft.get(), "Manage Translations →");
         if (maybeTranslationLink.isPresent()) {
           td.with(maybeTranslationLink.get(), br());
         }
@@ -287,7 +287,7 @@ public final class QuestionsListView extends BaseHtmlView {
       // First revision of a question.
       td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
       Optional<ATag> maybeTranslationLink =
-          renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →");
+          renderQuestionTranslationLink(draft.get(), "Manage Translations →");
       if (maybeTranslationLink.isPresent()) {
         td.with(maybeTranslationLink.get(), br());
       }
