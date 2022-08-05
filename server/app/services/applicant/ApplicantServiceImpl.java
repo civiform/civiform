@@ -101,7 +101,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         userRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getActiveProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync(
@@ -164,7 +164,7 @@ public class ApplicantServiceImpl implements ApplicantService {
         userRepository.lookupApplicant(applicantId).toCompletableFuture();
 
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getActiveProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenComposeAsync(
@@ -269,7 +269,7 @@ public class ApplicantServiceImpl implements ApplicantService {
    */
   private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getActiveProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFile>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
