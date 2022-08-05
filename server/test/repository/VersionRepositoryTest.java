@@ -47,6 +47,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     Version draftForTombstoning = versionRepository.getDraftVersion();
     assertThat(draftForTombstoning.addTombstoneForQuestion(draftOnlyQuestion)).isTrue();
     assertThat(draftForTombstoning.addTombstoneForProgramForTest(draftOnlyProgram)).isTrue();
+    draftForTombstoning.save();
 
     assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
     assertThat(versionRepository.getActiveVersion().getTombstonedProgramNames()).isEmpty();

@@ -125,10 +125,16 @@ public final class VersionRepository {
       // Remove any questions / programs both added and archived in the current version.
       draft.getQuestions().stream()
           .filter(questionIsDeletedInDraft)
-          .forEach(questionToDelete -> draft.removeQuestion(questionToDelete));
+          .forEach(questionToDelete -> {
+            draft.removeTombstoneForQuestion(questionToDelete);
+            draft.removeQuestion(questionToDelete);
+          });
       draft.getPrograms().stream()
           .filter(programIsDeletedInDraft)
-          .forEach(programToDelete -> draft.removeProgram(programToDelete));
+          .forEach(programToDelete -> {
+            draft.removeTombstoneForProgram(programToDelete);
+            draft.removeProgram(programToDelete);
+          });
 
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);

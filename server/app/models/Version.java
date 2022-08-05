@@ -191,6 +191,13 @@ public final class Version extends BaseModel {
     return this.tombstonedProgramNames.add(program.getProgramDefinition().adminName());
   }
 
+  public boolean removeTombstoneForProgram(Program program) {
+    if (this.tombstonedProgramNames == null) {
+      this.tombstonedProgramNames = new ArrayList<>();
+    }
+    return this.tombstonedProgramNames.remove(program.getProgramDefinition().adminName());
+  }
+
   public boolean hasAnyChanges() {
     return tombstonedQuestionNames.size() > 0
         || tombstonedProgramNames.size() > 0
