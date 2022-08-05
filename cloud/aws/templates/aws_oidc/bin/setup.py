@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import shlex
@@ -30,3 +31,18 @@ class Setup(AwsSetupTemplate):
     def _setup_shared_state_file(self):
         if self.config.use_backend_config():
             backend_setup.setup_backend_config(self.config)
+
+    def requires_post_terraform_setup(self):
+        return True
+
+    def post_terraform_setup(self):
+
+        out = subprocess.check_output(['aws', 'secretsmanager', 'list-secrets', '--output=json', f'--region={self.config.aws_region}'])
+        secrets = json.loads(out.decode("ascii"))
+        print(self._get_secret_by_name(secrets, f'{self.config.app_prefix}-adfs_client_id'))
+
+    def _get_secret_by_name(self, secrets: dict, name: str) -> dict:
+        for secret in secrets['SecretList']:
+            if secret['Name'] == name:
+                return secret
+        raise ValueError(f'Secret with name {name} is not found. Was it succesfully created?')

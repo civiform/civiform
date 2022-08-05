@@ -25,7 +25,7 @@ def perform_apply(
             shlex.split(f'{terraform_cmd} init -upgrade -reconfigure'))
     else:
         print(" - Run terraform init -upgrade -reconfigure")
-        init_cmd = f'{terraform_cmd} init -input=false -upgrade'
+        init_cmd = f'{terraform_cmd} init -input=false'
         # backend vars file can be absent when pre-terraform setup is running
         if os.path.exists(os.path.join(terraform_template_dir,
                                        config_loader.backend_vars_filename)):
