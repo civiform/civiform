@@ -117,9 +117,4 @@ public abstract class TranslationFormView extends BaseHtmlView {
         .with(
             legend(legendText), div().withClasses(Styles.FLEX_ROW, Styles.SPACE_Y_4).with(fields));
   }
-
-  protected final boolean isDefaultLocale(Locale locale) {
-    // TODO(#2752): Remove isDefaultLocale once English translations have been disabled.
-    return LocalizedStrings.DEFAULT_LOCALE.equals(locale);
-  }
 }

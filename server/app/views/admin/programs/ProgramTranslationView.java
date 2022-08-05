@@ -94,9 +94,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     .setFieldName("displayName")
                                     .setLabelText("Program name")
                                     .setValue(localizedName)
-                                    .getInputTag())
-                            .condWith(
-                                !isDefaultLocale(locale),
+                                    .getInputTag(),
                                 defaultLocaleTextHint(program.localizedName())),
                         div()
                             .with(
@@ -104,9 +102,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     .setFieldName("displayDescription")
                                     .setLabelText("Program description")
                                     .setValue(localizedDescription)
-                                    .getInputTag())
-                            .condWith(
-                                !isDefaultLocale(locale),
+                                    .getInputTag(),
                                 defaultLocaleTextHint(program.localizedDescription())))));
     if (statusTrackingEnabled) {
       // TODO(#2752): Use real statuses from the program.
@@ -125,9 +121,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setLabelText("Status name")
                                 .setScreenReaderText("Status name")
                                 .setValue(s.statusName())
-                                .getInputTag())
-                        .condWith(
-                            !isDefaultLocale(locale),
+                                .getInputTag(),
                             defaultLocaleTextHint(
                                 LocalizedStrings.withDefaultValue(s.statusName()))),
                     div()
@@ -137,9 +131,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setScreenReaderText("Email content")
                                 .setValue(s.emailContent())
                                 .setRows(OptionalLong.of(8))
-                                .getTextareaTag())
-                        .condWith(
-                            !isDefaultLocale(locale),
+                                .getTextareaTag(),
                             defaultLocaleTextHint(
                                 LocalizedStrings.withDefaultValue(s.emailContent()))))));
       }
