@@ -28,6 +28,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   private final ProgramTranslationView translationView;
   private final FormFactory formFactory;
   private final TranslationHelper translationHelper;
+  private final Optional<Locale> maybeFirstLocaleForTranslations;
 
   @Inject
   public AdminProgramTranslationsController(
@@ -39,6 +40,26 @@ public class AdminProgramTranslationsController extends CiviFormController {
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
     this.translationHelper = checkNotNull(translationHelper);
+    this.maybeFirstLocaleForTranslations =
+        this.translationHelper.localesForTranslation().stream().findFirst();
+  }
+
+  /**
+   * Redirects to the first non-English locale eligible for translations for a a program.
+   *
+   * @param request the current {@link Http.Request}
+   * @param id the ID of the program to update
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result redirectToFirstLocale(Http.Request request, long id) {
+    if (maybeFirstLocaleForTranslations.isEmpty()) {
+      return redirect(routes.AdminProgramController.index().url())
+          .flashing("error", "Translations are not enabled for this configuration");
+    }
+    return redirect(
+        routes.AdminProgramTranslationsController.edit(
+                id, maybeFirstLocaleForTranslations.get().toLanguageTag())
+            .url());
   }
 
   /**

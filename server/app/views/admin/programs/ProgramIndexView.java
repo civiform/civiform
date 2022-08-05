@@ -20,7 +20,6 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.time.Instant;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
@@ -49,7 +48,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final DateConverter dateConverter;
-  private final Optional<Locale> firstLocaleForTranslations;
+  private final TranslationHelper translationHelper;
   private final boolean statusTrackingEnabled;
 
   @Inject
@@ -62,8 +61,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
-    this.firstLocaleForTranslations =
-        checkNotNull(translationHelper).localesForTranslation().stream().findFirst();
+    this.translationHelper = checkNotNull(translationHelper);
     this.statusTrackingEnabled = statusTrackingEnabled;
   }
 
@@ -459,13 +457,11 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
-    if (firstLocaleForTranslations.isEmpty()) {
+    if (translationHelper.localesForTranslation().isEmpty()) {
       return Optional.empty();
     }
     String linkDestination =
-        routes.AdminProgramTranslationsController.edit(
-                program.id(), firstLocaleForTranslations.get().toLanguageTag())
-            .url();
+        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withId("program-translations-link-" + program.id())

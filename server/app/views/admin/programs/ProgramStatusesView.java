@@ -17,7 +17,6 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
@@ -52,7 +51,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private final AdminLayout layout;
   private final FormFactory formFactory;
   private final MessagesApi messagesApi;
-  private final Optional<Locale> firstLocaleForTranslations;
+  private final TranslationHelper translationHelper;
 
   @Inject
   public ProgramStatusesView(
@@ -63,8 +62,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.formFactory = formFactory;
     this.messagesApi = checkNotNull(messagesApi);
-    this.firstLocaleForTranslations =
-        checkNotNull(translationHelper).localesForTranslation().stream().findFirst();
+    this.translationHelper = checkNotNull(translationHelper);
   }
 
   /**
@@ -136,13 +134,11 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
-    if (firstLocaleForTranslations.isEmpty()) {
+    if (translationHelper.localesForTranslation().isEmpty()) {
       return Optional.empty();
     }
     String linkDestination =
-        routes.AdminProgramTranslationsController.edit(
-                program.id(), firstLocaleForTranslations.get().toLanguageTag())
-            .url();
+        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);

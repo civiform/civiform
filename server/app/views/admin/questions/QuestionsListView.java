@@ -11,7 +11,6 @@ import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import play.mvc.Http;
@@ -39,13 +38,12 @@ import views.style.Styles;
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
-  private final Optional<Locale> firstLocaleForTranslations;
+  private final TranslationHelper translationHelper;
 
   @Inject
   public QuestionsListView(AdminLayoutFactory layoutFactory, TranslationHelper translationHelper) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
-    this.firstLocaleForTranslations =
-        checkNotNull(translationHelper).localesForTranslation().stream().findFirst();
+    this.translationHelper = checkNotNull(translationHelper);
   }
 
   /** Renders a page with a table view of all questions. */
@@ -237,12 +235,12 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private Optional<ATag> renderQuestionTranslationLink(
       QuestionDefinition definition, String linkText) {
-    if (firstLocaleForTranslations.isEmpty()) {
+    if (translationHelper.localesForTranslation().isEmpty()) {
       return Optional.empty();
     }
     String link =
-        controllers.admin.routes.AdminQuestionTranslationsController.edit(
-                definition.getId(), firstLocaleForTranslations.get().toLanguageTag())
+        controllers.admin.routes.AdminQuestionTranslationsController.redirectToFirstLocale(
+                definition.getId())
             .url();
     return Optional.of(
         new LinkElement()
