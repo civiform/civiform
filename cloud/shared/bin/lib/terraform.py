@@ -2,10 +2,16 @@ import subprocess
 import os
 import shutil
 import shlex
+from typing import Optional
+
+from cloud.shared.bin.lib.config_loader import ConfigLoader
 
 
 # TODO(#2741): When using this for Azure make sure to setup backend bucket prior to calling these functions.
-def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
+def perform_apply(
+        config_loader: ConfigLoader,
+        is_destroy=False,
+        terraform_template_dir: Optional[str] = None):
     '''Generates terraform variable files and runs terraform init and apply.'''
     if not terraform_template_dir:
         terraform_template_dir = config_loader.get_template_dir()
@@ -19,10 +25,12 @@ def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
             shlex.split(f'{terraform_cmd} init -upgrade -reconfigure'))
     else:
         print(" - Run terraform init -upgrade -reconfigure")
-        subprocess.check_call(
-            shlex.split(
-                f'{terraform_cmd} init -input=false -upgrade -backend-config={os.getenv("BACKEND_VARS_FILENAME")}'
-            ))
+        init_cmd = f'{terraform_cmd} init -input=false -upgrade'
+        # backend vars file can be absent when pre-terraform setup is running
+        if os.path.exists(os.path.join(terraform_template_dir,
+                                       config_loader.backend_vars_filename)):
+            init_cmd += f' -backend-config={config_loader.backend_vars_filename}'
+        subprocess.check_call(shlex.split(init_cmd))
 
     if os.path.exists(os.path.join(terraform_template_dir, tf_vars_filename)):
         print(
@@ -32,31 +40,15 @@ def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
             f'Aborting the script. {tf_vars_filename} does not exist in {terraform_template_dir} directory'
         )
 
-    print(" - Run terraform plan")
-    terraform_plan_out_file = 'terraform_plan'
-    plan_arguments = f'{terraform_cmd} plan -input=false -out={terraform_plan_out_file} -var-file={tf_vars_filename}'
-    if is_destroy:
-        plan_arguments += " -destroy"
-    subprocess.check_call(shlex.split(plan_arguments))
-
-    if config_loader.is_test():
-        return True
-
     print(" - Run terraform apply")
-    terraform_apply_cmd = f'{terraform_cmd} apply -input=false -json'
-    if config_loader.is_dev():
-        subprocess.check_call(
-            shlex.split(f'{terraform_apply_cmd} {terraform_plan_out_file}'))
-    else:
-        subprocess.check_call(
-            shlex.split(
-                f'{terraform_apply_cmd} -auto-approve {terraform_plan_out_file}'
-            ))
-
+    terraform_apply_cmd = f'{terraform_cmd} apply -input=false -var-file={tf_vars_filename}'
+    if is_destroy:
+        terraform_apply_cmd += " -destroy"
+    subprocess.check_call(shlex.split(terraform_apply_cmd))
     return True
 
 
-def copy_backend_override(config_loader):
+def copy_backend_override(config_loader: ConfigLoader):
     ''' 
     Copies the terraform backend_override to backend_override.tf (used to
     make backend local instead of a shared state for dev deploys)

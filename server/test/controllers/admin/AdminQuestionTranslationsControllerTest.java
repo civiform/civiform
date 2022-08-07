@@ -25,6 +25,7 @@ import services.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 
 public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 

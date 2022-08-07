@@ -68,6 +68,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             SPANISH_DESCRIPTION);
     assertThat(contentAsString(result))
         .contains("Default text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
+    assertThat(contentAsString(result)).doesNotContain("Default text:");
   }
 
   @Test

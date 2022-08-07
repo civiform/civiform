@@ -9,44 +9,32 @@ import models.Question;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
+import repository.ResetPostgres;
 import services.question.exceptions.QuestionNotFoundException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
-public class ReadOnlyVersionedQuestionServiceImplTest {
-
-  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
 
   private final ReadOnlyQuestionService emptyService =
       new ReadOnlyVersionedQuestionServiceImpl(new Version(LifecycleStage.OBSOLETE));
-  private NameQuestionDefinition nameQuestion;
-  private AddressQuestionDefinition addressQuestion;
-  private TextQuestionDefinition basicQuestion;
-  private ImmutableList<QuestionDefinition> questions;
+  private TestQuestionBank testQuestionBank;
+  private Question nameQuestion;
+  private Question addressQuestion;
+  private Question basicQuestion;
+  private ImmutableList<Question> questions;
   private ReadOnlyQuestionService service;
 
   @Before
   public void setupQuestions() {
-    nameQuestion =
-        (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
-    addressQuestion =
-        (AddressQuestionDefinition) testQuestionBank.applicantAddress().getQuestionDefinition();
-    basicQuestion =
-        (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    testQuestionBank = new TestQuestionBank(true);
+    // The question bank initializes these questions in the active version.
+    nameQuestion = testQuestionBank.applicantName();
+    addressQuestion = testQuestionBank.applicantAddress();
+    basicQuestion = testQuestionBank.applicantFavoriteColor();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
-    service =
-        new ReadOnlyVersionedQuestionServiceImpl(
-            new Version(LifecycleStage.OBSOLETE) {
-              @Override
-              public ImmutableList<Question> getQuestions() {
-                return questions.stream()
-                    .map(q -> new Question(q))
-                    .collect(ImmutableList.toImmutableList());
-              }
-            });
+    Version version = new Version(LifecycleStage.OBSOLETE);
+    addQuestionsToVersion(version, questions);
+    service = new ReadOnlyVersionedQuestionServiceImpl(version);
   }
 
   @Test
@@ -82,37 +70,36 @@ public class ReadOnlyVersionedQuestionServiceImplTest {
 
   @Test
   public void getEnumeratorQuestions() {
-    QuestionDefinition enumeratorQuestion =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    Question enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
 
-    service =
-        new ReadOnlyVersionedQuestionServiceImpl(
-            new Version(LifecycleStage.OBSOLETE) {
-              @Override
-              public ImmutableList<Question> getQuestions() {
-                return ImmutableList.<QuestionDefinition>builder()
-                    .addAll(questions)
-                    .add(enumeratorQuestion)
-                    .build()
-                    .stream()
-                    .map(q -> new Question(q))
-                    .collect(ImmutableList.toImmutableList());
-              }
-            });
-
+    Version version = new Version(LifecycleStage.OBSOLETE);
+    addQuestionsToVersion(version, questions);
+    addQuestionsToVersion(version, ImmutableList.of(enumeratorQuestion));
+    var service = new ReadOnlyVersionedQuestionServiceImpl(version);
     assertThat(service.getAllEnumeratorQuestions().size()).isEqualTo(1);
-    assertThat(service.getAllEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
+    assertThat(service.getAllEnumeratorQuestions().get(0))
+        .isEqualTo(enumeratorQuestion.getQuestionDefinition());
   }
 
   @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
-    long questionId = nameQuestion.getId();
-    assertThat(service.getQuestionDefinition(questionId)).isEqualTo(nameQuestion);
+    long questionId = nameQuestion.id;
+    assertThat(service.getQuestionDefinition(questionId))
+        .isEqualTo(nameQuestion.getQuestionDefinition());
   }
 
   @Test
   public void getQuestionDefinition_notFound() throws QuestionNotFoundException {
     assertThatThrownBy(() -> service.getQuestionDefinition(9999L))
         .isInstanceOf(QuestionNotFoundException.class);
+  }
+
+  private static void addQuestionsToVersion(Version version, ImmutableList<Question> questions) {
+    questions.stream()
+        .forEach(
+            q -> {
+              version.addQuestion(q);
+            });
+    version.save();
   }
 }

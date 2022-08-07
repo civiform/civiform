@@ -3,6 +3,7 @@ package views.admin.programs;
 import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
 
@@ -28,7 +29,6 @@ import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {

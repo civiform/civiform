@@ -1,5 +1,5 @@
 import {Page} from 'playwright'
-import {waitForPageJsLoad} from './wait'
+import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
 import * as assert from 'assert'
 
 type QuestionParams = {
@@ -163,6 +163,64 @@ export class AdminQuestions {
     await waitForPageJsLoad(this.page)
     const tableInnerText = await this.page.innerText('table')
     expect(tableInnerText).not.toContain(questionName)
+  }
+
+  async expectQuestionProgramReferencesText({
+    questionName,
+    expectedProgramReferencesText,
+  }: {
+    questionName: string
+    expectedProgramReferencesText: string
+  }) {
+    await this.gotoAdminQuestionsPage()
+    const programReferencesText = await this.page.innerText(
+      this.selectProgramReferencesFromRow(questionName),
+    )
+    expect(programReferencesText).toEqual(expectedProgramReferencesText)
+  }
+
+  async expectProgramReferencesModalContains({
+    questionName,
+    expectedDraftProgramReferences,
+    expectedActiveProgramReferences,
+  }: {
+    questionName: string
+    expectedDraftProgramReferences: string[]
+    expectedActiveProgramReferences: string[]
+  }) {
+    await this.page.click(
+      this.selectProgramReferencesFromRow(questionName) + ' a',
+    )
+
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      `Programs including ${questionName}`,
+    )
+
+    const draftReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-draft li',
+    )
+    const draftReferenceNames = await Promise.all(
+      draftReferences.map((reference) => reference.innerText()),
+    )
+    expect(draftReferenceNames).toEqual(expectedDraftProgramReferences)
+
+    const activeReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-active li',
+    )
+    const activeReferenceNames = await Promise.all(
+      activeReferences.map((reference) => reference.innerText()),
+    )
+    expect(activeReferenceNames).toEqual(expectedActiveProgramReferences)
+
+    await dismissModal(this.page)
+  }
+
+  private selectProgramReferencesFromRow(questionName: string) {
+    return (
+      this.selectQuestionTableRow(questionName) +
+      ' .cf-admin-question-program-reference-counts'
+    )
   }
 
   private async gotoQuestionEditOrNewVersionPage({

@@ -230,10 +230,15 @@ variable "civiform_applicant_idp" {
   default     = ""
 }
 
-
 variable "applicant_oidc_discovery_uri" {
   type        = string
   description = "Discovery URI"
+  default     = ""
+}
+
+variable "adfs_discovery_uri" {
+  type        = string
+  description = "ADFS Discovery URI"
   default     = ""
 }
 
