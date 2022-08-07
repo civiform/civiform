@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;

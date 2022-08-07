@@ -3,7 +3,6 @@ package views.admin.programs;
 import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
 
