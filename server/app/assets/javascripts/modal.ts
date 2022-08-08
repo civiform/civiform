@@ -27,7 +27,11 @@ class ModalController {
   }
 
   constructor() {
-    const modalContainer = document.querySelector('#modal-container')!
+    const modalContainer = document.querySelector('#modal-container')
+    if (modalContainer == null) {
+      throw new Error('Modal Container display not found!')
+    }
+
     const modals = Array.from(modalContainer.querySelectorAll('.cf-modal'))
 
     let alreadyDisplayedModalOnLoad = false
