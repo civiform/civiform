@@ -74,7 +74,7 @@ export class ApplicantQuestions {
   }
 
   async answerCheckboxQuestion(checked: Array<string>) {
-    for (var index in checked) {
+    for (const index in checked) {
       await this.page.check(`label:has-text("${checked[index]}")`)
     }
   }
@@ -272,7 +272,7 @@ export class ApplicantQuestions {
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
-  async submitFromReviewPage(programName: string) {
+  async submitFromReviewPage(_programName: string) {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain(
       'Program application review',
@@ -283,7 +283,7 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async submitFromPreviewPage(programName: string) {
+  async submitFromPreviewPage(_programName: string) {
     // Assert that we're on the preview page.
     expect(await this.page.innerText('h1')).toContain(
       'Program application preview',

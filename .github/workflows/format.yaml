@@ -37,11 +37,20 @@ jobs:
       - name: show diff
         run: git add .; git diff --exit-code HEAD
 
+      - name: Run npm install
+        run: >
+          cp formatter/package*.json . &&
+          npm install &&
+          rm package*.json
+
       - name: Prettier diff
         uses: actionsx/prettier@v2
         with:
           # prettier CLI arguments.
           args: --check .
+
+      - name: Run ESLint
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx
 
       - name: show diff
         run: git add .; git diff --exit-code HEAD
