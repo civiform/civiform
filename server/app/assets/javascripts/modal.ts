@@ -3,7 +3,7 @@ class ModalController {
    * Find the modals, and add on-click listeners on their respective buttons to toggle them.
    * @param {Element} modalContainer The container holding the modal.
    * @param {Element} modal The modal element.
-  **/
+   **/
   static attachModalListeners(modalContainer: Element, modal: Element) {
     // Connect the modal to its button
     const modalButton = document.querySelector(`#${modal.id}-button`)
