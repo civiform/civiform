@@ -58,7 +58,7 @@ def main():
 
     try:
         print("Starting pre-terraform setup")
-        # template_setup.pre_terraform_setup()
+        template_setup.pre_terraform_setup()
 
         ###############################################################################
         # Terraform Init/Plan/Apply
@@ -115,7 +115,6 @@ def main():
             check=True)
         print("Deployment Failed :(", file=sys.stderr)
         print("error:", err)
-        print(err)
 
     finally:
         template_setup.cleanup()
