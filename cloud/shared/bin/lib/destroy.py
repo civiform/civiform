@@ -18,8 +18,8 @@ def main():
 
     if (config_loader.civiform_mode == "prod"):
         print(
-            'Destoy is not allowed in PROD mode. If you need to destroy your production version of Civiform use AWS console.'
-        )
+            'Destoy is not allowed in PROD mode. Use AWS console if you need to '
+            + 'destroy your production version of Civiform.')
         return
 
     validation_errors = config_loader.load_config()
