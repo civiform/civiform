@@ -12,7 +12,6 @@ export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantQuestions} from './applicant_questions'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
-export {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD}
 
 export const isLocalDevEnvironment = () => {
   return (

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
+import {BASE_URL} from './config'
 
 type CreateApiKeyParamsType = {
   name: string
