@@ -119,7 +119,6 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   public CompletionStage<Result> update(Http.Request request, long id, String locale) {
     Optional<Locale> maybeLocaleToUpdate = translationLocales.getSupportedLocale(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
-      // TODO(clouser): Toast.
       return CompletableFuture.completedFuture(
           redirect(routes.AdminQuestionController.index().url())
               .flashing("error", String.format("Unsupported locale: %s", locale)));
