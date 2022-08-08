@@ -1,16 +1,5 @@
-import {Page} from 'playwright'
-import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
-  loginAsAdmin,
-  loginAsGuest,
-  logout,
-  selectApplicantLanguage,
-  startSession,
-  resetSession,
-  validateAccessibility,
-} from './support'
+import { Page } from 'playwright'
+import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
 
 describe('Static text question for applicant flow', () => {
   const staticText = 'Hello, I am some static text!'
@@ -52,6 +41,7 @@ describe('Static text question for applicant flow', () => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.seeStaticQuestion(staticText)
+    await validateScreenshot(pageObject);
   })
 
   it('has no accessiblity violations', async () => {

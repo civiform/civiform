@@ -13,6 +13,7 @@ docker volume create browser-tests-node-modules
 # Additionally we map node_modules to a separate volume so that it doesn't
 # conflict with node_modules created locally.
 docker run --rm -it \
+  --platform linux/x86_64 \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -v "browser-tests-node-modules:/usr/src/civiform-browser-tests/node_modules" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \

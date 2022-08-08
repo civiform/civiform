@@ -1,16 +1,5 @@
-import {Page} from 'playwright'
-import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
-  loginAsAdmin,
-  loginAsGuest,
-  logout,
-  selectApplicantLanguage,
-  startSession,
-  resetSession,
-  validateAccessibility,
-} from './support'
+import { Page } from 'playwright'
+import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
 
 describe('Radio button question for applicant flow', () => {
   let pageObject: Page
@@ -54,6 +43,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject);
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -71,6 +61,7 @@ describe('Radio button question for applicant flow', () => {
       expect(await pageObject.innerText(radioButtonId)).toContain(
         'This question is required.',
       )
+      await validateScreenshot(pageObject);
     })
   })
 
@@ -115,6 +106,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.answerRadioButtonQuestion('mountains')
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject);
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -127,6 +119,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject);
 
       await applicantQuestions.submitFromReviewPage(programName)
     })

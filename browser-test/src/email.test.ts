@@ -1,16 +1,5 @@
-import {Page} from 'playwright'
-import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
-  loginAsAdmin,
-  loginAsGuest,
-  logout,
-  selectApplicantLanguage,
-  startSession,
-  resetSession,
-  validateAccessibility,
-} from './support'
+import { Page } from 'playwright'
+import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
 
 describe('Email question for applicant flow', () => {
   let pageObject: Page
@@ -51,6 +40,7 @@ describe('Email question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject);
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -67,6 +57,7 @@ describe('Email question for applicant flow', () => {
       expect(await pageObject.innerText(emailId)).toContain(
         'This question is required.',
       )
+      await validateScreenshot(pageObject);
     })
   })
 
@@ -104,6 +95,7 @@ describe('Email question for applicant flow', () => {
       await applicantQuestions.answerEmailQuestion('your_email@civiform.gov', 0)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject);
 
       await applicantQuestions.submitFromReviewPage(programName)
     })

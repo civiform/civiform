@@ -1,16 +1,5 @@
-import {
-  startSession,
-  logout,
-  loginAsGuest,
-  loginAsProgramAdmin,
-  loginAsAdmin,
-  selectApplicantLanguage,
-  ApplicantQuestions,
-  AdminPrograms,
-  userDisplayName,
-  AdminProgramStatuses,
-} from './support'
-import {Page} from 'playwright'
+import { AdminPrograms, AdminProgramStatuses, ApplicantQuestions, loginAsAdmin, loginAsGuest, loginAsProgramAdmin, logout, selectApplicantLanguage, startSession, userDisplayName, validateScreenshot, } from './support'
+import { Page } from 'playwright'
 
 // TODO(#3071): Re-enable when the feature flag is controllable in tests.
 describe.skip('view program statuses', () => {
@@ -62,6 +51,7 @@ describe.skip('view program statuses', () => {
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
 
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
+      await validateScreenshot(pageObject);
     })
   })
 
@@ -105,6 +95,7 @@ describe.skip('view program statuses', () => {
 
     it('shows default option as placeholder', async () => {
       expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+      await validateScreenshot(pageObject);
     })
   })
 })
