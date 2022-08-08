@@ -37,6 +37,9 @@ jobs:
       - name: show diff
         run: git add .; git diff --exit-code HEAD
 
+      - name: Run npm install
+        run: cd formatting && npm install
+
       - name: Prettier diff
         uses: actionsx/prettier@v2
         with:
@@ -44,7 +47,7 @@ jobs:
           args: --check .
 
       - name: Run ESLint
-        run: eslint . --ext .js,.jsx,.ts,.tsx
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx
 
       - name: show diff
         run: git add .; git diff --exit-code HEAD
