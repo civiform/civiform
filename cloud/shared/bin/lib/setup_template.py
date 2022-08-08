@@ -44,7 +44,9 @@ class SetupTemplate:
         return False
 
     def post_terraform_setup(self):
-        print(" - TODO: Post terraform setup.")
+        raise NotImplementedError(
+            'post_terraform_setup not implemented while ' +
+            'subclass indicated support via requires_post_terraform_setup')
 
     def cleanup(self):
         print(" - TODO: cleanup. Upload log files.")
