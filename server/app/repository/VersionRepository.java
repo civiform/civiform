@@ -36,7 +36,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 
 /** A repository object for dealing with versioning of questions and programs. */
-public class VersionRepository {
+public final class VersionRepository {
 
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
   private final Database database;
@@ -53,12 +53,32 @@ public class VersionRepository {
    * ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the next version.
    */
   public void publishNewSynchronizedVersion() {
+    publishNewSynchronizedVersion(PublishMode.PUBLISH_CHANGES);
+  }
+
+  /**
+   * Simulates publishing a new version of all programs and questions. All DRAFT programs/questions
+   * will become ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the
+   * next version. This method will not mutate the database and will return an updated Version
+   * corresponding to what would be the new ACTIVE version.
+   */
+  public Version previewPublishNewSynchronizedVersion() {
+    return publishNewSynchronizedVersion(PublishMode.DRY_RUN);
+  }
+
+  private enum PublishMode {
+    DRY_RUN,
+    PUBLISH_CHANGES,
+  }
+
+  private Version publishNewSynchronizedVersion(PublishMode publishMode) {
     try {
+      // Regardless of whether changes are published or not, we still perform
+      // this operation inside of a transaction in order to ensure we have
+      // consistent reads.
       database.beginTransaction();
       Version draft = getDraftVersion();
       Version active = getActiveVersion();
-      Preconditions.checkState(
-          draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
 
       ImmutableSet<String> draftProgramsNames = draft.getProgramsNames();
       ImmutableSet<String> draftQuestionNames = draft.getQuestionNames();
@@ -95,12 +115,33 @@ public class VersionRepository {
               activeQuestion ->
                   !draftQuestionNames.contains(activeQuestion.getQuestionDefinition().getName()))
           // For each active question not associated with the draft, associate it with the draft.
-          .forEach(activeQuestionNotInDraft -> activeQuestionNotInDraft.addVersion(draft).save());
+          // The relationship between Questions and Versions is many-to-may. When updating the
+          // relationship, one of the EBean models needs to be saved. We update the Version
+          // side of the relationship rather than the Question side in order to prevent the
+          // save causing the "updated" timestamp to be changed for a Question. We intend for
+          // that timestamp only to be updated for actual changes to the question.
+          .forEach(activeQuestionNotInDraft -> draft.addQuestion(activeQuestionNotInDraft));
       // Move forward the ACTIVE version.
-      active.setLifecycleStage(LifecycleStage.OBSOLETE).save();
-      draft.setLifecycleStage(LifecycleStage.ACTIVE).save();
-      draft.refresh();
+      active.setLifecycleStage(LifecycleStage.OBSOLETE);
+      draft.setLifecycleStage(LifecycleStage.ACTIVE);
+
+      switch (publishMode) {
+        case PUBLISH_CHANGES:
+          Preconditions.checkState(
+              draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
+          draft.save();
+          active.save();
+          draft.refresh();
+          active.refresh();
+          break;
+        case DRY_RUN:
+          break;
+        default:
+          throw new RuntimeException(String.format("unrecognized publishMode: %s", publishMode));
+      }
       database.commitTransaction();
+
+      return draft;
     } finally {
       database.endTransaction();
     }
@@ -260,7 +301,7 @@ public class VersionRepository {
   // Update the referenced question IDs in all leaf nodes. Since nodes are immutable, we
   // recursively recreate the tree with updated leaf nodes.
   @VisibleForTesting
-  protected PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
+  PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
     switch (current.getType()) {
       case AND:
         AndNode and = current.getAndNode();

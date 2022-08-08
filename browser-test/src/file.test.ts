@@ -11,6 +11,7 @@ import {
   resetSession,
   selectApplicantLanguage,
   startSession,
+  validateAccessibility,
 } from './support'
 
 describe('file upload applicant flow', () => {
@@ -91,6 +92,15 @@ describe('file upload applicant flow', () => {
 
       const error = await pageObject.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 

@@ -30,7 +30,7 @@ import services.question.types.QuestionDefinition;
  */
 @Entity
 @Table(name = "versions")
-public class Version extends BaseModel {
+public final class Version extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
@@ -65,6 +65,11 @@ public class Version extends BaseModel {
 
   public Version addProgram(Program program) {
     this.programs.add(program);
+    return this;
+  }
+
+  public Version addQuestion(Question question) {
+    this.questions.add(question);
     return this;
   }
 

@@ -9,6 +9,7 @@ import {
   resetSession,
   selectApplicantLanguage,
   startSession,
+  validateAccessibility,
 } from './support'
 
 describe('address applicant flow', () => {
@@ -242,6 +243,15 @@ describe('address applicant flow', () => {
       expect(await error.isHidden()).toEqual(false)
       error = pageObject.locator('.cf-address-zip-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 

@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/playwright:focal
 
 ENV PROJECT_DIR /usr/src/civiform-browser-tests

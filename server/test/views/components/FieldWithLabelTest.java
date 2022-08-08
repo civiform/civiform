@@ -45,6 +45,62 @@ public class FieldWithLabelTest {
   }
 
   @Test
+  public void createTextArea_setsRandomId() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.textArea().setId("id");
+    // Check that we do not have an empty id.
+    assertThat(fieldWithLabel.getTextareaTag().render()).doesNotContain("id ");
+    assertThat(fieldWithLabel.getTextareaTag().render()).doesNotContain("id=\"\"");
+  }
+
+  @Test
+  public void createRadio_setsRandomId() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.radio();
+    // Check that we do not have an empty id.
+    assertThat(fieldWithLabel.getRadioTag().render()).doesNotContain("id ");
+    assertThat(fieldWithLabel.getRadioTag().render()).doesNotContain("id=\"\"");
+  }
+
+  @Test
+  public void createCurrency_setsRandomId() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.currency();
+    // Check that we do not have an empty id.
+    assertThat(fieldWithLabel.getCurrencyTag().render()).doesNotContain("id ");
+    assertThat(fieldWithLabel.getCurrencyTag().render()).doesNotContain("id=\"\"");
+  }
+
+  @Test
+  public void createInput_setsRandomId() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    // Check that we do not have an empty id.
+    assertThat(fieldWithLabel.getInputTag().render()).doesNotContain("id ");
+    assertThat(fieldWithLabel.getInputTag().render()).doesNotContain("id=\"\"");
+  }
+
+  @Test
+  public void createNumber_setsRandomId() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number();
+    // Check that we do not have an empty id.
+    assertThat(fieldWithLabel.getNumberTag().render()).doesNotContain("id ");
+    assertThat(fieldWithLabel.getNumberTag().render()).doesNotContain("id=\"\"");
+  }
+
+  @Test
+  public void createDate_setsRandomId() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.date();
+    // Check that we do not have an empty id.
+    assertThat(fieldWithLabel.getDateTag().render()).doesNotContain("id ");
+    assertThat(fieldWithLabel.getDateTag().render()).doesNotContain("id=\"\"");
+  }
+
+  @Test
+  public void createEmail_setsRandomId() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.email();
+    // Check that we do not have an empty id.
+    assertThat(fieldWithLabel.getEmailTag().render()).doesNotContain("id ");
+    assertThat(fieldWithLabel.getEmailTag().render()).doesNotContain("id=\"\"");
+  }
+
+  @Test
   public void number_setsNoValueByDefault() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number();
     // No "value"="some-value" attribute. But allow "this.value" in script.

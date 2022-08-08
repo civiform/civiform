@@ -2,6 +2,8 @@
 import shutil
 import tempfile
 import shutil
+
+from cloud.shared.bin.lib.config_loader import ConfigLoader
 """
 Template Setup
 
@@ -13,8 +15,8 @@ class SetupTemplate:
 
     log_file_path = None
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config: ConfigLoader):
+        self.config: ConfigLoader = config
 
     def _make_backend_override(self):
         current_directory = self.config.get_template_dir()
@@ -42,7 +44,9 @@ class SetupTemplate:
         return False
 
     def post_terraform_setup(self):
-        print(" - TODO: Post terraform setup.")
+        raise NotImplementedError(
+            'post_terraform_setup not implemented while ' +
+            'subclass indicated support via requires_post_terraform_setup')
 
     def cleanup(self):
         print(" - TODO: cleanup. Upload log files.")

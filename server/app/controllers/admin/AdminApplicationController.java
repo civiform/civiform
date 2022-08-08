@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -105,7 +106,7 @@ public class AdminApplicationController extends CiviFormController {
     try {
       program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-    } catch (CompletionException e) {
+    } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 
@@ -163,7 +164,7 @@ public class AdminApplicationController extends CiviFormController {
           .as(Http.MimeTypes.BINARY)
           .withHeader(
               "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
-    } catch (CompletionException e) {
+    } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
   }
@@ -184,7 +185,7 @@ public class AdminApplicationController extends CiviFormController {
           .as(Http.MimeTypes.BINARY)
           .withHeader(
               "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
-    } catch (CompletionException e) {
+    } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
   }
@@ -234,7 +235,7 @@ public class AdminApplicationController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-    } catch (CompletionException e) {
+    } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 
@@ -261,13 +262,12 @@ public class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    String programName;
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    String programName = program.adminName();
 
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      programName = program.adminName();
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-    } catch (CompletionException e) {
+      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+    } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 
@@ -302,7 +302,8 @@ public class AdminApplicationController extends CiviFormController {
             applicationId,
             applicantNameWithApplicationId,
             blocks,
-            answers));
+            answers,
+            program.statusDefinitions()));
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
@@ -331,7 +332,7 @@ public class AdminApplicationController extends CiviFormController {
     try {
       program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-    } catch (CompletionException e) {
+    } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 

@@ -1,15 +1,24 @@
 package services.question;
 
 import akka.japi.Pair;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import models.Program;
 import models.Question;
 import models.Version;
+import repository.VersionRepository;
 import services.DeletionStatus;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -24,39 +33,101 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
+  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
+      referencingDraftProgramsByName;
+  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
+      referencingActiveProgramsByName;
+  private final boolean draftVersionHasAnyEdits;
 
-  public ActiveAndDraftQuestions(Version active, Version draft) {
-    ImmutableMap.Builder<String, QuestionDefinition> activeToName = ImmutableMap.builder();
-    ImmutableMap.Builder<String, QuestionDefinition> draftToName = ImmutableMap.builder();
-    ImmutableMap.Builder<String, DeletionStatus> deletionStatusBuilder = ImmutableMap.builder();
-    draft.getQuestions().stream()
-        .map(Question::getQuestionDefinition)
-        .forEach(qd -> draftToName.put(qd.getName(), qd));
-    active.getQuestions().stream()
-        .map(Question::getQuestionDefinition)
-        .forEach(qd -> activeToName.put(qd.getName(), qd));
-    ImmutableMap<String, QuestionDefinition> activeNames = activeToName.build();
-    ImmutableMap<String, QuestionDefinition> draftNames = draftToName.build();
-    ImmutableMap.Builder<String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
-        versionedByNameBuilder = ImmutableMap.builder();
-    for (String name : Sets.union(activeNames.keySet(), draftNames.keySet())) {
-      versionedByNameBuilder.put(
-          name,
-          Pair.create(
-              Optional.ofNullable(activeNames.get(name)),
-              Optional.ofNullable(draftNames.get(name))));
-    }
-    versionedByName = versionedByNameBuilder.build();
-    for (String questionName : activeNames.keySet()) {
-      if (draft.getTombstonedQuestionNames().contains(questionName)) {
-        deletionStatusBuilder.put(questionName, DeletionStatus.PENDING_DELETION);
-      } else if (isNotDeletable(active, draft, activeNames, draftNames, questionName)) {
-        deletionStatusBuilder.put(questionName, DeletionStatus.NOT_DELETABLE);
-      } else {
-        deletionStatusBuilder.put(questionName, DeletionStatus.DELETABLE);
+  /**
+   * Queries the existing active and draft versions and builds a snapshotted view of the question
+   * state.
+   */
+  public static ActiveAndDraftQuestions buildFromCurrentVersions(VersionRepository repository) {
+    return new ActiveAndDraftQuestions(
+        repository.getActiveVersion(),
+        repository.getDraftVersion(),
+        repository.previewPublishNewSynchronizedVersion());
+  }
+
+  private ActiveAndDraftQuestions(Version active, Version draft, Version withDraftEdits) {
+    ImmutableMap<String, QuestionDefinition> activeNames =
+        active.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+    ImmutableMap<String, QuestionDefinition> draftNames =
+        draft.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+    versionedByName =
+        Sets.union(activeNames.keySet(), draftNames.keySet()).stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    name -> name,
+                    name -> {
+                      return Pair.create(
+                          Optional.ofNullable(activeNames.get(name)),
+                          Optional.ofNullable(draftNames.get(name)));
+                    }));
+
+    draftVersionHasAnyEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
+    referencingActiveProgramsByName = buildReferencingProgramsMap(active);
+    referencingDraftProgramsByName =
+        draftVersionHasAnyEdits ? buildReferencingProgramsMap(withDraftEdits) : ImmutableMap.of();
+
+    deletionStatusByName =
+        activeNames.keySet().stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    questionName -> questionName,
+                    questionName -> {
+                      if (draft.getTombstonedQuestionNames().contains(questionName)) {
+                        return DeletionStatus.PENDING_DELETION;
+                      } else if (isNotDeletable(
+                          active, draft, activeNames, draftNames, questionName)) {
+                        return DeletionStatus.NOT_DELETABLE;
+                      } else {
+                        return DeletionStatus.DELETABLE;
+                      }
+                    }));
+  }
+
+  /**
+   * Inspects the provided version and returns a map who's key is the question name and value is a
+   * set of programs that reference the given question in this version.
+   */
+  private static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
+      Version version) {
+    // Different versions of a question can have distinct IDs while still
+    // retaining the same "name". A given program has a reference only to a specific
+    // question ID. This map allows us to easily cache the mapping from a question ID
+    // to a logical question "name".
+    ImmutableMap<Long, String> questionIdToNameLookup =
+        version.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    QuestionDefinition::getId, QuestionDefinition::getName));
+    Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
+    for (Program program : version.getPrograms()) {
+      ImmutableList<String> programQuestionNames =
+          program.getProgramDefinition().blockDefinitions().stream()
+              .map(BlockDefinition::programQuestionDefinitions)
+              .flatMap(ImmutableList::stream)
+              .map(ProgramQuestionDefinition::id)
+              .filter(questionIdToNameLookup::containsKey)
+              .map(questionIdToNameLookup::get)
+              .collect(ImmutableList.toImmutableList());
+      for (String questionName : programQuestionNames) {
+        if (!result.containsKey(questionName)) {
+          result.put(questionName, Sets.newHashSet());
+        }
+        result.get(questionName).add(program.getProgramDefinition());
       }
     }
-    deletionStatusByName = deletionStatusBuilder.build();
+    return result.entrySet().stream()
+        .collect(
+            ImmutableMap.toImmutableMap(e -> e.getKey(), e -> ImmutableSet.copyOf(e.getValue())));
   }
 
   private static boolean isNotDeletable(
@@ -86,10 +157,47 @@ public final class ActiveAndDraftQuestions {
   }
 
   public Optional<QuestionDefinition> getActiveQuestionDefinition(String name) {
-    return versionedByName.get(name).first();
+    return versionedByName.containsKey(name) ? versionedByName.get(name).first() : Optional.empty();
   }
 
   public Optional<QuestionDefinition> getDraftQuestionDefinition(String name) {
-    return versionedByName.get(name).second();
+    return versionedByName.containsKey(name)
+        ? versionedByName.get(name).second()
+        : Optional.empty();
+  }
+
+  public ReferencingPrograms getReferencingPrograms(String name) {
+    return ReferencingPrograms.builder()
+        .setActiveReferences(referencingActiveProgramsByName.getOrDefault(name, ImmutableSet.of()))
+        .setDraftReferences(referencingDraftProgramsByName.getOrDefault(name, ImmutableSet.of()))
+        .build();
+  }
+
+  public boolean draftVersionHasAnyEdits() {
+    return draftVersionHasAnyEdits;
+  }
+
+  /** Contains sets of programs in the active and draft versions that reference a given question. */
+  @AutoValue
+  public abstract static class ReferencingPrograms {
+
+    /** Returns a set of references to the question in the DRAFT version. */
+    public abstract ImmutableSet<ProgramDefinition> draftReferences();
+
+    /** Returns a set of references to the question in the ACTIVE version. */
+    public abstract ImmutableSet<ProgramDefinition> activeReferences();
+
+    static Builder builder() {
+      return new AutoValue_ActiveAndDraftQuestions_ReferencingPrograms.Builder();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+      abstract Builder setDraftReferences(ImmutableSet<ProgramDefinition> v);
+
+      abstract Builder setActiveReferences(ImmutableSet<ProgramDefinition> v);
+
+      abstract ReferencingPrograms build();
+    }
   }
 }

@@ -1,3 +1,4 @@
+import axe = require('axe-core')
 import {Browser, BrowserContext, chromium, Page} from 'playwright'
 import * as path from 'path'
 import {waitForPageJsLoad} from './wait'
@@ -5,10 +6,11 @@ export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
 export {AdminPrograms} from './admin_programs'
+export {AdminProgramStatuses} from './admin_program_statuses'
 export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantQuestions} from './applicant_questions'
-export {clickAndWaitForModal, waitForPageJsLoad} from './wait'
+export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
 export {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD}
 
@@ -193,4 +195,14 @@ export const closeWarningMessage = async (page: Page) => {
         ),
       )
   }
+}
+
+export const validateAccessibility = async (page: Page) => {
+  // Inject axe and run accessibility test.
+  await page.addScriptTag({path: 'node_modules/axe-core/axe.min.js'})
+  const results = await page.evaluate(() => {
+    return axe.run()
+  })
+
+  expect(results).toHaveNoA11yViolations()
 }
