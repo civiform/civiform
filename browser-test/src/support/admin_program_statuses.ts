@@ -67,7 +67,7 @@ export class AdminProgramStatuses {
   async expectCreateStatusModalWithError(expectErrorContains: string) {
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain('Create a new status')
-    if (!!expectErrorContains) {
+    if (expectErrorContains) {
       expect(await modal.innerText()).toContain(expectErrorContains)
     }
   }
@@ -97,7 +97,7 @@ export class AdminProgramStatuses {
   async expectEditStatusModalWithError(expectErrorContains: string) {
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain('Edit this status')
-    if (!!expectErrorContains) {
+    if (expectErrorContains) {
       expect(await modal.innerText()).toContain(expectErrorContains)
     }
   }
