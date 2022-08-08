@@ -1,8 +1,8 @@
 import {
-  startSession,
   dropTables,
   endSession,
   seedCanonicalQuestions,
+  startSession,
 } from './support'
 
 module.exports = async () => {

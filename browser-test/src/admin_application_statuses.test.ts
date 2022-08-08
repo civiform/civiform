@@ -1,14 +1,15 @@
 import {
-  startSession,
-  logout,
+  AdminPrograms,
+  AdminProgramStatuses,
+  ApplicantQuestions,
+  loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
-  loginAsAdmin,
+  logout,
   selectApplicantLanguage,
-  ApplicantQuestions,
-  AdminPrograms,
+  startSession,
   userDisplayName,
-  AdminProgramStatuses,
+  validateScreenshot,
 } from './support'
 import {Page} from 'playwright'
 
@@ -62,6 +63,7 @@ describe.skip('view program statuses', () => {
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
 
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -105,6 +107,7 @@ describe.skip('view program statuses', () => {
 
     it('shows default option as placeholder', async () => {
       expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+      await validateScreenshot(pageObject)
     })
   })
 })

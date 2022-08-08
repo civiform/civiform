@@ -6,10 +6,11 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
+  resetSession,
   selectApplicantLanguage,
   startSession,
-  resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Dropdown question for applicant flow', () => {
@@ -55,6 +56,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('green')
       await applicantQuestions.clickNext()
 
+      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
@@ -70,6 +72,7 @@ describe('Dropdown question for applicant flow', () => {
       expect(await pageObject.innerText(dropdownId)).toContain(
         'This question is required.',
       )
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -114,6 +117,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('blue', 1)
       await applicantQuestions.clickNext()
 
+      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
@@ -126,6 +130,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('red', 1)
       await applicantQuestions.clickNext()
 
+      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 

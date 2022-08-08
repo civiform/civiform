@@ -1,13 +1,14 @@
 import {
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
-  endSession,
-  logout,
-  loginAsTestUser,
-  selectApplicantLanguage,
+  AdminQuestions,
   ApplicantQuestions,
+  endSession,
+  loginAsAdmin,
+  loginAsTestUser,
+  logout,
+  selectApplicantLanguage,
+  startSession,
+  validateScreenshot,
 } from './support'
 
 describe('optional application flow', () => {
@@ -61,6 +62,7 @@ describe('optional application flow', () => {
     await adminPrograms.publishAllPrograms()
     await adminPrograms.expectActiveProgram(programName)
     await adminPrograms.expectActiveProgram(programName2)
+    await validateScreenshot(page)
 
     await logout(page)
     await loginAsTestUser(page)

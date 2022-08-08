@@ -1,12 +1,12 @@
 import {
-  startSession,
-  loginAsAdmin,
   AdminPrograms,
-  endSession,
-  logout,
-  loginAsGuest,
-  selectApplicantLanguage,
   ApplicantQuestions,
+  endSession,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  selectApplicantLanguage,
+  startSession,
 } from './support'
 
 describe('Hide a program that should not be public yet', () => {

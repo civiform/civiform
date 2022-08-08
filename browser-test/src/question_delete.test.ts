@@ -1,8 +1,8 @@
 import {
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
+  AdminQuestions,
+  loginAsAdmin,
+  startSession,
 } from './support'
 
 describe('deleting question lifecycle', () => {
@@ -40,6 +40,7 @@ describe('deleting question lifecycle', () => {
       await adminQuestions.expectActiveQuestionExist(questions[i])
       await adminQuestions.archiveQuestion(questions[i])
     }
+
     // Publish all the above changes.
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.publishProgram(programName)

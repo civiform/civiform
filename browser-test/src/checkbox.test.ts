@@ -6,10 +6,11 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
+  resetSession,
   selectApplicantLanguage,
   startSession,
-  resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Checkbox question for applicant flow', () => {
@@ -79,6 +80,7 @@ describe('Checkbox question for applicant flow', () => {
       expect(await pageObject.innerText(checkboxId)).toContain(
         'This question is required.',
       )
+      await validateScreenshot(pageObject)
     })
 
     it('with greater than max allowed checked boxes does not submit', async () => {
@@ -100,6 +102,7 @@ describe('Checkbox question for applicant flow', () => {
 
       // Check error is shown.
       expect(await pageObject.isHidden(checkBoxError)).toEqual(false)
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -134,6 +137,7 @@ describe('Checkbox question for applicant flow', () => {
         'checkbox-vacation-q', // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
+      await validateScreenshot(pageObject)
       await adminPrograms.publishAllPrograms()
 
       await logout(pageObject)
@@ -147,6 +151,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -159,6 +164,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -182,6 +188,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(checkboxError)).toEqual(false)
+      await validateScreenshot(pageObject)
     })
 
     it('with second invalid does not submit', async () => {
@@ -203,6 +210,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(checkboxError)).toEqual(false)
+      await validateScreenshot(pageObject)
     })
 
     it('has no accessiblity violations', async () => {
@@ -212,6 +220,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(pageObject)
+      await validateScreenshot(pageObject)
     })
   })
 })

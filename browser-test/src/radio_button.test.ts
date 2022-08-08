@@ -6,10 +6,11 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
+  resetSession,
   selectApplicantLanguage,
   startSession,
-  resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Radio button question for applicant flow', () => {
@@ -54,6 +55,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -71,6 +73,7 @@ describe('Radio button question for applicant flow', () => {
       expect(await pageObject.innerText(radioButtonId)).toContain(
         'This question is required.',
       )
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -115,6 +118,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.answerRadioButtonQuestion('mountains')
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -127,6 +131,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })

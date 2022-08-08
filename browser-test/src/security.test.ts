@@ -1,9 +1,10 @@
 import {
-  startSession,
   endSession,
   gotoEndpoint,
   loginAsAdmin,
   loginAsGuest,
+  startSession,
+  validateScreenshot,
 } from './support'
 
 describe('applicant security', () => {
@@ -14,6 +15,7 @@ describe('applicant security', () => {
 
     const response = await gotoEndpoint(page, '/applicants/1234/programs')
     expect(response!.status()).toBe(401)
+    await validateScreenshot(page)
 
     await endSession(browser)
   })
@@ -24,6 +26,7 @@ describe('applicant security', () => {
     await loginAsAdmin(page)
     const response = await gotoEndpoint(page, '/applicants/1234567/programs')
     expect(response!.status()).toBe(401)
+    await validateScreenshot(page)
 
     await endSession(browser)
   })

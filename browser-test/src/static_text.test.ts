@@ -6,10 +6,11 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
+  resetSession,
   selectApplicantLanguage,
   startSession,
-  resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Static text question for applicant flow', () => {
@@ -52,6 +53,7 @@ describe('Static text question for applicant flow', () => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.seeStaticQuestion(staticText)
+    await validateScreenshot(pageObject)
   })
 
   it('has no accessiblity violations', async () => {

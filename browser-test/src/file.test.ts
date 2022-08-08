@@ -3,15 +3,16 @@ import {
   AdminPrograms,
   AdminQuestions,
   ApplicantQuestions,
+  dropTables,
   loginAsAdmin,
   loginAsGuest,
   logout,
-  dropTables,
-  seedCanonicalQuestions,
   resetSession,
+  seedCanonicalQuestions,
   selectApplicantLanguage,
   startSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('file upload applicant flow', () => {
@@ -66,6 +67,7 @@ describe('file upload applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
       expect(await pageObject.$('#fileupload-skip-button')).toBeNull()
+      await validateScreenshot(pageObject)
     })
 
     it('with valid file does submit', async () => {
@@ -81,6 +83,7 @@ describe('file upload applicant flow', () => {
         await applicantQuestions.downloadSingleQuestionFromReviewPage()
       expect(downloadedFileContent).toEqual(fileContent)
       await applicantQuestions.submitFromReviewPage(programName)
+      await validateScreenshot(pageObject)
     })
 
     it('with no file does not submit', async () => {
@@ -92,6 +95,7 @@ describe('file upload applicant flow', () => {
 
       const error = await pageObject.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
+      await validateScreenshot(pageObject)
     })
 
     it('has no accessiblity violations', async () => {
@@ -142,6 +146,7 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.clickUpload()
       const error = await pageObject.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
+      await validateScreenshot(pageObject)
       await applicantQuestions.clickSkip()
 
       await applicantQuestions.submitFromReviewPage(programName)
@@ -152,6 +157,7 @@ describe('file upload applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(pageObject)
       await applicantQuestions.clickSkip()
       await applicantQuestions.submitFromReviewPage(programName)
     })

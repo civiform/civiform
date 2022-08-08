@@ -1,15 +1,16 @@
 import {
-  startSession,
-  loginAsProgramAdmin,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
-  endSession,
-  logout,
-  loginAsTestUser,
-  selectApplicantLanguage,
+  AdminQuestions,
   ApplicantQuestions,
+  endSession,
+  loginAsAdmin,
+  loginAsProgramAdmin,
+  loginAsTestUser,
+  logout,
+  selectApplicantLanguage,
+  startSession,
   userDisplayName,
+  validateScreenshot,
 } from './support'
 
 describe('view an application in an older version', () => {
@@ -72,6 +73,7 @@ describe('view an application in an older version', () => {
       questionName,
       'some text',
     )
+    await validateScreenshot(page)
 
     await endSession(browser)
   })

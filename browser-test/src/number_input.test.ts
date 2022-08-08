@@ -6,10 +6,11 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
+  resetSession,
   selectApplicantLanguage,
   startSession,
-  resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Number question for applicant flow', () => {
@@ -70,6 +71,7 @@ describe('Number question for applicant flow', () => {
       expect(await pageObject.innerText(numberId)).toContain(
         'This question is required.',
       )
+      await validateScreenshot(pageObject)
     })
 
     it('with non-numeric inputs does not submit', async () => {
@@ -85,6 +87,7 @@ describe('Number question for applicant flow', () => {
         expect(await pageObject.isHidden(numberInputError)).toEqual(false)
         await applicantQuestions.answerNumberQuestion('')
       }
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -126,6 +129,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('100', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -138,6 +142,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -150,6 +155,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('-10', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       expect(await pageObject.isHidden(numberInputError)).toEqual(false)
     })
@@ -162,6 +168,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('10', 0)
       await applicantQuestions.answerNumberQuestion('-5', 1)
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       expect(await pageObject.isHidden(numberInputError + ' >> nth=1')).toEqual(
         false,

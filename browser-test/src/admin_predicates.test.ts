@@ -11,6 +11,7 @@ import {
   selectApplicantLanguage,
   startSession,
   userDisplayName,
+  validateScreenshot,
 } from './support'
 
 describe('create and edit predicates', () => {
@@ -51,6 +52,7 @@ describe('create and edit predicates', () => {
     await adminPredicates.expectVisibilityConditionEquals(
       'Screen 2 is hidden if hide-predicate-q\'s text is equal to "hide me"',
     )
+    await validateScreenshot(page)
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -138,6 +140,7 @@ describe('create and edit predicates', () => {
     await adminPredicates.expectVisibilityConditionEquals(
       'Screen 2 is shown if show-predicate-q\'s text is equal to "show me"',
     )
+    await validateScreenshot(page)
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -161,6 +164,7 @@ describe('create and edit predicates', () => {
     expect((await page.innerText('.cf-submit-button')).toLowerCase()).toContain(
       'submit',
     )
+    await validateScreenshot(page)
 
     // Return to the first screen and answer it so that the second screen is shown
     await page.click('text=Edit') // first screen edit
@@ -189,6 +193,7 @@ describe('create and edit predicates', () => {
         .locator('#application-view')
         .innerText(),
     ).toContain('Screen 2')
+    await validateScreenshot(page)
 
     await endSession(browser)
   })
@@ -321,6 +326,7 @@ describe('create and edit predicates', () => {
     await applicant.clickNext()
 
     // We should now be on the summary page
+    await validateScreenshot(page)
     await applicant.submitFromReviewPage(programName)
     await endSession(browser)
   })

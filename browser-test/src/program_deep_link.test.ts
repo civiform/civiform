@@ -1,14 +1,15 @@
 import {
-  gotoEndpoint,
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
+  AdminQuestions,
   endSession,
-  logout,
-  selectApplicantLanguage,
+  gotoEndpoint,
+  loginAsAdmin,
   loginAsGuest,
   loginAsTestUser,
+  logout,
+  selectApplicantLanguage,
+  startSession,
+  validateScreenshot,
 } from './support'
 
 describe('navigating to a deep link', () => {
@@ -37,6 +38,7 @@ describe('navigating to a deep link', () => {
     await adminPrograms.expectDraftProgram(programName)
     await adminPrograms.publishAllPrograms()
     await adminPrograms.expectActiveProgram(programName)
+    await validateScreenshot(page)
 
     await logout(page)
 
@@ -51,6 +53,7 @@ describe('navigating to a deep link', () => {
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
       questionText,
     )
+    await validateScreenshot(page)
 
     await logout(page)
 
@@ -65,6 +68,7 @@ describe('navigating to a deep link', () => {
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
       questionText,
     )
+    await validateScreenshot(page)
 
     await endSession(browser)
   })

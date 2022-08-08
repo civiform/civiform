@@ -1,11 +1,12 @@
 import {
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
-  endSession,
+  AdminQuestions,
   dropTables,
+  endSession,
+  loginAsAdmin,
   seedCanonicalQuestions,
+  startSession,
+  validateScreenshot,
   waitForPageJsLoad,
 } from './support'
 
@@ -24,6 +25,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Name')
     await adminQuestions.expectDraftQuestionExist('Applicant Date of Birth')
+    await validateScreenshot(page)
 
     await endSession(browser)
   })
@@ -205,6 +207,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
 
     await adminQuestions.expectMultiOptionBlankOptionError(options)
+    await validateScreenshot(page)
   })
 
   it('persists export state', async () => {
@@ -253,6 +256,7 @@ describe('normal question lifecycle', () => {
         ),
       ),
     ).toBeTruthy()
+    await validateScreenshot(page)
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
@@ -285,5 +289,6 @@ describe('normal question lifecycle', () => {
     expect(await page.inputValue('label:has-text("Question text")')).toContain(
       newQuestionText,
     )
+    await validateScreenshot(page)
   })
 })

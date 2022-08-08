@@ -6,10 +6,11 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
+  resetSession,
   selectApplicantLanguage,
   startSession,
-  resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Applicant navigation flow', () => {
@@ -77,6 +78,7 @@ describe('Applicant navigation flow', () => {
       expect(await pageObject.innerText('h1')).toContain(
         'Program application preview',
       )
+      await validateScreenshot(pageObject)
     })
 
     it('clicking previous on later blocks goes to previous blocks', async () => {
@@ -127,6 +129,7 @@ describe('Applicant navigation flow', () => {
       expect(await pageObject.innerText('h1')).toContain(
         'Program application preview',
       )
+      await validateAccessibility(pageObject)
     })
 
     it('login page has no accessiblity violations', async () => {
@@ -201,6 +204,7 @@ describe('Applicant navigation flow', () => {
       expect(await pageObject.innerText('h1')).toContain(
         'Program application review',
       )
+      await validateScreenshot(pageObject)
       await validateAccessibility(pageObject)
     })
 
@@ -230,6 +234,7 @@ describe('Applicant navigation flow', () => {
       expect(await pageObject.innerText('h1')).toContain(
         'Application confirmation',
       )
+      await validateScreenshot(pageObject)
       await validateAccessibility(pageObject)
     })
   })

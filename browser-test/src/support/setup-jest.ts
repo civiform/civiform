@@ -1,5 +1,6 @@
 /* eslint-disable */
 import axe = require('axe-core')
+import {toMatchImageSnapshot} from 'jest-image-snapshot'
 
 interface CustomMatchers<R = unknown> {
   toHaveNoA11yViolations(): R
@@ -37,3 +38,4 @@ expect.extend({
     }
   },
 })
+expect.extend({toMatchImageSnapshot})

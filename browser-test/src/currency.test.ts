@@ -6,10 +6,11 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
+  resetSession,
   selectApplicantLanguage,
   startSession,
-  resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('currency applicant flow', () => {
@@ -53,6 +54,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -72,6 +74,7 @@ describe('currency applicant flow', () => {
 
       // The block should be displayed still with the error shown.
       expect(await pageObject.isHidden(currencyError)).toEqual(false)
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -113,6 +116,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -124,6 +128,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -142,6 +147,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(currencyError)).toEqual(false)
+      await validateScreenshot(pageObject)
     })
 
     it('with second invalid does not submit', async () => {
@@ -158,6 +164,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(currencyError)).toEqual(false)
+      await validateScreenshot(pageObject)
     })
 
     it('has no accessiblity violations', async () => {
