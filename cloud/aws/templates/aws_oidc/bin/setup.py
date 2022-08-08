@@ -1,17 +1,36 @@
-import json
-import os
 import subprocess
 import shlex
-import shutil
+from getpass import getpass
+from typing import Dict
 
-from cloud.aws.templates.aws_oidc.bin.aws import Aws
+from cloud.aws.templates.aws_oidc.bin.aws_cli import AwsCli
 from cloud.aws.templates.aws_oidc.bin.aws_template import AwsSetupTemplate
 from cloud.aws.bin.lib import backend_setup
+from cloud.shared.bin.lib.config_loader import ConfigLoader
+
+# TODO: move these to variable_definitions.json and read docs from there.
+# Map of secrets that need to be set by the user and can't be empty values.
+# Key is the name of the secret without app prefix, value is doc shown to user
+# if the secret is unset.
+SECRETS: Dict[str, str] = {
+    "adfs_client_id":
+        "Client id for the ADFS configuration. Enter any value if you don't use ADFS.",
+    "adfs_secret":
+        "Secret for the ADFS configuration. Enter any value if you don't use ADFS.",
+    "applicant_oidc_client_id":
+        "Client ID for your OIDC provider. Enter any value if you haven't set it up yet.",
+    "applicant_oidc_client_secret":
+        "Client secret for your OIDC provider. Enter any value if you haven't set it up yet.",
+}
 
 
 class Setup(AwsSetupTemplate):
 
-    def get_current_user(self):
+    def __init__(self, config: ConfigLoader):
+        super().__init__(config)
+        self.aws_cli = AwsCli(config)
+
+    def get_current_user(self) -> str:
         get_current_command = "aws sts get-caller-identity --query UserId --output text"
         current_user_process = subprocess.run(
             shlex.split(get_current_command), capture_output=True)
@@ -37,10 +56,26 @@ class Setup(AwsSetupTemplate):
         return True
 
     def post_terraform_setup(self):
-        aws = Aws(self.config)
-        secrets = aws.get_all_secrets()
-        adfs = aws.get_secret_by_name(secrets, f'{self.config.app_prefix}-adfs_client_id')
-        print(aws.get_secret_value(adfs))
-        aws.set_secret_value(adfs, "fdfdf")
-        print(aws.get_secret_value(adfs))
+        for name, doc in SECRETS.items():
+            self._maybe_set_secret_value(
+                f"{self.config.app_prefix}-{name}", doc)
 
+    def _maybe_set_secret_value(self, secret_name: str, documentation: str):
+        current_value = self.aws_cli.get_secret_value(secret_name)
+        print("")
+        url = f"https://{self.config.aws_region}.console.aws.amazon.com/secretsmanager/secret?name={secret_name}"
+        if current_value == "":
+            print(
+                f"Secret {secret_name} is not set. It needs to be set to a non-empty value."
+            )
+            print(documentation)
+            print(f"You can later change the value in AWS console: {url}")
+            new_value = getpass("enter value -> ").strip()
+            while new_value.strip() == "":
+                print("Value cannot be empty.")
+                new_value = getpass("enter value -> ").strip()
+            self.aws_cli.set_secret_value(secret_name, new_value)
+            print("Secret value successfully set.")
+        else:
+            print(f"Secret {secret_name} already has a value set.")
+            print(f"You can check and update it in AWS console: {url}")
