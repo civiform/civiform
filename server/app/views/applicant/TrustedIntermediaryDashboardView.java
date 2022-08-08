@@ -17,12 +17,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.ti.routes;
-import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -228,7 +228,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderInfoCell(applicant))
         .with(renderApplicantInfoCell(applicant))
         .with(renderActionsCell(applicant))
-      .with(renderDateOfBirthCell(applicant));
+        .with(renderDateOfBirthCell(applicant));
   }
 
   private TdTag renderDateOfBirthCell(Account applicant) {
@@ -237,13 +237,13 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
     }
     String currentDob =
-      newestApplicant
-        .get()
-        .getApplicantData()
-        .getDateOfBirth()
-        .map(LocalDate::toString)
-        .orElse("");
-    return td() .with(div(currentDob).withClasses(Styles.TEXT_XS))
+        newestApplicant
+            .get()
+            .getApplicantData()
+            .getDateOfBirth()
+            .map(LocalDate::toString)
+            .orElse("");
+    return td().with(div(currentDob).withClasses(Styles.TEXT_XS));
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {

@@ -9,7 +9,6 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
@@ -25,7 +24,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.UserRepository;
 import services.PaginationInfo;
-import services.ti.EmailAddressExistsException;
+import services.ti.TIClientCreationResult;
+import services.ti.TrustedIntermediaryService;
 import views.applicant.TrustedIntermediaryDashboardView;
 
 /**
@@ -41,6 +41,7 @@ public class TrustedIntermediaryController {
   private final MessagesApi messagesApi;
   private final FormFactory formFactory;
   private final String baseUrl;
+  private final TrustedIntermediaryService tiService;
 
   @Inject
   public TrustedIntermediaryController(
@@ -49,13 +50,15 @@ public class TrustedIntermediaryController {
       FormFactory formFactory,
       MessagesApi messagesApi,
       TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
-      Config config) {
+      Config config,
+      TrustedIntermediaryService tiService) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
     this.userRepository = Preconditions.checkNotNull(userRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
     this.baseUrl = Preconditions.checkNotNull(config).getString("base_url");
+    this.tiService = tiService;
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -95,40 +98,25 @@ public class TrustedIntermediaryController {
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
-    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
-    if (trustedIntermediaryGroup.isEmpty()) {
-      return notFound();
-    }
-    if (!trustedIntermediaryGroup.get().id.equals(id)) {
-      return unauthorized();
-    }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory.form(AddApplicantToTrustedIntermediaryGroupForm.class).bindFromRequest(request);
-    if (form.hasErrors()) {
-      return redirectToDashboardWithError(form.errors().get(0).message(), form);
-    }
-    if (Strings.isNullOrEmpty(form.get().getFirstName())) {
-      return redirectToDashboardWithError("First name required.", form);
-    }
-    if (Strings.isNullOrEmpty(form.get().getLastName())) {
-      return redirectToDashboardWithError("Last name required.", form);
-    }
-    try {
-      userRepository.createNewApplicantForTrustedIntermediaryGroup(
-          form.get(), trustedIntermediaryGroup.get());
+    TIClientCreationResult tiClientCreationResult =
+        tiService.addNewClient(form, civiformProfile.get(), id);
+    if (tiClientCreationResult.isSuccessful()) {
       return redirect(
-          routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()));
-    } catch (EmailAddressExistsException e) {
-      String trustedIntermediaryUrl = baseUrl + "/trustedIntermediaries";
-
-      return redirectToDashboardWithError(
-          "Email address already in use.  Cannot create applicant if an account already exists. "
-              + " Direct applicant to sign in and go to"
-              + " "
-              + trustedIntermediaryUrl,
-          form);
+          routes.TrustedIntermediaryController.dashboard(
+              /* search= */ Optional.empty(), /* page= */ Optional.empty()));
+    } else if (tiClientCreationResult.getStatusHeader().isPresent()) {
+      return tiClientCreationResult.getStatusHeader().get();
     }
+    return redirectToDashboardWithError(getFormErrors(form), form); // how to add flashing with
+  }
+
+  private String getFormErrors(Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
+    StringBuilder errorMessage = new StringBuilder();
+    form.errors().stream()
+        .forEach(validationError -> errorMessage.append(validationError.message()));
+    return errorMessage.toString();
   }
 
   private Result redirectToDashboardWithError(
