@@ -38,7 +38,9 @@ jobs:
         run: git add .; git diff --exit-code HEAD
 
       - name: Run npm install
-        run: cd formatter && npm install
+        run: >
+          cp formatter/package*.json . &&
+          npm install
 
       - name: Prettier diff
         uses: actionsx/prettier@v2
