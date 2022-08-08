@@ -41,7 +41,7 @@ resource "aws_db_instance" "civiform" {
   parameter_group_name            = aws_db_parameter_group.civiform.name
   publicly_accessible             = false
   skip_final_snapshot             = local.skip_final_snapshot
-  final_snapshot_identifier       = "{var.app_prefix}-civiform-db-finalsnapshot"
+  final_snapshot_identifier       = "${var.app_prefix}-civiform-db-finalsnapshot"
   backup_retention_period         = var.postgres_backup_retention_days
   kms_key_id                      = aws_kms_key.civiform_kms_key.arn
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
