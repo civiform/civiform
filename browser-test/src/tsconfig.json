@@ -6,7 +6,6 @@
     "module": "commonjs",
     "noEmit": true,
     "types": ["jest", "node"],
-    "typeRoots": ["./src/types", "node_modules/@types"]
   },
   "include": ["."]
 }
