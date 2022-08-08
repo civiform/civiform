@@ -5,7 +5,7 @@ describe('Id question for applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
   })
 
@@ -31,7 +31,7 @@ describe('Id question for applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['id-q'],
-        programName,
+        programName
       )
 
       await logout(pageObject)
@@ -44,7 +44,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('12345')
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -60,9 +60,9 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'This question is required.',
+        'This question is required.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('with too short id does not submit', async () => {
@@ -75,9 +75,9 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain at least 5 characters.',
+        'Must contain at least 5 characters.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('with too long id does not submit', async () => {
@@ -90,9 +90,9 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain at most 5 characters.',
+        'Must contain at most 5 characters.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('with non-numeric characters does not submit', async () => {
@@ -105,9 +105,9 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain only numbers.',
+        'Must contain only numbers.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -133,7 +133,7 @@ describe('Id question for applicant flow', () => {
         programName,
         'Optional question block',
         ['my-id-q'],
-        'your-id-q', // optional
+        'your-id-q' // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -149,7 +149,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.answerIdQuestion('12345', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -162,7 +162,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -178,9 +178,9 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain only numbers.',
+        'Must contain only numbers.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('with second invalid does not submit', async () => {
@@ -194,9 +194,9 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = `.cf-question-id >> nth=1`
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain only numbers.',
+        'Must contain only numbers.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('has no accessiblity violations', async () => {

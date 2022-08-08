@@ -5,7 +5,7 @@ describe('Date question for applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
   })
 
@@ -24,10 +24,10 @@ describe('Date question for applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addDateQuestion({questionName: 'general-date-q'})
+      await adminQuestions.addDateQuestion({ questionName: 'general-date-q' })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['general-date-q'],
-        programName,
+        programName
       )
 
       await logout(pageObject)
@@ -40,7 +40,7 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-05-02')
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -56,9 +56,9 @@ describe('Date question for applicant flow', () => {
       // Check required error is present
       const dateId = '.cf-question-date'
       expect(await pageObject.innerText(dateId)).toContain(
-        'This question is required.',
+        'This question is required.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -72,18 +72,18 @@ describe('Date question for applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addDateQuestion({questionName: 'birthday-date-q'})
-      await adminQuestions.addDateQuestion({questionName: 'todays-date-q'})
+      await adminQuestions.addDateQuestion({ questionName: 'birthday-date-q' })
+      await adminQuestions.addDateQuestion({ questionName: 'todays-date-q' })
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Optional question block',
         ['birthday-date-q'],
-        'todays-date-q', // optional
+        'todays-date-q' // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
       await adminPrograms.publishAllPrograms()
 
       await logout(pageObject)
@@ -98,7 +98,7 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
@@ -111,7 +111,7 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 

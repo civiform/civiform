@@ -1,5 +1,5 @@
-import {Page} from 'playwright'
-import {waitForPageJsLoad} from './wait'
+import { Page } from 'playwright'
+import { waitForPageJsLoad } from './wait'
 
 export class AdminPredicates {
   public page!: Page
@@ -15,7 +15,7 @@ export class AdminPredicates {
     action: string,
     scalar: string,
     operator: string,
-    value: string,
+    value: string
   ) {
     await this.page.click(`text="${questionName}"`)
 
@@ -30,7 +30,7 @@ export class AdminPredicates {
     })
 
     const valueInput = await this.page.$(
-      '.cf-predicate-value-input:visible input',
+      '.cf-predicate-value-input:visible input'
     )
     if (valueInput) {
       await valueInput.fill(value)
@@ -48,7 +48,7 @@ export class AdminPredicates {
 
   async expectVisibilityConditionEquals(condition: string) {
     expect(await this.page.innerText('.cf-display-predicate')).toContain(
-      condition,
+      condition
     )
   }
 }

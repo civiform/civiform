@@ -1,5 +1,5 @@
 import axe = require('axe-core');
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
+import { toMatchImageSnapshot } from 'jest-image-snapshot'
 
 interface CustomMatchers<R = unknown> {
   toHaveNoA11yViolations(): R
@@ -30,11 +30,11 @@ expect.extend({
           `Expected no axe accessibility violations, found ${numViolations} violations:\n ${JSON.stringify(
             results.violations,
             null,
-            2,
+            2
           )}`,
         pass: false,
       }
     }
   },
-});
-expect.extend({ toMatchImageSnapshot });
+})
+expect.extend({ toMatchImageSnapshot })

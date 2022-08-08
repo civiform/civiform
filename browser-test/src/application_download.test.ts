@@ -2,13 +2,13 @@ import { AdminPrograms, AdminQuestions, ApplicantQuestions, dropTables, endSessi
 
 describe('normal application flow', () => {
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     await dropTables(page)
     await seedCanonicalQuestions(page)
   })
 
   it('all major steps', async () => {
-    const {browser, page} = await startSession()
+    const { browser, page } = await startSession()
     // Timeout for clicks and element fills. If your selector fails to locate
     // the HTML element, the test hangs. If you find the tests time out, you
     // want to verify that your selectors are working as expected first.
@@ -29,15 +29,15 @@ describe('normal application flow', () => {
       questionName: 'dropdown-csv-download',
       options: ['op1', 'op2', 'op3'],
     })
-    await adminQuestions.addDateQuestion({questionName: 'csv-date'})
-    await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'})
+    await adminQuestions.addDateQuestion({ questionName: 'csv-date' })
+    await adminQuestions.addCurrencyQuestion({ questionName: 'csv-currency' })
     await adminQuestions.exportQuestion('Name')
     await adminQuestions.exportQuestion('dropdown-csv-download')
     await adminQuestions.exportQuestion('csv-date')
     await adminQuestions.exportQuestion('csv-currency')
     await adminPrograms.addAndPublishProgramWithQuestions(
       ['Name', 'dropdown-csv-download', 'csv-date', 'csv-currency'],
-      programName,
+      programName
     )
 
     await logout(page)
@@ -62,7 +62,7 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     await logout(page)
     await loginAsAdmin(page)
@@ -117,37 +117,37 @@ describe('normal application flow', () => {
     expect(numberOfGusEntries).toEqual(2)
 
     const postEditJsonContent = JSON.parse(
-      await adminPrograms.getJson(noApplyFilters),
+      await adminPrograms.getJson(noApplyFilters)
     )
     expect(postEditJsonContent.length).toEqual(3)
     expect(postEditJsonContent[0].program_name).toEqual(programName)
     expect(postEditJsonContent[0].language).toEqual('en-US')
     expect(
-      postEditJsonContent[0].application.csvcurrency.currency_dollars,
+      postEditJsonContent[0].application.csvcurrency.currency_dollars
     ).toEqual(2000.0)
     expect(
-      postEditJsonContent[0].application.dropdowncsvdownload.selection,
+      postEditJsonContent[0].application.dropdowncsvdownload.selection
     ).toEqual('op2')
     expect(postEditJsonContent[0].application.name.first_name).toEqual('Gus')
     expect(postEditJsonContent[0].application.name.middle_name).toBeNull()
     expect(postEditJsonContent[0].application.name.last_name).toEqual('Guest')
     expect(postEditJsonContent[0].application.csvdate.date).toEqual(
-      '1990-01-01',
+      '1990-01-01'
     )
     expect(postEditJsonContent[0].application.numbercsvdownload.number).toEqual(
-      1600,
+      1600
     )
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     // Finds a partial text match on applicant name, case insensitive.
     await adminPrograms.filterProgramApplications('SARA')
     const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
     expect(filteredCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(filteredCsvContent).not.toContain(
-      'Gus,,Guest,op2,01/01/1990,2000.00',
+      'Gus,,Guest,op2,01/01/1990,2000.00'
     )
     const filteredJsonContent = JSON.parse(
-      await adminPrograms.getJson(applyFilters),
+      await adminPrograms.getJson(applyFilters)
     )
     expect(filteredJsonContent.length).toEqual(1)
     expect(filteredJsonContent[0].application.name.first_name).toEqual('sarah')
@@ -157,13 +157,13 @@ describe('normal application flow', () => {
     expect(allCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(allCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00')
     const allJsonContent = JSON.parse(
-      await adminPrograms.getJson(noApplyFilters),
+      await adminPrograms.getJson(noApplyFilters)
     )
     expect(allJsonContent.length).toEqual(3)
     expect(allJsonContent[0].application.name.first_name).toEqual('Gus')
     expect(allJsonContent[1].application.name.first_name).toEqual('Gus')
     expect(allJsonContent[2].application.name.first_name).toEqual('sarah')
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     await logout(page)
 
@@ -175,10 +175,10 @@ describe('normal application flow', () => {
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv()
 
     expect(demographicsCsvContent).toContain(
-      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
+      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)'
     )
     expect(demographicsCsvContent).toContain(
-      'sarah,,smith,1000.00,05/10/2021,op2',
+      'sarah,,smith,1000.00,05/10/2021,op2'
     )
 
     await adminQuestions.createNewVersion('Name')
@@ -189,17 +189,17 @@ describe('normal application flow', () => {
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv()
 
     expect(newDemographicsCsvContent).toContain(
-      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)'
     )
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith')
     expect(newDemographicsCsvContent).toContain(',op2,')
     expect(newDemographicsCsvContent).toContain(',1600,')
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     if (isLocalDevEnvironment()) {
       // The hashed values "sarah", empty value, "smith", with the dev secret key.
       expect(newDemographicsCsvContent).toContain(
-        '5009769596aa83552389143189cec81abfc8f56abc1bb966715c47ce4078c403,057ba03d6c44104863dc7361fe4578965d1887360f90a0895882e58a6248fc86,6eecddf47b5f7a90d41ccc978c4c785265242ce75fe50be10c824b73a25167ba',
+        '5009769596aa83552389143189cec81abfc8f56abc1bb966715c47ce4078c403,057ba03d6c44104863dc7361fe4578965d1887360f90a0895882e58a6248fc86,6eecddf47b5f7a90d41ccc978c4c785265242ce75fe50be10c824b73a25167ba'
       )
     }
 

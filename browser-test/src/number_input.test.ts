@@ -6,7 +6,7 @@ describe('Number question for applicant flow', () => {
   const numberInputError = 'div.cf-question-number-error'
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
   })
 
@@ -30,7 +30,7 @@ describe('Number question for applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['fave-number-q'],
-        programName,
+        programName
       )
 
       await logout(pageObject)
@@ -57,9 +57,9 @@ describe('Number question for applicant flow', () => {
 
       const numberId = '.cf-question-number'
       expect(await pageObject.innerText(numberId)).toContain(
-        'This question is required.',
+        'This question is required.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('with non-numeric inputs does not submit', async () => {
@@ -75,7 +75,7 @@ describe('Number question for applicant flow', () => {
         expect(await pageObject.isHidden(numberInputError)).toEqual(false)
         await applicantQuestions.answerNumberQuestion('')
       }
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -101,7 +101,7 @@ describe('Number question for applicant flow', () => {
         programName,
         'Optional question block',
         ['my-number-q'],
-        'your-number-q', // optional
+        'your-number-q' // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -117,7 +117,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('100', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -130,7 +130,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -143,7 +143,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('-10', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       expect(await pageObject.isHidden(numberInputError)).toEqual(false)
     })
@@ -156,10 +156,10 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('10', 0)
       await applicantQuestions.answerNumberQuestion('-5', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       expect(await pageObject.isHidden(numberInputError + ' >> nth=1')).toEqual(
-        false,
+        false
       )
     })
 

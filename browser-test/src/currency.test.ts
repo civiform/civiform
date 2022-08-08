@@ -8,7 +8,7 @@ describe('currency applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
   })
 
@@ -26,10 +26,10 @@ describe('currency applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
+      await adminQuestions.addCurrencyQuestion({ questionName: 'currency-q' })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['currency-q'],
-        programName,
+        programName
       )
 
       await logout(pageObject)
@@ -42,7 +42,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -62,7 +62,7 @@ describe('currency applicant flow', () => {
 
       // The block should be displayed still with the error shown.
       expect(await pageObject.isHidden(currencyError)).toEqual(false)
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -88,7 +88,7 @@ describe('currency applicant flow', () => {
         programName,
         'Optional question block',
         ['currency-b-q'],
-        'currency-a-q', // optional
+        'currency-a-q' // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -104,7 +104,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -116,7 +116,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -135,7 +135,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(currencyError)).toEqual(false)
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('with second invalid does not submit', async () => {
@@ -152,7 +152,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(currencyError)).toEqual(false)
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('has no accessiblity violations', async () => {

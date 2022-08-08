@@ -48,6 +48,6 @@ describe('Managing API keys', () => {
 
     await adminApiKeys.retireApiKey('test-api-key')
     await adminApiKeys.expectApiKeyIsRetired('Test API key')
-    await validateScreenshot(page);
+    await validateScreenshot(page)
   })
 })

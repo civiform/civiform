@@ -1,5 +1,5 @@
-import {Page} from 'playwright'
-import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
+import { Page } from 'playwright'
+import { dismissModal, waitForAnyModal, waitForPageJsLoad } from './wait'
 import * as assert from 'assert'
 
 type QuestionParams = {
@@ -76,7 +76,7 @@ export class AdminQuestions {
 
   async expectMultiOptionBlankOptionError(options: String[]) {
     const errors = await this.page.locator(
-      '#question-settings .cf-multi-option-input-error',
+      '#question-settings .cf-multi-option-input-error'
     )
     // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
     for (let i = 0; i < options.length; i++) {
@@ -140,7 +140,7 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionName)
     expect(tableInnerText).toContain(questionText)
     expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
+      await this.page.innerText(this.selectQuestionTableRow(questionName))
     ).toContain('Edit Draft')
   }
 
@@ -151,10 +151,10 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionName)
     expect(tableInnerText).toContain(questionText)
     expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
+      await this.page.innerText(this.selectQuestionTableRow(questionName))
     ).toContain('View')
     expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
+      await this.page.innerText(this.selectQuestionTableRow(questionName))
     ).toContain('New Version')
   }
 
@@ -174,7 +174,7 @@ export class AdminQuestions {
   }) {
     await this.gotoAdminQuestionsPage()
     const programReferencesText = await this.page.innerText(
-      this.selectProgramReferencesFromRow(questionName),
+      this.selectProgramReferencesFromRow(questionName)
     )
     expect(programReferencesText).toEqual(expectedProgramReferencesText)
   }
@@ -189,27 +189,27 @@ export class AdminQuestions {
     expectedActiveProgramReferences: string[]
   }) {
     await this.page.click(
-      this.selectProgramReferencesFromRow(questionName) + ' a',
+      this.selectProgramReferencesFromRow(questionName) + ' a'
     )
 
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain(
-      `Programs including ${questionName}`,
+      `Programs including ${questionName}`
     )
 
     const draftReferences = await modal.$$(
-      '.cf-admin-question-program-reference-counts-draft li',
+      '.cf-admin-question-program-reference-counts-draft li'
     )
     const draftReferenceNames = await Promise.all(
-      draftReferences.map((reference) => reference.innerText()),
+      draftReferences.map((reference) => reference.innerText())
     )
     expect(draftReferenceNames).toEqual(expectedDraftProgramReferences)
 
     const activeReferences = await modal.$$(
-      '.cf-admin-question-program-reference-counts-active li',
+      '.cf-admin-question-program-reference-counts-active li'
     )
     const activeReferenceNames = await Promise.all(
-      activeReferences.map((reference) => reference.innerText()),
+      activeReferences.map((reference) => reference.innerText())
     )
     expect(activeReferenceNames).toEqual(expectedActiveProgramReferences)
 
@@ -232,7 +232,7 @@ export class AdminQuestions {
   }) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, `:text("${buttonText}")`),
+      this.selectWithinQuestionTableRow(questionName, `:text("${buttonText}")`)
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
@@ -255,7 +255,7 @@ export class AdminQuestions {
   async undeleteQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Restore")'),
+      this.selectWithinQuestionTableRow(questionName, ':text("Restore")')
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -264,7 +264,7 @@ export class AdminQuestions {
   async discardDraft(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'),
+      this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")')
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -273,7 +273,7 @@ export class AdminQuestions {
   async archiveQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
+      this.selectWithinQuestionTableRow(questionName, ':text("Archive")')
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -284,8 +284,8 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
-        ':text("Manage Translations")',
-      ),
+        ':text("Manage Translations")'
+      )
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionTranslationPage(questionName)
@@ -294,13 +294,13 @@ export class AdminQuestions {
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit')
     expect(
-      await this.page.getAttribute('input#question-name-input', 'value'),
+      await this.page.getAttribute('input#question-name-input', 'value')
     ).toEqual(questionName)
   }
 
   async expectQuestionTranslationPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      `Manage Question Translations: ${questionName}`,
+      `Manage Question Translations: ${questionName}`
     )
   }
 
@@ -357,14 +357,14 @@ export class AdminQuestions {
     await this.addCurrencyQuestion({
       questionName: questionNamePrefix + 'currency',
     })
-    await this.addDateQuestion({questionName: questionNamePrefix + 'date'})
+    await this.addDateQuestion({ questionName: questionNamePrefix + 'date' })
     await this.addDropdownQuestion({
       questionName: questionNamePrefix + 'dropdown',
       options: ['op1', 'op2', 'op3'],
     })
-    await this.addEmailQuestion({questionName: questionNamePrefix + 'email'})
-    await this.addIdQuestion({questionName: questionNamePrefix + 'id'})
-    await this.addNameQuestion({questionName: questionNamePrefix + 'name'})
+    await this.addEmailQuestion({ questionName: questionNamePrefix + 'email' })
+    await this.addIdQuestion({ questionName: questionNamePrefix + 'id' })
+    await this.addNameQuestion({ questionName: questionNamePrefix + 'name' })
     await this.addNumberQuestion({
       questionName: questionNamePrefix + 'number',
     })
@@ -372,7 +372,7 @@ export class AdminQuestions {
       questionName: questionNamePrefix + 'radio',
       options: ['one', 'two', 'three'],
     })
-    await this.addTextQuestion({questionName: questionNamePrefix + 'text'})
+    await this.addTextQuestion({ questionName: questionNamePrefix + 'text' })
     return [
       questionNamePrefix + 'address',
       questionNamePrefix + 'checkbox',
@@ -514,13 +514,13 @@ export class AdminQuestions {
     if (minNum != null) {
       await this.page.fill(
         'label:has-text("Minimum number of choices required")',
-        String(minNum),
+        String(minNum)
       )
     }
     if (maxNum != null) {
       await this.page.fill(
         'label:has-text("Maximum number of choices allowed")',
-        String(maxNum),
+        String(maxNum)
       )
     }
 
@@ -529,7 +529,7 @@ export class AdminQuestions {
       await this.page.click('#add-new-option')
       await this.page.fill(
         `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
-        options[index],
+        options[index]
       )
     }
 
@@ -580,7 +580,7 @@ export class AdminQuestions {
   async changeMultiOptionAnswer(index: number, text: string) {
     await this.page.fill(
       `:nth-match(#question-settings div.cf-multi-option-question-option, ${index}) input`,
-      text,
+      text
     )
   }
 
@@ -802,7 +802,7 @@ export class AdminQuestions {
       await this.page.click('#add-new-option')
       await this.page.fill(
         `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
-        options[index],
+        options[index]
       )
     }
 

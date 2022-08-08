@@ -2,7 +2,7 @@ import { AdminPrograms, AdminQuestions, endSession, gotoEndpoint, loginAsAdmin, 
 
 describe('navigating to a deep link', () => {
   it('as a guest user or registered user', async () => {
-    const {browser, page} = await startSession()
+    const { browser, page } = await startSession()
 
     // Arrange
     await loginAsAdmin(page)
@@ -26,7 +26,7 @@ describe('navigating to a deep link', () => {
     await adminPrograms.expectDraftProgram(programName)
     await adminPrograms.publishAllPrograms()
     await adminPrograms.expectActiveProgram(programName)
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     await logout(page)
 
@@ -39,9 +39,9 @@ describe('navigating to a deep link', () => {
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
-      questionText,
+      questionText
     )
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     await logout(page)
 
@@ -54,9 +54,9 @@ describe('navigating to a deep link', () => {
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
-      questionText,
+      questionText
     )
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     await endSession(browser)
   })

@@ -7,7 +7,7 @@ describe('view program references from question view', () => {
   let adminQuestions: AdminQuestions
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
     adminPrograms = new AdminPrograms(pageObject)
     adminQuestions = new AdminQuestions(pageObject)
@@ -17,17 +17,17 @@ describe('view program references from question view', () => {
 
   it('shows no results for an unreferenced question', async () => {
     const questionName = 'unreferenced-q'
-    await adminQuestions.addAddressQuestion({questionName})
+    await adminQuestions.addAddressQuestion({ questionName })
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
       expectedProgramReferencesText: 'Used across 0 active & 0 draft programs',
     })
-    await validateScreenshot(pageObject);
+    await validateScreenshot(pageObject)
   })
 
   it('shows results for referencing programs', async () => {
     const questionName = 'question-references-q'
-    await adminQuestions.addAddressQuestion({questionName})
+    await adminQuestions.addAddressQuestion({ questionName })
 
     // Add a reference to the question in the second block. We'll later assert
     // that the links in the modal takes us to the correct block.
@@ -64,6 +64,6 @@ describe('view program references from question view', () => {
       expectedDraftProgramReferences: ['first-program', 'second-program'],
       expectedActiveProgramReferences: ['first-program'],
     })
-    await validateScreenshot(pageObject);
+    await validateScreenshot(pageObject)
   })
 })

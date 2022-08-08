@@ -9,7 +9,7 @@ describe.skip('view program statuses', () => {
   let adminProgramStatuses: AdminProgramStatuses
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
     adminPrograms = new AdminPrograms(pageObject)
     applicantQuestions = new ApplicantQuestions(pageObject)
@@ -32,7 +32,7 @@ describe.skip('view program statuses', () => {
 
       // Submit an application.
       await applicantQuestions.clickApplyProgramButton(
-        programWithoutStatusesName,
+        programWithoutStatusesName
       )
       await applicantQuestions.submitFromPreviewPage(programWithoutStatusesName)
 
@@ -51,7 +51,7 @@ describe.skip('view program statuses', () => {
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
 
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -64,7 +64,7 @@ describe.skip('view program statuses', () => {
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithStatusesName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(
-        programWithStatusesName,
+        programWithStatusesName
       )
       await adminProgramStatuses.createStatus(statusName)
       await adminPrograms.publishProgram(programWithStatusesName)
@@ -95,7 +95,7 @@ describe.skip('view program statuses', () => {
 
     it('shows default option as placeholder', async () => {
       expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
   })
 })

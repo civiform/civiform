@@ -8,7 +8,7 @@ describe('Static text question for applicant flow', () => {
   let applicantQuestions: ApplicantQuestions
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
     // As admin, create program with static text question.
     await loginAsAdmin(pageObject)
@@ -21,10 +21,10 @@ describe('Static text question for applicant flow', () => {
       questionText: staticText,
     })
     // Must add an answerable question for text to show.
-    await adminQuestions.addEmailQuestion({questionName: 'partner-email-q'})
+    await adminQuestions.addEmailQuestion({ questionName: 'partner-email-q' })
     await adminPrograms.addAndPublishProgramWithQuestions(
       ['static-text-q', 'partner-email-q'],
-      programName,
+      programName
     )
 
     await logout(pageObject)
@@ -41,7 +41,7 @@ describe('Static text question for applicant flow', () => {
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.seeStaticQuestion(staticText)
-    await validateScreenshot(pageObject);
+    await validateScreenshot(pageObject)
   })
 
   it('has no accessiblity violations', async () => {

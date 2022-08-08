@@ -6,7 +6,7 @@ describe('End to end enumerator test', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
   })
 
@@ -53,30 +53,30 @@ describe('End to end enumerator test', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(
       programName,
-      'ete enumerator program description',
+      'ete enumerator program description'
     )
 
     // All non-repeated questions should be available in the question bank.
     expect(await pageObject.innerText('id=question-bank-questions')).toContain(
-      'enumerator-ete-name',
+      'enumerator-ete-name'
     )
     expect(await pageObject.innerText('id=question-bank-questions')).toContain(
-      'enumerator-ete-householdmembers',
+      'enumerator-ete-householdmembers'
     )
 
     // Add an enumerator question. All options should go away.
     await pageObject.click('button:text("enumerator-ete-householdmembers")')
     expect(await pageObject.innerText('id=question-bank-questions')).toBe(
-      'Question bank',
+      'Question bank'
     )
 
     // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
     await pageObject.click(
-      '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
+      '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button'
     )
     await pageObject.click('button:text("enumerator-ete-name")')
     expect(
-      await pageObject.innerText('id=question-bank-questions'),
+      await pageObject.innerText('id=question-bank-questions')
     ).not.toContain('enumerator-ete-householdmembers')
 
     // Create a new block with the first enumerator question, and then create a repeated block. The repeated questions should be the only options.
@@ -84,22 +84,22 @@ describe('End to end enumerator test', () => {
     await pageObject.click('button:text("enumerator-ete-householdmembers")')
     await pageObject.click('#create-repeated-block-button')
     expect(await pageObject.innerText('id=question-bank-questions')).toContain(
-      'enumerator-ete-repeated-name',
+      'enumerator-ete-repeated-name'
     )
     expect(await pageObject.innerText('id=question-bank-questions')).toContain(
-      'enumerator-ete-repeated-jobs',
+      'enumerator-ete-repeated-jobs'
     )
 
     // Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.
     await pageObject.click('p:text("Screen 2")')
     expect(
-      await pageObject.getAttribute('#delete-block-button', 'disabled'),
+      await pageObject.getAttribute('#delete-block-button', 'disabled')
     ).not.toBeNull()
     expect(
       await pageObject.getAttribute(
         '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
-        'disabled',
-      ),
+        'disabled'
+      )
     ).not.toBeNull()
 
     // Create the rest of the program.
@@ -115,7 +115,7 @@ describe('End to end enumerator test', () => {
     // Create a nested repeated block and add the nested text question
     await pageObject.click('#create-repeated-block-button')
     await pageObject.click('button:text("enumerator-ete-repeated-jobs-income")')
-    await validateScreenshot(pageObject);
+    await validateScreenshot(pageObject)
 
     // Publish!
     await adminPrograms.publishProgram(programName)
@@ -134,7 +134,7 @@ describe('End to end enumerator test', () => {
 
     // Check that we are on the enumerator page
     expect(await pageObject.isVisible('.cf-question-enumerator')).toEqual(true)
-    await validateScreenshot(pageObject);
+    await validateScreenshot(pageObject)
 
     // Validate that enumerators are accessible
     await validateAccessibility(pageObject)
@@ -180,7 +180,7 @@ describe('End to end enumerator test', () => {
     // Oops! Can't have blank lines.
     // Verify that the error message is visible.
     expect(
-      await pageObject.innerText('.cf-applicant-question-errors:visible'),
+      await pageObject.innerText('.cf-applicant-question-errors:visible')
     ).toEqual('Please enter a value for each line.')
 
     // Put two things in the nested enumerator for enum two
@@ -192,7 +192,7 @@ describe('End to end enumerator test', () => {
     // Oops! Can't have duplicates.
     // Verify that the error message is visible.
     expect(
-      await pageObject.innerText('.cf-applicant-question-errors:visible'),
+      await pageObject.innerText('.cf-applicant-question-errors:visible')
     ).toEqual('Please enter a unique value for each line.')
 
     // Remove one of the 'Banker' entries and add 'Painter'.
@@ -209,31 +209,31 @@ describe('End to end enumerator test', () => {
 
     // Make sure the enumerator answers are in the review page
     expect(await pageObject.innerText('#application-summary')).toContain(
-      'Porky Pig',
+      'Porky Pig'
     )
     expect(await pageObject.innerText('#application-summary')).toContain(
-      'Bugs Bunny',
+      'Bugs Bunny'
     )
     expect(await pageObject.innerText('#application-summary')).toContain(
-      'Cartoon Character',
+      'Cartoon Character'
     )
     expect(await pageObject.innerText('#application-summary')).toContain('100')
     expect(await pageObject.innerText('#application-summary')).toContain(
-      'Daffy Duck',
+      'Daffy Duck'
     )
     expect(await pageObject.innerText('#application-summary')).toContain(
-      'Banker',
+      'Banker'
     )
     expect(await pageObject.innerText('#application-summary')).toContain(
-      'Painter',
+      'Painter'
     )
     expect(await pageObject.innerText('#application-summary')).toContain('31')
     expect(await pageObject.innerText('#application-summary')).toContain('12')
-    await validateScreenshot(pageObject);
+    await validateScreenshot(pageObject)
 
     // Go back to delete enumerator answers
     await pageObject.click(
-      '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")',
+      '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")'
     )
     await waitForPageJsLoad(pageObject)
 
@@ -245,36 +245,36 @@ describe('End to end enumerator test', () => {
 
     // Make sure there are no enumerators or repeated things in the review page
     expect(await pageObject.innerText('#application-summary')).toContain(
-      'Porky Pig',
+      'Porky Pig'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Bugs Bunny',
+      'Bugs Bunny'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Cartoon Character',
+      'Cartoon Character'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      '100',
+      '100'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Daffy Duck',
+      'Daffy Duck'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Banker',
+      'Banker'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Painter',
+      'Painter'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      '31',
+      '31'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      '12',
+      '12'
     )
 
     // Go back and add an enumerator answer.
     await pageObject.click(
-      '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Continue")',
+      '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Continue")'
     )
     await waitForPageJsLoad(pageObject)
     await applicantQuestions.addEnumeratorAnswer('Tweety')
@@ -285,36 +285,36 @@ describe('End to end enumerator test', () => {
 
     // Make sure there are no enumerators or repeated things in the review page
     expect(await pageObject.innerText('#application-summary')).toContain(
-      'Porky Pig',
+      'Porky Pig'
     )
     expect(await pageObject.innerText('#application-summary')).toContain(
-      'Tweety Bird',
+      'Tweety Bird'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Bugs Bunny',
+      'Bugs Bunny'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Cartoon Character',
+      'Cartoon Character'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      '100',
+      '100'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Daffy Duck',
+      'Daffy Duck'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Banker',
+      'Banker'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      'Painter',
+      'Painter'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      '31',
+      '31'
     )
     expect(await pageObject.innerText('#application-summary')).not.toContain(
-      '12',
+      '12'
     )
-    await validateScreenshot(pageObject);
+    await validateScreenshot(pageObject)
 
     await logout(pageObject)
   })
@@ -368,7 +368,7 @@ describe('End to end enumerator test', () => {
     // Click previous and see name question
     await applicantQuestions.clickPrevious()
     await applicantQuestions.checkNameQuestionValue('Porky', 'Pig')
-    await validateScreenshot(pageObject);
+    await validateScreenshot(pageObject)
 
     await logout(pageObject)
   })
@@ -382,15 +382,15 @@ describe('End to end enumerator test', () => {
 
     // Repeated questions are updated.
     await adminQuestions.expectDraftQuestionExist(
-      'enumerator-ete-repeated-name',
+      'enumerator-ete-repeated-name'
     )
     await adminQuestions.expectDraftQuestionExist(
-      'enumerator-ete-repeated-jobs',
+      'enumerator-ete-repeated-jobs'
     )
     await adminQuestions.expectDraftQuestionExist(
-      'enumerator-ete-repeated-jobs-income',
+      'enumerator-ete-repeated-jobs-income'
     )
-    await validateScreenshot(pageObject);
+    await validateScreenshot(pageObject)
 
     // Assert publish does not cause problem, i.e. no program refers to old questions.
     await adminPrograms.publishProgram(programName)

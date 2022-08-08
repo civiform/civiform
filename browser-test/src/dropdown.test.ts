@@ -5,7 +5,7 @@ describe('Dropdown question for applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
   })
 
@@ -30,7 +30,7 @@ describe('Dropdown question for applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['dropdown-color-q'],
-        programName,
+        programName
       )
 
       await logout(pageObject)
@@ -44,7 +44,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('green')
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
@@ -58,9 +58,9 @@ describe('Dropdown question for applicant flow', () => {
 
       const dropdownId = '.cf-question-dropdown'
       expect(await pageObject.innerText(dropdownId)).toContain(
-        'This question is required.',
+        'This question is required.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -88,7 +88,7 @@ describe('Dropdown question for applicant flow', () => {
         programName,
         'Optional question block',
         ['dropdown-fave-color-q'],
-        'dropdown-fave-vacation-q', // optional
+        'dropdown-fave-vacation-q' // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -105,7 +105,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('blue', 1)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
@@ -118,7 +118,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('red', 1)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 

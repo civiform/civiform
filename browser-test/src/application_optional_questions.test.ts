@@ -2,14 +2,14 @@ import { AdminPrograms, AdminQuestions, ApplicantQuestions, endSession, loginAsA
 
 describe('optional application flow', () => {
   it('program with all question types', async () => {
-    const {browser, page} = await startSession()
+    const { browser, page } = await startSession()
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes(
-      'optional-',
+      'optional-'
     )
     await adminQuestions.addFileUploadQuestion({
       questionName: 'optional-file-upload',
@@ -21,7 +21,7 @@ describe('optional application flow', () => {
       programName,
       'first description',
       [],
-      'optional-file-upload',
+      'optional-file-upload'
     )
 
     for (let i = 0; i < questions.length; i++) {
@@ -29,7 +29,7 @@ describe('optional application flow', () => {
         programName,
         'description',
         [],
-        questions[i],
+        questions[i]
       )
     }
 
@@ -41,7 +41,7 @@ describe('optional application flow', () => {
       programName2,
       'first description',
       [],
-      'optional-file-upload',
+      'optional-file-upload'
     )
 
     await adminPrograms.gotoAdminProgramsPage()
@@ -51,7 +51,7 @@ describe('optional application flow', () => {
     await adminPrograms.publishAllPrograms()
     await adminPrograms.expectActiveProgram(programName)
     await adminPrograms.expectActiveProgram(programName2)
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     await logout(page)
     await loginAsTestUser(page)

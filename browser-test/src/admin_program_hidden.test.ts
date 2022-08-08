@@ -2,7 +2,7 @@ import { AdminPrograms, ApplicantQuestions, endSession, loginAsAdmin, loginAsGue
 
 describe('Hide a program that should not be public yet', () => {
   it('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
-    const {browser, page} = await startSession()
+    const { browser, page } = await startSession()
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
@@ -23,14 +23,14 @@ describe('Hide a program that should not be public yet', () => {
 
     // Verify the program cannot be seen
     await applicantQuestions.expectProgramHidden(programName)
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     await logout(page)
     await endSession(browser)
   })
 
   it('create a public program, verify applicants can see it on the home page', async () => {
-    const {browser, page} = await startSession()
+    const { browser, page } = await startSession()
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
@@ -51,9 +51,9 @@ describe('Hide a program that should not be public yet', () => {
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectProgramPublic(
       programName,
-      programDescription,
+      programDescription
     )
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     await endSession(browser)
   })

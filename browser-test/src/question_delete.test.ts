@@ -2,7 +2,7 @@ import { AdminPrograms, AdminQuestions, loginAsAdmin, startSession, validateScre
 
 describe('deleting question lifecycle', () => {
   it('create, publish, delete unused questions', async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -10,14 +10,14 @@ describe('deleting question lifecycle', () => {
     const adminPrograms = new AdminPrograms(page)
     const programName = 'deleting program'
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes(
-      'delete-',
+      'delete-'
     )
     await adminPrograms.addProgram(programName)
     const onlyUsedQuestion = questions[0]
     await adminPrograms.editProgramBlock(
       programName,
       'qlc program description',
-      [onlyUsedQuestion],
+      [onlyUsedQuestion]
     )
     await adminPrograms.publishProgram(programName)
     await adminQuestions.expectActiveQuestionExist(onlyUsedQuestion)
@@ -35,7 +35,7 @@ describe('deleting question lifecycle', () => {
       await adminQuestions.expectActiveQuestionExist(questions[i])
       await adminQuestions.archiveQuestion(questions[i])
     }
-    await validateScreenshot(page);
+    await validateScreenshot(page)
 
     // Publish all the above changes.
     await adminPrograms.createNewVersion(programName)

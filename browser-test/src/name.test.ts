@@ -8,7 +8,7 @@ describe('name applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
   })
 
@@ -31,7 +31,7 @@ describe('name applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['name-test-q'],
-        programName,
+        programName
       )
       await logout(pageObject)
     })
@@ -46,7 +46,7 @@ describe('name applicant flow', () => {
       expect(await error?.isHidden()).toEqual(true)
       error = await pageObject.$(`${NAME_LAST}-error`)
       expect(await error?.isHidden()).toEqual(true)
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('with valid name does submit', async () => {
@@ -56,7 +56,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -73,7 +73,7 @@ describe('name applicant flow', () => {
       expect(await error?.isHidden()).toEqual(false)
       error = await pageObject.$(`${NAME_LAST}-error`)
       expect(await error?.isHidden()).toEqual(false)
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -95,7 +95,7 @@ describe('name applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['name-test-a-q', 'name-test-b-q'],
-        programName,
+        programName
       )
 
       await logout(pageObject)
@@ -109,7 +109,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
       await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -134,7 +134,7 @@ describe('name applicant flow', () => {
       expect(await error?.isHidden()).toEqual(true)
       error = await pageObject.$(`${NAME_LAST}-error >> nth=1`)
       expect(await error?.isHidden()).toEqual(true)
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('with second invalid does not submit', async () => {
@@ -157,7 +157,7 @@ describe('name applicant flow', () => {
       expect(await error?.isHidden()).toEqual(false)
       error = await pageObject.$(`${NAME_LAST}-error >> nth=1`)
       expect(await error?.isHidden()).toEqual(false)
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     it('has no accessiblity violations', async () => {
@@ -192,7 +192,7 @@ describe('name applicant flow', () => {
         programName,
         'Optional question block',
         ['name-test-required-q'],
-        'name-test-optional-q',
+        'name-test-optional-q'
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -207,7 +207,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -224,7 +224,7 @@ describe('name applicant flow', () => {
       // Optional question has an error.
       let error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
       expect(await error?.isHidden()).toEqual(false)
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
 
     describe('with invalid required name', () => {
@@ -243,7 +243,7 @@ describe('name applicant flow', () => {
         expect(await error?.isHidden()).toEqual(false)
         error = await pageObject.$(`${NAME_LAST}-error >> nth=1`)
         expect(await error?.isHidden()).toEqual(false)
-        await validateScreenshot(pageObject);
+        await validateScreenshot(pageObject)
       })
 
       it('optional has no errors', async () => {
@@ -252,7 +252,7 @@ describe('name applicant flow', () => {
         expect(await error?.isHidden()).toEqual(true)
         error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
         expect(await error?.isHidden()).toEqual(true)
-        await validateScreenshot(pageObject);
+        await validateScreenshot(pageObject)
       })
     })
   })

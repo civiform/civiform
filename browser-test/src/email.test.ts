@@ -5,7 +5,7 @@ describe('Email question for applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page
   })
 
@@ -24,10 +24,10 @@ describe('Email question for applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addEmailQuestion({questionName: 'general-email-q'})
+      await adminQuestions.addEmailQuestion({ questionName: 'general-email-q' })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['general-email-q'],
-        programName,
+        programName
       )
 
       await logout(pageObject)
@@ -40,7 +40,7 @@ describe('Email question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -55,9 +55,9 @@ describe('Email question for applicant flow', () => {
 
       const emailId = '.cf-question-email'
       expect(await pageObject.innerText(emailId)).toContain(
-        'This question is required.',
+        'This question is required.'
       )
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
     })
   })
 
@@ -71,15 +71,15 @@ describe('Email question for applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addEmailQuestion({questionName: 'my-email-q'})
-      await adminQuestions.addEmailQuestion({questionName: 'your-email-q'})
+      await adminQuestions.addEmailQuestion({ questionName: 'my-email-q' })
+      await adminQuestions.addEmailQuestion({ questionName: 'your-email-q' })
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Optional question block',
         ['my-email-q'],
-        'your-email-q', // optional
+        'your-email-q' // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -95,7 +95,7 @@ describe('Email question for applicant flow', () => {
       await applicantQuestions.answerEmailQuestion('your_email@civiform.gov', 0)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject);
+      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
