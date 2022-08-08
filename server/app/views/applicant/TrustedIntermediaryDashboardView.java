@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.ti.routes;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
@@ -226,7 +227,23 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             StyleUtils.even(Styles.BG_GRAY_100))
         .with(renderInfoCell(applicant))
         .with(renderApplicantInfoCell(applicant))
-        .with(renderActionsCell(applicant));
+        .with(renderActionsCell(applicant))
+      .with(renderDateOfBirthCell(applicant));
+  }
+
+  private TdTag renderDateOfBirthCell(Account applicant) {
+    Optional<Applicant> newestApplicant = applicant.newestApplicant();
+    if (newestApplicant.isEmpty()) {
+      return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    }
+    String currentDob =
+      newestApplicant
+        .get()
+        .getApplicantData()
+        .getDateOfBirth()
+        .map(LocalDate::toString)
+        .orElse("");
+    return td() .with(div(currentDob).withClasses(Styles.TEXT_XS))
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {

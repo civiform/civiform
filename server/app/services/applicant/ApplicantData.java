@@ -4,11 +4,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.annotation.Nullable;
+
+import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.CfJsonDocumentContext;
@@ -149,5 +153,13 @@ public class ApplicantData extends CfJsonDocumentContext {
 
   public boolean updateDidFailAt(Path path) {
     return getFailedUpdates().containsKey(path);
+  }
+
+  public Optional<LocalDate> getDateOfBirth() {
+    return readDate(WellKnownPaths.APPLICANT_DOB);
+  }
+
+  public void setDateOfBirth(String dateOfBirth) {
+    putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
   }
 }
