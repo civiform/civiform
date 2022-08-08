@@ -28,7 +28,6 @@ resource "aws_db_instance" "civiform" {
     Name = "${var.app_prefix} Civiform Database"
     Type = "Civiform Database"
   }
-  availability_zone               = data.aws_availability_zones.available.names
   deletion_protection             = local.deletion_protection
   instance_class                  = var.postgres_instance_class
   allocated_storage               = var.postgres_storage_gb
