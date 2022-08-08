@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
-import services.TranslationHelper;
+import services.TranslationLocales;
 import services.question.QuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -36,8 +36,8 @@ public final class QuestionTranslationView extends TranslationFormView {
 
   @Inject
   public QuestionTranslationView(
-      AdminLayoutFactory layoutFactory, TranslationHelper translationHelper) {
-    super(translationHelper);
+      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
+    super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
   }
 

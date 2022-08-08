@@ -19,7 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.TranslationHelper;
+import services.TranslationLocales;
 import services.question.QuestionService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
@@ -35,7 +35,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   private final QuestionService questionService;
   private final QuestionTranslationView translationView;
   private final FormFactory formFactory;
-  private final TranslationHelper translationHelper;
+  private final TranslationLocales translationLocales;
   private final Optional<Locale> maybeFirstLocaleForTranslations;
 
   @Inject
@@ -44,14 +44,14 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       QuestionService questionService,
       QuestionTranslationView translationView,
       FormFactory formFactory,
-      TranslationHelper translationHelper) {
+      TranslationLocales translationLocales) {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.questionService = checkNotNull(questionService);
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
-    this.translationHelper = checkNotNull(translationHelper);
+    this.translationLocales = checkNotNull(translationLocales);
     this.maybeFirstLocaleForTranslations =
-        this.translationHelper.localesForTranslation().stream().findFirst();
+        this.translationLocales.localesForTranslation().stream().findFirst();
   }
 
   /**
@@ -84,7 +84,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> edit(Http.Request request, long id, String locale) {
-    Optional<Locale> maybeLocaleToEdit = translationHelper.getSupportedLocale(locale);
+    Optional<Locale> maybeLocaleToEdit = translationLocales.getSupportedLocale(locale);
     if (maybeLocaleToEdit.isEmpty()) {
       return CompletableFuture.completedFuture(
           redirect(routes.AdminQuestionController.index().url())
@@ -117,7 +117,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> update(Http.Request request, long id, String locale) {
-    Optional<Locale> maybeLocaleToUpdate = translationHelper.getSupportedLocale(locale);
+    Optional<Locale> maybeLocaleToUpdate = translationLocales.getSupportedLocale(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
       // TODO(clouser): Toast.
       return CompletableFuture.completedFuture(

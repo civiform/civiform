@@ -26,7 +26,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.TranslationHelper;
+import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
 import views.BaseHtmlView;
@@ -50,18 +50,18 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private final AdminLayout layout;
   private final FormFactory formFactory;
   private final MessagesApi messagesApi;
-  private final TranslationHelper translationHelper;
+  private final TranslationLocales translationLocales;
 
   @Inject
   public ProgramStatusesView(
       AdminLayoutFactory layoutFactory,
       FormFactory formFactory,
       MessagesApi messagesApi,
-      TranslationHelper translationHelper) {
+      TranslationLocales translationLocales) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.formFactory = formFactory;
     this.messagesApi = checkNotNull(messagesApi);
-    this.translationHelper = checkNotNull(translationHelper);
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /**
@@ -133,7 +133,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
-    if (translationHelper.localesForTranslation().isEmpty()) {
+    if (translationLocales.localesForTranslation().isEmpty()) {
       return Optional.empty();
     }
     String linkDestination =

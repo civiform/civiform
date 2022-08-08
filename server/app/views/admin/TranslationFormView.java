@@ -17,7 +17,7 @@ import j2html.tags.specialized.LegendTag;
 import java.util.Locale;
 import play.mvc.Http;
 import services.LocalizedStrings;
-import services.TranslationHelper;
+import services.TranslationLocales;
 import views.BaseHtmlView;
 import views.components.LinkElement;
 import views.style.AdminStyles;
@@ -29,10 +29,10 @@ import views.style.Styles;
  */
 public abstract class TranslationFormView extends BaseHtmlView {
 
-  private final TranslationHelper translationHelper;
+  private final TranslationLocales translationLocales;
 
-  public TranslationFormView(TranslationHelper translationHelper) {
-    this.translationHelper = checkNotNull(translationHelper);
+  public TranslationFormView(TranslationLocales translationLocales) {
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /** Render a list of languages, with the currently selected language underlined. */
@@ -41,7 +41,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
         .withClasses(Styles.M_2)
         .with(
             each(
-                translationHelper.localesForTranslation(),
+                translationLocales.localesForTranslation(),
                 locale -> {
                   String linkDestination = languageLinkDestination(entityId, locale);
                   return renderLanguageLink(

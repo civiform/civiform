@@ -9,13 +9,14 @@ import java.util.function.Function;
 import play.i18n.Lang;
 import play.i18n.Langs;
 
-public class TranslationHelper {
+/** Helpers to support locales in which translations are supported. */
+public class TranslationLocales {
 
   private final ImmutableList<Locale> localesForTranslation;
   private final ImmutableMap<String, Locale> languageTagToLocale;
 
   @Inject
-  public TranslationHelper(Langs langs) {
+  public TranslationLocales(Langs langs) {
     this.localesForTranslation =
         langs.availables().stream()
             .map(Lang::toLocale)

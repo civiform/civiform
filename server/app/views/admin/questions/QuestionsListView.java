@@ -36,7 +36,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeletionStatus;
 import services.LocalizedStrings;
-import services.TranslationHelper;
+import services.TranslationLocales;
 import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
@@ -60,12 +60,13 @@ import views.style.Styles;
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
-  private final TranslationHelper translationHelper;
+  private final TranslationLocales translationLocales;
 
   @Inject
-  public QuestionsListView(AdminLayoutFactory layoutFactory, TranslationHelper translationHelper) {
+  public QuestionsListView(
+      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
-    this.translationHelper = checkNotNull(translationHelper);
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /** Renders a page with a table view of all questions. */
@@ -371,7 +372,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private Optional<ATag> renderQuestionTranslationLink(
       QuestionDefinition definition, String linkText) {
-    if (translationHelper.localesForTranslation().isEmpty()) {
+    if (translationLocales.localesForTranslation().isEmpty()) {
       return Optional.empty();
     }
     String link =

@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
-import services.TranslationHelper;
+import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -38,9 +38,9 @@ public final class ProgramTranslationView extends TranslationFormView {
   @Inject
   public ProgramTranslationView(
       AdminLayoutFactory layoutFactory,
-      TranslationHelper translationHelper,
+      TranslationLocales translationLocales,
       @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
-    super(translationHelper);
+    super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.statusTrackingEnabled = statusTrackingEnabled;
   }

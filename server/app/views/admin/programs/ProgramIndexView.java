@@ -25,7 +25,7 @@ import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;
-import services.TranslationHelper;
+import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -48,7 +48,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final DateConverter dateConverter;
-  private final TranslationHelper translationHelper;
+  private final TranslationLocales translationLocales;
   private final boolean statusTrackingEnabled;
 
   @Inject
@@ -56,12 +56,12 @@ public final class ProgramIndexView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       Config config,
       DateConverter dateConverter,
-      TranslationHelper translationHelper,
+      TranslationLocales translationLocales,
       @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
-    this.translationHelper = checkNotNull(translationHelper);
+    this.translationLocales = checkNotNull(translationLocales);
     this.statusTrackingEnabled = statusTrackingEnabled;
   }
 
@@ -457,7 +457,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
-    if (translationHelper.localesForTranslation().isEmpty()) {
+    if (translationLocales.localesForTranslation().isEmpty()) {
       return Optional.empty();
     }
     String linkDestination =

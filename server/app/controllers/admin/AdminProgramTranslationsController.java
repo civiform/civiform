@@ -15,7 +15,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.TranslationHelper;
+import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -27,7 +27,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   private final ProgramService service;
   private final ProgramTranslationView translationView;
   private final FormFactory formFactory;
-  private final TranslationHelper translationHelper;
+  private final TranslationLocales translationLocales;
   private final Optional<Locale> maybeFirstLocaleForTranslations;
 
   @Inject
@@ -35,13 +35,13 @@ public class AdminProgramTranslationsController extends CiviFormController {
       ProgramService service,
       ProgramTranslationView translationView,
       FormFactory formFactory,
-      TranslationHelper translationHelper) {
+      TranslationLocales translationLocales) {
     this.service = checkNotNull(service);
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
-    this.translationHelper = checkNotNull(translationHelper);
+    this.translationLocales = checkNotNull(translationLocales);
     this.maybeFirstLocaleForTranslations =
-        this.translationHelper.localesForTranslation().stream().findFirst();
+        this.translationLocales.localesForTranslation().stream().findFirst();
   }
 
   /**
@@ -74,7 +74,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, long id, String locale) throws ProgramNotFoundException {
     ProgramDefinition program = service.getProgramDefinition(id);
-    Optional<Locale> maybeLocaleToEdit = translationHelper.getSupportedLocale(locale);
+    Optional<Locale> maybeLocaleToEdit = translationLocales.getSupportedLocale(locale);
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", String.format("Unsupported locale: %s", locale));
@@ -103,7 +103,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   public Result update(Http.Request request, long id, String locale)
       throws ProgramNotFoundException {
     ProgramDefinition program = service.getProgramDefinition(id);
-    Optional<Locale> maybeLocaleToUpdate = translationHelper.getSupportedLocale(locale);
+    Optional<Locale> maybeLocaleToUpdate = translationLocales.getSupportedLocale(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", String.format("Unsupported locale: %s", locale));
