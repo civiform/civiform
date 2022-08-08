@@ -5,7 +5,7 @@
     "strict": true,
     "module": "commonjs",
     "noEmit": true,
-    "types": ["jest", "node"],
+    "types": ["jest", "node"]
   },
   "include": ["."]
 }
