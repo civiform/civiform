@@ -1,11 +1,5 @@
-import {Browser, Page} from 'playwright'
-import {
-  startSession,
-  loginAsAdmin,
-  loginAsTrustedIntermediary,
-  endSession,
-  AdminTIGroups,
-} from './support'
+import { Browser, Page } from 'playwright'
+import { AdminTIGroups, endSession, loginAsAdmin, loginAsTrustedIntermediary, startSession, validateScreenshot, } from './support'
 
 describe('Trusted intermediaries', () => {
   let browser: Browser
@@ -39,5 +33,6 @@ describe('Trusted intermediaries', () => {
     expect(await page.innerText('#ti-dashboard-link')).toContain(
       'TRUSTED INTERMEDIARY DASHBOARD',
     )
+    await validateScreenshot(page);
   })
 })

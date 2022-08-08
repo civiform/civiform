@@ -1,17 +1,5 @@
-import {Page} from 'playwright'
-import {
-  startSession,
-  loginAsAdmin,
-  loginAsGuest,
-  logout,
-  AdminQuestions,
-  AdminPrograms,
-  ApplicantQuestions,
-  selectApplicantLanguage,
-  resetSession,
-  validateAccessibility,
-  waitForPageJsLoad,
-} from './support'
+import { Page } from 'playwright'
+import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, waitForPageJsLoad, } from './support'
 
 describe('End to end enumerator test', () => {
   const programName = 'ete enumerator program'
@@ -127,6 +115,7 @@ describe('End to end enumerator test', () => {
     // Create a nested repeated block and add the nested text question
     await pageObject.click('#create-repeated-block-button')
     await pageObject.click('button:text("enumerator-ete-repeated-jobs-income")')
+    await validateScreenshot(pageObject);
 
     // Publish!
     await adminPrograms.publishProgram(programName)
@@ -145,6 +134,7 @@ describe('End to end enumerator test', () => {
 
     // Check that we are on the enumerator page
     expect(await pageObject.isVisible('.cf-question-enumerator')).toEqual(true)
+    await validateScreenshot(pageObject);
 
     // Validate that enumerators are accessible
     await validateAccessibility(pageObject)
@@ -239,6 +229,7 @@ describe('End to end enumerator test', () => {
     )
     expect(await pageObject.innerText('#application-summary')).toContain('31')
     expect(await pageObject.innerText('#application-summary')).toContain('12')
+    await validateScreenshot(pageObject);
 
     // Go back to delete enumerator answers
     await pageObject.click(
@@ -323,6 +314,7 @@ describe('End to end enumerator test', () => {
     expect(await pageObject.innerText('#application-summary')).not.toContain(
       '12',
     )
+    await validateScreenshot(pageObject);
 
     await logout(pageObject)
   })
@@ -376,6 +368,7 @@ describe('End to end enumerator test', () => {
     // Click previous and see name question
     await applicantQuestions.clickPrevious()
     await applicantQuestions.checkNameQuestionValue('Porky', 'Pig')
+    await validateScreenshot(pageObject);
 
     await logout(pageObject)
   })
@@ -397,6 +390,7 @@ describe('End to end enumerator test', () => {
     await adminQuestions.expectDraftQuestionExist(
       'enumerator-ete-repeated-jobs-income',
     )
+    await validateScreenshot(pageObject);
 
     // Assert publish does not cause problem, i.e. no program refers to old questions.
     await adminPrograms.publishProgram(programName)

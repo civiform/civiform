@@ -1,13 +1,4 @@
-import {
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
-  dropTables,
-  seedCanonicalQuestions,
-  waitForPageJsLoad,
-} from './support'
+import { AdminPrograms, AdminQuestions, dropTables, endSession, loginAsAdmin, seedCanonicalQuestions, startSession, validateScreenshot, waitForPageJsLoad, } from './support'
 
 describe('normal question lifecycle', () => {
   beforeAll(async () => {
@@ -24,6 +15,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Name')
     await adminQuestions.expectDraftQuestionExist('Applicant Date of Birth')
+    await validateScreenshot(page);
 
     await endSession(browser)
   })
@@ -95,6 +87,7 @@ describe('normal question lifecycle', () => {
     await adminPrograms.publishProgram(programName)
 
     await adminQuestions.expectActiveQuestions(allQuestions)
+    await validateScreenshot(page);
 
     await endSession(browser)
   })
@@ -121,6 +114,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
 
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
+    await validateScreenshot(page);
   })
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
@@ -145,6 +139,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
 
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
+    await validateScreenshot(page);
   })
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
@@ -205,6 +200,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
 
     await adminQuestions.expectMultiOptionBlankOptionError(options)
+    await validateScreenshot(page);
   })
 
   it('persists export state', async () => {
@@ -253,6 +249,7 @@ describe('normal question lifecycle', () => {
         ),
       ),
     ).toBeTruthy()
+    await validateScreenshot(page);
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
@@ -285,5 +282,6 @@ describe('normal question lifecycle', () => {
     expect(await page.inputValue('label:has-text("Question text")')).toContain(
       newQuestionText,
     )
+    await validateScreenshot(page);
   })
 })

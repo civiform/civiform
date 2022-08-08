@@ -1,16 +1,4 @@
-import {
-  startSession,
-  loginAsProgramAdmin,
-  loginAsAdmin,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
-  logout,
-  loginAsTestUser,
-  selectApplicantLanguage,
-  ApplicantQuestions,
-  userDisplayName,
-} from './support'
+import { AdminPrograms, AdminQuestions, ApplicantQuestions, endSession, loginAsAdmin, loginAsProgramAdmin, loginAsTestUser, logout, selectApplicantLanguage, startSession, userDisplayName, validateScreenshot, } from './support'
 
 describe('view an application in an older version', () => {
   it('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
@@ -40,6 +28,7 @@ describe('view an application in an older version', () => {
     await applicantQuestions.applyProgram(programName)
     await applicantQuestions.answerTextQuestion('some text')
     await applicantQuestions.clickNext()
+    await validateScreenshot(page);
     await applicantQuestions.submitFromReviewPage(programName)
 
     await logout(page)
@@ -53,6 +42,7 @@ describe('view an application in an older version', () => {
       questionName,
       'some text',
     )
+    await validateScreenshot(page);
 
     await logout(page)
     await loginAsAdmin(page)
@@ -72,6 +62,7 @@ describe('view an application in an older version', () => {
       questionName,
       'some text',
     )
+    await validateScreenshot(page);
 
     await endSession(browser)
   })

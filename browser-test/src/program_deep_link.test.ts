@@ -1,15 +1,4 @@
-import {
-  gotoEndpoint,
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
-  logout,
-  selectApplicantLanguage,
-  loginAsGuest,
-  loginAsTestUser,
-} from './support'
+import { AdminPrograms, AdminQuestions, endSession, gotoEndpoint, loginAsAdmin, loginAsGuest, loginAsTestUser, logout, selectApplicantLanguage, startSession, validateScreenshot, } from './support'
 
 describe('navigating to a deep link', () => {
   it('as a guest user or registered user', async () => {
@@ -37,6 +26,7 @@ describe('navigating to a deep link', () => {
     await adminPrograms.expectDraftProgram(programName)
     await adminPrograms.publishAllPrograms()
     await adminPrograms.expectActiveProgram(programName)
+    await validateScreenshot(page);
 
     await logout(page)
 
@@ -51,6 +41,7 @@ describe('navigating to a deep link', () => {
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
       questionText,
     )
+    await validateScreenshot(page);
 
     await logout(page)
 
@@ -65,6 +56,7 @@ describe('navigating to a deep link', () => {
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
       questionText,
     )
+    await validateScreenshot(page);
 
     await endSession(browser)
   })

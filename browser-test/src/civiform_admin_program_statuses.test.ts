@@ -1,12 +1,5 @@
-import {
-  dismissModal,
-  startSession,
-  logout,
-  loginAsAdmin,
-  AdminPrograms,
-  AdminProgramStatuses,
-} from './support'
-import {Page} from 'playwright'
+import { AdminPrograms, AdminProgramStatuses, dismissModal, loginAsAdmin, startSession, validateScreenshot, } from './support'
+import { Page } from 'playwright'
 
 // TODO(#3071): Re-enable when the feature flag is controllable in tests.
 describe.skip('modify program statuses', () => {
@@ -48,6 +41,7 @@ describe.skip('modify program statuses', () => {
         statusName: 'Status with no email',
         expectEmailExists: false,
       })
+      await validateScreenshot(pageObject);
     })
 
     it('creates a new status with email', async () => {
@@ -59,6 +53,7 @@ describe.skip('modify program statuses', () => {
         statusName: 'Status with email',
         expectEmailExists: true,
       })
+      await validateScreenshot(pageObject);
     })
 
     it('fails to create status with an empty name', async () => {
@@ -68,6 +63,7 @@ describe.skip('modify program statuses', () => {
         'This field is required',
       )
       await dismissModal(pageObject)
+      await validateScreenshot(pageObject);
     })
 
     it('fails to create status with an existing name', async () => {
@@ -78,6 +74,7 @@ describe.skip('modify program statuses', () => {
       await adminProgramStatuses.expectCreateStatusModalWithError(
         'A status with name Existing status already exists',
       )
+      await validateScreenshot(pageObject);
       await dismissModal(pageObject)
     })
   })
@@ -104,6 +101,7 @@ describe.skip('modify program statuses', () => {
         statusName: secondStatusName,
         expectEmailExists: false,
       })
+      await validateScreenshot(pageObject);
     })
 
     it('fails to edit status when providing an existing status name', async () => {
@@ -114,6 +112,7 @@ describe.skip('modify program statuses', () => {
       await adminProgramStatuses.expectEditStatusModalWithError(
         `A status with name ${secondStatusName} already exists`,
       )
+      await validateScreenshot(pageObject);
       await dismissModal(pageObject)
     })
 
@@ -125,6 +124,7 @@ describe.skip('modify program statuses', () => {
       await adminProgramStatuses.expectEditStatusModalWithError(
         'This field is required',
       )
+      await validateScreenshot(pageObject);
       await dismissModal(pageObject)
     })
 
@@ -138,6 +138,7 @@ describe.skip('modify program statuses', () => {
         expectEmailExists: false,
       })
       await adminProgramStatuses.expectStatusNotExists(secondStatusName)
+      await validateScreenshot(pageObject);
     })
 
     it('edits an existing status, configures email, and deletes the configured email', async () => {
@@ -184,6 +185,7 @@ describe.skip('modify program statuses', () => {
         statusName: firstStatusName,
         expectedEmailBody: '',
       })
+      await validateScreenshot(pageObject);
     })
   })
 
@@ -219,6 +221,7 @@ describe.skip('modify program statuses', () => {
         statusName: secondStatusName,
         expectEmailExists: false,
       })
+      await validateScreenshot(pageObject);
     })
   })
 })

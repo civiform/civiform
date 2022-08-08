@@ -1,16 +1,5 @@
-import {Page} from 'playwright'
-import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
-  loginAsAdmin,
-  loginAsGuest,
-  logout,
-  resetSession,
-  selectApplicantLanguage,
-  startSession,
-  validateAccessibility,
-} from './support'
+import { Page } from 'playwright'
+import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
 
 describe('address applicant flow', () => {
   let pageObject: Page
@@ -65,6 +54,7 @@ describe('address applicant flow', () => {
       expect(await error.isHidden()).toEqual(true)
       error = pageObject.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(true)
+      await validateScreenshot(pageObject);
     })
 
     it('with valid address does submit', async () => {
@@ -80,6 +70,7 @@ describe('address applicant flow', () => {
         '54321',
       )
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject);
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -100,6 +91,7 @@ describe('address applicant flow', () => {
       expect(await error.isHidden()).toEqual(false)
       error = pageObject.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(false)
+      await validateScreenshot(pageObject);
     })
 
     it('with invalid address does not submit', async () => {
@@ -118,6 +110,7 @@ describe('address applicant flow', () => {
 
       let error = pageObject.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(false)
+      await validateScreenshot(pageObject);
     })
   })
 
@@ -167,6 +160,7 @@ describe('address applicant flow', () => {
         1,
       )
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject);
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -206,6 +200,7 @@ describe('address applicant flow', () => {
       expect(await error.isHidden()).toEqual(true)
       error = pageObject.locator('.cf-address-zip-error >> nth=1')
       expect(await error.isHidden()).toEqual(true)
+      await validateScreenshot(pageObject);
     })
 
     it('with second invalid does not submit', async () => {
@@ -243,6 +238,7 @@ describe('address applicant flow', () => {
       expect(await error.isHidden()).toEqual(false)
       error = pageObject.locator('.cf-address-zip-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
+      await validateScreenshot(pageObject);
     })
 
     it('has no accessiblity violations', async () => {
@@ -299,6 +295,7 @@ describe('address applicant flow', () => {
         1,
       )
       await applicantQuestions.clickNext()
+      await validateScreenshot(pageObject);
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -333,6 +330,7 @@ describe('address applicant flow', () => {
       expect(await error.isHidden()).toEqual(false)
       error = pageObject.locator('.cf-address-zip-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
+      await validateScreenshot(pageObject);
     })
 
     describe('with invalid required address', () => {
@@ -355,6 +353,7 @@ describe('address applicant flow', () => {
         expect(await error.isHidden()).toEqual(false)
         error = pageObject.locator('.cf-address-zip-error >> nth=1')
         expect(await error.isHidden()).toEqual(false)
+        await validateScreenshot(pageObject);
       })
 
       it('optional has no errors', async () => {
@@ -367,6 +366,7 @@ describe('address applicant flow', () => {
         expect(await error.isHidden()).toEqual(true)
         error = pageObject.locator('.cf-address-zip-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
+        await validateScreenshot(pageObject);
       })
     })
   })

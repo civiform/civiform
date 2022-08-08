@@ -1,13 +1,5 @@
-import {
-  dismissModal,
-  startSession,
-  logout,
-  loginAsAdmin,
-  AdminPrograms,
-  AdminQuestions,
-  AdminProgramStatuses,
-} from './support'
-import {Page} from 'playwright'
+import { AdminPrograms, AdminQuestions, loginAsAdmin, startSession, validateScreenshot, } from './support'
+import { Page } from 'playwright'
 
 describe('view program references from question view', () => {
   let pageObject: Page
@@ -30,6 +22,7 @@ describe('view program references from question view', () => {
       questionName,
       expectedProgramReferencesText: 'Used across 0 active & 0 draft programs',
     })
+    await validateScreenshot(pageObject);
   })
 
   it('shows results for referencing programs', async () => {
@@ -71,5 +64,6 @@ describe('view program references from question view', () => {
       expectedDraftProgramReferences: ['first-program', 'second-program'],
       expectedActiveProgramReferences: ['first-program'],
     })
+    await validateScreenshot(pageObject);
   })
 })

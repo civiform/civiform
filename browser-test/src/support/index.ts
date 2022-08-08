@@ -1,7 +1,9 @@
-import axe = require('axe-core')
-import {Browser, BrowserContext, chromium, Page} from 'playwright'
+import axe = require('axe-core');
+import { Browser, BrowserContext, chromium, Page } from 'playwright'
 import * as path from 'path'
-import {waitForPageJsLoad} from './wait'
+import { waitForPageJsLoad } from './wait'
+import { BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD } from './config'
+
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
@@ -11,8 +13,8 @@ export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantQuestions} from './applicant_questions'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
-import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
 export {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD}
+
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -204,4 +206,8 @@ export const validateAccessibility = async (page: Page) => {
   })
 
   expect(results).toHaveNoA11yViolations()
+}
+
+export const validateScreenshot = async(page: Page) => {
+  expect(await page.screenshot()).toMatchImageSnapshot();
 }

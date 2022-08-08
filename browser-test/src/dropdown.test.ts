@@ -1,16 +1,5 @@
-import {Page} from 'playwright'
-import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
-  loginAsAdmin,
-  loginAsGuest,
-  logout,
-  selectApplicantLanguage,
-  startSession,
-  resetSession,
-  validateAccessibility,
-} from './support'
+import { Page } from 'playwright'
+import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
 
 describe('Dropdown question for applicant flow', () => {
   let pageObject: Page
@@ -55,6 +44,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('green')
       await applicantQuestions.clickNext()
 
+      await validateScreenshot(pageObject);
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
@@ -70,6 +60,7 @@ describe('Dropdown question for applicant flow', () => {
       expect(await pageObject.innerText(dropdownId)).toContain(
         'This question is required.',
       )
+      await validateScreenshot(pageObject);
     })
   })
 
@@ -114,6 +105,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('blue', 1)
       await applicantQuestions.clickNext()
 
+      await validateScreenshot(pageObject);
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
@@ -126,6 +118,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('red', 1)
       await applicantQuestions.clickNext()
 
+      await validateScreenshot(pageObject);
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
