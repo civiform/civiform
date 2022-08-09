@@ -172,7 +172,7 @@ export class AdminPrograms {
     ).toBe(true)
   }
 
-  async expectProgramEditPage(programName: string = '') {
+  async expectProgramEditPage(programName = '') {
     expect(await this.page.innerText('h1')).toContain(
       `Edit program: ${programName}`,
     )
@@ -203,7 +203,7 @@ export class AdminPrograms {
     )
   }
 
-  async expectProgramBlockEditPage(programName: string = '') {
+  async expectProgramBlockEditPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
     // Compare string case insensitively because style may not have been computed.

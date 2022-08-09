@@ -1,11 +1,8 @@
 import {
-  dismissModal,
   startSession,
-  logout,
   loginAsAdmin,
   AdminPrograms,
   AdminQuestions,
-  AdminProgramStatuses,
 } from './support'
 import {Page} from 'playwright'
 

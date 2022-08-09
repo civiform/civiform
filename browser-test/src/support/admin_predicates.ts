@@ -37,7 +37,7 @@ export class AdminPredicates {
     } else {
       // We have a checkbox for the value.
       const valueArray = value.split(',')
-      for (var index in valueArray) {
+      for (const index in valueArray) {
         await this.page.check(`label:has-text("${valueArray[index]}")`)
       }
     }
