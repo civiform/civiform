@@ -28,6 +28,8 @@ class AwsCli:
             ])
 
     def _call_cli(self, args: List[str]) -> Dict:
-        args = ['aws', '--output=json', f'--region={self.config.aws_region}'] + args
+        args = [
+            'aws', '--output=json', f'--region={self.config.aws_region}'
+        ] + args
         out = subprocess.check_output(args=args)
         return json.loads(out.decode('ascii'))
