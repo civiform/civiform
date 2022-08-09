@@ -1,3 +1,4 @@
+/* eslint-disable */
 import axe = require('axe-core')
 import {toMatchImageSnapshot} from 'jest-image-snapshot'
 

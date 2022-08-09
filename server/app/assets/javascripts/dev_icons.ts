@@ -6,8 +6,14 @@ window.addEventListener('load', () => {
     if (!svgEl) {
       return
     }
+    const iconWidthEl = rowEl.querySelector('.icon-width')
+    const iconHeightEl = rowEl.querySelector('.icon-height')
     const bbox = svgEl.getBBox()
-    rowEl.querySelector('.icon-width')!.textContent = `${bbox.x + bbox.width}`
-    rowEl.querySelector('.icon-height')!.textContent = `${bbox.y + bbox.height}`
+    if (iconWidthEl != null) {
+      iconWidthEl.textContent = `${bbox.x + bbox.width}`
+    }
+    if (iconHeightEl != null) {
+      iconHeightEl.textContent = `${bbox.y + bbox.height}`
+    }
   })
 })

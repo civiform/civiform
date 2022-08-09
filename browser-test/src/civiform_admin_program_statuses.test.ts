@@ -1,10 +1,10 @@
 import {
+  dismissModal,
+  startSession,
+  loginAsAdmin,
+  validateScreenshot,
   AdminPrograms,
   AdminProgramStatuses,
-  dismissModal,
-  loginAsAdmin,
-  startSession,
-  validateScreenshot,
 } from './support'
 import {Page} from 'playwright'
 

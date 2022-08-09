@@ -1,9 +1,9 @@
 import {
+  startSession,
+  loginAsAdmin,
+  validateScreenshot,
   AdminPrograms,
   AdminQuestions,
-  loginAsAdmin,
-  startSession,
-  validateScreenshot,
 } from './support'
 import {Page} from 'playwright'
 

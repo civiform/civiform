@@ -1,8 +1,9 @@
-/**
- */
-
 class ModalController {
-  /** Find the modals, and add on-click listeners on their respective buttons to toggle them. */
+  /**
+   * Find the modals, and add on-click listeners on their respective buttons to toggle them.
+   * @param {Element} modalContainer The container holding the modal.
+   * @param {Element} modal The modal element.
+   **/
   static attachModalListeners(modalContainer: Element, modal: Element) {
     // Connect the modal to its button
     const modalButton = document.querySelector(`#${modal.id}-button`)
@@ -26,7 +27,11 @@ class ModalController {
   }
 
   constructor() {
-    const modalContainer = document.querySelector('#modal-container')!
+    const modalContainer = document.querySelector('#modal-container')
+    if (modalContainer == null) {
+      throw new Error('Modal Container display not found!')
+    }
+
     const modals = Array.from(modalContainer.querySelectorAll('.cf-modal'))
 
     let alreadyDisplayedModalOnLoad = false
@@ -50,4 +55,5 @@ class ModalController {
   }
 }
 
-let modalController = new ModalController()
+// eslint-disable-next-line no-unused-vars
+const modalController = new ModalController()

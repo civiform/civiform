@@ -71,7 +71,7 @@ export class AdminApiKeys {
     const expectedCallCountText = `Call count: ${expectedCallCount}`
     let callCountText = ''
 
-    while (true) {
+    for (;;) {
       await this.gotoApiKeyIndexPage()
 
       try {
@@ -99,7 +99,7 @@ export class AdminApiKeys {
     const maxWaitTime = startTime + timeoutMillis
     let lastCallIpText = ''
 
-    while (true) {
+    for (;;) {
       await this.gotoApiKeyIndexPage()
 
       try {

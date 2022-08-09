@@ -13,7 +13,7 @@ describe('Managing API keys', () => {
   let page: Page
 
   beforeEach(async () => {
-    var session = await startSession()
+    const session = await startSession()
 
     browser = session.browser
     page = session.page
