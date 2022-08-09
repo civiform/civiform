@@ -142,12 +142,26 @@
     "tfvar": true,
     "type": "integer"
   },
-  "POSTGRES_INTANCE_CLASS": {
+  // See https://aws.amazon.com/rds/instance-types/
+  // https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html
+  "POSTGRES_INSTANCE_CLASS": {
     "required": false,
     "secret": false,
     "tfvar": true,
     "type": "enum",
-    "values": []
+    "values": [
+      "db.t3.micro",
+      "db.t3.small",
+      "db.t3.medium",
+      "db.t3.large",
+      "db.t3.xlarge",
+      "db.m4.large",
+      "db.m4.xlarge",
+      "db.m4.2xlarge",
+      "db.m5.large",
+      "db.m5.xlarge",
+      "db.m5.2xlarge"
+    ]
   },
   "POSTGRES_STORAGE_GB": {
     "required": false,
