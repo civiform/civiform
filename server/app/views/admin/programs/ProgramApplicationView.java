@@ -5,10 +5,12 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.select;
 
+import annotations.BindingAnnotations.EnUsLang;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
@@ -23,7 +25,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
+import org.apache.commons.lang3.RandomStringUtils;
+import play.i18n.Messages;
 import play.twirl.api.Content;
+import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.Block;
 import services.program.StatusDefinitions;
@@ -39,10 +44,12 @@ import views.style.Styles;
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
+  private final Messages enUsMessages;
 
   @Inject
-  public ProgramApplicationView(BaseHtmlLayout layout) {
+  public ProgramApplicationView(BaseHtmlLayout layout, @EnUsLang Messages enUsMessages) {
     this.layout = checkNotNull(layout);
+    this.enUsMessages = checkNotNull(enUsMessages);
   }
 
   public Content render(
@@ -82,14 +89,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        div()
-                            .withClasses(Styles.FLEX)
-                            .with(
-                                div("Status:")
-                                    .withClasses(
-                                        Styles.SELF_CENTER,
-                                        ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR_LABEL),
-                                renderStatusOptionsSelector(statusDefinitions)))
+                        renderStatusOptionsSelector(statusDefinitions))
                     .with(renderDownloadButton(programId, applicationId)))
             .with(
                 each(
@@ -172,9 +172,20 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private static SelectTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+  private DivTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+    final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
+    DivTag container =
+        div()
+            .withClasses(Styles.FLEX)
+            .with(
+                label("Status:")
+                    .withClasses(
+                        Styles.SELF_CENTER, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR_LABEL)
+                    .withFor(SELECTOR_ID));
+
     SelectTag dropdownTag =
         select()
+            .withId(SELECTOR_ID)
             .withClasses(
                 Styles.OUTLINE_NONE,
                 Styles.PX_3,
@@ -188,6 +199,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 Styles.TEXT_XS,
                 StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
 
+    // Add the options available to the admin.
+    // When no status is currently applied to the application, add a placeholder option that is
+    // selected.
+    dropdownTag.with(
+        option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
+            .isDisabled()
+            .isSelected());
+
     // Add statuses in the order they're provided.
     statusDefinitions
         .getStatuses()
@@ -197,6 +216,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
               OptionTag optionTag = option(value).withValue(value);
               dropdownTag.with(optionTag);
             });
-    return dropdownTag;
+    return container.with(dropdownTag);
   }
 }

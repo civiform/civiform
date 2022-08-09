@@ -27,10 +27,6 @@ describe.skip('view program statuses', () => {
     adminProgramStatuses = new AdminProgramStatuses(pageObject)
   })
 
-  afterEach(async () => {
-    await logout(pageObject)
-  })
-
   describe('without program statuses', () => {
     const programWithoutStatusesName = 'test program without statuses'
     beforeAll(async () => {
@@ -54,6 +50,10 @@ describe.skip('view program statuses', () => {
       await logout(pageObject)
     })
 
+    afterAll(async () => {
+      await logout(pageObject)
+    })
+
     it('does not Show status options', async () => {
       await loginAsProgramAdmin(pageObject)
 
@@ -64,6 +64,7 @@ describe.skip('view program statuses', () => {
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
     })
   })
+
   describe('with program statuses', () => {
     const programWithStatusesName = 'test program with statuses'
     const statusName = 'Status 1'
@@ -88,15 +89,22 @@ describe.skip('view program statuses', () => {
       await applicantQuestions.submitFromPreviewPage(programWithStatusesName)
 
       await logout(pageObject)
-    })
-
-    it('shows status selector', async () => {
       await loginAsProgramAdmin(pageObject)
 
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    })
 
+    afterAll(async () => {
+      await logout(pageObject)
+    })
+
+    it('shows status selector', async () => {
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(true)
+    })
+
+    it('shows default option as placeholder', async () => {
+      expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
     })
   })
 })
