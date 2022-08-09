@@ -6,11 +6,10 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
-  resetSession,
   selectApplicantLanguage,
   startSession,
+  resetSession,
   validateAccessibility,
-  validateScreenshot,
 } from './support'
 
 describe('Date question for applicant flow', () => {
@@ -52,7 +51,6 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-05-02')
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -70,7 +68,6 @@ describe('Date question for applicant flow', () => {
       expect(await pageObject.innerText(dateId)).toContain(
         'This question is required.',
       )
-      await validateScreenshot(pageObject)
     })
   })
 
@@ -95,7 +92,6 @@ describe('Date question for applicant flow', () => {
         'todays-date-q', // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
-      await validateScreenshot(pageObject)
       await adminPrograms.publishAllPrograms()
 
       await logout(pageObject)
@@ -110,7 +106,6 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
@@ -123,7 +118,6 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 

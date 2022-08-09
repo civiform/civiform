@@ -9,7 +9,6 @@ import {
   logout,
   selectApplicantLanguage,
   startSession,
-  validateScreenshot,
 } from './support'
 
 describe('Admin can manage translations', () => {
@@ -98,7 +97,6 @@ describe('Admin can manage translations', () => {
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
       'Spanish help text',
     )
-    await validateScreenshot(page)
     await endSession(browser)
   })
 
@@ -178,7 +176,6 @@ describe('Admin can manage translations', () => {
     await applicantQuestions.applyProgram(programName)
 
     expect(await page.innerText('main form')).toContain('family member')
-    await validateScreenshot(page)
     await endSession(browser)
   })
 
@@ -210,7 +207,6 @@ describe('Admin can manage translations', () => {
     expect(await page.inputValue('text=Question text')).toContain(
       'something different',
     )
-    await validateScreenshot(page)
     await endSession(browser)
   })
 
@@ -246,7 +242,7 @@ describe('Admin can manage translations', () => {
       'something different',
     )
     expect(await page.inputValue('text=Question help text')).toEqual('')
-    await validateScreenshot(page)
+
     await endSession(browser)
   })
 
@@ -282,7 +278,6 @@ describe('Admin can manage translations', () => {
     expect(toastMessages).toContain(
       'Lo sentimos, este programa no está totalmente traducido al idioma de su preferencia.',
     )
-    await validateScreenshot(page)
 
     await endSession(browser)
   })

@@ -1,17 +1,16 @@
 import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
-  endSession,
+  startSession,
   loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
   loginAsTestUser,
+  AdminQuestions,
+  AdminPrograms,
+  endSession,
   logout,
   selectApplicantLanguage,
-  startSession,
+  ApplicantQuestions,
   userDisplayName,
-  validateScreenshot,
 } from './support'
 
 describe('Program admin review of submitted applications', () => {
@@ -163,7 +162,6 @@ describe('Program admin review of submitted applications', () => {
       'Ames',
       '54321',
     )
-    await validateScreenshot(page)
     await applicantQuestions.clickNext()
 
     // fill 2nd application block.
@@ -231,7 +229,6 @@ describe('Program admin review of submitted applications', () => {
       'some text',
     )
     await adminPrograms.expectApplicationAnswerLinks('Screen 3', 'fileupload-q')
-    await validateScreenshot(page)
 
     await logout(page)
     await loginAsAdmin(page)
@@ -308,7 +305,6 @@ describe('Program admin review of submitted applications', () => {
         answers[answers.length - i - 1],
       )
     }
-    await validateScreenshot(page)
 
     await logout(page)
 

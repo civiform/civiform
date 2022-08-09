@@ -6,11 +6,10 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
-  resetSession,
   selectApplicantLanguage,
   startSession,
+  resetSession,
   validateAccessibility,
-  validateScreenshot,
 } from './support'
 
 describe('Id question for applicant flow', () => {
@@ -56,7 +55,6 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('12345')
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -74,7 +72,6 @@ describe('Id question for applicant flow', () => {
       expect(await pageObject.innerText(identificationId)).toContain(
         'This question is required.',
       )
-      await validateScreenshot(pageObject)
     })
 
     it('with too short id does not submit', async () => {
@@ -89,7 +86,6 @@ describe('Id question for applicant flow', () => {
       expect(await pageObject.innerText(identificationId)).toContain(
         'Must contain at least 5 characters.',
       )
-      await validateScreenshot(pageObject)
     })
 
     it('with too long id does not submit', async () => {
@@ -104,7 +100,6 @@ describe('Id question for applicant flow', () => {
       expect(await pageObject.innerText(identificationId)).toContain(
         'Must contain at most 5 characters.',
       )
-      await validateScreenshot(pageObject)
     })
 
     it('with non-numeric characters does not submit', async () => {
@@ -119,7 +114,6 @@ describe('Id question for applicant flow', () => {
       expect(await pageObject.innerText(identificationId)).toContain(
         'Must contain only numbers.',
       )
-      await validateScreenshot(pageObject)
     })
   })
 
@@ -161,7 +155,6 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.answerIdQuestion('12345', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -174,7 +167,6 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -192,7 +184,6 @@ describe('Id question for applicant flow', () => {
       expect(await pageObject.innerText(identificationId)).toContain(
         'Must contain only numbers.',
       )
-      await validateScreenshot(pageObject)
     })
 
     it('with second invalid does not submit', async () => {
@@ -208,7 +199,6 @@ describe('Id question for applicant flow', () => {
       expect(await pageObject.innerText(identificationId)).toContain(
         'Must contain only numbers.',
       )
-      await validateScreenshot(pageObject)
     })
 
     it('has no accessiblity violations', async () => {

@@ -1,10 +1,4 @@
-import {
-  AdminPrograms,
-  endSession,
-  loginAsAdmin,
-  startSession,
-  validateScreenshot,
-} from './support'
+import {startSession, loginAsAdmin, AdminPrograms, endSession} from './support'
 
 describe('Most recently updated program is at top of list.', () => {
   it('sorts by last updated, preferring draft over active', async () => {
@@ -50,7 +44,6 @@ describe('Most recently updated program is at top of list.', () => {
       programOne,
       programTwo,
     ])
-    await validateScreenshot(page)
 
     await endSession(browser)
   })

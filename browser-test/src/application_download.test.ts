@@ -1,19 +1,18 @@
 import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
+  startSession,
+  seedCanonicalQuestions,
   dropTables,
-  endSession,
-  isLocalDevEnvironment,
-  loginAsAdmin,
+  logout,
+  loginAsTestUser,
   loginAsGuest,
   loginAsProgramAdmin,
-  loginAsTestUser,
-  logout,
-  seedCanonicalQuestions,
+  loginAsAdmin,
   selectApplicantLanguage,
-  startSession,
-  validateScreenshot,
+  ApplicantQuestions,
+  AdminQuestions,
+  AdminPrograms,
+  endSession,
+  isLocalDevEnvironment,
 } from './support'
 
 describe('normal application flow', () => {
@@ -78,7 +77,6 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
-    await validateScreenshot(page)
 
     await logout(page)
     await loginAsAdmin(page)
@@ -153,7 +151,6 @@ describe('normal application flow', () => {
     expect(postEditJsonContent[0].application.numbercsvdownload.number).toEqual(
       1600,
     )
-    await validateScreenshot(page)
 
     // Finds a partial text match on applicant name, case insensitive.
     await adminPrograms.filterProgramApplications('SARA')
@@ -179,7 +176,6 @@ describe('normal application flow', () => {
     expect(allJsonContent[0].application.name.first_name).toEqual('Gus')
     expect(allJsonContent[1].application.name.first_name).toEqual('Gus')
     expect(allJsonContent[2].application.name.first_name).toEqual('sarah')
-    await validateScreenshot(page)
 
     await logout(page)
 
@@ -210,7 +206,6 @@ describe('normal application flow', () => {
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith')
     expect(newDemographicsCsvContent).toContain(',op2,')
     expect(newDemographicsCsvContent).toContain(',1600,')
-    await validateScreenshot(page)
 
     if (isLocalDevEnvironment()) {
       // The hashed values "sarah", empty value, "smith", with the dev secret key.

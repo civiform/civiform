@@ -1,11 +1,10 @@
 import {Browser, Page} from 'playwright'
 import {
+  startSession,
+  loginAsAdmin,
   AdminApiKeys,
   AdminPrograms,
   endSession,
-  loginAsAdmin,
-  startSession,
-  validateScreenshot,
 } from './support'
 
 describe('Managing API keys', () => {
@@ -55,6 +54,5 @@ describe('Managing API keys', () => {
 
     await adminApiKeys.retireApiKey('test-api-key')
     await adminApiKeys.expectApiKeyIsRetired('Test API key')
-    await validateScreenshot(page)
   })
 })

@@ -6,11 +6,10 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
-  resetSession,
   selectApplicantLanguage,
   startSession,
+  resetSession,
   validateAccessibility,
-  validateScreenshot,
 } from './support'
 
 describe('Email question for applicant flow', () => {
@@ -52,7 +51,6 @@ describe('Email question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -69,7 +67,6 @@ describe('Email question for applicant flow', () => {
       expect(await pageObject.innerText(emailId)).toContain(
         'This question is required.',
       )
-      await validateScreenshot(pageObject)
     })
   })
 
@@ -107,7 +104,6 @@ describe('Email question for applicant flow', () => {
       await applicantQuestions.answerEmailQuestion('your_email@civiform.gov', 0)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })

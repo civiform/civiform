@@ -1,7 +1,6 @@
 import {
   startSession,
   loginAsAdmin,
-  validateScreenshot,
   AdminPrograms,
   AdminQuestions,
 } from './support'
@@ -57,7 +56,6 @@ describe('view program references from question view', () => {
     await adminPrograms.addProgramBlock(secondProgramName, 'first block', [
       questionName,
     ])
-    await validateScreenshot(pageObject)
 
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectQuestionProgramReferencesText({

@@ -6,11 +6,10 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
-  resetSession,
   selectApplicantLanguage,
   startSession,
+  resetSession,
   validateAccessibility,
-  validateScreenshot,
 } from './support'
 
 describe('Text question for applicant flow', () => {
@@ -73,7 +72,6 @@ describe('Text question for applicant flow', () => {
       expect(await pageObject.innerText(textId)).toContain(
         'This question is required.',
       )
-      await validateScreenshot(pageObject)
     })
 
     it('with too short text does not submit', async () => {
@@ -88,7 +86,6 @@ describe('Text question for applicant flow', () => {
       expect(await pageObject.innerText(textId)).toContain(
         'Must contain at least 5 characters.',
       )
-      await validateScreenshot(pageObject)
     })
 
     it('with too long text does not submit', async () => {
@@ -105,7 +102,6 @@ describe('Text question for applicant flow', () => {
       expect(await pageObject.innerText(textId)).toContain(
         'Must contain at most 20 characters.',
       )
-      await validateScreenshot(pageObject)
     })
   })
 
@@ -151,7 +147,6 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -164,7 +159,6 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
       await applicantQuestions.clickNext()
-      await validateScreenshot(pageObject)
 
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -185,7 +179,6 @@ describe('Text question for applicant flow', () => {
       expect(await pageObject.innerText(textId)).toContain(
         'Must contain at most 20 characters.',
       )
-      await validateScreenshot(pageObject)
     })
 
     it('with second invalid does not submit', async () => {
@@ -204,7 +197,6 @@ describe('Text question for applicant flow', () => {
       expect(await pageObject.innerText(textId)).toContain(
         'Must contain at most 20 characters.',
       )
-      await validateScreenshot(pageObject)
     })
 
     it('has no accessiblity violations', async () => {

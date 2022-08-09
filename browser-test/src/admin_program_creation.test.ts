@@ -1,10 +1,9 @@
 import {
-  AdminPrograms,
-  AdminQuestions,
-  endSession,
-  loginAsAdmin,
   startSession,
-  validateScreenshot,
+  loginAsAdmin,
+  AdminQuestions,
+  AdminPrograms,
+  endSession,
 } from './support'
 
 describe('Create program with enumerator and repeated questions', () => {
@@ -74,7 +73,6 @@ describe('Create program with enumerator and repeated questions', () => {
     expect(await page.innerText('id=question-bank-questions')).toContain(
       'apc-repeated',
     )
-    await validateScreenshot(page)
 
     await endSession(browser)
   })
