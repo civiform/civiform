@@ -75,7 +75,10 @@ public final class ActiveAndDraftQuestions {
         draftVersionHasAnyEdits ? buildReferencingProgramsMap(withDraftEdits) : ImmutableMap.of();
 
     ImmutableSet<String> tombstonedQuestionNames =
-        ImmutableSet.copyOf(withDraftEdits.getTombstonedQuestionNames());
+        ImmutableSet.copyOf(
+            Sets.union(
+                ImmutableSet.copyOf(draft.getTombstonedQuestionNames()),
+                ImmutableSet.copyOf(active.getTombstonedQuestionNames())));
     deletionStatusByName =
         versionedByName.keySet().stream()
             .collect(

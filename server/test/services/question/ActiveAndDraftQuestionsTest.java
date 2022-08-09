@@ -175,6 +175,16 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   @Test
+  public void getDeletionStatus_createdAndTombstonedInDraftVersion() {
+    Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    versionRepository.getDraftVersion().addQuestion(question).save();
+    addTombstoneToVersion(versionRepository.getDraftVersion(), question);
+
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
+        .isEqualTo(DeletionStatus.PENDING_DELETION);
+  }
+
+  @Test
   public void getDeletionStatus_stillReferencedInActiveVersion() {
     Question questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(questionActive).save();
