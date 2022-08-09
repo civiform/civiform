@@ -1,4 +1,5 @@
 import os
+import tempfile
 import shutil
 
 from cloud.aws.bin.lib import backend_setup
@@ -22,3 +23,11 @@ class AwsSetupTemplate(SetupTemplate):
     def _setup_shared_state_file(self):
         if self.config.use_backend_config():
             backend_setup.setup_backend_config(self.config)
+
+    def setup_log_file(self):
+         # TODO(#2606): If remote file exist fetch it here.
+        _, self.log_file_path = tempfile.mkstemp()
+
+    def cleanup(self):
+        # TODO(#2606): write and upload logs.
+        pass
