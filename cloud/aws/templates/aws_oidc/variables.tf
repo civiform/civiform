@@ -283,6 +283,6 @@ variable "fargate_desired_task_count" {
 
 variable "feature_flag_status_tracking_enabled" {
   type        = bool
-  description = "When set to tru enable Status Tracking."
+  description = "When set to true enable Status Tracking."
   default     = false
 }

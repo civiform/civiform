@@ -141,6 +141,6 @@ variable "saml_keystore_container_name" {
 
 variable "feature_flag_status_tracking_enabled" {
   type        = bool
-  description = "When set to tru enable Status Tracking."
+  description = "When set to true enable Status Tracking."
   default     = false
 }

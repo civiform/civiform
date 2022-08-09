@@ -259,6 +259,6 @@ variable "staging_applicant_notification_mailing_list" {
 
 variable "feature_flag_status_tracking_enabled" {
   type        = bool
-  description = "When set to tru enable Status Tracking."
+  description = "When set to true enable Status Tracking."
   default     = false
 }
