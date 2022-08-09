@@ -280,3 +280,9 @@ variable "fargate_desired_task_count" {
   type        = number
   description = "Number of Civiform server tasks to run. Can be set to 0 to shutdown server."
 }
+
+variable "feature_flag_status_tracking_enabled" {
+  type        = bool
+  description = "When set to true enable Status Tracking."
+  default     = false
+}

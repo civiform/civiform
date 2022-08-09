@@ -140,6 +140,8 @@ module "td" {
     APPLICANT_OIDC_LAST_NAME_ATTRIBUTE   = var.applicant_oidc_last_name_attribute
     APPLICANT_OIDC_DISCOVERY_URI         = var.applicant_oidc_discovery_uri
     ADFS_DISCOVERY_URI                   = var.adfs_discovery_uri
+
+    CIVIFORM_APPLICATION_STATUS_TRACKING_ENABLED = var.feature_flag_status_tracking_enabled
   }
   log_configuration = {
     logDriver = "awslogs"

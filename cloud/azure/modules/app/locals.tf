@@ -71,6 +71,8 @@ locals {
     # This allows for the default to include atallclaims and for 
     # azure AD to not include that claim.
     ADFS_ADDITIONAL_SCOPES = ""
+
+    CIVIFORM_APPLICATION_STATUS_TRACKING_ENABLED = var.feature_flag_status_tracking_enabled
   }
   adfs_client_id     = "adfs-client-id"
   adfs_discovery_uri = "adfs-discovery-uri"
