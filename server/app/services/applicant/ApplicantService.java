@@ -7,32 +7,41 @@ import com.google.auto.value.AutoValue;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.time.Instant;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
+import models.DisplayMode;
 import models.LifecycleStage;
+import models.Program;
 import models.StoredFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
-import services.applicant.ApplicantService.ApplicantProgramData;
 import repository.UserRepository;
+import repository.VersionRepository;
 import services.Path;
+import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
@@ -54,10 +63,12 @@ import services.question.types.ScalarType;
  * them to view, if any.
  */
 public final class ApplicantService {
+  private static final Logger logger = LoggerFactory.getLogger(ApplicantService.class);
 
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
   private final StoredFileRepository storedFileRepository;
+  private final VersionRepository versionRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
@@ -72,6 +83,7 @@ public final class ApplicantService {
   public ApplicantService(
       ApplicationRepository applicationRepository,
       UserRepository userRepository,
+      VersionRepository versionRepository,
       StoredFileRepository storedFileRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
@@ -80,6 +92,7 @@ public final class ApplicantService {
       HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
+    this.versionRepository = checkNotNull(versionRepository);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
