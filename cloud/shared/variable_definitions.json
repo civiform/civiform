@@ -101,7 +101,7 @@
   "FEATURE_FLAG_STATUS_TRACKING_ENABLED": {
     "required": false,
     "secret": false,
-    "tfvar": false,
+    "tfvar": true,
     "type": "bool"
   }
 }
