@@ -12,8 +12,8 @@ export class AdminTranslations {
   }
 
   async editProgramTranslations(name: string, description: string) {
-    await this.page.fill('#localize-display-name', name)
-    await this.page.fill('#localize-display-description', description)
+    await this.page.fill('text=Program name', name)
+    await this.page.fill('text=Program description', description)
     await this.page.click('#update-localizations-button')
   }
 
@@ -22,13 +22,13 @@ export class AdminTranslations {
     helpText: string,
     configText: string[] = [],
   ) {
-    await this.page.fill('#localize-question-text', text)
-    await this.page.fill('#localize-question-help-text', helpText)
+    await this.page.fill('text=Question text', text)
+    await this.page.fill('text=Question help text', helpText)
 
     // If there are multi-option inputs to translate, fill them in
     // with the provided translations in configText
     const optionInputs = await this.page.$$('[name="options[]"]')
-    for (var index = 0; index < optionInputs.length; index++) {
+    for (let index = 0; index < optionInputs.length; index++) {
       await optionInputs[index].fill(configText[index])
     }
 

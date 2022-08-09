@@ -7,6 +7,7 @@ import sys
 from cloud.shared.bin.lib.config_loader import ConfigLoader
 from cloud.shared.bin.lib.write_tfvars import TfVarWriter
 from setup_class_loader import load_setup_class
+from cloud.shared.bin.lib import terraform
 """
 Setup.py sets up and runs the initial terraform deployment. It's broken into
 3 parts:
@@ -63,29 +64,8 @@ def main():
         ###############################################################################
         # Terraform Init/Plan/Apply
         ###############################################################################
-        print("Starting terraform setup")
-        # Note that the -chdir means we use the relative paths for
-        # both the backend config and the var file
-        terraform_init_args = [
-            "terraform", f"-chdir={terraform_template_dir}", "init",
-            "-input=false", "-upgrade", "-migrate-state"
-        ]
-        if config_loader.use_backend_config():
-            print(f"Using backend config {config_loader.backend_vars_filename}")
-            terraform_init_args.append(
-                f"-backend-config={config_loader.backend_vars_filename}")
-
-        print(" - Run terraform init")
-        subprocess.check_call(terraform_init_args)
-
-        print(" - Run terraform apply")
-        tf_apply_args = [
-            "terraform", f"-chdir={terraform_template_dir}", "apply",
-            "-input=false", f"-var-file={config_loader.tfvars_filename}"
-        ]
-
-        print(" - Run terraform apply in setup.py")
-        subprocess.check_call(tf_apply_args)
+        print("Starting terraform deploy")
+        terraform.perform_apply(config_loader)
 
         ###############################################################################
         # Post Run Setup Tasks (if needed)
