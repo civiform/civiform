@@ -100,6 +100,9 @@ GET     /admin/apiKeys/new                          controllers.admin.AdminApiKe
 POST    /admin/apiKeys                              controllers.admin.AdminApiKeysController.create(request: Request)
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
 
+GET     /admin/feature/:flag/enable                 controllers.FeatureFlagOverrideController.enable(request: Request, flag: String)
+GET     /admin/feature/:flag/disable                controllers.FeatureFlagOverrideController.disable(request: Request, flag: String)
+
 # Admin data migrations
 GET     /admin/migrateStoredFileAcls                controllers.admin.DataMigrationsController.migrateStoredFileAcls()
 
