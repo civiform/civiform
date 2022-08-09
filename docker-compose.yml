@@ -69,8 +69,7 @@ services:
       # Hard coded in test-support/test_oidc_provider.js
       - IDCS_CLIENT_ID=foo
       - IDCS_SECRET=bar
-      # TODO(#3102): Fix dev-oidc issue and re-enable.
-      # - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
+      - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - APPLICANT_OIDC_PROVIDER_NAME
