@@ -13,14 +13,14 @@ from cloud.shared.bin.lib.config_loader import ConfigLoader
 # Key is the name of the secret without app prefix, value is doc shown to user
 # if the secret is unset.
 SECRETS: Dict[str, str] = {
-    "adfs_client_id":
-        "Client id for the ADFS configuration. Enter any value if you don't use ADFS.",
-    "adfs_secret":
-        "Secret for the ADFS configuration. Enter any value if you don't use ADFS.",
-    "applicant_oidc_client_id":
-        "Client ID for your OIDC provider. Enter any value if you haven't set it up yet.",
-    "applicant_oidc_client_secret":
-        "Client secret for your OIDC provider. Enter any value if you haven't set it up yet.",
+    'adfs_client_id':
+        'Client id for the ADFS configuration. Enter any value if you do not use ADFS.',
+    'adfs_secret':
+        'Secret for the ADFS configuration. Enter any value if you do not use ADFS.',
+    'applicant_oidc_client_id':
+        'Client ID for your OIDC provider. Enter any value if you have not set it up yet.',
+    'applicant_oidc_client_secret':
+        'Client secret for your OIDC provider. Enter any value if you have not set it up yet.',
 }
 
 
@@ -31,18 +31,18 @@ class Setup(AwsSetupTemplate):
         self.aws_cli = AwsCli(config)
 
     def get_current_user(self) -> str:
-        get_current_command = "aws sts get-caller-identity --query UserId --output text"
+        get_current_command = 'aws sts get-caller-identity --query UserId --output text'
         current_user_process = subprocess.run(
             shlex.split(get_current_command), capture_output=True)
-        current_user = current_user_process.stdout.decode("ascii")
+        current_user = current_user_process.stdout.decode('ascii')
         if not current_user:
-            raise RuntimeError("Could not find the logged in user")
+            raise RuntimeError('Could not find the logged in user')
         return current_user
 
     def pre_terraform_setup(self):
-        print(" - Running the setup script in terraform")
+        print(' - Running the setup script in terraform')
         self._tf_run_for_aws(is_destroy=False)
-        print(" - Setting up shared state file")
+        print(' - Setting up shared state file')
         self._setup_shared_state_file()
         # Only run in dev mode
         if not self.config.use_backend_config():
@@ -58,24 +58,24 @@ class Setup(AwsSetupTemplate):
     def post_terraform_setup(self):
         for name, doc in SECRETS.items():
             self._maybe_set_secret_value(
-                f"{self.config.app_prefix}-{name}", doc)
+                f'{self.config.app_prefix}-{name}', doc)
 
     def _maybe_set_secret_value(self, secret_name: str, documentation: str):
         current_value = self.aws_cli.get_secret_value(secret_name)
-        print("")
-        url = f"https://{self.config.aws_region}.console.aws.amazon.com/secretsmanager/secret?name={secret_name}"
-        if current_value == "":
+        print('')
+        url = f'https://{self.config.aws_region}.console.aws.amazon.com/secretsmanager/secret?name={secret_name}'
+        if current_value == '':
             print(
-                f"Secret {secret_name} is not set. It needs to be set to a non-empty value."
+                f'Secret {secret_name} is not set. It needs to be set to a non-empty value.'
             )
             print(documentation)
-            print(f"You can later change the value in AWS console: {url}")
-            new_value = getpass("enter value -> ").strip()
-            while new_value.strip() == "":
-                print("Value cannot be empty.")
-                new_value = getpass("enter value -> ").strip()
+            print(f'You can later change the value in AWS console: {url}')
+            new_value = getpass('enter value -> ').strip()
+            while new_value.strip() == '':
+                print('Value cannot be empty.')
+                new_value = getpass('enter value -> ').strip()
             self.aws_cli.set_secret_value(secret_name, new_value)
-            print("Secret value successfully set.")
+            print('Secret value successfully set.')
         else:
-            print(f"Secret {secret_name} already has a value set.")
-            print(f"You can check and update it in AWS console: {url}")
+            print(f'Secret {secret_name} already has a value set.')
+            print(f'You can check and update it in AWS console: {url}')
