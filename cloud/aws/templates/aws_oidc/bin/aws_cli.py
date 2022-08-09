@@ -27,6 +27,9 @@ class AwsCli:
                 f'--secret-string={new_value}'
             ])
 
+    def get_current_user(self) -> str:
+        return self._call_cli(['sts', 'get-caller-identity'])['UserId']
+
     def _call_cli(self, args: List[str]) -> Dict:
         args = [
             'aws', '--output=json', f'--region={self.config.aws_region}'

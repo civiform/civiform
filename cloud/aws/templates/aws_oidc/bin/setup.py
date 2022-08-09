@@ -28,13 +28,10 @@ class Setup(AwsSetupTemplate):
 
     def __init__(self, config: ConfigLoader):
         super().__init__(config)
-        self.aws_cli = AwsCli(config)
+        self._aws_cli = AwsCli(config)
 
     def get_current_user(self) -> str:
-        get_current_command = 'aws sts get-caller-identity --query UserId --output text'
-        current_user_process = subprocess.run(
-            shlex.split(get_current_command), capture_output=True)
-        current_user = current_user_process.stdout.decode('ascii')
+        current_user = self._aws_cli.get_current_user()
         if not current_user:
             raise RuntimeError('Could not find the logged in user')
         return current_user
@@ -63,7 +60,7 @@ class Setup(AwsSetupTemplate):
     def _maybe_set_secret_value(self, secret_name: str, documentation: str):
         print('')
         url = f'https://{self.config.aws_region}.console.aws.amazon.com/secretsmanager/secret?name={secret_name}'
-        if self.aws_cli.is_secret_empty(secret_name):
+        if self._aws_cli.is_secret_empty(secret_name):
             print(
                 f'Secret {secret_name} is not set. It needs to be set to a non-empty value.'
             )
@@ -73,7 +70,7 @@ class Setup(AwsSetupTemplate):
             while new_value.strip() == '':
                 print('Value cannot be empty.')
                 new_value = getpass('enter value -> ').strip()
-            self.aws_cli.set_secret_value(secret_name, new_value)
+            self._aws_cli.set_secret_value(secret_name, new_value)
             print('Secret value successfully set.')
         else:
             print(f'Secret {secret_name} already has a value set.')
