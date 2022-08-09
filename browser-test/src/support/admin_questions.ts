@@ -1,5 +1,5 @@
 import {Page} from 'playwright'
-import {waitForPageJsLoad} from './wait'
+import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
 import * as assert from 'assert'
 
 type QuestionParams = {
@@ -33,7 +33,7 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
-  async goToViewQuestionPage(questionName: string) {
+  async goToViewQuestionPage(_questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('text=View')
     await waitForPageJsLoad(this.page)
@@ -48,7 +48,7 @@ export class AdminQuestions {
     expect(await this.page.innerText('h1')).toEqual('All Questions')
   }
 
-  async expectViewOnlyQuestion(questionName: string) {
+  async expectViewOnlyQuestion(_questionName: string) {
     expect(await this.page.isDisabled('text=No Export')).toEqual(true)
     // TODO(sgoldblatt): This test does not find any questions need to look into
     // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
@@ -74,7 +74,7 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 
-  async expectMultiOptionBlankOptionError(options: String[]) {
+  async expectMultiOptionBlankOptionError(options: string[]) {
     const errors = await this.page.locator(
       '#question-settings .cf-multi-option-input-error',
     )
@@ -165,6 +165,64 @@ export class AdminQuestions {
     expect(tableInnerText).not.toContain(questionName)
   }
 
+  async expectQuestionProgramReferencesText({
+    questionName,
+    expectedProgramReferencesText,
+  }: {
+    questionName: string
+    expectedProgramReferencesText: string
+  }) {
+    await this.gotoAdminQuestionsPage()
+    const programReferencesText = await this.page.innerText(
+      this.selectProgramReferencesFromRow(questionName),
+    )
+    expect(programReferencesText).toEqual(expectedProgramReferencesText)
+  }
+
+  async expectProgramReferencesModalContains({
+    questionName,
+    expectedDraftProgramReferences,
+    expectedActiveProgramReferences,
+  }: {
+    questionName: string
+    expectedDraftProgramReferences: string[]
+    expectedActiveProgramReferences: string[]
+  }) {
+    await this.page.click(
+      this.selectProgramReferencesFromRow(questionName) + ' a',
+    )
+
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      `Programs including ${questionName}`,
+    )
+
+    const draftReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-draft li',
+    )
+    const draftReferenceNames = await Promise.all(
+      draftReferences.map((reference) => reference.innerText()),
+    )
+    expect(draftReferenceNames).toEqual(expectedDraftProgramReferences)
+
+    const activeReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-active li',
+    )
+    const activeReferenceNames = await Promise.all(
+      activeReferences.map((reference) => reference.innerText()),
+    )
+    expect(activeReferenceNames).toEqual(expectedActiveProgramReferences)
+
+    await dismissModal(this.page)
+  }
+
+  private selectProgramReferencesFromRow(questionName: string) {
+    return (
+      this.selectQuestionTableRow(questionName) +
+      ' .cf-admin-question-program-reference-counts'
+    )
+  }
+
   private async gotoQuestionEditOrNewVersionPage({
     questionName,
     buttonText,
@@ -230,7 +288,7 @@ export class AdminQuestions {
       ),
     )
     await waitForPageJsLoad(this.page)
-    await this.expectQuestionTranslationPage()
+    await this.expectQuestionTranslationPage(questionName)
   }
 
   async expectQuestionEditPage(questionName: string) {
@@ -240,9 +298,9 @@ export class AdminQuestions {
     ).toEqual(questionName)
   }
 
-  async expectQuestionTranslationPage() {
+  async expectQuestionTranslationPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Question Translations',
+      `Manage Question Translations: ${questionName}`,
     )
   }
 
@@ -344,25 +402,25 @@ export class AdminQuestions {
   }
 
   async updateAllQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.updateQuestion(questions[i])
     }
   }
 
   async createNewVersionForQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.createNewVersion(questions[i])
     }
   }
 
   async expectDraftQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.expectDraftQuestionExist(questions[i])
     }
   }
 
   async expectActiveQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.expectActiveQuestionExist(questions[i])
     }
   }
@@ -568,6 +626,7 @@ export class AdminQuestions {
       questionText,
       helpText,
       enumeratorName,
+      exportOption,
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -610,7 +669,6 @@ export class AdminQuestions {
     description = 'static description',
     questionText = 'static question text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
-    exportOption = '',
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -708,6 +766,7 @@ export class AdminQuestions {
       questionText,
       helpText,
       enumeratorName,
+      exportOption,
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()

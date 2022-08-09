@@ -4,7 +4,8 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "strict": true,
     "module": "commonjs",
-    "noEmit": true
+    "noEmit": true,
+    "types": ["jest", "node"]
   },
   "include": ["."]
 }

@@ -94,8 +94,7 @@ describe('file upload applicant flow', () => {
       expect(await error?.isHidden()).toEqual(false)
     })
 
-    // TODO(#2988) Enable test once a11y issues are fixed.
-    it.skip('has no accessiblity violations', async () => {
+    it('has no accessiblity violations', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 

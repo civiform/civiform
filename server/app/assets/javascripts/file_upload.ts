@@ -1,4 +1,4 @@
-window.addEventListener('load', (event) => {
+window.addEventListener('load', (_event) => {
   // Prevent attempting to submit a file upload form
   // if no file has been selected. Note: For optional
   // file uploads, a distinct skip button is shown.

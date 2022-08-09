@@ -140,7 +140,7 @@ GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsuppo
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
 
 # Deep-link methods
-GET     /programs/:programName      controllers.applicant.RedirectController.programByName(request: Request, programName: String)
+GET     /programs/:programSlug      controllers.applicant.RedirectController.programBySlug(request: Request, programSlug: String)
 GET     /considerSignIn             controllers.applicant.RedirectController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String)
 
 # User profile pages

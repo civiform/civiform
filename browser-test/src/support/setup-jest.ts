@@ -1,3 +1,4 @@
+/* eslint-disable */
 import axe = require('axe-core')
 
 interface CustomMatchers<R = unknown> {

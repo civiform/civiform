@@ -262,12 +262,11 @@ public class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    String programName;
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    String programName = program.adminName();
 
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      programName = program.adminName();
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      checkProgramAdminAuthorization(profileUtils, request, programName).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
@@ -303,7 +302,8 @@ public class AdminApplicationController extends CiviFormController {
             applicationId,
             applicantNameWithApplicationId,
             blocks,
-            answers));
+            answers,
+            program.statusDefinitions()));
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */

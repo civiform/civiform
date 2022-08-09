@@ -22,8 +22,10 @@ import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import support.TestQuestionBank;
 
 public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
@@ -44,7 +46,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_rendersForm() {
+  public void edit_rendersForm_defaultLocale() {
     Question question = questionBank.applicantName();
 
     Result result =
@@ -55,7 +57,41 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains("Manage Question Translations", "English", "Spanish", "what is your name?");
+        .contains(
+            String.format(
+                "Manage Question Translations: %s", question.getQuestionDefinition().getName()),
+            "English",
+            "Spanish",
+            "what is your name?");
+    assertThat(contentAsString(result)).doesNotContain("Default text:");
+  }
+
+  @Test
+  public void edit_rendersForm_otherLocale() throws UnsupportedQuestionTypeException {
+    QuestionDefinition updatedQuestionDefinition =
+        new QuestionDefinitionBuilder(questionBank.applicantName().getQuestionDefinition())
+            .updateQuestionText(Locale.FRENCH, "french question text")
+            .updateQuestionHelpText(Locale.FRENCH, "french question help text")
+            .build();
+    Question question = questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
+
+    Result result =
+        controller
+            .edit(addCSRFToken(fakeRequest()).build(), question.id, "fr")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains(
+            String.format(
+                "Manage Question Translations: %s", question.getQuestionDefinition().getName()),
+            "English",
+            "Spanish",
+            "french question text",
+            "french question help text");
+    assertThat(contentAsString(result))
+        .contains("Default text:", "what is your name?", "help text");
   }
 
   @Test
@@ -146,7 +182,10 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains("Manage Question Translations", "Question text cannot be blank");
+        .contains(
+            String.format(
+                "Manage Question Translations: %s", question.getQuestionDefinition().getName()),
+            "Question text cannot be blank");
   }
 
   /** Creates a draft question, since only draft questions are editable. */

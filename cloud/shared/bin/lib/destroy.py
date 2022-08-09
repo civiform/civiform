@@ -4,7 +4,7 @@ from config_loader import ConfigLoader
 from cloud.shared.bin.lib import terraform
 from setup_class_loader import load_destroy_class
 """
-Destroy.py destroys the setup
+Destroy.py destroys Civiform deployment.
 """
 
 
@@ -13,14 +13,20 @@ def main():
     # Load and Validate Inputs
     ###############################################################################
 
-    ## Load the Config and Definitions
+    # Load the Config and Definitions
     config_loader = ConfigLoader()
+
+    if (config_loader.civiform_mode == "prod"):
+        print(
+            'Destoy is not allowed in PROD mode. Use AWS console if you need to '
+            + 'destroy your production version of Civiform.')
+        return
 
     validation_errors = config_loader.load_config()
     if validation_errors:
         new_line = '\n\t'
         exit(
-            f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}"
+            f'Found the following validation errors: {new_line}{f"{new_line}".join(validation_errors)}'
         )
 
     ###############################################################################
@@ -36,5 +42,5 @@ def main():
     template_destroy.post_terraform_destroy()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

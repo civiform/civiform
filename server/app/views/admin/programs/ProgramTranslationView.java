@@ -2,13 +2,12 @@ package views.admin.programs;
 
 import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.fieldset;
-import static j2html.TagCreator.legend;
+import static j2html.TagCreator.div;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-import j2html.tags.specialized.FieldsetTag;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -17,6 +16,8 @@ import javax.inject.Inject;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
+import services.program.ProgramDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -24,10 +25,9 @@ import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
-import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
-public class ProgramTranslationView extends TranslationFormView {
+public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
   private final boolean statusTrackingEnabled;
 
@@ -44,41 +44,28 @@ public class ProgramTranslationView extends TranslationFormView {
   public Content render(
       Http.Request request,
       Locale locale,
-      long programId,
-      String localizedName,
-      String localizedDescription,
-      Optional<String> errors) {
-    return render(
-        request,
-        locale,
-        programId,
-        Optional.of(localizedName),
-        Optional.of(localizedDescription),
-        errors);
-  }
-
-  public Content render(
-      Http.Request request,
-      Locale locale,
-      long programId,
+      ProgramDefinition program,
       Optional<String> localizedName,
       Optional<String> localizedDescription,
       Optional<String> errors) {
     String formAction =
         controllers.admin.routes.AdminProgramTranslationsController.update(
-                programId, locale.toLanguageTag())
+                program.id(), locale.toLanguageTag())
             .url();
     FormTag form =
         renderTranslationForm(
-            request, locale, formAction, formFields(localizedName, localizedDescription));
+            request,
+            locale,
+            formAction,
+            formFields(program, locale, localizedName, localizedDescription));
 
-    String title = "Manage program translations";
+    String title = String.format("Manage program translations: %s", program.adminName());
 
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(renderHeader(title), renderLanguageLinks(programId, locale), form);
+            .addMainContent(renderHeader(title), renderLanguageLinks(program.id(), locale), form);
 
     errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
 
@@ -90,29 +77,37 @@ public class ProgramTranslationView extends TranslationFormView {
     return routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag()).url();
   }
 
-  private ImmutableList<FieldsetTag> formFields(
-      Optional<String> localizedName, Optional<String> localizedDescription) {
-    ImmutableList.Builder<FieldsetTag> result =
-        ImmutableList.<FieldsetTag>builder()
+  private ImmutableList<DomContent> formFields(
+      ProgramDefinition program,
+      Locale locale,
+      Optional<String> localizedName,
+      Optional<String> localizedDescription) {
+    ImmutableList.Builder<DomContent> result =
+        ImmutableList.<DomContent>builder()
             .add(
-                fieldset()
-                    .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-                    .with(
-                        legend("Program details (visible to applicants)"),
-                        FieldWithLabel.input()
-                            .setId("localize-display-name")
-                            .setFieldName("displayName")
-                            .setLabelText("Program name")
-                            .setScreenReaderText("Program display name")
-                            .setValue(localizedName)
-                            .getInputTag(),
-                        FieldWithLabel.input()
-                            .setId("localize-display-description")
-                            .setFieldName("displayDescription")
-                            .setLabelText("Program description")
-                            .setScreenReaderText("Program description")
-                            .setValue(localizedDescription)
-                            .getInputTag()));
+                fieldSetForFields(
+                    "Program details (visible to applicants)",
+                    ImmutableList.of(
+                        div()
+                            .with(
+                                FieldWithLabel.input()
+                                    .setFieldName("displayName")
+                                    .setLabelText("Program name")
+                                    .setValue(localizedName)
+                                    .getInputTag())
+                            .condWith(
+                                !isDefaultLocale(locale),
+                                defaultLocaleTextHint(program.localizedName())),
+                        div()
+                            .with(
+                                FieldWithLabel.input()
+                                    .setFieldName("displayDescription")
+                                    .setLabelText("Program description")
+                                    .setValue(localizedDescription)
+                                    .getInputTag())
+                            .condWith(
+                                !isDefaultLocale(locale),
+                                defaultLocaleTextHint(program.localizedDescription())))));
     if (statusTrackingEnabled) {
       // TODO(#2752): Use real statuses from the program.
       ImmutableList<ApplicationStatus> statusesWithEmail =
@@ -121,21 +116,32 @@ public class ProgramTranslationView extends TranslationFormView {
               ApplicationStatus.create("Needs more information", "Other email content"));
       for (ApplicationStatus s : statusesWithEmail) {
         result.add(
-            fieldset()
-                .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-                .with(
-                    legend(String.format("Application status: %s", s.statusName())),
-                    FieldWithLabel.input()
-                        .setLabelText("Status name")
-                        .setScreenReaderText("Status name")
-                        .setValue(s.statusName())
-                        .getInputTag(),
-                    FieldWithLabel.textArea()
-                        .setLabelText("Email content")
-                        .setScreenReaderText("Email content")
-                        .setValue(s.emailContent())
-                        .setRows(OptionalLong.of(8))
-                        .getTextareaTag()));
+            fieldSetForFields(
+                String.format("Application status: %s", s.statusName()),
+                ImmutableList.of(
+                    div()
+                        .with(
+                            FieldWithLabel.input()
+                                .setLabelText("Status name")
+                                .setScreenReaderText("Status name")
+                                .setValue(s.statusName())
+                                .getInputTag())
+                        .condWith(
+                            !isDefaultLocale(locale),
+                            defaultLocaleTextHint(
+                                LocalizedStrings.withDefaultValue(s.statusName()))),
+                    div()
+                        .with(
+                            FieldWithLabel.textArea()
+                                .setLabelText("Email content")
+                                .setScreenReaderText("Email content")
+                                .setValue(s.emailContent())
+                                .setRows(OptionalLong.of(8))
+                                .getTextareaTag())
+                        .condWith(
+                            !isDefaultLocale(locale),
+                            defaultLocaleTextHint(
+                                LocalizedStrings.withDefaultValue(s.emailContent()))))));
       }
     }
     return result.build();

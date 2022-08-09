@@ -154,8 +154,7 @@ describe('Applicant navigation flow', () => {
       await validateAccessibility(pageObject)
     })
 
-    // TODO(#3016): Enable test after fixing h1 a11y issue.
-    it.skip('program details page has no accessiblity violations', async () => {
+    it('program details page has no accessiblity violations', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
       await applicantQuestions.clickProgramDetails(programName)

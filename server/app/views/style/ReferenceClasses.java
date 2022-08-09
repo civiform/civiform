@@ -17,6 +17,12 @@ public final class ReferenceClasses {
   public static final String ADMIN_PROGRAM_STATUS_LIST = "cf-admin-program-status-list";
   public static final String ADMIN_PROGRAM_STATUS_ITEM = "cf-admin-program-status-item";
   public static final String ADMIN_QUESTION_TABLE_ROW = "cf-admin-question-table-row";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS =
+      "cf-admin-question-program-reference-counts";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT =
+      "cf-admin-question-program-reference-counts-draft";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE =
+      "cf-admin-question-program-reference-counts-active";
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String DEBOUNCED_FORM = "cf-debounced-form";
@@ -45,6 +51,9 @@ public final class ReferenceClasses {
   public static final String ADMIN_API_KEY_INDEX_ENTRY_NAME = "cf-api-key-name";
 
   public static final String WITH_DROPDOWN = "cf-with-dropdown";
+
+  public static final String PROGRAM_ADMIN_STATUS_SELECTOR_LABEL =
+      "cf-program-admin-status-selector-label";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Applicant reference classes

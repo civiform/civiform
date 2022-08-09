@@ -139,7 +139,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
                 input()
                     .withValue(
                         baseUrl
-                            + controllers.applicant.routes.RedirectController.programByName(
+                            + controllers.applicant.routes.RedirectController.programBySlug(
                                     displayProgram.slug())
                                 .url())
                     .isDisabled()
