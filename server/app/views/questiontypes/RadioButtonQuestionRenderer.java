@@ -7,8 +7,8 @@ import static j2html.TagCreator.label;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
 import java.util.Comparator;
 import org.apache.commons.lang3.RandomStringUtils;
 import services.Path;
@@ -58,25 +58,24 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
       String selectionPath, LocalizedQuestionOption option, boolean checked) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
-    LabelTag labelTag =
-        label()
-            .withFor(id)
-            .withText(option.optionText());
-    InputTag inputTag = 
+    LabelTag labelTag = label().withFor(id).withText(option.optionText());
+    InputTag inputTag =
         input()
             .withId(id)
             .withType("radio")
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
-            .withClasses(
-                StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
+            .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 
-    return div().withClasses(Styles.MY_2, Styles.RELATIVE, 
-                  ReferenceClasses.RADIO_OPTION,
-                  BaseStyles.RADIO_LABEL,
-                  checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
-                .with(inputTag)
-                .with(labelTag);
+    return div()
+        .withClasses(
+            Styles.MY_2,
+            Styles.RELATIVE,
+            ReferenceClasses.RADIO_OPTION,
+            BaseStyles.RADIO_LABEL,
+            checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+        .with(inputTag)
+        .with(labelTag);
   }
 }
