@@ -1,11 +1,23 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('Applicant navigation flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -23,8 +35,8 @@ describe('Applicant navigation flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addDateQuestion({ questionName: 'nav-date-q' })
-      await adminQuestions.addEmailQuestion({ questionName: 'nav-email-q' })
+      await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})
+      await adminQuestions.addEmailQuestion({questionName: 'nav-email-q'})
       await adminQuestions.addAddressQuestion({
         questionName: 'nav-address-q',
       })
@@ -32,7 +44,7 @@ describe('Applicant navigation flow', () => {
         questionName: 'nav-radio-q',
         options: ['one', 'two', 'three'],
       })
-      await adminQuestions.addStaticQuestion({ questionName: 'nav-static-q' })
+      await adminQuestions.addStaticQuestion({questionName: 'nav-static-q'})
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, 'first description', [
@@ -64,7 +76,7 @@ describe('Applicant navigation flow', () => {
 
       // Assert that we're on the preview page.
       expect(await pageObject.innerText('h1')).toContain(
-        'Program application preview'
+        'Program application preview',
       )
       await validateScreenshot(pageObject)
     })
@@ -89,7 +101,7 @@ describe('Applicant navigation flow', () => {
         'Unit B',
         'Sim',
         'Ames',
-        '54321'
+        '54321',
       )
       await applicantQuestions.clickNext()
 
@@ -100,7 +112,7 @@ describe('Applicant navigation flow', () => {
         'Unit B',
         'Sim',
         'Ames',
-        '54321'
+        '54321',
       )
 
       // Click previous and see static question page
@@ -115,7 +127,7 @@ describe('Applicant navigation flow', () => {
       // Assert that we're on the preview page.
       await applicantQuestions.clickPrevious()
       expect(await pageObject.innerText('h1')).toContain(
-        'Program application preview'
+        'Program application preview',
       )
       await validateAccessibility(pageObject)
     })
@@ -131,7 +143,7 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on language selection page.
       expect(await pageObject.innerText('main')).toContain(
-        'Please select your preferred language.'
+        'Please select your preferred language.',
       )
       await validateAccessibility(pageObject)
     })
@@ -162,7 +174,7 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program preview page.
       expect(await pageObject.innerText('h1')).toContain(
-        'Program application preview'
+        'Program application preview',
       )
       await validateAccessibility(pageObject)
     })
@@ -182,7 +194,7 @@ describe('Applicant navigation flow', () => {
         'Unit B',
         'Sim',
         'Ames',
-        '54321'
+        '54321',
       )
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
@@ -190,7 +202,7 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program review page.
       expect(await pageObject.innerText('h1')).toContain(
-        'Program application review'
+        'Program application review',
       )
       await validateScreenshot(pageObject)
       await validateAccessibility(pageObject)
@@ -211,7 +223,7 @@ describe('Applicant navigation flow', () => {
         'Unit B',
         'Sim',
         'Ames',
-        '54321'
+        '54321',
       )
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
@@ -220,7 +232,7 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program submission page.
       expect(await pageObject.innerText('h1')).toContain(
-        'Application confirmation'
+        'Application confirmation',
       )
       await validateScreenshot(pageObject)
       await validateAccessibility(pageObject)

@@ -1,16 +1,30 @@
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, endSession, loginAsAdmin, loginAsGuest, loginAsProgramAdmin, loginAsTestUser, logout, selectApplicantLanguage, startSession, userDisplayName, validateScreenshot, } from './support'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  endSession,
+  loginAsAdmin,
+  loginAsGuest,
+  loginAsProgramAdmin,
+  loginAsTestUser,
+  logout,
+  selectApplicantLanguage,
+  startSession,
+  userDisplayName,
+  validateScreenshot,
+} from './support'
 
 describe('Program admin review of submitted applications', () => {
   it('all major steps', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
-    await adminQuestions.addDateQuestion({ questionName: 'date-q' })
-    await adminQuestions.addEmailQuestion({ questionName: 'email-q' })
+    await adminQuestions.addDateQuestion({questionName: 'date-q'})
+    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
     await adminQuestions.addDropdownQuestion({
       questionName: 'ice-cream-q',
       options: ['chocolate', 'banana', 'black raspberry'],
@@ -30,19 +44,19 @@ describe('Program admin review of submitted applications', () => {
     await adminQuestions.addCurrencyQuestion({
       questionName: 'monthly-income-q',
     })
-    await adminQuestions.addAddressQuestion({ questionName: 'address-q' })
+    await adminQuestions.addAddressQuestion({questionName: 'address-q'})
     await adminQuestions.addFileUploadQuestion({
       questionName: 'fileupload-q',
     })
-    await adminQuestions.addNameQuestion({ questionName: 'name-q' })
-    await adminQuestions.addNumberQuestion({ questionName: 'number-q' })
-    await adminQuestions.addTextQuestion({ questionName: 'text-q' })
+    await adminQuestions.addNameQuestion({questionName: 'name-q'})
+    await adminQuestions.addNumberQuestion({questionName: 'number-q'})
+    await adminQuestions.addTextQuestion({questionName: 'text-q'})
     await adminQuestions.addRadioButtonQuestion({
       questionName: 'radio-q',
       options: ['one', 'two', 'three'],
     })
-    await adminQuestions.addStaticQuestion({ questionName: 'first-static-q' })
-    await adminQuestions.addStaticQuestion({ questionName: 'second-static-q' })
+    await adminQuestions.addStaticQuestion({questionName: 'first-static-q'})
+    await adminQuestions.addStaticQuestion({questionName: 'second-static-q'})
 
     const programName = 'a shiny new program'
     await adminPrograms.addProgram(programName)
@@ -120,24 +134,24 @@ describe('Program admin review of submitted applications', () => {
     // Application doesn't progress because of name and address question errors.
     // Verify that address error messages are visible.
     expect(await page.innerText('.cf-address-street-1-error:visible')).toEqual(
-      'Please enter valid street name and number.'
+      'Please enter valid street name and number.',
     )
     expect(await page.innerText('.cf-address-city-error:visible')).toEqual(
-      'Please enter city.'
+      'Please enter city.',
     )
     expect(await page.innerText('.cf-address-state-error:visible')).toEqual(
-      'Please enter state.'
+      'Please enter state.',
     )
     expect(await page.innerText('.cf-address-zip-error:visible')).toEqual(
-      'Please enter valid 5-digit ZIP code.'
+      'Please enter valid 5-digit ZIP code.',
     )
 
     // Verify that name question error messages are visible.
     expect(await page.innerText('.cf-name-first-error:visible')).toEqual(
-      'Please enter your first name.'
+      'Please enter your first name.',
     )
     expect(await page.innerText('.cf-name-last-error:visible')).toEqual(
-      'Please enter your last name.'
+      'Please enter your last name.',
     )
 
     // Fix the address and name questions and submit.
@@ -147,7 +161,7 @@ describe('Program admin review of submitted applications', () => {
       'Unit B',
       'Sim',
       'Ames',
-      '54321'
+      '54321',
     )
     await validateScreenshot(page)
     await applicantQuestions.clickNext()
@@ -185,7 +199,7 @@ describe('Program admin review of submitted applications', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       'address-q',
-      '1234 St'
+      '1234 St',
     )
     await adminPrograms.expectApplicationAnswers('Screen 1', 'name-q', 'Queen')
 
@@ -195,26 +209,26 @@ describe('Program admin review of submitted applications', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       'date-q',
-      '05/10/2021'
+      '05/10/2021',
     )
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       'email-q',
-      'test1@gmail.com'
+      'test1@gmail.com',
     )
 
     await adminPrograms.expectApplicationAnswers('Screen 2', 'ice-cream-q', '2')
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'favorite-trees-q',
-      'pine cherry'
+      'pine cherry',
     )
 
     await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42')
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'text-q',
-      'some text'
+      'some text',
     )
     await adminPrograms.expectApplicationAnswerLinks('Screen 3', 'fileupload-q')
     await validateScreenshot(page)
@@ -235,14 +249,14 @@ describe('Program admin review of submitted applications', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'favorite-trees-q',
-      'pine cherry'
+      'pine cherry',
     )
 
     await endSession(browser)
   })
 
   it('program applications listed most recent first', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(5000)
 
     // Create a simple one question program application.
@@ -250,11 +264,11 @@ describe('Program admin review of submitted applications', () => {
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
-    await adminQuestions.addTextQuestion({ questionName: 'fruit-text-q' })
+    await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'})
     const programName = 'fruit program'
     await adminPrograms.addAndPublishProgramWithQuestions(
       ['fruit-text-q'],
-      programName
+      programName,
     )
 
     await logout(page)
@@ -280,7 +294,7 @@ describe('Program admin review of submitted applications', () => {
     await adminPrograms.viewApplications(programName)
     for (let i = 0; i < answers.length; i++) {
       await page.click(
-        `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`
+        `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`,
       )
       await adminPrograms.waitForApplicationFrame()
 
@@ -291,7 +305,7 @@ describe('Program admin review of submitted applications', () => {
       await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'fruit-text-q',
-        answers[answers.length - i - 1]
+        answers[answers.length - i - 1],
       )
     }
     await validateScreenshot(page)

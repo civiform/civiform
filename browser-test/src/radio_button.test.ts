@@ -1,11 +1,23 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('Radio button question for applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -30,7 +42,7 @@ describe('Radio button question for applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['ice-cream-radio-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -59,7 +71,7 @@ describe('Radio button question for applicant flow', () => {
 
       const radioButtonId = '.cf-question-radio'
       expect(await pageObject.innerText(radioButtonId)).toContain(
-        'This question is required.'
+        'This question is required.',
       )
       await validateScreenshot(pageObject)
     })
@@ -90,7 +102,7 @@ describe('Radio button question for applicant flow', () => {
         programName,
         'Optional question block',
         ['fave-ice-cream-q'],
-        'fave-vacation-q' // optional
+        'fave-vacation-q', // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()

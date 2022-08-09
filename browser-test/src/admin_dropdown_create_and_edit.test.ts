@@ -1,8 +1,15 @@
-import { AdminQuestions, endSession, loginAsAdmin, startSession, validateScreenshot, waitForPageJsLoad, } from './support'
+import {
+  AdminQuestions,
+  endSession,
+  loginAsAdmin,
+  startSession,
+  validateScreenshot,
+  waitForPageJsLoad,
+} from './support'
 
 describe('create dropdown question with options', () => {
   it('add remove buttons work correctly', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
 
@@ -16,10 +23,10 @@ describe('create dropdown question with options', () => {
 
     // Verify question preview has default text.
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
-      'Sample question text'
+      'Sample question text',
     )
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
-      'Sample question help text'
+      'Sample question help text',
     )
 
     // Fill in basic info
@@ -33,17 +40,17 @@ describe('create dropdown question with options', () => {
     await page.click('#add-new-option')
     await page.fill(
       '#question-settings div.flex-row:nth-of-type(1) input',
-      'chocolate'
+      'chocolate',
     )
     await page.click('#add-new-option')
     await page.fill(
       '#question-settings div.flex-row:nth-of-type(2) input',
-      'vanilla'
+      'vanilla',
     )
     await page.click('#add-new-option')
     await page.fill(
       '#question-settings div.flex-row:nth-of-type(3) input',
-      'strawberry'
+      'strawberry',
     )
 
     // Assert there are three options present
@@ -59,10 +66,10 @@ describe('create dropdown question with options', () => {
 
     // Verify question preview text has changed based on user input.
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
-      'questionText'
+      'questionText',
     )
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
-      'helpText'
+      'helpText',
     )
 
     await validateScreenshot(page)

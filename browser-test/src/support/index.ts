@@ -1,20 +1,26 @@
-import axe = require('axe-core');
-import { Browser, BrowserContext, chromium, Page, PageScreenshotOptions } from 'playwright'
+import axe = require('axe-core')
+import {
+  Browser,
+  BrowserContext,
+  chromium,
+  Page,
+  PageScreenshotOptions,
+} from 'playwright'
 import * as path from 'path'
-import { waitForPageJsLoad } from './wait'
-import { BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD } from './config'
-import { MatchImageSnapshotOptions } from 'jest-image-snapshot';
+import {waitForPageJsLoad} from './wait'
+import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
+import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 
-export { AdminApiKeys } from './admin_api_keys'
-export { AdminQuestions } from './admin_questions'
-export { AdminPredicates } from './admin_predicates'
-export { AdminPrograms } from './admin_programs'
-export { AdminProgramStatuses } from './admin_program_statuses'
-export { AdminTranslations } from './admin_translations'
-export { AdminTIGroups } from './admin_ti_groups'
-export { ApplicantQuestions } from './applicant_questions'
-export { clickAndWaitForModal, dismissModal, waitForPageJsLoad } from './wait'
-export { BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD }
+export {AdminApiKeys} from './admin_api_keys'
+export {AdminQuestions} from './admin_questions'
+export {AdminPredicates} from './admin_predicates'
+export {AdminPrograms} from './admin_programs'
+export {AdminProgramStatuses} from './admin_program_statuses'
+export {AdminTranslations} from './admin_translations'
+export {AdminTIGroups} from './admin_ti_groups'
+export {ApplicantQuestions} from './applicant_questions'
+export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
+export {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD}
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -68,7 +74,7 @@ export const startSession = async (): Promise<{
   await page.goto(BASE_URL)
   await closeWarningMessage(page)
 
-  return { browser, context, page }
+  return {browser, context, page}
 }
 
 export const endSession = async (browser: Browser) => {
@@ -129,7 +135,7 @@ export const loginAsTestUser = async (page: Page) => {
     await page.fill('input[name=userName]', TEST_USER_LOGIN)
     await page.fill('input[name=password]', TEST_USER_PASSWORD)
     await page.click('button:has-text("Login"):not([disabled])')
-    await page.waitForNavigation({ waitUntil: 'networkidle' })
+    await page.waitForNavigation({waitUntil: 'networkidle'})
   } else {
     await page.click('#guest')
   }
@@ -155,7 +161,7 @@ export const userDisplayName = () => {
 export const selectApplicantLanguage = async (
   page: Page,
   language: string,
-  assertProgramIndexPage = false
+  assertProgramIndexPage = false,
 ) => {
   const infoPageRegex = /applicants\/\d+\/edit/
   const maybeSelectLanguagePage = await page.url()
@@ -192,15 +198,15 @@ export const closeWarningMessage = async (page: Page) => {
       .click()
       .catch(() =>
         console.log(
-          "Didn't find a warning toast message to dismiss, which is fine."
-        )
+          "Didn't find a warning toast message to dismiss, which is fine.",
+        ),
       )
   }
 }
 
 export const validateAccessibility = async (page: Page) => {
   // Inject axe and run accessibility test.
-  await page.addScriptTag({ path: 'node_modules/axe-core/axe.min.js' })
+  await page.addScriptTag({path: 'node_modules/axe-core/axe.min.js'})
   const results = await page.evaluate(() => {
     return axe.run()
   })
@@ -211,13 +217,15 @@ export const validateAccessibility = async (page: Page) => {
 export const validateScreenshot = async (
   page: Page,
   pageScreenshotOptions?: PageScreenshotOptions,
-  matchImageSnapshotOptions?: MatchImageSnapshotOptions
+  matchImageSnapshotOptions?: MatchImageSnapshotOptions,
 ) => {
-  expect(await page.screenshot({
-    ...pageScreenshotOptions
-  })).toMatchImageSnapshot({
-    failureThreshold: .03,
-    failureThresholdType: "percent",
-    ...matchImageSnapshotOptions
+  expect(
+    await page.screenshot({
+      ...pageScreenshotOptions,
+    }),
+  ).toMatchImageSnapshot({
+    failureThreshold: 0.03,
+    failureThresholdType: 'percent',
+    ...matchImageSnapshotOptions,
   })
 }

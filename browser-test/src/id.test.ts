@@ -1,11 +1,23 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('Id question for applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -31,7 +43,7 @@ describe('Id question for applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['id-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -60,7 +72,7 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'This question is required.'
+        'This question is required.',
       )
       await validateScreenshot(pageObject)
     })
@@ -75,7 +87,7 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain at least 5 characters.'
+        'Must contain at least 5 characters.',
       )
       await validateScreenshot(pageObject)
     })
@@ -90,7 +102,7 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain at most 5 characters.'
+        'Must contain at most 5 characters.',
       )
       await validateScreenshot(pageObject)
     })
@@ -105,7 +117,7 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain only numbers.'
+        'Must contain only numbers.',
       )
       await validateScreenshot(pageObject)
     })
@@ -133,7 +145,7 @@ describe('Id question for applicant flow', () => {
         programName,
         'Optional question block',
         ['my-id-q'],
-        'your-id-q' // optional
+        'your-id-q', // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -178,7 +190,7 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = '.cf-question-id'
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain only numbers.'
+        'Must contain only numbers.',
       )
       await validateScreenshot(pageObject)
     })
@@ -194,7 +206,7 @@ describe('Id question for applicant flow', () => {
 
       const identificationId = `.cf-question-id >> nth=1`
       expect(await pageObject.innerText(identificationId)).toContain(
-        'Must contain only numbers.'
+        'Must contain only numbers.',
       )
       await validateScreenshot(pageObject)
     })

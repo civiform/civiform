@@ -1,5 +1,5 @@
-import { ElementHandle, Page } from 'playwright'
-import { dismissModal, waitForAnyModal, waitForPageJsLoad } from './wait'
+import {ElementHandle, Page} from 'playwright'
+import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
 
 export class AdminProgramStatuses {
   private page!: Page
@@ -10,7 +10,7 @@ export class AdminProgramStatuses {
 
   async expectNoStatuses() {
     expect(
-      await this.page.innerText('.cf-admin-program-status-list')
+      await this.page.innerText('.cf-admin-program-status-list'),
     ).toContain('No statuses have been created yet')
   }
 
@@ -22,23 +22,23 @@ export class AdminProgramStatuses {
     expectEmailExists: boolean
   }) {
     const statusLocator = this.page.locator(
-      this.programStatusItemSelector(statusName)
+      this.programStatusItemSelector(statusName),
     )
     expect(await statusLocator.isVisible()).toEqual(true)
     if (expectEmailExists) {
       expect(await statusLocator.innerText()).toContain(
-        'Applicant notification email added'
+        'Applicant notification email added',
       )
     } else {
       expect(await statusLocator.innerText()).not.toContain(
-        'Applicant notification email added'
+        'Applicant notification email added',
       )
     }
   }
 
   async expectStatusNotExists(statusName: string) {
     const statusLocator = this.page.locator(
-      this.programStatusItemSelector(statusName)
+      this.programStatusItemSelector(statusName),
     )
     expect(await statusLocator.isVisible()).toEqual(false)
   }
@@ -49,7 +49,7 @@ export class AdminProgramStatuses {
       emailBody,
     }: {
       emailBody?: string
-    } = {}
+    } = {},
   ) {
     await this.page.click('button:has-text("Create a new status")')
 
@@ -77,11 +77,11 @@ export class AdminProgramStatuses {
     {
       editedStatusName,
       editedEmailBody = '',
-    }: { editedStatusName: string; editedEmailBody?: string }
+    }: {editedStatusName: string; editedEmailBody?: string},
   ) {
     await this.page.click(
       this.programStatusItemSelector(originalStatusName) +
-        ' button:has-text("Edit")'
+        ' button:has-text("Edit")',
     )
 
     const modal = await waitForAnyModal(this.page)
@@ -104,7 +104,7 @@ export class AdminProgramStatuses {
 
   async deleteStatus(statusName: string) {
     await this.page.click(
-      this.programStatusItemSelector(statusName) + ' button:has-text("Delete")'
+      this.programStatusItemSelector(statusName) + ' button:has-text("Delete")',
     )
     const modal = await waitForAnyModal(this.page)
 
@@ -121,7 +121,7 @@ export class AdminProgramStatuses {
     expectedEmailBody: string
   }) {
     await this.page.click(
-      this.programStatusItemSelector(statusName) + ' button:has-text("Edit")'
+      this.programStatusItemSelector(statusName) + ' button:has-text("Edit")',
     )
 
     const modal = await waitForAnyModal(this.page)
@@ -130,7 +130,7 @@ export class AdminProgramStatuses {
     // We perform selectors within the modal since using the typical
     // selectors will match multiple modals on the page.
     const emailFieldHandle = (await modal.$(
-      'text="Applicant status change email"'
+      'text="Applicant status change email"',
     ))!
     const emailBody = await emailFieldHandle.inputValue()
 
@@ -143,7 +143,7 @@ export class AdminProgramStatuses {
 
   async expectProgramManageStatusesPage(programName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      `Manage application statuses for ${programName}`
+      `Manage application statuses for ${programName}`,
     )
   }
 
@@ -155,14 +155,14 @@ export class AdminProgramStatuses {
     }: {
       statusName: string
       emailBody: string
-    }
+    },
   ) {
     // We perform selectors within the modal since using the typical
     // page.fill with a selector will match multiple modals on the page.
     const statusFieldHandle = (await modal.$('text="Status name (required)"'))!
     await statusFieldHandle.fill(statusName)
     const emailFieldHandle = (await modal.$(
-      'text="Applicant status change email"'
+      'text="Applicant status change email"',
     ))!
     await emailFieldHandle.fill(emailBody || '')
 

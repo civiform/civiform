@@ -1,8 +1,14 @@
-import { AdminPrograms, endSession, loginAsAdmin, startSession, validateScreenshot, } from './support'
+import {
+  AdminPrograms,
+  endSession,
+  loginAsAdmin,
+  startSession,
+  validateScreenshot,
+} from './support'
 
 describe('manage program admins', () => {
   it('does not add a program admin that does not exist', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
     const adminPrograms = new AdminPrograms(page)

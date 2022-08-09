@@ -1,5 +1,12 @@
-import { AdminPrograms, AdminProgramStatuses, dismissModal, loginAsAdmin, startSession, validateScreenshot, } from './support'
-import { Page } from 'playwright'
+import {
+  AdminPrograms,
+  AdminProgramStatuses,
+  dismissModal,
+  loginAsAdmin,
+  startSession,
+  validateScreenshot,
+} from './support'
+import {Page} from 'playwright'
 
 // TODO(#3071): Re-enable when the feature flag is controllable in tests.
 describe.skip('modify program statuses', () => {
@@ -8,7 +15,7 @@ describe.skip('modify program statuses', () => {
   let adminProgramStatuses: AdminProgramStatuses
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
     adminPrograms = new AdminPrograms(pageObject)
     adminProgramStatuses = new AdminProgramStatuses(pageObject)
@@ -60,7 +67,7 @@ describe.skip('modify program statuses', () => {
       await adminProgramStatuses.createStatus('')
       await adminProgramStatuses.expectProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectCreateStatusModalWithError(
-        'This field is required'
+        'This field is required',
       )
       await dismissModal(pageObject)
       await validateScreenshot(pageObject)
@@ -72,7 +79,7 @@ describe.skip('modify program statuses', () => {
       await adminProgramStatuses.createStatus('Existing status')
       await adminProgramStatuses.expectProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectCreateStatusModalWithError(
-        'A status with name Existing status already exists'
+        'A status with name Existing status already exists',
       )
       await validateScreenshot(pageObject)
       await dismissModal(pageObject)
@@ -110,7 +117,7 @@ describe.skip('modify program statuses', () => {
       })
       await adminProgramStatuses.expectProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectEditStatusModalWithError(
-        `A status with name ${secondStatusName} already exists`
+        `A status with name ${secondStatusName} already exists`,
       )
       await validateScreenshot(pageObject)
       await dismissModal(pageObject)
@@ -122,7 +129,7 @@ describe.skip('modify program statuses', () => {
       })
       await adminProgramStatuses.expectProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectEditStatusModalWithError(
-        'This field is required'
+        'This field is required',
       )
       await validateScreenshot(pageObject)
       await dismissModal(pageObject)

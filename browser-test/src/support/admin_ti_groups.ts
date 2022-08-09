@@ -1,4 +1,4 @@
-import { Page } from 'playwright'
+import {Page} from 'playwright'
 
 export class AdminTIGroups {
   private page!: Page
@@ -14,7 +14,7 @@ export class AdminTIGroups {
 
   async expectAdminTIPage() {
     expect(await this.page.innerText('h1')).toEqual(
-      'Create New Trusted Intermediary'
+      'Create New Trusted Intermediary',
     )
   }
 

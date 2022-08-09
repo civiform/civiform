@@ -1,5 +1,17 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('Static text question for applicant flow', () => {
   const staticText = 'Hello, I am some static text!'
@@ -8,7 +20,7 @@ describe('Static text question for applicant flow', () => {
   let applicantQuestions: ApplicantQuestions
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
     // As admin, create program with static text question.
     await loginAsAdmin(pageObject)
@@ -21,10 +33,10 @@ describe('Static text question for applicant flow', () => {
       questionText: staticText,
     })
     // Must add an answerable question for text to show.
-    await adminQuestions.addEmailQuestion({ questionName: 'partner-email-q' })
+    await adminQuestions.addEmailQuestion({questionName: 'partner-email-q'})
     await adminPrograms.addAndPublishProgramWithQuestions(
       ['static-text-q', 'partner-email-q'],
-      programName
+      programName,
     )
 
     await logout(pageObject)

@@ -1,14 +1,24 @@
-import { AdminPrograms, AdminQuestions, dropTables, endSession, loginAsAdmin, seedCanonicalQuestions, startSession, validateScreenshot, waitForPageJsLoad, } from './support'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  dropTables,
+  endSession,
+  loginAsAdmin,
+  seedCanonicalQuestions,
+  startSession,
+  validateScreenshot,
+  waitForPageJsLoad,
+} from './support'
 
 describe('normal question lifecycle', () => {
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     await dropTables(page)
     await seedCanonicalQuestions(page)
   })
 
   it('has canonical questions available by default', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
 
@@ -21,7 +31,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('create, update, publish, create a new version, and update all questions', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -29,7 +39,7 @@ describe('normal question lifecycle', () => {
     const adminPrograms = new AdminPrograms(page)
 
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes(
-      'qlc-'
+      'qlc-',
     )
     const singleBlockQuestions =
       await adminQuestions.addAllSingleBlockQuestionTypes('qlc-')
@@ -55,20 +65,20 @@ describe('normal question lifecycle', () => {
     await adminPrograms.editProgramBlock(
       programName,
       'qlc program description',
-      questions
+      questions,
     )
     for (const singleBlockQuestion of singleBlockQuestions) {
       const blockName = await adminPrograms.addProgramBlock(
         programName,
         'single-block question',
-        [singleBlockQuestion]
+        [singleBlockQuestion],
       )
       if (singleBlockQuestion == 'qlc-enumerator') {
         await adminPrograms.addProgramRepeatedBlock(
           programName,
           blockName,
           'repeated block desc',
-          [repeatedQuestion]
+          [repeatedQuestion],
         )
       }
     }
@@ -92,7 +102,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -116,7 +126,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -140,7 +150,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -150,10 +160,13 @@ describe('normal question lifecycle', () => {
     const questionName = 'updateEmptyDropdown'
 
     // Add a new valid dropdown question
-    await adminQuestions.addDropdownQuestion({ questionName, options })
+    await adminQuestions.addDropdownQuestion({questionName, options})
     // Edit the newly created question
     await page.click(
-      adminQuestions.selectWithinQuestionTableRow(questionName, ':text("Edit")')
+      adminQuestions.selectWithinQuestionTableRow(
+        questionName,
+        ':text("Edit")',
+      ),
     )
 
     // Add an empty option
@@ -166,7 +179,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -176,11 +189,14 @@ describe('normal question lifecycle', () => {
     const questionName = 'updateEmptyRadio'
 
     // Add a new valid radio question
-    await adminQuestions.addRadioButtonQuestion({ questionName, options })
+    await adminQuestions.addRadioButtonQuestion({questionName, options})
 
     // Edit the newly created question
     await page.click(
-      adminQuestions.selectWithinQuestionTableRow(questionName, ':text("Edit")')
+      adminQuestions.selectWithinQuestionTableRow(
+        questionName,
+        ':text("Edit")',
+      ),
     )
 
     // Add an empty option
@@ -195,7 +211,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('persists export state', async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -208,8 +224,8 @@ describe('normal question lifecycle', () => {
     await waitForPageJsLoad(adminQuestions.page)
     expect(
       await page.isChecked(
-        adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION)
-      )
+        adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION),
+      ),
     ).toBeTruthy()
 
     const questionName = 'textQuestionWithObfuscatedExport'
@@ -223,9 +239,9 @@ describe('normal question lifecycle', () => {
     expect(
       await page.isChecked(
         adminQuestions.selectorForExportOption(
-          AdminQuestions.EXPORT_OBFUSCATED_OPTION
-        )
-      )
+          AdminQuestions.EXPORT_OBFUSCATED_OPTION,
+        ),
+      ),
     ).toBeTruthy()
 
     // Edit the result and confirm that the new value is propagated.
@@ -236,22 +252,22 @@ describe('normal question lifecycle', () => {
     expect(
       await page.isChecked(
         adminQuestions.selectorForExportOption(
-          AdminQuestions.EXPORT_VALUE_OPTION
-        )
-      )
+          AdminQuestions.EXPORT_VALUE_OPTION,
+        ),
+      ),
     ).toBeTruthy()
     await validateScreenshot(page)
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     await loginAsAdmin(page)
 
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
-    await adminQuestions.addNameQuestion({ questionName: 'name-q' })
+    await adminQuestions.addNameQuestion({questionName: 'name-q'})
 
     const programName = 'test program'
     await adminPrograms.addProgram(programName)
@@ -263,7 +279,7 @@ describe('normal question lifecycle', () => {
     // After a draft is created, the ID will reflect the newly created draft version (e.g. ID=16).
     const editUrl = page.url()
     const newQuestionText = await adminQuestions.updateQuestionText(
-      'second version'
+      'second version',
     )
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
 
@@ -271,7 +287,7 @@ describe('normal question lifecycle', () => {
     await page.goto(editUrl)
     await waitForPageJsLoad(page)
     expect(await page.inputValue('label:has-text("Question text")')).toContain(
-      newQuestionText
+      newQuestionText,
     )
     await validateScreenshot(page)
   })

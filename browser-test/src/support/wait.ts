@@ -1,4 +1,4 @@
-import { ElementHandle, Frame, Page } from 'playwright'
+import {ElementHandle, Frame, Page} from 'playwright'
 
 /**
  * Civiform attaches JS event handlers after pages load, so after any action
@@ -30,10 +30,10 @@ export const clickAndWaitForModal = async (page: Page, modalId: string) => {
  * Waits for any modal to be displayed.
  */
 export const waitForAnyModal = async (
-  page: Page
+  page: Page,
 ): Promise<ElementHandle<HTMLElement>> => {
   return (await page.waitForSelector(
-    '.cf-modal:not(.hidden)'
+    '.cf-modal:not(.hidden)',
   )) as unknown as ElementHandle<HTMLElement>
 }
 

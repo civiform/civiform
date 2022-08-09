@@ -1,8 +1,13 @@
-import { AdminPrograms, AdminQuestions, loginAsAdmin, startSession, } from './support'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  loginAsAdmin,
+  startSession,
+} from './support'
 
 describe('deleting question lifecycle', () => {
   it('create, publish, delete unused questions', async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -10,14 +15,14 @@ describe('deleting question lifecycle', () => {
     const adminPrograms = new AdminPrograms(page)
     const programName = 'deleting program'
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes(
-      'delete-'
+      'delete-',
     )
     await adminPrograms.addProgram(programName)
     const onlyUsedQuestion = questions[0]
     await adminPrograms.editProgramBlock(
       programName,
       'qlc program description',
-      [onlyUsedQuestion]
+      [onlyUsedQuestion],
     )
     await adminPrograms.publishProgram(programName)
     await adminQuestions.expectActiveQuestionExist(onlyUsedQuestion)

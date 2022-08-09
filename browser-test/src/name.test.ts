@@ -1,5 +1,17 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 const NAME_FIRST = '.cf-name-first'
 const NAME_LAST = '.cf-name-last'
@@ -8,7 +20,7 @@ describe('name applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -31,7 +43,7 @@ describe('name applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['name-test-q'],
-        programName
+        programName,
       )
       await logout(pageObject)
     })
@@ -95,7 +107,7 @@ describe('name applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['name-test-a-q', 'name-test-b-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -192,7 +204,7 @@ describe('name applicant flow', () => {
         programName,
         'Optional question block',
         ['name-test-required-q'],
-        'name-test-optional-q'
+        'name-test-optional-q',
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()

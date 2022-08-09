@@ -1,11 +1,23 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('Checkbox question for applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -32,7 +44,7 @@ describe('Checkbox question for applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['checkbox-color-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -66,7 +78,7 @@ describe('Checkbox question for applicant flow', () => {
       expect(await pageObject.isHidden(checkBoxError)).toEqual(false)
       const checkboxId = '.cf-question-checkbox'
       expect(await pageObject.innerText(checkboxId)).toContain(
-        'This question is required.'
+        'This question is required.',
       )
       await validateScreenshot(pageObject)
     })
@@ -122,7 +134,7 @@ describe('Checkbox question for applicant flow', () => {
         programName,
         'Optional question block',
         ['checkbox-fave-color-q'],
-        'checkbox-vacation-q' // optional
+        'checkbox-vacation-q', // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await validateScreenshot(pageObject)

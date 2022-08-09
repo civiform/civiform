@@ -1,11 +1,23 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('Date question for applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -24,10 +36,10 @@ describe('Date question for applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addDateQuestion({ questionName: 'general-date-q' })
+      await adminQuestions.addDateQuestion({questionName: 'general-date-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['general-date-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -56,7 +68,7 @@ describe('Date question for applicant flow', () => {
       // Check required error is present
       const dateId = '.cf-question-date'
       expect(await pageObject.innerText(dateId)).toContain(
-        'This question is required.'
+        'This question is required.',
       )
       await validateScreenshot(pageObject)
     })
@@ -72,15 +84,15 @@ describe('Date question for applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addDateQuestion({ questionName: 'birthday-date-q' })
-      await adminQuestions.addDateQuestion({ questionName: 'todays-date-q' })
+      await adminQuestions.addDateQuestion({questionName: 'birthday-date-q'})
+      await adminQuestions.addDateQuestion({questionName: 'todays-date-q'})
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Optional question block',
         ['birthday-date-q'],
-        'todays-date-q' // optional
+        'todays-date-q', // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await validateScreenshot(pageObject)

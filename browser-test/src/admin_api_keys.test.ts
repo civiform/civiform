@@ -1,5 +1,12 @@
-import { Browser, Page } from 'playwright'
-import { AdminApiKeys, AdminPrograms, endSession, loginAsAdmin, startSession, validateScreenshot, } from './support'
+import {Browser, Page} from 'playwright'
+import {
+  AdminApiKeys,
+  AdminPrograms,
+  endSession,
+  loginAsAdmin,
+  startSession,
+  validateScreenshot,
+} from './support'
 
 describe('Managing API keys', () => {
   let browser: Browser

@@ -1,11 +1,23 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('address applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -28,7 +40,7 @@ describe('address applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['address-test-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -44,7 +56,7 @@ describe('address applicant flow', () => {
         'Unit B',
         'Sim',
         'Ames',
-        '54321'
+        '54321',
       )
       let error = pageObject.locator('.cf-address-street-1-error')
       expect(await error.isHidden()).toEqual(true)
@@ -67,7 +79,7 @@ describe('address applicant flow', () => {
         'Unit B',
         'Sim',
         'Ames',
-        '54321'
+        '54321',
       )
       await applicantQuestions.clickNext()
       await validateScreenshot(pageObject)
@@ -104,7 +116,7 @@ describe('address applicant flow', () => {
         'Unit B',
         'Sim',
         'Ames',
-        'notazipcode'
+        'notazipcode',
       )
       await applicantQuestions.clickNext()
 
@@ -132,7 +144,7 @@ describe('address applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['address-test-a-q', 'address-test-b-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -149,7 +161,7 @@ describe('address applicant flow', () => {
         'Sim',
         'Ames',
         '54321',
-        0
+        0,
       )
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -157,7 +169,7 @@ describe('address applicant flow', () => {
         'Sim',
         'Ames',
         '54321',
-        1
+        1,
       )
       await applicantQuestions.clickNext()
       await validateScreenshot(pageObject)
@@ -177,7 +189,7 @@ describe('address applicant flow', () => {
         'Sim',
         'Ames',
         '54321',
-        1
+        1,
       )
       await applicantQuestions.clickNext()
 
@@ -214,7 +226,7 @@ describe('address applicant flow', () => {
         'Sim',
         'Ames',
         '54321',
-        0
+        0,
       )
       await applicantQuestions.answerAddressQuestion('', '', '', '', '', 1)
       await applicantQuestions.clickNext()
@@ -273,7 +285,7 @@ describe('address applicant flow', () => {
         programName,
         'Optional question block',
         ['address-test-required-q'],
-        'address-test-optional-q'
+        'address-test-optional-q',
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -292,7 +304,7 @@ describe('address applicant flow', () => {
         'Sim',
         'Ames',
         '54321',
-        1
+        1,
       )
       await applicantQuestions.clickNext()
       await validateScreenshot(pageObject)
@@ -311,7 +323,7 @@ describe('address applicant flow', () => {
         '',
         '',
         '',
-        0
+        0,
       )
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -319,7 +331,7 @@ describe('address applicant flow', () => {
         'Sim',
         'Ames',
         '54321',
-        1
+        1,
       )
       await applicantQuestions.clickNext()
 

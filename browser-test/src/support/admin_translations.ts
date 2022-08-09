@@ -1,4 +1,4 @@
-import { Page } from 'playwright'
+import {Page} from 'playwright'
 
 export class AdminTranslations {
   public page!: Page
@@ -20,7 +20,7 @@ export class AdminTranslations {
   async editQuestionTranslations(
     text: string,
     helpText: string,
-    configText: string[] = []
+    configText: string[] = [],
   ) {
     await this.page.fill('text=Question text', text)
     await this.page.fill('text=Question help text', helpText)

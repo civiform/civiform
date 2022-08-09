@@ -1,5 +1,17 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('currency applicant flow', () => {
   const validCurrency = '1000'
@@ -8,7 +20,7 @@ describe('currency applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -26,10 +38,10 @@ describe('currency applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addCurrencyQuestion({ questionName: 'currency-q' })
+      await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['currency-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -88,7 +100,7 @@ describe('currency applicant flow', () => {
         programName,
         'Optional question block',
         ['currency-b-q'],
-        'currency-a-q' // optional
+        'currency-a-q', // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()

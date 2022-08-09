@@ -1,5 +1,17 @@
-import { AdminPrograms, AdminProgramStatuses, ApplicantQuestions, loginAsAdmin, loginAsGuest, loginAsProgramAdmin, logout, selectApplicantLanguage, startSession, userDisplayName, validateScreenshot, } from './support'
-import { Page } from 'playwright'
+import {
+  AdminPrograms,
+  AdminProgramStatuses,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  loginAsProgramAdmin,
+  logout,
+  selectApplicantLanguage,
+  startSession,
+  userDisplayName,
+  validateScreenshot,
+} from './support'
+import {Page} from 'playwright'
 
 // TODO(#3071): Re-enable when the feature flag is controllable in tests.
 describe.skip('view program statuses', () => {
@@ -9,7 +21,7 @@ describe.skip('view program statuses', () => {
   let adminProgramStatuses: AdminProgramStatuses
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
     adminPrograms = new AdminPrograms(pageObject)
     applicantQuestions = new ApplicantQuestions(pageObject)
@@ -32,7 +44,7 @@ describe.skip('view program statuses', () => {
 
       // Submit an application.
       await applicantQuestions.clickApplyProgramButton(
-        programWithoutStatusesName
+        programWithoutStatusesName,
       )
       await applicantQuestions.submitFromPreviewPage(programWithoutStatusesName)
 
@@ -64,7 +76,7 @@ describe.skip('view program statuses', () => {
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithStatusesName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(
-        programWithStatusesName
+        programWithStatusesName,
       )
       await adminProgramStatuses.createStatus(statusName)
       await adminPrograms.publishProgram(programWithStatusesName)

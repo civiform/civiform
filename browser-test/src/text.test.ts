@@ -1,11 +1,23 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('Text question for applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -31,7 +43,7 @@ describe('Text question for applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['text-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -59,7 +71,7 @@ describe('Text question for applicant flow', () => {
 
       const textId = '.cf-question-text'
       expect(await pageObject.innerText(textId)).toContain(
-        'This question is required.'
+        'This question is required.',
       )
       await validateScreenshot(pageObject)
     })
@@ -74,7 +86,7 @@ describe('Text question for applicant flow', () => {
 
       const textId = '.cf-question-text'
       expect(await pageObject.innerText(textId)).toContain(
-        'Must contain at least 5 characters.'
+        'Must contain at least 5 characters.',
       )
       await validateScreenshot(pageObject)
     })
@@ -85,13 +97,13 @@ describe('Text question for applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
-        'A long string that exceeds the character limit'
+        'A long string that exceeds the character limit',
       )
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
       expect(await pageObject.innerText(textId)).toContain(
-        'Must contain at most 20 characters.'
+        'Must contain at most 20 characters.',
       )
       await validateScreenshot(pageObject)
     })
@@ -123,7 +135,7 @@ describe('Text question for applicant flow', () => {
         programName,
         'Optional question block',
         ['second-text-q'],
-        'first-text-q' // optional
+        'first-text-q', // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -164,14 +176,14 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
-        0
+        0,
       )
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
       expect(await pageObject.innerText(textId)).toContain(
-        'Must contain at most 20 characters.'
+        'Must contain at most 20 characters.',
       )
       await validateScreenshot(pageObject)
     })
@@ -184,13 +196,13 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
-        1
+        1,
       )
       await applicantQuestions.clickNext()
 
       const textId = `.cf-question-text >> nth=1`
       expect(await pageObject.innerText(textId)).toContain(
-        'Must contain at most 20 characters.'
+        'Must contain at most 20 characters.',
       )
       await validateScreenshot(pageObject)
     })

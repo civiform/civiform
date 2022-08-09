@@ -1,11 +1,25 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, dropTables, loginAsAdmin, loginAsGuest, logout, resetSession, seedCanonicalQuestions, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  dropTables,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  seedCanonicalQuestions,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('file upload applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     await dropTables(page)
     await seedCanonicalQuestions(page)
     await resetSession(page)
@@ -31,7 +45,7 @@ describe('file upload applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['file-upload-test-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -113,7 +127,7 @@ describe('file upload applicant flow', () => {
         programName,
         'Optional question block',
         [],
-        'file-upload-test-optional-q'
+        'file-upload-test-optional-q',
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()

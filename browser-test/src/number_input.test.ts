@@ -1,12 +1,24 @@
-import { Page } from 'playwright'
-import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession, validateAccessibility, validateScreenshot, } from './support'
+import {Page} from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 describe('Number question for applicant flow', () => {
   let pageObject: Page
   const numberInputError = 'div.cf-question-number-error'
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -30,7 +42,7 @@ describe('Number question for applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['fave-number-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -57,7 +69,7 @@ describe('Number question for applicant flow', () => {
 
       const numberId = '.cf-question-number'
       expect(await pageObject.innerText(numberId)).toContain(
-        'This question is required.'
+        'This question is required.',
       )
       await validateScreenshot(pageObject)
     })
@@ -101,7 +113,7 @@ describe('Number question for applicant flow', () => {
         programName,
         'Optional question block',
         ['my-number-q'],
-        'your-number-q' // optional
+        'your-number-q', // optional
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -159,7 +171,7 @@ describe('Number question for applicant flow', () => {
       await validateScreenshot(pageObject)
 
       expect(await pageObject.isHidden(numberInputError + ' >> nth=1')).toEqual(
-        false
+        false,
       )
     })
 

@@ -1,5 +1,11 @@
-import { AdminPrograms, AdminQuestions, loginAsAdmin, startSession, validateScreenshot, } from './support'
-import { Page } from 'playwright'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  loginAsAdmin,
+  startSession,
+  validateScreenshot,
+} from './support'
+import {Page} from 'playwright'
 
 describe('view program references from question view', () => {
   let pageObject: Page
@@ -7,7 +13,7 @@ describe('view program references from question view', () => {
   let adminQuestions: AdminQuestions
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
     adminPrograms = new AdminPrograms(pageObject)
     adminQuestions = new AdminQuestions(pageObject)
@@ -17,7 +23,7 @@ describe('view program references from question view', () => {
 
   it('shows no results for an unreferenced question', async () => {
     const questionName = 'unreferenced-q'
-    await adminQuestions.addAddressQuestion({ questionName })
+    await adminQuestions.addAddressQuestion({questionName})
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
       expectedProgramReferencesText: 'Used across 0 active & 0 draft programs',
@@ -26,7 +32,7 @@ describe('view program references from question view', () => {
 
   it('shows results for referencing programs', async () => {
     const questionName = 'question-references-q'
-    await adminQuestions.addAddressQuestion({ questionName })
+    await adminQuestions.addAddressQuestion({questionName})
 
     // Add a reference to the question in the second block. We'll later assert
     // that the links in the modal takes us to the correct block.
