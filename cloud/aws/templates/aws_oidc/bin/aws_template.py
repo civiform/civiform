@@ -25,7 +25,7 @@ class AwsSetupTemplate(SetupTemplate):
             backend_setup.setup_backend_config(self.config)
 
     def setup_log_file(self):
-         # TODO(#2606): If remote file exist fetch it here.
+        # TODO(#2606): If remote file exist fetch it here.
         _, self.log_file_path = tempfile.mkstemp()
 
     def cleanup(self):
