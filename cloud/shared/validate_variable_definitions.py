@@ -92,7 +92,7 @@ class ValidateVariableDefinitions:
 
     def validate_integer_definition_type(self, variable_definition):
         return []
-    
+
     def validate_bool_definition_type(self, variable_definition):
         return []
 
