@@ -23,7 +23,7 @@ import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
-public class QuestionServiceImplTest extends ResetPostgres {
+public class QuestionServiceTest extends ResetPostgres {
   private static final QuestionDefinition questionDefinition =
       new TextQuestionDefinition(
           "my name",
