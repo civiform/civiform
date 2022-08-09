@@ -372,7 +372,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private Optional<ATag> renderQuestionTranslationLink(
       QuestionDefinition definition, String linkText) {
-    if (translationLocales.localesForTranslation().isEmpty()) {
+    if (translationLocales.translatableLocales().isEmpty()) {
       return Optional.empty();
     }
     String link =

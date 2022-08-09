@@ -28,7 +28,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   private final ProgramTranslationView translationView;
   private final FormFactory formFactory;
   private final TranslationLocales translationLocales;
-  private final Optional<Locale> maybeFirstLocaleForTranslations;
+  private final Optional<Locale> maybeFirstTranslatableLocale;
 
   @Inject
   public AdminProgramTranslationsController(
@@ -40,20 +40,24 @@ public class AdminProgramTranslationsController extends CiviFormController {
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
     this.translationLocales = checkNotNull(translationLocales);
-    this.maybeFirstLocaleForTranslations =
-        this.translationLocales.localesForTranslation().stream().findFirst();
+    this.maybeFirstTranslatableLocale =
+        this.translationLocales.translatableLocales().stream().findFirst();
   }
 
-  /** Redirects to the first non-English locale eligible for translations for a program. */
+  /**
+   * Redirects to the first non-English locale eligible for translations for a program. English
+   * translations for program details / statuses are not supported since configuring these values
+   * already has separate UI.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result redirectToFirstLocale(Http.Request request, long programId) {
-    if (maybeFirstLocaleForTranslations.isEmpty()) {
+    if (maybeFirstTranslatableLocale.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", "Translations are not enabled for this configuration");
     }
     return redirect(
         routes.AdminProgramTranslationsController.edit(
-                programId, maybeFirstLocaleForTranslations.get().toLanguageTag())
+                programId, maybeFirstTranslatableLocale.get().toLanguageTag())
             .url());
   }
 
@@ -69,7 +73,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   public Result edit(Http.Request request, long programId, String locale)
       throws ProgramNotFoundException {
     ProgramDefinition program = service.getProgramDefinition(programId);
-    Optional<Locale> maybeLocaleToEdit = translationLocales.getSupportedLocale(locale);
+    Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", String.format("The %s locale is not supported", locale));
@@ -97,7 +101,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   public Result update(Http.Request request, long programId, String locale)
       throws ProgramNotFoundException {
     ProgramDefinition program = service.getProgramDefinition(programId);
-    Optional<Locale> maybeLocaleToUpdate = translationLocales.getSupportedLocale(locale);
+    Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", String.format("The %s locale is not supported", locale));

@@ -133,7 +133,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
-    if (translationLocales.localesForTranslation().isEmpty()) {
+    if (translationLocales.translatableLocales().isEmpty()) {
       return Optional.empty();
     }
     String linkDestination =

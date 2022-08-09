@@ -36,7 +36,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   private final QuestionTranslationView translationView;
   private final FormFactory formFactory;
   private final TranslationLocales translationLocales;
-  private final Optional<Locale> maybeFirstLocaleForTranslations;
+  private final Optional<Locale> maybeFirstTranslatableLocale;
 
   @Inject
   public AdminQuestionTranslationsController(
@@ -50,20 +50,24 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
     this.translationLocales = checkNotNull(translationLocales);
-    this.maybeFirstLocaleForTranslations =
-        this.translationLocales.localesForTranslation().stream().findFirst();
+    this.maybeFirstTranslatableLocale =
+        this.translationLocales.translatableLocales().stream().findFirst();
   }
 
-  /** Redirects to the first non-English locale eligible for translations for a a program. */
+  /**
+   * Redirects to the first non-English locale eligible for translations for a question. English
+   * translations for question details are not supported since configuring these values already has
+   * separate UI.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result redirectToFirstLocale(Http.Request request, long questionId) {
-    if (maybeFirstLocaleForTranslations.isEmpty()) {
+    if (maybeFirstTranslatableLocale.isEmpty()) {
       return redirect(routes.AdminQuestionController.index().url())
           .flashing("error", "Translations are not enabled for this configuration");
     }
     return redirect(
         routes.AdminQuestionTranslationsController.edit(
-                questionId, maybeFirstLocaleForTranslations.get().toLanguageTag())
+                questionId, maybeFirstTranslatableLocale.get().toLanguageTag())
             .url());
   }
 
@@ -78,7 +82,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> edit(Http.Request request, long questionId, String locale) {
-    Optional<Locale> maybeLocaleToEdit = translationLocales.getSupportedLocale(locale);
+    Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToEdit.isEmpty()) {
       return CompletableFuture.completedFuture(
           redirect(routes.AdminQuestionController.index().url())
@@ -111,7 +115,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> update(Http.Request request, long questionId, String locale) {
-    Optional<Locale> maybeLocaleToUpdate = translationLocales.getSupportedLocale(locale);
+    Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
       return CompletableFuture.completedFuture(
           redirect(routes.AdminQuestionController.index().url())

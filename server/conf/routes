@@ -33,7 +33,7 @@ GET     /admin/programs/:programId/statuses controllers.admin.AdminProgramStatus
 POST    /admin/programs/:programId/statuses/delete controllers.admin.AdminProgramStatusesController.delete(request: Request, programId: Long)
 
 # Routes for managing program localization
-GET     /admin/programs/:programId/translations controllers.admin.AdminProgramTranslationsController.redirectToFirstLocale(request: Request, programId: Long)
+GET     /admin/programs/:programId/translations/edit controllers.admin.AdminProgramTranslationsController.redirectToFirstLocale(request: Request, programId: Long)
 GET     /admin/programs/:programId/translations/:locale/edit    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programId: Long, locale: String)
 POST    /admin/programs/:programId/translations/:locale         controllers.admin.AdminProgramTranslationsController.update(request: Request, programId: Long, locale: String)
 
@@ -72,7 +72,7 @@ POST    /admin/questions/:id/restore controllers.admin.AdminQuestionController.r
 POST    /admin/questions/:id/archive controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
 
 # Routes for editing question localizations
-GET     /admin/questions/:questionId/translations controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionId: Long)
+GET     /admin/questions/:questionId/translations/edit controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionId: Long)
 GET     /admin/questions/:questionId/translations/:locale/edit  controllers.admin.AdminQuestionTranslationsController.edit(request: Request, questionId: Long, locale: String)
 POST    /admin/questions/:questionId/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, questionId: Long, locale: String)
 

@@ -41,7 +41,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
         .withClasses(Styles.M_2)
         .with(
             each(
-                translationLocales.localesForTranslation(),
+                translationLocales.translatableLocales(),
                 locale -> {
                   String linkDestination = languageLinkDestination(entityId, locale);
                   return renderLanguageLink(
