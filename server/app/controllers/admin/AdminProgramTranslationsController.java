@@ -44,21 +44,16 @@ public class AdminProgramTranslationsController extends CiviFormController {
         this.translationLocales.localesForTranslation().stream().findFirst();
   }
 
-  /**
-   * Redirects to the first non-English locale eligible for translations for a a program.
-   *
-   * @param request the current {@link Http.Request}
-   * @param id the ID of the program to update
-   */
+  /** Redirects to the first non-English locale eligible for translations for a program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result redirectToFirstLocale(Http.Request request, long id) {
+  public Result redirectToFirstLocale(Http.Request request, long programId) {
     if (maybeFirstLocaleForTranslations.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", "Translations are not enabled for this configuration");
     }
     return redirect(
         routes.AdminProgramTranslationsController.edit(
-                id, maybeFirstLocaleForTranslations.get().toLanguageTag())
+                programId, maybeFirstLocaleForTranslations.get().toLanguageTag())
             .url());
   }
 
@@ -66,18 +61,18 @@ public class AdminProgramTranslationsController extends CiviFormController {
    * Renders an edit form for a program so the admin can update translations for the given locale.
    *
    * @param request the current {@link Http.Request}
-   * @param id the ID of the program to update
    * @param locale the locale to update, as an ISO language tag
    * @return a rendered {@link ProgramTranslationView} pre-populated with any existing translations
    *     for the given locale
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Http.Request request, long id, String locale) throws ProgramNotFoundException {
-    ProgramDefinition program = service.getProgramDefinition(id);
+  public Result edit(Http.Request request, long programId, String locale)
+      throws ProgramNotFoundException {
+    ProgramDefinition program = service.getProgramDefinition(programId);
     Optional<Locale> maybeLocaleToEdit = translationLocales.getSupportedLocale(locale);
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
-          .flashing("error", String.format("Unsupported locale: %s", locale));
+          .flashing("error", String.format("The %s locale is not supported", locale));
     }
     Locale localeToEdit = maybeLocaleToEdit.get();
     return ok(
@@ -94,19 +89,18 @@ public class AdminProgramTranslationsController extends CiviFormController {
    * Save updates to a program's localizations.
    *
    * @param request the current {@link Http.Request}
-   * @param id the ID of the program to update
    * @param locale the locale to update, as an ISO language tag
    * @return redirects to the admin's home page if updates were successful; otherwise, renders the
    *     same {@link ProgramTranslationView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Http.Request request, long id, String locale)
+  public Result update(Http.Request request, long programId, String locale)
       throws ProgramNotFoundException {
-    ProgramDefinition program = service.getProgramDefinition(id);
+    ProgramDefinition program = service.getProgramDefinition(programId);
     Optional<Locale> maybeLocaleToUpdate = translationLocales.getSupportedLocale(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
-          .flashing("error", String.format("Unsupported locale: %s", locale));
+          .flashing("error", String.format("The %s locale is not supported", locale));
     }
     Locale localeToUpdate = maybeLocaleToUpdate.get();
 
@@ -134,7 +128,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
       }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", id));
+      return notFound(String.format("Program ID %d not found.", programId));
     }
   }
 }

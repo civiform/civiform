@@ -72,9 +72,9 @@ POST    /admin/questions/:id/restore controllers.admin.AdminQuestionController.r
 POST    /admin/questions/:id/archive controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
 
 # Routes for editing question localizations
-GET     /admin/questions/:id/translations controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, id: Long)
-GET     /admin/questions/:id/translations/:locale/edit  controllers.admin.AdminQuestionTranslationsController.edit(request: Request, id: Long, locale: String)
-POST    /admin/questions/:id/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, id: Long, locale: String)
+GET     /admin/questions/:questionId/translations controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionId: Long)
+GET     /admin/questions/:questionId/translations/:locale/edit  controllers.admin.AdminQuestionTranslationsController.edit(request: Request, questionId: Long, locale: String)
+POST    /admin/questions/:questionId/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, questionId: Long, locale: String)
 
 # Trusted Intermediary routes
 GET     /admin/tiGroups                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request)

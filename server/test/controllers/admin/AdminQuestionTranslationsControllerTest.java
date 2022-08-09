@@ -61,7 +61,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
     assertThat(result.flash().get("error")).isPresent();
-    assertThat(result.flash().get("error").get()).isEqualTo("Unsupported locale: en-US");
+    assertThat(result.flash().get("error").get()).isEqualTo("The en-US locale is not supported");
   }
 
   @Test
