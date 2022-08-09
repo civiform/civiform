@@ -8,7 +8,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.InputTag;
 import java.util.Comparator;
+import org.apache.commons.lang3.RandomStringUtils;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -54,25 +56,27 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   private DivTag renderRadioOption(
       String selectionPath, LocalizedQuestionOption option, boolean checked) {
-    String id = option.optionText().replaceAll("\\s+", "_");
+    String id = RandomStringUtils.randomAlphabetic(8);
 
     LabelTag labelTag =
         label()
-            .withClasses(
-                ReferenceClasses.RADIO_OPTION,
-                BaseStyles.RADIO_LABEL,
-                checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
-            .with(
-                input()
-                    .withId(id)
-                    .withType("radio")
-                    .withName(selectionPath)
-                    .withValue(String.valueOf(option.id()))
-                    .withCondChecked(checked)
-                    .withClasses(
-                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))
+            .withFor(id)
             .withText(option.optionText());
+    InputTag inputTag = 
+        input()
+            .withId(id)
+            .withType("radio")
+            .withName(selectionPath)
+            .withValue(String.valueOf(option.id()))
+            .withCondChecked(checked)
+            .withClasses(
+                StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 
-    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
+    return div().withClasses(Styles.MY_2, Styles.RELATIVE, 
+                  ReferenceClasses.RADIO_OPTION,
+                  BaseStyles.RADIO_LABEL,
+                  checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+                .with(inputTag)
+                .with(labelTag);
   }
 }
