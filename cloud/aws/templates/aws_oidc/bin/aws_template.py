@@ -11,7 +11,7 @@ class AwsSetupTemplate(SetupTemplate):
 
     def _tf_run_for_aws(self, is_destroy=False):
         template_dir = os.path.join(self.config.get_template_dir(), 'setup')
-        print(" - Copy the tfvars file into the setup dir")
+        print(' - Copy the tfvars file into the setup dir')
         shutil.copy2(
             os.path.join(
                 self.config.get_template_dir(), self.config.tfvars_filename),
@@ -26,7 +26,9 @@ class AwsSetupTemplate(SetupTemplate):
 
     def setup_log_file(self):
         # TODO(#2606): If remote file exist fetch it here.
-        _, self.log_file_path = tempfile.mkstemp()
+        _, self.log_file_path = tempfile.mkstemp(
+            prefix=f'{self.config.app_prefix}-')
+        print(f' - Deploy log written to {self.log_file_path}')
 
     def cleanup(self):
         # TODO(#2606): write and upload logs.
