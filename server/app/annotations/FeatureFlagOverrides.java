@@ -10,10 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A "singleton" like class that supports overriding feature flag values as otherwise managed in {@link FeatureFlagsModule}.
+ * A "singleton" like class that supports overriding feature flag values as otherwise managed in
+ * {@link FeatureFlagsModule}.
  *
- * <p>Note: this is only intended to work in a single development/test server not a replicated production service.</p>
- *
+ * <p>Note: this is only intended to work in a single development/test server not a replicated
+ * production service.
  */
 public class FeatureFlagOverrides {
   private static final Logger logger = LoggerFactory.getLogger(FeatureFlagOverrides.class);
@@ -32,9 +33,7 @@ public class FeatureFlagOverrides {
     this.config = config;
   }
 
-  /**
-   * Set an arbitrary {@code value} override for an arbitrary {@code flag}.
-   */
+  /** Set an arbitrary {@code value} override for an arbitrary {@code flag}. */
   public void setOverride(String flag, String value) {
     synchronized (overrides) {
       logger.error("Overriding {} to {}", flag, value);
@@ -46,11 +45,11 @@ public class FeatureFlagOverrides {
   /**
    * Returns the override value for {@flag} if it is present and overrides are enabled.
    *
-   * Parsing follows {@link Boolean#parseBoolean(String)} rules.
+   * <p>Parsing follows {@link Boolean#parseBoolean(String)} rules.
    */
   public Optional<Boolean> getOverrideBoolean(String flag) {
     logger.error(overrides.toString());
-    if(!config.getBoolean(FEATURE_FLAG_OVERRIDES_ENABLED)) {
+    if (!config.getBoolean(FEATURE_FLAG_OVERRIDES_ENABLED)) {
       return Optional.empty();
     }
 

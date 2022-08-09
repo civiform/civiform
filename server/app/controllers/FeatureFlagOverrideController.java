@@ -7,9 +7,7 @@ import org.pac4j.play.java.Secure;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 
-/**
- * Allows for overriding of feature flags by the CiviForm Admin via HTTP request.
- */
+/** Allows for overriding of feature flags by the CiviForm Admin via HTTP request. */
 public class FeatureFlagOverrideController extends CiviFormController {
   private final FeatureFlagOverrides overrides;
 

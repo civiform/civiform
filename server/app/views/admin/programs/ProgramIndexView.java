@@ -11,7 +11,6 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
-import annotations.FeatureFlagOverrides;
 import auth.CiviFormProfile;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -24,8 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Provider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;

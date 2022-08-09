@@ -2,13 +2,11 @@ package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import annotations.FeatureFlagOverrides;
+import annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Provides configuration backed values that indicate if application wide features are enabled. */
 public class FeatureFlagsModule extends AbstractModule {
