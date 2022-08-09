@@ -61,10 +61,9 @@ class Setup(AwsSetupTemplate):
                 f'{self.config.app_prefix}-{name}', doc)
 
     def _maybe_set_secret_value(self, secret_name: str, documentation: str):
-        current_value = self.aws_cli.get_secret_value(secret_name)
         print('')
         url = f'https://{self.config.aws_region}.console.aws.amazon.com/secretsmanager/secret?name={secret_name}'
-        if current_value == '':
+        if self.aws_cli.is_secret_empty(secret_name):
             print(
                 f'Secret {secret_name} is not set. It needs to be set to a non-empty value.'
             )
