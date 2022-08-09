@@ -231,8 +231,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderDateOfBirthCell(applicant));
   }
 
-  private TdTag renderDateOfBirthCell(Account applicant) {
-    Optional<Applicant> newestApplicant = applicant.newestApplicant();
+  private TdTag renderDateOfBirthCell(Account applicantAccount) {
+    Optional<Applicant> newestApplicant = applicantAccount.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
     }
@@ -243,7 +243,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .getDateOfBirth()
             .map(LocalDate::toString)
             .orElse("");
-    return td().with(div(currentDob).withClasses(Styles.TEXT_XS));
+    return td().with(div(currentDob).withClasses(Styles.FONT_SEMIBOLD)).withClasses(BaseStyles.TABLE_CELL_STYLES,Styles.PR_12);
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {
@@ -298,7 +298,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
             .with(th("Applications").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-            .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
+            .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
+          .with(th("DOB").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
   }
 
   private TheadTag renderGroupTableHeader() {

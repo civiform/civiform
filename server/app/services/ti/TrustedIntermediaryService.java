@@ -48,7 +48,7 @@ public class TrustedIntermediaryService {
     }
     catch (EmailAddressExistsException e)
     {
-      form.withError("providedEmail","Email address already in use.  Cannot create applicant if an account already exists. ")
+      form.withError("providedEmail","Email address already in use.  Cannot create applicant if an account already exists. ");
       return TIClientCreationResult.failure(form,Optional.empty());
     }
     return TIClientCreationResult.success();
