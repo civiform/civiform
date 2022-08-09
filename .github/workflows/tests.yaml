@@ -92,7 +92,7 @@ jobs:
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-browser-tests
-       - name: Build dev-oidc
+      - name: Build dev-oidc
         env:
           DOCKER_BUILDKIT: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -104,7 +104,7 @@ jobs:
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-localstack-env
-     - name: Bring up test env with Azurite
+      - name: Bring up test env with Azurite
         run: bin/run-browser-test-env --azure --ci
       - name: Run browser tests with Azurite
         run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
