@@ -1,4 +1,4 @@
-const {Provider} = require('oidc-provider')
+import Provider from 'oidc-provider'
 const configuration = {
   clients: [
     {
@@ -49,7 +49,7 @@ process.on('SIGINT', () => {
   process.exit(0)
 })
 
-const server = oidc.listen(oidcPort, () => {
+oidc.listen(oidcPort, () => {
   console.log(
     `oidc-provider listening on port ${oidcPort}, check http://localhost:${oidcPort}/.well-known/openid-configuration`,
   )

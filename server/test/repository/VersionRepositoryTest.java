@@ -53,12 +53,12 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withBlock("Screen 1")
             .withRequiredQuestion(secondQuestion)
             .build();
-    Question secondQuestionDraft = resourceCreator.insertQuestion("second-question");
-    secondQuestionDraft.addVersion(versionRepository.getDraftVersion()).save();
+    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
     Program secondProgramDraft =
         ProgramBuilder.newDraftProgram("bar")
             .withBlock("Screen 1")
-            .withRequiredQuestion(secondQuestionDraft)
+            .withRequiredQuestion(secondQuestionUpdated)
             .build();
 
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
@@ -68,10 +68,51 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(secondProgramDraft.id);
     assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
-        .containsExactlyInAnyOrder(secondQuestionDraft.id);
+        .containsExactlyInAnyOrder(secondQuestionUpdated.id);
+
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
+    assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id);
 
     Version oldDraft = versionRepository.getDraftVersion();
     Version oldActive = versionRepository.getActiveVersion();
+
+    // First, preview the changes and ensure no versions are updated.
+    Version toApplyNewActiveVersion = versionRepository.previewPublishNewSynchronizedVersion();
+    assertThat(versionRepository.getDraftVersion().id).isEqualTo(oldDraft.id);
+    assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);
+    assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyElementsOf(
+            oldDraft.getPrograms().stream()
+                .map(p -> p.id)
+                .collect(ImmutableList.toImmutableList()));
+    assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyElementsOf(
+            oldDraft.getQuestions().stream()
+                .map(q -> q.id)
+                .collect(ImmutableList.toImmutableList()));
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyElementsOf(
+            oldActive.getPrograms().stream()
+                .map(p -> p.id)
+                .collect(ImmutableList.toImmutableList()));
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyElementsOf(
+            oldActive.getQuestions().stream()
+                .map(q -> q.id)
+                .collect(ImmutableList.toImmutableList()));
+    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+
+    assertThat(toApplyNewActiveVersion.id).isEqualTo(oldDraft.id);
+    assertThat(toApplyNewActiveVersion.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(toApplyNewActiveVersion.getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
+    assertThat(toApplyNewActiveVersion.getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
 
     // Now actually publish the version and assert the results.
     versionRepository.publishNewSynchronizedVersion();
@@ -88,7 +129,9 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
-        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionDraft.id);
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
+    oldActive.refresh();
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
   }
 
   private Question insertActiveQuestion(String name) {

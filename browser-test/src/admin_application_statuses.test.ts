@@ -12,7 +12,8 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-describe('view program statuses', () => {
+// TODO(#3071): Re-enable when the feature flag is controllable in tests.
+describe.skip('view program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let applicantQuestions: ApplicantQuestions
@@ -24,10 +25,6 @@ describe('view program statuses', () => {
     adminPrograms = new AdminPrograms(pageObject)
     applicantQuestions = new ApplicantQuestions(pageObject)
     adminProgramStatuses = new AdminProgramStatuses(pageObject)
-  })
-
-  afterEach(async () => {
-    await logout(pageObject)
   })
 
   describe('without program statuses', () => {
@@ -53,6 +50,10 @@ describe('view program statuses', () => {
       await logout(pageObject)
     })
 
+    afterAll(async () => {
+      await logout(pageObject)
+    })
+
     it('does not Show status options', async () => {
       await loginAsProgramAdmin(pageObject)
 
@@ -63,6 +64,7 @@ describe('view program statuses', () => {
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
     })
   })
+
   describe('with program statuses', () => {
     const programWithStatusesName = 'test program with statuses'
     const statusName = 'Status 1'
@@ -87,15 +89,22 @@ describe('view program statuses', () => {
       await applicantQuestions.submitFromPreviewPage(programWithStatusesName)
 
       await logout(pageObject)
-    })
-
-    it('shows status selector', async () => {
       await loginAsProgramAdmin(pageObject)
 
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    })
 
+    afterAll(async () => {
+      await logout(pageObject)
+    })
+
+    it('shows status selector', async () => {
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(true)
+    })
+
+    it('shows default option as placeholder', async () => {
+      expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
     })
   })
 })
