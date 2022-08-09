@@ -1,5 +1,11 @@
 import axe = require('axe-core')
-import {Browser, BrowserContext, chromium, Page} from 'playwright'
+import {
+  Browser,
+  BrowserContext,
+  chromium,
+  Page,
+  PageScreenshotOptions,
+} from 'playwright'
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
