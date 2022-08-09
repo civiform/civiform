@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 /** Provides configuration backed values that indicate if application wide features are enabled. */
 public class FeatureFlagsModule extends AbstractModule {
-  private static final Logger logger = LoggerFactory.getLogger(FeatureFlagsModule.class);
   /**
    * While the Config can't change during the run of the application, in dev mode hot reloading does
    * occur.
@@ -20,12 +19,9 @@ public class FeatureFlagsModule extends AbstractModule {
   @Provides
   @ApplicationStatusTrackingEnabled
   public boolean provideStatusTrackingEnabled(Config config, FeatureFlagOverrides overrides) {
-    logger.error("provideStatusTrackingEnabled called");
     String key = "application_status_tracking_enabled";
     checkNotNull(config);
     checkNotNull(overrides);
-    logger.error("Override: {}", overrides.getOverrideBoolean(key));
-    logger.error("Config: {} ", config.getBoolean(key));
     return overrides.getOverrideBoolean(key).orElseGet(() -> config.getBoolean(key));
   }
 }
