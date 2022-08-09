@@ -15,8 +15,6 @@ import java.time.ZoneId;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import services.applicant.ApplicantService;
-import services.applicant.ApplicantServiceImpl;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
 import services.question.QuestionService;
@@ -38,7 +36,6 @@ public class MainModule extends AbstractModule {
   public void configure() {
     bind(ProgramService.class).to(ProgramServiceImpl.class);
     bind(QuestionService.class).to(QuestionServiceImpl.class);
-    bind(ApplicantService.class).to(ApplicantServiceImpl.class);
   }
 
   @Provides
