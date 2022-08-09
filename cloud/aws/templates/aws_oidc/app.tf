@@ -70,6 +70,16 @@ module "td" {
             ],
             "Resource" : [aws_kms_key.civiform_kms_key.arn]
           },
+          {
+            "Effect" : "Allow",
+            "Action" : [
+              "s3:*"
+            ],
+            "Resource" : [
+              aws_s3_bucket.civiform_files_s3.arn,
+              "${aws_s3_bucket.civiform_files_s3.arn}/*",
+            ]
+          },
         ]
       }
     )
