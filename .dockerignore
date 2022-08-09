@@ -25,5 +25,5 @@ server/node_modules
 server/project/project
 server/project/target
 server/target
-server/public/stylesheets
+server/public/stylesheets/tailwind.css
 server/.bsp
