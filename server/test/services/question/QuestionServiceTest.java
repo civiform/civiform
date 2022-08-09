@@ -32,12 +32,12 @@ public class QuestionServiceTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"));
 
-  QuestionServiceImpl questionService;
+  QuestionService questionService;
   VersionRepository versionRepository;
 
   @Before
   public void setUp() {
-    questionService = instanceOf(QuestionServiceImpl.class);
+    questionService = instanceOf(QuestionService.class);
     versionRepository = instanceOf(VersionRepository.class);
   }
 
