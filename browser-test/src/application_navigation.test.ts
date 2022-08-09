@@ -117,12 +117,12 @@ describe('Applicant navigation flow', () => {
       expect(await pageObject.innerText('h1')).toContain(
         'Program application preview'
       )
+      await validateAccessibility(pageObject)
     })
 
     it('login page has no accessiblity violations', async () => {
       // Verify we are on login page.
       expect(await pageObject.innerText('head')).toContain('Login')
-      await validateScreenshot(pageObject)
       await validateAccessibility(pageObject)
     })
 
@@ -133,7 +133,6 @@ describe('Applicant navigation flow', () => {
       expect(await pageObject.innerText('main')).toContain(
         'Please select your preferred language.'
       )
-      await validateScreenshot(pageObject)
       await validateAccessibility(pageObject)
     })
 
@@ -143,7 +142,6 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program list page.
       expect(await pageObject.innerText('h1')).toContain('Get benefits')
-      await validateScreenshot(pageObject)
       await validateAccessibility(pageObject)
     })
 
@@ -154,7 +152,6 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program details page. Url should end in "/programs/{program ID}"
       expect(pageObject.url()).toMatch(/\/programs\/[0-9]+$/)
-      await validateScreenshot(pageObject)
       await validateAccessibility(pageObject)
     })
 
@@ -167,7 +164,6 @@ describe('Applicant navigation flow', () => {
       expect(await pageObject.innerText('h1')).toContain(
         'Program application preview'
       )
-      await validateScreenshot(pageObject)
       await validateAccessibility(pageObject)
     })
 

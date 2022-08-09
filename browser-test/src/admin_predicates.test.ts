@@ -85,7 +85,6 @@ describe('create and edit predicates', () => {
       .locator('#application-view')
       .innerText()
     expect(applicationText).not.toContain('Screen 2')
-    await validateScreenshot(page)
 
     await endSession(browser)
   })

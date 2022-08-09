@@ -87,7 +87,6 @@ describe('normal question lifecycle', () => {
     await adminPrograms.publishProgram(programName)
 
     await adminQuestions.expectActiveQuestions(allQuestions)
-    await validateScreenshot(page)
 
     await endSession(browser)
   })
@@ -114,7 +113,6 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
 
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
-    await validateScreenshot(page)
   })
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
@@ -139,7 +137,6 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
 
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
-    await validateScreenshot(page)
   })
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {

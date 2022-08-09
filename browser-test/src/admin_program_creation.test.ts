@@ -52,7 +52,6 @@ describe('Create program with enumerator and repeated questions', () => {
     expect(await page.innerText('id=question-bank-questions')).not.toContain(
       'apc-repeated'
     )
-    await validateScreenshot(page)
 
     // Remove the non-enumerator question and add a enumerator question. All options should go away.
     await page.click(
@@ -62,7 +61,6 @@ describe('Create program with enumerator and repeated questions', () => {
     expect(await page.innerText('id=question-bank-questions')).toBe(
       'Question bank'
     )
-    await validateScreenshot(page)
 
     // Create a repeated block. The repeated question should be the only option.
     await page.click('#create-repeated-block-button')

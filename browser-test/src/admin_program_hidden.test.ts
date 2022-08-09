@@ -1,4 +1,4 @@
-import { AdminPrograms, ApplicantQuestions, endSession, loginAsAdmin, loginAsGuest, logout, selectApplicantLanguage, startSession, validateScreenshot, } from './support'
+import { AdminPrograms, ApplicantQuestions, endSession, loginAsAdmin, loginAsGuest, logout, selectApplicantLanguage, startSession, } from './support'
 
 describe('Hide a program that should not be public yet', () => {
   it('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
@@ -23,7 +23,6 @@ describe('Hide a program that should not be public yet', () => {
 
     // Verify the program cannot be seen
     await applicantQuestions.expectProgramHidden(programName)
-    await validateScreenshot(page)
 
     await logout(page)
     await endSession(browser)
@@ -53,7 +52,6 @@ describe('Hide a program that should not be public yet', () => {
       programName,
       programDescription
     )
-    await validateScreenshot(page)
 
     await endSession(browser)
   })

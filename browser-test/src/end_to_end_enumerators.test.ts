@@ -390,7 +390,6 @@ describe('End to end enumerator test', () => {
     await adminQuestions.expectDraftQuestionExist(
       'enumerator-ete-repeated-jobs-income'
     )
-    await validateScreenshot(pageObject)
 
     // Assert publish does not cause problem, i.e. no program refers to old questions.
     await adminPrograms.publishProgram(programName)

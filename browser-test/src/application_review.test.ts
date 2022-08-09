@@ -97,11 +97,9 @@ describe('Program admin review of submitted applications', () => {
     await adminQuestions.expectActiveQuestionExist('first-static-q')
     await adminQuestions.expectActiveQuestionExist('second-static-q')
     await adminQuestions.expectActiveQuestionExist('monthly-income-q')
-    await validateScreenshot(page)
 
     await adminQuestions.goToViewQuestionPage('date-q')
     await adminQuestions.expectViewOnlyQuestion('date-q')
-    await validateScreenshot(page)
 
     await logout(page)
     await loginAsTestUser(page)

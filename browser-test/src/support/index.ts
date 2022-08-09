@@ -1,8 +1,9 @@
 import axe = require('axe-core');
-import { Browser, BrowserContext, chromium, Page } from 'playwright'
+import { Browser, BrowserContext, chromium, Page, PageScreenshotOptions } from 'playwright'
 import * as path from 'path'
 import { waitForPageJsLoad } from './wait'
 import { BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD } from './config'
+import { MatchImageSnapshotOptions } from 'jest-image-snapshot';
 
 export { AdminApiKeys } from './admin_api_keys'
 export { AdminQuestions } from './admin_questions'
@@ -207,6 +208,16 @@ export const validateAccessibility = async (page: Page) => {
   expect(results).toHaveNoA11yViolations()
 }
 
-export const validateScreenshot = async (page: Page) => {
-  expect(await page.screenshot()).toMatchImageSnapshot()
+export const validateScreenshot = async (
+  page: Page,
+  pageScreenshotOptions?: PageScreenshotOptions,
+  matchImageSnapshotOptions?: MatchImageSnapshotOptions
+) => {
+  expect(await page.screenshot({
+    ...pageScreenshotOptions
+  })).toMatchImageSnapshot({
+    failureThreshold: .03,
+    failureThresholdType: "percent",
+    ...matchImageSnapshotOptions
+  })
 }

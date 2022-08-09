@@ -28,7 +28,6 @@ describe('view an application in an older version', () => {
     await applicantQuestions.applyProgram(programName)
     await applicantQuestions.answerTextQuestion('some text')
     await applicantQuestions.clickNext()
-    await validateScreenshot(page)
     await applicantQuestions.submitFromReviewPage(programName)
 
     await logout(page)
@@ -42,7 +41,6 @@ describe('view an application in an older version', () => {
       questionName,
       'some text'
     )
-    await validateScreenshot(page)
 
     await logout(page)
     await loginAsAdmin(page)

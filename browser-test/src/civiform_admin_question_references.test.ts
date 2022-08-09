@@ -22,7 +22,6 @@ describe('view program references from question view', () => {
       questionName,
       expectedProgramReferencesText: 'Used across 0 active & 0 draft programs',
     })
-    await validateScreenshot(pageObject)
   })
 
   it('shows results for referencing programs', async () => {
@@ -52,6 +51,7 @@ describe('view program references from question view', () => {
     await adminPrograms.addProgramBlock(secondProgramName, 'first block', [
       questionName,
     ])
+    await validateScreenshot(pageObject)
 
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectQuestionProgramReferencesText({
@@ -64,6 +64,5 @@ describe('view program references from question view', () => {
       expectedDraftProgramReferences: ['first-program', 'second-program'],
       expectedActiveProgramReferences: ['first-program'],
     })
-    await validateScreenshot(pageObject)
   })
 })

@@ -1,4 +1,4 @@
-import { AdminPrograms, AdminQuestions, loginAsAdmin, startSession, validateScreenshot, } from './support'
+import { AdminPrograms, AdminQuestions, loginAsAdmin, startSession, } from './support'
 
 describe('deleting question lifecycle', () => {
   it('create, publish, delete unused questions', async () => {
@@ -35,7 +35,6 @@ describe('deleting question lifecycle', () => {
       await adminQuestions.expectActiveQuestionExist(questions[i])
       await adminQuestions.archiveQuestion(questions[i])
     }
-    await validateScreenshot(page)
 
     // Publish all the above changes.
     await adminPrograms.createNewVersion(programName)
