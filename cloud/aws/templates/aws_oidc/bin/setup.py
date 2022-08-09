@@ -8,7 +8,7 @@ from cloud.aws.templates.aws_oidc.bin.aws_template import AwsSetupTemplate
 from cloud.aws.bin.lib import backend_setup
 from cloud.shared.bin.lib.config_loader import ConfigLoader
 
-# TODO: move these to variable_definitions.json and read docs from there.
+# TODO(#3116): move these to variable_definitions.json and read docs from there.
 # Map of secrets that need to be set by the user and can't be empty values.
 # Key is the name of the secret without app prefix, value is doc shown to user
 # if the secret is unset.
