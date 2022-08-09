@@ -54,7 +54,7 @@ class PreviewController {
         PreviewController.onTextChanged,
         false,
       )
-      const text = (<HTMLInputElement>textInput).value
+      let text = (<HTMLInputElement>textInput).value
       if (text.length > 0) {
         PreviewController.updateQuestionText(text)
       }
@@ -68,7 +68,7 @@ class PreviewController {
         PreviewController.onHelpTextChanged,
         false,
       )
-      const helpText = (<HTMLInputElement>helpTextInput).value
+      let helpText = (<HTMLInputElement>helpTextInput).value
       if (helpText.length > 0) {
         PreviewController.setTextAndHighlightEnumeratorReferences(
           PreviewController.QUESTION_HELP_TEXT_CLASS,
@@ -85,7 +85,7 @@ class PreviewController {
         PreviewController.onEnumeratorSelectorChanged,
         false,
       )
-      const enumerator = (<HTMLInputElement>enumeratorSelector).value
+      let enumerator = (<HTMLInputElement>enumeratorSelector).value
       const repeatedQuestionInformation = document.querySelector(
         PreviewController.REPEATED_QUESTION_INFORMATION_ID,
       )
@@ -100,7 +100,7 @@ class PreviewController {
         PreviewController.onEntityTypeChanged,
         false,
       )
-      const entityType = (<HTMLInputElement>entityTypeInput).value
+      let entityType = (<HTMLInputElement>entityTypeInput).value
       if (entityType.length > 0) {
         PreviewController.setAllMatchingPlaceholders(
           PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' input',
@@ -115,7 +115,7 @@ class PreviewController {
   }
 
   static onTextChanged(e: Event) {
-    const text = (<HTMLInputElement>e.target).value
+    let text = (<HTMLInputElement>e.target).value
     PreviewController.updateQuestionText(text)
   }
 
@@ -128,12 +128,12 @@ class PreviewController {
     const useAdvancedFormatting =
       questionType && questionType.textContent === 'STATIC'
     if (useAdvancedFormatting) {
-      const contentElement = PreviewController.formatText(text, true)
+      let contentElement = PreviewController.formatText(text, true)
       contentElement.classList.add('text-sm')
       contentElement.classList.add('font-normal')
       contentElement.classList.add('pr-16')
 
-      const contentParent = document.querySelector(
+      let contentParent = document.querySelector(
         PreviewController.QUESTION_TEXT_CLASS,
       ) as Element
       if (contentParent) {
@@ -164,7 +164,7 @@ class PreviewController {
     const repeatedQuestionInformation = document.querySelector(
       PreviewController.REPEATED_QUESTION_INFORMATION_ID,
     )
-    const enumerator = (<HTMLInputElement>e.target).value
+    let enumerator = (<HTMLInputElement>e.target).value
     repeatedQuestionInformation.classList.toggle('hidden', enumerator === '')
   }
 
@@ -190,9 +190,6 @@ class PreviewController {
    *
    * This will only work when the selected div is only supposed to contain
    * text and has no other child nodes.
-   *
-   * @param {string} selector The query selector used to find the preview div
-   * @param {string} text The text to parse for $this and $this.parent (etc) strings.
    */
   static setTextAndHighlightEnumeratorReferences(
     selector: string,
@@ -232,9 +229,9 @@ class PreviewController {
     const ret = document.createElement('div')
     const lines = text.split('\n')
     for (let i = 0; i < lines.length; i++) {
-      const currentLine = lines[i].trim()
+      let currentLine = lines[i].trim()
       if (currentLine.startsWith(this.accordionHeader)) {
-        const title = currentLine.substring(4)
+        let title = currentLine.substring(4)
         let content = ''
         let next = i + 1
         while (
@@ -247,7 +244,7 @@ class PreviewController {
         i = next - 1
         ret.appendChild(PreviewController.buildAccordion(title, content))
       } else if (currentLine.startsWith(this.bulletedItem)) {
-        const listItems = [currentLine.substring(2).trim()]
+        let listItems = [currentLine.substring(2).trim()]
         let next = i + 1
         while (
           next < lines.length &&
@@ -272,16 +269,16 @@ class PreviewController {
   }
 
   static buildAccordion(title: string, content: string): Element {
-    const childContent = PreviewController.formatText(
+    let childContent = PreviewController.formatText(
       content,
       /* preserveEmptyLines = */ true,
     )
-    const accordion = document.createElement('div')
+    let accordion = document.createElement('div')
     this.accordionClasses.forEach((accordionClass) =>
       accordion.classList.add(accordionClass),
     )
 
-    const accordionHeader = document.createElement('div')
+    let accordionHeader = document.createElement('div')
     accordionHeader.addEventListener('click', (event: Event) => {
       const parentAccordion = (event.target as Element).closest('.cf-accordion')
       if (parentAccordion) {
@@ -292,14 +289,14 @@ class PreviewController {
       accordionHeader.classList.add(headerClass),
     )
 
-    const accordionTitle = document.createElement('div')
+    let accordionTitle = document.createElement('div')
     this.accordionTitleClasses.forEach((titleClass) =>
       accordionHeader.classList.add(titleClass),
     )
     accordionTitle.textContent = title
     accordionHeader.appendChild(accordionTitle)
 
-    const accordionButton = document.createElement('div')
+    let accordionButton = document.createElement('div')
     accordionHeader.appendChild(accordionButton)
 
     accordion.appendChild(accordionHeader)
@@ -325,5 +322,4 @@ class PreviewController {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-const previewController = new PreviewController()
+let previewController = new PreviewController()

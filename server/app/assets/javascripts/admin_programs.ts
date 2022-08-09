@@ -79,8 +79,8 @@ class AdminPrograms {
 
   /**
    * Attempts to copy the given content to the clipboard.
-   * @param {string} content
-   * @return {Promise<boolean>} indicating whether the content was copied to the clipboard
+   * @param content
+   * @returns bool indicating whether the content was copied to the clipboard
    */
   static async tryCopyToClipboard(content: string): Promise<boolean> {
     if (!window.navigator['clipboard']) {
@@ -96,7 +96,6 @@ class AdminPrograms {
 
   static async copyProgramLinkToClipboard(programLink: string) {
     const succeeded = await AdminPrograms.tryCopyToClipboard(programLink)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const toastController = window['toastController'] as any
     if (succeeded) {
       toastController.showToastMessage({

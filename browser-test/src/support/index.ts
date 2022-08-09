@@ -12,6 +12,7 @@ export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantQuestions} from './applicant_questions'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
+export {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD}
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -30,7 +31,6 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
     const dirs = ['tmp/videos']
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((global as any)['expect'] != null) {
       const testPath = expect.getState().testPath
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
@@ -183,7 +183,7 @@ export const seedCanonicalQuestions = async (page: Page) => {
 
 export const closeWarningMessage = async (page: Page) => {
   // The warning message may be in the way of this link
-  const element = await page.$('#warning-message-dismiss')
+  var element = await page.$('#warning-message-dismiss')
 
   if (element !== null) {
     await element

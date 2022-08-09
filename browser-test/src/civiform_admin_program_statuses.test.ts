@@ -1,6 +1,7 @@
 import {
   dismissModal,
   startSession,
+  logout,
   loginAsAdmin,
   AdminPrograms,
   AdminProgramStatuses,

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {Page} from 'playwright'
+import {readFileSync} from 'fs'
 import {waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
@@ -71,7 +72,7 @@ export class AdminApiKeys {
     const expectedCallCountText = `Call count: ${expectedCallCount}`
     let callCountText = ''
 
-    for (;;) {
+    while (true) {
       await this.gotoApiKeyIndexPage()
 
       try {
@@ -99,7 +100,7 @@ export class AdminApiKeys {
     const maxWaitTime = startTime + timeoutMillis
     let lastCallIpText = ''
 
-    for (;;) {
+    while (true) {
       await this.gotoApiKeyIndexPage()
 
       try {

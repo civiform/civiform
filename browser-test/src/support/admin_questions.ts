@@ -33,7 +33,7 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
-  async goToViewQuestionPage(_questionName: string) {
+  async goToViewQuestionPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('text=View')
     await waitForPageJsLoad(this.page)
@@ -48,7 +48,7 @@ export class AdminQuestions {
     expect(await this.page.innerText('h1')).toEqual('All Questions')
   }
 
-  async expectViewOnlyQuestion(_questionName: string) {
+  async expectViewOnlyQuestion(questionName: string) {
     expect(await this.page.isDisabled('text=No Export')).toEqual(true)
     // TODO(sgoldblatt): This test does not find any questions need to look into
     // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
@@ -74,7 +74,7 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 
-  async expectMultiOptionBlankOptionError(options: string[]) {
+  async expectMultiOptionBlankOptionError(options: String[]) {
     const errors = await this.page.locator(
       '#question-settings .cf-multi-option-input-error',
     )
@@ -402,25 +402,25 @@ export class AdminQuestions {
   }
 
   async updateAllQuestions(questions: string[]) {
-    for (const i in questions) {
+    for (var i in questions) {
       await this.updateQuestion(questions[i])
     }
   }
 
   async createNewVersionForQuestions(questions: string[]) {
-    for (const i in questions) {
+    for (var i in questions) {
       await this.createNewVersion(questions[i])
     }
   }
 
   async expectDraftQuestions(questions: string[]) {
-    for (const i in questions) {
+    for (var i in questions) {
       await this.expectDraftQuestionExist(questions[i])
     }
   }
 
   async expectActiveQuestions(questions: string[]) {
-    for (const i in questions) {
+    for (var i in questions) {
       await this.expectActiveQuestionExist(questions[i])
     }
   }
@@ -626,7 +626,6 @@ export class AdminQuestions {
       questionText,
       helpText,
       enumeratorName,
-      exportOption,
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -669,6 +668,7 @@ export class AdminQuestions {
     description = 'static description',
     questionText = 'static question text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = '',
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -766,7 +766,6 @@ export class AdminQuestions {
       questionText,
       helpText,
       enumeratorName,
-      exportOption,
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()

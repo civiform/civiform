@@ -40,17 +40,11 @@ fi
 echo 'Start formatting with prettier'
 npx prettier \
   --write \
-  --config .prettierrc.js \
-  --ignore-path .prettierignore \
+  --config /.prettierrc.js \
+  --ignore-path /.prettierignore \
   --ignore-unknown \
   .
 echo 'Done formatting with prettier'
-
-echo 'Start formatting with eslint'
-npx eslint \
-  --fix \
-  {server/app/assets/javascripts,server/tailwind.config.js,test-support,browser-test}
-echo 'Done formatting with eslint'
 
 echo 'Start format shell'
 shfmt -bn -ci -i 2 -w -l \

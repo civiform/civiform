@@ -108,7 +108,6 @@ class ToastController {
     const toastContainer = document.getElementById(ToastController.containerId)
     if (toastContainer) {
       toastContainer.appendChild(toastMessage)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       toastContainer!.classList.remove('hidden')
       if (message.duration > 0) {
         setTimeout(
@@ -121,7 +120,7 @@ class ToastController {
     }
   }
 
-  private getToastIcon(type: string): Element {
+  private getToastIcon(type: String): Element {
     const svgContainer = document.createElement('div')
     svgContainer.classList.add('flex-none', 'pr-2')
 
@@ -161,14 +160,11 @@ class ToastController {
     )
     messages.forEach((element) => {
       const message: ToastMessage = {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         id: element.getAttribute('id')!,
         canDismiss: element.getAttribute('canDismiss') === 'true',
         canIgnore: element.getAttribute('canIgnore') === 'true',
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         content: element.textContent!,
         duration: Number(element.getAttribute('toastDuration')),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         type: element.getAttribute('toastType')!.toLowerCase(),
       }
       element.remove()
@@ -176,15 +172,11 @@ class ToastController {
     })
   }
 
-  /**
-   *  Hide warning message and throw an indicator in local storage to not show.
-   *  @param {Event} event The event that triggered this action.
-   *  */
+  /** Hide warning message and throw an indicator in local storage to not show. */
   dismissClicked(event: Event) {
     const target = event.target as Element
     const toast = target.closest('.' + ToastController.messageClass)
     if (toast && toast.hasAttribute('id')) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const toastId = toast.getAttribute('id')!
       ToastController.dismissToast(toastId, /* dismissClicked = */ true)
     }
@@ -193,9 +185,7 @@ class ToastController {
   /**
    * If toastMessage has a storageId and was dismissed by the user (not a timeout)
    * then we add the id to localStorage so that it isn't displayed again.
-   * @param {string} toastId The html id of the toast message
-   * @param {boolean} dismissClicked Whether to add indicator in local storage to not show
-   *  */
+   */
   static dismissToast(toastId: string, dismissClicked: boolean) {
     const toastMessage = document.getElementById(toastId)
     if (toastMessage) {
@@ -209,10 +199,7 @@ class ToastController {
     }
   }
 
-  /**
-   * Removes a toast from the DOM and hides the toast container if it is now empty.
-   * @param {string} toastId The html id of the toast message
-   * */
+  /** Removes a toast from the DOM and hides the toast container if it is now empty. */
   static cleanupToast(toastId: string) {
     const toastMessage = document.getElementById(toastId)
     if (toastMessage) {
@@ -237,5 +224,4 @@ type ToastMessage = {
   type: string
 }
 
-// eslint-disable-next-line no-unused-vars
-const toastController = new ToastController()
+let toastController = new ToastController()

@@ -81,7 +81,7 @@ class AzureUploadController {
       fileName: this.getValueFromInputLabel('fileName'),
     }
   }
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
+
   private setFileUploadMetadata(
     redirectUrl: URL,
     azureUploadProps: any,
@@ -95,6 +95,5 @@ class AzureUploadController {
     redirectUrl.searchParams.set('blockBlobUrlString', blockBlobUrlString)
   }
 }
-/* eslint-enable  @typescript-eslint/no-explicit-any */
 
 window.addEventListener('load', () => new AzureUploadController())

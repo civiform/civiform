@@ -14,14 +14,17 @@ RUN wget $JAVA_FORMATTER_URL -O /fmt.jar
 RUN apk update && apk add --no-cache --update \
   openjdk11 bash wget npm shfmt git py3-pip
 
-RUN pip install yapf
+RUN npm install -g typescript \
+  prettier \
+  @typescript-eslint/parser \
+  @typescript-eslint/eslint-plugin && \
+  pip install yapf
 
-COPY formatter/package.json /package.json
-COPY formatter/package-lock.json /package-lock.json
-
-RUN npm install
-
+COPY .prettierrc.js /.prettierrc.js
+COPY .prettierignore /.prettierignore
+COPY .editorconfig /.editorconfig
 COPY formatter/fmt /fmt
+
 VOLUME /code
 
 ENTRYPOINT ["/fmt"]
