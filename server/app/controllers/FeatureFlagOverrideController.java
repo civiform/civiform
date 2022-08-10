@@ -2,9 +2,11 @@ package controllers;
 
 import annotations.FeatureFlagOverrides;
 import auth.Authorizers;
+import com.typesafe.config.Config;
 import controllers.dev.DevController;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import play.Environment;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 
@@ -13,7 +15,9 @@ public final class FeatureFlagOverrideController extends DevController {
   private final FeatureFlagOverrides overrides;
 
   @Inject
-  public FeatureFlagOverrideController(FeatureFlagOverrides overrides) {
+  public FeatureFlagOverrideController(
+      FeatureFlagOverrides overrides, Environment environment, Config configuration) {
+    super(environment, configuration);
     this.overrides = overrides;
   }
 
