@@ -42,7 +42,7 @@ public class FeatureFlagOverrides {
   }
 
   /**
-   * Returns the override value for {@flag} if it is present and overrides are enabled.
+   * Returns the override value for {@code flag} if it is present and overrides are enabled.
    *
    * <p>Parsing follows {@link Boolean#parseBoolean(String)} rules.
    */
