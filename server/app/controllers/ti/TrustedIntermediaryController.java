@@ -40,7 +40,7 @@ public class TrustedIntermediaryController {
   private final UserRepository userRepository;
   private final MessagesApi messagesApi;
   private final FormFactory formFactory;
-  private final String baseUrl;
+ // private final String baseUrl;
   private final TrustedIntermediaryService tiService;
 
   @Inject
@@ -50,14 +50,14 @@ public class TrustedIntermediaryController {
       FormFactory formFactory,
       MessagesApi messagesApi,
       TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
-      Config config,
+   //   Config config,
       TrustedIntermediaryService tiService) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
     this.userRepository = Preconditions.checkNotNull(userRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
-    this.baseUrl = Preconditions.checkNotNull(config).getString("base_url");
+  //  this.baseUrl = Preconditions.checkNotNull(config).getString("base_url");
     this.tiService = tiService;
   }
 
@@ -98,10 +98,18 @@ public class TrustedIntermediaryController {
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
+    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
+      userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return notFound();
+    }
+    if (!trustedIntermediaryGroup.get().id.equals(id)) {
+      return unauthorized();
+    }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory.form(AddApplicantToTrustedIntermediaryGroupForm.class).bindFromRequest(request);
     TIClientCreationResult tiClientCreationResult =
-        tiService.addNewClient(form, civiformProfile.get(), id);
+        tiService.addNewClient(form,trustedIntermediaryGroup.get());
     if (tiClientCreationResult.isSuccessful()) {
       return redirect(
           routes.TrustedIntermediaryController.dashboard(
@@ -109,25 +117,26 @@ public class TrustedIntermediaryController {
     } else if (tiClientCreationResult.getStatusHeader().isPresent()) {
       return tiClientCreationResult.getStatusHeader().get();
     }
-    return redirectToDashboardWithError(getFormErrors(form), form); // how to add flashing with
+    return redirectToDashboardWithError(getFormErrors(tiClientCreationResult.getForm().get()),tiClientCreationResult.getForm().get()); // how to add flashing with
   }
 
   private String getFormErrors(Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     StringBuilder errorMessage = new StringBuilder();
     form.errors().stream()
-        .forEach(validationError -> errorMessage.append(validationError.message()));
+        .forEach(validationError -> errorMessage.append("\n"+ validationError.message()));
+    System.out.println(errorMessage);
     return errorMessage.toString();
   }
 
   private Result redirectToDashboardWithError(
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
-            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()))
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.of(1)))
         .flashing("error", errorMessage)
-        .flashing("providedFirstName", form.get().getFirstName())
-        .flashing("providedMiddleName", form.get().getMiddleName())
-        .flashing("providedLastName", form.get().getLastName())
-        .flashing("providedEmail", form.get().getEmailAddress())
-        .flashing("providedDob", form.get().getDob());
+      .flashing("providedFirstName", form.value().get().getFirstName())
+      .flashing("providedMiddleName", form.value().get().getMiddleName())
+      .flashing("providedLastName", form.value().get().getLastName())
+      .flashing("providedEmail", form.value().get().getEmailAddress())
+      .flashing("providedDateOfBirth", form.value().get().getDob());
   }
 }

@@ -1,17 +1,15 @@
 package services.ti;
 
-import auth.CiviFormProfile;
 import com.google.common.base.Strings;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import models.TrustedIntermediaryGroup;
 import play.data.Form;
 import repository.UserRepository;
 import services.DateConverter;
-
+import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
-import java.util.zip.DataFormatException;
 
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.unauthorized;
@@ -20,22 +18,15 @@ public class TrustedIntermediaryService {
   private final UserRepository userRepository;
   private final DateConverter dateConverter;
 
+  @Inject
   public TrustedIntermediaryService(UserRepository userRepository,DateConverter dateConverter) {
     this.userRepository = userRepository;
     this.dateConverter = dateConverter;
   }
 
-  public TIClientCreationResult addNewClient(Form<AddApplicantToTrustedIntermediaryGroupForm> form, CiviFormProfile civiFormProfile,Long id)
+  public TIClientCreationResult addNewClient(Form<AddApplicantToTrustedIntermediaryGroupForm> form, TrustedIntermediaryGroup trustedIntermediaryGroup)
   {
-    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-      userRepository.getTrustedIntermediaryGroup(civiFormProfile);
-    if (trustedIntermediaryGroup.isEmpty()) {
-      return TIClientCreationResult.failure(form,Optional.of(notFound()));
-    }
-    if (!trustedIntermediaryGroup.get().id.equals(id)) {
-      return TIClientCreationResult.failure(form,Optional.of(unauthorized()));
-    }
-
+    form = validateEmailAddress(form);
     form = validateFirstName(form);
     form = validateLastName(form);
     form = validateDateOfBirth(form);
@@ -44,45 +35,53 @@ public class TrustedIntermediaryService {
     }
     try {
       userRepository.createNewApplicantForTrustedIntermediaryGroup(
-        form.get(), trustedIntermediaryGroup.get());
+        form.get(), trustedIntermediaryGroup);
     }
     catch (EmailAddressExistsException e)
     {
-      form.withError("providedEmail","Email address already in use.  Cannot create applicant if an account already exists. ");
+      form.withError("emailAddress","Email address already in use.  Cannot create applicant if an account already exists. ");
       return TIClientCreationResult.failure(form,Optional.empty());
     }
     return TIClientCreationResult.success();
   }
 
+  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateEmailAddress(Form<AddApplicantToTrustedIntermediaryGroupForm> form)
+  {
+    if (Strings.isNullOrEmpty(form.value().get().getEmailAddress())) {
+      return form.withError("emailAddress", "Email Address required");
+    }
+    return form;
+  }
+
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateFirstName(Form<AddApplicantToTrustedIntermediaryGroupForm> form)
   {
-    if (Strings.isNullOrEmpty(form.get().getFirstName())) {
-      return form.withError("providedFirstName", "First name required");
+    if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
+      return form.withError("firstName", "First name required");
     }
     return form;
   }
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateLastName(Form<AddApplicantToTrustedIntermediaryGroupForm> form)
   {
-    if (Strings.isNullOrEmpty(form.get().getLastName())) {
-      return form.withError("providedLastName", "Last name required");
+    if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
+      return form.withError("lastName", "Last name required");
     }
     return form;
   }
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateDateOfBirth(Form<AddApplicantToTrustedIntermediaryGroupForm> form)
   {
-    if (Strings.isNullOrEmpty(form.get().getDob())) {
-      return form.withError("providedDob", "Date of Birth required");
+    if (Strings.isNullOrEmpty(form.value().get().getDob())) {
+      return form.withError("dob", "Date of Birth required");
     }
     LocalDate currentDob = null;
     try{
-      currentDob = dateConverter.parseStringtoLocalDate(form.get().getDob());
+      currentDob = dateConverter.parseStringtoLocalDate(form.value().get().getDob());
     }
     catch (DateTimeParseException e)
     {
-      return form.withError("providedDob", "Date of Birth must be in MM-dd-yyyy format");
+      return form.withError("dob", "Date of Birth must be in MM-dd-yyyy format");
     }
     if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
-      return form.withError("providedDob", "Date of Birth should be in the past");
+      return form.withError("dob", "Date of Birth should be in the past");
     }
     return form;
   }
