@@ -1,20 +1,20 @@
 package controllers.dev;
 
-  import static org.assertj.core.api.Assertions.assertThat;
-  import static play.api.test.CSRFTokenHelper.addCSRFToken;
-  import static play.mvc.Http.Status.NOT_FOUND;
-  import static play.mvc.Http.Status.OK;
-  import static play.test.Helpers.contentAsString;
-  import static play.test.Helpers.fakeRequest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static play.mvc.Http.Status.NOT_FOUND;
+import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
 
-  import java.util.Optional;
-  import org.junit.After;
-  import org.junit.Test;
-  import play.Application;
-  import play.Mode;
-  import play.inject.guice.GuiceApplicationBuilder;
-  import play.mvc.Result;
-  import play.test.Helpers;
+import java.util.Optional;
+import org.junit.After;
+import org.junit.Test;
+import play.Application;
+import play.Mode;
+import play.inject.guice.GuiceApplicationBuilder;
+import play.mvc.Result;
+import play.test.Helpers;
 
 public class DatabaseSeedControllerTest {
 
