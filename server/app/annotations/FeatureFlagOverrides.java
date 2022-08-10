@@ -36,7 +36,7 @@ public class FeatureFlagOverrides {
   /** Set an arbitrary {@code value} override for an arbitrary {@code flag}. */
   public void setOverride(String flag, String value) {
     synchronized (overrides) {
-      logger.error("Overriding {} to {}", flag, value);
+      logger.warn("Overriding {} to {}", flag, value);
       overrides.put(flag, value);
     }
   }

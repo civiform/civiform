@@ -1,9 +1,8 @@
-package controllers;
+package controllers.dev;
 
 import annotations.FeatureFlagOverrides;
 import auth.Authorizers;
 import com.typesafe.config.Config;
-import controllers.dev.DevController;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.Environment;
