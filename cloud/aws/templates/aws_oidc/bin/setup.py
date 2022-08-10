@@ -1,10 +1,9 @@
 import secrets
-import subprocess
-import shlex
 from getpass import getpass
 from typing import Dict
 
 from cloud.aws.templates.aws_oidc.bin.aws_cli import AwsCli
+from cloud.aws.templates.aws_oidc.bin import resources
 from cloud.aws.templates.aws_oidc.bin.aws_template import AwsSetupTemplate
 from cloud.aws.bin.lib import backend_setup
 from cloud.shared.bin.lib.config_loader import ConfigLoader
@@ -14,13 +13,13 @@ from cloud.shared.bin.lib.config_loader import ConfigLoader
 # Key is the name of the secret without app prefix, value is doc shown to user
 # if the secret is unset.
 SECRETS: Dict[str, str] = {
-    'adfs_client_id':
+    resources.ADFS_CLIENT_ID:
         'Client id for the ADFS configuration. Enter any value if you do not use ADFS.',
-    'adfs_secret':
+    resources.ADFS_SECRET:
         'Secret for the ADFS configuration. Enter any value if you do not use ADFS.',
-    'applicant_oidc_client_id':
+    resources.APPLICANT_OIDC_CLIENT_ID:
         'Client ID for your OIDC provider. Enter any value if you have not set it up yet.',
-    'applicant_oidc_client_secret':
+    resources.APPLICANT_OIDC_CLIENT_SECRET:
         'Client secret for your OIDC provider. Enter any value if you have not set it up yet.',
 }
 
@@ -97,20 +96,21 @@ class Setup(AwsSetupTemplate):
         print()
         print('Checking database password...')
         app_prefix = self.config.app_prefix
-        secret_name = f'{app_prefix}-postgres_password'
-        url = self._aws_cli.get_url_of_secret(secret_name)
+        secret_name = f'{app_prefix}-{resources.POSTGRES_PASSWORD}'
         if self._aws_cli.is_db_password_default(secret_name):
             new_password = secrets.token_urlsafe(40)
             print(
-                'Default database is used. Generating new password and updating deployment.'
-            )
+                'Default database password is used. Generating new password ' +
+                'and updating deployment.')
             self._aws_cli.update_master_password_in_database(
-                f'{self.config.app_prefix}-civiform-db', new_password)
+                f'{app_prefix}-{resources.DATABASE}', new_password)
             print('Database password has been changed.')
             self._aws_cli.set_secret_value(secret_name, new_password)
             self._aws_cli.restart_ecs_service(
-                app_prefix, f'{app_prefix}-service')
+                app_prefix, f'{app_prefix}-{resources.FARGATE_SERVICE}')
             print(f'ECS service has been restarted to pickup the new password.')
         else:
             print('Password has already been changed. Not touching it.')
-        print(f'You can see the password here: {url}')
+        print(
+            f'You can see the password here: {self._aws_cli.get_url_of_secret(secret_name)}'
+        )
