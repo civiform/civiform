@@ -5,51 +5,56 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.fakeRequest;
 
-import org.junit.Before;
+import java.util.Optional;
+import org.junit.After;
 import org.junit.Test;
+import play.Application;
 import play.Mode;
 import play.inject.guice.GuiceApplicationBuilder;
-import repository.ResetPostgres;
+import play.test.Helpers;
 
-public class FeatureFlagOverrideControllerTest extends ResetPostgres {
+public class FeatureFlagOverrideControllerTest {
+  private Optional<Application> maybeApp = Optional.empty();
   private FeatureFlagOverrideController controller;
 
-  @Before
-  public void setupController() {
-    controller = createControllerInMode(Mode.DEV);
+  @After
+  public void stopApplication() {
+    if (maybeApp.isPresent()) {
+      Helpers.stop(maybeApp.get());
+      maybeApp = Optional.empty();
+    }
   }
 
   @Test
   public void disable_nonDevMode_fails() {
-    controller = createControllerInMode(Mode.TEST);
+    setupControllerInMode(Mode.TEST);
     var result = controller.disable(fakeRequest().build(), "flag");
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void disable() {
+    setupControllerInMode(Mode.DEV);
     var result = controller.disable(fakeRequest().build(), "flag");
     assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
   public void enable_nonDevMode_fails() {
-    controller = createControllerInMode(Mode.TEST);
+    setupControllerInMode(Mode.TEST);
     var result = controller.enable(fakeRequest().build(), "flag");
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void enable() {
+    setupControllerInMode(Mode.DEV);
     var result = controller.enable(fakeRequest().build(), "flag");
     assertThat(result.status()).isEqualTo(OK);
   }
 
-  private FeatureFlagOverrideController createControllerInMode(Mode mode) {
-    return new GuiceApplicationBuilder()
-        .in(mode)
-        .build()
-        .injector()
-        .instanceOf(FeatureFlagOverrideController.class);
+  private void setupControllerInMode(Mode mode) {
+    maybeApp = Optional.of(new GuiceApplicationBuilder().in(mode).build());
+    controller = maybeApp.get().injector().instanceOf(FeatureFlagOverrideController.class);
   }
 }
