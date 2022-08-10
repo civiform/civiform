@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -29,13 +30,13 @@ import views.components.ToastMessage;
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
-  private final boolean statusTrackingEnabled;
+  private final Provider<Boolean> statusTrackingEnabled;
 
   @Inject
   public ProgramTranslationView(
       AdminLayoutFactory layoutFactory,
       Langs langs,
-      @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
+      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
     super(langs);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.statusTrackingEnabled = statusTrackingEnabled;
@@ -108,7 +109,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                             .condWith(
                                 !isDefaultLocale(locale),
                                 defaultLocaleTextHint(program.localizedDescription())))));
-    if (statusTrackingEnabled) {
+    if (statusTrackingEnabled.get()) {
       // TODO(#2752): Use real statuses from the program.
       ImmutableList<ApplicationStatus> statusesWithEmail =
           ImmutableList.of(
