@@ -23,7 +23,7 @@ import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
-public class QuestionServiceImplTest extends ResetPostgres {
+public class QuestionServiceTest extends ResetPostgres {
   private static final QuestionDefinition questionDefinition =
       new TextQuestionDefinition(
           "my name",
@@ -32,12 +32,12 @@ public class QuestionServiceImplTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"));
 
-  QuestionServiceImpl questionService;
+  QuestionService questionService;
   VersionRepository versionRepository;
 
   @Before
   public void setUp() {
-    questionService = instanceOf(QuestionServiceImpl.class);
+    questionService = instanceOf(QuestionService.class);
     versionRepository = instanceOf(VersionRepository.class);
   }
 

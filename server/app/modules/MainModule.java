@@ -17,8 +17,6 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
-import services.question.QuestionService;
-import services.question.QuestionServiceImpl;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice
@@ -35,7 +33,6 @@ public class MainModule extends AbstractModule {
   @Override
   public void configure() {
     bind(ProgramService.class).to(ProgramServiceImpl.class);
-    bind(QuestionService.class).to(QuestionServiceImpl.class);
   }
 
   @Provides
