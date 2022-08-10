@@ -27,8 +27,34 @@ class AwsCli:
                 f'--secret-string={new_value}'
             ])
 
+    def is_db_password_default(self, secret_name: str) -> bool:
+        res = self._call_cli(
+            [
+                'secretsmanager', 'get-secret-value',
+                f'--secret-id={secret_name}'
+            ])
+        return res['SecretString'].startswith("default-")
+
     def get_current_user(self) -> str:
         return self._call_cli(['sts', 'get-caller-identity'])['UserId']
+
+    def update_master_password_in_database(self, db_name: str, password: str):
+        self._call_cli(
+            [
+                'rds', 'modify-db-instance',
+                f'--db-instance-identifier={db_name}',
+                f'--master-user-password={password}'
+            ])
+
+    def restart_ecs_service(self, cluster: str, service_name: str):
+        self._call_cli(
+            [
+                'ecs', 'update-service', '--force-new-deployment',
+                f'--service={service_name}', f'--cluster={cluster}'
+            ])
+
+    def get_url_of_secret(self, secret_name: str) -> str:
+        return f'https://{self.config.aws_region}.console.aws.amazon.com/secretsmanager/secret?name={secret_name}'
 
     def _call_cli(self, args: List[str]) -> Dict:
         args = [
