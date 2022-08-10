@@ -88,17 +88,6 @@ variable "public_subnets" {
   default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 }
 
-# TODO: determine reasonable max concurrency for a civiform server
-variable "auto_scaling_config" {
-  type        = map(string)
-  description = "Autoscaling config for AppRunner"
-  default = {
-    max_concurrency = "100",
-    max_size        = "10",
-    min_size        = "1"
-  }
-}
-
 variable "postgress_name" {
   type        = string
   description = "Name for Postress DB"
@@ -157,12 +146,6 @@ variable "log_storage_bucket" {
   type        = string
   description = "Name for S3 bucket to store logs"
   default     = "civiform-aws-staging-log-bucket"
-}
-
-variable "ses_sender_email" {
-  type        = string
-  description = "Email address that emails will be sent from"
-  default     = "azizoval@google.com"
 }
 
 variable "app_prefix" {

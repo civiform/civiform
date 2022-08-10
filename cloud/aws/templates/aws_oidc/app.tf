@@ -1,6 +1,7 @@
 module "ecs_cluster" {
-  source = "cn-terraform/ecs-cluster/aws"
-  name   = var.app_prefix
+  source  = "cn-terraform/ecs-cluster/aws"
+  version = "1.0.10"
+  name    = var.app_prefix
   tags = {
     Name = "${var.app_prefix} Civiform ECS Cluster"
     Type = "Civiform ECS Cluster"
@@ -10,6 +11,7 @@ module "ecs_cluster" {
 # TODO: reconcile with other logs bucket. We should only have one.
 module "aws_cw_logs" {
   source    = "cn-terraform/cloudwatch-logs/aws"
+  version   = "1.0.12"
   logs_path = "${var.app_prefix}_ecslogs/"
   tags = {
     Name = "${var.app_prefix} Civiform Cloud Watch Logs"
@@ -19,6 +21,7 @@ module "aws_cw_logs" {
 
 module "td" {
   source          = "cn-terraform/ecs-fargate-task-definition/aws"
+  version         = "1.0.30"
   name_prefix     = var.app_prefix
   container_name  = var.app_prefix
   container_image = "${var.civiform_image_repo}:${var.image_tag}"
@@ -66,6 +69,16 @@ module "td" {
               "kms:DescribeKey"
             ],
             "Resource" : [aws_kms_key.civiform_kms_key.arn]
+          },
+          {
+            "Effect" : "Allow",
+            "Action" : [
+              "s3:*"
+            ],
+            "Resource" : [
+              aws_s3_bucket.civiform_files_s3.arn,
+              "${aws_s3_bucket.civiform_files_s3.arn}/*",
+            ]
           },
         ]
       }
@@ -122,7 +135,7 @@ module "td" {
     FAVICON_URL                        = var.favicon_url
     SUPPORT_EMAIL_ADDRESS              = var.civic_entity_support_email_address
 
-    AWS_SES_SENDER = var.ses_sender_email
+    AWS_SES_SENDER = var.sender_email_address
     AWS_REGION     = var.aws_region
 
     STAGING_ADMIN_LIST                   = var.staging_program_admin_notification_mailing_list
@@ -167,6 +180,7 @@ module "td" {
 
 module "ecs_fargate_service" {
   source                  = "cn-terraform/ecs-fargate-service/aws"
+  version                 = "2.0.32"
   name_prefix             = var.app_prefix
   desired_count           = var.fargate_desired_task_count
   default_certificate_arn = var.ssl_certificate_arn

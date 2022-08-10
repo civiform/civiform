@@ -67,12 +67,6 @@ def main():
         with open(GH_RELEASE_TOKEN_FILENAME, 'r') as file:
             gh_token = file.read().rstrip()
 
-    if not gh_token.startswith('ghp_'):
-        print(
-            f'Invalid token found in {GH_RELEASE_TOKEN_FILENAME}',
-            file=sys.stderr)
-        exit(1)
-
     check_gh_auth_response = requests.get(
         'https://api.github.com/repos/civiform/civiform',
         headers={'Authorization': f'token {gh_token}'})
