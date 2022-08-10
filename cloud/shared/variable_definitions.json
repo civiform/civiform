@@ -60,7 +60,7 @@
     "secret": false,
     "tfvar": true,
     "type": "enum",
-    "values": ["prod", "staging", "dev", "test"]
+    "values": ["prod", "staging", "ci", "dev", "test"]
   },
   "CUSTOM_HOSTNAME": {
     "required": false,

@@ -124,6 +124,9 @@ class ConfigLoader:
     def is_test(self):
         return self.civiform_mode == 'test'
 
+    def is_ci(self):
+        return self.civiform_mode == 'ci'
+
     def use_backend_config(self):
         return not self.is_dev()
 
