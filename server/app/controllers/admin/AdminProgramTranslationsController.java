@@ -84,8 +84,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
             request,
             localeToEdit,
             program,
-            program.localizedName().maybeGet(localeToEdit),
-            program.localizedDescription().maybeGet(localeToEdit),
+            /* maybeTranslationForm= */ Optional.empty(),
             Optional.empty()));
   }
 
@@ -113,12 +112,14 @@ public class AdminProgramTranslationsController extends CiviFormController {
       return badRequest();
     }
     ProgramTranslationForm translations = translationForm.bindFromRequest(request).get();
-    String displayName = translations.getDisplayName();
-    String displayDescription = translations.getDisplayDescription();
 
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateLocalization(program.id(), localeToUpdate, displayName, displayDescription);
+          service.updateLocalization(
+              program.id(),
+              localeToUpdate,
+              translations.getDisplayName(),
+              translations.getDisplayDescription());
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return ok(
@@ -126,8 +127,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
                 request,
                 localeToUpdate,
                 program,
-                Optional.of(displayName),
-                Optional.of(displayDescription),
+                Optional.of(translations),
                 Optional.of(errorMessage)));
       }
       return redirect(routes.AdminProgramController.index().url());

@@ -1,5 +1,8 @@
 package forms.translation;
 
+import java.util.Locale;
+import services.program.ProgramDefinition;
+
 /** Form for updating translation for programs. */
 public class ProgramTranslationForm {
 
@@ -9,6 +12,14 @@ public class ProgramTranslationForm {
   public ProgramTranslationForm() {
     this.displayName = "";
     this.displayDescription = "";
+  }
+
+  /** Initializes a ProgramStatusesForm from the given status object. */
+  public static ProgramTranslationForm fromProgram(ProgramDefinition program, Locale locale) {
+    ProgramTranslationForm form = new ProgramTranslationForm();
+    form.setDisplayName(program.localizedName().maybeGet(locale).orElse(""));
+    form.setDisplayDescription(program.localizedDescription().maybeGet(locale).orElse(""));
+    return form;
   }
 
   public String getDisplayName() {
