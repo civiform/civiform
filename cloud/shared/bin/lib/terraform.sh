@@ -66,7 +66,7 @@ function terraform::perform_apply() {
     return 0
   fi
 
-  if ! civiform_mode::is_dev; then
+  if civiform_mode::is_ci; then
     "${TERRAFORM_APPLY[@]}" -auto-approve "${TERRAFORM_PLAN_OUT_FILE}"
   else
     "${TERRAFORM_APPLY[@]}" "${TERRAFORM_PLAN_OUT_FILE}"
