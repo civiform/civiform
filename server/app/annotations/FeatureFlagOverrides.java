@@ -38,7 +38,6 @@ public class FeatureFlagOverrides {
     synchronized (overrides) {
       logger.error("Overriding {} to {}", flag, value);
       overrides.put(flag, value);
-      logger.error(overrides.toString());
     }
   }
 
@@ -48,13 +47,12 @@ public class FeatureFlagOverrides {
    * <p>Parsing follows {@link Boolean#parseBoolean(String)} rules.
    */
   public Optional<Boolean> getOverrideBoolean(String flag) {
-    logger.error(overrides.toString());
     if (!config.getBoolean(FEATURE_FLAG_OVERRIDES_ENABLED)) {
       return Optional.empty();
     }
 
     synchronized (overrides) {
-      // Overrides shouldn't be used in prod so be verbose about them.
+      // Overrides shouldn't be used in prod so be verbose about them in general.
       logger.warn("Providing override for {}: {}", flag, overrides.get(flag));
       return Optional.ofNullable(overrides.get(flag)).map(Boolean::parseBoolean);
     }
