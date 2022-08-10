@@ -43,6 +43,7 @@ resource "aws_db_instance" "civiform" {
   final_snapshot_identifier       = "${var.app_prefix}-civiform-db-finalsnapshot"
   backup_retention_period         = var.postgres_backup_retention_days
   kms_key_id                      = aws_kms_key.civiform_kms_key.arn
+  storage_encrypted               = true
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 }
 

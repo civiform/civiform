@@ -3,6 +3,8 @@ package views.admin.programs;
 import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.legend;
+import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -13,10 +15,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
-import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -24,7 +26,9 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
@@ -34,9 +38,9 @@ public final class ProgramTranslationView extends TranslationFormView {
   @Inject
   public ProgramTranslationView(
       AdminLayoutFactory layoutFactory,
-      Langs langs,
+      TranslationLocales translationLocales,
       @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
-    super(langs);
+    super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.statusTrackingEnabled = statusTrackingEnabled;
   }
@@ -54,10 +58,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             .url();
     FormTag form =
         renderTranslationForm(
-            request,
-            locale,
-            formAction,
-            formFields(program, locale, localizedName, localizedDescription));
+            request, locale, formAction, formFields(program, localizedName, localizedDescription));
 
     String title = String.format("Manage program translations: %s", program.adminName());
 
@@ -79,14 +80,22 @@ public final class ProgramTranslationView extends TranslationFormView {
 
   private ImmutableList<DomContent> formFields(
       ProgramDefinition program,
-      Locale locale,
       Optional<String> localizedName,
       Optional<String> localizedDescription) {
+    String programDetailsLink =
+        controllers.admin.routes.AdminProgramController.edit(program.id()).url();
     ImmutableList.Builder<DomContent> result =
         ImmutableList.<DomContent>builder()
             .add(
                 fieldSetForFields(
-                    "Program details (visible to applicants)",
+                    legend()
+                        .with(
+                            span("Applicant-visible program details"),
+                            new LinkElement()
+                                .setText("(edit default)")
+                                .setHref(programDetailsLink)
+                                .setStyles(Styles.ML_2)
+                                .asAnchorText()),
                     ImmutableList.of(
                         div()
                             .with(
@@ -94,9 +103,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     .setFieldName("displayName")
                                     .setLabelText("Program name")
                                     .setValue(localizedName)
-                                    .getInputTag())
-                            .condWith(
-                                !isDefaultLocale(locale),
+                                    .getInputTag(),
                                 defaultLocaleTextHint(program.localizedName())),
                         div()
                             .with(
@@ -104,20 +111,28 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     .setFieldName("displayDescription")
                                     .setLabelText("Program description")
                                     .setValue(localizedDescription)
-                                    .getInputTag())
-                            .condWith(
-                                !isDefaultLocale(locale),
+                                    .getInputTag(),
                                 defaultLocaleTextHint(program.localizedDescription())))));
     if (statusTrackingEnabled) {
+      String programStatusesLink =
+          controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
       // TODO(#2752): Use real statuses from the program.
       ImmutableList<ApplicationStatus> statusesWithEmail =
           ImmutableList.of(
               ApplicationStatus.create("Approved", "Some email content"),
               ApplicationStatus.create("Needs more information", "Other email content"));
+
       for (ApplicationStatus s : statusesWithEmail) {
         result.add(
             fieldSetForFields(
-                String.format("Application status: %s", s.statusName()),
+                legend()
+                    .with(
+                        span(String.format("Application status: %s", s.statusName())),
+                        new LinkElement()
+                            .setText("(edit default)")
+                            .setHref(programStatusesLink)
+                            .setStyles(Styles.ML_2)
+                            .asAnchorText()),
                 ImmutableList.of(
                     div()
                         .with(
@@ -125,9 +140,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setLabelText("Status name")
                                 .setScreenReaderText("Status name")
                                 .setValue(s.statusName())
-                                .getInputTag())
-                        .condWith(
-                            !isDefaultLocale(locale),
+                                .getInputTag(),
                             defaultLocaleTextHint(
                                 LocalizedStrings.withDefaultValue(s.statusName()))),
                     div()
@@ -137,9 +150,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setScreenReaderText("Email content")
                                 .setValue(s.emailContent())
                                 .setRows(OptionalLong.of(8))
-                                .getTextareaTag())
-                        .condWith(
-                            !isDefaultLocale(locale),
+                                .getTextareaTag(),
                             defaultLocaleTextHint(
                                 LocalizedStrings.withDefaultValue(s.emailContent()))))));
       }

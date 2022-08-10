@@ -26,7 +26,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
 import views.BaseHtmlView;
@@ -50,13 +50,18 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private final AdminLayout layout;
   private final FormFactory formFactory;
   private final MessagesApi messagesApi;
+  private final TranslationLocales translationLocales;
 
   @Inject
   public ProgramStatusesView(
-      AdminLayoutFactory layoutFactory, FormFactory formFactory, MessagesApi messagesApi) {
+      AdminLayoutFactory layoutFactory,
+      FormFactory formFactory,
+      MessagesApi messagesApi,
+      TranslationLocales translationLocales) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.formFactory = formFactory;
     this.messagesApi = checkNotNull(messagesApi);
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /**
@@ -92,25 +97,22 @@ public final class ProgramStatusesView extends BaseHtmlView {
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
         renderProgramStatusesContainer(request, program, maybeStatusForm);
 
-    DivTag contentDiv =
+    DivTag topBarDiv =
         div()
-            .withClasses(Styles.PX_4)
+            .withClasses(
+                Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12, Styles.MB_10)
             .with(
-                div()
-                    .withClasses(
-                        Styles.FLEX,
-                        Styles.ITEMS_CENTER,
-                        Styles.SPACE_X_4,
-                        Styles.MT_12,
-                        Styles.MB_10)
-                    .with(
-                        h1(
-                            String.format(
-                                "Manage application statuses for %s", program.adminName())),
-                        div().withClass(Styles.FLEX_GROW),
-                        renderManageTranslationsLink(program),
-                        createStatusTriggerButton),
-                statusContainerAndModals.getLeft());
+                h1(String.format("Manage application statuses for %s", program.adminName())),
+                div().withClass(Styles.FLEX_GROW));
+
+    Optional<ButtonTag> maybeManageTranslationsLink = renderManageTranslationsLink(program);
+    if (maybeManageTranslationsLink.isPresent()) {
+      topBarDiv.with(maybeManageTranslationsLink.get());
+    }
+    topBarDiv.with(createStatusTriggerButton);
+
+    DivTag contentDiv =
+        div().withClasses(Styles.PX_4).with(topBarDiv, statusContainerAndModals.getLeft());
 
     HtmlBundle htmlBundle =
         layout
@@ -130,15 +132,16 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ButtonTag renderManageTranslationsLink(ProgramDefinition program) {
+  private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
+    if (translationLocales.translatableLocales().isEmpty()) {
+      return Optional.empty();
+    }
     String linkDestination =
-        routes.AdminProgramTranslationsController.edit(
-                program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
-            .url();
+        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);
-    return asRedirectButton(button, linkDestination);
+    return Optional.of(asRedirectButton(button, linkDestination));
   }
 
   /**

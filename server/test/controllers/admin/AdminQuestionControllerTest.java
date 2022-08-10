@@ -66,7 +66,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build(), "text");
 
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("message").get()).contains("created");
+    assertThat(result.flash().get("success").get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
@@ -97,7 +97,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build(), "text");
 
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("message").get()).contains("created");
+    assertThat(result.flash().get("success").get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
@@ -129,7 +129,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build(), "text");
 
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("message").get()).contains("created");
+    assertThat(result.flash().get("success").get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
@@ -273,7 +273,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void index_showsMessageFlash() {
-    Request request = addCSRFToken(Helpers.fakeRequest().flash("message", "has message")).build();
+    Request request = addCSRFToken(Helpers.fakeRequest().flash("success", "has message")).build();
     Result result = controller.index(request).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -326,7 +326,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("message").get()).contains("updated");
+    assertThat(result.flash().get("success").get()).contains("updated");
 
     Question updatedNameQuestion =
         questionRepo
