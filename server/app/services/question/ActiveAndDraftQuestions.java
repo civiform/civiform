@@ -85,11 +85,10 @@ public final class ActiveAndDraftQuestions {
                 ImmutableMap.toImmutableMap(
                     questionName -> questionName,
                     questionName -> {
-                      final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
-                          referencesToExamine =
-                              draftVersionHasAnyEdits
-                                  ? referencingDraftProgramsByName
-                                  : referencingActiveProgramsByName;
+                      ImmutableMap<String, ImmutableSet<ProgramDefinition>> referencesToExamine =
+                          draftVersionHasAnyEdits
+                              ? referencingDraftProgramsByName
+                              : referencingActiveProgramsByName;
                       if (!referencesToExamine
                           .getOrDefault(questionName, ImmutableSet.of())
                           .isEmpty()) {
