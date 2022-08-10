@@ -1,11 +1,15 @@
 package controllers.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.Authorizers;
 import controllers.CiviFormController;
 import forms.translation.EnumeratorQuestionTranslationForm;
 import forms.translation.MultiOptionQuestionTranslationForm;
 import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -15,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.TranslationLocales;
 import services.question.QuestionService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
@@ -30,17 +35,40 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   private final QuestionService questionService;
   private final QuestionTranslationView translationView;
   private final FormFactory formFactory;
+  private final TranslationLocales translationLocales;
+  private final Optional<Locale> maybeFirstTranslatableLocale;
 
   @Inject
   public AdminQuestionTranslationsController(
       HttpExecutionContext httpExecutionContext,
       QuestionService questionService,
       QuestionTranslationView translationView,
-      FormFactory formFactory) {
-    this.httpExecutionContext = httpExecutionContext;
-    this.questionService = questionService;
-    this.translationView = translationView;
-    this.formFactory = formFactory;
+      FormFactory formFactory,
+      TranslationLocales translationLocales) {
+    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.questionService = checkNotNull(questionService);
+    this.translationView = checkNotNull(translationView);
+    this.formFactory = checkNotNull(formFactory);
+    this.translationLocales = checkNotNull(translationLocales);
+    this.maybeFirstTranslatableLocale =
+        this.translationLocales.translatableLocales().stream().findFirst();
+  }
+
+  /**
+   * Redirects to the first non-English locale eligible for translations for a question. English
+   * translations for question details are not supported since configuring these values already has
+   * separate UI.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result redirectToFirstLocale(Http.Request request, long questionId) {
+    if (maybeFirstTranslatableLocale.isEmpty()) {
+      return redirect(routes.AdminQuestionController.index().url())
+          .flashing("error", "Translations are not enabled for this configuration");
+    }
+    return redirect(
+        routes.AdminQuestionTranslationsController.edit(
+                questionId, maybeFirstTranslatableLocale.get().toLanguageTag())
+            .url());
   }
 
   /**
@@ -48,20 +76,27 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    * locale.
    *
    * @param request the current {@link Http.Request}
-   * @param id the ID of the question to update
    * @param locale the locale to update, as an ISO language tag
    * @return a rendered {@link QuestionTranslationView} pre-populated with any existing translations
    *     for the given locale
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> edit(Http.Request request, long id, String locale) {
+  public CompletionStage<Result> edit(Http.Request request, long questionId, String locale) {
+    Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
+    if (maybeLocaleToEdit.isEmpty()) {
+      return CompletableFuture.completedFuture(
+          redirect(routes.AdminQuestionController.index().url())
+              .flashing("error", String.format("The %s locale is not supported", locale)));
+    }
+    Locale localeToEdit = maybeLocaleToEdit.get();
+
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyQuestionService -> {
               try {
-                QuestionDefinition definition = readOnlyQuestionService.getQuestionDefinition(id);
-                Locale localeToEdit = Locale.forLanguageTag(locale);
+                QuestionDefinition definition =
+                    readOnlyQuestionService.getQuestionDefinition(questionId);
                 return ok(translationView.render(request, localeToEdit, definition));
               } catch (QuestionNotFoundException e) {
                 return notFound(e.getMessage());
@@ -74,25 +109,31 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    * Save updates to a question's localizations.
    *
    * @param request the current {@link Http.Request}
-   * @param id the ID of the question to update
    * @param locale the locale to update, as an ISO language tag
    * @return redirects to the admin's home page if updates were successful; otherwise, renders the
    *     same {@link QuestionTranslationView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> update(Http.Request request, long id, String locale) {
-    Locale updatedLocale = Locale.forLanguageTag(locale);
+  public CompletionStage<Result> update(Http.Request request, long questionId, String locale) {
+    Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
+    if (maybeLocaleToUpdate.isEmpty()) {
+      return CompletableFuture.completedFuture(
+          redirect(routes.AdminQuestionController.index().url())
+              .flashing("error", String.format("The %s locale is not supported", locale)));
+    }
+    Locale localeToUpdate = maybeLocaleToUpdate.get();
 
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyQuestionService -> {
               try {
-                QuestionDefinition toUpdate = readOnlyQuestionService.getQuestionDefinition(id);
+                QuestionDefinition toUpdate =
+                    readOnlyQuestionService.getQuestionDefinition(questionId);
                 QuestionTranslationForm form =
                     buildFormFromRequest(request, toUpdate.getQuestionType());
                 QuestionDefinition definitionWithUpdates =
-                    form.builderWithUpdates(toUpdate, updatedLocale).build();
+                    form.builderWithUpdates(toUpdate, localeToUpdate).build();
 
                 ErrorAnd<QuestionDefinition, CiviFormError> result =
                     questionService.update(definitionWithUpdates);
@@ -101,7 +142,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                   String errorMessage = joinErrors(result.getErrors());
                   return ok(
                       translationView.renderErrors(
-                          request, updatedLocale, definitionWithUpdates, errorMessage));
+                          request, localeToUpdate, definitionWithUpdates, errorMessage));
                 }
 
                 return redirect(routes.AdminQuestionController.index().url());

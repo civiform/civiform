@@ -138,3 +138,9 @@ variable "saml_keystore_container_name" {
   description = "The name of the keystore file"
   default     = "saml-keystore"
 }
+
+variable "feature_flag_status_tracking_enabled" {
+  type        = bool
+  description = "When set to true enable Status Tracking."
+  default     = false
+}
