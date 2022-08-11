@@ -14,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -119,7 +120,12 @@ public class AdminProgramTranslationsController extends CiviFormController {
             translationView.render(
                 request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
       }
-      return redirect(routes.AdminProgramController.index().url());
+      return redirect(routes.AdminProgramController.index().url())
+          .flashing(
+              "success",
+              String.format(
+                  "Program translations updated for %s",
+                  localeToUpdate.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     }
