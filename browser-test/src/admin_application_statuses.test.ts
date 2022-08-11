@@ -8,7 +8,10 @@ import {
   ApplicantQuestions,
   AdminPrograms,
   userDisplayName,
-  AdminProgramStatuses, enableFeatureFlag, gotoEndpoint, disableFeatureFlag,
+  AdminProgramStatuses,
+  enableFeatureFlag,
+  gotoEndpoint,
+  disableFeatureFlag,
 } from './support'
 import {Page} from 'playwright'
 
@@ -24,17 +27,16 @@ describe('view program statuses', () => {
     adminPrograms = new AdminPrograms(pageObject)
     applicantQuestions = new ApplicantQuestions(pageObject)
     adminProgramStatuses = new AdminProgramStatuses(pageObject)
-  await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
-  // Need to navigate back to the Admin page after enabling the feature flag.
-  await gotoEndpoint(pageObject, '')
-})
+    await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+    // Need to navigate back to the Admin page after enabling the feature flag.
+    await gotoEndpoint(pageObject, '')
+  })
 
-afterAll(async () => {
-  await disableFeatureFlag(pageObject, 'application_status_tracking_enabled')
-})
+  afterAll(async () => {
+    await disableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+  })
 
-
-describe.skip('without program statuses', () => {
+  describe.skip('without program statuses', () => {
     const programWithoutStatusesName = 'test program without statuses'
     beforeAll(async () => {
       await loginAsAdmin(pageObject)
