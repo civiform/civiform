@@ -2,7 +2,6 @@ package forms.translation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -77,11 +76,6 @@ public final class ProgramTranslationForm {
         formFactory
             .form()
             .bindFromRequest(request, allFieldNames(maxStatusTranslations).toArray(new String[0]));
-    if (form.hasErrors()) {
-      // This case is never expected since our form has no validation constraints on it.
-      throw new RuntimeException(
-          String.format("unexpected form errors: %s", form.errorsAsJson().toString()));
-    }
     return new ProgramTranslationForm(form, maxStatusTranslations);
   }
 
@@ -99,16 +93,15 @@ public final class ProgramTranslationForm {
     this.maxStatusTranslations = maxStatusTranslations;
   }
 
-  private String getStringFormField(String fieldName) {
-    // TODO(clouser): Maybe Optional<String>
-    String result = form.rawData().getOrDefault(fieldName, "");
-    return result != null ? result : "";
+  private Optional<String> getStringFormField(String fieldName) {
+    return Optional.ofNullable(form.rawData().get(fieldName));
   }
 
   public LocalizationUpdate getUpdateData() {
     return LocalizationUpdate.builder()
-        .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME))
-        .setLocalizedDisplayDescription(getStringFormField(DISPLAY_DESCRIPTION_FORM_NAME))
+        .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME).orElse(""))
+        .setLocalizedDisplayDescription(
+            getStringFormField(DISPLAY_DESCRIPTION_FORM_NAME).orElse(""))
         .setStatuses(getStatusUpdates())
         .build();
   }
@@ -118,19 +111,29 @@ public final class ProgramTranslationForm {
         .boxed()
         .map(
             i -> {
+              Optional<String> maybeConfiguredStatusText =
+                  getStringFormField(configuredStatusFieldName(i));
+              Optional<String> maybeStatusText = getStringFormField(statusTextFieldName(i));
+              Optional<String> maybeEmail = getStringFormField(statusEmailFieldName(i));
+              if (maybeConfiguredStatusText.isEmpty()
+                  || maybeStatusText.isEmpty()
+                  || maybeEmail.isEmpty()) {
+                return Optional.empty();
+              }
+
               LocalizationUpdate.StatusUpdate.Builder resultBuilder =
                   LocalizationUpdate.StatusUpdate.builder()
-                      .setConfiguredStatusText(getStringFormField(configuredStatusFieldName(i)));
-              String newStatusText = getStringFormField(statusTextFieldName(i));
-              if (!Strings.isNullOrEmpty(newStatusText)) {
-                resultBuilder.setLocalizedStatusText(Optional.of(newStatusText));
+                      .setConfiguredStatusText(maybeConfiguredStatusText.get());
+              if (!maybeStatusText.get().isEmpty()) {
+                resultBuilder.setLocalizedStatusText(maybeStatusText);
               }
-              String newStatusEmail = getStringFormField(statusEmailFieldName(i));
-              if (!Strings.isNullOrEmpty(newStatusEmail)) {
-                resultBuilder.setLocalizedEmailBody(Optional.of(newStatusEmail));
+              if (!maybeEmail.get().isEmpty()) {
+                resultBuilder.setLocalizedEmailBody(maybeEmail);
               }
-              return resultBuilder.build();
+              return Optional.of(resultBuilder.build());
             })
+        .filter(maybeStatusUpdate -> maybeStatusUpdate.isPresent())
+        .map(maybeStatusUpdate -> (LocalizationUpdate.StatusUpdate) maybeStatusUpdate.get())
         .collect(ImmutableList.toImmutableList());
   }
 
