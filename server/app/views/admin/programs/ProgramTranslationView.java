@@ -7,8 +7,8 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import controllers.admin.routes;
 import forms.translation.ProgramTranslationForm;
 import j2html.tags.DomContent;
@@ -16,7 +16,6 @@ import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.function.Function;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -60,8 +59,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                 program.id(), locale.toLanguageTag())
             .url();
     FormTag form =
-        renderTranslationForm(
-            request, locale, formAction, formFields(program, locale, translationForm));
+        renderTranslationForm(request, locale, formAction, formFields(program, translationForm));
 
     String title = String.format("Manage program translations: %s", program.adminName());
 
@@ -82,7 +80,7 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<DomContent> formFields(
-      ProgramDefinition program, Locale locale, ProgramTranslationForm translationForm) {
+      ProgramDefinition program, ProgramTranslationForm translationForm) {
     LocalizationUpdate updateData = translationForm.getUpdateData();
     String programDetailsLink =
         controllers.admin.routes.AdminProgramController.edit(program.id()).url();
@@ -120,15 +118,12 @@ public final class ProgramTranslationView extends TranslationFormView {
       String programStatusesLink =
           controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
 
-      ImmutableMap<String, LocalizationUpdate.StatusUpdate> updateLookup =
-          buildStatusUpdates(updateData, locale, program);
-      for (int statusIdx = 0;
-          statusIdx < program.statusDefinitions().getStatuses().size();
-          statusIdx++) {
+      Preconditions.checkState(
+          updateData.statuses().size() == program.statusDefinitions().getStatuses().size());
+      for (int statusIdx = 0; statusIdx < updateData.statuses().size(); statusIdx++) {
         StatusDefinitions.Status configuredStatus =
             program.statusDefinitions().getStatuses().get(statusIdx);
-        LocalizationUpdate.StatusUpdate statusUpdateData =
-            updateLookup.get(configuredStatus.statusText());
+        LocalizationUpdate.StatusUpdate statusUpdateData = updateData.statuses().get(statusIdx);
         ImmutableList.Builder<DomContent> fieldsBuilder =
             ImmutableList.<DomContent>builder()
                 .add(
@@ -173,38 +168,5 @@ public final class ProgramTranslationView extends TranslationFormView {
       }
     }
     return result.build();
-  }
-
-  private static ImmutableMap<String, LocalizationUpdate.StatusUpdate> buildStatusUpdates(
-      LocalizationUpdate updateData, Locale locale, ProgramDefinition program) {
-    // The form can be rendered in response to an error where the statuses in the form data are
-    // out of sync with the statuses configured in the databawse (e.g. status removed in a
-    // separate tab).
-    ImmutableMap<String, LocalizationUpdate.StatusUpdate> statusTextToUpdatedContent =
-        updateData.statuses().stream()
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    LocalizationUpdate.StatusUpdate::configuredStatusText, Function.identity()));
-
-    ImmutableMap.Builder<String, LocalizationUpdate.StatusUpdate> resultBuilder =
-        ImmutableMap.builder();
-    program.statusDefinitions().getStatuses().stream()
-        .forEach(
-            s -> {
-              if (statusTextToUpdatedContent.containsKey(s.statusText())) {
-                resultBuilder.put(s.statusText(), statusTextToUpdatedContent.get(s.statusText()));
-              } else {
-                LocalizationUpdate.StatusUpdate.Builder updateBuilder =
-                    LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(s.statusText())
-                        .setLocalizedStatusText(s.localizedStatusText().maybeGet(locale));
-                if (s.localizedEmailBodyText().isPresent()) {
-                  updateBuilder.setLocalizedEmailBody(
-                      Optional.of(s.localizedEmailBodyText().get().maybeGet(locale).orElse("")));
-                }
-                resultBuilder.put(s.statusText(), updateBuilder.build());
-              }
-            });
-    return resultBuilder.build();
   }
 }
