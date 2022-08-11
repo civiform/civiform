@@ -244,6 +244,7 @@ public final class ProgramServiceImpl implements ProgramService {
         programDefinition.statusDefinitions().getStatuses().stream()
             .map(
                 s -> {
+                  // TODO(clouser): Validation. Mismatch between whether an email exists or not.
                   LocalizationUpdate.StatusUpdate statusUpdateData =
                       configuredStatusToUpdateData.get(s.statusText());
                   StatusDefinitions.Status.Builder updateBuilder =
