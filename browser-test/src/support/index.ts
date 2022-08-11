@@ -226,7 +226,7 @@ export const validateScreenshot = async (
 ) => {
   // Do not make image snapshots when running locally
   if (isLocalDevEnvironment()) {
-    return;
+    return
   }
   expect(
     await page.screenshot({
