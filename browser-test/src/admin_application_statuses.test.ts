@@ -36,7 +36,7 @@ describe('view program statuses', () => {
     await disableFeatureFlag(pageObject, 'application_status_tracking_enabled')
   })
 
-  describe.skip('without program statuses', () => {
+  describe('without program statuses', () => {
     const programWithoutStatusesName = 'test program without statuses'
     beforeAll(async () => {
       await loginAsAdmin(pageObject)
