@@ -222,12 +222,50 @@ public final class ProgramServiceImpl implements ProgramService {
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
       throws ProgramNotFoundException {
-    // TODO(clouser): Implement.
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
     validateProgramText(
         errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
+
+    ImmutableMap<String, LocalizationUpdate.StatusUpdate> configuredStatusToUpdateData =
+        localizationUpdate.statuses().stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    LocalizationUpdate.StatusUpdate::configuredStatusText, Function.identity()));
+    ImmutableSet<String> existingConfiguredStatuses =
+        programDefinition.statusDefinitions().getStatuses().stream()
+            .map(StatusDefinitions.Status::statusText)
+            .collect(ImmutableSet.toImmutableSet());
+    if (!configuredStatusToUpdateData.keySet().equals(existingConfiguredStatuses)) {
+      errorsBuilder.add(CiviFormError.of("TODO(clouser): Out of date tab."));
+    }
+    ImmutableList<StatusDefinitions.Status> toUpdateStatuses =
+        programDefinition.statusDefinitions().getStatuses().stream()
+            .map(
+                s -> {
+                  LocalizationUpdate.StatusUpdate statusUpdateData =
+                      configuredStatusToUpdateData.get(s.statusText());
+                  StatusDefinitions.Status.Builder updateBuilder =
+                      StatusDefinitions.Status.builder()
+                          .setStatusText(s.statusText())
+                          .setLocalizedStatusText(
+                              s.localizedStatusText()
+                                  .updateTranslation(
+                                      locale, statusUpdateData.localizedStatusText()));
+                  if (s.localizedEmailBodyText().isPresent()
+                      && statusUpdateData.localizedEmailBody().isPresent()) {
+                    updateBuilder.setLocalizedEmailBodyText(
+                        Optional.of(
+                            s.localizedEmailBodyText()
+                                .get()
+                                .updateTranslation(
+                                    locale, statusUpdateData.localizedEmailBody().get())));
+                  }
+                  return updateBuilder.build();
+                })
+            .collect(ImmutableList.toImmutableList());
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -243,6 +281,7 @@ public final class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
+            .setStatusDefinitions(new StatusDefinitions(toUpdateStatuses))
             .build()
             .toProgram();
     return ErrorAnd.of(
