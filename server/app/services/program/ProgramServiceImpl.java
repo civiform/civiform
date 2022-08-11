@@ -220,12 +220,14 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
-      long programId, Locale locale, String displayName, String displayDescription)
+      long programId, Locale locale, LocalizationUpdate localizationUpdate)
       throws ProgramNotFoundException {
+    // TODO(clouser): Implement.
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    validateProgramText(errorsBuilder, "display name", displayName);
-    validateProgramText(errorsBuilder, "display description", displayDescription);
+    validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
+    validateProgramText(
+        errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -234,11 +236,13 @@ public final class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder()
             .setLocalizedName(
-                programDefinition.localizedName().updateTranslation(locale, displayName))
+                programDefinition
+                    .localizedName()
+                    .updateTranslation(locale, localizationUpdate.localizedDisplayName()))
             .setLocalizedDescription(
                 programDefinition
                     .localizedDescription()
-                    .updateTranslation(locale, displayDescription))
+                    .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
             .build()
             .toProgram();
     return ErrorAnd.of(

@@ -9,7 +9,6 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
-import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -84,7 +83,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
             request,
             localeToEdit,
             program,
-            /* maybeTranslationForm= */ Optional.empty(),
+            ProgramTranslationForm.fromProgram(formFactory, localeToEdit, program),
             Optional.empty()));
   }
 
@@ -107,28 +106,18 @@ public class AdminProgramTranslationsController extends CiviFormController {
     }
     Locale localeToUpdate = maybeLocaleToUpdate.get();
 
-    Form<ProgramTranslationForm> translationForm = formFactory.form(ProgramTranslationForm.class);
-    if (translationForm.hasErrors()) {
-      return badRequest();
-    }
-    ProgramTranslationForm translations = translationForm.bindFromRequest(request).get();
+    ProgramTranslationForm translationForm =
+        ProgramTranslationForm.bindFromRequest(
+            formFactory, request, program.statusDefinitions().getStatuses().size());
 
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateLocalization(
-              program.id(),
-              localeToUpdate,
-              translations.getDisplayName(),
-              translations.getDisplayDescription());
+          service.updateLocalization(program.id(), localeToUpdate, translationForm.getUpdateData());
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return ok(
             translationView.render(
-                request,
-                localeToUpdate,
-                program,
-                Optional.of(translations),
-                Optional.of(errorMessage)));
+                request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
       }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {
