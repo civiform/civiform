@@ -44,6 +44,8 @@ validation.invalidInput=Vui lòng nhập một giá trị cho mỗi dòng.
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Vui lòng đăng nhập bằng tài khoản Thành Phố {0} của quý vị  
 
+button.edit=Chỉnh sửa
+
 # The text on the button an applicant clicks to log in to their session.
 button.login=Đăng nhập
 

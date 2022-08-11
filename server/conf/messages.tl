@@ -44,6 +44,8 @@ validation.invalidInput=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod ng {0}
 
+button.edit=I-edit
+
 # The text on the button an applicant clicks to log in to their session.
 button.login=Maglog-in
 

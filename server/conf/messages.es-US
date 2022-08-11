@@ -41,6 +41,10 @@ validation.isRequired=Esta pregunta es obligatoria.
 # Prompt for applicant to log in
 content.loginPrompt=Por favor inicie sesión con su cuenta de la Ciudad de Seattle
 
+button.edit=Editar
+
+ariaLabel.edit=Editar {0}
+
 # The text on the button an applicant clicks to log in to their session.
 button.login=Iniciar sesión
 

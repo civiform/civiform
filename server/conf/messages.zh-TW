@@ -81,3 +81,27 @@ validation.idTooShort=必須至少包含 {0} 個字符。
 validation.idTooLong=必須最多包含 {0} 個字符。
 validation.numberRequired=必須只包含數字。
 adminValidation.multiOptionEmpty=多選題不能有空白選項。
+ariaLabel.edit=編輯 {0}
+button.applySr=適用於 {0}
+button.createAccount=創建賬戶
+button.edit=編輯
+button.guestLogin=以訪客身份繼續
+button.login=登錄
+button.previousScreen=Previous
+button.untranslatedSubmit=提交
+content.adminLoginPrompt=尋求其他幫助？
+content.alternativeLoginPrompt=沒有賬戶？
+content.applicantInformation
+content.loginPrompt=請使用您的西雅圖市政府個人服務帳戶登錄
+content.or=或者
+content.submittedDate=Submitted Date
+dialog.confirmDelete=您確定要刪除嗎？
+guest=Guest
+header.userName=登錄為 {0}
+input.fileAlreadyUploaded=File Uploaded: {0}
+label.languageSr=選擇語言
+label.selectLanguage=選擇語言
+link.adminLogin=Admin Login
+link.programDetailsSr={0} 的詳情
+placeholder.noDropdownSelection=選擇一個選項：
+

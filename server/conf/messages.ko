@@ -45,6 +45,11 @@ validation.invalidInput=각 줄에 해당되는 값을 입력하세요.
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=귀하의 시애틀시 계정으로 로그인하십시오 {0}
 
+button.edit=수정
+
+ariaLabel.edit=수정 {0}
+
+
 # The text on the button an applicant clicks to log in to their session.
 button.login=로그인
 

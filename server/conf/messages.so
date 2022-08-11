@@ -152,6 +152,8 @@ toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
 #------------------------------------------------------------------------#
 
+button.edit=Wax ka beddel
+
 # Submit application button
 button.submit=Gudbi
 
