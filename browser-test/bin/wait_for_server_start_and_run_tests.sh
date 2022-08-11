@@ -5,6 +5,10 @@ set -euo pipefail
 START_TIME=$(date +%s)
 DEADLINE=$(($START_TIME + 500))
 SERVER_URL="http://civiform:9000"
+# Store playwright browsers within node_modules directory. This way playwright
+# library and browsers placed together and less likely go out of sync if
+# there are manipulations with docker volumes.
+PLAYWRIGHT_BROWSERS_PATH=0
 
 echo "Polling to check server start"
 
