@@ -24,13 +24,12 @@ def main():
     if config_loader.is_test():
         print('Test completed')
 
-    aws_cli = AwsCli(config_loader)
-    fargate_service = f'{config_loader.app_prefix}-{resources.FARGATE_SERVICE}'
-    tasks_url = aws_cli.get_url_of_fargate_tasks(
-        config_loader.app_prefix, fargate_service)
     print()
     print('Deployment finished. You can monitor civiform tasks status here:')
-    print(tasks_url)
+    fargate_service = f'{config_loader.app_prefix}-{resources.FARGATE_SERVICE}'
+    print(
+        AwsCli(config_loader).get_url_of_fargate_tasks(
+            config_loader.app_prefix, fargate_service))
 
 
 if __name__ == "__main__":
