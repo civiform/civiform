@@ -39,11 +39,11 @@ class ConfigLoader:
 
     @property
     def use_local_backend(self):
-        return os.environ['USE_LOCAL_BACKEND']
+        return os.getenv('USE_LOCAL_BACKEND', False)
 
     @property
     def skip_confirmations(self):
-        return os.environ['SKIP_CONFIRMATIONS']
+        return os.getenv('SKIP_CONFIRMATIONS', False)
 
     def load_config(self):
         self._load_config()
