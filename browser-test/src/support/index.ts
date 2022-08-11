@@ -224,19 +224,24 @@ export const validateScreenshot = async (
   pageScreenshotOptions?: PageScreenshotOptions,
   matchImageSnapshotOptions?: MatchImageSnapshotOptions,
 ) => {
+  // Do not make image snapshots when running locally
+  if (isLocalDevEnvironment()) {
+    return;
+  }
   expect(
     await page.screenshot({
       ...pageScreenshotOptions,
     }),
   ).toMatchImageSnapshot({
+    allowSizeMismatch: true,
     failureThreshold: 0.03,
     failureThresholdType: 'percent',
     // Dumps a base64url diff image to console which can viewed in browser.
-    // This is useful for debugging the image diff from CI logs.
+    // This is useful for viewing the image diff from CI logs.
     dumpDiffToConsole: true,
-    customSnapshotIdentifier: ({ counter, currentTestName, testPath }) => {
-      const dir = path.basename(testPath).replace(".test.ts", "_test")
-      const fileName = currentTestName.replace(/\s+/g,"-")
+    customSnapshotIdentifier: ({counter, currentTestName, testPath}) => {
+      const dir = path.basename(testPath).replace('.test.ts', '_test')
+      const fileName = currentTestName.replace(/\s+/g, '-')
       return `${dir}/${fileName}-${counter}`
     },
     ...matchImageSnapshotOptions,
