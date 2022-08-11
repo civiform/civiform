@@ -26,6 +26,9 @@ for arg; do
 done
 
 yarn install
+# Browsers should have been installed during yarn install, but in case
+# somehow they got cleaned (e.g. volume was removed) re-install them, if needed.
+npx playwright install
 
 if (($debug == 1)); then
   DEBUG="pw:api" BASE_URL="${SERVER_URL}" yarn test "$@"

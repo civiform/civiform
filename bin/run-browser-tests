@@ -7,14 +7,19 @@ docker::set_project_name_browser_tests
 bin/pull-image
 
 docker volume create browser-tests-node-modules
+docker volume create browser-tests-playwright-browsers
 
 # Run browser tests from within the civiform-browser-test container. We map
 # full browser-test local directory to the container so that it uses local changes.
 # Additionally we map node_modules to a separate volume so that it doesn't
 # conflict with node_modules created locally.
+# Mapping /ms-playwright directory to a volume because it contains browsers that
+# were downloaded during `yarn install` by playwright. It has to be remain
+# between runs to avoid extra fetching.
 docker run --rm -it \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -v "browser-tests-node-modules:/usr/src/civiform-browser-tests/node_modules" \
+  -v "browser-tests-playwright-browsers:/ms-playwright" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform/civiform-browser-test:latest \
