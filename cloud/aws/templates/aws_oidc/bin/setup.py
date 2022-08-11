@@ -41,12 +41,11 @@ class Setup(AwsSetupTemplate):
         self._tf_run_for_aws(is_destroy=False)
         print(' - Setting up shared state file')
         self._setup_shared_state_file()
-        # Only run in dev mode
-        if not self.config.use_backend_config():
+        if self.config.use_local_backend:
             self._make_backend_override()
 
     def _setup_shared_state_file(self):
-        if self.config.use_backend_config():
+        if not self.config.use_local_backend:
             backend_setup.setup_backend_config(self.config)
 
     def requires_post_terraform_setup(self):

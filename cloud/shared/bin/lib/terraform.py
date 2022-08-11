@@ -19,7 +19,7 @@ def perform_apply(
 
     terraform_cmd = f'terraform -chdir={terraform_template_dir}'
 
-    if config_loader.is_dev():
+    if config_loader.use_local_backend:
         print(' - Run terraform init -upgrade -reconfigure')
         subprocess.check_call(
             shlex.split(f'{terraform_cmd} init -upgrade -reconfigure'))
@@ -42,7 +42,7 @@ def perform_apply(
 
     print(" - Run terraform apply")
     terraform_apply_cmd = f'{terraform_cmd} apply -input=false -var-file={tf_vars_filename}'
-    if (config_loader.is_ci()):
+    if config_loader.skip_confirmations:
         terraform_apply_cmd += ' -auto-approve'
     if is_destroy:
         terraform_apply_cmd += ' -destroy'
