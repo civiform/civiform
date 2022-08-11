@@ -8,9 +8,12 @@ source bin/lib.sh
 docker::set_project_name_browser_tests
 
 docker volume create browser-tests-node-modules
+docker volume create browser-tests-playwright-browsers
+
 docker run \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -v "browser-tests-node-modules:/usr/src/civiform-browser-tests/node_modules" \
+  -v "browser-tests-playwright-browsers:/ms-playwright" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform-browser-test:latest \
