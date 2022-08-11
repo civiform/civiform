@@ -2,13 +2,14 @@ import {
   dismissModal,
   startSession,
   loginAsAdmin,
+  enableFeatureFlag,
+  disableFeatureFlag,
   AdminPrograms,
-  AdminProgramStatuses,
+  AdminProgramStatuses, gotoEndpoint,
 } from './support'
 import {Page} from 'playwright'
 
-// TODO(#3071): Re-enable when the feature flag is controllable in tests.
-describe.skip('modify program statuses', () => {
+describe('modify program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let adminProgramStatuses: AdminProgramStatuses
@@ -20,6 +21,13 @@ describe.skip('modify program statuses', () => {
     adminProgramStatuses = new AdminProgramStatuses(pageObject)
 
     await loginAsAdmin(pageObject)
+    await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+    // Need to navigate back to the Admin page after enabling the feature flag.
+    await gotoEndpoint(pageObject, '')
+  })
+
+  afterAll(async () => {
+    await disableFeatureFlag(pageObject, 'application_status_tracking_enabled')
   })
 
   describe('statuses list', () => {

@@ -8,12 +8,11 @@ import {
   ApplicantQuestions,
   AdminPrograms,
   userDisplayName,
-  AdminProgramStatuses,
+  AdminProgramStatuses, enableFeatureFlag, gotoEndpoint, disableFeatureFlag,
 } from './support'
 import {Page} from 'playwright'
 
-// TODO(#3071): Re-enable when the feature flag is controllable in tests.
-describe.skip('view program statuses', () => {
+describe('view program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let applicantQuestions: ApplicantQuestions
@@ -25,9 +24,17 @@ describe.skip('view program statuses', () => {
     adminPrograms = new AdminPrograms(pageObject)
     applicantQuestions = new ApplicantQuestions(pageObject)
     adminProgramStatuses = new AdminProgramStatuses(pageObject)
-  })
+  await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+  // Need to navigate back to the Admin page after enabling the feature flag.
+  await gotoEndpoint(pageObject, '')
+})
 
-  describe('without program statuses', () => {
+afterAll(async () => {
+  await disableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+})
+
+
+describe.skip('without program statuses', () => {
     const programWithoutStatusesName = 'test program without statuses'
     beforeAll(async () => {
       await loginAsAdmin(pageObject)
@@ -103,7 +110,7 @@ describe.skip('view program statuses', () => {
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(true)
     })
 
-    it('shows default option as placeholder', async () => {
+    it.skip('shows default option as placeholder', async () => {
       expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
     })
   })
