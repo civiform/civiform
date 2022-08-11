@@ -10,13 +10,13 @@ Destroy the setup
 class Destroy(AwsSetupTemplate):
 
     def pre_terraform_destroy(self):
-        if not self.config.use_backend_config():
+        if self.config.use_local_backend:
             self._make_backend_override()
 
     def post_terraform_destroy(self):
         # when config is dev then the state is stored locally and no clean up
         # required
-        if not self.config.is_dev():
+        if not self.config.use_local_backend:
             print(
                 'Not destroying S3 bucket that contains terraform state. ' +
                 'You have to destroy it manually:')

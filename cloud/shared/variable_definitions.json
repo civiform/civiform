@@ -60,7 +60,19 @@
     "secret": false,
     "tfvar": true,
     "type": "enum",
-    "values": ["prod", "staging", "dev", "test"]
+    "values": ["prod", "staging", "test"]
+  },
+  "SKIP_CONFIRMATIONS": {
+    "required": false,
+    "secret": false,
+    "tfvar": false,
+    "type": "bool"
+  },
+  "USE_LOCAL_BACKEND": {
+    "required": false,
+    "secret": false,
+    "tfvar": false,
+    "type": "bool"
   },
   "CUSTOM_HOSTNAME": {
     "required": false,
