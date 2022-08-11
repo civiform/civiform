@@ -16,6 +16,7 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.TranslationLocales;
+import services.program.OutOfDateStatusesException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -126,8 +127,9 @@ public class AdminProgramTranslationsController extends CiviFormController {
               String.format(
                   "Program translations updated for %s",
                   localeToUpdate.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)));
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (OutOfDateStatusesException e) {
+      return redirect(routes.AdminProgramTranslationsController.edit(programId, locale))
+          .flashing("error", e.userFacingMessage());
     }
   }
 }

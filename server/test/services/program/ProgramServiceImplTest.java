@@ -1241,13 +1241,97 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void updateLocalizations_providesUnrecognizedStatuses_returnsErrorMessage() {
-    assertThat(true).isFalse();
+  public void updateLocalizations_providesUnrecognizedStatuses_throws() {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("German Name")
+            .setLocalizedDisplayDescription("German Description")
+            .setStatuses(
+                ImmutableList.of(
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setConfiguredStatusText("unrecognized-status")
+                        .setLocalizedStatusText(Optional.of("unrecognized-status"))
+                        .setLocalizedEmailBody(Optional.of("unrecognized-status-email-body"))
+                        .build(),
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setConfiguredStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(Optional.of("german-status-with-email"))
+                        .setLocalizedEmailBody(Optional.of("german email body"))
+                        .build(),
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setConfiguredStatusText(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
+                        .build()))
+            .build();
+
+    assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
+        .isInstanceOf(OutOfDateStatusesException.class);
   }
 
   @Test
-  public void updateLocalizations_doesNotProvideStatus_returnsErrorMessage() {
-    assertThat(true).isFalse();
+  public void updateLocalizations_doesNotProvideStatus_throws() {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("German Name")
+            .setLocalizedDisplayDescription("German Description")
+            .setStatuses(
+                ImmutableList.of(
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setConfiguredStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(Optional.of("german-status-with-email"))
+                        .setLocalizedEmailBody(Optional.of("german email body"))
+                        .build()))
+            .build();
+
+    assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
+        .isInstanceOf(OutOfDateStatusesException.class);
+  }
+
+  @Test
+  public void updateLocalizations_emailProvidedInUpdateWithNoEmailInConfigure_throws() {
+    Program program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setStatuses(
+                ImmutableList.of(
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setConfiguredStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(
+                            Optional.of(STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
+                        .setLocalizedEmailBody(
+                            Optional.of(STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated"))
+                        .build(),
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setConfiguredStatusText(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(
+                            Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
+                        .setLocalizedEmailBody(Optional.of("a localized email"))
+                        .build()))
+            .build();
+
+    assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
+        .isInstanceOf(OutOfDateStatusesException.class);
   }
 
   @Test

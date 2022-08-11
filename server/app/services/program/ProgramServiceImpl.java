@@ -218,52 +218,66 @@ public final class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
+  private boolean localizationStatusesAreInSyncWithConfiguredStatuses(
+      LocalizationUpdate localizationUpdate, ProgramDefinition program) {
+    ImmutableList<String> localizationStatusNames =
+        localizationUpdate.statuses().stream()
+            .map(LocalizationUpdate.StatusUpdate::configuredStatusText)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<String> configuredStatusNames =
+        program.statusDefinitions().getStatuses().stream()
+            .map(StatusDefinitions.Status::statusText)
+            .collect(ImmutableList.toImmutableList());
+    return localizationStatusNames.equals(configuredStatusNames);
+  }
+
   @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
-      throws ProgramNotFoundException {
+      throws ProgramNotFoundException, OutOfDateStatusesException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
     validateProgramText(
         errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
 
-    ImmutableMap<String, LocalizationUpdate.StatusUpdate> configuredStatusToUpdateData =
-        localizationUpdate.statuses().stream()
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    LocalizationUpdate.StatusUpdate::configuredStatusText, Function.identity()));
-    ImmutableSet<String> existingConfiguredStatuses =
-        programDefinition.statusDefinitions().getStatuses().stream()
-            .map(StatusDefinitions.Status::statusText)
-            .collect(ImmutableSet.toImmutableSet());
-    if (!configuredStatusToUpdateData.keySet().equals(existingConfiguredStatuses)) {
-      errorsBuilder.add(CiviFormError.of("TODO(clouser): Out of date tab."));
+    // It is permissible to set the localized text / email for a status to empty, which falls back
+    // on the English text.
+    if (!localizationStatusesAreInSyncWithConfiguredStatuses(
+        localizationUpdate, programDefinition)) {
+      throw new OutOfDateStatusesException();
     }
-    ImmutableList<StatusDefinitions.Status> toUpdateStatuses =
-        programDefinition.statusDefinitions().getStatuses().stream()
-            .map(
-                s -> {
-                  // TODO(clouser): Validation. Mismatch between whether an email exists or not.
-                  LocalizationUpdate.StatusUpdate statusUpdateData =
-                      configuredStatusToUpdateData.get(s.statusText());
-                  StatusDefinitions.Status.Builder updateBuilder =
-                      StatusDefinitions.Status.builder()
-                          .setStatusText(s.statusText())
-                          .setLocalizedStatusText(
-                              s.localizedStatusText()
-                                  .updateTranslation(
-                                      locale, statusUpdateData.localizedStatusText()));
-                  if (s.localizedEmailBodyText().isPresent()) {
-                    updateBuilder.setLocalizedEmailBodyText(
-                        Optional.of(
-                            s.localizedEmailBodyText()
-                                .get()
-                                .updateTranslation(locale, statusUpdateData.localizedEmailBody())));
-                  }
-                  return updateBuilder.build();
-                })
-            .collect(ImmutableList.toImmutableList());
+
+    // We iterate the existing statuses along with the provided statuses since they were verified
+    // to be consistently ordered above.
+    ImmutableList.Builder<StatusDefinitions.Status> toUpdateStatusesBuilder =
+        ImmutableList.builder();
+    for (int statusIdx = 0;
+        statusIdx < programDefinition.statusDefinitions().getStatuses().size();
+        statusIdx++) {
+      LocalizationUpdate.StatusUpdate statusUpdateData =
+          localizationUpdate.statuses().get(statusIdx);
+      StatusDefinitions.Status existingStatus =
+          programDefinition.statusDefinitions().getStatuses().get(statusIdx);
+      StatusDefinitions.Status.Builder updateBuilder =
+          StatusDefinitions.Status.builder()
+              .setStatusText(existingStatus.statusText())
+              .setLocalizedStatusText(
+                  existingStatus
+                      .localizedStatusText()
+                      .updateTranslation(locale, statusUpdateData.localizedStatusText()));
+      if (existingStatus.localizedEmailBodyText().isPresent()) {
+        updateBuilder.setLocalizedEmailBodyText(
+            Optional.of(
+                existingStatus
+                    .localizedEmailBodyText()
+                    .get()
+                    .updateTranslation(locale, statusUpdateData.localizedEmailBody())));
+      } else if (statusUpdateData.localizedEmailBody().isPresent()) {
+        throw new OutOfDateStatusesException();
+      }
+      toUpdateStatusesBuilder.add(updateBuilder.build());
+    }
 
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
@@ -281,7 +295,7 @@ public final class ProgramServiceImpl implements ProgramService {
                     .localizedDescription()
                     .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
             .setStatusDefinitions(
-                programDefinition.statusDefinitions().setStatuses(toUpdateStatuses))
+                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
             .build()
             .toProgram();
     return ErrorAnd.of(

@@ -120,10 +120,12 @@ public interface ProgramService {
    * @return the {@link ProgramDefinition} that was successfully updated, or a set of errors if the
    *     update failed
    * @throws ProgramNotFoundException if the programId does not correspond to a valid program
+   * @throws OutOfDateStatusesException if the program's status definitions are out of sync with
+   *     those in the provided update
    */
   ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
-      throws ProgramNotFoundException;
+      throws ProgramNotFoundException, OutOfDateStatusesException;
 
   /**
    * Adds an empty {@link BlockDefinition} to the end of a given program.
