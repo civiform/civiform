@@ -213,6 +213,12 @@ export const validateAccessibility = async (page: Page) => {
   expect(results).toHaveNoA11yViolations()
 }
 
+/**
+ * Saves a screenshot to a file such as
+ * __snapshots__/test_file_name/name-of-the-test-1-snap.png
+ * If the screenshot already exists, compare the new screenshot with the
+ * existing screenshot, and save a pixel diff instead if the two don't match
+ */
 export const validateScreenshot = async (
   page: Page,
   pageScreenshotOptions?: PageScreenshotOptions,
@@ -225,6 +231,14 @@ export const validateScreenshot = async (
   ).toMatchImageSnapshot({
     failureThreshold: 0.03,
     failureThresholdType: 'percent',
+    // Dumps a base64url diff image to console which can viewed in browser.
+    // This is useful for debugging the image diff from CI logs.
+    dumpDiffToConsole: true,
+    customSnapshotIdentifier: ({ counter, currentTestName, testPath }) => {
+      const dir = path.basename(testPath).replace(".test.ts", "_test")
+      const fileName = currentTestName.replace(/\s+/g,"-")
+      return `${dir}/${fileName}-${counter}`
+    },
     ...matchImageSnapshotOptions,
   })
 }
