@@ -28,7 +28,8 @@ class AwsCli:
         return res['SecretString'].startswith('default-')
 
     def get_current_user(self) -> str:
-        return self._call_cli('sts get-caller-identity')['UserId']
+        res = self._call_cli('sts get-caller-identity')
+        return res['UserId']
 
     def update_master_password_in_database(self, db_name: str, password: str):
         self._call_cli(

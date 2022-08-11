@@ -21,7 +21,6 @@ class Destroy(AwsSetupTemplate):
                 'Not destroying S3 bucket that contains terraform state. ' +
                 'You have to destroy it manually:')
             aws_cli = AwsCli(self.config)
-            bucket_url = aws_cli.get_url_of_s3_bucket(
+            print(aws_cli.get_url_of_s3_bucket(
                 f'{self.config.app_prefix}-{resources.S3_TERRAFORM_STATE_BUCKET}'
-            )
-            print(bucket_url)
+            ))
