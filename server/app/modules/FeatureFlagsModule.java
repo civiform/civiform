@@ -2,6 +2,7 @@ package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import annotations.FeatureFlagOverrides;
 import annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -15,7 +16,10 @@ public class FeatureFlagsModule extends AbstractModule {
    */
   @Provides
   @ApplicationStatusTrackingEnabled
-  public boolean provideStatusTrackingEnabled(Config config) {
-    return checkNotNull(config).getBoolean("application_status_tracking_enabled");
+  public boolean provideStatusTrackingEnabled(Config config, FeatureFlagOverrides overrides) {
+    String key = "application_status_tracking_enabled";
+    checkNotNull(config);
+    checkNotNull(overrides);
+    return overrides.getOverrideBoolean(key).orElseGet(() -> config.getBoolean(key));
   }
 }

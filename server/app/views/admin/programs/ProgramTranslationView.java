@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.TranslationLocales;
@@ -33,13 +34,13 @@ import views.style.Styles;
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
-  private final boolean statusTrackingEnabled;
+  private final Provider<Boolean> statusTrackingEnabled;
 
   @Inject
   public ProgramTranslationView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
+      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
     super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.statusTrackingEnabled = statusTrackingEnabled;
@@ -114,7 +115,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                     .setValue(translationForm.getDisplayDescription())
                                     .getInputTag(),
                                 defaultLocaleTextHint(program.localizedDescription())))));
-    if (statusTrackingEnabled) {
+    if (statusTrackingEnabled.get()) {
       String programStatusesLink =
           controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
 
