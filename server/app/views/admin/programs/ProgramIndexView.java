@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
+import javax.inject.Provider;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;
@@ -49,7 +50,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final String baseUrl;
   private final DateConverter dateConverter;
   private final TranslationLocales translationLocales;
-  private final boolean statusTrackingEnabled;
+  private final Provider<Boolean> statusTrackingEnabled;
 
   @Inject
   public ProgramIndexView(
@@ -57,7 +58,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Config config,
       DateConverter dateConverter,
       TranslationLocales translationLocales,
-      @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
+      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
@@ -342,7 +343,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeManageTranslationsLink.isPresent()) {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
-      if (statusTrackingEnabled) {
+      if (statusTrackingEnabled.get()) {
         draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       }
       statusDiv =
