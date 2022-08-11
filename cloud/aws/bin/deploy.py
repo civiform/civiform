@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 import sys
 
+from cloud.aws.templates.aws_oidc.bin import resources
+from cloud.aws.templates.aws_oidc.bin.aws_cli import AwsCli
 from cloud.shared.bin.lib import terraform
 from cloud.shared.bin.lib import tf_apply_setup
 from cloud.aws.bin.lib import backend_setup
@@ -21,6 +23,14 @@ def main():
 
     if config_loader.is_test():
         print('Test completed')
+
+    aws_cli = AwsCli(config_loader)
+    fargate_service = f'{config_loader.app_prefix}-{resources.FARGATE_SERVICE}'
+    tasks_url = aws_cli.get_url_of_fargate_tasks(
+        config_loader.app_prefix, fargate_service)
+    print()
+    print('Deployment finished. You can monitor civiform tasks status here:')
+    print(tasks_url)
 
 
 if __name__ == "__main__":

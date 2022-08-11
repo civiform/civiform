@@ -74,12 +74,6 @@ def main():
             print("Starting port-terraform setup")
             template_setup.post_terraform_setup()
 
-            subprocess.check_call(
-                [
-                    "terraform", f"-chdir={terraform_template_dir}", "apply",
-                    "-input=false", f"-var-file={config_loader.tfvars_filename}"
-                ])
-
         subprocess.run(
             [
                 "/bin/bash", "-c",
@@ -94,7 +88,8 @@ def main():
             ],
             check=True)
         print("Deployment Failed :(", file=sys.stderr)
-        print("error:", err)
+        # rethrow error so that full stack trace is printed
+        raise err
 
     finally:
         template_setup.cleanup()

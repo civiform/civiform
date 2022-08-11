@@ -20,3 +20,4 @@ DATABASE = 'civiform-db'
 
 # Defined by fargate modules file cloud/aws/templates/aws_oidc/app.tf
 FARGATE_SERVICE = 'service'
+LOAD_BALANCER = 'lb'

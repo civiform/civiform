@@ -53,8 +53,17 @@ class AwsCli:
                 f'--service={service_name}', f'--cluster={cluster}'
             ])
 
+    def get_load_balancer_dns(self, name: str) -> str:
+        res = self._call_cli(
+            ['elbv2', 'describe-load-balancers', f'--names={name}'])
+        load_balancer = res['LoadBalancers'][0]
+        return load_balancer['DNSName']
+
     def get_url_of_secret(self, secret_name: str) -> str:
         return f'https://{self.config.aws_region}.console.aws.amazon.com/secretsmanager/secret?name={secret_name}'
+
+    def get_url_of_fargate_tasks(self, cluster: str, service_name: str) -> str:
+        return f'https://{self.config.aws_region}.console.aws.amazon.com/ecs/v2/clusters/{cluster}/services/{service_name}/configuration'
 
     def _call_cli(self, args: List[str]) -> Dict:
         args = [
