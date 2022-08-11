@@ -2,6 +2,7 @@ package forms.translation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -116,12 +117,20 @@ public final class ProgramTranslationForm {
     return IntStream.range(0, maxStatusTranslations)
         .boxed()
         .map(
-            i ->
-                LocalizationUpdate.StatusUpdate.builder()
-                    .setConfiguredStatusText(getStringFormField(configuredStatusFieldName(i)))
-                    .setLocalizedStatusText(getStringFormField(statusTextFieldName(i)))
-                    .setLocalizedEmailBody(Optional.of(getStringFormField(statusEmailFieldName(i))))
-                    .build())
+            i -> {
+              LocalizationUpdate.StatusUpdate.Builder resultBuilder =
+                  LocalizationUpdate.StatusUpdate.builder()
+                      .setConfiguredStatusText(getStringFormField(configuredStatusFieldName(i)));
+              String newStatusText = getStringFormField(statusTextFieldName(i));
+              if (!Strings.isNullOrEmpty(newStatusText)) {
+                resultBuilder.setLocalizedStatusText(Optional.of(newStatusText));
+              }
+              String newStatusEmail = getStringFormField(statusEmailFieldName(i));
+              if (!Strings.isNullOrEmpty(newStatusEmail)) {
+                resultBuilder.setLocalizedEmailBody(Optional.of(newStatusEmail));
+              }
+              return resultBuilder.build();
+            })
         .collect(ImmutableList.toImmutableList());
   }
 

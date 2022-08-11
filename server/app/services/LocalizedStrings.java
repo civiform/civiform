@@ -238,15 +238,30 @@ public abstract class LocalizedStrings {
    *
    * <p>Since this supports at least one locale, it will be required.
    */
-  public LocalizedStrings updateTranslation(Locale locale, String string) {
+  public LocalizedStrings updateTranslation(Locale locale, String value) {
+    return translationsForAllLocalesExcept(locale).put(locale, value).build();
+  }
+
+  /**
+   * Returns a new set of localized strings with an updated translation for the locale. If value is
+   * provided, the translation will be added/edited for the given locale. If the value is not
+   * provided, the associated translation will be cleared for the given locale.
+   */
+  public LocalizedStrings updateTranslation(Locale locale, Optional<String> value) {
+    if (value.isPresent()) {
+      return updateTranslation(locale, value.get());
+    }
+    return translationsForAllLocalesExcept(locale).build();
+  }
+
+  private LocalizedStrings.Builder translationsForAllLocalesExcept(Locale locale) {
     LocalizedStrings.Builder builder = builder();
     for (Map.Entry<Locale, String> entry : translations().entrySet()) {
       if (!entry.getKey().equals(locale)) {
         builder.put(entry.getKey(), entry.getValue());
       }
     }
-    builder.put(locale, string);
-    return builder.build();
+    return builder;
   }
 
   public abstract Builder toBuilder();

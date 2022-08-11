@@ -45,7 +45,7 @@ public abstract class LocalizationUpdate {
     public abstract String configuredStatusText();
 
     /** The new status text to update for a locale. */
-    public abstract String localizedStatusText();
+    public abstract Optional<String> localizedStatusText();
 
     /** The new email body to update for a locale. */
     public abstract Optional<String> localizedEmailBody();
@@ -58,7 +58,7 @@ public abstract class LocalizationUpdate {
     public abstract static class Builder {
       public abstract Builder setConfiguredStatusText(String v);
 
-      public abstract Builder setLocalizedStatusText(String v);
+      public abstract Builder setLocalizedStatusText(Optional<String> v);
 
       public abstract Builder setLocalizedEmailBody(Optional<String> v);
 

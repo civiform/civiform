@@ -197,8 +197,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                 LocalizationUpdate.StatusUpdate.Builder updateBuilder =
                     LocalizationUpdate.StatusUpdate.builder()
                         .setConfiguredStatusText(s.statusText())
-                        .setLocalizedStatusText(
-                            s.localizedStatusText().maybeGet(locale).orElse(""));
+                        .setLocalizedStatusText(s.localizedStatusText().maybeGet(locale));
                 if (s.localizedEmailBodyText().isPresent()) {
                   updateBuilder.setLocalizedEmailBody(
                       Optional.of(s.localizedEmailBodyText().get().maybeGet(locale).orElse("")));

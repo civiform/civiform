@@ -254,14 +254,12 @@ public final class ProgramServiceImpl implements ProgramService {
                               s.localizedStatusText()
                                   .updateTranslation(
                                       locale, statusUpdateData.localizedStatusText()));
-                  if (s.localizedEmailBodyText().isPresent()
-                      && statusUpdateData.localizedEmailBody().isPresent()) {
+                  if (s.localizedEmailBodyText().isPresent()) {
                     updateBuilder.setLocalizedEmailBodyText(
                         Optional.of(
                             s.localizedEmailBodyText()
                                 .get()
-                                .updateTranslation(
-                                    locale, statusUpdateData.localizedEmailBody().get())));
+                                .updateTranslation(locale, statusUpdateData.localizedEmailBody())));
                   }
                   return updateBuilder.build();
                 })
@@ -282,7 +280,8 @@ public final class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
-            .setStatusDefinitions(new StatusDefinitions(toUpdateStatuses))
+            .setStatusDefinitions(
+                programDefinition.statusDefinitions().setStatuses(toUpdateStatuses))
             .build()
             .toProgram();
     return ErrorAnd.of(
