@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.DeletionStatus;
 import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.TranslationNotFoundException;
@@ -206,19 +205,15 @@ public final class QuestionsListView extends BaseHtmlView {
         activeAndDraftQuestions.getActiveQuestionDefinition(questionName);
     Optional<QuestionDefinition> draftDefinition =
         activeAndDraftQuestions.getDraftQuestionDefinition(questionName);
-    DeletionStatus deletionStatus = activeAndDraftQuestions.getDeletionStatus(questionName);
     if (draftDefinition.isEmpty() && activeDefinition.isEmpty()) {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
     QuestionDefinition latestDefinition = draftDefinition.orElseGet(() -> activeDefinition.get());
-    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
-        activeAndDraftQuestions.getReferencingPrograms(questionName);
 
     Pair<TdTag, Optional<Modal>> referencingProgramAndModal =
         renderReferencingPrograms(questionName, activeAndDraftQuestions);
     Pair<TdTag, Optional<Modal>> actionsCellAndModal =
-        renderActionsCell(
-            activeDefinition, draftDefinition, deletionStatus, referencingPrograms, request);
+        renderActionsCell(activeDefinition, draftDefinition, activeAndDraftQuestions, request);
     TrTag rowTag =
         tr().withClasses(
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
@@ -377,11 +372,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private ATag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
-    return new LinkElement()
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asAnchorText();
+    return new LinkElement().setHref(link).setText(linkText).setStyles(Styles.MR_2).asAnchorText();
   }
 
   private Optional<ATag> renderQuestionTranslationLink(
@@ -394,27 +385,18 @@ public final class QuestionsListView extends BaseHtmlView {
                 definition.getId())
             .url();
     return Optional.of(
-        new LinkElement()
-            .setHref(link)
-            .setText(linkText)
-            .setStyles(Styles.MR_2)
-            .asAnchorText());
+        new LinkElement().setHref(link).setText(linkText).setStyles(Styles.MR_2).asAnchorText());
   }
 
   private ATag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
-    return new LinkElement()
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asAnchorText();
+    return new LinkElement().setHref(link).setText(linkText).setStyles(Styles.MR_2).asAnchorText();
   }
 
   private Pair<TdTag, Optional<Modal>> renderActionsCell(
       Optional<QuestionDefinition> active,
       Optional<QuestionDefinition> draft,
-      DeletionStatus deletionStatus,
-      ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms,
+      ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
     TdTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
     if (active.isPresent()) {
@@ -442,21 +424,13 @@ public final class QuestionsListView extends BaseHtmlView {
         td.with(maybeTranslationLink.get(), br());
       }
     }
-    final Optional<Modal> maybeArchiveModal;
     // Add Archive options.
     QuestionDefinition questionForArchive = draft.isPresent() ? draft.get() : active.get();
-    if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
-      td.with(renderRestoreQuestionLink(questionForArchive, "Restore Archived →", request))
-          .with(br());
-      maybeArchiveModal = Optional.empty();
-    } else {
-      Pair<DomContent, Optional<Modal>> archiveLinkAndMaybeModal =
-          renderArchiveQuestionLink(
-              questionForArchive, "Archive →", deletionStatus, referencingPrograms, request);
-      DomContent archiveLink = archiveLinkAndMaybeModal.getLeft();
-      maybeArchiveModal = archiveLinkAndMaybeModal.getRight();
-      td.with(archiveLink, br());
-    }
+    Pair<DomContent, Optional<Modal>> archiveOptionsAndModal =
+        renderArchiveOptions(questionForArchive, activeAndDraftQuestions, request);
+    DomContent archiveOptions = archiveOptionsAndModal.getLeft();
+    Optional<Modal> maybeArchiveModal = archiveOptionsAndModal.getRight();
+    td.with(archiveOptions, br());
     return Pair.of(td, maybeArchiveModal);
   }
 
@@ -471,57 +445,58 @@ public final class QuestionsListView extends BaseHtmlView {
         .asHiddenFormLink(request);
   }
 
-  private FormTag renderRestoreQuestionLink(
-      QuestionDefinition definition, String linkText, Http.Request request) {
-    String link =
-        controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
-    return new LinkElement()
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asHiddenFormLink(request);
-  }
-
-  private Pair<DomContent, Optional<Modal>> renderArchiveQuestionLink(
+  private Pair<DomContent, Optional<Modal>> renderArchiveOptions(
       QuestionDefinition definition,
-      String linkText,
-      DeletionStatus deletionStatus,
-      ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms,
+      ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
-    if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
-      String link =
-          controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
-      return Pair.of(
-          new LinkElement()
-              .setHref(link)
-              .setText(linkText)
-              .setStyles(Styles.MR_2)
-              .asHiddenFormLink(request),
-          Optional.empty());
+    switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
+      case PENDING_DELETION:
+        String restoreLink =
+            controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
+        return Pair.of(
+            new LinkElement()
+                .setHref(restoreLink)
+                .setText("Restore Archived →")
+                .setStyles(Styles.MR_2)
+                .asHiddenFormLink(request),
+            Optional.empty());
+      case DELETABLE:
+        String archiveLink =
+            controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
+        return Pair.of(
+            new LinkElement()
+                .setHref(archiveLink)
+                .setText("Archive →")
+                .setStyles(Styles.MR_2)
+                .asHiddenFormLink(request),
+            Optional.empty());
+      default:
+        DivTag modalHeader =
+            div()
+                .withClasses(
+                    Styles.P_2,
+                    Styles.BORDER,
+                    Styles.BORDER_GRAY_400,
+                    Styles.BG_GRAY_200,
+                    Styles.TEXT_SM)
+                .with(
+                    span(
+                        "This question cannot be archived since there are still programs"
+                            + " referencing  it. Please remove all references from the below"
+                            + " programs before attempting to archive."));
+
+        Optional<Modal> maybeModal =
+            makeReferencingProgramsModal(
+                definition.getName(),
+                activeAndDraftQuestions.getReferencingPrograms(definition.getName()),
+                Optional.of(modalHeader));
+
+        return Pair.of(
+            a("Archive →")
+                .withId(maybeModal.get().getTriggerButtonId())
+                .withClasses(
+                    BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, Styles.CURSOR_POINTER),
+            maybeModal);
     }
-
-    DivTag modalHeader =
-        div()
-            .withClasses(
-                Styles.P_2,
-                Styles.BORDER,
-                Styles.BORDER_GRAY_400,
-                Styles.BG_GRAY_200,
-                Styles.TEXT_SM)
-            .with(
-                span(
-                    "This question cannot be archived since there are still programs referencing "
-                        + " it. Please remove all references from the below programs before"
-                        + " attempting to archive."));
-
-    Optional<Modal> maybeModal =
-        makeReferencingProgramsModal(
-            definition.getName(), referencingPrograms, Optional.of(modalHeader));
-
-    return Pair.of(
-        a(linkText)
-            .withId(maybeModal.get().getTriggerButtonId())
-            .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, Styles.CURSOR_POINTER),
-        maybeModal);
   }
 }
