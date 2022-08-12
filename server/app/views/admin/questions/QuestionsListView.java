@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -156,7 +157,7 @@ public final class QuestionsListView extends BaseHtmlView {
   /** Renders the full table. */
   private Pair<TableTag, ImmutableList<Modal>> renderQuestionTable(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
-    ImmutableList<Pair<TrTag, Optional<Modal>>> tableRowAndModals =
+    ImmutableList<Pair<TrTag, ImmutableList<Modal>>> tableRowAndModals =
         activeAndDraftQuestions.getQuestionNames().stream()
             .map(
                 (questionName) ->
@@ -170,8 +171,7 @@ public final class QuestionsListView extends BaseHtmlView {
     ImmutableList<Modal> modals =
         tableRowAndModals.stream()
             .map(Pair::getRight)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
+            .flatMap(ImmutableList::stream)
             .collect(ImmutableList.toImmutableList());
     return Pair.of(tableTag, modals);
   }
@@ -200,7 +200,7 @@ public final class QuestionsListView extends BaseHtmlView {
    *
    * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.
    */
-  private Pair<TrTag, Optional<Modal>> renderQuestionTableRow(
+  private Pair<TrTag, ImmutableList<Modal>> renderQuestionTableRow(
       String questionName, ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     Optional<QuestionDefinition> activeDefinition =
         activeAndDraftQuestions.getActiveQuestionDefinition(questionName);
@@ -211,8 +211,14 @@ public final class QuestionsListView extends BaseHtmlView {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
     QuestionDefinition latestDefinition = draftDefinition.orElseGet(() -> activeDefinition.get());
+    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
+        activeAndDraftQuestions.getReferencingPrograms(questionName);
+
     Pair<TdTag, Optional<Modal>> referencingProgramAndModal =
         renderReferencingPrograms(questionName, activeAndDraftQuestions);
+    Pair<TdTag, Optional<Modal>> actionsCellAndModal =
+        renderActionsCell(
+            activeDefinition, draftDefinition, deletionStatus, referencingPrograms, request);
     TrTag rowTag =
         tr().withClasses(
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
@@ -223,8 +229,15 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(renderQuestionTextCell(latestDefinition))
             .with(renderSupportedLanguages(latestDefinition))
             .with(referencingProgramAndModal.getLeft())
-            .with(renderActionsCell(activeDefinition, draftDefinition, deletionStatus, request));
-    return Pair.of(rowTag, referencingProgramAndModal.getRight());
+            .with(actionsCellAndModal.getLeft());
+    ImmutableList.Builder<Modal> modals = ImmutableList.builder();
+    if (referencingProgramAndModal.getRight().isPresent()) {
+      modals.add(referencingProgramAndModal.getRight().get());
+    }
+    if (actionsCellAndModal.getRight().isPresent()) {
+      modals.add(actionsCellAndModal.getRight().get());
+    }
+    return Pair.of(rowTag, modals.build());
   }
 
   private TdTag renderInfoCell(QuestionDefinition definition) {
@@ -270,7 +283,8 @@ public final class QuestionsListView extends BaseHtmlView {
         activeAndDraftQuestions.getReferencingPrograms(questionName);
 
     Optional<Modal> maybeReferencingProgramsModal =
-        makeReferencingProgramsModal(questionName, referencingPrograms);
+        makeReferencingProgramsModal(
+            questionName, referencingPrograms, /* modalHeader= */ Optional.empty());
 
     SpanTag referencingProgramsCount =
         span(String.format("%d active", referencingPrograms.activeReferences().size()))
@@ -297,7 +311,9 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Optional<Modal> makeReferencingProgramsModal(
-      String questionName, ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms) {
+      String questionName,
+      ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms,
+      Optional<DomContent> modalHeader) {
     ImmutableList<ProgramDefinition> activeProgramReferences =
         referencingPrograms.activeReferences().stream()
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
@@ -312,23 +328,22 @@ public final class QuestionsListView extends BaseHtmlView {
     }
 
     DivTag referencingProgramModalContent =
+        div().withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6);
+    if (modalHeader.isPresent()) {
+      referencingProgramModalContent.with(modalHeader.get());
+    }
+    referencingProgramModalContent.with(
         div()
-            .withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6)
+            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE)
             .with(
-                div()
-                    .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE)
-                    .with(
-                        referencingProgramList(
-                            "Active programs:", referencingPrograms.activeReferences())),
-                div()
-                    .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
-                    .with(
-                        referencingProgramList(
-                            "Draft programs:", referencingPrograms.draftReferences())),
-                p("Note: This list does not automatically refresh. If edits are made to a program"
-                        + " in a separate tab, they won't be reflected until the page has been"
-                        + " refreshed.")
-                    .withClass(Styles.TEXT_SM));
+                referencingProgramList("Active programs:", referencingPrograms.activeReferences())),
+        div()
+            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
+            .with(referencingProgramList("Draft programs:", referencingPrograms.draftReferences())),
+        p("Note: This list does not automatically refresh. If edits are made to a program"
+                + " in a separate tab, they won't be reflected until the page has been"
+                + " refreshed.")
+            .withClass(Styles.TEXT_SM));
     return Optional.of(
         Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
             .setModalTitle(String.format("Programs including %s", questionName))
@@ -398,10 +413,11 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private TdTag renderActionsCell(
+  private Pair<TdTag, Optional<Modal>> renderActionsCell(
       Optional<QuestionDefinition> active,
       Optional<QuestionDefinition> draft,
       DeletionStatus deletionStatus,
+      ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms,
       Http.Request request) {
     TdTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
     if (active.isPresent()) {
@@ -429,15 +445,22 @@ public final class QuestionsListView extends BaseHtmlView {
         td.with(maybeTranslationLink.get(), br());
       }
     }
+    final Optional<Modal> maybeArchiveModal;
     // Add Archive options.
     QuestionDefinition questionForArchive = draft.isPresent() ? draft.get() : active.get();
     if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
       td.with(renderRestoreQuestionLink(questionForArchive, "Restore Archived →", request))
           .with(br());
-    } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
-      td.with(renderArchiveQuestionLink(questionForArchive, "Archive →", request)).with(br());
+      maybeArchiveModal = Optional.empty();
+    } else {
+      Pair<DomContent, Optional<Modal>> archiveLinkAndMaybeModal =
+          renderArchiveQuestionLink(
+              questionForArchive, "Archive →", deletionStatus, referencingPrograms, request);
+      DomContent archiveLink = archiveLinkAndMaybeModal.getLeft();
+      maybeArchiveModal = archiveLinkAndMaybeModal.getRight();
+      td.with(archiveLink, br());
     }
-    return td;
+    return Pair.of(td, maybeArchiveModal);
   }
 
   private FormTag renderDiscardDraftLink(
@@ -464,15 +487,47 @@ public final class QuestionsListView extends BaseHtmlView {
         .asHiddenFormLink(request);
   }
 
-  private FormTag renderArchiveQuestionLink(
-      QuestionDefinition definition, String linkText, Http.Request request) {
-    String link =
-        controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
-    return new LinkElement()
-        .setId("archive-question-link-" + definition.getId())
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asHiddenFormLink(request);
+  private Pair<DomContent, Optional<Modal>> renderArchiveQuestionLink(
+      QuestionDefinition definition,
+      String linkText,
+      DeletionStatus deletionStatus,
+      ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms,
+      Http.Request request) {
+    if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
+      String link =
+          controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
+      return Pair.of(
+          new LinkElement()
+              .setId("archive-question-link-" + definition.getId())
+              .setHref(link)
+              .setText(linkText)
+              .setStyles(Styles.MR_2)
+              .asHiddenFormLink(request),
+          Optional.empty());
+    }
+
+    DivTag modalHeader =
+        div()
+            .withClasses(
+                Styles.P_2,
+                Styles.BORDER,
+                Styles.BORDER_GRAY_400,
+                Styles.BG_GRAY_200,
+                Styles.TEXT_SM)
+            .with(
+                span(
+                    "This question cannot be archived since there are still programs referencing "
+                        + " it. Please remove all references from the below programs before"
+                        + " attempting to archive."));
+
+    Optional<Modal> maybeModal =
+        makeReferencingProgramsModal(
+            definition.getName(), referencingPrograms, Optional.of(modalHeader));
+
+    return Pair.of(
+        a(linkText)
+            .withId(maybeModal.get().getTriggerButtonId())
+            .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, Styles.CURSOR_POINTER),
+        maybeModal);
   }
 }
