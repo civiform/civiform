@@ -430,12 +430,12 @@ public final class QuestionsListView extends BaseHtmlView {
       }
     }
     // Add Archive options.
-    if (active.isPresent()) {
-      if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
-        td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request)).with(br());
-      } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
-        td.with(renderArchiveQuestionLink(active.get(), "Archive →", request)).with(br());
-      }
+    QuestionDefinition questionForArchive = draft.isPresent() ? draft.get() : active.get();
+    if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
+      td.with(renderRestoreQuestionLink(questionForArchive, "Restore Archived →", request))
+          .with(br());
+    } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
+      td.with(renderArchiveQuestionLink(questionForArchive, "Archive →", request)).with(br());
     }
     return td;
   }

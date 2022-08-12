@@ -9,7 +9,7 @@ from cloud.aws.bin.lib import backend_setup
 def main():
     config_loader = tf_apply_setup.load_config()
 
-    if config_loader.is_dev():
+    if config_loader.use_local_backend:
         terraform.copy_backend_override(config_loader)
     else:
         backend_setup.setup_backend_config(config_loader)

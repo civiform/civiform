@@ -19,12 +19,12 @@ def perform_apply(
 
     terraform_cmd = f'terraform -chdir={terraform_template_dir}'
 
-    if config_loader.is_dev():
-        print(" - Run terraform init -upgrade -reconfigure")
+    if config_loader.use_local_backend:
+        print(' - Run terraform init -upgrade -reconfigure')
         subprocess.check_call(
             shlex.split(f'{terraform_cmd} init -upgrade -reconfigure'))
     else:
-        print(" - Run terraform init -upgrade -reconfigure")
+        print(' - Run terraform init -upgrade')
         init_cmd = f'{terraform_cmd} init -input=false -upgrade'
         # backend vars file can be absent when pre-terraform setup is running
         if os.path.exists(os.path.join(terraform_template_dir,
@@ -42,8 +42,10 @@ def perform_apply(
 
     print(" - Run terraform apply")
     terraform_apply_cmd = f'{terraform_cmd} apply -input=false -var-file={tf_vars_filename}'
+    if config_loader.skip_confirmations:
+        terraform_apply_cmd += ' -auto-approve'
     if is_destroy:
-        terraform_apply_cmd += " -destroy"
+        terraform_apply_cmd += ' -destroy'
     subprocess.check_call(shlex.split(terraform_apply_cmd))
     return True
 

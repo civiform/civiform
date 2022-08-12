@@ -158,7 +158,7 @@ export class AdminQuestions {
     ).toContain('New Version')
   }
 
-  async expectActiveQuestionNotExist(questionName: string) {
+  async expectQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await waitForPageJsLoad(this.page)
     const tableInnerText = await this.page.innerText('table')
@@ -255,7 +255,10 @@ export class AdminQuestions {
   async undeleteQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Restore")'),
+      this.selectWithinQuestionTableRow(
+        questionName,
+        ':text("Restore Archived")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
