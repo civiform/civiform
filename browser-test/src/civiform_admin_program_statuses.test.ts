@@ -8,7 +8,7 @@ import {
 import {Page} from 'playwright'
 
 // TODO(#3071): Re-enable when the feature flag is controllable in tests.
-describe('modify program statuses', () => {
+describe.skip('modify program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let adminProgramStatuses: AdminProgramStatuses
