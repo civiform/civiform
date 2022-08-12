@@ -85,7 +85,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
             request,
             localeToEdit,
             program,
-            ProgramTranslationForm.fromProgram(formFactory, localeToEdit, program),
+            ProgramTranslationForm.fromProgram(program, localeToEdit, formFactory),
             Optional.empty()));
   }
 
@@ -110,7 +110,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
 
     ProgramTranslationForm translationForm =
         ProgramTranslationForm.bindFromRequest(
-            formFactory, request, program.statusDefinitions().getStatuses().size());
+            request, formFactory, program.statusDefinitions().getStatuses().size());
 
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =

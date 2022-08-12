@@ -5,12 +5,17 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import java.util.Optional;
+import models.Program;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
 import services.program.LocalizationUpdate;
+import services.program.StatusDefinitions;
+import support.ProgramBuilder;
 
 public class ProgramTranslationFormTest extends ResetPostgres {
 
@@ -31,7 +36,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(instanceOf(FormFactory.class), request, 2);
+        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 2);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -57,7 +62,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(instanceOf(FormFactory.class), request, 1);
+        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 1);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -78,7 +83,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(instanceOf(FormFactory.class), request, 3);
+        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 3);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -117,7 +122,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             .build();
 
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(instanceOf(FormFactory.class), request, 1);
+        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 1);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -133,6 +138,49 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
   @Test
   public void fromProgram() {
-    assertThat(true).isFalse();
+    Program program =
+        ProgramBuilder.newDraftProgram("english-name", "english-description")
+            .withLocalizedName(Locale.FRENCH, "french-name")
+            .withLocalizedDescription(Locale.FRENCH, "french-description")
+            .withStatusDefinitions(
+                new StatusDefinitions(
+                    ImmutableList.of(
+                        StatusDefinitions.Status.builder()
+                            .setStatusText("first-status-english")
+                            .setLocalizedStatusText(
+                                LocalizedStrings.withDefaultValue("first-status-english"))
+                            .setLocalizedEmailBodyText(
+                                Optional.of(
+                                    LocalizedStrings.withDefaultValue("first-status-email-english")
+                                        .updateTranslation(
+                                            Locale.FRENCH, "first-status-email-french")))
+                            .build(),
+                        StatusDefinitions.Status.builder()
+                            .setStatusText("second-status-english")
+                            .setLocalizedStatusText(
+                                LocalizedStrings.withDefaultValue("second-status-english")
+                                    .updateTranslation(Locale.FRENCH, "second-status-french"))
+                            .build())))
+            .build();
+
+    ProgramTranslationForm form =
+        ProgramTranslationForm.fromProgram(
+            program.getProgramDefinition(), Locale.FRENCH, instanceOf(FormFactory.class));
+    assertThat(form.getUpdateData())
+        .isEqualTo(
+            LocalizationUpdate.builder()
+                .setLocalizedDisplayName("french-name")
+                .setLocalizedDisplayDescription("french-description")
+                .setStatuses(
+                    ImmutableList.of(
+                        LocalizationUpdate.StatusUpdate.builder()
+                            .setConfiguredStatusText("first-status-english")
+                            .setLocalizedEmailBody(Optional.of("first-status-email-french"))
+                            .build(),
+                        LocalizationUpdate.StatusUpdate.builder()
+                            .setConfiguredStatusText("second-status-english")
+                            .setLocalizedStatusText(Optional.of("second-status-french"))
+                            .build()))
+                .build());
   }
 }

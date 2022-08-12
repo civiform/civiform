@@ -34,7 +34,7 @@ public final class ProgramTranslationForm {
   private static final Lang DEFAULT_LANG = new Lang(LocalizedStrings.DEFAULT_LOCALE);
 
   public static ProgramTranslationForm fromProgram(
-      FormFactory formFactory, Locale locale, ProgramDefinition program) {
+      ProgramDefinition program, Locale locale, FormFactory formFactory) {
     ImmutableMap.Builder<String, String[]> formValuesBuilder =
         ImmutableMap.<String, String[]>builder()
             .put(
@@ -50,11 +50,15 @@ public final class ProgramTranslationForm {
       formValuesBuilder.put(
           statusTextFieldName(i),
           new String[] {status.localizedStatusText().maybeGet(locale).orElse("")});
-      if (status.localizedEmailBodyText().isPresent()) {
-        formValuesBuilder.put(
-            statusEmailFieldName(i),
-            new String[] {status.localizedEmailBodyText().get().maybeGet(locale).orElse("")});
-      }
+      formValuesBuilder.put(
+          statusEmailFieldName(i),
+          new String[] {
+            status
+                .localizedEmailBodyText()
+                .orElse(LocalizedStrings.empty())
+                .maybeGet(locale)
+                .orElse("")
+          });
     }
     DynamicForm form =
         formFactory
@@ -69,7 +73,7 @@ public final class ProgramTranslationForm {
   }
 
   public static ProgramTranslationForm bindFromRequest(
-      FormFactory formFactory, Http.Request request, int maxStatusTranslations) {
+      Http.Request request, FormFactory formFactory, int maxStatusTranslations) {
     // We limit the number of status entries read from the form data to that of the
     // current configured set of statuses.
     DynamicForm form =
