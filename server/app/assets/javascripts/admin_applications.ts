@@ -4,7 +4,7 @@ class AdminApplications {
   private static DISPLAY_FRAME_SELECTOR = '#application-display-frame'
 
   private displayFrame: Element
-  private cards: NodeListOf<HTMLElement>
+  private cards: Array<HTMLElement>
 
   constructor() {
     const frame = document.querySelector(
@@ -16,7 +16,9 @@ class AdminApplications {
     }
 
     this.displayFrame = frame
-    this.cards = document.querySelectorAll(AdminApplications.CARD_SELECTOR)
+    this.cards = Array.from(
+      document.querySelectorAll(AdminApplications.CARD_SELECTOR),
+    )
 
     this.registerApplicationCardEventListeners()
   }
