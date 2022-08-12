@@ -62,7 +62,8 @@ describe('Admin can manage translations', () => {
     await endSession(browser)
   })
 
-  it('creates a program with statuses and adds translations for program statuses', async () => {
+  // TODO(#3071): Re-enable when the feature flag is controllable in tests.
+  it.skip('creates a program with statuses and adds translations for program statuses', async () => {
     const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
