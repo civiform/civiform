@@ -45,7 +45,7 @@ describe.skip('view program statuses', () => {
       await applicantQuestions.clickApplyProgramButton(
         programWithoutStatusesName,
       )
-      await applicantQuestions.submitFromPreviewPage(programWithoutStatusesName)
+      await applicantQuestions.submitFromPreviewPage()
 
       await logout(pageObject)
     })
@@ -86,7 +86,7 @@ describe.skip('view program statuses', () => {
 
       // Submit an application.
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromPreviewPage(programWithStatusesName)
+      await applicantQuestions.submitFromPreviewPage()
 
       await logout(pageObject)
       await loginAsProgramAdmin(pageObject)
