@@ -57,7 +57,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with no checked boxes does not submit', async () => {
@@ -148,7 +148,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits successfully', async () => {
@@ -160,7 +160,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with first invalid does not submit', async () => {
