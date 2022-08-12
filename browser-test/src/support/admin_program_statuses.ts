@@ -141,6 +141,22 @@ export class AdminProgramStatuses {
     expect(emailBody).toEqual(expectedEmailBody)
   }
 
+  async emailTranslationWarningIsVisible(statusName: string): Promise<boolean> {
+    await this.page.click(
+      this.programStatusItemSelector(statusName) + ' button:has-text("Edit")',
+    )
+
+    const modal = await waitForAnyModal(this.page)
+    const innerText = await modal.innerText()
+    expect(innerText).toContain('Edit this status')
+
+    // Close the modal prior to any assertions to avoid affecting
+    // subsequent tests.
+    await dismissModal(this.page)
+
+    return innerText.includes('This status has an email configured')
+  }
+
   async expectProgramManageStatusesPage(programName: string) {
     expect(await this.page.innerText('h1')).toContain(
       `Manage application statuses for ${programName}`,
