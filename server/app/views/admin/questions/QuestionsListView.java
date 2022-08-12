@@ -378,7 +378,6 @@ public final class QuestionsListView extends BaseHtmlView {
   private ATag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     return new LinkElement()
-        .setId("edit-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
         .setStyles(Styles.MR_2)
@@ -396,7 +395,6 @@ public final class QuestionsListView extends BaseHtmlView {
             .url();
     return Optional.of(
         new LinkElement()
-            .setId("translate-question-link-" + definition.getId())
             .setHref(link)
             .setText(linkText)
             .setStyles(Styles.MR_2)
@@ -406,7 +404,6 @@ public final class QuestionsListView extends BaseHtmlView {
   private ATag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
     return new LinkElement()
-        .setId("view-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
         .setStyles(Styles.MR_2)
@@ -468,7 +465,6 @@ public final class QuestionsListView extends BaseHtmlView {
     String link =
         controllers.admin.routes.AdminQuestionController.discardDraft(definition.getId()).url();
     return new LinkElement()
-        .setId("discard-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
         .setStyles(Styles.MR_2)
@@ -480,7 +476,6 @@ public final class QuestionsListView extends BaseHtmlView {
     String link =
         controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
     return new LinkElement()
-        .setId("restore-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
         .setStyles(Styles.MR_2)
@@ -498,7 +493,6 @@ public final class QuestionsListView extends BaseHtmlView {
           controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
       return Pair.of(
           new LinkElement()
-              .setId("archive-question-link-" + definition.getId())
               .setHref(link)
               .setText(linkText)
               .setStyles(Styles.MR_2)
