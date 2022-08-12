@@ -4,7 +4,7 @@ class AdminApplications {
   private static DISPLAY_FRAME_SELECTOR = '#application-display-frame'
 
   private displayFrame: Element
-  private cards: Array<HTMLElement>
+  private cards: NodeListOf<HTMLElement>
 
   constructor() {
     const frame = document.querySelector(
@@ -16,9 +16,7 @@ class AdminApplications {
     }
 
     this.displayFrame = frame
-    this.cards = document.querySelectorAll(
-      AdminApplications.CARD_SELECTOR,
-    ) as any as Array<HTMLElement> // eslint-disable-line @typescript-eslint/no-explicit-any
+    this.cards = document.querySelectorAll(AdminApplications.CARD_SELECTOR)
 
     this.registerApplicationCardEventListeners()
   }
@@ -64,7 +62,7 @@ class AdminApplications {
     this.displayFrame.setAttribute('src', applicationUrlPath)
   }
 
-  _assertNotNull(value: any, description: string) {
+  _assertNotNull<T>(value: T | null | undefined, description: string): T {
     if (value == null) {
       throw new Error(`Expected ${description} not to be null.`)
     }
