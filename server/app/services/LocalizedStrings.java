@@ -239,7 +239,7 @@ public abstract class LocalizedStrings {
    * <p>Since this supports at least one locale, it will be required.
    */
   public LocalizedStrings updateTranslation(Locale locale, String value) {
-    // TODO(clouser): Create cleanup bug to remove this and only use the Optional version.
+    // TODO(#3144): Consider removing this and only use the Optional version.
     return translationsForAllLocalesExcept(locale).put(locale, value).build();
   }
 

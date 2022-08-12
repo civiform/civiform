@@ -8,7 +8,6 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
 
 import com.google.common.base.Preconditions;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import forms.translation.ProgramTranslationForm;
