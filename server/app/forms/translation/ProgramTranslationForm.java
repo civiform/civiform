@@ -119,9 +119,7 @@ public final class ProgramTranslationForm {
                   getStringFormField(configuredStatusFieldName(i));
               Optional<String> maybeStatusText = getStringFormField(statusTextFieldName(i));
               Optional<String> maybeEmail = getStringFormField(statusEmailFieldName(i));
-              if (maybeConfiguredStatusText.isEmpty()
-                  || maybeStatusText.isEmpty()
-                  || maybeEmail.isEmpty()) {
+              if (maybeConfiguredStatusText.isEmpty() || maybeStatusText.isEmpty()) {
                 return Optional.empty();
               }
 
@@ -131,7 +129,7 @@ public final class ProgramTranslationForm {
               if (!maybeStatusText.get().isEmpty()) {
                 resultBuilder.setLocalizedStatusText(maybeStatusText);
               }
-              if (!maybeEmail.get().isEmpty()) {
+              if (maybeEmail.isPresent() && !maybeEmail.get().isEmpty()) {
                 resultBuilder.setLocalizedEmailBody(maybeEmail);
               }
               return Optional.of(resultBuilder.build());

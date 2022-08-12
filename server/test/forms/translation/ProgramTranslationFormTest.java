@@ -115,9 +115,15 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
                     .put(
                         ProgramTranslationForm.configuredStatusFieldName(0),
-                        "configured status text")
+                        "first configured status text")
                     .put(ProgramTranslationForm.statusTextFieldName(0), "")
                     .put(ProgramTranslationForm.statusEmailFieldName(0), "")
+                    // Add a second status with a missing email field. This will happen
+                    // if no email is configured on the original status.
+                    .put(
+                        ProgramTranslationForm.configuredStatusFieldName(1),
+                        "second configured status text")
+                    .put(ProgramTranslationForm.statusTextFieldName(1), "")
                     .build())
             .build();
 
@@ -131,7 +137,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("configured status text")
+                            .setConfiguredStatusText("first configured status text")
+                            .build(),
+                        LocalizationUpdate.StatusUpdate.builder()
+                            .setConfiguredStatusText("second configured status text")
                             .build()))
                 .build());
   }
