@@ -405,7 +405,7 @@ public class DatabaseSeedController extends DevController {
           blockId,
           ImmutableList.of(
               insertDateQuestionDefinition("predicate date", "When is your birthday?").getId()));
-      // Add a predicate based on the "favorite season" radio button question in Block 4
+      // Add a predicate based on the "favorite season" radio button question in Block 3
       LeafOperationExpressionNode operation =
           LeafOperationExpressionNode.create(
               radioButtonQuestionId,
