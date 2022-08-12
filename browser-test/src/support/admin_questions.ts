@@ -33,9 +33,11 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
-  async goToViewQuestionPage(_questionName: string) {
+  async goToViewQuestionPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    await this.page.click('text=View')
+    await this.page.click(
+      this.selectWithinQuestionTableRow(questionName, 'a:has-text("View")'),
+    )
     await waitForPageJsLoad(this.page)
   }
 
@@ -48,10 +50,11 @@ export class AdminQuestions {
     expect(await this.page.innerText('h1')).toEqual('All Questions')
   }
 
-  async expectViewOnlyQuestion(_questionName: string) {
+  async expectViewOnlyQuestion(questionName: string) {
     expect(await this.page.isDisabled('text=No Export')).toEqual(true)
-    // TODO(sgoldblatt): This test does not find any questions need to look into
-    // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
+    expect(
+      await this.page.isDisabled(`input[value="${questionName}"]`),
+    ).toEqual(true)
   }
 
   selectorForExportOption(exportOption: string) {
@@ -405,26 +408,26 @@ export class AdminQuestions {
   }
 
   async updateAllQuestions(questions: string[]) {
-    for (const i in questions) {
-      await this.updateQuestion(questions[i])
+    for (const question of questions) {
+      await this.updateQuestion(question)
     }
   }
 
   async createNewVersionForQuestions(questions: string[]) {
-    for (const i in questions) {
-      await this.createNewVersion(questions[i])
+    for (const question of questions) {
+      await this.createNewVersion(question)
     }
   }
 
   async expectDraftQuestions(questions: string[]) {
-    for (const i in questions) {
-      await this.expectDraftQuestionExist(questions[i])
+    for (const question of questions) {
+      await this.expectDraftQuestionExist(question)
     }
   }
 
   async expectActiveQuestions(questions: string[]) {
-    for (const i in questions) {
-      await this.expectActiveQuestionExist(questions[i])
+    for (const question of questions) {
+      await this.expectActiveQuestionExist(question)
     }
   }
 
