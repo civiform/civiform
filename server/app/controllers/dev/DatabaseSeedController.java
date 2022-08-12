@@ -424,9 +424,9 @@ public class DatabaseSeedController extends DevController {
       blockForm.setDescription("this is for file upload");
       programService.updateBlock(programId, blockId, blockForm);
       long fileQuestionId = insertFileUploadQuestionDefinition().getId();
-      programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(fileQuestionId));
-      programService.setProgramQuestionDefinitionOptionality(programId, blockId, fileQuestionId, true);
+      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
+      programService.setProgramQuestionDefinitionOptionality(
+          programId, blockId, fileQuestionId, true);
 
       return programDefinition;
     } catch (Exception e) {
