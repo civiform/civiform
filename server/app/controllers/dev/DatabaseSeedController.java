@@ -417,14 +417,16 @@ public class DatabaseSeedController extends DevController {
               PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
       programDefinition = programService.setBlockPredicate(programId, blockId, predicate);
 
-      // TODO: make file upload optional since it does not work for local testing
+      // Add file upload as optional since it does not work for local testing.
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("file upload");
       blockForm.setDescription("this is for file upload");
       programService.updateBlock(programId, blockId, blockForm);
+      long fileQuestionId = insertFileUploadQuestionDefinition().getId();
       programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(insertFileUploadQuestionDefinition().getId()));
+          programId, blockId, ImmutableList.of(fileQuestionId));
+      programService.setProgramQuestionDefinitionOptionality(programId, blockId, fileQuestionId, true);
 
       return programDefinition;
     } catch (Exception e) {
