@@ -128,7 +128,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             .build();
 
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 1);
+        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 2);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
