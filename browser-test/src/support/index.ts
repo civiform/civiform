@@ -18,7 +18,12 @@ export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantQuestions} from './applicant_questions'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
-import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
+import {
+  BASE_URL,
+  TEST_USER_LOGIN,
+  TEST_USER_PASSWORD,
+  DISABLE_SCREENSHOTS,
+} from './config'
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -225,7 +230,7 @@ export const validateScreenshot = async (
   matchImageSnapshotOptions?: MatchImageSnapshotOptions,
 ) => {
   // Do not make image snapshots when running locally
-  if (isLocalDevEnvironment()) {
+  if (DISABLE_SCREENSHOTS) {
     return
   }
   expect(
