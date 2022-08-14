@@ -2,6 +2,8 @@ package controllers.admin;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import controllers.DisplayableMessage;
+import controllers.DisplayableMessage.Severity;
 import forms.translation.ProgramTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -82,7 +84,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           service.updateLocalization(program.id(), updatedLocale, displayName, displayDescription);
       if (result.isError()) {
-        String errorMessage = joinErrors(result.getErrors());
+        DisplayableMessage errorMessage =
+            new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
         return ok(
             translationView.render(
                 request,

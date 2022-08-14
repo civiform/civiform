@@ -2,6 +2,8 @@ package controllers.admin;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import controllers.DisplayableMessage;
+import controllers.DisplayableMessage.Severity;
 import forms.translation.EnumeratorQuestionTranslationForm;
 import forms.translation.MultiOptionQuestionTranslationForm;
 import forms.translation.QuestionTranslationForm;
@@ -98,10 +100,11 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                     questionService.update(definitionWithUpdates);
 
                 if (result.isError()) {
-                  String errorMessage = joinErrors(result.getErrors());
+                  DisplayableMessage message =
+                      new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
                   return ok(
                       translationView.renderErrors(
-                          request, updatedLocale, definitionWithUpdates, errorMessage));
+                          request, updatedLocale, definitionWithUpdates, message));
                 }
 
                 return redirect(routes.AdminQuestionController.index().url());

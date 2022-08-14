@@ -6,6 +6,8 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
+import controllers.DisplayableMessage;
+import controllers.DisplayableMessage.Severity;
 import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -88,8 +90,9 @@ public class AdminProgramController extends CiviFormController {
             program.getExternalLink(),
             program.getDisplayMode());
     if (result.isError()) {
-      String errorMessage = joinErrors(result.getErrors());
-      return ok(newOneView.render(request, program, errorMessage));
+      DisplayableMessage message =
+          new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
+      return ok(newOneView.render(request, program, Optional.of(message)));
     }
     return redirect(routes.AdminProgramController.index().url());
   }
@@ -161,8 +164,9 @@ public class AdminProgramController extends CiviFormController {
               program.getExternalLink(),
               program.getDisplayMode());
       if (result.isError()) {
-        String errorMessage = joinErrors(result.getErrors());
-        return ok(editView.render(request, programId, program, errorMessage));
+        DisplayableMessage message =
+            new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
+        return ok(editView.render(request, programId, program, Optional.of(message)));
       }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {

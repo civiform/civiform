@@ -9,6 +9,8 @@ import static play.mvc.Results.redirect;
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import controllers.DisplayableMessage;
+import controllers.DisplayableMessage.Severity;
 import forms.ManageProgramAdminsForm;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -76,7 +78,9 @@ public class ProgramAdminManagementController {
         return result;
       }
 
-      return this.loadProgram(request, programId, Optional.of(maybeError.get().message()));
+      DisplayableMessage message =
+          new DisplayableMessage(maybeError.get().message(), Severity.ERROR);
+      return this.loadProgram(request, programId, Optional.of(message));
 
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
@@ -87,7 +91,8 @@ public class ProgramAdminManagementController {
    * Displays a form for managing program admins of a given program. Displays a message as an error
    * toast if provided.
    */
-  private Result loadProgram(Http.Request request, long programId, Optional<String> message) {
+  private Result loadProgram(
+      Http.Request request, long programId, Optional<DisplayableMessage> message) {
     try {
       Optional<Program> program =
           programRepository.lookupProgram(programId).toCompletableFuture().join();

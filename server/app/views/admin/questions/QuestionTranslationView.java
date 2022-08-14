@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
+import controllers.DisplayableMessage;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
@@ -41,12 +42,18 @@ public final class QuestionTranslationView extends TranslationFormView {
   }
 
   public Content renderErrors(
-      Http.Request request, Locale locale, QuestionDefinition invalidQuestion, String errors) {
+      Http.Request request,
+      Locale locale,
+      QuestionDefinition invalidQuestion,
+      DisplayableMessage errors) {
     return render(request, locale, invalidQuestion, Optional.of(errors));
   }
 
   private Content render(
-      Http.Request request, Locale locale, QuestionDefinition question, Optional<String> errors) {
+      Http.Request request,
+      Locale locale,
+      QuestionDefinition question,
+      Optional<DisplayableMessage> message) {
     String formAction =
         controllers.admin.routes.AdminQuestionTranslationsController.update(
                 question.getId(), locale.toLanguageTag())
@@ -74,7 +81,7 @@ public final class QuestionTranslationView extends TranslationFormView {
             .setTitle(title)
             .addMainContent(
                 renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
-    errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
+    message.map(ToastMessage::fromMessage).ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }

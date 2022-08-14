@@ -10,6 +10,7 @@ import static j2html.TagCreator.h1;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.DisplayableMessage;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
@@ -118,9 +119,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                     .with(makeCsrfTokenInputTag(params.request()))
                     .with(continueOrSubmitButton));
 
-    if (!params.banner().isEmpty()) {
-      bundle.addToastMessages(ToastMessage.error(params.banner()));
-    }
+    params.bannerMessage().ifPresent(m -> bundle.addToastMessages(ToastMessage.fromMessage(m)));
 
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
@@ -274,7 +273,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract Optional<String> applicantName();
 
-    abstract String banner();
+    abstract Optional<DisplayableMessage> bannerMessage();
 
     abstract int completedBlockCount();
 
@@ -299,7 +298,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setApplicantName(Optional<String> applicantName);
 
-      public abstract Builder setBanner(String banner);
+      public abstract Builder setBannerMessage(Optional<DisplayableMessage> banner);
 
       public abstract Builder setCompletedBlockCount(int completedBlockCount);
 

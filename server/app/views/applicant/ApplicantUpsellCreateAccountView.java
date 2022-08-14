@@ -7,6 +7,7 @@ import static j2html.TagCreator.h2;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import controllers.DisplayableMessage;
 import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       Optional<String> applicantName,
       Long applicationId,
       Messages messages,
-      Optional<String> banner) {
+      Optional<DisplayableMessage> bannerMessage) {
     String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
 
     HtmlBundle bundle = layout.getBundle().setTitle(title);
@@ -114,9 +115,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
               .asAnchorText());
     }
 
-    if (banner.isPresent()) {
-      bundle.addToastMessages(ToastMessage.error(banner.get()));
-    }
+    bannerMessage.ifPresent(m -> bundle.addToastMessages(ToastMessage.fromMessage(m)));
 
     bundle
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)

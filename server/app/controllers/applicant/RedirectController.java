@@ -8,6 +8,8 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import controllers.DisplayableMessage;
+import controllers.DisplayableMessage.Severity;
 import controllers.LanguageUtils;
 import controllers.routes;
 import java.util.Comparator;
@@ -174,7 +176,10 @@ public final class RedirectController extends CiviFormController {
                         applicantName.toCompletableFuture().join(),
                         applicationId,
                         messagesApi.preferred(request),
-                        request.flash().get("banner"))),
+                        request
+                            .flash()
+                            .get("banner")
+                            .map(m -> new DisplayableMessage(m, Severity.WARNING)))),
             httpContext.current())
         .exceptionally(
             ex -> {

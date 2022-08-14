@@ -1,7 +1,9 @@
 package views.components;
 
 import static j2html.TagCreator.div;
+import static views.components.ToastMessage.ToastType.*;
 
+import controllers.DisplayableMessage;
 import j2html.tags.specialized.DivTag;
 import java.util.UUID;
 import views.style.ReferenceClasses;
@@ -10,14 +12,14 @@ import views.style.Styles;
 /** ToastMessages are messages that appear on the screen to show information to the user. */
 public class ToastMessage {
 
-  enum ToastType {
+  public enum ToastType {
     ALERT,
     ERROR,
     SUCCESS,
     WARNING
   }
 
-  private ToastType type = ToastType.ALERT;
+  private ToastType type = ALERT;
 
   /** Toast messages are instantiated with a random id. */
   private String id = UUID.randomUUID().toString();
@@ -32,20 +34,27 @@ public class ToastMessage {
   /** If true this message will not be shown if a user has already seen and dismissed it. */
   private boolean canIgnore = false;
 
+  public static ToastMessage fromMessage(DisplayableMessage message) {
+    return new ToastMessage()
+        .setType(message.getSeverity().getToastType())
+        .setMessage(message.getMessage())
+        .setDismissible(!ERROR.equals(message.getSeverity().getToastType()));
+  }
+
   public static ToastMessage alert(String message) {
-    return new ToastMessage().setType(ToastType.ALERT).setMessage(message);
+    return new ToastMessage().setType(ALERT).setMessage(message);
   }
 
   public static ToastMessage error(String message) {
-    return new ToastMessage().setType(ToastType.ERROR).setMessage(message);
+    return new ToastMessage().setType(ERROR).setMessage(message).setDismissible(false);
   }
 
   public static ToastMessage success(String message) {
-    return new ToastMessage().setType(ToastType.SUCCESS).setMessage(message);
+    return new ToastMessage().setType(SUCCESS).setMessage(message);
   }
 
   public static ToastMessage warning(String message) {
-    return new ToastMessage().setType(ToastType.WARNING).setMessage(message);
+    return new ToastMessage().setType(WARNING).setMessage(message);
   }
 
   /** If true then a dismiss button will be visible for this toast. */

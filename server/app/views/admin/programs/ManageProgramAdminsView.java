@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 
 import com.google.common.collect.ImmutableList;
+import controllers.DisplayableMessage;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -57,7 +58,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       ImmutableList<String> existingAdminEmails,
-      Optional<String> message) {
+      Optional<DisplayableMessage> message) {
 
     String fullTitle = PAGE_TITLE + program.adminName();
 
@@ -70,10 +71,11 @@ public class ManageProgramAdminsView extends BaseHtmlView {
                 adminEmailTemplate(),
                 renderAdminForm(request, program.id(), existingAdminEmails));
 
-    if (!message.isEmpty()) {
-      htmlBundle.addToastMessages(
-          ToastMessage.error(message.get()).setDuration(6000).setDismissible(false));
-    }
+    message
+        .map(ToastMessage::fromMessage)
+        .map(m -> m.setDuration(6000))
+        .ifPresent(htmlBundle::addToastMessages);
+
     return layout.renderCentered(htmlBundle);
   }
 

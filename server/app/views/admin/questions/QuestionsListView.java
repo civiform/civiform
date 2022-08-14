@@ -19,6 +19,7 @@ import static j2html.TagCreator.ul;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import controllers.DisplayableMessage;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -68,7 +69,7 @@ public final class QuestionsListView extends BaseHtmlView {
   /** Renders a page with a table view of all questions. */
   public Content render(
       ActiveAndDraftQuestions activeAndDraftQuestions,
-      Optional<String> maybeFlash,
+      Optional<DisplayableMessage> flashMessage,
       Http.Request request) {
     String title = "All Questions";
 
@@ -86,11 +87,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 div(questionTableAndModals.getLeft()).withClasses(Styles.M_4),
                 renderSummary(activeAndDraftQuestions));
 
-    if (maybeFlash.isPresent()) {
-      // Right now, we only show success messages when this page is rendered with maybeFlash set,
-      // so we use the success ToastMessage type by default.
-      htmlBundle.addToastMessages(ToastMessage.success(maybeFlash.get()).setDismissible(false));
-    }
+    flashMessage.ifPresent(
+        m -> htmlBundle.addToastMessages(ToastMessage.fromMessage(m).setDismissible(false)));
 
     return layout.renderCentered(htmlBundle);
   }

@@ -6,6 +6,8 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.DisplayableMessage;
+import controllers.DisplayableMessage.Severity;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -62,7 +64,8 @@ public class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
-    Optional<String> banner = request.flash().get("banner");
+    Optional<DisplayableMessage> banner = request.flash().get("banner")
+      .map(m -> new DisplayableMessage(m, Severity.WARNING));
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage

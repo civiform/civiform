@@ -12,6 +12,7 @@ import static j2html.TagCreator.text;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.DisplayableMessage;
 import controllers.admin.routes;
 import forms.BlockForm;
 import j2html.TagCreator;
@@ -68,7 +69,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       Request request,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
-      String message,
+      Optional<DisplayableMessage> message,
       ImmutableList<QuestionDefinition> questions) {
     return render(
         request,
@@ -88,7 +89,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       BlockForm blockForm,
       BlockDefinition blockDefinition,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
-      String message,
+      Optional<DisplayableMessage> message,
       ImmutableList<QuestionDefinition> questions) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     String title = String.format("Edit %s", blockDefinition.name());
@@ -126,13 +127,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .addModals(blockDescriptionEditModal);
 
     // Add toast messages
-    if (request.flash().get("error").isPresent()) {
-      htmlBundle.addToastMessages(
-          ToastMessage.error(request.flash().get("error").get()).setDuration(-1));
-    }
-    if (message.length() > 0) {
-      htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
-    }
+    request
+        .flash()
+        .get("error")
+        .map(ToastMessage::error)
+        .map(m -> m.setDuration(-1))
+        .ifPresent(htmlBundle::addToastMessages);
+    message.map(ToastMessage::fromMessage).ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }

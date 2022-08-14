@@ -6,6 +6,8 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import controllers.DisplayableMessage;
+import controllers.DisplayableMessage.Severity;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -64,7 +66,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> view(
       Request request, long applicantId, long programId, boolean inReview) {
-    Optional<String> banner = request.flash().get("banner");
+    Optional<DisplayableMessage> banner = request.flash().get("banner")
+      .map(m -> new DisplayableMessage(m, Severity.WARNING));
     CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage
@@ -78,7 +81,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   this.generateParamsBuilder(roApplicantProgramService)
                       .setApplicantId(applicantId)
                       .setApplicantName(applicantStage.toCompletableFuture().join())
-                      .setBanner(banner.isPresent() ? banner.get() : "")
+                      .setBannerMessage(banner)
                       .setInReview(inReview)
                       .setMessages(messagesApi.preferred(request))
                       .setProgramId(programId)

@@ -7,6 +7,8 @@ import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import controllers.DisplayableMessage;
+import controllers.DisplayableMessage.Severity;
 import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
@@ -66,7 +68,13 @@ public class AdminQuestionController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> index(Request request) {
-    Optional<String> maybeFlash = request.flash().get("message");
+    // Right now, we only show success messages when this page is rendered with maybeFlash set,
+    // so we use the success ToastMessage type by default.
+    Optional<DisplayableMessage> maybeFlash =
+        request
+            .flash()
+            .get("message")
+            .map(message -> new DisplayableMessage(message, Severity.SUCCESS));
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
@@ -154,7 +162,8 @@ public class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
-      String errorMessage = joinErrors(result.getErrors());
+      DisplayableMessage errorMessage =
+          new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
@@ -289,7 +298,9 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
+      DisplayableMessage errorMessage =
+          new DisplayableMessage(
+              joinErrors(errorAndUpdatedQuestionDefinition.getErrors()), Severity.ERROR);
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(

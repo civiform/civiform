@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
+import controllers.DisplayableMessage;
+import controllers.DisplayableMessage.Severity;
 import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -90,8 +92,9 @@ public class AdminProgramBlocksController extends CiviFormController {
               ? program.getLastBlockDefinition()
               : result.getResult().maybeAddedBlock().get();
       if (result.isError()) {
-        String errorMessage = joinErrors(result.getErrors());
-        return renderEditViewWithMessage(request, program, block, errorMessage);
+        DisplayableMessage message =
+            new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
+        return renderEditViewWithMessage(request, program, block, Optional.of(message));
       }
       return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
@@ -113,7 +116,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
-      return renderEditViewWithMessage(request, program, block, "");
+      return renderEditViewWithMessage(request, program, block, Optional.empty());
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
@@ -131,9 +134,10 @@ public class AdminProgramBlocksController extends CiviFormController {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           programService.updateBlock(programId, blockId, blockForm);
       if (result.isError()) {
-        String errorMessage = joinErrors(result.getErrors());
+        DisplayableMessage message =
+            new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
         return renderEditViewWithMessage(
-            request, result.getResult(), blockId, blockForm, errorMessage);
+            request, result.getResult(), blockId, blockForm, Optional.of(message));
       }
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
@@ -177,7 +181,10 @@ public class AdminProgramBlocksController extends CiviFormController {
   }
 
   private Result renderEditViewWithMessage(
-      Request request, ProgramDefinition program, BlockDefinition block, String message) {
+      Request request,
+      ProgramDefinition program,
+      BlockDefinition block,
+      Optional<DisplayableMessage> message) {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
@@ -191,7 +198,7 @@ public class AdminProgramBlocksController extends CiviFormController {
       ProgramDefinition program,
       long blockId,
       BlockForm blockForm,
-      String message) {
+      Optional<DisplayableMessage> message) {
     try {
       BlockDefinition blockDefinition = program.getBlockDefinition(blockId);
       ReadOnlyQuestionService roQuestionService =
