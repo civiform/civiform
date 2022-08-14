@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import javax.inject.Provider;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Program;
@@ -93,7 +94,12 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             instanceOf(ProgramStatusesView.class),
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
-            /* statusTrackingEnabled= */ false);
+            /* statusTrackingEnabled= */ new Provider<Boolean>() {
+              @Override
+              public Boolean get() {
+                return false;
+              }
+            });
 
     Result result =
         controller.index(addCSRFToken(fakeRequest().method(httpMethod)).build(), program.id);

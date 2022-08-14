@@ -32,7 +32,7 @@ class Setup(SetupTemplate):
         print(" - Setting up SES")
         self._setup_ses()
         # Only run in dev mode
-        if not self.config.use_backend_config():
+        if self.config.use_local_backend:
             self._make_backend_override()
 
     def get_current_user(self):
@@ -113,7 +113,7 @@ class Setup(SetupTemplate):
     def _setup_shared_state(self):
         if not self.resource_group:
             raise RuntimeError("Resource group required")
-        if self.config.use_backend_config():
+        if not self.config.use_local_backend:
             subprocess.run(
                 [
                     "cloud/azure/bin/setup_tf_shared_state",

@@ -31,11 +31,11 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.17.247",
-      "software.amazon.awssdk" % "ses" % "2.17.247",
+      "software.amazon.awssdk" % "s3" % "2.17.250",
+      "software.amazon.awssdk" % "ses" % "2.17.250",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.5.3",
+      "com.azure" % "azure-identity" % "1.5.4",
       "com.azure" % "azure-storage-blob" % "12.18.0",
 
       // Database and database testing libraries

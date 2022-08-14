@@ -77,7 +77,7 @@ describe('optional application flow', () => {
     }
 
     // Submit the first program
-    await applicantQuestions.submitFromReviewPage(programName)
+    await applicantQuestions.submitFromReviewPage()
     await applicantQuestions.returnToProgramsFromSubmissionPage()
 
     // Complete the second program
@@ -87,7 +87,7 @@ describe('optional application flow', () => {
     await applicantQuestions.clickSkip()
 
     // Submit from review page
-    await applicantQuestions.submitFromReviewPage(programName2)
+    await applicantQuestions.submitFromReviewPage()
     await endSession(browser)
   })
 })

@@ -70,8 +70,11 @@ resource "aws_secretsmanager_secret" "postgres_password_secret" {
 
 # Creating a AWS secret versions for postgres_password
 resource "aws_secretsmanager_secret_version" "postgres_password_secret_version" {
-  secret_id     = aws_secretsmanager_secret.postgres_password_secret.id
-  secret_string = random_password.postgres_password.result
+  secret_id = aws_secretsmanager_secret.postgres_password_secret.id
+  # Prefix secret value with 'default-' so that we can detect it in the
+  # deployment script and regenerate. See
+  # Setup._maybe_change_default_db_password() in aws_oidc/bin/setup.py
+  secret_string = "default-${random_password.postgres_password.result}"
 }
 
 # Create a random generated password to use for app_secret_key.

@@ -21,10 +21,12 @@ function terraform::perform_destory() {
     return 0
   fi
 
+  # We are not using plan generated in the previous step,
+  # because that will never ask for confirmation.
   if azure::is_service_principal; then
-    "${TERRAFORM_APPLY[@]}" -auto-approve "${TERRAFORM_PLAN_OUT_FILE}"
+    "${TERRAFORM_APPLY[@]}" -auto-approve
   else
-    "${TERRAFORM_APPLY[@]}" "${TERRAFORM_PLAN_OUT_FILE}"
+    "${TERRAFORM_APPLY[@]}"
   fi
 }
 
@@ -37,7 +39,7 @@ function terraform::perform_destory() {
 #   TF_VAR_FILENAME
 #######################################
 function terraform::perform_apply() {
-  if civiform_mode::is_dev; then
+  if civiform_mode::use_local_backend; then
     "${TERRAFORM_CMD[@]}" init -upgrade
   else
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
@@ -66,10 +68,12 @@ function terraform::perform_apply() {
     return 0
   fi
 
-  if ! civiform_mode::is_dev; then
-    "${TERRAFORM_APPLY[@]}" -auto-approve "${TERRAFORM_PLAN_OUT_FILE}"
+  # We are not using plan generated in the previous step,
+  # because that will never ask for confirmation.
+  if civiform_mode::skip_confirmations; then
+    "${TERRAFORM_APPLY[@]}" -auto-approve
   else
-    "${TERRAFORM_APPLY[@]}" "${TERRAFORM_PLAN_OUT_FILE}"
+    "${TERRAFORM_APPLY[@]}"
   fi
 }
 

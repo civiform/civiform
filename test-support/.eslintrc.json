@@ -6,5 +6,9 @@
     "guard-for-in": "off",
     "valid-jsdoc": "off",
     "@typescript-eslint/no-non-null-assertion": "off" // this is test code.
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
   }
 }

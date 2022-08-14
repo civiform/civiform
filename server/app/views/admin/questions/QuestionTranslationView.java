@@ -2,6 +2,8 @@ package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.legend;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import controllers.DisplayableMessage;
@@ -10,10 +12,10 @@ import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.question.QuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -24,7 +26,9 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating question information. */
 public final class QuestionTranslationView extends TranslationFormView {
@@ -32,8 +36,9 @@ public final class QuestionTranslationView extends TranslationFormView {
   private final AdminLayout layout;
 
   @Inject
-  public QuestionTranslationView(AdminLayoutFactory layoutFactory, Langs langs) {
-    super(checkNotNull(langs));
+  public QuestionTranslationView(
+      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
+    super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
   }
 
@@ -64,7 +69,7 @@ public final class QuestionTranslationView extends TranslationFormView {
         ImmutableList.<DomContent>builder()
             .add(
                 questionTextFields(
-                    locale, question.getQuestionText(), question.getQuestionHelpText()));
+                    question, locale, question.getQuestionText(), question.getQuestionHelpText()));
     Optional<DomContent> questionTypeSpecificContent =
         getQuestionTypeSpecificContent(question, locale);
     if (questionTypeSpecificContent.isPresent()) {
@@ -116,7 +121,10 @@ public final class QuestionTranslationView extends TranslationFormView {
   }
 
   private DomContent questionTextFields(
-      Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
+      QuestionDefinition questionDefinition,
+      Locale locale,
+      LocalizedStrings questionText,
+      LocalizedStrings helpText) {
     ImmutableList.Builder<DomContent> fields = ImmutableList.builder();
     fields.add(
         div()
@@ -125,8 +133,8 @@ public final class QuestionTranslationView extends TranslationFormView {
                     .setFieldName("questionText")
                     .setLabelText("Question text")
                     .setValue(questionText.maybeGet(locale))
-                    .getInputTag())
-            .condWith(!isDefaultLocale(locale), defaultLocaleTextHint(questionText)));
+                    .getInputTag(),
+                defaultLocaleTextHint(questionText)));
 
     // Help text is optional - only show if present.
     if (!helpText.isEmpty()) {
@@ -137,11 +145,23 @@ public final class QuestionTranslationView extends TranslationFormView {
                       .setFieldName("questionHelpText")
                       .setLabelText("Question help text")
                       .setValue(helpText.maybeGet(locale))
-                      .getInputTag())
-              .condWith(!isDefaultLocale(locale), defaultLocaleTextHint(helpText)));
+                      .getInputTag(),
+                  defaultLocaleTextHint(helpText)));
     }
 
-    return fieldSetForFields("Question details (visible to applicants)", fields.build());
+    return fieldSetForFields(
+        legend()
+            .with(
+                span("Applicant-visible question details"),
+                new LinkElement()
+                    .setText("(edit default)")
+                    .setHref(
+                        controllers.admin.routes.AdminQuestionController.edit(
+                                questionDefinition.getId())
+                            .url())
+                    .setStyles(Styles.ML_2)
+                    .asAnchorText()),
+        fields.build());
   }
 
   private Optional<DomContent> multiOptionQuestionFields(
@@ -159,11 +179,11 @@ public final class QuestionTranslationView extends TranslationFormView {
                       .setFieldName("options[]")
                       .setLabelText(String.format("Answer option #%d", optionIdx + 1))
                       .setValue(option.optionText().maybeGet(toUpdate).orElse(""))
-                      .getInputTag())
-              .condWith(!isDefaultLocale(toUpdate), defaultLocaleTextHint(option.optionText())));
+                      .getInputTag(),
+                  defaultLocaleTextHint(option.optionText())));
     }
 
-    return Optional.of(fieldSetForFields("Answer options", optionFieldsBuilder.build()));
+    return Optional.of(fieldSetForFields(legend("Answer options"), optionFieldsBuilder.build()));
   }
 
   private Optional<DomContent> enumeratorQuestionFields(
@@ -175,7 +195,7 @@ public final class QuestionTranslationView extends TranslationFormView {
                     .setFieldName("entityType")
                     .setLabelText("What is being enumerated")
                     .setValue(entityType.maybeGet(toUpdate).orElse(""))
-                    .getInputTag())
-            .condWith(!isDefaultLocale(toUpdate), defaultLocaleTextHint(entityType)));
+                    .getInputTag(),
+                defaultLocaleTextHint(entityType)));
   }
 }

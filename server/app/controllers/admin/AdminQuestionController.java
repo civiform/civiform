@@ -68,20 +68,11 @@ public class AdminQuestionController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> index(Request request) {
-    // Right now, we only show success messages when this page is rendered with maybeFlash set,
-    // so we use the success ToastMessage type by default.
-    Optional<DisplayableMessage> maybeFlash =
-        request
-            .flash()
-            .get("message")
-            .map(message -> new DisplayableMessage(message, Severity.SUCCESS));
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService ->
-                ok(
-                    listView.render(
-                        readOnlyService.getActiveAndDraftQuestions(), maybeFlash, request)),
+                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), request)),
             httpExecutionContext.current());
   }
 
@@ -180,7 +171,7 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
-    return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+    return withSuccessMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
   /** POST endpoint for un-archiving a question. */
@@ -315,12 +306,12 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
-    return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+    return withSuccessMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
-  private Result withMessage(Result result, String message) {
+  private Result withSuccessMessage(Result result, String message) {
     if (!message.isEmpty()) {
-      return result.flashing("message", message);
+      return result.flashing("success", message);
     }
     return result;
   }

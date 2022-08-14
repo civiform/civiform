@@ -8,8 +8,10 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +22,27 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class AdminProgramTranslationsControllerTest extends ResetPostgres {
+
+  private static Locale ES_LOCALE = Locale.forLanguageTag("es-US");
+
+  private static String ENGLISH_DISPLAY_NAME = "english program display name";
+  private static String ENGLISH_DESCRIPTION = "english program description";
+  private static String SPANISH_DISPLAY_NAME = "spanish program display name";
+  private static String SPANISH_DESCRIPTION = "spanish program description";
+
+  private static String ENGLISH_FIRST_STATUS_TEXT = "english first status text";
+  private static String ENGLISH_FIRST_STATUS_EMAIL = "english first status email";
+  private static String ENGLISH_SECOND_STATUS_TEXT = "english second status text";
+  private static String ENGLISH_SECOND_STATUS_EMAIL = "english second status email";
+
+  private static String SPANISH_FIRST_STATUS_TEXT = "spanish first status text";
+  private static String SPANISH_FIRST_STATUS_EMAIL = "spanish first status email";
+  private static String SPANISH_SECOND_STATUS_TEXT = "spanish second status text";
+  private static String SPANISH_SECOND_STATUS_EMAIL = "spanish second status email";
 
   private ProgramRepository programRepository;
   private AdminProgramTranslationsController controller;
@@ -34,45 +54,20 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_rendersFormWithExistingNameAndDescription_defaultLocale()
-      throws ProgramNotFoundException {
-    Program program =
-        createProgram(
-            "Internal program name",
-            /* localizedName= */ LocalizedStrings.withDefaultValue("External program name"),
-            /* localizedDescription= */ LocalizedStrings.withDefaultValue("External description"));
+  public void edit_defaultLocaleRedirectsWithError() throws ProgramNotFoundException {
+    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id, "en-US");
 
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains(
-            String.format("Manage program translations: Internal program name"),
-            "English",
-            "Spanish",
-            "External program name",
-            "External description");
-    assertThat(contentAsString(result)).doesNotContain("Default text:");
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
+    assertThat(result.flash().get("error")).isPresent();
+    assertThat(result.flash().get("error").get()).isEqualTo("The en-US locale is not supported");
   }
 
   @Test
-  public void edit_rendersFormWithExistingNameAndDescription_otherLocale()
-      throws ProgramNotFoundException {
-    Program program =
-        createProgram(
-            "Internal program name",
-            /* localizedName= */ LocalizedStrings.of(
-                ImmutableMap.of(
-                    LocalizedStrings.DEFAULT_LOCALE,
-                    "External program name",
-                    Locale.forLanguageTag("es-US"),
-                    "nombre nuevo")),
-            /* localizedDescription= */ LocalizedStrings.of(
-                ImmutableMap.of(
-                    LocalizedStrings.DEFAULT_LOCALE,
-                    "External description",
-                    Locale.forLanguageTag("es-US"),
-                    "este es un programa")));
+  public void edit_rendersFormWithExistingContent_otherLocale() throws ProgramNotFoundException {
+    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id, "es-US");
 
@@ -80,17 +75,53 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     assertThat(contentAsString(result))
         .contains(
             String.format("Manage program translations: Internal program name"),
-            "English",
             "Spanish",
-            "nombre nuevo",
-            "este es un programa");
+            SPANISH_DISPLAY_NAME,
+            SPANISH_DESCRIPTION);
     assertThat(contentAsString(result))
-        .contains("Default text:", "External program name", "External description");
+        .contains("Default text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
+    assertThat(contentAsString(result))
+        .contains(
+            SPANISH_FIRST_STATUS_TEXT, SPANISH_FIRST_STATUS_EMAIL,
+            SPANISH_SECOND_STATUS_TEXT, SPANISH_SECOND_STATUS_EMAIL);
+    assertThat(contentAsString(result))
+        .contains(
+            "Default text:",
+            ENGLISH_FIRST_STATUS_TEXT,
+            ENGLISH_FIRST_STATUS_EMAIL,
+            ENGLISH_SECOND_STATUS_TEXT,
+            ENGLISH_SECOND_STATUS_EMAIL);
+  }
+
+  @Test
+  public void edit_rendersFormWithExistingContent_noStatusEmail_otherLocale()
+      throws ProgramNotFoundException {
+    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_NO_EMAIL);
+
+    Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id, "es-US");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains(
+            String.format("Manage program translations: Internal program name"),
+            "Spanish",
+            SPANISH_DISPLAY_NAME,
+            SPANISH_DESCRIPTION);
+    assertThat(contentAsString(result))
+        .contains("Default text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
+    assertThat(contentAsString(result))
+        .contains(SPANISH_FIRST_STATUS_TEXT, SPANISH_SECOND_STATUS_TEXT);
+    assertThat(contentAsString(result))
+        .doesNotContain(SPANISH_FIRST_STATUS_EMAIL, SPANISH_SECOND_STATUS_EMAIL);
+    assertThat(contentAsString(result))
+        .contains("Default text:", ENGLISH_FIRST_STATUS_TEXT, ENGLISH_SECOND_STATUS_TEXT);
+    assertThat(contentAsString(result))
+        .doesNotContain(ENGLISH_FIRST_STATUS_EMAIL, ENGLISH_SECOND_STATUS_EMAIL);
   }
 
   @Test
   public void edit_programNotFound_returnsNotFound() {
-    assertThatThrownBy(() -> controller.edit(addCSRFToken(fakeRequest()).build(), 1000L, "en-US"))
+    assertThatThrownBy(() -> controller.edit(addCSRFToken(fakeRequest()).build(), 1000L, "es-US"))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
@@ -102,7 +133,10 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         fakeRequest()
             .bodyForm(
                 ImmutableMap.of(
-                    "displayName", "nombre nuevo", "displayDescription", "este es un programa"));
+                    "displayName",
+                    "updated spanish program display name",
+                    "displayDescription",
+                    "updated spanish program description"));
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
 
@@ -115,26 +149,22 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             .join()
             .get()
             .getProgramDefinition();
-    assertThat(updatedProgram.localizedName().get(Locale.forLanguageTag("es-US")))
-        .isEqualTo("nombre nuevo");
-    assertThat(updatedProgram.localizedDescription().get(Locale.forLanguageTag("es-US")))
-        .isEqualTo("este es un programa");
+    assertThat(updatedProgram.localizedName().get(ES_LOCALE))
+        .isEqualTo("updated spanish program display name");
+    assertThat(updatedProgram.localizedDescription().get(ES_LOCALE))
+        .isEqualTo("updated spanish program description");
   }
 
   @Test
   public void update_programNotFound() {
-    assertThatThrownBy(() -> controller.update(addCSRFToken(fakeRequest()).build(), 1000L, "en-US"))
+    assertThatThrownBy(() -> controller.update(addCSRFToken(fakeRequest()).build(), 1000L, "es-US"))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
   public void update_validationErrors_rendersEditFormWithMessages()
       throws ProgramNotFoundException {
-    Program program =
-        createProgram(
-            "Internal program name",
-            /* localizedName= */ LocalizedStrings.withDefaultValue("External program name"),
-            /* localizedDescription= */ LocalizedStrings.withDefaultValue("External description"));
+    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
         fakeRequest().bodyForm(ImmutableMap.of("displayName", "", "displayDescription", ""));
@@ -149,15 +179,58 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             "program display description cannot be blank");
   }
 
-  private Program createProgram(
-      String adminName, LocalizedStrings localizedName, LocalizedStrings localizedDescription) {
-    Program initialProgram = ProgramBuilder.newDraftProgram(adminName).build();
-    // ProgramBuilder initializes the localized name and doesn't currently support providing
+  private static final ImmutableList<StatusDefinitions.Status> STATUSES_WITH_EMAIL =
+      ImmutableList.of(
+          StatusDefinitions.Status.builder()
+              .setStatusText(ENGLISH_FIRST_STATUS_TEXT)
+              .setLocalizedStatusText(
+                  LocalizedStrings.withDefaultValue(ENGLISH_FIRST_STATUS_TEXT)
+                      .updateTranslation(ES_LOCALE, SPANISH_FIRST_STATUS_TEXT))
+              .setLocalizedEmailBodyText(
+                  Optional.of(
+                      LocalizedStrings.withDefaultValue(ENGLISH_FIRST_STATUS_EMAIL)
+                          .updateTranslation(ES_LOCALE, SPANISH_FIRST_STATUS_EMAIL)))
+              .build(),
+          StatusDefinitions.Status.builder()
+              .setStatusText(ENGLISH_SECOND_STATUS_TEXT)
+              .setLocalizedStatusText(
+                  LocalizedStrings.withDefaultValue(ENGLISH_SECOND_STATUS_TEXT)
+                      .updateTranslation(ES_LOCALE, SPANISH_SECOND_STATUS_TEXT))
+              .setLocalizedEmailBodyText(
+                  Optional.of(
+                      LocalizedStrings.withDefaultValue(ENGLISH_SECOND_STATUS_EMAIL)
+                          .updateTranslation(ES_LOCALE, SPANISH_SECOND_STATUS_EMAIL)))
+              .build());
+
+  private static final ImmutableList<StatusDefinitions.Status> STATUSES_WITH_NO_EMAIL =
+      ImmutableList.of(
+          StatusDefinitions.Status.builder()
+              .setStatusText(ENGLISH_FIRST_STATUS_TEXT)
+              .setLocalizedStatusText(
+                  LocalizedStrings.withDefaultValue(ENGLISH_FIRST_STATUS_TEXT)
+                      .updateTranslation(ES_LOCALE, SPANISH_FIRST_STATUS_TEXT))
+              .build(),
+          StatusDefinitions.Status.builder()
+              .setStatusText(ENGLISH_SECOND_STATUS_TEXT)
+              .setLocalizedStatusText(
+                  LocalizedStrings.withDefaultValue(ENGLISH_SECOND_STATUS_TEXT)
+                      .updateTranslation(ES_LOCALE, SPANISH_SECOND_STATUS_TEXT))
+              .build());
+
+  private Program createDraftProgramEnglishAndSpanish(
+      ImmutableList<StatusDefinitions.Status> statuses) {
+    Program initialProgram = ProgramBuilder.newDraftProgram("Internal program name").build();
+    // ProgamBuilder initializes the localized name and doesn't currently support providing
     // overrides. Here we manually update the localized string in a separate update.
     Program program =
         initialProgram.getProgramDefinition().toBuilder()
-            .setLocalizedName(localizedName)
-            .setLocalizedDescription(localizedDescription)
+            .setLocalizedName(
+                LocalizedStrings.withDefaultValue(ENGLISH_DISPLAY_NAME)
+                    .updateTranslation(ES_LOCALE, SPANISH_DISPLAY_NAME))
+            .setLocalizedDescription(
+                LocalizedStrings.withDefaultValue(ENGLISH_DESCRIPTION)
+                    .updateTranslation(ES_LOCALE, SPANISH_DESCRIPTION))
+            .setStatusDefinitions(new StatusDefinitions(statuses))
             .build()
             .toProgram();
     program.update();

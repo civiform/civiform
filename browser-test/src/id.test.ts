@@ -56,7 +56,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.answerIdQuestion('12345')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with empty id does not submit', async () => {
@@ -156,7 +156,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits successfully', async () => {
@@ -168,7 +168,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with first invalid does not submit', async () => {

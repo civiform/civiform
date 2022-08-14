@@ -37,6 +37,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeletionStatus;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
@@ -60,17 +61,17 @@ import views.style.Styles;
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final TranslationLocales translationLocales;
 
   @Inject
-  public QuestionsListView(AdminLayoutFactory layoutFactory) {
+  public QuestionsListView(
+      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /** Renders a page with a table view of all questions. */
-  public Content render(
-      ActiveAndDraftQuestions activeAndDraftQuestions,
-      Optional<DisplayableMessage> flashMessage,
-      Http.Request request) {
+  public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     String title = "All Questions";
 
     Pair<TableTag, ImmutableList<Modal>> questionTableAndModals =
@@ -87,8 +88,14 @@ public final class QuestionsListView extends BaseHtmlView {
                 div(questionTableAndModals.getLeft()).withClasses(Styles.M_4),
                 renderSummary(activeAndDraftQuestions));
 
-    flashMessage.ifPresent(
-        m -> htmlBundle.addToastMessages(ToastMessage.fromMessage(m).setDismissible(false)));
+    Http.Flash flash = request.flash();
+    if (flash.get("success").isPresent()) {
+      htmlBundle.addToastMessages(
+          ToastMessage.success(flash.get("success").get()).setDismissible(false));
+    } else if (flash.get("error").isPresent()) {
+      htmlBundle.addToastMessages(
+          ToastMessage.error(flash.get("error").get()).setDismissible(false));
+    }
 
     return layout.renderCentered(htmlBundle);
   }
@@ -364,17 +371,22 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private ATag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
+  private Optional<ATag> renderQuestionTranslationLink(
+      QuestionDefinition definition, String linkText) {
+    if (translationLocales.translatableLocales().isEmpty()) {
+      return Optional.empty();
+    }
     String link =
-        controllers.admin.routes.AdminQuestionTranslationsController.edit(
-                definition.getId(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
+        controllers.admin.routes.AdminQuestionTranslationsController.redirectToFirstLocale(
+                definition.getId())
             .url();
-    return new LinkElement()
-        .setId("translate-question-link-" + definition.getId())
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asAnchorText();
+    return Optional.of(
+        new LinkElement()
+            .setId("translate-question-link-" + definition.getId())
+            .setHref(link)
+            .setText(linkText)
+            .setStyles(Styles.MR_2)
+            .asAnchorText());
   }
 
   private ATag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
@@ -402,22 +414,29 @@ public final class QuestionsListView extends BaseHtmlView {
         // Active with a draft.
         td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
         td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-        td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"))
-            .with(br());
+        Optional<ATag> maybeTranslationLink =
+            renderQuestionTranslationLink(draft.get(), "Manage Translations →");
+        if (maybeTranslationLink.isPresent()) {
+          td.with(maybeTranslationLink.get(), br());
+        }
         td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request)).with(br());
       }
     } else if (draft.isPresent()) {
       // First revision of a question.
       td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →")).with(br());
+      Optional<ATag> maybeTranslationLink =
+          renderQuestionTranslationLink(draft.get(), "Manage Translations →");
+      if (maybeTranslationLink.isPresent()) {
+        td.with(maybeTranslationLink.get(), br());
+      }
     }
     // Add Archive options.
-    if (active.isPresent()) {
-      if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
-        td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request)).with(br());
-      } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
-        td.with(renderArchiveQuestionLink(active.get(), "Archive →", request)).with(br());
-      }
+    QuestionDefinition questionForArchive = draft.isPresent() ? draft.get() : active.get();
+    if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
+      td.with(renderRestoreQuestionLink(questionForArchive, "Restore Archived →", request))
+          .with(br());
+    } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
+      td.with(renderArchiveQuestionLink(questionForArchive, "Archive →", request)).with(br());
     }
     return td;
   }

@@ -224,7 +224,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
       await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
 
       // Verify we are on program submission page.
       expect(await pageObject.innerText('h1')).toContain(
