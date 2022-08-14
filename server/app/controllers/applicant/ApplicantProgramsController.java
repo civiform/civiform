@@ -64,8 +64,8 @@ public class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
-    Optional<DisplayableMessage> banner = request.flash().get("banner")
-      .map(m -> new DisplayableMessage(m, Severity.WARNING));
+    Optional<DisplayableMessage> banner =
+        request.flash().get("banner").map(m -> new DisplayableMessage(m, Severity.WARNING));
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage

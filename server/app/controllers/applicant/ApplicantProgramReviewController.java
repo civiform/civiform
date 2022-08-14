@@ -66,8 +66,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> view(
       Request request, long applicantId, long programId, boolean inReview) {
-    Optional<DisplayableMessage> banner = request.flash().get("banner")
-      .map(m -> new DisplayableMessage(m, Severity.WARNING));
+    Optional<DisplayableMessage> banner =
+        request.flash().get("banner").map(m -> new DisplayableMessage(m, Severity.WARNING));
     CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage
