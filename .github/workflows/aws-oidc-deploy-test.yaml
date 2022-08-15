@@ -34,6 +34,7 @@ jobs:
         run: |
           source civiform_config.sh
           export CIVIFORM_MODE="test"
+          export APP_PREFIX=${LATEST_SNAPSHOT_TAG}
           echo "${LATEST_SNAPSHOT_TAG}"
           cloud/shared/bin/setup  "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
