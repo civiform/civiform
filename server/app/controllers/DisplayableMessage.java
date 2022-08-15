@@ -21,7 +21,7 @@ public final class DisplayableMessage {
     return severity;
   }
 
-  /** Standard severity levels for user feedback messages **/
+  /** Standard severity levels for user feedback messages */
   public enum Severity {
     ALERT(ToastType.ALERT),
     ERROR(ToastType.ERROR),
