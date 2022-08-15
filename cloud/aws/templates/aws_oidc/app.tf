@@ -66,9 +66,10 @@ module "td" {
               "kms:Decrypt",
               "kms:ReEncrypt*",
               "kms:GenerateDataKey*",
-              "kms:DescribeKey"
+              "kms:DescribeKey",
+              "kms:GenerateDataKey"
             ],
-            "Resource" : [aws_kms_key.civiform_kms_key.arn]
+            "Resource" : [aws_kms_key.civiform_kms_key.arn, aws_kms_key.file_storage_key.arn]
           },
           {
             "Effect" : "Allow",
