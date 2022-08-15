@@ -178,7 +178,7 @@ public class QuestionConfig {
         FieldWithLabel.input()
             .setId("enumerator-question-entity-type-input")
             .setFieldName("entityType")
-            .setLabelText("Repeated entity type")
+            .setLabelText("Repeated entity type *")
             .setPlaceholderText("What are we enumerating?")
             .setValue(enumeratorQuestionForm.getEntityType())
             .getInputTag());
@@ -202,7 +202,7 @@ public class QuestionConfig {
     DivTag optionInput =
         FieldWithLabel.input()
             .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
-            .setLabelText("Question option")
+            .setLabelText("Question option *")
             .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
             .setFieldErrors(
