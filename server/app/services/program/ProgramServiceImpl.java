@@ -486,7 +486,8 @@ public final class ProgramServiceImpl implements ProgramService {
     }
   }
 
-  private static ImmutableSet<CiviFormError> validateBlockDefinition(BlockDefinition blockDefinition) {
+  private static ImmutableSet<CiviFormError> validateBlockDefinition(
+      BlockDefinition blockDefinition) {
     ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
     if (blockDefinition.name().isBlank()) {
       errors.add(CiviFormError.of("screen name cannot be blank"));

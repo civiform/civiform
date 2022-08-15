@@ -26,11 +26,12 @@ import services.question.types.QuestionDefinition;
  */
 public class ProgramBuilder {
 
-  private static BlockDefinition EMPTY_FIRST_BLOCK = BlockDefinition.builder()
-    .setId(1)
-    .setName("Screen 1")
-    .setDescription("Screen 1 description")
-    .build();
+  private static BlockDefinition EMPTY_FIRST_BLOCK =
+      BlockDefinition.builder()
+          .setId(1)
+          .setName("Screen 1")
+          .setDescription("Screen 1 description")
+          .build();
 
   private static Injector injector;
 
