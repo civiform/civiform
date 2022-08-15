@@ -57,7 +57,7 @@ def main():
     tf_var_writter.write_variables(conf_variables)
 
     try:
-        print('Starting pre-terraform setup')
+        print("Starting pre-terraform setup")
         template_setup.pre_terraform_setup()
 
         ###############################################################################
