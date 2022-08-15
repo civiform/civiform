@@ -52,6 +52,10 @@ class Setup(AwsSetupTemplate):
         return True
 
     def post_terraform_setup(self):
+        if self.config.is_test():
+            print(" - Test. Skipping post terraform setup.")
+            return
+
         for name, doc in SECRETS.items():
             self._maybe_set_secret_value(
                 f'{self.config.app_prefix}-{name}', doc)
