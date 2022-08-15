@@ -78,7 +78,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly (),
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.14.0",
+      "com.google.errorprone" % "error_prone_core" % "2.15.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",
@@ -104,7 +104,7 @@ lazy val root = (project in file("."))
       "-XDcompilePolicy=simple",
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF",
+      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF",
       "-implicit:class",
       "-Werror"
     ),
