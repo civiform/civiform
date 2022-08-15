@@ -150,8 +150,7 @@ export class AdminProgramStatuses {
     const innerText = await modal.innerText()
     expect(innerText).toContain('Edit this status')
 
-    // Close the modal prior to any assertions to avoid affecting
-    // subsequent tests.
+    // Close the modal prior to any assertions to avoid affecting subsequent tests.
     await dismissModal(this.page)
 
     return innerText.includes('This status has an email configured')

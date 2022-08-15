@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import forms.admin.ProgramStatusesForm;
-import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -95,7 +94,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             program,
             createStatusForm,
             displayOnLoad,
-            /* extraContent= */ Optional.empty());
+            /* showEmailDeletionWarning= */ false);
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
@@ -226,12 +225,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
       StatusDefinitions.Status status,
       Form<ProgramStatusesForm> statusEditForm,
       boolean displayOnLoad) {
-    Optional<DomContent> extraContent =
-        status.localizedEmailBodyText().isPresent()
-            ? Optional.of(renderEmailTranslationWarning())
-            : Optional.empty();
     Modal editStatusModal =
-        makeStatusUpdateModal(request, program, statusEditForm, displayOnLoad, extraContent);
+        makeStatusUpdateModal(
+            request,
+            program,
+            statusEditForm,
+            displayOnLoad,
+            status.localizedEmailBodyText().isPresent());
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
@@ -334,7 +334,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
       ProgramDefinition program,
       Form<ProgramStatusesForm> form,
       boolean displayOnLoad,
-      Optional<DomContent> extraContent) {
+      boolean showEmailDeletionWarning) {
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
 
@@ -373,16 +373,14 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .setValue(formData.getEmailBody())
                             .setFieldErrors(
                                 messages, form.errors(ProgramStatusesForm.EMAIL_BODY_FORM_NAME))
-                            .getTextareaTag()));
-    if (extraContent.isPresent()) {
-      content.with(extraContent.get());
-    }
-    content.with(
-        div()
-            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                            .getTextareaTag()))
+            .condWith(showEmailDeletionWarning, renderEmailTranslationWarning())
             .with(
-                div().withClass(Styles.FLEX_GROW),
-                submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                div()
+                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     return Modal.builder(Modal.randomModalId(), content)
         .setModalTitle(
             formData.getConfiguredStatusText().isEmpty()
