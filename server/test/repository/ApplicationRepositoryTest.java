@@ -13,6 +13,9 @@ import models.Program;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
+
 import services.DateConverter;
 import services.Path;
 import support.CfTestHelpers;
@@ -224,7 +227,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   private Program createDraftProgram(String name) {
     Program program =
-        new Program(name, "desc", name, "desc", "", DisplayMode.PUBLIC.getValue(), draftVersion);
+        new Program(name, "desc", name, "desc", "", DisplayMode.PUBLIC.getValue(), ImmutableList.of(), draftVersion);
     program.save();
     return program;
   }

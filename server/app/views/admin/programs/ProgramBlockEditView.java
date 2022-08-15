@@ -538,8 +538,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private Modal blockDescriptionModal(
       InputTag csrfTag, BlockForm blockForm, String blockUpdateAction) {
-    String modalTitle = "Screen Name and Description";
-    String modalButtonText = "Edit Name and Description";
+    String modalTitle = "Screen name and description";
+    String modalButtonText = "Edit screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
     blockDescriptionForm

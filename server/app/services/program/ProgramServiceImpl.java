@@ -160,10 +160,17 @@ public final class ProgramServiceImpl implements ProgramService {
     validateProgramText(errorsBuilder, "display mode", displayMode);
 
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
-
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
+
+    ErrorAnd<BlockDefinition, CiviFormError> maybeEmptyBlock =
+        createEmptyBlockDefinition(
+            /* blockId= */ 1, /* maybeEnumeratorBlockId= */ Optional.empty());
+    if (maybeEmptyBlock.isError()) {
+      return ErrorAnd.error(maybeEmptyBlock.getErrors());
+    }
+    BlockDefinition emptyBlock = maybeEmptyBlock.getResult();
 
     Program program =
         new Program(
@@ -173,6 +180,7 @@ public final class ProgramServiceImpl implements ProgramService {
             defaultDisplayDescription,
             externalLink,
             displayMode,
+            ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersion());
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
@@ -287,6 +295,27 @@ public final class ProgramServiceImpl implements ProgramService {
     return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
   }
 
+  private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
+      long blockId, Optional<Long> maybeEnumeratorBlockId) {
+    String blockName;
+    if (maybeEnumeratorBlockId.isPresent()) {
+      blockName =
+          String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get());
+    } else {
+      blockName = String.format("Screen %d", blockId);
+    }
+    String blockDescription = String.format("Screen %d description", blockId);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(blockId)
+            .setName(blockName)
+            .setDescription(blockDescription)
+            .setEnumeratorId(maybeEnumeratorBlockId)
+            .build();
+    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
+    return errors.isEmpty() ? ErrorAnd.of(blockDefinition) : ErrorAnd.error(errors);
+  }
+
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
       long programId, Optional<Long> enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
@@ -296,30 +325,14 @@ public final class ProgramServiceImpl implements ProgramService {
       throw new ProgramBlockDefinitionNotFoundException(programId, enumeratorBlockId.get());
     }
 
-    long blockId = getNextBlockId(programDefinition);
-    String blockName;
-    if (enumeratorBlockId.isPresent()) {
-      blockName = String.format("Screen %d (repeated from %d)", blockId, enumeratorBlockId.get());
-    } else {
-      blockName = String.format("Screen %d", blockId);
-    }
-    String blockDescription =
-        "What is the purpose of this screen? Add a description that summarizes the information"
-            + " collected.";
-
-    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockName, blockDescription);
-    if (!errors.isEmpty()) {
+    ErrorAnd<BlockDefinition, CiviFormError> maybeBlockDefinition =
+        createEmptyBlockDefinition(getNextBlockId(programDefinition), enumeratorBlockId);
+    if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
-          errors, ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
+          maybeBlockDefinition.getErrors(),
+          ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
     }
-
-    BlockDefinition blockDefinition =
-        BlockDefinition.builder()
-            .setId(blockId)
-            .setName(blockName)
-            .setDescription(blockDescription)
-            .setEnumeratorId(enumeratorBlockId)
-            .build();
+    BlockDefinition blockDefinition = maybeBlockDefinition.getResult();
     Program program =
         programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
     ProgramDefinition updatedProgram =
@@ -327,7 +340,8 @@ public final class ProgramServiceImpl implements ProgramService {
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join();
-    BlockDefinition updatedBlockDefinition = updatedProgram.getBlockDefinition(blockId);
+    BlockDefinition updatedBlockDefinition =
+        updatedProgram.getBlockDefinition(blockDefinition.id());
     return ErrorAnd.of(
         ProgramBlockAdditionResult.of(updatedProgram, Optional.of(updatedBlockDefinition)));
   }
@@ -452,17 +466,15 @@ public final class ProgramServiceImpl implements ProgramService {
       long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    ImmutableSet<CiviFormError> errors =
-        validateBlockDefinition(blockForm.getName(), blockForm.getDescription());
-    if (!errors.isEmpty()) {
-      return ErrorAnd.errorAnd(errors, programDefinition);
-    }
-
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
             .setName(blockForm.getName())
             .setDescription(blockForm.getDescription())
             .build();
+    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
+    if (!errors.isEmpty()) {
+      return ErrorAnd.errorAnd(errors, programDefinition);
+    }
 
     try {
       return ErrorAnd.of(
@@ -474,12 +486,12 @@ public final class ProgramServiceImpl implements ProgramService {
     }
   }
 
-  private ImmutableSet<CiviFormError> validateBlockDefinition(String name, String description) {
+  private static ImmutableSet<CiviFormError> validateBlockDefinition(BlockDefinition blockDefinition) {
     ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
-    if (name.isBlank()) {
+    if (blockDefinition.name().isBlank()) {
       errors.add(CiviFormError.of("screen name cannot be blank"));
     }
-    if (description.isBlank()) {
+    if (blockDefinition.description().isBlank()) {
       errors.add(CiviFormError.of("screen description cannot be blank"));
     }
     return errors.build();

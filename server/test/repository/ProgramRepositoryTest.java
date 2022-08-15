@@ -151,6 +151,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             "description",
             "",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
             versionRepo.getDraftVersion());
 
     Program withId = repo.insertProgramSync(program);
