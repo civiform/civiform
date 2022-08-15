@@ -25,7 +25,7 @@ describe('create dropdown question with options', () => {
       'Sample question text',
     )
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
-      'Sample question help text',
+      '',
     )
 
     // Fill in basic info
