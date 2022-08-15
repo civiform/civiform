@@ -67,7 +67,7 @@
     "secret": false,
     "tfvar": true,
     "type": "string",
-    "value_regex": "[^\\s]+",
+    "value_regex": "[^\\s]*",
     "value_regex_error_message": "needs to be url safe. No spaces are allowed."
   },
   "APPLICANT_OIDC_DISCOVERY_URI": {
