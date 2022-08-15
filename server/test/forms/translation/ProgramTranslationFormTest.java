@@ -37,7 +37,8 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 2);
+        ProgramTranslationForm.bindFromRequest(
+            request, instanceOf(FormFactory.class), /* maxStatusTranslations= */ 2);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -63,7 +64,8 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 1);
+        ProgramTranslationForm.bindFromRequest(
+            request, instanceOf(FormFactory.class), /* maxStatusTranslations= */ 1);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
@@ -80,9 +82,12 @@ public class ProgramTranslationFormTest extends ResetPostgres {
   }
 
   @Test
-  public void bindFromRequest_notEnoughStatusesInFormBodyAreOmmitted() throws Exception {
+  public void bindFromRequest_missingStatusesInFormBodyAreOmmitted() throws Exception {
     Request request = fakeRequest().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
+    // While parsing the form, it's expected for there to be 3 distinct statuses. When there are
+    // only 2 statuses provided in the request body, attempting to parse a 3rd should not throw
+    // an error and just return a list of 2 updates.
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 3);
     assertThat(form.getUpdateData())
@@ -129,7 +134,8 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             .build();
 
     ProgramTranslationForm form =
-        ProgramTranslationForm.bindFromRequest(request, instanceOf(FormFactory.class), 2);
+        ProgramTranslationForm.bindFromRequest(
+            request, instanceOf(FormFactory.class), /* maxStatusTranslations= */ 2);
     assertThat(form.getUpdateData())
         .isEqualTo(
             LocalizationUpdate.builder()
