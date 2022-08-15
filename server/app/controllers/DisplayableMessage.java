@@ -2,7 +2,8 @@ package controllers;
 
 import views.components.ToastMessage.ToastType;
 
-public class DisplayableMessage {
+/** Model for user feedback messages that appear on the screen with a certain severity. */
+public final class DisplayableMessage {
 
   private final String message;
   private final Severity severity;
@@ -20,6 +21,7 @@ public class DisplayableMessage {
     return severity;
   }
 
+  /** Standard severity levels for user feedback messages **/
   public enum Severity {
     ALERT(ToastType.ALERT),
     ERROR(ToastType.ERROR),
