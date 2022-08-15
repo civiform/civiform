@@ -108,6 +108,10 @@ module "td" {
       valueFrom = aws_secretsmanager_secret_version.app_secret_key_secret_version.arn
     },
     {
+      name      = "CIVIFORM_API_SECRET_SALT"
+      valueFrom = aws_secretsmanager_secret_version.api_secret_salt_secret_version.arn
+    },
+    {
       name      = "ADFS_SECRET"
       valueFrom = aws_secretsmanager_secret_version.adfs_secret_secret_version.arn
     },
