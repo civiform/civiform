@@ -187,22 +187,22 @@ variable "civiform_applicant_idp" {
 }
 
 
-variable applicant_oidc_provider_logout {
-  type = boolean
+variable "applicant_oidc_provider_logout" {
+  type        = bool
   description = "If the applicant OIDC logout should also perform a central logout from the auth provider"
   default     = false
 }
 
-variable applicant_oidc_post_logout_redirect_param {
-  type = string
+variable "applicant_oidc_post_logout_redirect_param" {
+  type        = string
   description = "What query parameter to use for sending the redirect uri to the central OIDC provider for logout. Defaults to post_logout_redirect_uri"
-  default = "post_logout_redirect_uri"
+  default     = "post_logout_redirect_uri"
 }
 
-variable applicant_oidc_logout_client_param {
-  type = string
+variable "applicant_oidc_logout_client_param" {
+  type        = string
   description = "What query parameter to use for sending the client id to the central OIDC provider for logout.  If left blank, doesn't send the client id."
-  default = ""
+  default     = ""
 }
 
 variable "civiform_applicant_auth_protocol" {
