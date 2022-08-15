@@ -393,7 +393,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
 
   private PTag renderEmailTranslationWarning() {
     return p("Please be aware that clearing the email body will also clear any associated"
-                 + " translations")
+            + " translations")
         .withClasses(
             Styles.M_2,
             Styles.P_2,
