@@ -1,4 +1,4 @@
-name: azure_saml_ses deploy test
+name: aws_oidc deploy test
 on:
   workflow_dispatch: {}
   pull_request:
