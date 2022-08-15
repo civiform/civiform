@@ -57,7 +57,7 @@ class Setup(SetupTemplate):
     def post_terraform_setup(self):
         self._get_adfs_user_inputs()
         self._configure_slot_settings()
-        # Why are running terraform again for azure?
+        # Run terraform again as get_adfs_user_inputs updated secret variables.
         terraform.perform_apply(self.config_loader)
 
     def cleanup(self):
