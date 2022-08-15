@@ -231,7 +231,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             program,
             statusEditForm,
             displayOnLoad,
-            status.localizedEmailBodyText().isPresent());
+            /* showEmailDeletionWarning= */ status.localizedEmailBodyText().isPresent());
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
