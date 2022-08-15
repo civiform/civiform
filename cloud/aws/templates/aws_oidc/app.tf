@@ -53,6 +53,7 @@ module "td" {
               aws_secretsmanager_secret.postgres_username_secret.arn,
               aws_secretsmanager_secret.postgres_password_secret.arn,
               aws_secretsmanager_secret.app_secret_key_secret.arn,
+              aws_secretsmanager_secret.api_secret_salt_secret.arn,
               aws_secretsmanager_secret.adfs_secret_secret.arn,
               aws_secretsmanager_secret.adfs_client_id_secret.arn,
               aws_secretsmanager_secret.applicant_oidc_client_secret_secret.arn,
