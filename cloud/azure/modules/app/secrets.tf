@@ -23,6 +23,11 @@ data "azurerm_key_vault_secret" "app_secret_key" {
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
 }
 
+data "azurerm_key_vault_secret" "api_secret_salt_key" {
+  name         = local.api_secret_salt_key_keyvault_id
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
 data "azurerm_key_vault_secret" "adfs_secret" {
   name         = local.adfs_secret_keyvault_id
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id

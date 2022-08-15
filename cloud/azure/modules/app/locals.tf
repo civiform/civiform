@@ -7,6 +7,7 @@ locals {
 
   postgres_password_keyvault_id = "postgres-password"
   app_secret_key_keyvault_id    = "app-secret-key"
+  api_secret_salt_key_keyvault_id  = "api-secret-salt"
   adfs_secret_keyvault_id       = "adfs-secret"
   aws_secret_access_token       = "aws-secret-access-token"
   aws_access_key_id             = "aws-access-key-id"
@@ -71,6 +72,8 @@ locals {
     # This allows for the default to include atallclaims and for 
     # azure AD to not include that claim.
     ADFS_ADDITIONAL_SCOPES = ""
+
+    CIVIFORM_API_SECRET_SALT = data.azurerm_key_vault_secret.api_secret_salt_key.value
 
     CIVIFORM_APPLICATION_STATUS_TRACKING_ENABLED = var.feature_flag_status_tracking_enabled
   }
