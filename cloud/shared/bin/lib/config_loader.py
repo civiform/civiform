@@ -110,7 +110,8 @@ class ConfigLoader:
                         f'[{name}] no value_regex_error_message configured')
                 if not re.compile(value_regex).fullmatch(config_value):
                     validation_errors.append(
-                        f'[{name}] \'{config_value}\' not valid: {validation_error_message}')
+                        f'[{name}] \'{config_value}\' not valid: {validation_error_message}'
+                    )
 
         return validation_errors
 
