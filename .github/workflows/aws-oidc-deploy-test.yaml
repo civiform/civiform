@@ -30,18 +30,18 @@ jobs:
           #  the changes work with actual data
           curl https://raw.githubusercontent.com/civiform/staging-aws-deploy/main/civiform_config.sh > civiform_config.sh
 
-      - name: Source config, set CIVIFORM_MODE to be "test"
+      - name: Source config, set CIVIFORM_MODE to be "test", Run setup with latest tag
         run: |
           source civiform_config.sh
           export CIVIFORM_MODE="test"
           echo "${LATEST_SNAPSHOT_TAG}"
-
-      - name: Run setup with latest tag
-        run: |
           cloud/shared/bin/setup  "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
 
-      - name: Run deploy with latest tag
+      - name: Source config, set CIVIFORM_MODE to be "test", Run deploy with latest tag
         run: |
+          source civiform_config.sh
+          export CIVIFORM_MODE="test"
+          echo "${LATEST_SNAPSHOT_TAG}"
           cloud/shared/bin/deploy "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
