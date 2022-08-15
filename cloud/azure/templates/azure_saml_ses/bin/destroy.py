@@ -12,7 +12,7 @@ Destroy the setup
 class Destroy(SetupTemplate):
 
     def pre_terraform_destroy(self):
-        if not self.config.use_backend_config():
+        if self.config.use_local_backend:
             self._make_backend_override()
 
     def post_terraform_destroy(self):

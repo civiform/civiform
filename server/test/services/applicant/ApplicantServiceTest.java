@@ -42,9 +42,9 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
-public class ApplicantServiceImplTest extends ResetPostgres {
+public class ApplicantServiceTest extends ResetPostgres {
 
-  private ApplicantServiceImpl subject;
+  private ApplicantService subject;
   private QuestionService questionService;
   private QuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
@@ -54,7 +54,7 @@ public class ApplicantServiceImplTest extends ResetPostgres {
 
   @Before
   public void setUp() throws Exception {
-    subject = instanceOf(ApplicantServiceImpl.class);
+    subject = instanceOf(ApplicantService.class);
     questionService = instanceOf(QuestionService.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
     userRepository = instanceOf(UserRepository.class);

@@ -3,6 +3,7 @@
 import subprocess
 import tempfile
 
+from cloud.shared.bin.lib import terraform
 from cloud.shared.bin.lib.setup_template import SetupTemplate
 """
 Template Setup
@@ -32,7 +33,7 @@ class Setup(SetupTemplate):
         print(" - Setting up SES")
         self._setup_ses()
         # Only run in dev mode
-        if not self.config.use_backend_config():
+        if self.config.use_local_backend:
             self._make_backend_override()
 
     def get_current_user(self):
@@ -56,6 +57,8 @@ class Setup(SetupTemplate):
     def post_terraform_setup(self):
         self._get_adfs_user_inputs()
         self._configure_slot_settings()
+        # Run terraform again as get_adfs_user_inputs updated secret variables.
+        terraform.perform_apply(self.config_loader)
 
     def cleanup(self):
         self._upload_log_file()
@@ -113,7 +116,7 @@ class Setup(SetupTemplate):
     def _setup_shared_state(self):
         if not self.resource_group:
             raise RuntimeError("Resource group required")
-        if self.config.use_backend_config():
+        if not self.config.use_local_backend:
             subprocess.run(
                 [
                     "cloud/azure/bin/setup_tf_shared_state",
