@@ -3,6 +3,7 @@
 import subprocess
 import tempfile
 
+from cloud.shared.bin.lib import terraform
 from cloud.shared.bin.lib.setup_template import SetupTemplate
 """
 Template Setup
@@ -56,6 +57,8 @@ class Setup(SetupTemplate):
     def post_terraform_setup(self):
         self._get_adfs_user_inputs()
         self._configure_slot_settings()
+        # Run terraform again as get_adfs_user_inputs updated secret variables.
+        terraform.perform_apply(self.config_loader)
 
     def cleanup(self):
         self._upload_log_file()

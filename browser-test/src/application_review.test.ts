@@ -187,7 +187,7 @@ describe('Program admin review of submitted applications', () => {
     await applicantQuestions.clickNext()
 
     // submit
-    await applicantQuestions.submitFromReviewPage(programName)
+    await applicantQuestions.submitFromReviewPage()
 
     await logout(page)
     await loginAsProgramAdmin(page)
@@ -280,7 +280,7 @@ describe('Program admin review of submitted applications', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(answer)
       await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
 
       await logout(page)
     }

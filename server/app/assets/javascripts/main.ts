@@ -44,9 +44,8 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
 
 /**
  * In admin program block edit form - enabling submit button when form is changed or if not empty
- * @param {Event} _event Unused. The event that triggered this.
- *  */
-function changeUpdateBlockButtonState(_event: Event) {
+ */
+function changeUpdateBlockButtonState() {
   const blockEditForm = document.getElementById('block-edit-form')
   const submitButton = document.getElementById('update-block-button')
 
@@ -117,10 +116,8 @@ function hideInput(event: Event) {
   inputDiv.classList.add('hidden')
 }
 
-/** In the enumerator form - add a new input field for a repeated entity.
- * @param {Event} _event Unused. The event that triggered this.
- */
-function addNewEnumeratorField(_event: Event) {
+/** In the enumerator form - add a new input field for a repeated entity. */
+function addNewEnumeratorField() {
   // Copy the enumerator field template
   const newField = document
     .getElementById('enumerator-field-template')
@@ -467,7 +464,7 @@ function attachFormDebouncers() {
   )
 }
 
-window.addEventListener('load', (_event) => {
+window.addEventListener('load', () => {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
     attachDropdown(el.id)

@@ -2,7 +2,7 @@
 
 from config_loader import ConfigLoader
 from cloud.shared.bin.lib import terraform
-from setup_class_loader import load_destroy_class
+from setup_class_loader import get_config_specific_destroy
 """
 Destroy.py destroys Civiform deployment.
 """
@@ -33,10 +33,7 @@ def main():
     # Load Setup Class for the specific template directory
     ###############################################################################
 
-    template_dir = config_loader.get_template_dir()
-    Destroy = load_destroy_class(template_dir)
-
-    template_destroy = Destroy(config_loader)
+    template_destroy = get_config_specific_destroy(config_loader)
     template_destroy.pre_terraform_destroy()
     terraform.perform_apply(config_loader, is_destroy=True)
     template_destroy.post_terraform_destroy()
