@@ -153,7 +153,9 @@ export class AdminProgramStatuses {
     // Close the modal prior to any assertions to avoid affecting subsequent tests.
     await dismissModal(this.page)
 
-    return innerText.includes('This status has an email configured')
+    return innerText.includes(
+      'clearing the email body will also clear any associated translations',
+    )
   }
 
   async expectProgramManageStatusesPage(programName: string) {

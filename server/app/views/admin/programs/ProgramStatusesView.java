@@ -392,8 +392,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private PTag renderEmailTranslationWarning() {
-    return p("This status has an email configured. Clearing this value will also remove any"
-            + " associated translated content.")
+    return p("Please be aware that clearing the email body will also clear any associated"
+                 + " translations")
         .withClasses(
             Styles.M_2,
             Styles.P_2,
