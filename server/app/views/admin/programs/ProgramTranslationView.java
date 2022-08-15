@@ -128,14 +128,17 @@ public final class ProgramTranslationView extends TranslationFormView {
         ImmutableList.Builder<DomContent> fieldsBuilder =
             ImmutableList.<DomContent>builder()
                 .add(
+                    // This input serves as the key indicating which status to update translations
+                    // for and isn't configurable.
                     input()
                         .isHidden()
-                        .withName(ProgramTranslationForm.configuredStatusFieldName(statusIdx))
+                        .withName(ProgramTranslationForm.statusKeyToUpdateFieldName(statusIdx))
                         .withValue(configuredStatus.statusText()),
                     div()
                         .with(
                             FieldWithLabel.input()
-                                .setFieldName(ProgramTranslationForm.statusTextFieldName(statusIdx))
+                                .setFieldName(
+                                    ProgramTranslationForm.localizedStatusFieldName(statusIdx))
                                 .setLabelText("Status name")
                                 .setScreenReaderText("Status name")
                                 .setValue(statusUpdateData.localizedStatusText())
@@ -146,7 +149,7 @@ public final class ProgramTranslationView extends TranslationFormView {
               div()
                   .with(
                       FieldWithLabel.textArea()
-                          .setFieldName(ProgramTranslationForm.statusEmailFieldName(statusIdx))
+                          .setFieldName(ProgramTranslationForm.localizedEmailFieldName(statusIdx))
                           .setLabelText("Email content")
                           .setScreenReaderText("Email content")
                           .setValue(statusUpdateData.localizedEmailBody())

@@ -1044,12 +1044,12 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-email"))
                         .setLocalizedEmailBody(Optional.of("german email body"))
                         .build(),
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
             .build();
@@ -1103,14 +1103,14 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(
                             Optional.of(STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
                         .setLocalizedEmailBody(
                             Optional.of(STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated"))
                         .build(),
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .build()))
@@ -1201,10 +1201,10 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
                         .build(),
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .build()))
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -1255,17 +1255,17 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText("unrecognized-status")
+                        .setStatusKeyToUpdate("unrecognized-status")
                         .setLocalizedStatusText(Optional.of("unrecognized-status"))
                         .setLocalizedEmailBody(Optional.of("unrecognized-status-email-body"))
                         .build(),
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-email"))
                         .setLocalizedEmailBody(Optional.of("german email body"))
                         .build(),
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
             .build();
@@ -1289,7 +1289,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-email"))
                         .setLocalizedEmailBody(Optional.of("german email body"))
                         .build()))
@@ -1316,14 +1316,14 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(
                             Optional.of(STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
                         .setLocalizedEmailBody(
                             Optional.of(STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated"))
                         .build(),
                     LocalizationUpdate.StatusUpdate.builder()
-                        .setConfiguredStatusText(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .setLocalizedEmailBody(Optional.of("a localized email"))

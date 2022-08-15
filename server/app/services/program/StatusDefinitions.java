@@ -76,6 +76,8 @@ public class StatusDefinitions {
       return new AutoValue_StatusDefinitions_Status.Builder();
     }
 
+    public abstract Builder toBuilder();
+
     @AutoValue.Builder
     public abstract static class Builder {
 

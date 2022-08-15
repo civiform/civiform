@@ -86,7 +86,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
             localeToEdit,
             program,
             ProgramTranslationForm.fromProgram(program, localeToEdit, formFactory),
-            Optional.empty()));
+            request.flash().get("error")));
   }
 
   /**
@@ -112,24 +112,25 @@ public class AdminProgramTranslationsController extends CiviFormController {
         ProgramTranslationForm.bindFromRequest(
             request, formFactory, program.statusDefinitions().getStatuses().size());
 
+    final ErrorAnd<ProgramDefinition, CiviFormError> result;
     try {
-      ErrorAnd<ProgramDefinition, CiviFormError> result =
+      result =
           service.updateLocalization(program.id(), localeToUpdate, translationForm.getUpdateData());
-      if (result.isError()) {
-        String errorMessage = joinErrors(result.getErrors());
-        return ok(
-            translationView.render(
-                request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
-      }
-      return redirect(routes.AdminProgramController.index().url())
-          .flashing(
-              "success",
-              String.format(
-                  "Program translations updated for %s",
-                  localeToUpdate.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)));
     } catch (OutOfDateStatusesException e) {
       return redirect(routes.AdminProgramTranslationsController.edit(programId, locale))
           .flashing("error", e.userFacingMessage());
     }
+    if (result.isError()) {
+      String errorMessage = joinErrors(result.getErrors());
+      return ok(
+          translationView.render(
+              request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
+    }
+    return redirect(routes.AdminProgramController.index().url())
+        .flashing(
+            "success",
+            String.format(
+                "Program translations updated for %s",
+                localeToUpdate.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)));
   }
 }

@@ -237,9 +237,10 @@ public abstract class LocalizedStrings {
    * Returns a new set of localized strings with a new translation.
    *
    * <p>Since this supports at least one locale, it will be required.
+   *
+   * <p>TODO(#3144): Consider removing this and only use the Optional version.
    */
   public LocalizedStrings updateTranslation(Locale locale, String value) {
-    // TODO(#3144): Consider removing this and only use the Optional version.
     return translationsForAllLocalesExcept(locale).put(locale, value).build();
   }
 

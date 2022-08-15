@@ -218,20 +218,30 @@ public final class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
-  private boolean localizationStatusesAreInSyncWithConfiguredStatuses(
-      LocalizationUpdate localizationUpdate, ProgramDefinition program) {
+  /**
+   * Determines whether the list of provided localized application status updates exactly correspond
+   * to the list of configured application statuses within the program. This means that:
+   * <li>The lists are of the same length
+   * <li>Have the exact same ordering of statuses
+   */
+  private void validateLocalizationStatuses(
+      LocalizationUpdate localizationUpdate, ProgramDefinition program)
+      throws OutOfDateStatusesException {
     ImmutableList<String> localizationStatusNames =
         localizationUpdate.statuses().stream()
-            .map(LocalizationUpdate.StatusUpdate::configuredStatusText)
+            .map(LocalizationUpdate.StatusUpdate::statusKeyToUpdate)
             .collect(ImmutableList.toImmutableList());
     ImmutableList<String> configuredStatusNames =
         program.statusDefinitions().getStatuses().stream()
             .map(StatusDefinitions.Status::statusText)
             .collect(ImmutableList.toImmutableList());
-    return localizationStatusNames.equals(configuredStatusNames);
+    if (!localizationStatusNames.equals(configuredStatusNames)) {
+      throw new OutOfDateStatusesException();
+    }
   }
 
   @Override
+  @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
       throws ProgramNotFoundException, OutOfDateStatusesException {
@@ -241,12 +251,7 @@ public final class ProgramServiceImpl implements ProgramService {
     validateProgramText(
         errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
 
-    // It is permissible to set the localized text / email for a status to empty, which falls back
-    // on the English text.
-    if (!localizationStatusesAreInSyncWithConfiguredStatuses(
-        localizationUpdate, programDefinition)) {
-      throw new OutOfDateStatusesException();
-    }
+    validateLocalizationStatuses(localizationUpdate, programDefinition);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
     // to be consistently ordered above.
@@ -260,12 +265,14 @@ public final class ProgramServiceImpl implements ProgramService {
       StatusDefinitions.Status existingStatus =
           programDefinition.statusDefinitions().getStatuses().get(statusIdx);
       StatusDefinitions.Status.Builder updateBuilder =
-          StatusDefinitions.Status.builder()
-              .setStatusText(existingStatus.statusText())
+          existingStatus.toBuilder()
               .setLocalizedStatusText(
                   existingStatus
                       .localizedStatusText()
                       .updateTranslation(locale, statusUpdateData.localizedStatusText()));
+      // If the status has email content, update the localization to whatever was provided;
+      // otherwise if there's a localization update when there is no email content to
+      // localize, that indicates a mismatch between the frontend and the database.
       if (existingStatus.localizedEmailBodyText().isPresent()) {
         updateBuilder.setLocalizedEmailBodyText(
             Optional.of(

@@ -135,12 +135,12 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "updated spanish program display name")
                     .put("displayDescription", "updated spanish program description")
-                    .put("status-0-configured", ENGLISH_FIRST_STATUS_TEXT)
-                    .put("status-0-statusText", "updated spanish first status text")
-                    .put("status-0-email", "updated spanish first status email")
-                    .put("status-1-configured", ENGLISH_SECOND_STATUS_TEXT)
-                    .put("status-1-statusText", "updated spanish second status text")
-                    .put("status-1-email", "updated spanish second status email")
+                    .put("status-key-to-update-0", ENGLISH_FIRST_STATUS_TEXT)
+                    .put("localized-status-0", "updated spanish first status text")
+                    .put("localized-email-0", "updated spanish first status email")
+                    .put("status-key-to-update-1", ENGLISH_SECOND_STATUS_TEXT)
+                    .put("localized-status-1", "updated spanish second status text")
+                    .put("localized-email-1", "updated spanish second status email")
                     .build());
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
@@ -218,12 +218,12 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("displayDescription", "")
                     // Initialize fields for the two existing status values to new values and
                     // assert that they're preserved when rendering the error.
-                    .put("status-0-configured", ENGLISH_FIRST_STATUS_TEXT)
-                    .put("status-0-statusText", "new first status text")
-                    .put("status-0-email", "new first status email")
-                    .put("status-1-configured", ENGLISH_SECOND_STATUS_TEXT)
-                    .put("status-1-statusText", "new second status text")
-                    .put("status-1-email", "new second status email")
+                    .put("status-key-to-update-0", ENGLISH_FIRST_STATUS_TEXT)
+                    .put("localized-status-0", "new first status text")
+                    .put("localized-email-0", "new first status email")
+                    .put("status-key-to-update-1", ENGLISH_SECOND_STATUS_TEXT)
+                    .put("localized-status-1", "new second status text")
+                    .put("localized-email-1", "new second status email")
                     .build());
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
@@ -254,12 +254,12 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("displayDescription", "updated spanish program description")
                     // We intentionally mix up the order of the list to simulate a situation
                     // where the tab is out of sync with the configured program definition.
-                    .put("status-0-configured", ENGLISH_SECOND_STATUS_TEXT)
-                    .put("status-0-statusText", "updated spanish first status text")
-                    .put("status-0-email", "updated spanish first status email")
-                    .put("status-1-configured", ENGLISH_FIRST_STATUS_TEXT)
-                    .put("status-1-statusText", "updated spanish second status text")
-                    .put("status-1-email", "updated spanish second status email")
+                    .put("status-key-to-update-0", ENGLISH_SECOND_STATUS_TEXT)
+                    .put("localized-status-0", "updated spanish first status text")
+                    .put("localized-email-0", "updated spanish first status email")
+                    .put("status-key-to-update-1", ENGLISH_FIRST_STATUS_TEXT)
+                    .put("localized-status-1", "updated spanish second status text")
+                    .put("localized-email-1", "updated spanish second status email")
                     .build());
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");

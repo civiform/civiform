@@ -23,12 +23,13 @@ public class ProgramTranslationFormTest extends ResetPostgres {
       ImmutableMap.<String, String>builder()
           .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
           .put(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
-          .put(ProgramTranslationForm.configuredStatusFieldName(0), "first status configured text")
-          .put(ProgramTranslationForm.statusTextFieldName(0), "first status text")
-          .put(ProgramTranslationForm.statusEmailFieldName(0), "first status email")
-          .put(ProgramTranslationForm.configuredStatusFieldName(1), "second status configured text")
-          .put(ProgramTranslationForm.statusTextFieldName(1), "second status text")
-          .put(ProgramTranslationForm.statusEmailFieldName(1), "second status email")
+          .put(ProgramTranslationForm.statusKeyToUpdateFieldName(0), "first status configured text")
+          .put(ProgramTranslationForm.localizedStatusFieldName(0), "first status text")
+          .put(ProgramTranslationForm.localizedEmailFieldName(0), "first status email")
+          .put(
+              ProgramTranslationForm.statusKeyToUpdateFieldName(1), "second status configured text")
+          .put(ProgramTranslationForm.localizedStatusFieldName(1), "second status text")
+          .put(ProgramTranslationForm.localizedEmailFieldName(1), "second status email")
           .build();
 
   @Test
@@ -45,12 +46,12 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("first status configured text")
+                            .setStatusKeyToUpdate("first status configured text")
                             .setLocalizedStatusText(Optional.of("first status text"))
                             .setLocalizedEmailBody(Optional.of("first status email"))
                             .build(),
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("second status configured text")
+                            .setStatusKeyToUpdate("second status configured text")
                             .setLocalizedStatusText(Optional.of("second status text"))
                             .setLocalizedEmailBody(Optional.of("second status email"))
                             .build()))
@@ -71,7 +72,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("first status configured text")
+                            .setStatusKeyToUpdate("first status configured text")
                             .setLocalizedStatusText(Optional.of("first status text"))
                             .setLocalizedEmailBody(Optional.of("first status email"))
                             .build()))
@@ -92,12 +93,12 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("first status configured text")
+                            .setStatusKeyToUpdate("first status configured text")
                             .setLocalizedStatusText(Optional.of("first status text"))
                             .setLocalizedEmailBody(Optional.of("first status email"))
                             .build(),
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("second status configured text")
+                            .setStatusKeyToUpdate("second status configured text")
                             .setLocalizedStatusText(Optional.of("second status text"))
                             .setLocalizedEmailBody(Optional.of("second status email"))
                             .build()))
@@ -114,16 +115,16 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .put(
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
                     .put(
-                        ProgramTranslationForm.configuredStatusFieldName(0),
+                        ProgramTranslationForm.statusKeyToUpdateFieldName(0),
                         "first configured status text")
-                    .put(ProgramTranslationForm.statusTextFieldName(0), "")
-                    .put(ProgramTranslationForm.statusEmailFieldName(0), "")
+                    .put(ProgramTranslationForm.localizedStatusFieldName(0), "")
+                    .put(ProgramTranslationForm.localizedEmailFieldName(0), "")
                     // Add a second status with a missing email field. This will happen
                     // if no email is configured on the original status.
                     .put(
-                        ProgramTranslationForm.configuredStatusFieldName(1),
+                        ProgramTranslationForm.statusKeyToUpdateFieldName(1),
                         "second configured status text")
-                    .put(ProgramTranslationForm.statusTextFieldName(1), "")
+                    .put(ProgramTranslationForm.localizedStatusFieldName(1), "")
                     .build())
             .build();
 
@@ -137,10 +138,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("first configured status text")
+                            .setStatusKeyToUpdate("first configured status text")
                             .build(),
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("second configured status text")
+                            .setStatusKeyToUpdate("second configured status text")
                             .build()))
                 .build());
   }
@@ -183,11 +184,11 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("first-status-english")
+                            .setStatusKeyToUpdate("first-status-english")
                             .setLocalizedEmailBody(Optional.of("first-status-email-french"))
                             .build(),
                         LocalizationUpdate.StatusUpdate.builder()
-                            .setConfiguredStatusText("second-status-english")
+                            .setStatusKeyToUpdate("second-status-english")
                             .setLocalizedStatusText(Optional.of("second-status-french"))
                             .build()))
                 .build());

@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 
 /**
- * Captures an update to the localized text assocaited with a program and it's associated program
+ * Captures an update to the localized text associated with a program and its associated application
  * statuses.
  */
 @AutoValue
@@ -27,7 +27,7 @@ public abstract class LocalizationUpdate {
 
     public abstract Builder setLocalizedDisplayDescription(String v);
 
-    public abstract Builder setStatuses(ImmutableList<StatusUpdate> statuses);
+    public abstract Builder setStatuses(ImmutableList<StatusUpdate> v);
 
     public abstract LocalizationUpdate build();
   }
@@ -42,7 +42,7 @@ public abstract class LocalizationUpdate {
      * The non-localized status text that is configured for the program. This identifies which
      * entry's localized content should be updated.
      */
-    public abstract String configuredStatusText();
+    public abstract String statusKeyToUpdate();
 
     /** The new status text to update for a locale. */
     public abstract Optional<String> localizedStatusText();
@@ -56,7 +56,7 @@ public abstract class LocalizationUpdate {
 
     @AutoValue.Builder
     public abstract static class Builder {
-      public abstract Builder setConfiguredStatusText(String v);
+      public abstract Builder setStatusKeyToUpdate(String v);
 
       public abstract Builder setLocalizedStatusText(Optional<String> v);
 
