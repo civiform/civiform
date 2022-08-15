@@ -42,5 +42,6 @@ jobs:
           exit $?
 
       - name: Run deploy with latest tag
+        run: |
           cloud/shared/bin/deploy "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
