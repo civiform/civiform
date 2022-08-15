@@ -8,7 +8,6 @@ import com.typesafe.config.Config;
 import forms.BlockForm;
 import io.ebean.DB;
 import io.ebean.Database;
-import java.util.Locale;
 import java.util.Optional;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -131,8 +130,8 @@ public class DatabaseSeedController extends DevController {
                 "address",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, "What is your address?"),
-                LocalizedStrings.of(Locale.US, "help text")))
+                LocalizedStrings.withDefaultValue("What is your address?"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -143,13 +142,15 @@ public class DatabaseSeedController extends DevController {
                 "checkbox",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(
-                    Locale.US, "Which of the following kitchen instruments do you own?"),
-                LocalizedStrings.of(Locale.US, "help text"),
+                LocalizedStrings.withDefaultValue(
+                    "Which of the following kitchen instruments do you own?"),
+                LocalizedStrings.withDefaultValue("help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "toaster")),
-                    QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
-                    QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "garlic press")))))
+                    QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("toaster")),
+                    QuestionOption.create(
+                        2L, 2L, LocalizedStrings.withDefaultValue("pepper grinder")),
+                    QuestionOption.create(
+                        3L, 3L, LocalizedStrings.withDefaultValue("garlic press")))))
         .getResult();
   }
 
@@ -160,8 +161,8 @@ public class DatabaseSeedController extends DevController {
                 "currency",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, "How much should a scoop of ice cream cost?"),
-                LocalizedStrings.of(Locale.US, "help text")))
+                LocalizedStrings.withDefaultValue("How much should a scoop of ice cream cost?"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -172,8 +173,8 @@ public class DatabaseSeedController extends DevController {
                 "enumerator date",
                 Optional.of(enumeratorId),
                 "description",
-                LocalizedStrings.of(Locale.US, "When is $this's birthday?"),
-                LocalizedStrings.of(Locale.US, "help text for $this's birthday")))
+                LocalizedStrings.withDefaultValue("When is $this's birthday?"),
+                LocalizedStrings.withDefaultValue("help text for $this's birthday")))
         .getResult();
   }
 
@@ -186,8 +187,8 @@ public class DatabaseSeedController extends DevController {
                 name,
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, questionText),
-                LocalizedStrings.of(Locale.US, "help text")))
+                LocalizedStrings.withDefaultValue(questionText),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -198,14 +199,14 @@ public class DatabaseSeedController extends DevController {
                 "dropdown",
                 Optional.empty(),
                 "select your favorite ice cream flavor",
-                LocalizedStrings.of(
-                    Locale.US, "Select your favorite ice cream flavor from the following"),
-                LocalizedStrings.of(Locale.US, "this is sample help text"),
+                LocalizedStrings.withDefaultValue(
+                    "Select your favorite ice cream flavor from the following"),
+                LocalizedStrings.withDefaultValue("this is sample help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "chocolate")),
-                    QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "strawberry")),
-                    QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "vanilla")),
-                    QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "coffee")))))
+                    QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("chocolate")),
+                    QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("strawberry")),
+                    QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("vanilla")),
+                    QuestionOption.create(4L, 4L, LocalizedStrings.withDefaultValue("coffee")))))
         .getResult();
   }
 
@@ -216,8 +217,8 @@ public class DatabaseSeedController extends DevController {
                 "email",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, "What is your email?"),
-                LocalizedStrings.of(Locale.US, "help text")))
+                LocalizedStrings.withDefaultValue("What is your email?"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -228,9 +229,9 @@ public class DatabaseSeedController extends DevController {
                 "enumerator",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, "List all members of your household."),
-                LocalizedStrings.of(Locale.US, "help text"),
-                LocalizedStrings.of(Locale.US, "household member")))
+                LocalizedStrings.withDefaultValue("List all members of your household."),
+                LocalizedStrings.withDefaultValue("help text"),
+                LocalizedStrings.withDefaultValue("household member")))
         .getResult();
   }
 
@@ -241,8 +242,8 @@ public class DatabaseSeedController extends DevController {
                 "file upload",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, "Upload anything from your computer"),
-                LocalizedStrings.of(Locale.US, "help text")))
+                LocalizedStrings.withDefaultValue("Upload anything from your computer"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -253,8 +254,8 @@ public class DatabaseSeedController extends DevController {
                 "id",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, "What is your driver's license ID?"),
-                LocalizedStrings.of(Locale.US, "help text")))
+                LocalizedStrings.withDefaultValue("What is your driver's license ID?"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -265,8 +266,8 @@ public class DatabaseSeedController extends DevController {
                 "number",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, "How many pets do you have?"),
-                LocalizedStrings.of(Locale.US, "help text")))
+                LocalizedStrings.withDefaultValue("How many pets do you have?"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -277,15 +278,15 @@ public class DatabaseSeedController extends DevController {
                 "radio",
                 Optional.empty(),
                 "favorite season in the year",
-                LocalizedStrings.of(Locale.US, "What is your favorite season?"),
-                LocalizedStrings.of(Locale.US, "this is sample help text"),
+                LocalizedStrings.withDefaultValue("What is your favorite season?"),
+                LocalizedStrings.withDefaultValue("this is sample help text"),
                 ImmutableList.of(
                     QuestionOption.create(
-                        1L, 1L, LocalizedStrings.of(Locale.US, "winter (will hide next block)")),
-                    QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "spring")),
-                    QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "summer")),
+                        1L, 1L, LocalizedStrings.withDefaultValue("winter (will hide next block)")),
+                    QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("spring")),
+                    QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("summer")),
                     QuestionOption.create(
-                        4L, 4L, LocalizedStrings.of(Locale.US, "fall (will hide next block)")))))
+                        4L, 4L, LocalizedStrings.withDefaultValue("fall (will hide next block)")))))
         .getResult();
   }
 
@@ -296,11 +297,13 @@ public class DatabaseSeedController extends DevController {
                 "static content",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(
-                    Locale.US,
-                    "Hi I'm a block of static text. Welcome to this test program. It contains one"
-                        + " of every question type."),
-                LocalizedStrings.of(Locale.US, "")))
+                LocalizedStrings.withDefaultValue(
+                    "Hi I'm a block of static text. \n"
+                        + " * Welcome to this test program.\n"
+                        + " * It contains one of every question type. \n\n"
+                        + "### What are the eligibility requirements? \n"
+                        + ">You are 18 years or older."),
+                LocalizedStrings.withDefaultValue("")))
         .getResult();
   }
 
@@ -311,8 +314,8 @@ public class DatabaseSeedController extends DevController {
                 "text",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, "What is your favorite color?"),
-                LocalizedStrings.of(Locale.US, "help text")))
+                LocalizedStrings.withDefaultValue("What is your favorite color?"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -417,7 +420,7 @@ public class DatabaseSeedController extends DevController {
               PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
       programDefinition = programService.setBlockPredicate(programId, blockId, predicate);
 
-      // Add file upload as optional since it does not work for local testing.
+      // Add file upload as optional to make local testing easier.
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("file upload");
