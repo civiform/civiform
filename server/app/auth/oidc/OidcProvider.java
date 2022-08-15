@@ -202,7 +202,8 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     client.setCallbackUrl(callbackURL);
     client.setProfileCreator(getProfileAdapter(config, client));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
-    client.setLogoutActionBuilder(new CiviformOidcLogoutActionBuilder(civiformConfig, config, clientID));
+    client.setLogoutActionBuilder(
+        new CiviformOidcLogoutActionBuilder(civiformConfig, config, clientID));
 
     try {
       client.init();

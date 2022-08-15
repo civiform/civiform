@@ -143,6 +143,9 @@ module "td" {
     STAGING_APPLICANT_LIST               = var.staging_applicant_notification_mailing_list
     APPLICANT_OIDC_PROVIDER_NAME         = var.applicant_oidc_provider_name
     CIVIFORM_APPLICANT_IDP               = var.civiform_applicant_idp
+    APPLICANT_OIDC_PROVIDER_LOGOUT       = var.applicant_oidc_provider_logout
+    APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM = var.applicant_oidc_post_logout_redirect_param
+    APPLICANT_OIDC_LOGOUT_CLIENT_PARAM   = var.applicant_oidc_logout_client_param
     APPLICANT_OIDC_RESPONSE_MODE         = var.applicant_oidc_response_mode
     APPLICANT_OIDC_RESPONSE_TYPE         = var.applicant_oidc_response_type
     APPLICANT_OIDC_ADDITIONAL_SCOPES     = var.applicant_oidc_additional_scopes

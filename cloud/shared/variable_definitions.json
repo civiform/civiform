@@ -48,6 +48,25 @@
     "type": "enum",
     "values": ["oidc", "saml"]
   },
+  "APPLICANT_OIDC_PROVIDER_LOGOUT": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "boolean",
+    "values": [false, true]
+  },
+  "APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_LOGOUT_CLIENT_PARAM": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "CIVIFORM_CLOUD_PROVIDER": {
     "required": true,
     "secret": false,
