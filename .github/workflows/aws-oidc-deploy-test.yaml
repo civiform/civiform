@@ -10,6 +10,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      USE_LOCAL_BACKEND: true
     steps:
       - name: Check out branch
         uses: actions/checkout@v2
@@ -34,7 +36,7 @@ jobs:
         run: |
           source civiform_config.sh
           export CIVIFORM_MODE="test"
-          export APP_PREFIX="test"
+          export APP_PREFIX="$(git rev-parse --short HEAD)"
           echo "${LATEST_SNAPSHOT_TAG}"
           cloud/shared/bin/setup  "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
