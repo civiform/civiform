@@ -41,11 +41,19 @@ class AwsCli:
             f'ecs update-service --force-new-deployment --service={service_name} --cluster={cluster}'
         )
 
+    def get_load_balancer_dns(self, name: str) -> str:
+        res = self._call_cli(f'elbv2 describe-load-balancers --names={name}')
+        load_balancer = res['LoadBalancers'][0]
+        return load_balancer['DNSName']
+
     def get_url_of_secret(self, secret_name: str) -> str:
         return f'https://{self.config.aws_region}.console.aws.amazon.com/secretsmanager/secret?name={secret_name}'
 
     def get_url_of_s3_bucket(self, bucket_name: str) -> str:
         return f'https://{self.config.aws_region}.console.aws.amazon.com/s3/buckets/{bucket_name}'
+
+    def get_url_of_fargate_tasks(self, cluster: str, service_name: str) -> str:
+        return f'https://{self.config.aws_region}.console.aws.amazon.com/ecs/v2/clusters/{cluster}/services/{service_name}/configuration'
 
     def _call_cli(self, command: str) -> Dict:
         command = f'aws --output=json --region={self.config.aws_region} ' + command

@@ -41,7 +41,10 @@ def perform_apply(
         )
 
     print(" - Run terraform apply")
-    terraform_apply_cmd = f'{terraform_cmd} apply -input=false -var-file={tf_vars_filename}'
+    # Enable compact-warnings as we have a bunch of
+    # "value of undeclared variables" warnings as some variables used in one
+    # deployment (e.g. aws) but not the other.
+    terraform_apply_cmd = f'{terraform_cmd} apply -input=false -var-file={tf_vars_filename} -compact-warnings'
     if config_loader.skip_confirmations:
         terraform_apply_cmd += ' -auto-approve'
     if is_destroy:

@@ -272,7 +272,7 @@ export class ApplicantQuestions {
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
-  async submitFromReviewPage(_programName: string) {
+  async submitFromReviewPage() {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain(
       'Program application review',
