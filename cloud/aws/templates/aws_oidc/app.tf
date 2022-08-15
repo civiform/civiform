@@ -80,6 +80,15 @@ module "td" {
               "${aws_s3_bucket.civiform_files_s3.arn}/*",
             ]
           },
+          {
+            "Effect" : "Allow",
+            "Action" : [
+              "ses:*"
+            ],
+            "Resource" : [
+              for email in module.email_service : email.email_arn
+            ]
+          },
         ]
       }
     )
