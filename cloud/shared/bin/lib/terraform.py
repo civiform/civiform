@@ -40,6 +40,10 @@ def perform_apply(
             f'Aborting the script. {tf_vars_filename} does not exist in {terraform_template_dir} directory'
         )
 
+    if config_loader.is_test():
+        print(" - Test. Not applying terraform.")
+        return True
+
     print(" - Run terraform apply")
     # Enable compact-warnings as we have a bunch of
     # "value of undeclared variables" warnings as some variables used in one

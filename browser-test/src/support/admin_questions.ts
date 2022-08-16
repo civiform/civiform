@@ -276,13 +276,36 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
-  async archiveQuestion(questionName: string) {
+  async archiveQuestion({
+    questionName,
+    expectModal,
+  }: {
+    questionName: string
+    expectModal: boolean
+  }) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
       this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
-    await waitForPageJsLoad(this.page)
-    await this.expectAdminQuestionsPage()
+    if (expectModal) {
+      const modal = await waitForAnyModal(this.page)
+      expect(await modal.innerText()).toContain(
+        'This question cannot be archived since there are still programs referencing it',
+      )
+      await dismissModal(this.page)
+    } else {
+      await waitForPageJsLoad(this.page)
+      await this.expectAdminQuestionsPage()
+      // Ensure that the page has been reloaded and the "Restore archive" link
+      // appears.
+      const restoreArchiveIsVisible = await this.page.isVisible(
+        this.selectWithinQuestionTableRow(
+          questionName,
+          ':text("Restore Archived")',
+        ),
+      )
+      expect(restoreArchiveIsVisible).toBe(true)
+    }
   }
 
   async goToQuestionTranslationPage(questionName: string) {

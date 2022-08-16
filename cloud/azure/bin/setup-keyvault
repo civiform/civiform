@@ -4,6 +4,7 @@ source "cloud/azure/bin/lib.sh"
 
 readonly POSTGRES_PASSWORD_NAME="postgres-password"
 readonly APP_SECRET_KEY_NAME="app-secret-key"
+readonly API_SECRET_SALT_NAME="api-secret-salt"
 readonly ADFS_SECRET_NAME="adfs-secret"
 readonly ADFS_CLIENT_ID="adfs-client-id"
 readonly ADFS_DISCOVERY_URI="adfs-discovery-uri"
@@ -59,6 +60,14 @@ else
   key_vault::add_generated_secrets \
     "${vault_name}" \
     "${APP_SECRET_KEY_NAME}"
+fi
+
+if key_vault::has_secret "${vault_name}" "${API_SECRET_SALT_NAME}"; then
+  echo "Key ${API_SECRET_SALT_NAME} exists in the secret store"
+else
+  key_vault::add_generated_secrets \
+    "${vault_name}" \
+    "${API_SECRET_SALT_NAME}"
 fi
 
 echo "Adding placeholder values for secrets we set later"
