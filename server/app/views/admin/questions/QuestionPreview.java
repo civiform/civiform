@@ -5,12 +5,14 @@ import static j2html.TagCreator.span;
 
 import j2html.tags.specialized.DivTag;
 import play.i18n.Messages;
+import services.Path;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
 import views.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
+import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -55,9 +57,18 @@ public class QuestionPreview {
     } catch (UnsupportedQuestionTypeException e) {
       renderedQuestion = div().withText(e.toString());
     }
+
     DivTag innerContentContainer =
         div(renderedQuestion)
             .withClasses(Styles.TEXT_3XL, Styles.PL_16, Styles.PT_20, Styles.W_FULL);
+    if (QuestionType.ENUMERATOR.equals(type)) {
+      innerContentContainer.with(
+          EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
+              Path.empty(),
+              // TODO(clouser): Share this. Maybe make this part of default rendering.
+              "Repeated entity type",
+              messages));
+    }
     DivTag contentContainer = div(innerContentContainer).withId("sample-question");
 
     return div(titleContainer, contentContainer)
