@@ -36,10 +36,13 @@ public class StatusDefinitions {
    * Sets {@code statuses} as the configured {@link Status} values.
    *
    * <p>The order of the items will be maintained and used as the natural order of the statuses.
+   *
+   * @return this, for chaining.
    */
-  public void setStatuses(ImmutableList<Status> statuses) {
+  public StatusDefinitions setStatuses(ImmutableList<Status> statuses) {
     assertStatusNamesNonEmptyAndUnique(statuses);
     this.statuses = statuses;
+    return this;
   }
 
   private static void assertStatusNamesNonEmptyAndUnique(ImmutableList<Status> statuses) {
@@ -72,6 +75,8 @@ public class StatusDefinitions {
     public static Builder builder() {
       return new AutoValue_StatusDefinitions_Status.Builder();
     }
+
+    public abstract Builder toBuilder();
 
     @AutoValue.Builder
     public abstract static class Builder {

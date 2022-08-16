@@ -218,14 +218,74 @@ public final class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
+  /**
+   * Determines whether the list of provided localized application status updates exactly correspond
+   * to the list of configured application statuses within the program. This means that:
+   * <li>The lists are of the same length
+   * <li>Have the exact same ordering of statuses
+   */
+  private void validateLocalizationStatuses(
+      LocalizationUpdate localizationUpdate, ProgramDefinition program)
+      throws OutOfDateStatusesException {
+    ImmutableList<String> localizationStatusNames =
+        localizationUpdate.statuses().stream()
+            .map(LocalizationUpdate.StatusUpdate::statusKeyToUpdate)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<String> configuredStatusNames =
+        program.statusDefinitions().getStatuses().stream()
+            .map(StatusDefinitions.Status::statusText)
+            .collect(ImmutableList.toImmutableList());
+    if (!localizationStatusNames.equals(configuredStatusNames)) {
+      throw new OutOfDateStatusesException();
+    }
+  }
+
   @Override
+  @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
-      long programId, Locale locale, String displayName, String displayDescription)
-      throws ProgramNotFoundException {
+      long programId, Locale locale, LocalizationUpdate localizationUpdate)
+      throws ProgramNotFoundException, OutOfDateStatusesException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    validateProgramText(errorsBuilder, "display name", displayName);
-    validateProgramText(errorsBuilder, "display description", displayDescription);
+    validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
+    validateProgramText(
+        errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
+
+    validateLocalizationStatuses(localizationUpdate, programDefinition);
+
+    // We iterate the existing statuses along with the provided statuses since they were verified
+    // to be consistently ordered above.
+    ImmutableList.Builder<StatusDefinitions.Status> toUpdateStatusesBuilder =
+        ImmutableList.builder();
+    for (int statusIdx = 0;
+        statusIdx < programDefinition.statusDefinitions().getStatuses().size();
+        statusIdx++) {
+      LocalizationUpdate.StatusUpdate statusUpdateData =
+          localizationUpdate.statuses().get(statusIdx);
+      StatusDefinitions.Status existingStatus =
+          programDefinition.statusDefinitions().getStatuses().get(statusIdx);
+      StatusDefinitions.Status.Builder updateBuilder =
+          existingStatus.toBuilder()
+              .setLocalizedStatusText(
+                  existingStatus
+                      .localizedStatusText()
+                      .updateTranslation(locale, statusUpdateData.localizedStatusText()));
+      // If the status has email content, update the localization to whatever was provided;
+      // otherwise if there's a localization update when there is no email content to
+      // localize, that indicates a mismatch between the frontend and the database.
+      if (existingStatus.localizedEmailBodyText().isPresent()) {
+        updateBuilder.setLocalizedEmailBodyText(
+            Optional.of(
+                existingStatus
+                    .localizedEmailBodyText()
+                    .get()
+                    .updateTranslation(locale, statusUpdateData.localizedEmailBody())));
+      } else if (statusUpdateData.localizedEmailBody().isPresent()) {
+        throw new OutOfDateStatusesException();
+      }
+      toUpdateStatusesBuilder.add(updateBuilder.build());
+    }
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -234,11 +294,15 @@ public final class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder()
             .setLocalizedName(
-                programDefinition.localizedName().updateTranslation(locale, displayName))
+                programDefinition
+                    .localizedName()
+                    .updateTranslation(locale, localizationUpdate.localizedDisplayName()))
             .setLocalizedDescription(
                 programDefinition
                     .localizedDescription()
-                    .updateTranslation(locale, displayDescription))
+                    .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
+            .setStatusDefinitions(
+                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
             .build()
             .toProgram();
     return ErrorAnd.of(
