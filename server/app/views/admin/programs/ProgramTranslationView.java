@@ -125,6 +125,9 @@ public final class ProgramTranslationView extends TranslationFormView {
         StatusDefinitions.Status configuredStatus =
             program.statusDefinitions().getStatuses().get(statusIdx);
         LocalizationUpdate.StatusUpdate statusUpdateData = updateData.statuses().get(statusIdx);
+        // Note: While displayed as siblings, fields are logically grouped together by sharing a
+        // common index in their field names. These are dynamically generated via helper methods
+        // within ProgramTranslationForm (e.g. statusKeyToUpdateFieldName).
         ImmutableList.Builder<DomContent> fieldsBuilder =
             ImmutableList.<DomContent>builder()
                 .add(

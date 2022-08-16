@@ -126,7 +126,7 @@ public final class ProgramTranslationForm {
               Optional<String> maybeStatusText = getStringFormField(localizedStatusFieldName(i));
               Optional<String> maybeEmail = getStringFormField(localizedEmailFieldName(i));
               if (maybeConfiguredStatusText.isEmpty() || maybeStatusText.isEmpty()) {
-                return Optional.empty();
+                return Optional.<LocalizationUpdate.StatusUpdate>empty();
               }
 
               LocalizationUpdate.StatusUpdate.Builder resultBuilder =
@@ -141,7 +141,7 @@ public final class ProgramTranslationForm {
               return Optional.of(resultBuilder.build());
             })
         .filter(Optional::isPresent)
-        .map(maybeStatusUpdate -> (LocalizationUpdate.StatusUpdate) maybeStatusUpdate.get())
+        .map(Optional::get)
         .collect(ImmutableList.toImmutableList());
   }
 
