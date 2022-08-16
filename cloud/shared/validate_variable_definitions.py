@@ -71,6 +71,7 @@ class ValidateVariableDefinitions:
             "integer": self.validate_integer_definition_type,
             "string": self.validate_string_definition_type,
             "enum": self.validate_enum_definition_type,
+            "bool": self.validate_bool_definition_type,
         }
 
         validator = type_specific_validators.get(
@@ -90,6 +91,9 @@ class ValidateVariableDefinitions:
         return []
 
     def validate_integer_definition_type(self, variable_definition):
+        return []
+
+    def validate_bool_definition_type(self, variable_definition):
         return []
 
     def validate_string_definition_type(self, variable_definition):

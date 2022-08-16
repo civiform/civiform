@@ -54,7 +54,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with invalid currency does not submit', async () => {
@@ -114,7 +114,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits', async () => {
@@ -125,7 +125,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with first invalid does not submit', async () => {

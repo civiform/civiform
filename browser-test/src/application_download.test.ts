@@ -69,7 +69,7 @@ describe('normal application flow', () => {
     await applicantQuestions.clickNext()
 
     // Applicant submits answers from review page.
-    await applicantQuestions.submitFromReviewPage(programName)
+    await applicantQuestions.submitFromReviewPage()
 
     await logout(page)
     await loginAsProgramAdmin(page)
@@ -109,12 +109,12 @@ describe('normal application flow', () => {
     await applicantQuestions.answerCurrencyQuestion('2000')
     await applicantQuestions.answerNumberQuestion('1600')
     await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage(programName)
+    await applicantQuestions.submitFromReviewPage()
     await applicantQuestions.returnToProgramsFromSubmissionPage()
 
     // Apply to the program again as the same user
     await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantQuestions.submitFromPreviewPage(programName)
+    await applicantQuestions.submitFromPreviewPage()
     await logout(page)
 
     // #######################################

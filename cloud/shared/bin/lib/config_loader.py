@@ -37,6 +37,14 @@ class ConfigLoader:
     def civiform_mode(self):
         return os.environ['CIVIFORM_MODE']
 
+    @property
+    def use_local_backend(self):
+        return os.getenv('USE_LOCAL_BACKEND', False)
+
+    @property
+    def skip_confirmations(self):
+        return os.getenv('SKIP_CONFIRMATIONS', False)
+
     def load_config(self):
         self._load_config()
         return self.validate_config()
@@ -118,14 +126,8 @@ class ConfigLoader:
     def get_template_dir(self):
         return self.configs.get('TERRAFORM_TEMPLATE_DIR')
 
-    def is_dev(self):
-        return self.civiform_mode == 'dev'
-
     def is_test(self):
         return self.civiform_mode == 'test'
-
-    def use_backend_config(self):
-        return not self.is_dev()
 
     def get_config_variables(self):
         return self.configs

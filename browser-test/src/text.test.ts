@@ -56,7 +56,7 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.answerTextQuestion('I love CiviForm!')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with empty text does not submit', async () => {
@@ -148,7 +148,7 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits successfully', async () => {
@@ -160,7 +160,7 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with first invalid does not submit', async () => {
