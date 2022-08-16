@@ -27,8 +27,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.AnswerData;
@@ -38,6 +40,7 @@ import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
+import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -61,7 +64,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantNameWithApplicationId,
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers,
-      StatusDefinitions statusDefinitions) {
+      StatusDefinitions statusDefinitions,
+      Http.Request request) {
     String title = "Program Application View";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
@@ -91,7 +95,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        renderStatusOptionsSelector(statusDefinitions))
+                        renderStatusOptionsSelector(statusDefinitions, programId, applicationId))
                     .with(renderDownloadButton(programId, applicationId)))
             .with(
                 each(
@@ -104,6 +108,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .setTitle(title)
             .addMainContent(contentDiv)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
+    Optional<String> maybeSuccessMessage = request.flash().get("success");
+    if (maybeSuccessMessage.isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
+    }
     return layout.render(htmlBundle);
   }
 
@@ -179,12 +187,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private FormTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+  private FormTag renderStatusOptionsSelector(
+      StatusDefinitions statusDefinitions, long programId, long applicationId) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     FormTag container =
         form()
-            // TODO(clouser): Add the correct route.
-            .withAction("")
+            .withAction(
+                controllers.admin.routes.AdminApplicationController.updateStatus(
+                        programId, applicationId)
+                    .url())
             .withMethod("POST")
             .withClasses(Styles.FLEX, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
             .with(label("Status:").withClasses(Styles.SELF_CENTER).withFor(SELECTOR_ID));

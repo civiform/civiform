@@ -303,7 +303,38 @@ public class AdminApplicationController extends CiviFormController {
             applicantNameWithApplicationId,
             blocks,
             answers,
-            program.statusDefinitions()));
+            program.statusDefinitions(),
+            request));
+  }
+
+  /** Return a HTML page displaying the summary of the specified application. */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result updateStatus(Http.Request request, long programId, long applicationId)
+      throws ProgramNotFoundException {
+    programService.getProgramDefinition(programId);
+    return ok();
+    // ProgramDefinition program = programService.getProgramDefinition(programId);
+    // String programName = program.adminName();
+
+    // try {
+    //   checkProgramAdminAuthorization(profileUtils, request, programName).join();
+    // } catch (CompletionException | NoSuchElementException e) {
+    //   return unauthorized();
+    // }
+
+    // Optional<Application> applicationMaybe =
+    //     this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
+
+    // if (!applicationMaybe.isPresent()) {
+    //   return notFound(String.format("Application %d does not exist.", applicationId));
+    // }
+
+    // Application application = applicationMaybe.get();
+
+    // // TODO(clouser): Assume success, read the form value, and assume success.
+    // return redirect(
+    //   routes.AdminApplicationController.show(programId, application.id).url())
+    //   .flashing("success", "Application status updated.");
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
