@@ -232,6 +232,11 @@ function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
     )
       .filter((item) => {
         return (
+          // TODO(clouser): Need to filter out the add button here as well.
+          // Perhaps we could just switch them to be inside of templates and
+          // see if they're exempted from the DOM entirely.
+          // Otherwise, we could just add a class instead of hardcoding IDs
+          // everywhere.
           item.id !== 'enumerator-delete-template' &&
           !item.classList.contains('hidden')
         )
