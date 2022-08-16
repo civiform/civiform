@@ -99,10 +99,9 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .asAnchorText()),
                     ImmutableList.of(
                         div()
-                            .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_3)
+                            .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_2)
                             .with(
                                 div()
-                                    .withClasses(Styles.COL_SPAN_2)
                                     .with(
                                         FieldWithLabel.input()
                                             .setFieldName(
@@ -112,10 +111,9 @@ public final class ProgramTranslationView extends TranslationFormView {
                                             .getInputTag()),
                                 defaultLocaleTextHint(program.localizedName())),
                         div()
-                            .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_3)
+                            .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_2)
                             .with(
                                 div()
-                                    .withClasses(Styles.COL_SPAN_2)
                                     .with(
                                         FieldWithLabel.input()
                                             .setFieldName(
@@ -149,10 +147,9 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .withValue(configuredStatus.statusText()),
                     div()
                         // TODO(clouser): Share this styling with the questions view.
-                        .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_3)
+                        .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_2)
                         .with(
                             div()
-                                .withClasses(Styles.COL_SPAN_2)
                                 .with(
                                     FieldWithLabel.input()
                                         .setFieldName(
@@ -166,10 +163,9 @@ public final class ProgramTranslationView extends TranslationFormView {
         if (configuredStatus.localizedEmailBodyText().isPresent()) {
           fieldsBuilder.add(
               div()
-                  .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_3)
+                  .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_2)
                   .with(
                       div()
-                          .withClasses(Styles.COL_SPAN_2)
                           .with(
                               FieldWithLabel.textArea()
                                   .setFieldName(
