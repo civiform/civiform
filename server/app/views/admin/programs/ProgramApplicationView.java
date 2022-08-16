@@ -95,7 +95,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        renderStatusOptionsSelector(statusDefinitions, programId, applicationId))
+                        renderStatusOptionsSelector(
+                            request, statusDefinitions, programId, applicationId))
                     .with(renderDownloadButton(programId, applicationId)))
             .with(
                 each(
@@ -188,7 +189,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private FormTag renderStatusOptionsSelector(
-      StatusDefinitions statusDefinitions, long programId, long applicationId) {
+      Http.Request request,
+      StatusDefinitions statusDefinitions,
+      long programId,
+      long applicationId) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     FormTag container =
         form()
@@ -198,7 +202,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     .url())
             .withMethod("POST")
             .withClasses(Styles.FLEX, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
-            .with(label("Status:").withClasses(Styles.SELF_CENTER).withFor(SELECTOR_ID));
+            .with(
+                makeCsrfTokenInputTag(request),
+                label("Status:").withClasses(Styles.SELF_CENTER).withFor(SELECTOR_ID));
 
     SelectTag dropdownTag =
         select()
