@@ -1,7 +1,6 @@
 package views.components;
 
 import static j2html.TagCreator.div;
-import static views.components.ToastMessage.ToastType.*;
 
 import j2html.tags.specialized.DivTag;
 import java.util.UUID;
@@ -18,7 +17,7 @@ public class ToastMessage {
     WARNING
   }
 
-  private ToastType type = ALERT;
+  private ToastType type;
 
   /** Toast messages are instantiated with a random id. */
   private String id = UUID.randomUUID().toString();
@@ -36,23 +35,23 @@ public class ToastMessage {
   public ToastMessage(String message, ToastType severity) {
     this.message = message;
     this.type = severity;
-    this.setDismissible(!ERROR.equals(severity));
+    this.setDismissible(!ToastType.ERROR.equals(severity));
   }
 
   public static ToastMessage alert(String message) {
-    return new ToastMessage(message, ALERT);
+    return new ToastMessage(message, ToastType.ALERT);
   }
 
   public static ToastMessage error(String message) {
-    return new ToastMessage(message, ERROR);
+    return new ToastMessage(message, ToastType.ERROR);
   }
 
   public static ToastMessage success(String message) {
-    return new ToastMessage(message, SUCCESS);
+    return new ToastMessage(message, ToastType.SUCCESS);
   }
 
   public static ToastMessage warning(String message) {
-    return new ToastMessage(message, WARNING);
+    return new ToastMessage(message, ToastType.WARNING);
   }
 
   /** If true then a dismiss button will be visible for this toast. */
