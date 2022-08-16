@@ -105,7 +105,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
-            .setLabelText("Link for additional program information")
+            .setLabelText("Link to program website")
             .setValue(externalLink)
             .getInputTag(),
         submitButton("Save").withId("program-update-button"));
