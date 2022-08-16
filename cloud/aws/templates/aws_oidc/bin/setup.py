@@ -78,10 +78,12 @@ class Setup(AwsSetupTemplate):
             )
             print(documentation)
             print(f'You can later change the value in AWS console: {url}')
-            new_value = getpass('enter value -> ').strip()
+            new_value = getpass(
+                'enter value (console might remain blank) -> ').strip()
             while new_value.strip() == '':
                 print('Value cannot be empty.')
-                new_value = getpass('enter value -> ').strip()
+                new_value = getpass(
+                    'enter value (console might remain blank) -> ').strip()
             self._aws_cli.set_secret_value(secret_name, new_value)
             print('Secret value successfully set.')
         else:
@@ -111,7 +113,8 @@ class Setup(AwsSetupTemplate):
             print('Database password has been changed.')
             self._aws_cli.set_secret_value(secret_name, new_password)
             self._aws_cli.restart_ecs_service(
-                app_prefix, f'{app_prefix}-{resources.FARGATE_SERVICE}')
+                f'{app_prefix}-{resources.CLUSTER}',
+                f'{app_prefix}-{resources.FARGATE_SERVICE}')
             print(f'ECS service has been restarted to pickup the new password.')
         else:
             print('Password has already been changed. Not touching it.')
@@ -124,8 +127,8 @@ class Setup(AwsSetupTemplate):
 
         # Print link to ECS tasks.
         print()
-        fargate_service = f'{app}-{resources.FARGATE_SERVICE}'
-        tasks_url = self._aws_cli.get_url_of_fargate_tasks(app, fargate_service)
+        tasks_url = self._aws_cli.get_url_of_fargate_tasks(
+            f'{app}-{resources.CLUSTER}', f'{app}-{resources.FARGATE_SERVICE}')
         print('Setup finished. You can monitor civiform tasks status here:')
         print(tasks_url)
 
@@ -133,7 +136,7 @@ class Setup(AwsSetupTemplate):
         print()
         lb_dns = self._aws_cli.get_load_balancer_dns(
             f'{app}-{resources.LOAD_BALANCER}')
-        print(f'Server is available on url: {lb_dns}')
+        print(f'Server is available on url: https://{lb_dns}')
         base_url = self.config.get_config_variables()['BASE_URL']
         print(
             f'In your domain registrar create a CNAME record for {base_url} to point to the url above.'
