@@ -7,7 +7,6 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
-import controllers.DisplayableMessage;
 import controllers.admin.routes;
 import forms.translation.ProgramTranslationForm;
 import j2html.tags.DomContent;
@@ -52,7 +51,7 @@ public final class ProgramTranslationView extends TranslationFormView {
       Locale locale,
       ProgramDefinition program,
       Optional<ProgramTranslationForm> maybeTranslationForm,
-      Optional<DisplayableMessage> message) {
+      Optional<ToastMessage> message) {
     String formAction =
         controllers.admin.routes.AdminProgramTranslationsController.update(
                 program.id(), locale.toLanguageTag())
@@ -69,7 +68,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             .setTitle(title)
             .addMainContent(renderHeader(title), renderLanguageLinks(program.id(), locale), form);
 
-    message.map(ToastMessage::fromMessage).ifPresent(htmlBundle::addToastMessages);
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }

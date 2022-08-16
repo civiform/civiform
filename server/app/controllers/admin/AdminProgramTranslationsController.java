@@ -1,11 +1,10 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
-import controllers.DisplayableMessage;
-import controllers.DisplayableMessage.Severity;
 import forms.translation.ProgramTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -22,6 +21,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramTranslationView;
+import views.components.ToastMessage;
 
 /** Provides methods for updating localizations for a given program. */
 public class AdminProgramTranslationsController extends CiviFormController {
@@ -123,8 +123,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
               translations.getDisplayName(),
               translations.getDisplayDescription());
       if (result.isError()) {
-        DisplayableMessage errorMessage =
-            new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
+        ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
         return ok(
             translationView.render(
                 request,

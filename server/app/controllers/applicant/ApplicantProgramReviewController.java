@@ -1,13 +1,12 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.components.ToastMessage.ToastType.*;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import controllers.DisplayableMessage;
-import controllers.DisplayableMessage.Severity;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -25,6 +24,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
+import views.components.ToastMessage;
 
 /**
  * Controller for reviewing program responses for an applicant.
@@ -66,8 +66,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> view(
       Request request, long applicantId, long programId, boolean inReview) {
-    Optional<DisplayableMessage> banner =
-        request.flash().get("banner").map(m -> new DisplayableMessage(m, Severity.WARNING));
+    Optional<ToastMessage> banner =
+        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
     CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage

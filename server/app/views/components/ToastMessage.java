@@ -3,7 +3,6 @@ package views.components;
 import static j2html.TagCreator.div;
 import static views.components.ToastMessage.ToastType.*;
 
-import controllers.DisplayableMessage;
 import j2html.tags.specialized.DivTag;
 import java.util.UUID;
 import views.style.ReferenceClasses;
@@ -34,27 +33,26 @@ public class ToastMessage {
   /** If true this message will not be shown if a user has already seen and dismissed it. */
   private boolean canIgnore = false;
 
-  public static ToastMessage fromMessage(DisplayableMessage message) {
-    return new ToastMessage()
-        .setType(message.getSeverity().getToastType())
-        .setMessage(message.getMessage())
-        .setDismissible(!ERROR.equals(message.getSeverity().getToastType()));
+  public ToastMessage(String message, ToastType severity) {
+    this.message = message;
+    this.type = severity;
+    this.setDismissible(!ERROR.equals(severity));
   }
 
   public static ToastMessage alert(String message) {
-    return new ToastMessage().setType(ALERT).setMessage(message);
+    return new ToastMessage(message, ALERT);
   }
 
   public static ToastMessage error(String message) {
-    return new ToastMessage().setType(ERROR).setMessage(message).setDismissible(false);
+    return new ToastMessage(message, ERROR);
   }
 
   public static ToastMessage success(String message) {
-    return new ToastMessage().setType(SUCCESS).setMessage(message);
+    return new ToastMessage(message, SUCCESS);
   }
 
   public static ToastMessage warning(String message) {
-    return new ToastMessage().setType(WARNING).setMessage(message);
+    return new ToastMessage(message, WARNING);
   }
 
   /** If true then a dismiss button will be visible for this toast. */

@@ -2,13 +2,12 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
-import controllers.DisplayableMessage;
-import controllers.DisplayableMessage.Severity;
 import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
@@ -39,6 +38,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
+import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing questions. */
 public class AdminQuestionController extends CiviFormController {
@@ -153,8 +153,7 @@ public class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
-      DisplayableMessage errorMessage =
-          new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
+      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
@@ -289,9 +288,8 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      DisplayableMessage errorMessage =
-          new DisplayableMessage(
-              joinErrors(errorAndUpdatedQuestionDefinition.getErrors()), Severity.ERROR);
+      ToastMessage errorMessage =
+          new ToastMessage(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()), ERROR);
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(

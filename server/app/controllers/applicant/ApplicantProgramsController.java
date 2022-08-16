@@ -2,12 +2,11 @@ package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import controllers.DisplayableMessage;
-import controllers.DisplayableMessage.Severity;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +29,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
+import views.components.ToastMessage;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -64,8 +64,8 @@ public class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
-    Optional<DisplayableMessage> banner =
-        request.flash().get("banner").map(m -> new DisplayableMessage(m, Severity.WARNING));
+    Optional<ToastMessage> banner =
+        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage

@@ -1,11 +1,10 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
-import controllers.DisplayableMessage;
-import controllers.DisplayableMessage.Severity;
 import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -29,6 +28,7 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockEditView;
+import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
 public class AdminProgramBlocksController extends CiviFormController {
@@ -92,8 +92,7 @@ public class AdminProgramBlocksController extends CiviFormController {
               ? program.getLastBlockDefinition()
               : result.getResult().maybeAddedBlock().get();
       if (result.isError()) {
-        DisplayableMessage message =
-            new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
+        ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
         return renderEditViewWithMessage(request, program, block, Optional.of(message));
       }
       return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
@@ -134,8 +133,7 @@ public class AdminProgramBlocksController extends CiviFormController {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           programService.updateBlock(programId, blockId, blockForm);
       if (result.isError()) {
-        DisplayableMessage message =
-            new DisplayableMessage(joinErrors(result.getErrors()), Severity.ERROR);
+        ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
         return renderEditViewWithMessage(
             request, result.getResult(), blockId, blockForm, Optional.of(message));
       }
@@ -184,7 +182,7 @@ public class AdminProgramBlocksController extends CiviFormController {
       Request request,
       ProgramDefinition program,
       BlockDefinition block,
-      Optional<DisplayableMessage> message) {
+      Optional<ToastMessage> message) {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
@@ -198,7 +196,7 @@ public class AdminProgramBlocksController extends CiviFormController {
       ProgramDefinition program,
       long blockId,
       BlockForm blockForm,
-      Optional<DisplayableMessage> message) {
+      Optional<ToastMessage> message) {
     try {
       BlockDefinition blockDefinition = program.getBlockDefinition(blockId);
       ReadOnlyQuestionService roQuestionService =

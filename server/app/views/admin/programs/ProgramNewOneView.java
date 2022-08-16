@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
-import controllers.DisplayableMessage;
 import forms.ProgramForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
@@ -30,8 +29,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
     return render(request, new ProgramForm(), Optional.empty());
   }
 
-  public Content render(
-      Request request, ProgramForm programForm, Optional<DisplayableMessage> message) {
+  public Content render(Request request, ProgramForm programForm, Optional<ToastMessage> message) {
     String title = "New program information";
 
     DivTag contentDiv =
@@ -43,7 +41,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), contentDiv);
 
-    message.map(ToastMessage::fromMessage).ifPresent(htmlBundle::addToastMessages);
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }

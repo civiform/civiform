@@ -13,7 +13,6 @@ import static j2html.TagCreator.img;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import controllers.DisplayableMessage;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -77,12 +76,10 @@ public class ProgramIndexView extends BaseHtmlView {
       Optional<String> userName,
       ImmutableList<ProgramDefinition> draftPrograms,
       ImmutableList<ProgramDefinition> activePrograms,
-      Optional<DisplayableMessage> bannerMessage) {
+      Optional<ToastMessage> bannerMessage) {
     HtmlBundle bundle = layout.getBundle();
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
-    bannerMessage.ifPresent(
-        displayableMessage ->
-            bundle.addToastMessages(ToastMessage.fromMessage(displayableMessage)));
+    bannerMessage.ifPresent(bundle::addToastMessages);
     bundle.addMainContent(
         topContent(
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),

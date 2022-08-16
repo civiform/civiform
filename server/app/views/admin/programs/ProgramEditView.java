@@ -3,7 +3,6 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
-import controllers.DisplayableMessage;
 import forms.ProgramForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.FormTag;
@@ -45,7 +44,7 @@ public class ProgramEditView extends BaseHtmlView {
   }
 
   public Content render(
-      Request request, long id, ProgramForm program, Optional<DisplayableMessage> message) {
+      Request request, long id, ProgramForm program, Optional<ToastMessage> message) {
     FormTag formTag =
         ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
@@ -57,7 +56,7 @@ public class ProgramEditView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
 
-    message.map(ToastMessage::fromMessage).ifPresent(htmlBundle::addToastMessages);
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
