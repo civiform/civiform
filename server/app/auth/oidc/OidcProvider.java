@@ -211,9 +211,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
       logger.error("Error while initilizing OIDC provider", e);
       throw e;
     }
-    logger.debug("Client: " + client.toString());
     var providerMetadata = client.getConfiguration().getProviderMetadata();
-    logger.debug("Provider metadata: " + providerMetadata.toString());
     if (providerMetadata.supportsAuthorizationResponseIssuerParam()
         && responseMode.equals("form_post")
         && responseType.contains("token")
