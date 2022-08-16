@@ -30,7 +30,7 @@ describe('create dropdown question with options', () => {
 
     // Fill in basic info
     const questionName = 'favorite ice cream'
-    await page.fill('text="Name *"', questionName)
+    await page.fill('text="Name*"', questionName)
     await page.fill('text=Description', 'description')
     await page.fill('text=Question Text', 'questionText')
     await page.fill('text=Question help text', 'helpText')

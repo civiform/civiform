@@ -299,7 +299,7 @@ public final class QuestionEditView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("question-name-input")
             .setFieldName(QUESTION_NAME_FIELD)
-            .setLabelText("Name *")
+            .setLabelText("Name*")
             .setDisabled(!submittable)
             .setPlaceholderText("The name displayed in the question builder")
             .setValue(questionForm.getQuestionName());
@@ -346,7 +346,7 @@ public final class QuestionEditView extends BaseHtmlView {
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
-                .setLabelText("Question text *")
+                .setLabelText("Question text*")
                 .setPlaceholderText("The question text displayed to the applicant")
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionText())
@@ -370,7 +370,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return fieldset()
         .withId("demographic-field-content")
         .with(
-            legend("Export options *").withClass(BaseStyles.INPUT_LABEL),
+            legend("Export options*").withClass(BaseStyles.INPUT_LABEL),
             FieldWithLabel.radio()
                 .setId("question-demographic-no-export")
                 .setDisabled(!submittable)
@@ -449,7 +449,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
-        .setLabelText("Question enumerator *")
+        .setLabelText("Question enumerator*")
         .setOptions(options)
         .setValue(selected);
   }

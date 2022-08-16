@@ -60,20 +60,20 @@ public class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("program-name-input")
             .setFieldName("adminName")
-            .setLabelText("Enter internal name or nickname of this program *")
+            .setLabelText("Enter internal name or nickname of this program*")
             .setValue(adminName)
             .setDisabled(editExistingProgram)
             .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
-            .setLabelText("Describe this program for administrative use *")
+            .setLabelText("Describe this program for administrative use*")
             .setValue(adminDescription)
             .getTextareaTag(),
         // TODO(#2618): Consider using helpers for grouping related radio controls.
         fieldset()
             .with(
-                legend("Program visibility *").withClass(BaseStyles.INPUT_LABEL),
+                legend("Program visibility*").withClass(BaseStyles.INPUT_LABEL),
                 FieldWithLabel.radio()
                     .setId("program-display-mode-public")
                     .setFieldName("displayMode")
@@ -93,13 +93,13 @@ public class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
-            .setLabelText("Enter the publicly displayed name for this program *")
+            .setLabelText("Enter the publicly displayed name for this program*")
             .setValue(displayName)
             .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
-            .setLabelText("Describe this program for the public *")
+            .setLabelText("Describe this program for the public*")
             .setValue(displayDescription)
             .getTextareaTag(),
         FieldWithLabel.input()
