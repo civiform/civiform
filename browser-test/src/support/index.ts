@@ -240,9 +240,8 @@ export const validateScreenshot = async (
     allowSizeMismatch: true,
     failureThreshold: 0.03,
     failureThresholdType: 'percent',
-    // Dumps a base64url diff image to console which can viewed in browser.
-    // This is useful for viewing the image diff from CI logs.
-    dumpDiffToConsole: true,
+    customSnapshotsDir: 'image_snapshots',
+    customDiffDir: 'diff_output',
     customSnapshotIdentifier: ({counter, currentTestName, testPath}) => {
       const dir = path.basename(testPath).replace('.test.ts', '_test')
       const fileName = currentTestName.replace(/\s+/g, '-')
