@@ -4,7 +4,7 @@ resource "aws_s3_bucket" "civiform_files_s3" {
     Type = "Civiform Files"
   }
 
-  bucket = "${var.app_prefix}-civiform-files-s3"
+  bucket        = "${var.app_prefix}-civiform-files-s3"
   force_destroy = local.force_destroy_s3
 }
 
@@ -87,7 +87,7 @@ resource "aws_s3_bucket" "log_bucket" {
     Type = "Civiform Logs"
   }
 
-  bucket = "${var.app_prefix}-civiform-fileaccesslogs"
+  bucket        = "${var.app_prefix}-civiform-fileaccesslogs"
   force_destroy = local.force_destroy_s3
 }
 
