@@ -68,7 +68,7 @@ module "td" {
               "kms:GenerateDataKey*",
               "kms:DescribeKey"
             ],
-            "Resource" : [aws_kms_key.civiform_kms_key.arn]
+            "Resource" : [aws_kms_key.civiform_kms_key.arn, aws_kms_key.file_storage_key.arn]
           },
           {
             "Effect" : "Allow",

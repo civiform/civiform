@@ -20,6 +20,7 @@ DATABASE = 'civiform-db'
 
 # Defined by fargate modules in cloud/aws/templates/aws_oidc/app.tf
 FARGATE_SERVICE = 'service'
+LOAD_BALANCER = 'lb'
 
 # Defined in cloud/aws/modules/setup/backend_storage.tf
 S3_TERRAFORM_STATE_BUCKET = 'backendstate'
