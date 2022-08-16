@@ -106,7 +106,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
   protected final DivTag defaultLocaleTextHint(LocalizedStrings localizedStrings) {
     return div()
         .withClasses(Styles.W_2_3, Styles.ML_2, Styles.P_2, Styles.TEXT_SM, Styles.BG_GRAY_200)
-        .with(p("Default text:").withClass(Styles.FONT_MEDIUM), p(localizedStrings.getDefault()));
+        .with(p("English text:").withClass(Styles.FONT_MEDIUM), p(localizedStrings.getDefault()));
   }
 
   /** Creates a fieldset wrapping several form fields to be rendered. */
