@@ -21,7 +21,7 @@ class AwsSetupTemplate(SetupTemplate):
         terraform.perform_apply(self.config, is_destroy, template_dir)
 
     def _setup_shared_state_file(self):
-        if self.config.use_backend_config():
+        if not self.config.use_local_backend:
             backend_setup.setup_backend_config(self.config)
 
     def setup_log_file(self):

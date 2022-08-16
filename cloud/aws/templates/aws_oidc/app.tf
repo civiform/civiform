@@ -53,6 +53,7 @@ module "td" {
               aws_secretsmanager_secret.postgres_username_secret.arn,
               aws_secretsmanager_secret.postgres_password_secret.arn,
               aws_secretsmanager_secret.app_secret_key_secret.arn,
+              aws_secretsmanager_secret.api_secret_salt_secret.arn,
               aws_secretsmanager_secret.adfs_secret_secret.arn,
               aws_secretsmanager_secret.adfs_client_id_secret.arn,
               aws_secretsmanager_secret.applicant_oidc_client_secret_secret.arn,
@@ -68,7 +69,7 @@ module "td" {
               "kms:GenerateDataKey*",
               "kms:DescribeKey"
             ],
-            "Resource" : [aws_kms_key.civiform_kms_key.arn]
+            "Resource" : [aws_kms_key.civiform_kms_key.arn, aws_kms_key.file_storage_key.arn]
           },
           {
             "Effect" : "Allow",
@@ -78,6 +79,15 @@ module "td" {
             "Resource" : [
               aws_s3_bucket.civiform_files_s3.arn,
               "${aws_s3_bucket.civiform_files_s3.arn}/*",
+            ]
+          },
+          {
+            "Effect" : "Allow",
+            "Action" : [
+              "ses:*"
+            ],
+            "Resource" : [
+              for email in module.email_service : email.email_arn
             ]
           },
         ]
@@ -97,6 +107,10 @@ module "td" {
     {
       name      = "SECRET_KEY"
       valueFrom = aws_secretsmanager_secret_version.app_secret_key_secret_version.arn
+    },
+    {
+      name      = "CIVIFORM_API_SECRET_SALT"
+      valueFrom = aws_secretsmanager_secret_version.api_secret_salt_secret_version.arn
     },
     {
       name      = "ADFS_SECRET"

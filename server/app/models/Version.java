@@ -68,9 +68,17 @@ public final class Version extends BaseModel {
     return this;
   }
 
+  public boolean removeProgram(Program program) {
+    return this.programs.remove(program);
+  }
+
   public Version addQuestion(Question question) {
     this.questions.add(question);
     return this;
+  }
+
+  public boolean removeQuestion(Question question) {
+    return this.questions.remove(question);
   }
 
   public Version setLifecycleStage(LifecycleStage lifecycleStage) {
@@ -154,6 +162,11 @@ public final class Version extends BaseModel {
     return this.getTombstonedProgramNames().contains(programName);
   }
 
+  /**
+   * Attempts to mark the provided question as not eligible for copying to the next version.
+   *
+   * @return true if the question was successfully marked as tombstoned, false otherwise.
+   */
   public boolean addTombstoneForQuestion(Question question) {
     if (this.tombstonedQuestionNames == null) {
       this.tombstonedQuestionNames = new ArrayList<>();
@@ -161,14 +174,56 @@ public final class Version extends BaseModel {
     if (this.questionIsTombstoned(question.getQuestionDefinition().getName())) {
       return false;
     }
-    this.tombstonedQuestionNames.add(question.getQuestionDefinition().getName());
-    return true;
+    return this.tombstonedQuestionNames.add(question.getQuestionDefinition().getName());
   }
 
+  /**
+   * Marks the provided question as eligible for copying to the next version.
+   *
+   * @return true if the question previously was tombstoned and false otherwise.
+   */
   public boolean removeTombstoneForQuestion(Question question) {
     if (this.tombstonedQuestionNames == null) {
       this.tombstonedQuestionNames = new ArrayList<>();
     }
     return this.tombstonedQuestionNames.remove(question.getQuestionDefinition().getName());
+  }
+
+  /**
+   * Attempts to mark the provided program as not eligible for copying to the next version.
+   *
+   * @return true if the program was successfully marked as tombstoned, false otherwise.
+   */
+  public boolean addTombstoneForProgramForTest(Program program) {
+    if (this.tombstonedProgramNames == null) {
+      this.tombstonedProgramNames = new ArrayList<>();
+    }
+    if (this.programIsTombstoned(program.getProgramDefinition().adminName())) {
+      return false;
+    }
+    return this.tombstonedProgramNames.add(program.getProgramDefinition().adminName());
+  }
+
+  /**
+   * Marks the provided program as eligible for copying to the next version.
+   *
+   * @return true if the program previously was tombstoned and false otherwise.
+   */
+  public boolean removeTombstoneForProgram(Program program) {
+    if (this.tombstonedProgramNames == null) {
+      this.tombstonedProgramNames = new ArrayList<>();
+    }
+    return this.tombstonedProgramNames.remove(program.getProgramDefinition().adminName());
+  }
+
+  /**
+   * Returns whether any edits have been made within the version. Edits include marking a
+   * question/program as tombstoned as well as creating a draft question/program.
+   */
+  public boolean hasAnyChanges() {
+    return tombstonedQuestionNames.size() > 0
+        || tombstonedProgramNames.size() > 0
+        || questions.size() > 0
+        || programs.size() > 0;
   }
 }

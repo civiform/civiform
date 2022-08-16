@@ -41,22 +41,26 @@ class Setup(AwsSetupTemplate):
         self._tf_run_for_aws(is_destroy=False)
         print(' - Setting up shared state file')
         self._setup_shared_state_file()
-        # Only run in dev mode
-        if not self.config.use_backend_config():
+        if self.config.use_local_backend:
             self._make_backend_override()
 
     def _setup_shared_state_file(self):
-        if self.config.use_backend_config():
+        if not self.config.use_local_backend:
             backend_setup.setup_backend_config(self.config)
 
     def requires_post_terraform_setup(self):
         return True
 
     def post_terraform_setup(self):
+        if self.config.is_test():
+            print(" - Test. Skipping post terraform setup.")
+            return
+
         for name, doc in SECRETS.items():
             self._maybe_set_secret_value(
                 f'{self.config.app_prefix}-{name}', doc)
         self._maybe_change_default_db_password()
+        self._print_final_message()
 
     def _maybe_set_secret_value(self, secret_name: str, documentation: str):
         """
@@ -113,4 +117,24 @@ class Setup(AwsSetupTemplate):
             print('Password has already been changed. Not touching it.')
         print(
             f'You can see the password here: {self._aws_cli.get_url_of_secret(secret_name)}'
+        )
+
+    def _print_final_message(self):
+        app = self.config.app_prefix
+
+        # Print link to ECS tasks.
+        print()
+        fargate_service = f'{app}-{resources.FARGATE_SERVICE}'
+        tasks_url = self._aws_cli.get_url_of_fargate_tasks(app, fargate_service)
+        print('Setup finished. You can monitor civiform tasks status here:')
+        print(tasks_url)
+
+        # Print info about load balancer url.
+        print()
+        lb_dns = self._aws_cli.get_load_balancer_dns(
+            f'{app}-{resources.LOAD_BALANCER}')
+        print(f'Server is available on url: {lb_dns}')
+        base_url = self.config.get_config_variables()['BASE_URL']
+        print(
+            f'In your domain registrar create a CNAME record for {base_url} to point to the url above.'
         )

@@ -33,9 +33,11 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
-  async goToViewQuestionPage(_questionName: string) {
+  async goToViewQuestionPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    await this.page.click('text=View')
+    await this.page.click(
+      this.selectWithinQuestionTableRow(questionName, 'a:has-text("View")'),
+    )
     await waitForPageJsLoad(this.page)
   }
 
@@ -48,10 +50,11 @@ export class AdminQuestions {
     expect(await this.page.innerText('h1')).toEqual('All Questions')
   }
 
-  async expectViewOnlyQuestion(_questionName: string) {
+  async expectViewOnlyQuestion(questionName: string) {
     expect(await this.page.isDisabled('text=No Export')).toEqual(true)
-    // TODO(sgoldblatt): This test does not find any questions need to look into
-    // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
+    expect(
+      await this.page.isDisabled(`input[value="${questionName}"]`),
+    ).toEqual(true)
   }
 
   selectorForExportOption(exportOption: string) {
@@ -158,7 +161,7 @@ export class AdminQuestions {
     ).toContain('New Version')
   }
 
-  async expectActiveQuestionNotExist(questionName: string) {
+  async expectQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await waitForPageJsLoad(this.page)
     const tableInnerText = await this.page.innerText('table')
@@ -255,7 +258,10 @@ export class AdminQuestions {
   async undeleteQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Restore")'),
+      this.selectWithinQuestionTableRow(
+        questionName,
+        ':text("Restore Archived")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -270,13 +276,36 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
-  async archiveQuestion(questionName: string) {
+  async archiveQuestion({
+    questionName,
+    expectModal,
+  }: {
+    questionName: string
+    expectModal: boolean
+  }) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
       this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
-    await waitForPageJsLoad(this.page)
-    await this.expectAdminQuestionsPage()
+    if (expectModal) {
+      const modal = await waitForAnyModal(this.page)
+      expect(await modal.innerText()).toContain(
+        'This question cannot be archived since there are still programs referencing it',
+      )
+      await dismissModal(this.page)
+    } else {
+      await waitForPageJsLoad(this.page)
+      await this.expectAdminQuestionsPage()
+      // Ensure that the page has been reloaded and the "Restore archive" link
+      // appears.
+      const restoreArchiveIsVisible = await this.page.isVisible(
+        this.selectWithinQuestionTableRow(
+          questionName,
+          ':text("Restore Archived")',
+        ),
+      )
+      expect(restoreArchiveIsVisible).toBe(true)
+    }
   }
 
   async goToQuestionTranslationPage(questionName: string) {
@@ -402,26 +431,26 @@ export class AdminQuestions {
   }
 
   async updateAllQuestions(questions: string[]) {
-    for (const i in questions) {
-      await this.updateQuestion(questions[i])
+    for (const question of questions) {
+      await this.updateQuestion(question)
     }
   }
 
   async createNewVersionForQuestions(questions: string[]) {
-    for (const i in questions) {
-      await this.createNewVersion(questions[i])
+    for (const question of questions) {
+      await this.createNewVersion(question)
     }
   }
 
   async expectDraftQuestions(questions: string[]) {
-    for (const i in questions) {
-      await this.expectDraftQuestionExist(questions[i])
+    for (const question of questions) {
+      await this.expectDraftQuestionExist(question)
     }
   }
 
   async expectActiveQuestions(questions: string[]) {
-    for (const i in questions) {
-      await this.expectActiveQuestionExist(questions[i])
+    for (const question of questions) {
+      await this.expectActiveQuestionExist(question)
     }
   }
 

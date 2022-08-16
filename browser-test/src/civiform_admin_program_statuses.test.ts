@@ -146,6 +146,11 @@ describe('modify program statuses', () => {
         expectEmailExists: false,
       })
       await adminProgramStatuses.expectStatusNotExists(secondStatusName)
+      const emailWarningVisible =
+        await adminProgramStatuses.emailTranslationWarningIsVisible(
+          'Updated status name',
+        )
+      expect(emailWarningVisible).toBe(false)
     })
 
     it('edits an existing status, configures email, and deletes the configured email', async () => {
@@ -162,6 +167,11 @@ describe('modify program statuses', () => {
         statusName: firstStatusName,
         expectedEmailBody: 'An email body',
       })
+      const emailWarningVisible =
+        await adminProgramStatuses.emailTranslationWarningIsVisible(
+          firstStatusName,
+        )
+      expect(emailWarningVisible).toBe(true)
 
       // Edit the configured email.
       await adminProgramStatuses.editStatus(firstStatusName, {
