@@ -42,7 +42,6 @@ import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 import views.style.Styles;
 
 public final class ProgramStatusesView extends BaseHtmlView {
@@ -252,8 +251,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 Styles.FONT_NORMAL,
                 Styles.SPACE_X_2,
                 Styles.FLEX,
-                Styles.ITEMS_CENTER,
-                StyleUtils.hover(Styles.BG_GRAY_100))
+                Styles.ITEMS_CENTER)
             .with(
                 div()
                     .withClass(Styles.W_1_4)
