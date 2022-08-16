@@ -1,12 +1,15 @@
 package views.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -104,9 +107,16 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * easily identify which text to translate.
    */
   protected final DivTag defaultLocaleTextHint(LocalizedStrings localizedStrings) {
+    // Convert newlines to break statements.
+    ImmutableList<DomContent> content =
+        Splitter.on("\n")
+            .splitToStream(localizedStrings.getDefault())
+            .map(s -> ImmutableList.of(span(s), br()))
+            .flatMap(ImmutableList::stream)
+            .collect(ImmutableList.toImmutableList());
     return div()
-        .withClasses(Styles.W_2_3, Styles.ML_2, Styles.P_2, Styles.TEXT_SM, Styles.BG_GRAY_200)
-        .with(p("English text:").withClass(Styles.FONT_MEDIUM), p(localizedStrings.getDefault()));
+        .withClasses(Styles.PX_2, Styles.PY_1, Styles.TEXT_SM, Styles.BG_GRAY_100)
+        .with(p("English text:").withClass(Styles.FONT_MEDIUM), p().with(content));
   }
 
   /** Creates a fieldset wrapping several form fields to be rendered. */

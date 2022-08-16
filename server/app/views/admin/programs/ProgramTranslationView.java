@@ -99,21 +99,31 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .asAnchorText()),
                     ImmutableList.of(
                         div()
+                            .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_3)
                             .with(
-                                FieldWithLabel.input()
-                                    .setFieldName(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
-                                    .setLabelText("Program name")
-                                    .setValue(updateData.localizedDisplayName())
-                                    .getInputTag(),
+                                div()
+                                    .withClasses(Styles.COL_SPAN_2)
+                                    .with(
+                                        FieldWithLabel.input()
+                                            .setFieldName(
+                                                ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
+                                            .setLabelText("Program name")
+                                            .setValue(updateData.localizedDisplayName())
+                                            .getInputTag()),
                                 defaultLocaleTextHint(program.localizedName())),
                         div()
+                            .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_3)
                             .with(
-                                FieldWithLabel.input()
-                                    .setFieldName(
-                                        ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
-                                    .setLabelText("Program description")
-                                    .setValue(updateData.localizedDisplayDescription())
-                                    .getInputTag(),
+                                div()
+                                    .withClasses(Styles.COL_SPAN_2)
+                                    .with(
+                                        FieldWithLabel.input()
+                                            .setFieldName(
+                                                ProgramTranslationForm
+                                                    .DISPLAY_DESCRIPTION_FORM_NAME)
+                                            .setLabelText("Program description")
+                                            .setValue(updateData.localizedDisplayDescription())
+                                            .getInputTag()),
                                 defaultLocaleTextHint(program.localizedDescription())))));
     if (statusTrackingEnabled.get()) {
       String programStatusesLink =
@@ -138,26 +148,37 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .withName(ProgramTranslationForm.statusKeyToUpdateFieldName(statusIdx))
                         .withValue(configuredStatus.statusText()),
                     div()
+                        // TODO(clouser): Share this styling with the questions view.
+                        .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_3)
                         .with(
-                            FieldWithLabel.input()
-                                .setFieldName(
-                                    ProgramTranslationForm.localizedStatusFieldName(statusIdx))
-                                .setLabelText("Status name")
-                                .setScreenReaderText("Status name")
-                                .setValue(statusUpdateData.localizedStatusText())
-                                .getInputTag(),
+                            div()
+                                .withClasses(Styles.COL_SPAN_2)
+                                .with(
+                                    FieldWithLabel.input()
+                                        .setFieldName(
+                                            ProgramTranslationForm.localizedStatusFieldName(
+                                                statusIdx))
+                                        .setLabelText("Status name")
+                                        .setScreenReaderText("Status name")
+                                        .setValue(statusUpdateData.localizedStatusText())
+                                        .getInputTag()),
                             defaultLocaleTextHint(configuredStatus.localizedStatusText())));
         if (configuredStatus.localizedEmailBodyText().isPresent()) {
           fieldsBuilder.add(
               div()
+                  .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_3)
                   .with(
-                      FieldWithLabel.textArea()
-                          .setFieldName(ProgramTranslationForm.localizedEmailFieldName(statusIdx))
-                          .setLabelText("Email content")
-                          .setScreenReaderText("Email content")
-                          .setValue(statusUpdateData.localizedEmailBody())
-                          .setRows(OptionalLong.of(8))
-                          .getTextareaTag(),
+                      div()
+                          .withClasses(Styles.COL_SPAN_2)
+                          .with(
+                              FieldWithLabel.textArea()
+                                  .setFieldName(
+                                      ProgramTranslationForm.localizedEmailFieldName(statusIdx))
+                                  .setLabelText("Email content")
+                                  .setScreenReaderText("Email content")
+                                  .setValue(statusUpdateData.localizedEmailBody())
+                                  .setRows(OptionalLong.of(8))
+                                  .getTextareaTag()),
                       defaultLocaleTextHint(configuredStatus.localizedEmailBodyText().get())));
         }
         result.add(
