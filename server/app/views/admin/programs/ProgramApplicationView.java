@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
@@ -17,6 +18,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URLEncoder;
@@ -96,7 +98,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     blocks,
                     block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))));
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(title)
+            .addMainContent(contentDiv)
+            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
     return layout.render(htmlBundle);
   }
 
@@ -172,16 +179,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private DivTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+  private FormTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
-    DivTag container =
-        div()
-            .withClasses(Styles.FLEX)
-            .with(
-                label("Status:")
-                    .withClasses(
-                        Styles.SELF_CENTER, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR_LABEL)
-                    .withFor(SELECTOR_ID));
+    FormTag container =
+        form()
+            // TODO(clouser): Add the correct route.
+            .withAction("")
+            .withMethod("POST")
+            .withClasses(Styles.FLEX, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
+            .with(label("Status:").withClasses(Styles.SELF_CENTER).withFor(SELECTOR_ID));
 
     SelectTag dropdownTag =
         select()

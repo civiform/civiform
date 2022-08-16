@@ -479,13 +479,13 @@ export class AdminPrograms {
 
   async isStatusSelectorVisible(): Promise<boolean> {
     return this.applicationFrame()
-      .locator('.cf-program-admin-status-selector-label:has-text("Status:")')
+      .locator('.cf-program-admin-status-selector:has-text("Status:")')
       .isVisible()
   }
 
   async getStatusOption(): Promise<string> {
     return this.applicationFrame()
-      .locator('.cf-program-admin-status-selector-label')
+      .locator('.cf-program-admin-status-selector label')
       .inputValue()
   }
 
