@@ -28,6 +28,12 @@ describe('deleting question lifecycle', () => {
     await adminPrograms.publishProgram(programName)
     await adminQuestions.expectActiveQuestionExist(onlyUsedQuestion)
 
+    // Confirm the archive option is still available and displays a dialog.
+    await adminQuestions.archiveQuestion({
+      questionName: onlyUsedQuestion,
+      expectModal: true,
+    })
+
     // Make a Draft then discard it.
     await adminQuestions.createNewVersion(unreferencedQuestions[0])
     await adminQuestions.expectDraftQuestionExist(unreferencedQuestions[0])
@@ -43,17 +49,23 @@ describe('deleting question lifecycle', () => {
     // Archive, unarchive, archive all unreferenced questions.
     for (const questionName of unreferencedQuestions) {
       await adminQuestions.expectActiveQuestionExist(questionName)
-      await adminQuestions.archiveQuestion(questionName)
+      await adminQuestions.archiveQuestion({questionName, expectModal: false})
       await adminQuestions.undeleteQuestion(questionName)
       await adminQuestions.expectActiveQuestionExist(questionName)
-      await adminQuestions.archiveQuestion(questionName)
+      await adminQuestions.archiveQuestion({questionName, expectModal: false})
     }
     // Archive, unarchive, archive an unreferenced draft question.
     await adminQuestions.expectDraftQuestionExist(draftOnlyQuestionName)
-    await adminQuestions.archiveQuestion(draftOnlyQuestionName)
+    await adminQuestions.archiveQuestion({
+      questionName: draftOnlyQuestionName,
+      expectModal: false,
+    })
     await adminQuestions.undeleteQuestion(draftOnlyQuestionName)
     await adminQuestions.expectDraftQuestionExist(draftOnlyQuestionName)
-    await adminQuestions.archiveQuestion(draftOnlyQuestionName)
+    await adminQuestions.archiveQuestion({
+      questionName: draftOnlyQuestionName,
+      expectModal: false,
+    })
 
     // Publish all the above changes.
     await adminPrograms.createNewVersion(programName)

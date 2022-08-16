@@ -53,7 +53,7 @@ public final class ProgramStatusesForm implements Validatable<List<ValidationErr
   }
 
   public void setConfiguredStatusText(String value) {
-    configuredStatusText = checkNotNull(value).trim();
+    configuredStatusText = checkNotNull(value);
   }
 
   public String getStatusText() {

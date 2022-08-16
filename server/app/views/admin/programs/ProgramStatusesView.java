@@ -16,6 +16,7 @@ import forms.admin.ProgramStatusesForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.PTag;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -88,7 +89,12 @@ public final class ProgramStatusesView extends BaseHtmlView {
       displayOnLoad = false;
     }
     Modal createStatusModal =
-        makeStatusUpdateModal(request, program, createStatusForm, displayOnLoad);
+        makeStatusUpdateModal(
+            request,
+            program,
+            createStatusForm,
+            displayOnLoad,
+            /* showEmailDeletionWarning= */ false);
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
@@ -219,7 +225,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
       StatusDefinitions.Status status,
       Form<ProgramStatusesForm> statusEditForm,
       boolean displayOnLoad) {
-    Modal editStatusModal = makeStatusUpdateModal(request, program, statusEditForm, displayOnLoad);
+    Modal editStatusModal =
+        makeStatusUpdateModal(
+            request,
+            program,
+            statusEditForm,
+            displayOnLoad,
+            /* showEmailDeletionWarning= */ status.localizedEmailBodyText().isPresent());
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
@@ -255,7 +267,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                 Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                             .with(
                                 Icons.svg(Icons.EMAIL, 22)
-                                    // TODO(#2752): Once SVG icon sizes are consistent, just set
+                                    // TODO(#3148): Once SVG icon sizes are consistent, just set
                                     // size to 18.
                                     .withWidth("18")
                                     .withHeight("18")
@@ -321,9 +333,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       Form<ProgramStatusesForm> form,
-      boolean displayOnLoad) {
-    // TODO(#2752): If an email is already configured, add a warning that setting it to empty
-    // will clear any other localized text.
+      boolean displayOnLoad,
+      boolean showEmailDeletionWarning) {
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
 
@@ -362,12 +373,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .setValue(formData.getEmailBody())
                             .setFieldErrors(
                                 messages, form.errors(ProgramStatusesForm.EMAIL_BODY_FORM_NAME))
-                            .getTextareaTag()),
+                            .getTextareaTag()))
+            .condWith(showEmailDeletionWarning, renderEmailTranslationWarning())
+            .with(
                 div()
                     .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
                     .with(
                         div().withClass(Styles.FLEX_GROW),
-                        // TODO(#2752): Add a cancel button that clears state.
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     return Modal.builder(Modal.randomModalId(), content)
         .setModalTitle(
@@ -377,6 +389,19 @@ public final class ProgramStatusesView extends BaseHtmlView {
         .setWidth(Width.HALF)
         .setDisplayOnLoad(displayOnLoad)
         .build();
+  }
+
+  private PTag renderEmailTranslationWarning() {
+    return p("Please be aware that clearing the email body will also clear any associated"
+            + " translations")
+        .withClasses(
+            Styles.M_2,
+            Styles.P_2,
+            Styles.TEXT_SM,
+            Styles.BORDER,
+            Styles.ROUNDED_LG,
+            Styles.BORDER_YELLOW_400,
+            Styles.BG_YELLOW_200);
   }
 
   private DivTag renderFormGlobalErrors(Messages messages, Form<ProgramStatusesForm> form) {
