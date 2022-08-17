@@ -21,11 +21,11 @@ import repository.UserRepository;
 
 public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
-  UserRepository repo;
+  private UserRepository repo;
 
-  TrustedIntermediaryService service;
-  FormFactory formFactory;
-  ProfileFactory profileFactory;
+  private TrustedIntermediaryService service;
+  private FormFactory formFactory;
+  private ProfileFactory profileFactory;
 
   @Before
   public void setup() {

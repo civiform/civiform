@@ -19,10 +19,10 @@ import play.test.Helpers;
 import repository.UserRepository;
 
 public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
-  UserRepository repo;
-  TrustedIntermediaryController tiController;
-  ProfileFactory profileFactory;
-  CiviFormProfileData data;
+  private UserRepository repo;
+  private TrustedIntermediaryController tiController;
+  private ProfileFactory profileFactory;
+  private CiviFormProfileData data;
 
   @Before
   public void setup() {
