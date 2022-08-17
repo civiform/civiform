@@ -135,7 +135,7 @@ export class AdminPrograms {
       this.withinProgramCardSelector(
         programName,
         'Draft',
-        ':text("Manage Admins")',
+        ':text("Manage Program Admins")',
       ),
     )
     await waitForPageJsLoad(this.page)
