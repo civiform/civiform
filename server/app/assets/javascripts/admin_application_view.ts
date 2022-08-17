@@ -21,7 +21,7 @@ class AdminApplicationView {
 
     // The original value is tracked neither the 'change/input' events provide the previous
     // value prior to input.
-    let originalSelectedValue = statusSelector.value
+    const originalSelectedValue = statusSelector.value
     statusSelector.addEventListener('change', (event) => {
       if (!this.confirmStatusChange(statusSelector.value)) {
         // Change only fires when the value is changed due to user interaction, thus avoiding the

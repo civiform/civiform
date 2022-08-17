@@ -319,7 +319,8 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    Optional<Application> applicationMaybe = programAdminApplicationService.getApplication(applicationId, program);
+    Optional<Application> applicationMaybe =
+        programAdminApplicationService.getApplication(applicationId, program);
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }

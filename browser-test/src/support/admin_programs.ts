@@ -440,15 +440,20 @@ export class AdminPrograms {
     await Promise.all([
       this.waitForApplicationFrame(),
       this.page.click(
-        this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'),
-      )
+        this.selectWithinApplicationForApplicant(
+          applicantName,
+          'a:text("View")',
+        ),
+      ),
     ])
   }
 
   private static APPLICATION_DISPLAY_FRAME_NAME = 'application-display-frame'
 
   applicationFrameLocator() {
-    return this.page.frameLocator(`iframe[name="${AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME}"]`)
+    return this.page.frameLocator(
+      `iframe[name="${AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME}"]`,
+    )
   }
 
   async waitForApplicationFrame() {
@@ -487,11 +492,15 @@ export class AdminPrograms {
   }
 
   async isStatusSelectorVisible(): Promise<boolean> {
-    return this.applicationFrameLocator().locator(this.statusSelector()).isVisible()
+    return this.applicationFrameLocator()
+      .locator(this.statusSelector())
+      .isVisible()
   }
 
   async getStatusOption(): Promise<string> {
-    return this.applicationFrameLocator().locator(this.statusSelector()).inputValue()
+    return this.applicationFrameLocator()
+      .locator(this.statusSelector())
+      .inputValue()
   }
 
   async setStatusOption({
