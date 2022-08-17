@@ -5,4 +5,5 @@
 source bin/lib.sh
 
 cd browser-test/ || exit
+yarn install
 BASE_URL=http://localhost:9999 DISABLE_SCREENSHOTS=true yarn test "$@"
