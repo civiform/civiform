@@ -511,6 +511,9 @@ export class AdminPrograms {
   async setStatusOptionAndConfirmModal(status: string) {
     const confirmationModal = await this.setStatusOptionAndAwaitModal(status)
 
+    // TODO(#2912): Add support for confirming that the email checkbox appears when an email is
+    // configured.
+
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const confirmButton = (await confirmationModal.$('text=Confirm'))!

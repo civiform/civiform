@@ -115,7 +115,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        renderStatusOptionsSelector(request, statusDefinitions))
+                        renderStatusOptionsSelector(statusDefinitions))
                     .with(renderDownloadButton(programId, application.id)))
             .with(
                 each(
@@ -128,6 +128,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .getBundle()
             .setTitle(title)
             .addMainContent(contentDiv)
+            // The body and main styles are necessary for modals to appear since they use fixed
+            // sizing.
             .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
             .addMainStyles(Styles.W_SCREEN)
             .addModals(statusUpdateConfirmationModals)
@@ -211,15 +213,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private DivTag renderStatusOptionsSelector(
-      Http.Request request, StatusDefinitions statusDefinitions) {
+  private DivTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     DivTag container =
         div()
             .withClasses(Styles.FLEX, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
-            .with(
-                makeCsrfTokenInputTag(request),
-                label("Status:").withClasses(Styles.SELF_CENTER).withFor(SELECTOR_ID));
+            .with(label("Status:").withClasses(Styles.SELF_CENTER).withFor(SELECTOR_ID));
 
     SelectTag dropdownTag =
         select()
@@ -269,6 +268,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
     boolean showEmailSelection =
         status.localizedEmailBodyText().isPresent() && maybeApplicantEmail.isPresent();
 
+    // TODO(#3020): Populate the modal content with the previous configured status.
+    String previousStatus = "Unset";
     FormTag modalContent =
         form()
             .withAction(
@@ -281,40 +282,39 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 makeCsrfTokenInputTag(request),
                 p().with(
                         span("Status Change: "),
-                        span("TODO(current status) -> ").withClass(Styles.FONT_SEMIBOLD),
+                        span(previousStatus).withClass(Styles.FONT_SEMIBOLD),
+                        span(" -> ").withClass(Styles.FONT_SEMIBOLD),
                         span(status.statusText()).withClass(Styles.FONT_SEMIBOLD),
                         span(" (visible to applicant)")),
                 p().with(
                         span("Applicant: "),
                         span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
-                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)))
+                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)));
+    if (showEmailSelection) {
+      modalContent.with(
+          div()
+              .withClasses(Styles.MT_4)
+              .with(
+                  label()
+                      .with(
+                          input()
+                              .withType("checkbox")
+                              .withName("sendEmail")
+                              .withCondChecked(showEmailSelection)
+                              .withClasses(BaseStyles.CHECKBOX),
+                          span("Notify "),
+                          span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+                          span(" of this change at "),
+                          span(maybeApplicantEmail.orElse("")).withClass(Styles.FONT_SEMIBOLD))));
+    }
+    modalContent.with(
+        div()
+            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
             .with(
-                div()
-                    .withClasses(Styles.MT_4)
-                    .withCondClass(!showEmailSelection, Styles.HIDDEN)
-                    .with(
-                        label()
-                            .with(
-                                input()
-                                    .withType("checkbox")
-                                    .withName("sendEmail")
-                                    .withCondChecked(showEmailSelection)
-                                    .withClasses(BaseStyles.CHECKBOX),
-                                span("Notify "),
-                                span(applicantNameWithApplicationId)
-                                    .withClass(Styles.FONT_SEMIBOLD),
-                                span(" of this change at "),
-                                span(maybeApplicantEmail.orElse(""))
-                                    .withClass(Styles.FONT_SEMIBOLD))))
-            .with(
-                div()
-                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
-                    .with(
-                        div().withClass(Styles.FLEX_GROW),
-                        button("Cancel")
-                            .withClasses(
-                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
-                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                div().withClass(Styles.FLEX_GROW),
+                button("Cancel")
+                    .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     ButtonTag triggerButton =
         button("")
             .withClasses(Styles.HIDDEN)
