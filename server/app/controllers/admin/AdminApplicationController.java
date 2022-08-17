@@ -241,11 +241,11 @@ public final class AdminApplicationController extends CiviFormController {
 
     Optional<Application> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
-
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
     Application application = applicationMaybe.get();
+
     PdfExporter.InMemoryPdf pdf;
     try {
       pdf = pdfExporter.export(application);
@@ -276,8 +276,8 @@ public final class AdminApplicationController extends CiviFormController {
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-
     Application application = applicationMaybe.get();
+
     Messages messages = messagesApi.preferred(request);
     String applicantNameWithApplicationId =
         String.format(
@@ -319,9 +319,7 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    Optional<Application> applicationMaybe =
-        this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
-
+    Optional<Application> applicationMaybe = programAdminApplicationService.getApplication(applicationId, program);
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
