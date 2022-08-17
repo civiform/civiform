@@ -49,7 +49,7 @@ public class DateConverter {
    * @throws DateTimeParseException if dateString is not well-formed.
    */
   public Instant parseIso8601DateToStartOfDateInstant(String dateString) {
-    return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE).atStartOfDay(zoneId).toInstant();
+    return parseStringToLocalDate(dateString).atStartOfDay(zoneId).toInstant();
   }
 
   /** Formats an {@link Instant} to a date and time in the local time zone. */

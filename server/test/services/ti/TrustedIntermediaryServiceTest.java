@@ -148,6 +148,38 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
+  public void testAddClientWithEmailAddressExistsError() {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "First",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "Last",
+                        "emailAddress",
+                        "sample@fake.com",
+                        "dob",
+                        "2012-07-07")));
+    TrustedIntermediaryGroup tiGroup = repo.listTrustedIntermediaryGroups().get(0);
+    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
+        formFactory
+            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
+            .bindFromRequest(requestBuilder.build());
+    TIClientCreationResult tiClientCreationResult1 = service.addNewClient(form, tiGroup);
+    TIClientCreationResult tiClientCreationResult2 = service.addNewClient(form, tiGroup);
+    // The first form is successful
+    assertThat(tiClientCreationResult1.getForm()).isEqualTo(Optional.empty());
+    // The second form has the same emailAddress, so it errors
+    assertThat(tiClientCreationResult2.getForm().get().error("emailAddress").get().message())
+        .isEqualTo(
+            "Email address already in use. Cannot create applicant if an account already exists.");
+  }
+
+  @Test
   public void testAddClientWithInvalidEmailAddress() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(

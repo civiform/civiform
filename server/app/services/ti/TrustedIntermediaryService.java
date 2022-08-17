@@ -36,8 +36,7 @@ public final class TrustedIntermediaryService {
 
   public TIClientCreationResult addNewClient(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form,
-      TrustedIntermediaryGroup trustedIntermediaryGroup)
-      throws EmailAddressExistsException {
+      TrustedIntermediaryGroup trustedIntermediaryGroup) {
     form = validateEmailAddress(form);
     form = validateFirstName(form);
     form = validateLastName(form);
@@ -45,9 +44,16 @@ public final class TrustedIntermediaryService {
     if (form.hasErrors()) {
       return TIClientCreationResult.failure(form);
     }
-    userRepository.createNewApplicantForTrustedIntermediaryGroup(
-        form.get(), trustedIntermediaryGroup);
-
+    try {
+      userRepository.createNewApplicantForTrustedIntermediaryGroup(
+          form.get(), trustedIntermediaryGroup);
+    } catch (EmailAddressExistsException e) {
+      return TIClientCreationResult.failure(
+          form.withError(
+              "emailAddress",
+              "Email address already in use. Cannot create applicant if an account already"
+                  + " exists."));
+    }
     return TIClientCreationResult.success();
   }
 
