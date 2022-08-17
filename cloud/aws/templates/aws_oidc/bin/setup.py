@@ -134,7 +134,12 @@ class Setup(AwsSetupTemplate):
         lb_dns = self._aws_cli.get_load_balancer_dns(
             f'{app}-{resources.LOAD_BALANCER}')
         print(f'Server is available on url: {lb_dns}')
+        print('\nNext steps to complete your Civiform setup:')
         base_url = self.config.get_config_variables()['BASE_URL']
         print(
-            f'In your domain registrar create a CNAME record for {base_url} to point to the url above.'
+            f'In your domain registrar create a CNAME record for {base_url} to point to {lb_dns}.'
         )
+        ses_address = self.config.get_config_variables()['SENDER_EMAIL_ADDRESS']
+        print(
+            f'Verify email address {ses_address}. If you didn\'t receive the ' +
+            'confirmation email, check that your SES is not in sandbox mode.')
