@@ -78,22 +78,22 @@ public class UserRepositoryTest extends ResetPostgres {
   @Test
   public void insertApplicant() {
     Applicant applicant = new Applicant();
-    String path = "$.applicant.birthdate";
-    applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
+    String path = "$.applicant.applicant_date_of_birth";
+    applicant.getApplicantData().putDate(Path.create(path), "2021-01-01");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
     Applicant a = repo.lookupApplicant(id).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(id);
-    assertThat(a.getApplicantData().readString(Path.create(path))).hasValue("1/1/2021");
+    assertThat(a.getApplicantData().getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
   }
 
   @Test
   public void updateApplicant() {
     Applicant applicant = new Applicant();
     repo.insertApplicant(applicant).toCompletableFuture().join();
-    String path = "$.applicant.birthdate";
+    String path = "$.applicant.applicant_date_of_birth";
     applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
 
     repo.updateApplicant(applicant).toCompletableFuture().join();
@@ -114,11 +114,12 @@ public class UserRepositoryTest extends ResetPostgres {
   @Test
   public void lookupApplicantSync_findsCorrectApplicant() {
     saveApplicant("Alice");
-    Applicant two = saveApplicant("Bob");
+    Applicant two = saveApplicantWithDob("Bob","2022-07-07");
 
     Optional<Applicant> found = repo.lookupApplicantSync(two.id);
 
     assertThat(found).hasValue(two);
+    assertThat(found.get().getApplicantData().getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
   }
 
   @Test
@@ -193,6 +194,13 @@ public class UserRepositoryTest extends ResetPostgres {
         .doesNotContain(PROGRAM_NAME);
   }
 
+  private Applicant saveApplicantWithDob(String name,String dob) {
+    Applicant applicant = new Applicant();
+    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant.getApplicantData().setDateOfBirth(dob);
+    applicant.save();
+    return applicant;
+  }
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
     applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);

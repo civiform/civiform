@@ -243,7 +243,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .getDateOfBirth()
             .map(LocalDate::toString)
             .orElse("");
-    return td().with(div(currentDob).withClasses(Styles.FONT_SEMIBOLD)).withClasses(BaseStyles.TABLE_CELL_STYLES,Styles.PR_12);
+    return td().with(div(currentDob).withClasses(Styles.FONT_SEMIBOLD))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {
@@ -299,7 +300,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
             .with(th("Applications").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
             .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-          .with(th("DOB").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
+            .with(th("DOB").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
   }
 
   private TheadTag renderGroupTableHeader() {

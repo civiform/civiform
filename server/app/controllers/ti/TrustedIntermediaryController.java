@@ -24,6 +24,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.UserRepository;
 import services.PaginationInfo;
+import services.ti.EmailAddressExistsException;
 import services.ti.TIClientCreationResult;
 import services.ti.TrustedIntermediaryService;
 import views.applicant.TrustedIntermediaryDashboardView;
@@ -40,7 +41,7 @@ public class TrustedIntermediaryController {
   private final UserRepository userRepository;
   private final MessagesApi messagesApi;
   private final FormFactory formFactory;
- // private final String baseUrl;
+  private final String baseUrl;
   private final TrustedIntermediaryService tiService;
 
   @Inject
@@ -50,14 +51,14 @@ public class TrustedIntermediaryController {
       FormFactory formFactory,
       MessagesApi messagesApi,
       TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
-   //   Config config,
+      Config config,
       TrustedIntermediaryService tiService) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
     this.userRepository = Preconditions.checkNotNull(userRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
-  //  this.baseUrl = Preconditions.checkNotNull(config).getString("base_url");
+    this.baseUrl = Preconditions.checkNotNull(config).getString("base_url");
     this.tiService = tiService;
   }
 
@@ -99,7 +100,7 @@ public class TrustedIntermediaryController {
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-      userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
@@ -108,35 +109,52 @@ public class TrustedIntermediaryController {
     }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory.form(AddApplicantToTrustedIntermediaryGroupForm.class).bindFromRequest(request);
-    TIClientCreationResult tiClientCreationResult =
-        tiService.addNewClient(form,trustedIntermediaryGroup.get());
-    if (tiClientCreationResult.isSuccessful()) {
-      return redirect(
-          routes.TrustedIntermediaryController.dashboard(
-              /* search= */ Optional.empty(), /* page= */ Optional.empty()));
-    } else if (tiClientCreationResult.getStatusHeader().isPresent()) {
-      return tiClientCreationResult.getStatusHeader().get();
+    TIClientCreationResult tiClientCreationResult;
+    try {
+      tiClientCreationResult = tiService.addNewClient(form, trustedIntermediaryGroup.get());
+      if (tiClientCreationResult.isSuccessful()) {
+        return redirect(
+            routes.TrustedIntermediaryController.dashboard(
+                /* search= */ Optional.empty(), /* page= */ Optional.empty()));
+      }
     }
-    return redirectToDashboardWithError(getFormErrors(tiClientCreationResult.getForm().get()),tiClientCreationResult.getForm().get()); // how to add flashing with
+    // Only for EmailAddressException, the expection is thrown from the Service class and handled in
+    // the controller.
+    // For all other errors, the error is packaged in the TIClientResult object
+    catch (EmailAddressExistsException e) {
+      String trustedIntermediaryUrl = baseUrl + "/trustedIntermediaries";
+
+      return redirectToDashboardWithError(
+          "Email address already in use.  Cannot create applicant if an account already exists. "
+              + " Direct applicant to sign in and go to"
+              + " "
+              + trustedIntermediaryUrl,
+          form);
+    }
+    return redirectToDashboardWithError(
+        getFormErrors(tiClientCreationResult.getForm().get()),
+        tiClientCreationResult.getForm().get());
   }
 
   private String getFormErrors(Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     StringBuilder errorMessage = new StringBuilder();
     form.errors().stream()
-        .forEach(validationError -> errorMessage.append("\n"+ validationError.message()));
-    System.out.println(errorMessage);
+        .forEach(
+            validationError ->
+                errorMessage.append(
+                    System.getProperty("line.separator") + validationError.message()));
     return errorMessage.toString();
   }
 
   private Result redirectToDashboardWithError(
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
-            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.of(1)))
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.of(1)).url())
         .flashing("error", errorMessage)
-      .flashing("providedFirstName", form.value().get().getFirstName())
-      .flashing("providedMiddleName", form.value().get().getMiddleName())
-      .flashing("providedLastName", form.value().get().getLastName())
-      .flashing("providedEmail", form.value().get().getEmailAddress())
-      .flashing("providedDateOfBirth", form.value().get().getDob());
+        .flashing("providedFirstName", form.value().get().getFirstName())
+        .flashing("providedMiddleName", form.value().get().getMiddleName())
+        .flashing("providedLastName", form.value().get().getLastName())
+        .flashing("providedEmail", form.value().get().getEmailAddress())
+        .flashing("providedDateOfBirth", form.value().get().getDob());
   }
 }
