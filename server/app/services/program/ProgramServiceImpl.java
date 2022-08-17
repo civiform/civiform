@@ -11,6 +11,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -699,6 +701,49 @@ public final class ProgramServiceImpl implements ProgramService {
           programDefinition,
           blockDefinition.toBuilder()
               .setProgramQuestionDefinitions(programQuestionDefinitions)
+              .build());
+    } catch (IllegalPredicateOrderingException e) {
+      // Changing a question between required and optional should not affect predicates. If a
+      // question is optional and a predicate depends on its answer, the predicate will be false.
+      throw new RuntimeException(
+          "Unexpected error: updating this question invalidated a block condition");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition setProgramQuestionDefinitionPosition(
+      long programId, long blockDefinitionId, long questionDefinitionId, int newPosition)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, InvalidQuestionPositionException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+    ArrayList<ProgramQuestionDefinition> questions =
+        new ArrayList<>(blockDefinition.programQuestionDefinitions());
+    ProgramQuestionDefinition question = null;
+
+    if (newPosition < 0 || newPosition >= questions.size()) {
+      throw new InvalidQuestionPositionException(newPosition, questions.size());
+    }
+
+    for (Iterator<ProgramQuestionDefinition> it = questions.iterator(); it.hasNext(); ) {
+      question = it.next();
+      if (question.id() == questionDefinitionId) {
+        it.remove();
+        break;
+      }
+    }
+    if (question == null) {
+      throw new ProgramQuestionDefinitionNotFoundException(
+          programId, blockDefinitionId, questionDefinitionId);
+    }
+    questions.add(newPosition, question);
+    try {
+      return updateProgramDefinitionWithBlockDefinition(
+          programDefinition,
+          blockDefinition.toBuilder()
+              .setProgramQuestionDefinitions(ImmutableList.copyOf(questions))
               .build());
     } catch (IllegalPredicateOrderingException e) {
       // Changing a question between required and optional should not affect predicates. If a

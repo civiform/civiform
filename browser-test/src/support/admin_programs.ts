@@ -422,6 +422,14 @@ export class AdminPrograms {
     )
   }
 
+  selectQuestionWithinBlock(question: string) {
+    return `.cf-program-question:has-text("${question}")`
+  }
+
+  selectWithinQuestionWithinBlock(question: string, selector: string) {
+    return this.selectQuestionWithinBlock(question) + ' ' + selector
+  }
+
   async filterProgramApplications(filterFragment: string) {
     await this.page.fill('input[name="search"]', filterFragment)
     await this.page.click('button:has-text("Filter")')

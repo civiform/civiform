@@ -21,6 +21,7 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.stream.IntStream;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -347,16 +348,21 @@ public class ProgramBlockEditView extends BaseHtmlView {
     }
 
     DivTag programQuestions = div();
-    blockQuestions.forEach(
-        pqd ->
-            programQuestions.with(
-                renderQuestion(
-                    csrfTag,
-                    program.id(),
-                    blockDefinition.id(),
-                    pqd.getQuestionDefinition(),
-                    canDelete,
-                    pqd.optional())));
+    IntStream.range(0, blockQuestions.size())
+        .forEach(
+            index -> {
+              var question = blockQuestions.get(index);
+              programQuestions.with(
+                  renderQuestion(
+                      csrfTag,
+                      program.id(),
+                      blockDefinition.id(),
+                      question.getQuestionDefinition(),
+                      canDelete,
+                      question.optional(),
+                      index,
+                      blockQuestions.size()));
+            });
 
     return div()
         .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
@@ -391,7 +397,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean canRemove,
-      boolean isOptional) {
+      boolean isOptional,
+      int questionIndex,
+      int questionsCount) {
     DivTag ret =
         div()
             .withClasses(
@@ -424,9 +432,73 @@ public class ProgramBlockEditView extends BaseHtmlView {
     if (maybeOptionalToggle.isPresent()) {
       ret.with(maybeOptionalToggle.get());
     }
+    ret.with(
+        this.createMoveQuestionButtonsSection(
+            csrfTag,
+            programDefinitionId,
+            blockDefinitionId,
+            questionDefinition,
+            questionIndex,
+            questionsCount));
     return ret.with(
         deleteQuestionForm(
             csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
+  }
+
+  private DivTag createMoveQuestionButtonsSection(
+      InputTag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      int questionIndex,
+      int questionsCount) {
+    FormTag moveUp =
+        this.createMoveQuestionButton(
+            csrfTag,
+            programDefinitionId,
+            blockDefinitionId,
+            questionDefinition,
+            Math.max(0, questionIndex - 1),
+            Icons.ARROW_UPWARD,
+            /* label= */ "move up",
+            /* isInvisible= */ questionIndex == 0);
+    FormTag moveDown =
+        this.createMoveQuestionButton(
+            csrfTag,
+            programDefinitionId,
+            blockDefinitionId,
+            questionDefinition,
+            Math.min(questionsCount - 1, questionIndex + 1),
+            Icons.ARROW_DOWNWARD,
+            /* label= */ "move down",
+            /* isInvisible= */ questionIndex == questionsCount - 1);
+    return div().with(moveUp, moveDown);
+  }
+
+  private FormTag createMoveQuestionButton(
+      InputTag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      int newIndex,
+      Icons icon,
+      String label,
+      boolean isInvisible) {
+    ButtonTag button =
+        submitButton("")
+            .with(Icons.svg(icon, 48).withClasses(Styles.W_6, Styles.H_6))
+            .withClasses(AdminStyles.MOVE_BLOCK_BUTTON)
+            .attr("aria-label", label);
+    String moveAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.move(
+                programDefinitionId, blockDefinitionId, questionDefinition.getId())
+            .url();
+    return form(csrfTag)
+        .withClasses(Styles.INLINE_BLOCK, Styles.MX_1, isInvisible ? Styles.INVISIBLE : "")
+        .withMethod(HttpVerbs.POST)
+        .withAction(moveAction)
+        .with(input().isHidden().withName("position").withValue(String.valueOf(newIndex)))
+        .with(button);
   }
 
   private Optional<FormTag> optionalToggle(

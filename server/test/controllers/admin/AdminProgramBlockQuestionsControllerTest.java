@@ -17,6 +17,8 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.program.BlockDefinition;
+import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -90,5 +92,43 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
                     /* blockDefinitionId= */ 1,
                     /* questionDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void move_changesOrderOfQuestions() throws Exception {
+    // Setup.
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition addressQuestion =
+        testQuestionBank.applicantAddress().getQuestionDefinition();
+    ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
+    Program program =
+        programBuilder
+            .withBlock("block1")
+            .withOptionalQuestion(nameQuestion)
+            .withOptionalQuestion(addressQuestion)
+            .build();
+    BlockDefinition block = program.getProgramDefinition().getLastBlockDefinition();
+
+    // Execute. Move "name" question to position 1.
+    Request request =
+        fakeRequest(
+                controllers.admin.routes.AdminProgramBlockQuestionsController.move(
+                    program.id, block.id(), nameQuestion.getId()))
+            .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
+            .bodyForm(ImmutableMap.of("position", "1"))
+            .build();
+    Result result = controller.move(request, program.id, block.id(), nameQuestion.getId());
+
+    // Verify.
+    assertThat(result.status()).withFailMessage(contentAsString(result)).isEqualTo(SEE_OTHER);
+    program.refresh();
+    assertThat(
+            program
+                .getProgramDefinition()
+                .getLastBlockDefinition()
+                .programQuestionDefinitions()
+                .stream()
+                .map(ProgramQuestionDefinition::id))
+        .containsExactly(addressQuestion.getId(), nameQuestion.getId());
   }
 }
