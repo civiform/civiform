@@ -1,7 +1,7 @@
 module "ecs_cluster" {
   source  = "cn-terraform/ecs-cluster/aws"
   version = "1.0.10"
-  name    = var.app_prefix
+  name    = "${var.app_prefix}-civiform"
   tags = {
     Name = "${var.app_prefix} Civiform ECS Cluster"
     Type = "Civiform ECS Cluster"
@@ -12,7 +12,7 @@ module "ecs_cluster" {
 module "aws_cw_logs" {
   source    = "cn-terraform/cloudwatch-logs/aws"
   version   = "1.0.12"
-  logs_path = "${var.app_prefix}_ecslogs/"
+  logs_path = "${var.app_prefix}-civiformlogs/"
   tags = {
     Name = "${var.app_prefix} Civiform Cloud Watch Logs"
     Type = "Civiform Cloud Watch Logs"
@@ -22,8 +22,8 @@ module "aws_cw_logs" {
 module "td" {
   source          = "cn-terraform/ecs-fargate-task-definition/aws"
   version         = "1.0.30"
-  name_prefix     = var.app_prefix
-  container_name  = var.app_prefix
+  name_prefix     = "${var.app_prefix}-civiform"
+  container_name  = "${var.app_prefix}-civiform"
   container_image = "${var.civiform_image_repo}:${var.image_tag}"
 
   port_mappings = [
@@ -195,13 +195,13 @@ module "td" {
 module "ecs_fargate_service" {
   source                  = "cn-terraform/ecs-fargate-service/aws"
   version                 = "2.0.32"
-  name_prefix             = var.app_prefix
+  name_prefix             = "${var.app_prefix}-civiform"
   desired_count           = var.fargate_desired_task_count
   default_certificate_arn = var.ssl_certificate_arn
   ssl_policy              = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
   vpc_id                  = module.vpc.vpc_id
   task_definition_arn     = module.td.aws_ecs_task_definition_td_arn
-  container_name          = var.app_prefix
+  container_name          = "${var.app_prefix}-civiform"
   ecs_cluster_name        = module.ecs_cluster.aws_ecs_cluster_cluster_name
   ecs_cluster_arn         = module.ecs_cluster.aws_ecs_cluster_cluster_arn
   private_subnets         = module.vpc.private_subnets

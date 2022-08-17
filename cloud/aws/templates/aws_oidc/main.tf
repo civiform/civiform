@@ -2,6 +2,7 @@ locals {
   # Make db deletable on staging.
   deletion_protection = var.civiform_mode == "prod" ? true : false
   skip_final_snapshot = var.civiform_mode == "prod" ? false : true
+  force_destroy_s3    = var.civiform_mode == "prod" ? false : true
 }
 
 # TODO: split this into modules.
