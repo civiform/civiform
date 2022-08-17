@@ -4,8 +4,6 @@ node_modules
 browser-test-compose.yml
 playwright.Dockerfile
 playwright.Dockerfile.dockerignore
-
-
 .bsp/
 .Dockerfile.swp
 .dockerignore

@@ -10,11 +10,12 @@ export RECORD_VIDEO=1
 source bin/lib.sh
 docker::set_project_name_browser_tests
 
-docker volume create browser-tests-node-modules
-# The display name returned by test_oidc_provider.js is <username>@example.com.
+# Run browser tests from within the civiform-browser-test container. We map
+# full browser-test local directory to the container so that it uses local changes.
+# node_modules is already mapped to an anonymous volume so that it doesn't
+# conflict with node_modules created locally.
 docker run \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
-  -v "browser-tests-node-modules:/usr/src/civiform-browser-tests/node_modules" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   -e TEST_USER_AUTH_STRATEGY="fake-oidc" \
   -e TEST_USER_LOGIN="testuser" \
