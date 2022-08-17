@@ -149,8 +149,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** POST endpoint for changing position of a question in its block. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result move(
-      Request request, long programId, long blockDefinitionId, long questionDefinitionId)
-      throws InvalidQuestionPositionException {
+      Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
@@ -169,6 +168,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
           String.format(
               "Question ID %d not found in Block %d for program %d",
               questionDefinitionId, blockDefinitionId, programId));
+    } catch (InvalidQuestionPositionException e) {
+      return badRequest(e.getMessage());
     }
 
     return redirect(
