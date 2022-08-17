@@ -111,7 +111,8 @@ class Setup(AwsSetupTemplate):
             print('Database password has been changed.')
             self._aws_cli.set_secret_value(secret_name, new_password)
             self._aws_cli.restart_ecs_service(
-                app_prefix, f'{app_prefix}-{resources.FARGATE_SERVICE}')
+                f'{app_prefix}-{resources.CLUSTER}',
+                f'{app_prefix}-{resources.FARGATE_SERVICE}')
             print(f'ECS service has been restarted to pickup the new password.')
         else:
             print('Password has already been changed. Not touching it.')
