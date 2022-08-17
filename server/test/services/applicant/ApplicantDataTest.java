@@ -67,10 +67,16 @@ public class ApplicantDataTest {
   @Test
   public void checkDateOfBirth() {
     ApplicantData data = new ApplicantData();
-    String sampleDOB = "2022-01-05";
-    data.setDateOfBirth(sampleDOB);
-    assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDOB);
+    String sampleDob = "2022-01-05";
+    data.setDateOfBirth(sampleDob);
+    assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
     assertThat(data.asJsonString())
         .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":1641340800000}}");
+  }
+
+  @Test
+  public void applicantsWithoutDobReturnsOptionalEmpty() {
+    ApplicantData applicantData = new ApplicantData();
+    assertThat(applicantData.getDateOfBirth()).isEqualTo(Optional.empty());
   }
 }

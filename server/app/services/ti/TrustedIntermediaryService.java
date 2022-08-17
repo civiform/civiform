@@ -27,6 +27,10 @@ import services.DateConverter;
 public final class TrustedIntermediaryService {
   private final UserRepository userRepository;
   private final DateConverter dateConverter;
+  public static final String FORM_FIELD_NAME_FIRST_NAME = "firstName";
+  public static final String FORM_FIELD_NAME_LAST_NAME = "lastName";
+  public static final String FORM_FIELD_NAME_EMAIL_ADDRESS = "emailAddress";
+  public static final String FORM_FIELD_NAME_DOB = "dob";
 
   @Inject
   public TrustedIntermediaryService(UserRepository userRepository, DateConverter dateConverter) {
@@ -50,7 +54,7 @@ public final class TrustedIntermediaryService {
     } catch (EmailAddressExistsException e) {
       return TIClientCreationResult.failure(
           form.withError(
-              "emailAddress",
+              FORM_FIELD_NAME_EMAIL_ADDRESS,
               "Email address already in use. Cannot create applicant if an account already"
                   + " exists."));
     }
@@ -60,7 +64,7 @@ public final class TrustedIntermediaryService {
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateEmailAddress(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     if (Strings.isNullOrEmpty(form.value().get().getEmailAddress())) {
-      return form.withError("emailAddress", "Email Address required");
+      return form.withError(FORM_FIELD_NAME_EMAIL_ADDRESS, "Email Address required");
     }
     return form;
   }
@@ -68,7 +72,7 @@ public final class TrustedIntermediaryService {
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateFirstName(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     if (Strings.isNullOrEmpty(form.value().get().getFirstName())) {
-      return form.withError("firstName", "First name required");
+      return form.withError(FORM_FIELD_NAME_FIRST_NAME, "First name required");
     }
     return form;
   }
@@ -76,7 +80,7 @@ public final class TrustedIntermediaryService {
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateLastName(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     if (Strings.isNullOrEmpty(form.value().get().getLastName())) {
-      return form.withError("lastName", "Last name required");
+      return form.withError(FORM_FIELD_NAME_LAST_NAME, "Last name required");
     }
     return form;
   }
@@ -84,16 +88,16 @@ public final class TrustedIntermediaryService {
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateDateOfBirth(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     if (Strings.isNullOrEmpty(form.value().get().getDob())) {
-      return form.withError("dob", "Date of Birth required");
+      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth required");
     }
     LocalDate currentDob = null;
     try {
       currentDob = dateConverter.parseIso8601DateToLocalDate(form.value().get().getDob());
     } catch (DateTimeParseException e) {
-      return form.withError("dob", "Date of Birth must be in MM-dd-yyyy format");
+      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth must be in MM-dd-yyyy format");
     }
     if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
-      return form.withError("dob", "Date of Birth should be in the past");
+      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth should be in the past");
     }
     return form;
   }

@@ -1,9 +1,12 @@
 package services;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assert.assertThrows;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import org.junit.Test;
 
 public class DateConverterTest {
@@ -17,5 +20,19 @@ public class DateConverterTest {
     String formatted = dateConverter.formatIso8601Date(parsed);
 
     assertThat(formatted).isEqualTo(original);
+  }
+
+  @Test
+  public void testDateTimeParseExpectionIsGenerated() {
+    String inputDate = "2012-20-20";
+    assertThrows(
+        DateTimeParseException.class, () -> dateConverter.parseIso8601DateToLocalDate(inputDate));
+  }
+
+  @Test
+  public void testIso8601DateParser() {
+    String inputDate = "2022-01-01";
+    LocalDate result = dateConverter.parseIso8601DateToLocalDate(inputDate);
+    assertThat(inputDate).isEqualTo(result.toString());
   }
 }

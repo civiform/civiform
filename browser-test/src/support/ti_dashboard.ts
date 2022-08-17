@@ -1,9 +1,11 @@
 import {Page} from 'playwright'
 
-// This class is to test Civiform in the TI path
-// It impements functionality to create a new client,Test if the given client is present in the dashboard
-// It also have a ClientInformation Interface to easily store clients
-// It requires the tests to be logged as a TI
+/*
+ * This class is to test Civiform in the TI path
+ * It impements functionality to create a new client,Test if the given client is present in the dashboard
+ * It also have a ClientInformation Interface to easily store clients
+ * It requires the tests to be logged as a TI
+ */
 export class TIDashboard {
   public page!: Page
 
@@ -41,8 +43,10 @@ export class TIDashboard {
   }
 }
 
-// This class helps to test the TrustesIntermediary dashboard changes
-// We should be logged as a TI to use this class
+/*
+ * This class helps to test the TrustesIntermediary dashboard changes
+ * We should be logged as a TI to use this class
+ */
 export interface ClientInformation {
   emailAddress: string
   firstName: string
