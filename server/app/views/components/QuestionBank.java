@@ -84,7 +84,7 @@ public class QuestionBank {
         div().withClasses(Styles.RELATIVE, Styles.GRID, Styles.GAP_6, Styles.PX_5, Styles.PY_6);
     innerDiv.with(contentDiv);
 
-    H1Tag headerDiv = h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
+    H1Tag headerDiv = h1("Add Question").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
     contentDiv.withId("question-bank-questions").with(headerDiv);
 
     InputTag filterInput =
@@ -92,7 +92,7 @@ public class QuestionBank {
             .withId("question-bank-filter")
             .withType("text")
             .withName("questionFilter")
-            .withPlaceholder("Filter questions")
+            .withPlaceholder("Search questions")
             .withClasses(
                 Styles.H_10,
                 Styles.PX_10,
