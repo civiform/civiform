@@ -35,6 +35,7 @@ sbt_cache/*
 /browser-test/sbt_cache/*
 !/browser-test/sbt_cache/.keep
 test-support/sbt_cache/
+diff_output/
 
 */.classpath
 */.vscode

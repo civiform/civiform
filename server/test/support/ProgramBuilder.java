@@ -133,6 +133,11 @@ public class ProgramBuilder {
     return this;
   }
 
+  public ProgramBuilder withLocalizedDescription(Locale locale, String description) {
+    builder.addLocalizedDescription(locale, description);
+    return this;
+  }
+
   public ProgramBuilder withStatusDefinitions(StatusDefinitions statusDefinitions) {
     builder.setStatusDefinitions(statusDefinitions);
     return this;

@@ -1003,39 +1003,168 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(secondNewDraft.id()).isEqualTo(newDraft.id());
   }
 
+  private static final String STATUS_WITH_EMAIL_ENGLISH_NAME = "status-with-email";
+  private static final String STATUS_WITH_EMAIL_ENGLISH_EMAIL = "some email";
+  private static final String STATUS_WITH_EMAIL_FRENCH_NAME = "status-with-email-french";
+  private static final String STATUS_WITH_EMAIL_FRENCH_EMAIL = "some email in French";
+
+  private static final StatusDefinitions.Status STATUS_WITH_EMAIL =
+      StatusDefinitions.Status.builder()
+          .setStatusText(STATUS_WITH_EMAIL_ENGLISH_NAME)
+          .setLocalizedStatusText(
+              LocalizedStrings.withDefaultValue(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                  .updateTranslation(Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_NAME))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.withDefaultValue(STATUS_WITH_EMAIL_ENGLISH_EMAIL)
+                      .updateTranslation(Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_EMAIL)))
+          .build();
+
+  private static final String STATUS_WITH_NO_EMAIL_ENGLISH_NAME = "status-with-no-email";
+  private static final String STATUS_WITH_NO_EMAIL_FRENCH_NAME = "status-with-no-email-french";
+
+  private static final StatusDefinitions.Status STATUS_WITH_NO_EMAIL =
+      StatusDefinitions.Status.builder()
+          .setStatusText(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+          .setLocalizedStatusText(
+              LocalizedStrings.withDefaultValue(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                  .updateTranslation(Locale.FRENCH, STATUS_WITH_NO_EMAIL_FRENCH_NAME))
+          .build();
+
   @Test
   public void updateLocalizations_addsNewLocale() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
+            .build();
 
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("German Name")
+            .setLocalizedDisplayDescription("German Description")
+            .setStatuses(
+                ImmutableList.of(
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(Optional.of("german-status-with-email"))
+                        .setLocalizedEmailBody(Optional.of("german email body"))
+                        .build(),
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
+                        .build()))
+            .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateLocalization(program.id, Locale.GERMAN, "German Name", "German Description");
+        ps.updateLocalization(program.id, Locale.GERMAN, updateData);
 
     assertThat(result.isError()).isFalse();
     ProgramDefinition definition = result.getResult();
     assertThat(definition.localizedName().get(Locale.GERMAN)).isEqualTo("German Name");
     assertThat(definition.localizedDescription().get(Locale.GERMAN))
         .isEqualTo("German Description");
+    assertThat(definition.statusDefinitions().getStatuses())
+        .isEqualTo(
+            ImmutableList.of(
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUS_WITH_EMAIL.statusText())
+                    .setLocalizedStatusText(
+                        STATUS_WITH_EMAIL
+                            .localizedStatusText()
+                            .updateTranslation(Locale.GERMAN, "german-status-with-email"))
+                    .setLocalizedEmailBodyText(
+                        Optional.of(
+                            STATUS_WITH_EMAIL
+                                .localizedEmailBodyText()
+                                .get()
+                                .updateTranslation(Locale.GERMAN, "german email body")))
+                    .build(),
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+                    .setLocalizedStatusText(
+                        STATUS_WITH_NO_EMAIL
+                            .localizedStatusText()
+                            .updateTranslation(Locale.GERMAN, "german-status-with-no-email"))
+                    .build()));
   }
 
   @Test
   public void updateLocalizations_updatesExistingLocale() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("English name", "English description").build();
+    Program program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
+            .build();
 
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setStatuses(
+                ImmutableList.of(
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(
+                            Optional.of(STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
+                        .setLocalizedEmailBody(
+                            Optional.of(STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated"))
+                        .build(),
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(
+                            Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
+                        .build()))
+            .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateLocalization(program.id, Locale.US, "new name", "new description");
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
 
     assertThat(result.isError()).isFalse();
     ProgramDefinition definition = result.getResult();
-    assertThat(definition.localizedName().get(Locale.US)).isEqualTo("new name");
-    assertThat(definition.localizedDescription().get(Locale.US)).isEqualTo("new description");
+    assertThat(definition.localizedName().get(Locale.FRENCH)).isEqualTo("new French name");
+    assertThat(definition.localizedDescription().get(Locale.FRENCH))
+        .isEqualTo("new French description");
+    assertThat(definition.statusDefinitions().getStatuses())
+        .isEqualTo(
+            ImmutableList.of(
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUS_WITH_EMAIL.statusText())
+                    .setLocalizedStatusText(
+                        STATUS_WITH_EMAIL
+                            .localizedStatusText()
+                            .updateTranslation(
+                                Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
+                    .setLocalizedEmailBodyText(
+                        Optional.of(
+                            STATUS_WITH_EMAIL
+                                .localizedEmailBodyText()
+                                .get()
+                                .updateTranslation(
+                                    Locale.FRENCH, STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated")))
+                    .build(),
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+                    .setLocalizedStatusText(
+                        STATUS_WITH_NO_EMAIL
+                            .localizedStatusText()
+                            .updateTranslation(
+                                Locale.FRENCH, STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
+                    .build()));
   }
 
   @Test
   public void updateLocalizations_returnsErrorMessages() throws Exception {
     Program program = ProgramBuilder.newDraftProgram().build();
 
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("")
+            .setLocalizedDisplayDescription("")
+            .setStatuses(ImmutableList.of())
+            .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateLocalization(program.id, Locale.US, "", "");
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
 
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
@@ -1046,9 +1175,165 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_programNotFound_throws() {
-    assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.US, "", ""))
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("a name")
+            .setLocalizedDisplayDescription("a description")
+            .setStatuses(ImmutableList.of())
+            .build();
+    assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID: 1000");
+  }
+
+  @Test
+  public void updateLocalizations_allowsClearingStatusFields() throws Exception {
+    Program program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setStatuses(
+                ImmutableList.of(
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .build(),
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isFalse();
+    ProgramDefinition definition = result.getResult();
+    assertThat(definition.localizedName().get(Locale.FRENCH)).isEqualTo("new French name");
+    assertThat(definition.localizedDescription().get(Locale.FRENCH))
+        .isEqualTo("new French description");
+    assertThat(definition.statusDefinitions().getStatuses())
+        .isEqualTo(
+            ImmutableList.of(
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUS_WITH_EMAIL.statusText())
+                    .setLocalizedStatusText(
+                        STATUS_WITH_EMAIL
+                            .localizedStatusText()
+                            .updateTranslation(Locale.FRENCH, Optional.empty()))
+                    .setLocalizedEmailBodyText(
+                        Optional.of(
+                            STATUS_WITH_EMAIL
+                                .localizedEmailBodyText()
+                                .get()
+                                .updateTranslation(Locale.FRENCH, Optional.empty())))
+                    .build(),
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+                    .setLocalizedStatusText(
+                        STATUS_WITH_NO_EMAIL
+                            .localizedStatusText()
+                            .updateTranslation(Locale.FRENCH, Optional.empty()))
+                    .build()));
+  }
+
+  @Test
+  public void updateLocalizations_providesUnrecognizedStatuses_throws() {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("German Name")
+            .setLocalizedDisplayDescription("German Description")
+            .setStatuses(
+                ImmutableList.of(
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate("unrecognized-status")
+                        .setLocalizedStatusText(Optional.of("unrecognized-status"))
+                        .setLocalizedEmailBody(Optional.of("unrecognized-status-email-body"))
+                        .build(),
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(Optional.of("german-status-with-email"))
+                        .setLocalizedEmailBody(Optional.of("german email body"))
+                        .build(),
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
+                        .build()))
+            .build();
+
+    assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
+        .isInstanceOf(OutOfDateStatusesException.class);
+  }
+
+  @Test
+  public void updateLocalizations_doesNotProvideStatus_throws() {
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("German Name")
+            .setLocalizedDisplayDescription("German Description")
+            .setStatuses(
+                ImmutableList.of(
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(Optional.of("german-status-with-email"))
+                        .setLocalizedEmailBody(Optional.of("german email body"))
+                        .build()))
+            .build();
+
+    assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
+        .isInstanceOf(OutOfDateStatusesException.class);
+  }
+
+  @Test
+  public void updateLocalizations_emailProvidedInUpdateWithNoEmailInConfigure_throws() {
+    Program program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setStatuses(
+                ImmutableList.of(
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(
+                            Optional.of(STATUS_WITH_EMAIL_FRENCH_NAME + "-updated"))
+                        .setLocalizedEmailBody(
+                            Optional.of(STATUS_WITH_EMAIL_FRENCH_EMAIL + "-updated"))
+                        .build(),
+                    LocalizationUpdate.StatusUpdate.builder()
+                        .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
+                        .setLocalizedStatusText(
+                            Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
+                        .setLocalizedEmailBody(Optional.of("a localized email"))
+                        .build()))
+            .build();
+
+    assertThatThrownBy(() -> ps.updateLocalization(program.id, Locale.FRENCH, updateData))
+        .isInstanceOf(OutOfDateStatusesException.class);
   }
 
   @Test
