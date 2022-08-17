@@ -1,4 +1,4 @@
-import {Frame, Page} from 'playwright'
+import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {clickAndWaitForModal, waitForPageJsLoad} from './wait'
 import {AdminProgramStatuses} from './admin_program_statuses'
@@ -437,18 +437,27 @@ export class AdminPrograms {
   }
 
   async viewApplicationForApplicant(applicantName: string) {
-    await this.page.click(
-      this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'),
-    )
-    await this.waitForApplicationFrame()
+    await Promise.all([
+      this.waitForApplicationFrame(),
+      this.page.click(
+        this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'),
+      )
+    ])
   }
 
-  applicationFrame() {
-    return this.page.frameLocator('#application-display-frame')
+  private static APPLICATION_DISPLAY_FRAME_NAME = 'application-display-frame'
+
+  applicationFrameLocator() {
+    return this.page.frameLocator(`iframe[name="${AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME}"]`)
   }
 
   async waitForApplicationFrame() {
-    await waitForPageJsLoad(this.page.frames()[0])
+    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    if (!frame) {
+      throw new Error('Expected an application frame')
+    }
+    await frame.waitForNavigation()
+    await waitForPageJsLoad(frame)
   }
 
   async expectApplicationAnswers(
@@ -456,7 +465,7 @@ export class AdminPrograms {
     questionName: string,
     answer: string,
   ) {
-    const blockText = await this.applicationFrame()
+    const blockText = await this.applicationFrameLocator()
       .locator(this.selectApplicationBlock(blockName))
       .innerText()
 
@@ -466,30 +475,23 @@ export class AdminPrograms {
 
   async expectApplicationAnswerLinks(blockName: string, questionName: string) {
     expect(
-      await this.applicationFrame()
+      await this.applicationFrameLocator()
         .locator(this.selectApplicationBlock(blockName))
         .innerText(),
     ).toContain(questionName)
     expect(
-      await this.applicationFrame()
+      await this.applicationFrameLocator()
         .locator(this.selectWithinApplicationBlock(blockName, 'a'))
         .getAttribute('href'),
     ).not.toBeNull()
   }
 
   async isStatusSelectorVisible(): Promise<boolean> {
-    return this.applicationFrame().locator(this.statusSelector()).isVisible()
+    return this.applicationFrameLocator().locator(this.statusSelector()).isVisible()
   }
 
   async getStatusOption(): Promise<string> {
-    return this.applicationFrame().locator(this.statusSelector()).inputValue()
-  }
-
-  async expectUpdateStatusToast() {
-    const toastMessages = await this.applicationFrame()
-      .locator('#toast-container')
-      .innerText()
-    expect(toastMessages).toContain('Application status updated')
+    return this.applicationFrameLocator().locator(this.statusSelector()).inputValue()
   }
 
   async setStatusOption({
@@ -499,11 +501,15 @@ export class AdminPrograms {
     value: string
     shouldConfirmDialog: boolean
   }) {
-    const frame = this.page.frame('application-display-frame')! as Frame
-
-    let dialogShownResolver: (value: unknown) => void
-    const dialogShownPromise = new Promise((resolve) => {
-      dialogShownResolver = resolve
+    // Promises are spawned off asynchronously since:
+    // * waitForNavigation must be called prior to the action that would trigger navigation
+    //    (e.g. selecting a status)
+    // * The confirmation dialog won't be shown until an option has been selected.
+    // Promises are spawned off without await since
+    // waiting for a frame navigation
+    let resolveConfirmDialogShown: (value: unknown) => void
+    const confirmDialogShownPromise = new Promise((resolve) => {
+      resolveConfirmDialogShown = resolve
     })
     this.page.once('dialog', async (dialog) => {
       if (shouldConfirmDialog) {
@@ -511,23 +517,26 @@ export class AdminPrograms {
       } else {
         await dialog.dismiss()
       }
-      dialogShownResolver(true)
+      resolveConfirmDialogShown(true)
     })
-    const promises = [dialogShownPromise]
+    const promises = [confirmDialogShownPromise]
     if (shouldConfirmDialog) {
-      promises.push(frame.waitForNavigation())
+      // Confirming the dialog triggers a page load at the same URL.
+      promises.push(this.waitForApplicationFrame())
     }
     promises.push(
-      this.applicationFrame()
+      this.applicationFrameLocator()
         .locator(this.statusSelector())
         .selectOption(value),
     )
     await Promise.all(promises)
+  }
 
-    if (shouldConfirmDialog) {
-      // A page navigation occurred. Wait for the page content to load
-      await waitForPageJsLoad(frame)
-    }
+  async expectUpdateStatusToast() {
+    const toastMessages = await this.applicationFrameLocator()
+      .locator('#toast-container')
+      .innerText()
+    expect(toastMessages).toContain('Application status updated')
   }
 
   private statusSelector() {

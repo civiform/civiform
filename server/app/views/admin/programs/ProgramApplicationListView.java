@@ -108,7 +108,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 Styles.MT_6, StyleUtils.responsiveLarge(Styles.MT_12), Styles.W_FULL, Styles.H_FULL)
             .with(
                 iframe()
-                    .withId("application-display-frame")
                     .withName("application-display-frame")
                     .withClasses(Styles.W_FULL, Styles.H_FULL));
 
