@@ -1,8 +1,8 @@
 class AdminApplicationView {
   private static APPLICATION_STATUS_SELECTOR =
     '.cf-program-admin-status-selector'
-  private static CONFIRM_MODAL_ID = 'confirm-status-modal'
-  private static CONFIRM_MODAL_TRIGGER_BUTTON_ID = 'confirm-status-modal-button'
+  private static CONFIRM_MODAL_FOR_DATA_ATTRIBUTE =
+    'data-status-update-confirm-for-status'
 
   constructor() {
     this.registerStatusSelectorEventListener()
@@ -34,31 +34,24 @@ class AdminApplicationView {
     })
   }
 
-  private async showConfirmStatusChangeModal(
-    newValue: string,
-  ): Promise<boolean> {
-    const confirmModal = this._assertNotNull(
-      document.getElementById(
-        AdminApplicationView.CONFIRM_MODAL_ID,
-      ) as HTMLElement | null,
-      'confirmation modal',
+  private showConfirmStatusChangeModal(newValue: string) {
+    const statusModalTriggers = Array.from(
+      document.querySelectorAll(
+        `[${AdminApplicationView.CONFIRM_MODAL_FOR_DATA_ATTRIBUTE}]`,
+      ),
     )
-    // TODO(clouser): Update the dynamic status.
-    const confirmModalContentToUpdate =
-      confirmModal.querySelectorAll('[data-status-text]')
-    if (confirmModalContentToUpdate.length > 0) {
-      throw new Error('unexpected content')
-    }
-
-    const confirmModalButton = this._assertNotNull(
-      document.getElementById(
-        AdminApplicationView.CONFIRM_MODAL_TRIGGER_BUTTON_ID,
-      ) as HTMLButtonElement | null,
-      'confirmation modal trigger button',
+    const relevantStatusModalTrigger = this._assertNotNull(
+      statusModalTriggers.find((statusModalTrigger) => {
+        return (
+          newValue ===
+          statusModalTrigger.getAttribute(
+            AdminApplicationView.CONFIRM_MODAL_FOR_DATA_ATTRIBUTE,
+          )
+        )
+      }) as HTMLButtonElement | null,
+      'confirmation modal button',
     )
-    confirmModalButton.click()
-    console.log('showed modal')
-    return true
+    relevantStatusModalTrigger.click()
   }
 
   _assertNotNull<T>(value: T | null | undefined, description: string): T {

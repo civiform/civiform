@@ -14,12 +14,12 @@ import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
 
 import annotations.BindingAnnotations.EnUsLang;
-import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.OptionTag;
@@ -84,67 +84,18 @@ public final class ProgramApplicationView extends BaseHtmlView {
       blockToAnswers.put(answerBlock, answer);
     }
 
-    FormTag modalContent =
-        form()
-            .withAction(
-                controllers.admin.routes.AdminApplicationController.updateStatus(
-                        programId, application.id)
-                    .url())
-            .withMethod("POST")
-            .withClasses(Styles.PX_6, Styles.PY_2)
-            .with(
-                makeCsrfTokenInputTag(request),
-                p().with(
-                        span("Status Change: "),
-                        span("TODO(current status) -> ").withClass(Styles.FONT_SEMIBOLD),
-                        span("")
-                            // TODO(clouser): attr
-                            .withClass(Styles.FONT_SEMIBOLD),
-                        span(" (visible to applicant)")),
-                p().with(
-                        span("Applicant: "),
-                        span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
-                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)))
-            .with(
-                div()
-                    .withClasses(Styles.MT_4)
-                    .withCondClass(
-                        Strings.isNullOrEmpty(
-                            application.getApplicant().getAccount().getEmailAddress()),
-                        Styles.HIDDEN)
-                    .with(
-                        label()
-                            .with(
-                                input()
-                                    .withType("checkbox")
-                                    .withName("sendEmail")
-                                    .withCondChecked(
-                                        !Strings.isNullOrEmpty(
-                                            application
-                                                .getApplicant()
-                                                .getAccount()
-                                                .getEmailAddress()))
-                                    .withClasses(BaseStyles.CHECKBOX),
-                                span("Notify "),
-                                span(applicantNameWithApplicationId)
-                                    .withClass(Styles.FONT_SEMIBOLD),
-                                span(" of this change at "),
-                                span(application.getApplicant().getAccount().getEmailAddress())
-                                    .withClass(Styles.FONT_SEMIBOLD))))
-            .with(
-                div()
-                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
-                    .with(
-                        div().withClass(Styles.FLEX_GROW),
-                        button("Cancel")
-                            .withClasses(
-                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
-                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
-    Modal modal =
-        Modal.builder("confirm-status-modal", modalContent)
-            .setModalTitle("Change the status of this application?")
-            .setWidth(Width.THREE_FOURTHS)
-            .build();
+    ImmutableList<Modal> statusUpdateConfirmationModals =
+        statusDefinitions.getStatuses().stream()
+            .map(
+                status ->
+                    renderStatusUpdateConfirmationModal(
+                        programId,
+                        programName,
+                        application,
+                        applicantNameWithApplicationId,
+                        status,
+                        request))
+            .collect(ImmutableList.toImmutableList());
 
     DivTag contentDiv =
         div()
@@ -164,13 +115,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        renderStatusOptionsSelector(request, statusDefinitions),
-                        div().withClass(Styles.HIDDEN).with(modal.getButton()))
+                        renderStatusOptionsSelector(request, statusDefinitions))
                     .with(renderDownloadButton(programId, application.id)))
             .with(
                 each(
                     blocks,
-                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))));
+                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))))
+            .with(each(statusUpdateConfirmationModals, Modal::getButton));
 
     HtmlBundle htmlBundle =
         layout
@@ -179,7 +130,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addMainContent(contentDiv)
             .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
             .addMainStyles(Styles.W_SCREEN)
-            .addModals(modal)
+            .addModals(statusUpdateConfirmationModals)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
     Optional<String> maybeSuccessMessage = request.flash().get("success");
     if (maybeSuccessMessage.isPresent()) {
@@ -304,5 +255,74 @@ public final class ProgramApplicationView extends BaseHtmlView {
               dropdownTag.with(optionTag);
             });
     return container.with(dropdownTag);
+  }
+
+  private Modal renderStatusUpdateConfirmationModal(
+      long programId,
+      String programName,
+      Application application,
+      String applicantNameWithApplicationId,
+      StatusDefinitions.Status status,
+      Http.Request request) {
+    Optional<String> maybeApplicantEmail =
+        Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
+    boolean showEmailSelection =
+        status.localizedEmailBodyText().isPresent() && maybeApplicantEmail.isPresent();
+
+    FormTag modalContent =
+        form()
+            .withAction(
+                controllers.admin.routes.AdminApplicationController.updateStatus(
+                        programId, application.id)
+                    .url())
+            .withMethod("POST")
+            .withClasses(Styles.PX_6, Styles.PY_2)
+            .with(
+                makeCsrfTokenInputTag(request),
+                p().with(
+                        span("Status Change: "),
+                        span("TODO(current status) -> ").withClass(Styles.FONT_SEMIBOLD),
+                        span(status.statusText()).withClass(Styles.FONT_SEMIBOLD),
+                        span(" (visible to applicant)")),
+                p().with(
+                        span("Applicant: "),
+                        span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
+                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)))
+            .with(
+                div()
+                    .withClasses(Styles.MT_4)
+                    .withCondClass(!showEmailSelection, Styles.HIDDEN)
+                    .with(
+                        label()
+                            .with(
+                                input()
+                                    .withType("checkbox")
+                                    .withName("sendEmail")
+                                    .withCondChecked(showEmailSelection)
+                                    .withClasses(BaseStyles.CHECKBOX),
+                                span("Notify "),
+                                span(applicantNameWithApplicationId)
+                                    .withClass(Styles.FONT_SEMIBOLD),
+                                span(" of this change at "),
+                                span(maybeApplicantEmail.orElse(""))
+                                    .withClass(Styles.FONT_SEMIBOLD))))
+            .with(
+                div()
+                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        button("Cancel")
+                            .withClasses(
+                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+    ButtonTag triggerButton =
+        button("")
+            .withClasses(Styles.HIDDEN)
+            .withData("status-update-confirm-for-status", status.statusText());
+    return Modal.builder(Modal.randomModalId(), modalContent)
+        .setModalTitle("Change the status of this application?")
+        .setWidth(Width.THREE_FOURTHS)
+        .setTriggerButtonContent(triggerButton)
+        .build();
   }
 }
