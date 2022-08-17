@@ -106,7 +106,21 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * Returns a div containing the default text to be translated. This allows for admins to more
    * easily identify which text to translate.
    */
-  protected final DivTag defaultLocaleTextHint(LocalizedStrings localizedStrings) {
+  protected final DivTag fieldWithDefaultLocaleTextHint(
+      DomContent field, LocalizedStrings localizedStrings) {
+    return div()
+        .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_2)
+        .with(
+            field,
+            div()
+                .withClasses(Styles.PX_2, Styles.PY_1, Styles.TEXT_SM, Styles.BG_GRAY_100)
+                .with(
+                    p("English text:").withClass(Styles.FONT_MEDIUM),
+                    p().with(defaultLocaleTextContent(localizedStrings))));
+  }
+
+  private final ImmutableList<DomContent> defaultLocaleTextContent(
+      LocalizedStrings localizedStrings) {
     // Convert newlines to break statements.
     ImmutableList<DomContent> content =
         Splitter.on("\n")
@@ -114,9 +128,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
             .map(s -> ImmutableList.of(span(s), br()))
             .flatMap(ImmutableList::stream)
             .collect(ImmutableList.toImmutableList());
-    return div()
-        .withClasses(Styles.PX_2, Styles.PY_1, Styles.TEXT_SM, Styles.BG_GRAY_100)
-        .with(p("English text:").withClass(Styles.FONT_MEDIUM), p().with(content));
+    return content;
   }
 
   /** Creates a fieldset wrapping several form fields to be rendered. */
