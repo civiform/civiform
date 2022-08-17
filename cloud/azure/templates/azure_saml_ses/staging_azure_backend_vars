@@ -2,3 +2,4 @@ resource_group_name  = "tfstate"
 storage_account_name = "tfstate7307"
 container_name       = "tfstate"
 key                  = "terraform.tfstate"
+applicant_oidc_provider_logout = true
