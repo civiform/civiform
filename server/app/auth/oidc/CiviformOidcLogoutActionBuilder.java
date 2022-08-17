@@ -56,8 +56,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   }
 
   /** Helper function for retriving values from the application.conf, */
-  protected static final Optional<String> getConfigurationValue(
-      Config civiformConfiguration, String name) {
+  static final Optional<String> getConfigurationValue(Config civiformConfiguration, String name) {
     if (civiformConfiguration.hasPath(name)) {
       return Optional.ofNullable(civiformConfiguration.getString(name));
     }
