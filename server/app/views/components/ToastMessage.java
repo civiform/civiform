@@ -1,5 +1,6 @@
 package views.components;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.specialized.DivTag;
@@ -33,8 +34,8 @@ public class ToastMessage {
   private boolean canIgnore = false;
 
   public ToastMessage(String message, ToastType severity) {
-    this.message = message;
-    this.type = severity;
+    this.message = checkNotNull(message);
+    this.type = checkNotNull(severity);
     this.setDismissible(!ToastType.ERROR.equals(severity));
   }
 

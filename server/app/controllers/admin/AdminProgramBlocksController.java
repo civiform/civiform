@@ -115,7 +115,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
-      return renderEditViewWithMessage(request, program, block, Optional.empty());
+      return renderEditViewWithMessage(request, program, block, /* message= */ Optional.empty());
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }

@@ -1,7 +1,7 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.components.ToastMessage.ToastType.*;
+import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;

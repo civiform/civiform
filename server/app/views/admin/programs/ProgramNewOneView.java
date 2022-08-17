@@ -26,7 +26,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
   }
 
   public Content render(Request request) {
-    return render(request, new ProgramForm(), Optional.empty());
+    return render(request, new ProgramForm(), /* message= */ Optional.empty());
   }
 
   public Content render(Request request, ProgramForm programForm, Optional<ToastMessage> message) {
