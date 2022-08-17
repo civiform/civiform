@@ -88,7 +88,7 @@ public final class TrustedIntermediaryService {
     }
     LocalDate currentDob = null;
     try {
-      currentDob = dateConverter.parseStringToLocalDate(form.value().get().getDob());
+      currentDob = dateConverter.parseIso8601DateToLocalDate(form.value().get().getDob());
     } catch (DateTimeParseException e) {
       return form.withError("dob", "Date of Birth must be in MM-dd-yyyy format");
     }

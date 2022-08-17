@@ -33,9 +33,12 @@ public class DateConverter {
   }
 
   /**
-   * Converts a DateString in "YYYY-MM-dd" format to LocalDate type Throws DateTimeParseException
+   * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
+   * LocalDate}
+   *
+   * @throws DateTimeParseException if dateString is not well-formed.
    */
-  public LocalDate parseStringToLocalDate(String dateString) {
+  public LocalDate parseIso8601DateToLocalDate(String dateString) {
     return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
   }
   /** Returns the current LocalDate based on the specified time-zone(zoneId) */
@@ -49,7 +52,7 @@ public class DateConverter {
    * @throws DateTimeParseException if dateString is not well-formed.
    */
   public Instant parseIso8601DateToStartOfDateInstant(String dateString) {
-    return parseStringToLocalDate(dateString).atStartOfDay(zoneId).toInstant();
+    return parseIso8601DateToLocalDate(dateString).atStartOfDay(zoneId).toInstant();
   }
 
   /** Formats an {@link Instant} to a date and time in the local time zone. */
