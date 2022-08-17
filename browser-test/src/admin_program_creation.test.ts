@@ -87,40 +87,40 @@ describe('program creation', () => {
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
-    const address = 'apc-address'
-    const name = 'apc-name'
-    const text = 'apc-text'
-    await adminQuestions.addAddressQuestion({questionName: address})
-    await adminQuestions.addNameQuestion({questionName: name})
-    await adminQuestions.addTextQuestion({questionName: text})
+    const color = 'favorite-color'
+    const movie = 'favorite-movie'
+    const song = 'favorite-song'
+    for (const question of [movie, color, song]) {
+      await adminQuestions.addTextQuestion({questionName: question})
+    }
 
-    const programName = 'apc program'
+    const programName = 'apc program 2'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
-    for (const question of [name, address, text]) {
+    for (const question of [movie, color, song]) {
       await page.click(`button:text("${question}")`)
     }
     // verify original order
-    await expectQuestionsOrderWithinBlock(page, [name, address, text])
+    await expectQuestionsOrderWithinBlock(page, [movie, color, song])
 
-    // move name question down
+    // move movie question down
     await page.click(
       adminPrograms.selectWithinQuestionWithinBlock(
-        name,
+        movie,
         '[aria-label="move down"]',
       ),
     )
-    await expectQuestionsOrderWithinBlock(page, [address, name, text])
+    await expectQuestionsOrderWithinBlock(page, [color, movie, song])
 
-    // move text question up
+    // move song question up
     await page.click(
       adminPrograms.selectWithinQuestionWithinBlock(
-        text,
+        song,
         '[aria-label="move up"]',
       ),
     )
-    await expectQuestionsOrderWithinBlock(page, [address, text, name])
+    await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
     await validateScreenshot(page)
     await endSession(browser)
