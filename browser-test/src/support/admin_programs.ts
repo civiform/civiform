@@ -1,4 +1,4 @@
-import {Page} from 'playwright'
+import {ElementHandle, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
@@ -508,49 +508,35 @@ export class AdminPrograms {
       .inputValue()
   }
 
-  async setStatusOption({
-    value,
-    shouldConfirmDialog,
-    expectEmailCheckbox,
-    sendEmail,
-  }: {
-    value: string
-    shouldConfirmDialog: boolean
-    expectEmailCheckbox: boolean
-    sendEmail: boolean
-  }) {
+  async setStatusOptionAndConfirmModal(status: string) {
+    const confirmationModal = await this.setStatusOptionAndAwaitModal(status)
+
+    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
+    // to taking the action that would trigger navigation.
+    const confirmButton = (await confirmationModal.$('text=Confirm'))!
+    await Promise.all([this.waitForApplicationFrame(), confirmButton.click()])
+  }
+
+  async setStatusOptionAndDismissModal(status: string) {
+    await this.setStatusOptionAndAwaitModal(status)
+    return dismissModal(
+      this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)!,
+    )
+  }
+
+  private async setStatusOptionAndAwaitModal(
+    status: string,
+  ): Promise<ElementHandle<HTMLElement>> {
     await this.applicationFrameLocator()
       .locator(this.statusSelector())
-      .selectOption(value)
+      .selectOption(status)
 
     const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
     if (!frame) {
       throw new Error('Expected an application frame')
     }
 
-    const confirmationModal = await waitForAnyModal(frame)
-    const confirmationModalCheckbox = (await confirmationModal.$(
-      'text=Notify',
-    ))!
-    expect(await confirmationModalCheckbox.isVisible()).toEqual(
-      expectEmailCheckbox,
-    )
-    if (expectEmailCheckbox) {
-      if (sendEmail) {
-        await confirmationModalCheckbox.check()
-      } else {
-        await confirmationModalCheckbox.uncheck()
-      }
-    }
-
-    if (!shouldConfirmDialog) {
-      return dismissModal(frame)
-    }
-
-    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
-    // to taking the action that would trigger navigation.
-    const confirmButton = (await confirmationModal.$('text=Confirm'))!
-    await Promise.all([this.waitForApplicationFrame(), confirmButton.click()])
+    return waitForAnyModal(frame)
   }
 
   async expectUpdateStatusToast() {

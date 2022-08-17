@@ -109,22 +109,12 @@ describe('view program statuses', () => {
 
     describe('shows a confirmation before changing status', () => {
       it('does not update status when rejecting confirmation', async () => {
-        await adminPrograms.setStatusOption({
-          value: statusName,
-          shouldConfirmDialog: false,
-          expectEmailCheckbox: false,
-          sendEmail: false,
-        })
+        await adminPrograms.setStatusOptionAndDismissModal(statusName)
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
 
-      it('redirects with toast when accepting confirmation', async () => {
-        await adminPrograms.setStatusOption({
-          value: statusName,
-          shouldConfirmDialog: true,
-          expectEmailCheckbox: false,
-          sendEmail: false,
-        })
+      it('redirects with toast when accepting confirmation for status', async () => {
+        await adminPrograms.setStatusOptionAndConfirmModal(statusName)
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
         await adminPrograms.expectUpdateStatusToast()
       })
