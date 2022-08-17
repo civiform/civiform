@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Test;
 
 public class LocalizedStringsTest {
@@ -80,6 +81,34 @@ public class LocalizedStringsTest {
     LocalizedStrings subject = strings.updateTranslation(Locale.US, "new");
 
     assertThat(subject.translations()).containsExactlyEntriesOf(ImmutableMap.of(Locale.US, "new"));
+  }
+
+  @Test
+  public void updateTranslation_setsToEmptyString() {
+    LocalizedStrings strings = LocalizedStrings.of(Locale.US, "old");
+
+    LocalizedStrings subject = strings.updateTranslation(Locale.US, "");
+
+    assertThat(subject.translations()).containsExactlyEntriesOf(ImmutableMap.of(Locale.US, ""));
+  }
+
+  @Test
+  public void updateTranslation_emptyOptionalClearsExistingTranslation() {
+    LocalizedStrings strings =
+        LocalizedStrings.of(Locale.US, "old", Locale.FRENCH, "old french text");
+
+    LocalizedStrings subject = strings.updateTranslation(Locale.FRENCH, Optional.empty());
+
+    assertThat(subject.translations()).containsExactlyEntriesOf(ImmutableMap.of(Locale.US, "old"));
+  }
+
+  @Test
+  public void updateTranslation_emptyOptionalNoOpForMissingTranslation() {
+    LocalizedStrings strings = LocalizedStrings.of(Locale.US, "old");
+
+    LocalizedStrings subject = strings.updateTranslation(Locale.FRENCH, Optional.empty());
+
+    assertThat(subject.translations()).containsExactlyEntriesOf(ImmutableMap.of(Locale.US, "old"));
   }
 
   @Test

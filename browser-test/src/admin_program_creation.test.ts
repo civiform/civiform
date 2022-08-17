@@ -65,7 +65,7 @@ describe('Create program with enumerator and repeated questions', () => {
     )
     await page.click('button:text("apc-enumerator")')
     expect(await page.innerText('id=question-bank-questions')).toBe(
-      'Question bank',
+      'Add Question',
     )
 
     // Create a repeated block. The repeated question should be the only option.
