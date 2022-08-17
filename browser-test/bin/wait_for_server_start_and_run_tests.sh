@@ -14,7 +14,6 @@ PLAYWRIGHT_BROWSERS_PATH=0
 # Install any new packages not built into the image
 # Also saves any yarn.lock changes back to your local filesystem.
 yarn install
-npx playwright install
 
 echo "Polling to check server start"
 
