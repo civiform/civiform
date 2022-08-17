@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
@@ -18,7 +17,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URLEncoder;
@@ -40,6 +38,7 @@ import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -77,6 +76,16 @@ public final class ProgramApplicationView extends BaseHtmlView {
       blockToAnswers.put(answerBlock, answer);
     }
 
+    Modal modal =
+        Modal.builder("confirm-status-modal", p("hello"))
+            .setModalTitle("Change the status of this application?")
+            .build();
+
+    // .withAction(
+    //             controllers.admin.routes.AdminApplicationController.updateStatus(
+    //                     programId, applicationId)
+    //                 .url())
+
     DivTag contentDiv =
         div()
             .withId("application-view")
@@ -95,8 +104,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        renderStatusOptionsSelector(
-                            request, statusDefinitions, programId, applicationId))
+                        renderStatusOptionsSelector(request, statusDefinitions),
+                        div().withClass(Styles.HIDDEN).with(modal.getButton()))
                     .with(renderDownloadButton(programId, applicationId)))
             .with(
                 each(
@@ -108,6 +117,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .getBundle()
             .setTitle(title)
             .addMainContent(contentDiv)
+            .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
+            .addMainStyles(Styles.W_SCREEN)
+            .addModals(modal)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
     Optional<String> maybeSuccessMessage = request.flash().get("success");
     if (maybeSuccessMessage.isPresent()) {
@@ -188,19 +200,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private FormTag renderStatusOptionsSelector(
-      Http.Request request,
-      StatusDefinitions statusDefinitions,
-      long programId,
-      long applicationId) {
+  private DivTag renderStatusOptionsSelector(
+      Http.Request request, StatusDefinitions statusDefinitions) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
-    FormTag container =
-        form()
-            .withAction(
-                controllers.admin.routes.AdminApplicationController.updateStatus(
-                        programId, applicationId)
-                    .url())
-            .withMethod("POST")
+    DivTag container =
+        div()
             .withClasses(Styles.FLEX, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
             .with(
                 makeCsrfTokenInputTag(request),
