@@ -11,6 +11,11 @@ SERVER_URL="http://civiform:9000"
 # https://playwright.dev/docs/browsers#managing-browser-binaries-1
 PLAYWRIGHT_BROWSERS_PATH=0
 
+# Install any new packages not built into the image
+# Also saves any yarn.lock changes back to your local filesystem.
+yarn install
+npx playwright install
+
 echo "Polling to check server start"
 
 until $(curl --output /dev/null --silent --head --fail --max-time 2 "${SERVER_URL}"); do
@@ -29,8 +34,6 @@ for arg; do
   [ "$arg" = "--debug" ] && debug=1 && continue
   set -- "$@" "$arg"
 done
-
-yarn install
 
 if (($debug == 1)); then
   DEBUG="pw:api" BASE_URL="${SERVER_URL}" yarn test "$@"
