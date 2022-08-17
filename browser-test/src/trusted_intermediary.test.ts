@@ -40,7 +40,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
   })
-  
+
   it('managing trusted intermediary ', async () => {
     await loginAsAdmin(page)
     const adminGroups = new AdminTIGroups(page)

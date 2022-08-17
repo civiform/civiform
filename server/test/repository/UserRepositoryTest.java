@@ -114,12 +114,13 @@ public class UserRepositoryTest extends ResetPostgres {
   @Test
   public void lookupApplicantSync_findsCorrectApplicant() {
     saveApplicant("Alice");
-    Applicant two = saveApplicantWithDob("Bob","2022-07-07");
+    Applicant two = saveApplicantWithDob("Bob", "2022-07-07");
 
     Optional<Applicant> found = repo.lookupApplicantSync(two.id);
 
     assertThat(found).hasValue(two);
-    assertThat(found.get().getApplicantData().getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
+    assertThat(found.get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-07-07");
   }
 
   @Test
@@ -194,13 +195,14 @@ public class UserRepositoryTest extends ResetPostgres {
         .doesNotContain(PROGRAM_NAME);
   }
 
-  private Applicant saveApplicantWithDob(String name,String dob) {
+  private Applicant saveApplicantWithDob(String name, String dob) {
     Applicant applicant = new Applicant();
     applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
     applicant.getApplicantData().setDateOfBirth(dob);
     applicant.save();
     return applicant;
   }
+
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
     applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);

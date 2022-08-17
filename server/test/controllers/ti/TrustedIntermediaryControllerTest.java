@@ -8,9 +8,7 @@ import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
-import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
-import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.junit.Before;
@@ -39,22 +37,22 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   @Test
   public void addApplicantTestWithMissingDob() {
     Http.RequestBuilder requestBuilder =
-      addCSRFToken(
-        Helpers.fakeRequest()
-          .bodyForm(
-            ImmutableMap.of(
-              "firstName",
-              "first",
-              "middleName",
-              "middle",
-              "lastName",
-              "last",
-              "emailAddress",
-              "sample1@fake.com",
-              "dob",
-              "")));
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "first",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "last",
+                        "emailAddress",
+                        "sample1@fake.com",
+                        "dob",
+                        "")));
     TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
-    Result result = tiController.addApplicant(group.id+1, requestBuilder.build());
+    Result result = tiController.addApplicant(group.id + 1, requestBuilder.build());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().get("error").get().trim()).isEqualTo("Date of Birth required");
   }
@@ -62,26 +60,26 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   @Test
   public void addApplicantTestWithAllInformation() {
     Http.RequestBuilder requestBuilder =
-      addCSRFToken(
-        Helpers.fakeRequest()
-          .bodyForm(
-            ImmutableMap.of(
-              "firstName",
-              "first",
-              "middleName",
-              "middle",
-              "lastName",
-              "last",
-              "emailAddress",
-              "sample2@fake.com",
-              "dob",
-              "2022-07-18")));
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "first",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "last",
+                        "emailAddress",
+                        "sample2@fake.com",
+                        "dob",
+                        "2022-07-18")));
     TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
     Result result = tiController.addApplicant(group.id, requestBuilder.build());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<Applicant> testApplicant =
-      repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
+        repo.lookupApplicantByEmail("sample2@fake.com").toCompletableFuture().join();
     assertThat(testApplicant.get().getApplicantData().getDateOfBirth().get().toString())
-      .isEqualTo("2022-07-18");
+        .isEqualTo("2022-07-18");
   }
 }

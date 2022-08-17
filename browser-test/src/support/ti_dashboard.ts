@@ -33,7 +33,6 @@ export class TIDashboard {
     expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
   }
 
-
   convertToMMDDYYYY(dobDate: string): string {
     const [year, month, day] = dobDate.split('-')
     return `${month}-${day}-${year}`
