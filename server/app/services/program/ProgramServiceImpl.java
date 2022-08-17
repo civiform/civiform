@@ -721,12 +721,13 @@ public final class ProgramServiceImpl implements ProgramService {
 
     ArrayList<ProgramQuestionDefinition> questions =
         new ArrayList<>(blockDefinition.programQuestionDefinitions());
-    ProgramQuestionDefinition question = null;
 
     if (newPosition < 0 || newPosition >= questions.size()) {
       throw new InvalidQuestionPositionException(newPosition, questions.size());
     }
 
+    // move question to the new position
+    ProgramQuestionDefinition question = null;
     for (Iterator<ProgramQuestionDefinition> it = questions.iterator(); it.hasNext(); ) {
       question = it.next();
       if (question.id() == questionDefinitionId) {
@@ -739,6 +740,7 @@ public final class ProgramServiceImpl implements ProgramService {
           programId, blockDefinitionId, questionDefinitionId);
     }
     questions.add(newPosition, question);
+
     try {
       return updateProgramDefinitionWithBlockDefinition(
           programDefinition,
@@ -746,8 +748,7 @@ public final class ProgramServiceImpl implements ProgramService {
               .setProgramQuestionDefinitions(ImmutableList.copyOf(questions))
               .build());
     } catch (IllegalPredicateOrderingException e) {
-      // Changing a question between required and optional should not affect predicates. If a
-      // question is optional and a predicate depends on its answer, the predicate will be false.
+      // Changing a question position within block should not affect predicates.
       throw new RuntimeException(
           "Unexpected error: updating this question invalidated a block condition");
     }
