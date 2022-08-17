@@ -135,7 +135,7 @@ export class AdminPrograms {
       this.withinProgramCardSelector(
         programName,
         'Draft',
-        ':text("Manage Admins")',
+        ':text("Manage Program Admins")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -215,7 +215,7 @@ export class AdminPrograms {
         await this.page.innerText('[for=block-description-textarea]')
       ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
-    expect(await this.page.innerText('h1')).toContain('Question bank')
+    expect(await this.page.innerText('h1')).toContain('Add Question')
   }
 
   async editProgramBlock(

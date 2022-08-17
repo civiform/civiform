@@ -25,7 +25,6 @@ import play.i18n.MessagesApi;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApplicationRepository;
 import repository.TimeFilter;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
@@ -35,6 +34,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applications.ProgramAdminApplicationService;
 import services.export.ExporterService;
 import services.export.JsonExporter;
 import services.export.PdfExporter;
@@ -47,11 +47,11 @@ import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationView;
 
 /** Controller for admins viewing applications to programs. */
-public class AdminApplicationController extends CiviFormController {
+public final class AdminApplicationController extends CiviFormController {
 
   private final ProgramService programService;
   private final ApplicantService applicantService;
-  private final ApplicationRepository applicationRepository;
+  private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
   private final ExporterService exporterService;
@@ -72,7 +72,7 @@ public class AdminApplicationController extends CiviFormController {
       PdfExporter pdfExporter,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
-      ApplicationRepository applicationRepository,
+      ProgramAdminApplicationService programAdminApplicationService,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       DateConverter dateConverter,
@@ -82,7 +82,7 @@ public class AdminApplicationController extends CiviFormController {
     this.applicationListView = checkNotNull(applicationListView);
     this.profileUtils = checkNotNull(profileUtils);
     this.applicationView = checkNotNull(applicationView);
-    this.applicationRepository = checkNotNull(applicationRepository);
+    this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(exporterService);
     this.jsonExporter = checkNotNull(jsonExporter);
@@ -232,15 +232,15 @@ public class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getProgramDefinition(programId);
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 
     Optional<Application> applicationMaybe =
-        this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
+        programAdminApplicationService.getApplication(applicationId, program);
 
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
@@ -272,8 +272,7 @@ public class AdminApplicationController extends CiviFormController {
     }
 
     Optional<Application> applicationMaybe =
-        this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
-
+        programAdminApplicationService.getApplication(applicationId, program);
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
