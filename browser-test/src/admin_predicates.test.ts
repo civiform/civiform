@@ -84,7 +84,7 @@ describe('create and edit predicates', () => {
     expect(await page.innerText('#application-summary')).not.toContain(
       'conditional question',
     )
-    await applicant.submitFromReviewPage(programName)
+    await applicant.submitFromReviewPage()
 
     // Visit the program admin page and assert the hidden question does not show
     await logout(page)
@@ -175,7 +175,7 @@ describe('create and edit predicates', () => {
     expect(await page.innerText('#application-summary')).toContain(
       'conditional question',
     )
-    await applicant.submitFromReviewPage(programName)
+    await applicant.submitFromReviewPage()
 
     // Visit the program admin page and assert the conditional question is shown
     await logout(page)
@@ -321,7 +321,7 @@ describe('create and edit predicates', () => {
     await applicant.clickNext()
 
     // We should now be on the summary page
-    await applicant.submitFromReviewPage(programName)
+    await applicant.submitFromReviewPage()
     await endSession(browser)
   })
 })

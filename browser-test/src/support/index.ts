@@ -1,6 +1,13 @@
 import axe = require('axe-core')
-import {Browser, BrowserContext, chromium, Page} from 'playwright'
+import {
+  Browser,
+  BrowserContext,
+  chromium,
+  Page,
+  PageScreenshotOptions,
+} from 'playwright'
 import * as path from 'path'
+import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -11,7 +18,12 @@ export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
 export {ApplicantQuestions} from './applicant_questions'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
-import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
+import {
+  BASE_URL,
+  TEST_USER_LOGIN,
+  TEST_USER_PASSWORD,
+  DISABLE_SCREENSHOTS,
+} from './config'
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -30,8 +42,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
     const dirs = ['tmp/videos']
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((global as any)['expect'] != null) {
+    if ('expect' in global) {
       const testPath = expect.getState().testPath
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
       dirs.push(testFile)
@@ -204,4 +215,38 @@ export const validateAccessibility = async (page: Page) => {
   })
 
   expect(results).toHaveNoA11yViolations()
+}
+
+/**
+ * Saves a screenshot to a file such as
+ * __snapshots__/test_file_name/name-of-the-test-1-snap.png
+ * If the screenshot already exists, compare the new screenshot with the
+ * existing screenshot, and save a pixel diff instead if the two don't match
+ */
+export const validateScreenshot = async (
+  page: Page,
+  pageScreenshotOptions?: PageScreenshotOptions,
+  matchImageSnapshotOptions?: MatchImageSnapshotOptions,
+) => {
+  // Do not make image snapshots when running locally
+  if (DISABLE_SCREENSHOTS) {
+    return
+  }
+  expect(
+    await page.screenshot({
+      ...pageScreenshotOptions,
+    }),
+  ).toMatchImageSnapshot({
+    allowSizeMismatch: true,
+    failureThreshold: 0.03,
+    failureThresholdType: 'percent',
+    customSnapshotsDir: 'image_snapshots',
+    customDiffDir: 'diff_output',
+    customSnapshotIdentifier: ({counter, currentTestName, testPath}) => {
+      const dir = path.basename(testPath).replace('.test.ts', '_test')
+      const fileName = currentTestName.replace(/\s+/g, '-')
+      return `${dir}/${fileName}-${counter}`
+    },
+    ...matchImageSnapshotOptions,
+  })
 }

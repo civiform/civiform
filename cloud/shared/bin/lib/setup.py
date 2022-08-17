@@ -6,7 +6,7 @@ import sys
 
 from cloud.shared.bin.lib.config_loader import ConfigLoader
 from cloud.shared.bin.lib.write_tfvars import TfVarWriter
-from setup_class_loader import load_setup_class
+from setup_class_loader import get_config_specific_setup
 from cloud.shared.bin.lib import terraform
 """
 Setup.py sets up and runs the initial terraform deployment. It's broken into
@@ -39,9 +39,8 @@ def main():
     ###############################################################################
 
     terraform_template_dir = config_loader.get_template_dir()
-    Setup = load_setup_class(terraform_template_dir)
+    template_setup = get_config_specific_setup(config_loader)
 
-    template_setup = Setup(config_loader)
     template_setup.setup_log_file()
     current_user = template_setup.get_current_user()
 
@@ -74,12 +73,6 @@ def main():
             print("Starting port-terraform setup")
             template_setup.post_terraform_setup()
 
-            subprocess.check_call(
-                [
-                    "terraform", f"-chdir={terraform_template_dir}", "apply",
-                    "-input=false", f"-var-file={config_loader.tfvars_filename}"
-                ])
-
         subprocess.run(
             [
                 "/bin/bash", "-c",
@@ -93,8 +86,13 @@ def main():
                 f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_failed {log_args}"
             ],
             check=True)
-        print("Deployment Failed :(", file=sys.stderr)
-        print("error:", err)
+        print(
+            "\nDeployment Failed. Check Troubleshooting page for known issues:\n"
+            +
+            "https://docs.civiform.us/it-manual/sre-playbook/terraform-deploy-system#troubleshooting\n",
+            file=sys.stderr)
+        # rethrow error so that full stack trace is printed
+        raise err
 
     finally:
         template_setup.cleanup()

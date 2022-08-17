@@ -55,7 +55,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('green')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with no selection does not submit', async () => {
@@ -114,7 +114,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('blue', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits successfully', async () => {
@@ -126,7 +126,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('red', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('has no accessiblity violations', async () => {

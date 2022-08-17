@@ -1,11 +1,10 @@
 package views.admin;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
@@ -14,11 +13,11 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LegendTag;
 import java.util.Locale;
-import play.i18n.Lang;
-import play.i18n.Langs;
 import play.mvc.Http;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import views.BaseHtmlView;
 import views.components.LinkElement;
 import views.style.AdminStyles;
@@ -30,11 +29,10 @@ import views.style.Styles;
  */
 public abstract class TranslationFormView extends BaseHtmlView {
 
-  private final ImmutableList<Locale> supportedLocales;
+  private final TranslationLocales translationLocales;
 
-  public TranslationFormView(Langs langs) {
-    this.supportedLocales =
-        langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
+  public TranslationFormView(TranslationLocales translationLocales) {
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /** Render a list of languages, with the currently selected language underlined. */
@@ -43,7 +41,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
         .withClasses(Styles.M_2)
         .with(
             each(
-                supportedLocales,
+                translationLocales.translatableLocales(),
                 locale -> {
                   String linkDestination = languageLinkDestination(entityId, locale);
                   return renderLanguageLink(
@@ -113,15 +111,9 @@ public abstract class TranslationFormView extends BaseHtmlView {
 
   /** Creates a fieldset wrapping several form fields to be rendered. */
   protected final FieldsetTag fieldSetForFields(
-      String legendText, ImmutableList<DomContent> fields) {
+      LegendTag legendContent, ImmutableList<DomContent> fields) {
     return fieldset()
         .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-        .with(
-            legend(legendText), div().withClasses(Styles.FLEX_ROW, Styles.SPACE_Y_4).with(fields));
-  }
-
-  /** TODO(#2752): Remove this once English translations have been disabled. */
-  protected final boolean isDefaultLocale(Locale locale) {
-    return LocalizedStrings.DEFAULT_LOCALE.equals(locale);
+        .with(legendContent, div().withClasses(Styles.FLEX_ROW, Styles.SPACE_Y_4).with(fields));
   }
 }
