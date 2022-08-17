@@ -115,5 +115,11 @@
     "secret": false,
     "tfvar": true,
     "type": "bool"
+  },
+  "CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "bool"
   }
 }
