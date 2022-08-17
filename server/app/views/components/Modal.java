@@ -151,7 +151,8 @@ public final class Modal {
     DEFAULT(Styles.W_AUTO),
     HALF(Styles.W_1_2),
     THIRD(Styles.W_1_3),
-    FOURTH(Styles.W_1_4);
+    FOURTH(Styles.W_1_4),
+    THREE_FOURTHS(Styles.W_9_12);
 
     private final String width;
 

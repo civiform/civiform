@@ -4,19 +4,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.select;
+import static j2html.TagCreator.span;
 
 import annotations.BindingAnnotations.EnUsLang;
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URLEncoder;
@@ -26,6 +31,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Optional;
+import models.Application;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -39,7 +45,9 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.Modal;
+import views.components.Modal.Width;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -59,7 +67,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   public Content render(
       long programId,
       String programName,
-      long applicationId,
+      Application application,
       String applicantNameWithApplicationId,
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers,
@@ -76,15 +84,67 @@ public final class ProgramApplicationView extends BaseHtmlView {
       blockToAnswers.put(answerBlock, answer);
     }
 
+    FormTag modalContent =
+        form()
+            .withAction(
+                controllers.admin.routes.AdminApplicationController.updateStatus(
+                        programId, application.id)
+                    .url())
+            .withMethod("POST")
+            .withClasses(Styles.PX_6, Styles.PY_2)
+            .with(
+                makeCsrfTokenInputTag(request),
+                p().with(
+                        span("Status Change: "),
+                        span("TODO(current status) -> ").withClass(Styles.FONT_SEMIBOLD),
+                        span("")
+                            // TODO(clouser): attr
+                            .withClass(Styles.FONT_SEMIBOLD),
+                        span(" (visible to applicant)")),
+                p().with(
+                        span("Applicant: "),
+                        span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
+                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)))
+            .with(
+                div()
+                    .withClasses(Styles.MT_4)
+                    .withCondClass(
+                        Strings.isNullOrEmpty(
+                            application.getApplicant().getAccount().getEmailAddress()),
+                        Styles.HIDDEN)
+                    .with(
+                        label()
+                            .with(
+                                input()
+                                    .withType("checkbox")
+                                    .withName("sendEmail")
+                                    .withCondChecked(
+                                        !Strings.isNullOrEmpty(
+                                            application
+                                                .getApplicant()
+                                                .getAccount()
+                                                .getEmailAddress()))
+                                    .withClasses(BaseStyles.CHECKBOX),
+                                span("Notify "),
+                                span(applicantNameWithApplicationId)
+                                    .withClass(Styles.FONT_SEMIBOLD),
+                                span(" of this change at "),
+                                span(application.getApplicant().getAccount().getEmailAddress())
+                                    .withClass(Styles.FONT_SEMIBOLD))))
+            .with(
+                div()
+                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        button("Cancel")
+                            .withClasses(
+                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     Modal modal =
-        Modal.builder("confirm-status-modal", p("hello"))
+        Modal.builder("confirm-status-modal", modalContent)
             .setModalTitle("Change the status of this application?")
+            .setWidth(Width.THREE_FOURTHS)
             .build();
-
-    // .withAction(
-    //             controllers.admin.routes.AdminApplicationController.updateStatus(
-    //                     programId, applicationId)
-    //                 .url())
 
     DivTag contentDiv =
         div()
@@ -106,7 +166,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         !statusDefinitions.getStatuses().isEmpty(),
                         renderStatusOptionsSelector(request, statusDefinitions),
                         div().withClass(Styles.HIDDEN).with(modal.getButton()))
-                    .with(renderDownloadButton(programId, applicationId)))
+                    .with(renderDownloadButton(programId, application.id)))
             .with(
                 each(
                     blocks,

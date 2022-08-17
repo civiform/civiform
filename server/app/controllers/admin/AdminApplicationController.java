@@ -298,7 +298,7 @@ public final class AdminApplicationController extends CiviFormController {
         applicationView.render(
             programId,
             programName,
-            applicationId,
+            application,
             applicantNameWithApplicationId,
             blocks,
             answers,
