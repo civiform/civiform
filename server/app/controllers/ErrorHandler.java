@@ -20,7 +20,6 @@ import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
 import services.apikey.ApiKeyNotFoundException;
-import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
 
 /**
