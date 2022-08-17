@@ -112,6 +112,8 @@ describe('view program statuses', () => {
         await adminPrograms.setStatusOption({
           value: statusName,
           shouldConfirmDialog: false,
+          expectEmailCheckbox: false,
+          sendEmail: false,
         })
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
@@ -120,6 +122,8 @@ describe('view program statuses', () => {
         await adminPrograms.setStatusOption({
           value: statusName,
           shouldConfirmDialog: true,
+          expectEmailCheckbox: false,
+          sendEmail: false,
         })
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
         await adminPrograms.expectUpdateStatusToast()
