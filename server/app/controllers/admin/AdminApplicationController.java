@@ -327,11 +327,10 @@ public class AdminApplicationController extends CiviFormController {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
 
-    Application application = applicationMaybe.get();
-
-    // TODO(clouser): Assume success, read the form value, and assume success.
-    return redirect(routes.AdminApplicationController.show(programId, application.id).url())
-        .flashing("success", "Application status updated.");
+    // TODO(#3020): Actually update the status rather than unconditionally returning success.
+    return redirect(
+            routes.AdminApplicationController.show(programId, applicationMaybe.get().id).url())
+        .flashing("success", "Application status updated");
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */

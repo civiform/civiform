@@ -13,7 +13,7 @@ import {
 import {Page} from 'playwright'
 
 // TODO(#3071): Re-enable when the feature flag is controllable in tests.
-describe.skip('view program statuses', () => {
+describe('view program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let applicantQuestions: ApplicantQuestions
@@ -105,6 +105,25 @@ describe.skip('view program statuses', () => {
 
     it('shows default option as placeholder', async () => {
       expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+    })
+
+    describe('shows a confirmation before changing status', () => {
+      it('does not update status when rejecting confirmation', async () => {
+        await adminPrograms.setStatusOption({
+          value: statusName,
+          shouldConfirmDialog: false,
+        })
+        expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+      })
+
+      it('redirects with toast when accepting confirmation', async () => {
+        await adminPrograms.setStatusOption({
+          value: statusName,
+          shouldConfirmDialog: true,
+        })
+        expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+        await adminPrograms.expectUpdateStatusToast()
+      })
     })
   })
 })

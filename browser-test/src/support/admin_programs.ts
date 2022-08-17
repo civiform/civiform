@@ -1,4 +1,4 @@
-import {Page} from 'playwright'
+import {Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {clickAndWaitForModal, waitForPageJsLoad} from './wait'
 import {AdminProgramStatuses} from './admin_program_statuses'
@@ -478,15 +478,61 @@ export class AdminPrograms {
   }
 
   async isStatusSelectorVisible(): Promise<boolean> {
-    return this.applicationFrame()
-      .locator('.cf-program-admin-status-selector:has-text("Status:")')
-      .isVisible()
+    return this.applicationFrame().locator(this.statusSelector()).isVisible()
   }
 
   async getStatusOption(): Promise<string> {
-    return this.applicationFrame()
-      .locator('.cf-program-admin-status-selector label')
-      .inputValue()
+    return this.applicationFrame().locator(this.statusSelector()).inputValue()
+  }
+
+  async expectUpdateStatusToast() {
+    const toastMessages = await this.applicationFrame()
+      .locator('#toast-container')
+      .innerText()
+    expect(toastMessages).toContain('Application status updated')
+  }
+
+  async setStatusOption({
+    value,
+    shouldConfirmDialog,
+  }: {
+    value: string
+    shouldConfirmDialog: boolean
+  }) {
+    const frame = this.page.frame('application-display-frame')! as Frame
+
+    let dialogShownResolver: (value: unknown) => void
+    const dialogShownPromise = new Promise((resolve) => {
+      dialogShownResolver = resolve
+    })
+    this.page.once('dialog', async (dialog) => {
+      if (shouldConfirmDialog) {
+        await dialog.accept()
+      } else {
+        await dialog.dismiss()
+      }
+      dialogShownResolver(true)
+    })
+    await this.applicationFrame().locator(this.statusSelector()).focus()
+    const promises = [dialogShownPromise]
+    if (shouldConfirmDialog) {
+      promises.push(frame.waitForNavigation())
+    }
+    promises.push(
+      this.applicationFrame()
+        .locator(this.statusSelector())
+        .selectOption(value),
+    )
+    await Promise.all(promises)
+
+    if (shouldConfirmDialog) {
+      // A page navigation occurred. Wait for the page content to load
+      await waitForPageJsLoad(frame)
+    }
+  }
+
+  private statusSelector() {
+    return '.cf-program-admin-status-selector label:has-text("Status:")'
   }
 
   async getJson(applyFilters: boolean) {

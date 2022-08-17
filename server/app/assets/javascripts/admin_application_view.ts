@@ -7,32 +7,41 @@ class AdminApplicationView {
   }
 
   private registerStatusSelectorEventListener() {
-    const statusSelectFormEl = document.querySelector(
+    const statusSelectForm = document.querySelector(
       AdminApplicationView.APPLICATION_STATUS_SELECTOR,
     ) as HTMLFormElement | null
-    if (!statusSelectFormEl) {
+    if (!statusSelectForm) {
       // If status tracking isn't enabled, there's nothing to do.
       return
     }
-    const selectEl = this._assertNotNull(
-      statusSelectFormEl.querySelector('select') as HTMLSelectElement | null,
+    const statusSelector = this._assertNotNull(
+      statusSelectForm.querySelector('select') as HTMLSelectElement | null,
       'status selector',
     )
-    let previousVal: string
-    selectEl.addEventListener('focusin', (event) => {
-      previousVal = selectEl.value
+
+    // The previous value is tracked on focus since there are no events that fire prior to the
+    // selected element being changed. Since a confirmation is shown that allows the user to
+    // cancel the selection, the previous value needs to be stored.
+    let previousSelectedValue: string
+    statusSelector.addEventListener('focusin', (event) => {
+      previousSelectedValue = statusSelector.value
     })
-    selectEl.addEventListener('change', (event) => {
-      // Show a confirmation dialog.
-      if (!confirm('TODO(clouser): Figure out the correct message.')) {
-        // Change only fires when the value is changed due to user
-        // interaction, thus avoiding the event refiring as part
-        // of setting "value" below.
-        selectEl.value = previousVal
+    statusSelector.addEventListener('change', (event) => {
+      if (!this.confirmStatusChange(statusSelector.value)) {
+        // Change only fires when the value is changed due to user interaction, thus avoiding the
+        // event refiring as part of setting "value" below.
+        statusSelector.value = previousSelectedValue
         return
       }
-      statusSelectFormEl.submit()
+      // No explicit submit button is shown. After the user has confirmed the change, the form is
+      // explicitly submitted.
+      statusSelectForm.submit()
     })
+  }
+
+  private confirmStatusChange(newValue: string): boolean {
+    const message = `Are you sure you want to set the status for this application to ${newValue}?`
+    return confirm(message)
   }
 
   _assertNotNull<T>(value: T | null | undefined, description: string): T {

@@ -2,8 +2,6 @@ class AdminApplications {
   private static BACKGROUND_GRAY_CLASS = 'bg-gray-200'
   private static CARD_SELECTOR = '.cf-admin-application-card'
   private static DISPLAY_FRAME_SELECTOR = '#application-display-frame'
-  private static APPLICATION_STATUS_SELECTOR =
-    '.cf-program-admin-status-selector select'
 
   private displayFrame: Element
   private cards: Array<HTMLElement>
