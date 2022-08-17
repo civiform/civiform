@@ -19,18 +19,14 @@ class AdminApplicationView {
       'status selector',
     )
 
-    // The previous value is tracked on focus since there are no events that fire prior to the
-    // selected element being changed. Since a confirmation is shown that allows the user to
-    // cancel the selection, the previous value needs to be stored.
-    let previousSelectedValue: string
-    statusSelector.addEventListener('focusin', (event) => {
-      previousSelectedValue = statusSelector.value
-    })
+    // The original value is tracked neither the 'change/input' events provide the previous
+    // value prior to input.
+    let originalSelectedValue = statusSelector.value
     statusSelector.addEventListener('change', (event) => {
       if (!this.confirmStatusChange(statusSelector.value)) {
         // Change only fires when the value is changed due to user interaction, thus avoiding the
         // event refiring as part of setting "value" below.
-        statusSelector.value = previousSelectedValue
+        statusSelector.value = originalSelectedValue
         return
       }
       // No explicit submit button is shown. After the user has confirmed the change, the form is

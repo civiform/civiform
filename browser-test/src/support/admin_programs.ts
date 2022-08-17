@@ -513,7 +513,6 @@ export class AdminPrograms {
       }
       dialogShownResolver(true)
     })
-    await this.applicationFrame().locator(this.statusSelector()).focus()
     const promises = [dialogShownPromise]
     if (shouldConfirmDialog) {
       promises.push(frame.waitForNavigation())
