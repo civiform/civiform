@@ -564,7 +564,7 @@ export class AdminPrograms {
       this.page.waitForEvent('download'),
       this.page.click('text="Download JSON"'),
     ])
-    await this.page.click('#download-program-applications-modal-close')
+    await dismissModal(this.page)
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -584,7 +584,7 @@ export class AdminPrograms {
       this.page.waitForEvent('download'),
       this.page.click('text="Download CSV"'),
     ])
-    await this.page.click('#download-program-applications-modal-close')
+    await dismissModal(this.page)
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -600,7 +600,7 @@ export class AdminPrograms {
         '#download-demographics-csv-modal button:has-text("Download Exported Data (CSV)")',
       ),
     ])
-    await this.page.click('#download-demographics-csv-modal-close')
+    await dismissModal(this.page)
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')

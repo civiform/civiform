@@ -291,6 +291,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
                 p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)));
     if (showEmailSelection) {
+      // TODO(#2912): Add warnings when either no email is configured or the applicant hasn't
+      // provided an email.
       modalContent.with(
           div()
               .withClasses(Styles.MT_4)
