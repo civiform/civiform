@@ -3,8 +3,10 @@ package views.admin.questions;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.legend;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -38,6 +40,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -284,7 +287,7 @@ public final class QuestionEditView extends BaseHtmlView {
       boolean submittable,
       boolean forCreate) {
     QuestionType questionType = questionForm.getQuestionType();
-    FormTag formTag = form().withMethod("POST");
+    FormTag formTag = form().withMethod("POST").with(requiredFieldsExplanationContent());
 
     // The question enumerator and name fields should not be changed after the question is created.
     // If this form is not for creation, the fields are disabled, and hidden fields to pass
@@ -296,7 +299,7 @@ public final class QuestionEditView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("question-name-input")
             .setFieldName(QUESTION_NAME_FIELD)
-            .setLabelText("Name")
+            .setLabelText("Name*")
             .setDisabled(!submittable)
             .setPlaceholderText("The name displayed in the question builder")
             .setValue(questionForm.getQuestionName());
@@ -343,7 +346,7 @@ public final class QuestionEditView extends BaseHtmlView {
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
-                .setLabelText("Question text")
+                .setLabelText("Question text*")
                 .setPlaceholderText("The question text displayed to the applicant")
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionText())
@@ -354,44 +357,44 @@ public final class QuestionEditView extends BaseHtmlView {
     formTag.with(QuestionConfig.buildQuestionConfig(questionForm, messages));
 
     if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
-      formTag.with(
-          div()
-              .withId("demographic-field-content")
-              .with(buildDemographicFields(questionForm, submittable)));
+      formTag.with(buildDemographicFields(questionForm, submittable));
     }
 
     return formTag;
   }
 
-  private ImmutableList<DomContent> buildDemographicFields(
-      QuestionForm questionForm, boolean submittable) {
+  private DomContent buildDemographicFields(QuestionForm questionForm, boolean submittable) {
 
     QuestionTag exportState = questionForm.getQuestionExportStateTag();
-    return ImmutableList.of(
-        FieldWithLabel.radio()
-            .setId("question-demographic-no-export")
-            .setDisabled(!submittable)
-            .setFieldName("questionExportState")
-            .setLabelText("No export")
-            .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
-            .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
-            .getRadioTag(),
-        FieldWithLabel.radio()
-            .setId("question-demographic-export-demographic")
-            .setDisabled(!submittable)
-            .setFieldName("questionExportState")
-            .setLabelText("Export Value")
-            .setValue(QuestionTag.DEMOGRAPHIC.getValue())
-            .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
-            .getRadioTag(),
-        FieldWithLabel.radio()
-            .setId("question-demographic-export-pii")
-            .setDisabled(!submittable)
-            .setFieldName("questionExportState")
-            .setLabelText("Export Obfuscated")
-            .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
-            .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
-            .getRadioTag());
+    // TODO(#2618): Consider using helpers for grouping related radio controls.
+    return fieldset()
+        .withId("demographic-field-content")
+        .with(
+            legend("Export options*").withClass(BaseStyles.INPUT_LABEL),
+            FieldWithLabel.radio()
+                .setId("question-demographic-no-export")
+                .setDisabled(!submittable)
+                .setFieldName("questionExportState")
+                .setLabelText("No export")
+                .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
+                .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
+                .getRadioTag(),
+            FieldWithLabel.radio()
+                .setId("question-demographic-export-demographic")
+                .setDisabled(!submittable)
+                .setFieldName("questionExportState")
+                .setLabelText("Export Value")
+                .setValue(QuestionTag.DEMOGRAPHIC.getValue())
+                .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
+                .getRadioTag(),
+            FieldWithLabel.radio()
+                .setId("question-demographic-export-pii")
+                .setDisabled(!submittable)
+                .setFieldName("questionExportState")
+                .setLabelText("Export Obfuscated")
+                .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
+                .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
+                .getRadioTag());
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
@@ -446,7 +449,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
-        .setLabelText("Question enumerator")
+        .setLabelText("Question enumerator*")
         .setOptions(options)
         .setValue(selected);
   }
