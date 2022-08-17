@@ -1,6 +1,8 @@
 import {Page} from 'playwright'
 
-// This class is to test Civiform's TI to add new clients
+// This class is to test Civiform in the TI path
+// It impements functionality to create a new client,Test if the given client is present in the dashboard
+// It also have a ClientInformation Interface to easily store clients
 // It requires the tests to be logged as a TI
 export class TIDashboard {
   public page!: Page

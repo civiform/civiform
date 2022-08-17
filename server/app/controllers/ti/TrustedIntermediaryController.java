@@ -59,7 +59,7 @@ public class TrustedIntermediaryController {
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
     this.baseUrl = Preconditions.checkNotNull(config).getString("base_url");
-    this.tiService = tiService;
+    this.tiService = Preconditions.checkNotNull(tiService);
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -117,11 +117,11 @@ public class TrustedIntermediaryController {
             routes.TrustedIntermediaryController.dashboard(
                 /* search= */ Optional.empty(), /* page= */ Optional.empty()));
       }
-    }
-    // Only for EmailAddressException, the expection is thrown from the Service class and handled in
-    // the controller.
-    // For all other errors, the error is packaged in the TIClientResult object
-    catch (EmailAddressExistsException e) {
+    } catch (EmailAddressExistsException e) {
+      // Only for EmailAddressException, the expection is thrown from the Service class and handled
+      // in
+      // the controller.
+      // For all other errors, the error is packaged in the TIClientResult object
       String trustedIntermediaryUrl = baseUrl + "/trustedIntermediaries";
 
       return redirectToDashboardWithError(
@@ -139,17 +139,16 @@ public class TrustedIntermediaryController {
   private String getFormErrors(Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     StringBuilder errorMessage = new StringBuilder();
     form.errors().stream()
-        .forEach(
-            validationError ->
-                errorMessage.append(
-                    System.getProperty("line.separator") + validationError.message()));
+        .forEach(validationError -> errorMessage.append(validationError.message() + "\n"));
     return errorMessage.toString();
   }
 
   private Result redirectToDashboardWithError(
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
-            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.of(1)).url())
+            routes.TrustedIntermediaryController.dashboard(
+                    /* search= */ Optional.empty(), /* page= */ Optional.of(1))
+                .url())
         .flashing("error", errorMessage)
         .flashing("providedFirstName", form.value().get().getFirstName())
         .flashing("providedMiddleName", form.value().get().getMiddleName())

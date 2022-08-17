@@ -4,10 +4,18 @@ import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
 import play.data.Form;
 
-public class TIClientCreationResult {
+/**
+ * Holds state relevant to the result of attempting to create a Client for TrustedIntermediary.
+ *
+ * <p>If the creation attempt was successful, the response is a successful object with an empty
+ * form.
+ *
+ * <p>If the creation attempt was not successful, the result contains the same form object with the
+ * form validation errors.
+ */
+public final class TIClientCreationResult {
 
   private final Optional<Form<AddApplicantToTrustedIntermediaryGroupForm>> form;
-  // private final Optional<String> errorMessage;
 
   public TIClientCreationResult(Optional<Form<AddApplicantToTrustedIntermediaryGroupForm>> form) {
     this.form = form;

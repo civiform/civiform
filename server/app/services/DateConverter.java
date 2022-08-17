@@ -35,7 +35,7 @@ public class DateConverter {
   /**
    * Converts a DateString in "YYYY-MM-dd" format to LocalDate type Throws DateTimeParseException
    */
-  public LocalDate parseStringtoLocalDate(String dateString) {
+  public LocalDate parseStringToLocalDate(String dateString) {
     return LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
   }
   /** Returns the current LocalDate based on the specified time-zone(zoneId) */
