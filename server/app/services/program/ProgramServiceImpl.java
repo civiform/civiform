@@ -748,7 +748,8 @@ public final class ProgramServiceImpl implements ProgramService {
               .setProgramQuestionDefinitions(ImmutableList.copyOf(questions))
               .build());
     } catch (IllegalPredicateOrderingException e) {
-      // Changing a question position within block should not affect predicates.
+      // Changing a question position within block should not affect predicates
+      // because predicates cannot depend on questions within the same block.
       throw new RuntimeException(
           "Unexpected error: updating this question invalidated a block condition");
     }
