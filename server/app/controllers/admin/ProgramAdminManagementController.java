@@ -5,6 +5,7 @@ import static play.mvc.Results.badRequest;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
+import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
@@ -24,6 +25,7 @@ import services.CiviFormError;
 import services.program.ProgramNotFoundException;
 import services.role.RoleService;
 import views.admin.programs.ManageProgramAdminsView;
+import views.components.ToastMessage;
 
 /** Controller for admins to manage program admins of programs. */
 public class ProgramAdminManagementController {
@@ -76,7 +78,8 @@ public class ProgramAdminManagementController {
         return result;
       }
 
-      return this.loadProgram(request, programId, Optional.of(maybeError.get().message()));
+      ToastMessage message = new ToastMessage(maybeError.get().message(), ERROR);
+      return this.loadProgram(request, programId, Optional.of(message));
 
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
@@ -87,7 +90,7 @@ public class ProgramAdminManagementController {
    * Displays a form for managing program admins of a given program. Displays a message as an error
    * toast if provided.
    */
-  private Result loadProgram(Http.Request request, long programId, Optional<String> message) {
+  private Result loadProgram(Http.Request request, long programId, Optional<ToastMessage> message) {
     try {
       Optional<Program> program =
           programRepository.lookupProgram(programId).toCompletableFuture().join();

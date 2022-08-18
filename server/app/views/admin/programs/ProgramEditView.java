@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import forms.ProgramForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.FormTag;
+import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -42,7 +43,8 @@ public class ProgramEditView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  public Content render(Request request, long id, ProgramForm program, String message) {
+  public Content render(
+      Request request, long id, ProgramForm program, Optional<ToastMessage> message) {
     FormTag formTag =
         ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
@@ -54,9 +56,7 @@ public class ProgramEditView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
 
-    if (!message.isEmpty()) {
-      htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
-    }
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }

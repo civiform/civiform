@@ -5,11 +5,10 @@ set -euo pipefail
 START_TIME=$(date +%s)
 DEADLINE=$(($START_TIME + 500))
 SERVER_URL="http://civiform:9000"
-# Store playwright browsers within node_modules directory. This way playwright
-# library and browsers placed together and less likely go out of sync if
-# there are manipulations with docker volumes.
-# https://playwright.dev/docs/browsers#managing-browser-binaries-1
-PLAYWRIGHT_BROWSERS_PATH=0
+
+# Install any new packages not built into the image
+# Also saves any yarn.lock changes back to your local filesystem.
+yarn install
 
 echo "Polling to check server start"
 
@@ -29,8 +28,6 @@ for arg; do
   [ "$arg" = "--debug" ] && debug=1 && continue
   set -- "$@" "$arg"
 done
-
-yarn install
 
 if (($debug == 1)); then
   DEBUG="pw:api" BASE_URL="${SERVER_URL}" yarn test "$@"
