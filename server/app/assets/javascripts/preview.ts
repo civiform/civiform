@@ -21,8 +21,6 @@ class PreviewController {
     '.cf-enumerator-delete-button'
 
   private static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
-  private static readonly DEFAULT_QUESTION_HELP_TEXT =
-    'Sample question help text'
   private static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
 
   // This regex is used to match $this and $this.parent (etc) strings so we can
@@ -137,7 +135,6 @@ class PreviewController {
   }
 
   private static updateFromNewQuestionHelpText(helpText: string) {
-    helpText = helpText || PreviewController.DEFAULT_QUESTION_HELP_TEXT
     PreviewController.setTextAndHighlightEnumeratorReferences(
       PreviewController.QUESTION_HELP_TEXT_CLASS,
       helpText,
