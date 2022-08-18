@@ -12,5 +12,5 @@ if ! output="$(node -v)"; then
   exit 1
 fi
 
-yarn --cwd browser-test install
-yarn --cwd browser-test test "$@"
+npx yarn --cwd browser-test install
+npx yarn --cwd browser-test test "$@"
