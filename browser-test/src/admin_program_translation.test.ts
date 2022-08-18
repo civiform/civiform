@@ -10,6 +10,7 @@ import {
   logout,
   selectApplicantLanguage,
   startSession,
+  validateScreenshot,
 } from './support'
 
 describe('Admin can manage translations', () => {
@@ -392,6 +393,8 @@ describe('Admin can manage translations', () => {
     expect(toastMessages).toContain(
       'Lo sentimos, este programa no está totalmente traducido al idioma de su preferencia.',
     )
+
+    await validateScreenshot(page)
 
     await endSession(browser)
   })

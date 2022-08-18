@@ -1,5 +1,6 @@
 package views.components;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.specialized.DivTag;
@@ -10,14 +11,14 @@ import views.style.Styles;
 /** ToastMessages are messages that appear on the screen to show information to the user. */
 public class ToastMessage {
 
-  enum ToastType {
+  public enum ToastType {
     ALERT,
     ERROR,
     SUCCESS,
     WARNING
   }
 
-  private ToastType type = ToastType.ALERT;
+  private ToastType type;
 
   /** Toast messages are instantiated with a random id. */
   private String id = UUID.randomUUID().toString();
@@ -32,20 +33,26 @@ public class ToastMessage {
   /** If true this message will not be shown if a user has already seen and dismissed it. */
   private boolean canIgnore = false;
 
+  public ToastMessage(String message, ToastType severity) {
+    this.message = checkNotNull(message);
+    this.type = checkNotNull(severity);
+    this.setDismissible(!ToastType.ERROR.equals(severity));
+  }
+
   public static ToastMessage alert(String message) {
-    return new ToastMessage().setType(ToastType.ALERT).setMessage(message);
+    return new ToastMessage(message, ToastType.ALERT);
   }
 
   public static ToastMessage error(String message) {
-    return new ToastMessage().setType(ToastType.ERROR).setMessage(message);
+    return new ToastMessage(message, ToastType.ERROR);
   }
 
   public static ToastMessage success(String message) {
-    return new ToastMessage().setType(ToastType.SUCCESS).setMessage(message);
+    return new ToastMessage(message, ToastType.SUCCESS);
   }
 
   public static ToastMessage warning(String message) {
-    return new ToastMessage().setType(ToastType.WARNING).setMessage(message);
+    return new ToastMessage(message, ToastType.WARNING);
   }
 
   /** If true then a dismiss button will be visible for this toast. */

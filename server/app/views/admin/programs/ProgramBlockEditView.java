@@ -68,7 +68,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       Request request,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
-      String message,
+      Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
     return render(
         request,
@@ -88,7 +88,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       BlockForm blockForm,
       BlockDefinition blockDefinition,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
-      String message,
+      Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     String title = String.format("Edit %s", blockDefinition.name());
@@ -126,13 +126,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .addModals(blockDescriptionEditModal);
 
     // Add toast messages
-    if (request.flash().get("error").isPresent()) {
-      htmlBundle.addToastMessages(
-          ToastMessage.error(request.flash().get("error").get()).setDuration(-1));
-    }
-    if (message.length() > 0) {
-      htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
-    }
+    request
+        .flash()
+        .get("error")
+        .map(ToastMessage::error)
+        .map(m -> m.setDuration(-1))
+        .ifPresent(htmlBundle::addToastMessages);
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }

@@ -46,12 +46,18 @@ public final class QuestionTranslationView extends TranslationFormView {
   }
 
   public Content renderErrors(
-      Http.Request request, Locale locale, QuestionDefinition invalidQuestion, String errors) {
+      Http.Request request,
+      Locale locale,
+      QuestionDefinition invalidQuestion,
+      ToastMessage errors) {
     return render(request, locale, invalidQuestion, Optional.of(errors));
   }
 
   private Content render(
-      Http.Request request, Locale locale, QuestionDefinition question, Optional<String> errors) {
+      Http.Request request,
+      Locale locale,
+      QuestionDefinition question,
+      Optional<ToastMessage> message) {
     String formAction =
         controllers.admin.routes.AdminQuestionTranslationsController.update(
                 question.getId(), locale.toLanguageTag())
@@ -79,7 +85,7 @@ public final class QuestionTranslationView extends TranslationFormView {
             .setTitle(title)
             .addMainContent(
                 renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
-    errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
