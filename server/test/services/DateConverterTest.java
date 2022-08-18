@@ -38,7 +38,7 @@ public class DateConverterTest {
 
   @Test
   public void testLocalDateToStringParser() {
-    String expectedResult = "2020-01-01";
+    String expectedResult = "2020/01/01";
     LocalDate date = LocalDate.of(2020, 1, 1);
     String result = dateConverter.renderDate(date);
     assertThat(expectedResult).isEqualTo(result);
