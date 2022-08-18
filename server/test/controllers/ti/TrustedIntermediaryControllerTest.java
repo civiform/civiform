@@ -33,7 +33,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void addApplicantTestWithMissingDob() {
+  public void addApplicant_WithMissingDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
@@ -56,7 +56,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void addApplicantTestWithAllInformation() {
+  public void addApplicant_WithAllInformation() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
