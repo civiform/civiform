@@ -117,7 +117,7 @@ describe.skip('view program statuses', () => {
         await adminPrograms.setStatusOptionAndConfirmModal(statusName)
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
         await adminPrograms.expectUpdateStatusToast()
-        // TODO(#3020): Assert that the selected status has changed rather
+        // TODO(#3020): Assert that the selected status has been updated.
       })
     })
   })
