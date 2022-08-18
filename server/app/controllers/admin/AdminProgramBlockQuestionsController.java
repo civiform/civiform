@@ -18,11 +18,13 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.program.DuplicateProgramQuestionException;
 import services.program.IllegalPredicateOrderingException;
+import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
+import views.admin.programs.ProgramBlockEditView;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
@@ -131,6 +133,39 @@ public class AdminProgramBlockQuestionsController extends Controller {
           programQuestionDefinitionOptionalityForm.getOptional());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    } catch (ProgramQuestionDefinitionNotFoundException e) {
+      return notFound(
+          String.format(
+              "Question ID %d not found in Block %d for program %d",
+              questionDefinitionId, blockDefinitionId, programId));
+    }
+
+    return redirect(
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
+  }
+
+  /** POST endpoint for changing position of a question in its block. */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result move(
+      Request request, long programId, long blockDefinitionId, long questionDefinitionId)
+      throws InvalidQuestionPositionException, ProgramNotFoundException {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    int newPosition = -1;
+    try {
+      newPosition =
+          Integer.parseInt(requestData.get(ProgramBlockEditView.MOVE_QUESTION_POSITION_FIELD));
+    } catch (NumberFormatException e) {
+      throw InvalidQuestionPositionException.missingPositionArgument();
+    }
+
+    try {
+      programService.setProgramQuestionDefinitionPosition(
+          programId, blockDefinitionId, questionDefinitionId, newPosition);
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));

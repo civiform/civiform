@@ -79,14 +79,14 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             SPANISH_DISPLAY_NAME,
             SPANISH_DESCRIPTION);
     assertThat(contentAsString(result))
-        .contains("Default text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
+        .contains("English text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
     assertThat(contentAsString(result))
         .contains(
             SPANISH_FIRST_STATUS_TEXT, SPANISH_FIRST_STATUS_EMAIL,
             SPANISH_SECOND_STATUS_TEXT, SPANISH_SECOND_STATUS_EMAIL);
     assertThat(contentAsString(result))
         .contains(
-            "Default text:",
+            "English text:",
             ENGLISH_FIRST_STATUS_TEXT,
             ENGLISH_FIRST_STATUS_EMAIL,
             ENGLISH_SECOND_STATUS_TEXT,
@@ -108,13 +108,13 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             SPANISH_DISPLAY_NAME,
             SPANISH_DESCRIPTION);
     assertThat(contentAsString(result))
-        .contains("Default text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
+        .contains("English text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
     assertThat(contentAsString(result))
         .contains(SPANISH_FIRST_STATUS_TEXT, SPANISH_SECOND_STATUS_TEXT);
     assertThat(contentAsString(result))
         .doesNotContain(SPANISH_FIRST_STATUS_EMAIL, SPANISH_SECOND_STATUS_EMAIL);
     assertThat(contentAsString(result))
-        .contains("Default text:", ENGLISH_FIRST_STATUS_TEXT, ENGLISH_SECOND_STATUS_TEXT);
+        .contains("English text:", ENGLISH_FIRST_STATUS_TEXT, ENGLISH_SECOND_STATUS_TEXT);
     assertThat(contentAsString(result))
         .doesNotContain(ENGLISH_FIRST_STATUS_EMAIL, ENGLISH_SECOND_STATUS_EMAIL);
   }
