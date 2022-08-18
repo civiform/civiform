@@ -21,20 +21,20 @@ class AdminApplicationView {
       'status selector',
     )
 
-    // The original value is tracked since neither the 'change/input' events provide the previous
-    // value prior to input.
+    // Remember the original value here since neither the 'change/input' events provide the
+    // previous selected value. We need to reset the value when the confirmation is rejected.
     const originalSelectedValue = statusSelector.value
     statusSelector.addEventListener('change', (event) => {
-      // The promise result is not awaited since the modal is responsible for updating the status
-      // and we only care about showing it.
+      // Upon confirmation the model is responsible for reloading the page with the new status, so
+      // don't await it and pro-actively reset the selection to the previous value for when the
+      // user cancels the confirmation.
       this.showConfirmStatusChangeModal(statusSelector.value)
-      // Reset the selection to its previous value in the case that the user cancels the
-      // confirmation dialog.
       statusSelector.value = originalSelectedValue
     })
   }
 
-  private showConfirmStatusChangeModal(newValue: string) {
+  private showConfirmStatusChangeModal(selectedStatus: string) {
+    // Find the modal with the data attribute associating it with the selected status.
     const statusModalTriggers = Array.from(
       document.querySelectorAll(
         `[${AdminApplicationView.CONFIRM_MODAL_FOR_DATA_ATTRIBUTE}]`,
@@ -43,7 +43,7 @@ class AdminApplicationView {
     const relevantStatusModalTrigger = this._assertNotNull(
       statusModalTriggers.find((statusModalTrigger) => {
         return (
-          newValue ===
+          selectedStatus ===
           statusModalTrigger.getAttribute(
             AdminApplicationView.CONFIRM_MODAL_FOR_DATA_ATTRIBUTE,
           )

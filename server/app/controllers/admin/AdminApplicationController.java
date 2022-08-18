@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import annotations.BindingAnnotations.Now;
+import annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -48,6 +49,7 @@ import views.admin.programs.ProgramApplicationView;
 
 /** Controller for admins viewing applications to programs. */
 public final class AdminApplicationController extends CiviFormController {
+  private static final int PAGE_SIZE = 10;
 
   private final ProgramService programService;
   private final ApplicantService applicantService;
@@ -61,7 +63,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
-  private static final int PAGE_SIZE = 10;
+  private final Provider<Boolean> statusTrackingEnabled;
 
   @Inject
   public AdminApplicationController(
@@ -76,7 +78,8 @@ public final class AdminApplicationController extends CiviFormController {
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       DateConverter dateConverter,
-      @Now Provider<LocalDateTime> nowProvider) {
+      @Now Provider<LocalDateTime> nowProvider,
+      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationListView = checkNotNull(applicationListView);
@@ -89,6 +92,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
+    this.statusTrackingEnabled = checkNotNull(statusTrackingEnabled);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -306,10 +310,16 @@ public final class AdminApplicationController extends CiviFormController {
             request));
   }
 
-  /** Return a HTML page displaying the summary of the specified application. */
+  /**
+   * Updates the status for the associated application and redirects to the summary page for the
+   * application.
+   */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatus(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
+    if (!statusTrackingEnabled.get()) {
+      return notFound("status tracking is not enabled");
+    }
     ProgramDefinition program = programService.getProgramDefinition(programId);
     String programName = program.adminName();
 

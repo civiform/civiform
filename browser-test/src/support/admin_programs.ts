@@ -508,6 +508,10 @@ export class AdminPrograms {
       .inputValue()
   }
 
+  /**
+   * Selects the provided status option and then clicks the confirm button on the resulting
+   * confirmation dialog.
+   */
   async setStatusOptionAndConfirmModal(status: string) {
     const confirmationModal = await this.setStatusOptionAndAwaitModal(status)
 
@@ -520,6 +524,10 @@ export class AdminPrograms {
     await Promise.all([this.waitForApplicationFrame(), confirmButton.click()])
   }
 
+  /**
+   * Selects the provided status option and then clicks the cancel button on the resulting
+   * dialog.
+   */
   async setStatusOptionAndDismissModal(status: string) {
     await this.setStatusOptionAndAwaitModal(status)
     return dismissModal(

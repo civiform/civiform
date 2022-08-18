@@ -53,8 +53,6 @@ public final class ReferenceClasses {
   public static final String WITH_DROPDOWN = "cf-with-dropdown";
 
   public static final String PROGRAM_ADMIN_STATUS_SELECTOR = "cf-program-admin-status-selector";
-  public static final String PROGRAM_ADMIN_STATUS_SELECTOR_CONFIRM =
-      "cf-program-admin-status-selector-confirm";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Applicant reference classes

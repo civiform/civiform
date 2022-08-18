@@ -107,16 +107,17 @@ describe.skip('view program statuses', () => {
       expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
     })
 
-    describe('shows a confirmation before changing status', () => {
-      it('does not update status when rejecting confirmation', async () => {
+    describe('when a status is changed, a confirmation dialog is shown', () => {
+      it('when rejecting, the selected status is not changed', async () => {
         await adminPrograms.setStatusOptionAndDismissModal(statusName)
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
 
-      it('redirects with toast when accepting confirmation for status', async () => {
+      it('when confirmed, the page is redirected with a success toast', async () => {
         await adminPrograms.setStatusOptionAndConfirmModal(statusName)
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
         await adminPrograms.expectUpdateStatusToast()
+        // TODO(#3020): Assert that the selected status has changed rather
       })
     })
   })
