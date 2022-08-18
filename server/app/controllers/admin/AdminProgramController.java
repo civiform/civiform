@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import auth.CiviFormProfile;
@@ -25,6 +26,7 @@ import services.program.ProgramService;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramNewOneView;
+import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing program definitions. */
 public class AdminProgramController extends CiviFormController {
@@ -88,8 +90,8 @@ public class AdminProgramController extends CiviFormController {
             program.getExternalLink(),
             program.getDisplayMode());
     if (result.isError()) {
-      String errorMessage = joinErrors(result.getErrors());
-      return ok(newOneView.render(request, program, errorMessage));
+      ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      return ok(newOneView.render(request, program, Optional.of(message)));
     }
     return redirect(routes.AdminProgramController.index().url());
   }
@@ -161,8 +163,8 @@ public class AdminProgramController extends CiviFormController {
               program.getExternalLink(),
               program.getDisplayMode());
       if (result.isError()) {
-        String errorMessage = joinErrors(result.getErrors());
-        return ok(editView.render(request, programId, program, errorMessage));
+        ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+        return ok(editView.render(request, programId, program, Optional.of(message)));
       }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {

@@ -169,6 +169,7 @@ module "td" {
     ADFS_DISCOVERY_URI                   = var.adfs_discovery_uri
 
     CIVIFORM_APPLICATION_STATUS_TRACKING_ENABLED = var.feature_flag_status_tracking_enabled
+    CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET          = var.civiform_api_keys_ban_global_subnet
   }
   log_configuration = {
     logDriver = "awslogs"

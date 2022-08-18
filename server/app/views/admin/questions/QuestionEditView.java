@@ -85,7 +85,7 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request,
       QuestionForm questionForm,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
-      String errorMessage) {
+      ToastMessage errorMessage) {
     return renderNewQuestionForm(
         request, questionForm, enumeratorQuestionDefinitions, Optional.of(errorMessage));
   }
@@ -94,7 +94,7 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request,
       QuestionForm questionForm,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
-      Optional<String> message) {
+      Optional<ToastMessage> message) {
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
@@ -104,13 +104,11 @@ public final class QuestionEditView extends BaseHtmlView {
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
                     .with(makeCsrfTokenInputTag(request)));
 
-    if (message.isPresent()) {
-      formContent.with(
-          ToastMessage.error(message.get())
-              .setDismissible(true)
-              .setDuration(ERROR_TOAST_DURATION)
-              .getContainerTag());
-    }
+    message
+        .map(m -> m.setDismissible(true))
+        .map(m -> m.setDuration(ERROR_TOAST_DURATION))
+        .map(ToastMessage::getContainerTag)
+        .ifPresent(formContent::with);
 
     return renderWithPreview(formContent, questionType, title);
   }
@@ -136,7 +134,7 @@ public final class QuestionEditView extends BaseHtmlView {
       long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
-      String message) {
+      ToastMessage message) {
     return renderEditQuestionForm(
         request, id, questionForm, maybeEnumerationQuestionDefinition, Optional.of(message));
   }
@@ -146,7 +144,7 @@ public final class QuestionEditView extends BaseHtmlView {
       long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
-      Optional<String> message) {
+      Optional<ToastMessage> message) {
 
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
@@ -157,13 +155,11 @@ public final class QuestionEditView extends BaseHtmlView {
                 buildEditQuestionForm(id, questionForm, maybeEnumerationQuestionDefinition)
                     .with(makeCsrfTokenInputTag(request)));
 
-    if (message.isPresent()) {
-      formContent.with(
-          ToastMessage.error(message.get())
-              .setDismissible(true)
-              .setDuration(ERROR_TOAST_DURATION)
-              .getContainerTag());
-    }
+    message
+        .map(m -> m.setDismissible(true))
+        .map(m -> m.setDuration(ERROR_TOAST_DURATION))
+        .map(ToastMessage::getContainerTag)
+        .ifPresent(formContent::with);
 
     return renderWithPreview(formContent, questionType, title);
   }
