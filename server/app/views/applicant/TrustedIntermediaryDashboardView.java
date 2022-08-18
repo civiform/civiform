@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.ti.TrustedIntermediaryGroupListView;
@@ -46,10 +47,12 @@ import views.style.Styles;
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ApplicantLayout layout;
+  private final DateConverter dateConverter;
 
   @Inject
-  public TrustedIntermediaryDashboardView(ApplicantLayout layout) {
+  public TrustedIntermediaryDashboardView(ApplicantLayout layout, DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   public Content render(
@@ -226,7 +229,24 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             StyleUtils.even(Styles.BG_GRAY_100))
         .with(renderInfoCell(applicant))
         .with(renderApplicantInfoCell(applicant))
-        .with(renderActionsCell(applicant));
+        .with(renderActionsCell(applicant))
+        .with(renderDateOfBirthCell(applicant));
+  }
+
+  private TdTag renderDateOfBirthCell(Account applicantAccount) {
+    Optional<Applicant> newestApplicant = applicantAccount.newestApplicant();
+    if (newestApplicant.isEmpty()) {
+      return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    }
+    String currentDob =
+        newestApplicant
+            .get()
+            .getApplicantData()
+            .getDateOfBirth()
+            .map(localDate -> this.dateConverter.renderDate(localDate))
+            .orElse("");
+    return td().with(div(currentDob).withClasses(Styles.FONT_SEMIBOLD))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {
@@ -281,7 +301,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
             .with(th("Applications").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-            .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
+            .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
+            .with(th("DOB").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
   }
 
   private TheadTag renderGroupTableHeader() {
