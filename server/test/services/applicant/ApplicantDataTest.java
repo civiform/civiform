@@ -65,7 +65,7 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void checkDateOfBirth() {
+  public void setDateOfBirth_isSuccessful() {
     ApplicantData data = new ApplicantData();
     String sampleDob = "2022-01-05";
     data.setDateOfBirth(sampleDob);
@@ -75,7 +75,7 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void applicantsWithoutDobReturnsOptionalEmpty() {
+  public void getDateOfBirth_isEmptyWhenNotSet() {
     ApplicantData applicantData = new ApplicantData();
     assertThat(applicantData.getDateOfBirth()).isEqualTo(Optional.empty());
   }

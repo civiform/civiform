@@ -23,21 +23,21 @@ public class DateConverterTest {
   }
 
   @Test
-  public void testDateTimeParseExpectionIsGenerated() {
+  public void parseIso8601DateToLocalDate_DateTimeParseExpectionIsGenerated() {
     String inputDate = "2012-20-20";
     assertThrows(
         DateTimeParseException.class, () -> dateConverter.parseIso8601DateToLocalDate(inputDate));
   }
 
   @Test
-  public void testIso8601DateParser() {
+  public void parseIso8601DateToLocalDate_isSuccessful() {
     String inputDate = "2022-01-01";
     LocalDate result = dateConverter.parseIso8601DateToLocalDate(inputDate);
     assertThat(inputDate).isEqualTo(result.toString());
   }
 
   @Test
-  public void testLocalDateToStringParser() {
+  public void renderDate_isSuccessful() {
     String expectedResult = "2020/01/01";
     LocalDate date = LocalDate.of(2020, 1, 1);
     String result = dateConverter.renderDate(date);

@@ -39,7 +39,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testAddClientWithInvalidDOB() {
+  public void addClient_withInvalidDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -66,7 +66,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testAddClientWithUnformattedDOB() {
+  public void addClient_withUnformmatedDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -94,7 +94,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testAddClientWithInvalidLastName() {
+  public void addClient_withInvalidLastName() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -121,7 +121,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testAddClientWithInvalidFirstName() {
+  public void addClient_WithInvalidFirstName() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -148,7 +148,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testAddClientWithEmailAddressExistsError() {
+  public void addClient_WithEmailAddressExistsError() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -182,7 +182,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testAddClientWithInvalidEmailAddress() {
+  public void addClient_WithInvalidEmailAddress() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -210,7 +210,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testAddClientWithAllInformation() {
+  public void addClient_WithAllInformation() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
