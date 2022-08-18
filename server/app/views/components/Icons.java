@@ -311,8 +311,7 @@ public enum Icons {
     return questionTypeSvg(type, 24);
   }
 
-  /** @deprecated Use {@link #questionTypeSvg(QuestionType type) instead} */
-  @Deprecated
+  /** Don't use it. Use {@link #questionTypeSvg(QuestionType type) instead} */
   public static SvgTag questionTypeSvg(QuestionType type, int size) {
     Icons icon;
     switch (type) {
@@ -370,8 +369,7 @@ public enum Icons {
     return svg(icon, size);
   }
 
-  /** @deprecated Use {@link #svg(Icons icon) instead} */
-  @Deprecated
+  /** Don't use it. Use {@link #questionTypeSvg(QuestionType type) instead} */
   public static SvgTag svg(Icons icon, int size) {
     if (icon.size != size) {
       throw new IllegalArgumentException(
