@@ -296,22 +296,23 @@ public enum Icons {
   }
 
   /**
-   * Returns SVG element for given icon. Note that callers need to size this
-   * element using Tailwind classes like any other element.
+   * Returns SVG element for given icon. Note that callers need to size this element using Tailwind
+   * classes like any other element.
    */
   public static SvgTag svg(Icons icon) {
     return svg(icon, icon.size);
   }
 
   /**
-   * Returns SVG element for given question. Note that callers need to size this
-   * element using Tailwind classes like any other element.
+   * Returns SVG element for given question. Note that callers need to size this element using
+   * Tailwind classes like any other element.
    */
   public static SvgTag questionTypeSvg(QuestionType type) {
     return questionTypeSvg(type, 24);
   }
 
   /** @deprecated Use {@link #questionTypeSvg(QuestionType type) instead} */
+  @Deprecated
   public static SvgTag questionTypeSvg(QuestionType type, int size) {
     Icons icon;
     switch (type) {
@@ -370,6 +371,7 @@ public enum Icons {
   }
 
   /** @deprecated Use {@link #svg(Icons icon) instead} */
+  @Deprecated
   public static SvgTag svg(Icons icon, int size) {
     if (icon.size != size) {
       throw new IllegalArgumentException(
