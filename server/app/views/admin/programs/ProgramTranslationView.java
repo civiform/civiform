@@ -2,41 +2,48 @@ package views.admin.programs;
 
 import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.fieldset;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
+import static j2html.TagCreator.span;
 
-import com.google.auto.value.AutoValue;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-import j2html.tags.specialized.FieldsetTag;
+import forms.translation.ProgramTranslationForm;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
-import play.i18n.Langs;
+import javax.inject.Provider;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.TranslationLocales;
+import services.program.LocalizationUpdate;
+import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
-public class ProgramTranslationView extends TranslationFormView {
+public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
-  private final boolean statusTrackingEnabled;
+  private final Provider<Boolean> statusTrackingEnabled;
 
   @Inject
   public ProgramTranslationView(
       AdminLayoutFactory layoutFactory,
-      Langs langs,
-      @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
-    super(langs);
+      TranslationLocales translationLocales,
+      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
+    super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.statusTrackingEnabled = statusTrackingEnabled;
   }
@@ -44,43 +51,25 @@ public class ProgramTranslationView extends TranslationFormView {
   public Content render(
       Http.Request request,
       Locale locale,
-      long programId,
-      String localizedName,
-      String localizedDescription,
-      Optional<String> errors) {
-    return render(
-        request,
-        locale,
-        programId,
-        Optional.of(localizedName),
-        Optional.of(localizedDescription),
-        errors);
-  }
-
-  public Content render(
-      Http.Request request,
-      Locale locale,
-      long programId,
-      Optional<String> localizedName,
-      Optional<String> localizedDescription,
-      Optional<String> errors) {
+      ProgramDefinition program,
+      ProgramTranslationForm translationForm,
+      Optional<ToastMessage> message) {
     String formAction =
         controllers.admin.routes.AdminProgramTranslationsController.update(
-                programId, locale.toLanguageTag())
+                program.id(), locale.toLanguageTag())
             .url();
     FormTag form =
-        renderTranslationForm(
-            request, locale, formAction, formFields(localizedName, localizedDescription));
+        renderTranslationForm(request, locale, formAction, formFields(program, translationForm));
 
-    String title = "Manage program translations";
+    String title = String.format("Manage program translations: %s", program.adminName());
 
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(renderHeader(title), renderLanguageLinks(programId, locale), form);
+            .addMainContent(renderHeader(title), renderLanguageLinks(program.id(), locale), form);
 
-    errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
@@ -90,68 +79,95 @@ public class ProgramTranslationView extends TranslationFormView {
     return routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag()).url();
   }
 
-  private ImmutableList<FieldsetTag> formFields(
-      Optional<String> localizedName, Optional<String> localizedDescription) {
-    ImmutableList.Builder<FieldsetTag> result =
-        ImmutableList.<FieldsetTag>builder()
+  private ImmutableList<DomContent> formFields(
+      ProgramDefinition program, ProgramTranslationForm translationForm) {
+    LocalizationUpdate updateData = translationForm.getUpdateData();
+    String programDetailsLink =
+        controllers.admin.routes.AdminProgramController.edit(program.id()).url();
+    ImmutableList.Builder<DomContent> result =
+        ImmutableList.<DomContent>builder()
             .add(
-                fieldset()
-                    .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-                    .with(
-                        legend("Program details (visible to applicants)"),
+                fieldSetForFields(
+                    legend()
+                        .with(
+                            span("Applicant-visible program details"),
+                            new LinkElement()
+                                .setText("(edit default)")
+                                .setHref(programDetailsLink)
+                                .setStyles(Styles.ML_2)
+                                .asAnchorText()),
+                    ImmutableList.of(
+                        fieldWithDefaultLocaleTextHint(
+                            FieldWithLabel.input()
+                                .setFieldName(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
+                                .setLabelText("Program name")
+                                .setValue(updateData.localizedDisplayName())
+                                .getInputTag(),
+                            program.localizedName()),
+                        fieldWithDefaultLocaleTextHint(
+                            FieldWithLabel.input()
+                                .setFieldName(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
+                                .setLabelText("Program description")
+                                .setValue(updateData.localizedDisplayDescription())
+                                .getInputTag(),
+                            program.localizedDescription()))));
+    if (statusTrackingEnabled.get()) {
+      String programStatusesLink =
+          controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
+
+      Preconditions.checkState(
+          updateData.statuses().size() == program.statusDefinitions().getStatuses().size());
+      for (int statusIdx = 0; statusIdx < updateData.statuses().size(); statusIdx++) {
+        StatusDefinitions.Status configuredStatus =
+            program.statusDefinitions().getStatuses().get(statusIdx);
+        LocalizationUpdate.StatusUpdate statusUpdateData = updateData.statuses().get(statusIdx);
+        // Note: While displayed as siblings, fields are logically grouped together by sharing a
+        // common index in their field names. These are dynamically generated via helper methods
+        // within ProgramTranslationForm (e.g. statusKeyToUpdateFieldName).
+        ImmutableList.Builder<DomContent> fieldsBuilder =
+            ImmutableList.<DomContent>builder()
+                .add(
+                    // This input serves as the key indicating which status to update translations
+                    // for and isn't configurable.
+                    input()
+                        .isHidden()
+                        .withName(ProgramTranslationForm.statusKeyToUpdateFieldName(statusIdx))
+                        .withValue(configuredStatus.statusText()),
+                    fieldWithDefaultLocaleTextHint(
                         FieldWithLabel.input()
-                            .setId("localize-display-name")
-                            .setFieldName("displayName")
-                            .setLabelText("Program name")
-                            .setScreenReaderText("Program display name")
-                            .setValue(localizedName)
+                            .setFieldName(
+                                ProgramTranslationForm.localizedStatusFieldName(statusIdx))
+                            .setLabelText("Status name")
+                            .setScreenReaderText("Status name")
+                            .setValue(statusUpdateData.localizedStatusText())
                             .getInputTag(),
-                        FieldWithLabel.input()
-                            .setId("localize-display-description")
-                            .setFieldName("displayDescription")
-                            .setLabelText("Program description")
-                            .setScreenReaderText("Program description")
-                            .setValue(localizedDescription)
-                            .getInputTag()));
-    if (statusTrackingEnabled) {
-      // TODO(#2752): Use real statuses from the program.
-      ImmutableList<ApplicationStatus> statusesWithEmail =
-          ImmutableList.of(
-              ApplicationStatus.create("Approved", "Some email content"),
-              ApplicationStatus.create("Needs more information", "Other email content"));
-      for (ApplicationStatus s : statusesWithEmail) {
+                        configuredStatus.localizedStatusText()));
+        if (configuredStatus.localizedEmailBodyText().isPresent()) {
+          fieldsBuilder.add(
+              fieldWithDefaultLocaleTextHint(
+                  FieldWithLabel.textArea()
+                      .setFieldName(ProgramTranslationForm.localizedEmailFieldName(statusIdx))
+                      .setLabelText("Email content")
+                      .setScreenReaderText("Email content")
+                      .setValue(statusUpdateData.localizedEmailBody())
+                      .setRows(OptionalLong.of(8))
+                      .getTextareaTag(),
+                  configuredStatus.localizedEmailBodyText().get()));
+        }
         result.add(
-            fieldset()
-                .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-                .with(
-                    legend(String.format("Application status: %s", s.statusName())),
-                    FieldWithLabel.input()
-                        .setLabelText("Status name")
-                        .setScreenReaderText("Status name")
-                        .setValue(s.statusName())
-                        .getInputTag(),
-                    FieldWithLabel.textArea()
-                        .setLabelText("Email content")
-                        .setScreenReaderText("Email content")
-                        .setValue(s.emailContent())
-                        .setRows(OptionalLong.of(8))
-                        .getTextareaTag()));
+            fieldSetForFields(
+                legend()
+                    .with(
+                        span(
+                            String.format("Application status: %s", configuredStatus.statusText())),
+                        new LinkElement()
+                            .setText("(edit default)")
+                            .setHref(programStatusesLink)
+                            .setStyles(Styles.ML_2)
+                            .asAnchorText()),
+                fieldsBuilder.build()));
       }
     }
     return result.build();
-  }
-
-  // TODO(#2752): Use a domain-specific representation of an ApplicationStatus
-  // rather than an auto-value.
-  @AutoValue
-  abstract static class ApplicationStatus {
-
-    static ApplicationStatus create(String statusName, String emailContent) {
-      return new AutoValue_ProgramTranslationView_ApplicationStatus(statusName, emailContent);
-    }
-
-    abstract String statusName();
-
-    abstract String emailContent();
   }
 }

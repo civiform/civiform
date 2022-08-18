@@ -9,6 +9,8 @@
     "ms-ossdata.vscode-postgresql",
     "bradlc.vscode-tailwindcss",
     "scala-lang.scala",
-    "redhat.vscode-yaml"
+    "redhat.vscode-yaml",
+    "dbaeumer.vscode-eslint",
+    "rvest.vs-code-prettier-eslint"
   ]
 }

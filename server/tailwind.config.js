@@ -13,7 +13,7 @@ module.exports = {
     },
     transform: {
       java: (content) => {
-        var output = []
+        const output = []
         for (const match of content.matchAll(/"([\w-/:.]+)"/g)) {
           output.push(match[1])
           // We don't know which, if any, of these prefixes are in use for any class in particular.

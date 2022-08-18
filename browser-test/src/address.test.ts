@@ -81,7 +81,7 @@ describe('address applicant flow', () => {
       )
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with empty address does not submit', async () => {
@@ -116,7 +116,7 @@ describe('address applicant flow', () => {
       )
       await applicantQuestions.clickNext()
 
-      let error = pageObject.locator('.cf-address-zip-error')
+      const error = pageObject.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(false)
     })
   })
@@ -168,7 +168,7 @@ describe('address applicant flow', () => {
       )
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with first invalid does not submit', async () => {
@@ -300,7 +300,7 @@ describe('address applicant flow', () => {
       )
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with invalid optional address does not submit', async () => {

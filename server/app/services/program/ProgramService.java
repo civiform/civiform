@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import models.Application;
-import models.Program;
 import play.libs.F;
 import repository.TimeFilter;
 import services.CiviFormError;
@@ -53,7 +52,7 @@ public interface ProgramService {
    *     ProgramNotFoundException is thrown when the future completes and ID does not correspond to
    *     a real Program
    */
-  CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
+  CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(long id);
 
   /**
    * Get the definition of a given program asynchronously. Gets the active version for the slug.
@@ -63,7 +62,7 @@ public interface ProgramService {
    *     ProgramNotFoundException is thrown when the future completes and slug does not correspond
    *     to a real Program
    */
-  CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug);
+  CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug);
 
   /**
    * Create a new program with an empty block.
@@ -117,15 +116,16 @@ public interface ProgramService {
    *
    * @param programId the ID of the program to update
    * @param locale the {@link Locale} to update
-   * @param displayName a localized display name for this program
-   * @param displayDescription a localized description for this program
+   * @param localizationUpdate the localization update to apply
    * @return the {@link ProgramDefinition} that was successfully updated, or a set of errors if the
    *     update failed
    * @throws ProgramNotFoundException if the programId does not correspond to a valid program
+   * @throws OutOfDateStatusesException if the program's status definitions are out of sync with
+   *     those in the provided update
    */
   ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
-      long programId, Locale locale, String displayName, String displayDescription)
-      throws ProgramNotFoundException;
+      long programId, Locale locale, LocalizationUpdate localizationUpdate)
+      throws ProgramNotFoundException, OutOfDateStatusesException;
 
   /**
    * Adds an empty {@link BlockDefinition} to the end of a given program.
@@ -315,6 +315,25 @@ public interface ProgramService {
           ProgramQuestionDefinitionNotFoundException;
 
   /**
+   * Set position of a program question within its block. Used to reorder questions.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionDefinitionId the ID of the question to update
+   * @param newPosition Should be between 0 and N-1 where N is number of questions in the block.
+   * @return the updated program definition
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block
+   * @throws ProgramQuestionDefinitionNotFoundException when questionDefinitionId does not
+   *     correspond to a real question in the block
+   */
+  ProgramDefinition setProgramQuestionDefinitionPosition(
+      long programId, long blockDefinitionId, long questionDefinitionId, int newPosition)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, InvalidQuestionPositionException;
+
+  /**
    * Get all the program's submitted applications. Does not include drafts or deleted applications.
    *
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
@@ -355,9 +374,6 @@ public interface ProgramService {
    * global admins if none.
    */
   ImmutableList<String> getNotificationEmailAddresses(String programName);
-
-  /** Get all other programs with the same name. */
-  ImmutableList<Program> getOtherProgramVersions(long programId);
 
   /** Get all versions of the program with a version matching programId, including that one */
   ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId);

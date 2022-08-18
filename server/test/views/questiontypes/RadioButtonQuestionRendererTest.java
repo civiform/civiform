@@ -65,10 +65,12 @@ public class RadioButtonQuestionRendererTest {
   }
 
   @Test
-  public void render_generatesIds_formatsWhitespaceAsUnderscore() {
+  public void render_generatesIdsForExplicitLabels() {
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).contains("id=\"peanut_butter\"");
+    // Verify we use explicit labels linked to inputs by id for a11y.
+    assertThat(result.render()).contains("<label for=");
+    assertThat(result.render()).contains("<input id=");
   }
 
   @Test
@@ -79,7 +81,7 @@ public class RadioButtonQuestionRendererTest {
 
     assertThat(result.render())
         .contains(
-            "<input id=\"peanut_butter\" type=\"radio\""
+            "type=\"radio\""
                 + " name=\"applicant.favorite_ice_cream.selection\""
                 + " value=\"2\" checked");
   }

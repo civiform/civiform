@@ -36,10 +36,13 @@ public class StatusDefinitions {
    * Sets {@code statuses} as the configured {@link Status} values.
    *
    * <p>The order of the items will be maintained and used as the natural order of the statuses.
+   *
+   * @return this, for chaining.
    */
-  public void setStatuses(ImmutableList<Status> statuses) {
+  public StatusDefinitions setStatuses(ImmutableList<Status> statuses) {
     assertStatusNamesNonEmptyAndUnique(statuses);
     this.statuses = statuses;
+    return this;
   }
 
   private static void assertStatusNamesNonEmptyAndUnique(ImmutableList<Status> statuses) {
@@ -66,15 +69,14 @@ public class StatusDefinitions {
     @JsonProperty("status_localized")
     public abstract LocalizedStrings localizedStatusText();
 
-    @JsonProperty("email_body")
-    public abstract Optional<String> emailBodyText();
-
     @JsonProperty("email_body_localized")
     public abstract Optional<LocalizedStrings> localizedEmailBodyText();
 
     public static Builder builder() {
       return new AutoValue_StatusDefinitions_Status.Builder();
     }
+
+    public abstract Builder toBuilder();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -84,9 +86,6 @@ public class StatusDefinitions {
 
       @JsonProperty("status_localized")
       public abstract Builder setLocalizedStatusText(LocalizedStrings value);
-
-      @JsonProperty("email_body")
-      public abstract Builder setEmailBodyText(Optional<String> value);
 
       @JsonProperty("email_body_localized")
       public abstract Builder setLocalizedEmailBodyText(Optional<LocalizedStrings> value);

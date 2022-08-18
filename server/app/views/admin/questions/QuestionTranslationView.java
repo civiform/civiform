@@ -1,18 +1,19 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.legend;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
-import j2html.tags.specialized.DivTag;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import play.i18n.Langs;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.question.QuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -23,16 +24,19 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating question information. */
-public class QuestionTranslationView extends TranslationFormView {
+public final class QuestionTranslationView extends TranslationFormView {
 
   private final AdminLayout layout;
 
   @Inject
-  public QuestionTranslationView(AdminLayoutFactory layoutFactory, Langs langs) {
-    super(checkNotNull(langs));
+  public QuestionTranslationView(
+      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
+    super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
   }
 
@@ -41,26 +45,38 @@ public class QuestionTranslationView extends TranslationFormView {
   }
 
   public Content renderErrors(
-      Http.Request request, Locale locale, QuestionDefinition invalidQuestion, String errors) {
+      Http.Request request,
+      Locale locale,
+      QuestionDefinition invalidQuestion,
+      ToastMessage errors) {
     return render(request, locale, invalidQuestion, Optional.of(errors));
   }
 
   private Content render(
-      Http.Request request, Locale locale, QuestionDefinition question, Optional<String> errors) {
+      Http.Request request,
+      Locale locale,
+      QuestionDefinition question,
+      Optional<ToastMessage> message) {
     String formAction =
         controllers.admin.routes.AdminQuestionTranslationsController.update(
                 question.getId(), locale.toLanguageTag())
             .url();
 
     // Add form fields for questions.
-    ImmutableList.Builder<DivTag> inputFields = ImmutableList.builder();
-    inputFields.addAll(
-        questionTextFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
-    inputFields.addAll(getQuestionTypeSpecificFields(question, locale));
+    ImmutableList.Builder<DomContent> inputFieldsBuilder =
+        ImmutableList.<DomContent>builder()
+            .add(
+                questionTextFields(
+                    question, locale, question.getQuestionText(), question.getQuestionHelpText()));
+    Optional<DomContent> questionTypeSpecificContent =
+        getQuestionTypeSpecificContent(question, locale);
+    if (questionTypeSpecificContent.isPresent()) {
+      inputFieldsBuilder.add(questionTypeSpecificContent.get());
+    }
 
-    FormTag form = renderTranslationForm(request, locale, formAction, inputFields.build());
+    FormTag form = renderTranslationForm(request, locale, formAction, inputFieldsBuilder.build());
 
-    String title = "Manage Question Translations";
+    String title = String.format("Manage Question Translations: %s", question.getName());
 
     HtmlBundle htmlBundle =
         layout
@@ -68,7 +84,7 @@ public class QuestionTranslationView extends TranslationFormView {
             .setTitle(title)
             .addMainContent(
                 renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
-    errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
@@ -80,7 +96,7 @@ public class QuestionTranslationView extends TranslationFormView {
         .url();
   }
 
-  private ImmutableList<DivTag> getQuestionTypeSpecificFields(
+  private Optional<DomContent> getQuestionTypeSpecificContent(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
       case CHECKBOX: // fallthrough intended
@@ -98,59 +114,82 @@ public class QuestionTranslationView extends TranslationFormView {
       case NUMBER: // fallthrough intended
       case TEXT: // fallthrough intended
       default:
-        return ImmutableList.of();
+        return Optional.empty();
     }
   }
 
-  private ImmutableList<DivTag> questionTextFields(
-      Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
-    ImmutableList.Builder<DivTag> fields = ImmutableList.builder();
+  private DomContent questionTextFields(
+      QuestionDefinition questionDefinition,
+      Locale locale,
+      LocalizedStrings questionText,
+      LocalizedStrings helpText) {
+    ImmutableList.Builder<DomContent> fields = ImmutableList.builder();
     fields.add(
-        FieldWithLabel.input()
-            .setId("localize-question-text")
-            .setFieldName("questionText")
-            .setLabelText(questionText.getDefault())
-            .setPlaceholderText("Question text")
-            .setValue(questionText.maybeGet(locale))
-            .getInputTag());
+        fieldWithDefaultLocaleTextHint(
+            FieldWithLabel.input()
+                .setFieldName("questionText")
+                .setLabelText("Question text")
+                .setValue(questionText.maybeGet(locale))
+                .getInputTag(),
+            questionText));
 
     // Help text is optional - only show if present.
     if (!helpText.isEmpty()) {
       fields.add(
-          FieldWithLabel.input()
-              .setId("localize-question-help-text")
-              .setFieldName("questionHelpText")
-              .setLabelText(helpText.getDefault())
-              .setPlaceholderText("Question help text")
-              .setValue(helpText.maybeGet(locale))
-              .getInputTag());
+          fieldWithDefaultLocaleTextHint(
+              FieldWithLabel.input()
+                  .setFieldName("questionHelpText")
+                  .setLabelText("Question help text")
+                  .setValue(helpText.maybeGet(locale))
+                  .getInputTag(),
+              helpText));
     }
 
-    return fields.build();
+    return fieldSetForFields(
+        legend()
+            .with(
+                span("Applicant-visible question details"),
+                new LinkElement()
+                    .setText("(edit default)")
+                    .setHref(
+                        controllers.admin.routes.AdminQuestionController.edit(
+                                questionDefinition.getId())
+                            .url())
+                    .setStyles(Styles.ML_2)
+                    .asAnchorText()),
+        fields.build());
   }
 
-  private ImmutableList<DivTag> multiOptionQuestionFields(
+  private Optional<DomContent> multiOptionQuestionFields(
       ImmutableList<QuestionOption> options, Locale toUpdate) {
-    return options.stream()
-        .map(
-            option ->
-                FieldWithLabel.input()
-                    .setFieldName("options[]")
-                    .setLabelText(option.optionText().getDefault())
-                    .setPlaceholderText("Answer option")
-                    .setValue(option.optionText().translations().getOrDefault(toUpdate, ""))
-                    .getInputTag())
-        .collect(toImmutableList());
+    if (options.isEmpty()) {
+      return Optional.empty();
+    }
+    ImmutableList.Builder<DomContent> optionFieldsBuilder = ImmutableList.builder();
+    for (int optionIdx = 0; optionIdx < options.size(); optionIdx++) {
+      QuestionOption option = options.get(optionIdx);
+      optionFieldsBuilder.add(
+          fieldWithDefaultLocaleTextHint(
+              FieldWithLabel.input()
+                  .setFieldName("options[]")
+                  .setLabelText(String.format("Answer option #%d", optionIdx + 1))
+                  .setValue(option.optionText().maybeGet(toUpdate).orElse(""))
+                  .getInputTag(),
+              option.optionText()));
+    }
+
+    return Optional.of(fieldSetForFields(legend("Answer options"), optionFieldsBuilder.build()));
   }
 
-  private ImmutableList<DivTag> enumeratorQuestionFields(
+  private Optional<DomContent> enumeratorQuestionFields(
       LocalizedStrings entityType, Locale toUpdate) {
-    return ImmutableList.of(
-        FieldWithLabel.input()
-            .setFieldName("entityType")
-            .setLabelText(entityType.getDefault())
-            .setPlaceholderText("What are we enumerating?")
-            .setValue(entityType.maybeGet(toUpdate).orElse(""))
-            .getInputTag());
+    return Optional.of(
+        fieldWithDefaultLocaleTextHint(
+            FieldWithLabel.input()
+                .setFieldName("entityType")
+                .setLabelText("What is being enumerated")
+                .setValue(entityType.maybeGet(toUpdate).orElse(""))
+                .getInputTag(),
+            entityType));
   }
 }

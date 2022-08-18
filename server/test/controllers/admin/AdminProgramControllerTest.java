@@ -1,7 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -223,7 +223,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
             .build();
 
-    assertThrows(NotChangeableException.class, () -> controller.update(request, 1L));
+    assertThatThrownBy(() -> controller.update(request, 1L))
+        .isInstanceOf(NotChangeableException.class);
   }
 
   @Test

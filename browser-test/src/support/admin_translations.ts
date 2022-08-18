@@ -1,4 +1,12 @@
 import {Page} from 'playwright'
+import {waitForPageJsLoad} from './wait'
+
+type ProgramStatusTranslationParams = {
+  configuredStatusText: string
+  statusText: string
+  // Undefined implies that no email input is expected to be present.
+  statusEmail?: string
+}
 
 export class AdminTranslations {
   public page!: Page
@@ -9,12 +17,99 @@ export class AdminTranslations {
 
   async selectLanguage(language: string) {
     await this.page.click(`.cf-admin-language-link:text("${language}")`)
+    await waitForPageJsLoad(this.page)
   }
 
-  async editProgramTranslations(name: string, description: string) {
-    await this.page.fill('#localize-display-name', name)
-    await this.page.fill('#localize-display-description', description)
+  async editProgramTranslations({
+    name,
+    description,
+    statuses = [],
+  }: {
+    name: string
+    description: string
+    statuses: ProgramStatusTranslationParams[]
+  }) {
+    await this.page.fill('text=Program name', name)
+    await this.page.fill('text=Program description', description)
+
+    for (const status of statuses) {
+      await this.page.fill(
+        this.statusNameFieldSelector(status.configuredStatusText),
+        status.statusText,
+      )
+      const isEmailVisible = await this.page.isVisible(
+        this.statusEmailFieldSelector(status.configuredStatusText),
+      )
+      if (status.statusEmail === undefined) {
+        expect(isEmailVisible).toBe(false)
+      } else {
+        expect(isEmailVisible).toBe(true)
+        await this.page.fill(
+          this.statusEmailFieldSelector(status.configuredStatusText),
+          status.statusEmail,
+        )
+      }
+    }
+
     await this.page.click('#update-localizations-button')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async expectProgramTranslation({
+    expectProgramName,
+    expectProgramDescription,
+  }: {
+    expectProgramName: string
+    expectProgramDescription: string
+  }) {
+    const programNameValue = await this.page.inputValue('text=Program name')
+    expect(programNameValue).toEqual(expectProgramName)
+    const programDescriptionValue = await this.page.inputValue(
+      'text=Program description',
+    )
+    expect(programDescriptionValue).toEqual(expectProgramDescription)
+  }
+
+  async expectNoProgramStatusTranslations() {
+    expect(await this.page.isVisible(':has-text("Application status: ")')).toBe(
+      false,
+    )
+  }
+
+  async expectProgramStatusTranslationWithEmail({
+    configuredStatusText,
+    expectStatusText,
+    expectStatusEmail,
+  }: {
+    configuredStatusText: string
+    expectStatusText: string
+    expectStatusEmail: string
+  }) {
+    const statusTextValue = await this.page.inputValue(
+      this.statusNameFieldSelector(configuredStatusText),
+    )
+    expect(statusTextValue).toEqual(expectStatusText)
+    const statusEmailValue = await this.page.inputValue(
+      this.statusEmailFieldSelector(configuredStatusText),
+    )
+    expect(statusEmailValue).toEqual(expectStatusEmail)
+  }
+
+  async expectProgramStatusTranslationWithNoEmail({
+    configuredStatusText,
+    expectStatusText,
+  }: {
+    configuredStatusText: string
+    expectStatusText: string
+  }) {
+    const statusTextValue = await this.page.inputValue(
+      this.statusNameFieldSelector(configuredStatusText),
+    )
+    expect(statusTextValue).toEqual(expectStatusText)
+    const isStatusEmailVisible = await this.page.isVisible(
+      this.statusEmailFieldSelector(configuredStatusText),
+    )
+    expect(isStatusEmailVisible).toBe(false)
   }
 
   async editQuestionTranslations(
@@ -22,13 +117,13 @@ export class AdminTranslations {
     helpText: string,
     configText: string[] = [],
   ) {
-    await this.page.fill('#localize-question-text', text)
-    await this.page.fill('#localize-question-help-text', helpText)
+    await this.page.fill('text=Question text', text)
+    await this.page.fill('text=Question help text', helpText)
 
     // If there are multi-option inputs to translate, fill them in
     // with the provided translations in configText
     const optionInputs = await this.page.$$('[name="options[]"]')
-    for (var index = 0; index < optionInputs.length; index++) {
+    for (let index = 0; index < optionInputs.length; index++) {
       await optionInputs[index].fill(configText[index])
     }
 
@@ -38,5 +133,22 @@ export class AdminTranslations {
     }
 
     await this.page.click('#update-localizations-button')
+    await waitForPageJsLoad(this.page)
+  }
+
+  private statusFieldsSelector(configuredStatusText: string): string {
+    return `fieldset:has-text("Application status: ${configuredStatusText}")`
+  }
+
+  private statusNameFieldSelector(configuredStatusText: string): string {
+    return `${this.statusFieldsSelector(
+      configuredStatusText,
+    )} :text("Status name")`
+  }
+
+  private statusEmailFieldSelector(configuredStatusText: string): string {
+    return `${this.statusFieldsSelector(
+      configuredStatusText,
+    )} :text("Email content")`
   }
 }

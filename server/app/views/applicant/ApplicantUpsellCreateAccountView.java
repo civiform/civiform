@@ -42,7 +42,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       Optional<String> applicantName,
       Long applicationId,
       Messages messages,
-      Optional<String> banner) {
+      Optional<ToastMessage> bannerMessage) {
     String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
 
     HtmlBundle bundle = layout.getBundle().setTitle(title);
@@ -114,9 +114,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
               .asAnchorText());
     }
 
-    if (banner.isPresent()) {
-      bundle.addToastMessages(ToastMessage.error(banner.get()));
-    }
+    bannerMessage.ifPresent(bundle::addToastMessages);
 
     bundle
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)

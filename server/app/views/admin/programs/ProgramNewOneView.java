@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import com.google.inject.Inject;
 import forms.ProgramForm;
 import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -25,10 +26,10 @@ public final class ProgramNewOneView extends BaseHtmlView {
   }
 
   public Content render(Request request) {
-    return render(request, new ProgramForm(), "");
+    return render(request, new ProgramForm(), /* message= */ Optional.empty());
   }
 
-  public Content render(Request request, ProgramForm programForm, String message) {
+  public Content render(Request request, ProgramForm programForm, Optional<ToastMessage> message) {
     String title = "New program information";
 
     DivTag contentDiv =
@@ -40,9 +41,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), contentDiv);
 
-    if (!message.isEmpty()) {
-      htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
-    }
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }

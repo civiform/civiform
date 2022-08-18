@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import controllers.CiviFormController;
 import forms.admin.ProgramStatusesForm;
 import java.util.Optional;
+import javax.inject.Provider;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -34,7 +35,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
   private final ProgramStatusesView statusesView;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
-  private final boolean statusTrackingEnabled;
+  private final Provider<Boolean> statusTrackingEnabled;
 
   @Inject
   public AdminProgramStatusesController(
@@ -42,7 +43,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       ProgramStatusesView statusesView,
       RequestChecker requestChecker,
       FormFactory formFactory,
-      @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
+      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
     this.service = checkNotNull(service);
     this.statusesView = checkNotNull(statusesView);
     this.requestChecker = checkNotNull(requestChecker);
@@ -53,7 +54,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
   /** Displays the list of {@link StatusDefinitions} associated with the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, long programId) throws ProgramNotFoundException {
-    if (!statusTrackingEnabled) {
+    if (!statusTrackingEnabled.get()) {
       return notFound("status tracking is not enabled");
     }
     requestChecker.throwIfProgramNotDraft(programId);
@@ -78,7 +79,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result createOrUpdate(Http.Request request, long programId)
       throws ProgramNotFoundException {
-    if (!statusTrackingEnabled) {
+    if (!statusTrackingEnabled.get()) {
       return notFound("status tracking is not enabled");
     }
     requestChecker.throwIfProgramNotDraft(programId);
@@ -128,10 +129,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
               .setLocalizedStatusText(LocalizedStrings.withDefaultValue(formData.getStatusText()));
       if (!formData.getEmailBody().isBlank()) {
         newStatusBuilder =
-            newStatusBuilder
-                .setEmailBodyText(Optional.of(formData.getEmailBody()))
-                .setLocalizedEmailBodyText(
-                    Optional.of(LocalizedStrings.withDefaultValue(formData.getEmailBody())));
+            newStatusBuilder.setLocalizedEmailBodyText(
+                Optional.of(LocalizedStrings.withDefaultValue(formData.getEmailBody())));
       }
       return service.appendStatus(program.id(), newStatusBuilder.build());
     }
@@ -142,18 +141,27 @@ public final class AdminProgramStatusesController extends CiviFormController {
           StatusDefinitions.Status.Builder builder =
               StatusDefinitions.Status.builder()
                   .setStatusText(formData.getStatusText())
-                  // TODO(#2752): Consider always setting the
-                  // English localized text from this handler and
-                  // disabling the English translations UI.
-                  // Note: We preserve the existing localized status / email body
-                  // text so that existing translated content isn't destroyed upon
-                  // editing status.
-                  .setLocalizedStatusText(existingStatus.localizedStatusText());
-          if (existingStatus.localizedEmailBodyText().isPresent()) {
-            builder.setLocalizedEmailBodyText(existingStatus.localizedEmailBodyText());
-          }
+                  .setLocalizedStatusText(
+                      existingStatus
+                          .localizedStatusText()
+                          .updateTranslation(
+                              LocalizedStrings.DEFAULT_LOCALE, formData.getStatusText()));
           if (!formData.getEmailBody().isBlank()) {
-            builder.setEmailBodyText(Optional.of(formData.getEmailBody()));
+            // Only carry forward translated content if a non-empty email body
+            // has been provided. Any other translations will be lost when
+            // this occurs.
+            if (existingStatus.localizedEmailBodyText().isPresent()) {
+              // Preserve any existing translations.
+              LocalizedStrings updated =
+                  existingStatus
+                      .localizedEmailBodyText()
+                      .get()
+                      .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, formData.getEmailBody());
+              builder.setLocalizedEmailBodyText(Optional.of(updated));
+            } else {
+              builder.setLocalizedEmailBodyText(
+                  Optional.of(LocalizedStrings.withDefaultValue(formData.getEmailBody())));
+            }
           }
           return builder.build();
         });
@@ -165,7 +173,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result delete(Http.Request request, long programId) throws ProgramNotFoundException {
-    if (!statusTrackingEnabled) {
+    if (!statusTrackingEnabled.get()) {
       return notFound("status tracking is not enabled");
     }
     requestChecker.throwIfProgramNotDraft(programId);
@@ -173,9 +181,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     String rawDeleteStatusText = requestData.get(ProgramStatusesView.DELETE_STATUS_TEXT_NAME);
-    // TODO(#2752): Consider only trimming the user-provided data before serializing
-    // to a program's statuses here and when editing a status.
-    final String deleteStatusText = rawDeleteStatusText != null ? rawDeleteStatusText.trim() : "";
+    final String deleteStatusText = rawDeleteStatusText != null ? rawDeleteStatusText : "";
     if (deleteStatusText.isBlank()) {
       return badRequest("missing or empty status text");
     }

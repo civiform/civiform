@@ -76,7 +76,7 @@ describe('create and edit predicates', () => {
     )
 
     // Return to the first screen and answer it so that the second screen is hidden
-    page.click('text=Edit') // first screen edit
+    await page.click('text=Edit') // first screen edit
     await applicant.answerTextQuestion('hide me')
     await applicant.clickNext()
 
@@ -84,7 +84,7 @@ describe('create and edit predicates', () => {
     expect(await page.innerText('#application-summary')).not.toContain(
       'conditional question',
     )
-    await applicant.submitFromReviewPage(programName)
+    await applicant.submitFromReviewPage()
 
     // Visit the program admin page and assert the hidden question does not show
     await logout(page)
@@ -163,7 +163,7 @@ describe('create and edit predicates', () => {
     )
 
     // Return to the first screen and answer it so that the second screen is shown
-    page.click('text=Edit') // first screen edit
+    await page.click('text=Edit') // first screen edit
     await applicant.answerTextQuestion('show me')
     await applicant.clickNext()
 
@@ -175,7 +175,7 @@ describe('create and edit predicates', () => {
     expect(await page.innerText('#application-summary')).toContain(
       'conditional question',
     )
-    await applicant.submitFromReviewPage(programName)
+    await applicant.submitFromReviewPage()
 
     // Visit the program admin page and assert the conditional question is shown
     await logout(page)
@@ -321,7 +321,7 @@ describe('create and edit predicates', () => {
     await applicant.clickNext()
 
     // We should now be on the summary page
-    await applicant.submitFromReviewPage(programName)
+    await applicant.submitFromReviewPage()
     await endSession(browser)
   })
 })

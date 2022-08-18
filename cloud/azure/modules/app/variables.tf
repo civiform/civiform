@@ -256,3 +256,15 @@ variable "staging_applicant_notification_mailing_list" {
   description = "Applicant notification mailing list for staging"
   default     = ""
 }
+
+variable "feature_flag_status_tracking_enabled" {
+  type        = bool
+  description = "When set to true enable Status Tracking."
+  default     = false
+}
+
+variable "civiform_api_keys_ban_global_subnet" {
+  type        = bool
+  description = "Whether to allow 0.0.0.0/0 subnet for API key access."
+  default     = true
+}

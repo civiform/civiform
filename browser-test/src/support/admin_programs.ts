@@ -1,6 +1,7 @@
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {clickAndWaitForModal, waitForPageJsLoad} from './wait'
+import {AdminProgramStatuses} from './admin_program_statuses'
 
 export class AdminPrograms {
   public page!: Page
@@ -89,6 +90,24 @@ export class AdminPrograms {
     await this.expectProgramEditPage(programName)
   }
 
+  async gotoDraftProgramManageStatusesPage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        'Draft',
+        ':text("Manage application statuses")',
+      ),
+    )
+    await waitForPageJsLoad(this.page)
+    const adminProgramStatuses = new AdminProgramStatuses(this.page)
+    await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+  }
+
   async gotoDraftProgramManageTranslationsPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -103,7 +122,7 @@ export class AdminPrograms {
       ),
     )
     await waitForPageJsLoad(this.page)
-    await this.expectProgramManageTranslationsPage()
+    await this.expectProgramManageTranslationsPage(programName)
   }
 
   async gotoManageProgramAdminsPage(programName: string) {
@@ -116,7 +135,7 @@ export class AdminPrograms {
       this.withinProgramCardSelector(
         programName,
         'Draft',
-        ':text("Manage Admins")',
+        ':text("Manage Program Admins")',
       ),
     )
     await waitForPageJsLoad(this.page)
@@ -139,24 +158,29 @@ export class AdminPrograms {
     await this.expectEditPredicatePage(blockName)
   }
 
-  // TODO(clouser): More fine-grained selectors for this and active.
   async expectDraftProgram(programName: string) {
-    await this.page.isVisible(this.programCardSelector(programName, 'Draft'))
+    expect(
+      await this.page.isVisible(this.programCardSelector(programName, 'Draft')),
+    ).toBe(true)
   }
 
   async expectActiveProgram(programName: string) {
-    await this.page.isVisible(this.programCardSelector(programName, 'Active'))
+    expect(
+      await this.page.isVisible(
+        this.programCardSelector(programName, 'Active'),
+      ),
+    ).toBe(true)
   }
 
-  async expectProgramEditPage(programName: string = '') {
+  async expectProgramEditPage(programName = '') {
     expect(await this.page.innerText('h1')).toContain(
       `Edit program: ${programName}`,
     )
   }
 
-  async expectProgramManageTranslationsPage() {
+  async expectProgramManageTranslationsPage(programName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage program translations',
+      `Manage program translations: ${programName}`,
     )
   }
 
@@ -179,7 +203,7 @@ export class AdminPrograms {
     )
   }
 
-  async expectProgramBlockEditPage(programName: string = '') {
+  async expectProgramBlockEditPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
     // Compare string case insensitively because style may not have been computed.
@@ -191,7 +215,7 @@ export class AdminPrograms {
         await this.page.innerText('[for=block-description-textarea]')
       ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
-    expect(await this.page.innerText('h1')).toContain('Question bank')
+    expect(await this.page.innerText('h1')).toContain('Add Question')
   }
 
   async editProgramBlock(
@@ -398,6 +422,14 @@ export class AdminPrograms {
     )
   }
 
+  selectQuestionWithinBlock(question: string) {
+    return `.cf-program-question:has-text("${question}")`
+  }
+
+  selectWithinQuestionWithinBlock(question: string, selector: string) {
+    return this.selectQuestionWithinBlock(question) + ' ' + selector
+  }
+
   async filterProgramApplications(filterFragment: string) {
     await this.page.fill('input[name="search"]', filterFragment)
     await this.page.click('button:has-text("Filter")')
@@ -451,6 +483,18 @@ export class AdminPrograms {
         .locator(this.selectWithinApplicationBlock(blockName, 'a'))
         .getAttribute('href'),
     ).not.toBeNull()
+  }
+
+  async isStatusSelectorVisible(): Promise<boolean> {
+    return this.applicationFrame()
+      .locator('.cf-program-admin-status-selector-label:has-text("Status:")')
+      .isVisible()
+  }
+
+  async getStatusOption(): Promise<string> {
+    return this.applicationFrame()
+      .locator('.cf-program-admin-status-selector-label')
+      .inputValue()
   }
 
   async getJson(applyFilters: boolean) {

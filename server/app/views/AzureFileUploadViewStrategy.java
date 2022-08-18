@@ -21,7 +21,8 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected ImmutableList<InputTag> fileUploadFields(Optional<StorageUploadRequest> request) {
+  protected ImmutableList<InputTag> fileUploadFields(
+      Optional<StorageUploadRequest> request, String fileInputId) {
     if (request.isEmpty()) {
       return ImmutableList.of();
     }
@@ -40,7 +41,11 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withType("hidden")
             .withName("successActionRedirect")
             .withValue(signedRequest.successActionRedirect()),
-        input().withType("file").withName("file").withAccept(MIME_TYPES_IMAGES_AND_PDF));
+        input()
+            .withId(fileInputId)
+            .withType("file")
+            .withName("file")
+            .withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
 

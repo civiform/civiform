@@ -99,16 +99,11 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
       Path contextualizedPath,
       Optional<String> existingEntity,
       Optional<Integer> existingIndex) {
-
     DivTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
-            .setScreenReaderText(
-                messages.at(
-                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
-                    localizedEntityType))
-            .setPlaceholderText(
+            .setLabelText(
                 messages.at(
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))

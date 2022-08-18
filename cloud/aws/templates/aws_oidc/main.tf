@@ -1,3 +1,10 @@
+locals {
+  # Make db deletable on staging.
+  deletion_protection = var.civiform_mode == "prod" ? true : false
+  skip_final_snapshot = var.civiform_mode == "prod" ? false : true
+  force_destroy_s3    = var.civiform_mode == "prod" ? false : true
+}
+
 # TODO: split this into modules.
 # List of params that we could configure:
 # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.Parameters.html#Appendix.PostgreSQL.CommonDBATasks.Parameters.parameters-list
@@ -22,7 +29,7 @@ resource "aws_db_instance" "civiform" {
     Name = "${var.app_prefix} Civiform Database"
     Type = "Civiform Database"
   }
-
+  deletion_protection             = local.deletion_protection
   instance_class                  = var.postgres_instance_class
   allocated_storage               = var.postgres_storage_gb
   engine                          = "postgres"
@@ -33,8 +40,11 @@ resource "aws_db_instance" "civiform" {
   db_subnet_group_name            = module.vpc.database_subnet_group_name
   parameter_group_name            = aws_db_parameter_group.civiform.name
   publicly_accessible             = false
-  skip_final_snapshot             = true
+  skip_final_snapshot             = local.skip_final_snapshot
+  final_snapshot_identifier       = "${var.app_prefix}-civiform-db-finalsnapshot"
   backup_retention_period         = var.postgres_backup_retention_days
+  kms_key_id                      = aws_kms_key.civiform_kms_key.arn
+  storage_encrypted               = true
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 }
 

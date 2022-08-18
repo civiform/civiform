@@ -3,7 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
@@ -12,7 +12,7 @@ import controllers.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.H2Tag;
+import j2html.tags.specialized.H1Tag;
 import java.util.Locale;
 import java.util.Optional;
 import play.i18n.Messages;
@@ -68,8 +68,8 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
             .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_LEFT)
             .with(span().withText(programsLinkText).withClasses(Styles.PX_4));
 
-    H2Tag titleDiv =
-        h2().withText(programTitle)
+    H1Tag titleDiv =
+        h1().withText(programTitle)
             .withClasses(
                 BaseStyles.TEXT_SEATTLE_BLUE,
                 Styles.TEXT_2XL,

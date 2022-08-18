@@ -52,14 +52,16 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * @return a container tag with the necessary fields
    */
   public final DivTag signedFileUploadFields(
-      ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion) {
+      ApplicantQuestionRendererParams params,
+      FileUploadQuestion fileUploadQuestion,
+      String fileInputId) {
     Optional<String> uploaded =
         fileUploadQuestion
             .getFilename()
             .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
 
     DivTag result = div().with(div().withText(uploaded.orElse("")));
-    result.with(fileUploadFields(params.signedFileUploadRequest()));
+    result.with(fileUploadFields(params.signedFileUploadRequest(), fileInputId));
     result.with(
         div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
             .withClasses(
@@ -68,7 +70,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   }
 
   protected abstract ImmutableList<InputTag> fileUploadFields(
-      Optional<StorageUploadRequest> request);
+      Optional<StorageUploadRequest> request, String fileInputId);
 
   /**
    * Method to render the UI for uploading a file.

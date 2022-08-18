@@ -10,12 +10,13 @@ class AzureDeleteController {
     )
     if (deleteContainer) {
       const azblob = window['azblob']
-      deleteContainer.addEventListener('click', (event) =>
+      deleteContainer.addEventListener('click', () =>
         this.attemptDelete(azblob),
       )
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attemptDelete(azblob: any) {
     const blockBlobUrl = this.getBlockBlobUrl(azblob)
     if (!blockBlobUrl) {
@@ -26,6 +27,7 @@ class AzureDeleteController {
     blockBlobUrl.delete(azblob.Aborter.none)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private getBlockBlobUrl(azblob: any) {
     const searchParams = new URLSearchParams(document.location.search)
     const blockBlobUrlString = searchParams.get('blockBlobUrlString')

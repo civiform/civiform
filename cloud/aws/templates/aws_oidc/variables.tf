@@ -88,17 +88,6 @@ variable "public_subnets" {
   default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 }
 
-# TODO: determine reasonable max concurrency for a civiform server
-variable "auto_scaling_config" {
-  type        = map(string)
-  description = "Autoscaling config for AppRunner"
-  default = {
-    max_concurrency = "100",
-    max_size        = "10",
-    min_size        = "1"
-  }
-}
-
 variable "postgress_name" {
   type        = string
   description = "Name for Postress DB"
@@ -145,24 +134,6 @@ variable "staging_applicant_notification_mailing_list" {
   type        = string
   description = "Applicant notification mailing list for staging"
   default     = ""
-}
-
-variable "file_storage_bucket" {
-  type        = string
-  description = "Name for S3 bucket to store files"
-  default     = "civiform-files-s3"
-}
-
-variable "log_storage_bucket" {
-  type        = string
-  description = "Name for S3 bucket to store logs"
-  default     = "civiform-aws-staging-log-bucket"
-}
-
-variable "ses_sender_email" {
-  type        = string
-  description = "Email address that emails will be sent from"
-  default     = "azizoval@google.com"
 }
 
 variable "app_prefix" {
@@ -230,10 +201,15 @@ variable "civiform_applicant_idp" {
   default     = ""
 }
 
-
 variable "applicant_oidc_discovery_uri" {
   type        = string
   description = "Discovery URI"
+  default     = ""
+}
+
+variable "adfs_discovery_uri" {
+  type        = string
+  description = "ADFS Discovery URI"
   default     = ""
 }
 
@@ -264,4 +240,26 @@ variable "port" {
 variable "civiform_mode" {
   type        = string
   description = "The civiform environment mode (test/dev/staging/prod)"
+}
+
+variable "ssl_certificate_arn" {
+  type        = string
+  description = "ARN of the certificate that will be used to handle SSL traffic. Certificate should be validated."
+}
+
+variable "fargate_desired_task_count" {
+  type        = number
+  description = "Number of Civiform server tasks to run. Can be set to 0 to shutdown server."
+}
+
+variable "feature_flag_status_tracking_enabled" {
+  type        = bool
+  description = "When set to true enable Status Tracking."
+  default     = false
+}
+
+variable "civiform_api_keys_ban_global_subnet" {
+  type        = bool
+  description = "Whether to allow 0.0.0.0/0 subnet for API key access."
+  default     = true
 }

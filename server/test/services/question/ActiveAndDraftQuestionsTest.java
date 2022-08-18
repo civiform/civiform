@@ -2,7 +2,9 @@ package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import models.Program;
 import models.Question;
 import models.Version;
 import org.junit.Before;
@@ -10,6 +12,7 @@ import org.junit.Test;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.DeletionStatus;
+import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
@@ -139,6 +142,20 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   @Test
+  public void getDeletionStatus_notReferencedByProgramButStillReferencedByVersion() {
+    Question activeVersionQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    versionRepository.getActiveVersion().addQuestion(activeVersionQuestion).save();
+
+    Question draftVersionQuestion = resourceCreator.insertQuestion("draft-version-question");
+    versionRepository.getDraftVersion().addQuestion(draftVersionQuestion).save();
+
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
+        .isEqualTo(DeletionStatus.DELETABLE);
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus("draft-version-question"))
+        .isEqualTo(DeletionStatus.DELETABLE);
+  }
+
+  @Test
   public void getDeletionStatus_tombstoned() {
     Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(question).save();
@@ -158,6 +175,16 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   @Test
+  public void getDeletionStatus_createdAndTombstonedInDraftVersion() {
+    Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    versionRepository.getDraftVersion().addQuestion(question).save();
+    addTombstoneToVersion(versionRepository.getDraftVersion(), question);
+
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
+        .isEqualTo(DeletionStatus.PENDING_DELETION);
+  }
+
+  @Test
   public void getDeletionStatus_stillReferencedInActiveVersion() {
     Question questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(questionActive).save();
@@ -169,13 +196,6 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_DELETABLE);
-
-    // An invalid state where the question has been tombstoned even though it's still referenced.
-    // TODO(#2788): Prevent allowing this state to occur and adjust the expectation accordingly.
-    addTombstoneToVersion(versionRepository.getDraftVersion(), questionActive);
-
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
-        .isEqualTo(DeletionStatus.PENDING_DELETION);
   }
 
   @Test
@@ -193,13 +213,6 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_DELETABLE);
-
-    // An invalid state where the question has been tombstoned even though it's still referenced.
-    // TODO(#2788): Prevent allowing this state to occur and adjust the expectation accordingly.
-    addTombstoneToVersion(versionRepository.getDraftVersion(), questionActive);
-
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
-        .isEqualTo(DeletionStatus.PENDING_DELETION);
   }
 
   @Test
@@ -216,19 +229,15 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     // newDraftProgram automatically adds the program to the draft version.
     ProgramBuilder.newDraftProgram("foo").withBlock("Screen 1").build();
 
-    // TODO(#2788): Allow archiving questions that aren't referenced in the draft
-    // version of the program.
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
-        .isEqualTo(DeletionStatus.NOT_DELETABLE);
+        .isEqualTo(DeletionStatus.DELETABLE);
 
     // Adding a draft edit of the question continues to be considered deletable.
     Question questionDraft = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersion().addQuestion(questionDraft).save();
 
-    // TODO(#2788): Allow archiving questions that aren't referenced in the draft
-    // version of the program.
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
-        .isEqualTo(DeletionStatus.NOT_DELETABLE);
+        .isEqualTo(DeletionStatus.DELETABLE);
   }
 
   @Test
@@ -248,9 +257,155 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .isEqualTo(DeletionStatus.DELETABLE);
   }
 
+  @Test
+  public void getReferencingPrograms_unreferencedQuestion() {
+    versionRepository
+        .getActiveVersion()
+        .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
+        .save();
+
+    ActiveAndDraftQuestions.ReferencingPrograms result =
+        newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
+    assertThat(result)
+        .isEqualTo(
+            ActiveAndDraftQuestions.ReferencingPrograms.builder()
+                .setActiveReferences(ImmutableSet.of())
+                .setDraftReferences(ImmutableSet.of())
+                .build());
+
+    // Make an edit of the question in the draft version and leave it unreferenced.
+    versionRepository
+        .getDraftVersion()
+        .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
+        .save();
+    result = newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
+    assertThat(result)
+        .isEqualTo(
+            ActiveAndDraftQuestions.ReferencingPrograms.builder()
+                .setActiveReferences(ImmutableSet.of())
+                .setDraftReferences(ImmutableSet.of())
+                .build());
+  }
+
+  @Test
+  public void getReferencingPrograms_multipleProgramReferencesForSameQuestionVersion() {
+    Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+
+    // Set up state where the question is referenced from:
+    // ACTIVE version - first-program and second-program
+    // DRAFT version - second-program and third-program
+
+    // newActiveProgram / newDraftProgram automatically adds the program to the specified version.
+    Program firstProgramActive =
+        ProgramBuilder.newActiveProgram("first-program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+    Program secondProgramActive =
+        ProgramBuilder.newActiveProgram("second-program")
+            .withBlock("Screen 1")
+            .withBlock("Screen 2")
+            .withRequiredQuestion(question)
+            .build();
+    versionRepository.getActiveVersion().addQuestion(question).save();
+
+    // No longer reference the question from the first program.
+    ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
+    Program secondProgramDraft =
+        ProgramBuilder.newDraftProgram("second-program")
+            .withBlock("Screen 1")
+            .withBlock("Screen 2")
+            .withBlock("Screen 3")
+            .withRequiredQuestion(question)
+            .build();
+    Program thirdProgramDraft =
+        ProgramBuilder.newDraftProgram("third-program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+    versionRepository.getDraftVersion().addQuestion(question).save();
+
+    ActiveAndDraftQuestions.ReferencingPrograms result =
+        newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
+    assertThat(
+            result.activeReferences().stream()
+                .map(ProgramDefinition::id)
+                .collect(ImmutableSet.toImmutableSet()))
+        .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
+    assertThat(
+            result.draftReferences().stream()
+                .map(ProgramDefinition::id)
+                .collect(ImmutableSet.toImmutableSet()))
+        .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
+  }
+
+  @Test
+  public void getReferencingPrograms_multipleProgramReferencesForDifferentQuestionVersions() {
+    // Set up state where the question is referenced from:
+    // ACTIVE version - first-program and second-program
+    // DRAFT version - second-program and third-program
+    // In addition, the DRAFT version references are to an edited question.
+
+    Question activeQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    versionRepository.getActiveVersion().addQuestion(activeQuestion).save();
+    // newActiveProgram / newDraftProgram automatically adds the program to the specified version.
+    Program firstProgramActive =
+        ProgramBuilder.newActiveProgram("first-program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(activeQuestion)
+            .build();
+    Program secondProgramActive =
+        ProgramBuilder.newActiveProgram("second-program")
+            .withBlock("Screen 1")
+            .withBlock("Screen 2")
+            .withRequiredQuestion(activeQuestion)
+            .build();
+
+    // No longer reference the question from the first program.
+    Question draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    versionRepository.getDraftVersion().addQuestion(draftQuestion).save();
+    ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
+    Program secondProgramDraft =
+        ProgramBuilder.newDraftProgram("second-program")
+            .withBlock("Screen 1")
+            .withBlock("Screen 2")
+            .withBlock("Screen 3")
+            .withRequiredQuestion(draftQuestion)
+            .build();
+    Program thirdProgramDraft =
+        ProgramBuilder.newDraftProgram("third-program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(draftQuestion)
+            .build();
+
+    ActiveAndDraftQuestions.ReferencingPrograms result =
+        newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
+    assertThat(
+            result.activeReferences().stream()
+                .map(ProgramDefinition::id)
+                .collect(ImmutableSet.toImmutableSet()))
+        .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
+    assertThat(
+            result.draftReferences().stream()
+                .map(ProgramDefinition::id)
+                .collect(ImmutableSet.toImmutableSet()))
+        .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
+  }
+
+  @Test
+  public void getReferencingPrograms_unrecognizedQuestion() {
+    ActiveAndDraftQuestions.ReferencingPrograms result =
+        newActiveAndDraftQuestions().getReferencingPrograms("random-question-name");
+    assertThat(result)
+        .isEqualTo(
+            ActiveAndDraftQuestions.ReferencingPrograms.builder()
+                .setActiveReferences(ImmutableSet.of())
+                .setDraftReferences(ImmutableSet.of())
+                .build());
+  }
+
   private ActiveAndDraftQuestions newActiveAndDraftQuestions() {
-    return new ActiveAndDraftQuestions(
-        versionRepository.getActiveVersion(), versionRepository.getDraftVersion());
+    return ActiveAndDraftQuestions.buildFromCurrentVersions(versionRepository);
   }
 
   private void addTombstoneToVersion(Version version, Question question) {
