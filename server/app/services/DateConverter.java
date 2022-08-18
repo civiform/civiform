@@ -46,6 +46,7 @@ public class DateConverter {
   public LocalDate getCurrentDateForZoneId() {
     return LocalDate.now(this.zoneId);
   }
+  
   /**
    * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
    * Instant} at the beginning of the day in local time zone.
