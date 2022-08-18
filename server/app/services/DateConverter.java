@@ -41,12 +41,12 @@ public class DateConverter {
   public LocalDate parseIso8601DateToLocalDate(String dateString) {
     return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
   }
-  
+
   /** Returns the current LocalDate based on the specified time-zone(zoneId) */
   public LocalDate getCurrentDateForZoneId() {
     return LocalDate.now(this.zoneId);
   }
-  
+
   /**
    * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
    * Instant} at the beginning of the day in local time zone.
