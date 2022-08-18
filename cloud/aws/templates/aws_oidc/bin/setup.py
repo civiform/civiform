@@ -126,7 +126,9 @@ class Setup(AwsSetupTemplate):
         # Print link to ECS tasks.
         print()
         fargate_service = f'{app}-{resources.FARGATE_SERVICE}'
-        tasks_url = self._aws_cli.get_url_of_fargate_tasks(app, fargate_service)
+        cluster = f'{app}-{resources.CLUSTER}'
+        tasks_url = self._aws_cli.get_url_of_fargate_tasks(
+            cluster, fargate_service)
         print('Setup finished. You can monitor civiform tasks status here:')
         print(tasks_url)
 
