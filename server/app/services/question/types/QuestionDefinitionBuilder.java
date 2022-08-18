@@ -67,7 +67,6 @@ public class QuestionDefinitionBuilder {
             .setName("")
             .setDescription("")
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Sample question help text"))
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {
