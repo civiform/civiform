@@ -198,7 +198,7 @@ function addEnumeratorListeners() {
     return
   }
   const enumeratorInputs = Array.from(
-    enumeratorQuestion.querySelectorAll('input[data-entity-input]')
+    enumeratorQuestion.querySelectorAll('input[data-entity-input]'),
   )
   // Whenever an input changes we need to revalidate.
   enumeratorInputs.forEach((enumeratorInput) => {
