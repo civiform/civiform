@@ -12,7 +12,7 @@ import services.question.types.QuestionType;
 @RunWith(JUnitParamsRunner.class)
 public class IconsTest {
 
-  private static final SvgTag TEXT_ICON = Icons.questionTypeSvg(QuestionType.TEXT, 24);
+  private static final SvgTag TEXT_ICON = Icons.questionTypeSvg(QuestionType.TEXT);
   // TODO(https://github.com/seattle-uat/civiform/issues/395): Implement dropdown rendering.
   private static final EnumSet<QuestionType> TYPES_WITH_DEFAULT_ICON =
       EnumSet.of(QuestionType.TEXT);
@@ -20,7 +20,7 @@ public class IconsTest {
   @Test
   @Parameters(method = "handledTypes")
   public void allHandledTypesHaveCustomIcons(QuestionType type) {
-    assertThat(Icons.questionTypeSvg(type, 24)).isNotEqualTo(TEXT_ICON);
+    assertThat(Icons.questionTypeSvg(type)).isNotEqualTo(TEXT_ICON);
   }
 
   private EnumSet<QuestionType> handledTypes() {
@@ -30,7 +30,7 @@ public class IconsTest {
   @Test
   @Parameters(method = "defaultTypes")
   public void unhandledQuestionTypesDefaultToTextIcon(QuestionType type) {
-    assertThat(Icons.questionTypeSvg(type, 24)).isEqualTo(TEXT_ICON);
+    assertThat(Icons.questionTypeSvg(type)).isEqualTo(TEXT_ICON);
   }
 
   private EnumSet<QuestionType> defaultTypes() {
