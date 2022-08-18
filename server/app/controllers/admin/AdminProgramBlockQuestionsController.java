@@ -149,17 +149,21 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** POST endpoint for changing position of a question in its block. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result move(
-      Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
+      Request request, long programId, long blockDefinitionId, long questionDefinitionId)
+      throws InvalidQuestionPositionException, ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
-    int newPosition = Integer.parseInt(requestData.get("position"));
+    int newPosition = -1;
+    try {
+      newPosition = Integer.parseInt(requestData.get("position"));
+    } catch (NumberFormatException e) {
+      throw InvalidQuestionPositionException.missingPositionArgument();
+    }
 
     try {
       programService.setProgramQuestionDefinitionPosition(
           programId, blockDefinitionId, questionDefinitionId, newPosition);
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
@@ -168,8 +172,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
           String.format(
               "Question ID %d not found in Block %d for program %d",
               questionDefinitionId, blockDefinitionId, programId));
-    } catch (InvalidQuestionPositionException e) {
-      return badRequest(e.getMessage());
     }
 
     return redirect(

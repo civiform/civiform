@@ -11,8 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -20,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import models.Account;
@@ -719,33 +718,29 @@ public final class ProgramServiceImpl implements ProgramService {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
-    ArrayList<ProgramQuestionDefinition> questions =
-        new ArrayList<>(blockDefinition.programQuestionDefinitions());
+    ImmutableList<ProgramQuestionDefinition> questions =
+        blockDefinition.programQuestionDefinitions();
 
     if (newPosition < 0 || newPosition >= questions.size()) {
-      throw new InvalidQuestionPositionException(newPosition, questions.size());
+      throw InvalidQuestionPositionException.positionOutOfBounds(newPosition, questions.size());
     }
 
     // move question to the new position
-    ProgramQuestionDefinition question = null;
-    for (Iterator<ProgramQuestionDefinition> it = questions.iterator(); it.hasNext(); ) {
-      question = it.next();
-      if (question.id() == questionDefinitionId) {
-        it.remove();
-        break;
-      }
-    }
-    if (question == null) {
+    Optional<ProgramQuestionDefinition> toMove =
+        questions.stream().filter(q -> q.id() == questionDefinitionId).findFirst();
+    if (!toMove.isPresent()) {
       throw new ProgramQuestionDefinitionNotFoundException(
           programId, blockDefinitionId, questionDefinitionId);
     }
-    questions.add(newPosition, question);
+    List<ProgramQuestionDefinition> otherQuestions =
+        questions.stream().filter(q -> q.id() != questionDefinitionId).collect(Collectors.toList());
+    otherQuestions.add(newPosition, toMove.get());
 
     try {
       return updateProgramDefinitionWithBlockDefinition(
           programDefinition,
           blockDefinition.toBuilder()
-              .setProgramQuestionDefinitions(ImmutableList.copyOf(questions))
+              .setProgramQuestionDefinitions(ImmutableList.copyOf(otherQuestions))
               .build());
     } catch (IllegalPredicateOrderingException e) {
       // Changing a question position within block should not affect predicates

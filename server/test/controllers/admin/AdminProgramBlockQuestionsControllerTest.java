@@ -18,6 +18,7 @@ import play.mvc.Result;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
+import services.program.InvalidQuestionPositionException;
 import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -130,5 +131,41 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
                 .stream()
                 .map(ProgramQuestionDefinition::id))
         .containsExactly(addressQuestion.getId(), nameQuestion.getId());
+  }
+
+  @Test
+  public void move_invalidPositionInput() throws Exception {
+    // Setup.
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
+    Program program = programBuilder.withBlock("block1").withOptionalQuestion(nameQuestion).build();
+    BlockDefinition block = program.getProgramDefinition().getLastBlockDefinition();
+
+    // Missing position value.
+    Request requestWithNoPosition =
+        fakeRequest(
+                controllers.admin.routes.AdminProgramBlockQuestionsController.move(
+                    program.id, block.id(), nameQuestion.getId()))
+            .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
+            .build();
+    assertThatThrownBy(
+            () ->
+                controller.move(
+                    requestWithNoPosition, program.id, block.id(), nameQuestion.getId()))
+        .isInstanceOf(InvalidQuestionPositionException.class);
+
+    // Position is not a number.
+    Request requestWithInvalidPosition =
+        fakeRequest(
+                controllers.admin.routes.AdminProgramBlockQuestionsController.move(
+                    program.id, block.id(), nameQuestion.getId()))
+            .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
+            .bodyForm(ImmutableMap.of("position", "foobar"))
+            .build();
+    assertThatThrownBy(
+            () ->
+                controller.move(
+                    requestWithInvalidPosition, program.id, block.id(), nameQuestion.getId()))
+        .isInstanceOf(InvalidQuestionPositionException.class);
   }
 }
