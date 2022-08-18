@@ -54,7 +54,7 @@ public final class ProgramTranslationView extends TranslationFormView {
       Locale locale,
       ProgramDefinition program,
       ProgramTranslationForm translationForm,
-      Optional<String> errors) {
+      Optional<ToastMessage> message) {
     String formAction =
         controllers.admin.routes.AdminProgramTranslationsController.update(
                 program.id(), locale.toLanguageTag())
@@ -70,7 +70,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             .setTitle(title)
             .addMainContent(renderHeader(title), renderLanguageLinks(program.id(), locale), form);
 
-    errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
