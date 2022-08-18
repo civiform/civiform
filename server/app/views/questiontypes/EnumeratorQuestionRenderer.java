@@ -134,9 +134,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
                         + " window.event; e.stopImmediatePropagation(); return false; }",
                     confirmationMessage))
             .withClasses(
-                existingEntity.isPresent()
-                    ? StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON)
-                    : "",
+                ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON,
                 ApplicantStyles.BUTTON_ENUMERATOR_REMOVE_ENTITY)
             .withText(
                 messages.at(

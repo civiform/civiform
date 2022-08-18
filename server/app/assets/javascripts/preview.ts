@@ -13,6 +13,8 @@ class PreviewController {
   static readonly QUESTION_ENTITY_TYPE_BUTTON_ID =
     '#enumerator-field-add-button'
   static readonly QUESTION_ENTITY_NAME_INPUT_CLASS = '.cf-entity-name-input'
+  static readonly QUESTION_ENTITY_DELETE_BUTTON_CLASS =
+    '.cf-enumerator-delete-button'
 
   static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
   static readonly DEFAULT_QUESTION_HELP_TEXT = 'Sample question help text'
@@ -102,13 +104,18 @@ class PreviewController {
       )
       const entityType = (<HTMLInputElement>entityTypeInput).value
       if (entityType.length > 0) {
-        PreviewController.setAllMatchingPlaceholders(
-          PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' input',
+        PreviewController.setAllMatchingElements(
+          PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' label',
           entityType + ' name',
         )
+
         PreviewController.setTextContent(
           PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
           'Add ' + entityType,
+        )
+        PreviewController.setAllMatchingElements(
+          PreviewController.QUESTION_ENTITY_DELETE_BUTTON_CLASS,
+          'Remove ' + entityType,
         )
       }
     }
@@ -173,13 +180,17 @@ class PreviewController {
     if (entityType.length === 0) {
       entityType = PreviewController.DEFAULT_ENTITY_TYPE
     }
-    PreviewController.setAllMatchingPlaceholders(
-      PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS,
+    PreviewController.setAllMatchingElements(
+      PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' label',
       entityType + ' name',
     )
     PreviewController.setTextContent(
       PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
       'Add ' + entityType,
+    )
+    PreviewController.setAllMatchingElements(
+      PreviewController.QUESTION_ENTITY_DELETE_BUTTON_CLASS,
+      'Remove ' + entityType,
     )
   }
 
@@ -221,10 +232,10 @@ class PreviewController {
     }
   }
 
-  static setAllMatchingPlaceholders(selector: string, text: string) {
-    const inputFields = document.querySelectorAll(selector)
-    Array.from(inputFields).forEach(function (inputField) {
-      ;(<HTMLInputElement>inputField).placeholder = text
+  static setAllMatchingElements(selector: string, text: string) {
+    const matchingElements = document.querySelectorAll(selector)
+    Array.from(matchingElements).forEach(function (matchingElement) {
+      ;(<HTMLElement>matchingElement).textContent = text
     })
   }
 
