@@ -2,12 +2,18 @@ package services.question.types;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.LocalizedStrings;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import support.TestQuestionBank;
 
+@RunWith(JUnitParamsRunner.class)
 public class QuestionDefinitionBuilderTest {
 
   private static final TestQuestionBank QUESTION_BANK = new TestQuestionBank(false);
@@ -92,5 +98,19 @@ public class QuestionDefinitionBuilderTest {
 
     assertThat(enumerator.getEntityType().isEmpty()).isFalse();
     assertThat(enumerator.getEntityType().getDefault()).isEqualTo("household member");
+  }
+
+  private ImmutableList<QuestionType> getAllQuestionTypes() {
+    return ImmutableList.copyOf(QuestionType.values());
+  }
+
+  @Test
+  @Parameters(method = "getAllQuestionTypes")
+  public void builder_previewHelpText_blankByDefault(QuestionType questionType)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition sampleQuestion = QuestionDefinitionBuilder.sample(questionType).build();
+    assertThat(sampleQuestion.getQuestionText())
+        .isEqualTo(LocalizedStrings.withDefaultValue("Sample question text"));
+    assertThat(sampleQuestion.getQuestionHelpText()).isEqualTo(LocalizedStrings.empty());
   }
 }
