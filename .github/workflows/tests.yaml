@@ -72,6 +72,12 @@ jobs:
         with:
           name: image diff output directory
           path: browser-test/diff_output
+      - name: Upload test videos on failure
+        uses: actions/upload-artifact@v3
+        with:
+          name: test videos directory
+          path: browser-test/tmp
+        if: failure()
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
@@ -118,6 +124,12 @@ jobs:
         with:
           name: image diff output directory
           path: browser-test/diff_output
+      - name: Upload test videos on failure
+        uses: actions/upload-artifact@v3
+        with:
+          name: test videos directory
+          path: browser-test/tmp
+        if: failure()
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
