@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
@@ -27,6 +28,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.admin.questions.QuestionTranslationView;
+import views.components.ToastMessage;
 
 /** Provides controller methods for editing and updating question translations. */
 public class AdminQuestionTranslationsController extends CiviFormController {
@@ -139,10 +141,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                     questionService.update(definitionWithUpdates);
 
                 if (result.isError()) {
-                  String errorMessage = joinErrors(result.getErrors());
+                  ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
                   return ok(
                       translationView.renderErrors(
-                          request, localeToUpdate, definitionWithUpdates, errorMessage));
+                          request, localeToUpdate, definitionWithUpdates, message));
                 }
 
                 return redirect(routes.AdminQuestionController.index().url());
