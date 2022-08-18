@@ -191,3 +191,5 @@ POST    /dev/seed/clear                  controllers.dev.DatabaseSeedController.
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)
 GET     /dev/feature/:flag/enable      controllers.dev.FeatureFlagOverrideController.enable(request: Request, flag: String)
 
+## Prometheus metrics export
+GET         /metrics          controllers.monitoring.MetricsController.getMetrics()
