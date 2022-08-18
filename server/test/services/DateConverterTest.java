@@ -35,4 +35,12 @@ public class DateConverterTest {
     LocalDate result = dateConverter.parseIso8601DateToLocalDate(inputDate);
     assertThat(inputDate).isEqualTo(result.toString());
   }
+
+  @Test
+  public void testLocalDateToStringParser() {
+    String expectedResult = "2020/01/01";
+    LocalDate date = LocalDate.of(2020, 1, 1);
+    String result = dateConverter.renderDate(date);
+    assertThat(expectedResult).isEqualTo(result);
+  }
 }

@@ -23,7 +23,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.UserRepository;
 import services.PaginationInfo;
-import services.ti.TIClientCreationResult;
 import services.ti.TrustedIntermediaryService;
 import views.applicant.TrustedIntermediaryDashboardView;
 
@@ -104,15 +103,14 @@ public class TrustedIntermediaryController {
     }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory.form(AddApplicantToTrustedIntermediaryGroupForm.class).bindFromRequest(request);
-    TIClientCreationResult tiClientCreationResult = tiService.addNewClient(form, trustedIntermediaryGroup.get());
-    if (tiClientCreationResult.isSuccessful()) {
+    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
+        tiService.addNewClient(form, trustedIntermediaryGroup.get());
+    if (!returnedForm.hasErrors()) {
       return redirect(
           routes.TrustedIntermediaryController.dashboard(
               /* search= */ Optional.empty(), /* page= */ Optional.empty()));
     }
-    return redirectToDashboardWithError(
-        getFormErrors(tiClientCreationResult.getForm().get()),
-        tiClientCreationResult.getForm().get());
+    return redirectToDashboardWithError(getFormErrors(returnedForm), returnedForm);
   }
 
   private String getFormErrors(Form<AddApplicantToTrustedIntermediaryGroupForm> form) {

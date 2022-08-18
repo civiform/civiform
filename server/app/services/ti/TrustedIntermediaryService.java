@@ -19,10 +19,9 @@ import services.DateConverter;
  * name, their email address and their Date of birth.
  *
  * <p>This class performs the validation of the request form passed from the Controller and if the
- * form has no-errors, it sends back a successful TiclientCreationResult object.
+ * form has no-errors, it sends back the form object.
  *
- * <p>If any of the validation fails, it sends a failed TIClientCreationResult object with the form
- * and all of its errors.
+ * <p>If any of the validation fails, it sends the form object with all of its errors.
  */
 public final class TrustedIntermediaryService {
   private final UserRepository userRepository;
@@ -38,7 +37,7 @@ public final class TrustedIntermediaryService {
     this.dateConverter = Preconditions.checkNotNull(dateConverter);
   }
 
-  public TIClientCreationResult addNewClient(
+  public Form<AddApplicantToTrustedIntermediaryGroupForm> addNewClient(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form,
       TrustedIntermediaryGroup trustedIntermediaryGroup) {
     form = validateEmailAddress(form);
@@ -46,19 +45,18 @@ public final class TrustedIntermediaryService {
     form = validateLastName(form);
     form = validateDateOfBirth(form);
     if (form.hasErrors()) {
-      return TIClientCreationResult.failure(form);
+      return form;
     }
     try {
       userRepository.createNewApplicantForTrustedIntermediaryGroup(
           form.get(), trustedIntermediaryGroup);
     } catch (EmailAddressExistsException e) {
-      return TIClientCreationResult.failure(
-          form.withError(
-              FORM_FIELD_NAME_EMAIL_ADDRESS,
-              "Email address already in use. Cannot create applicant if an account already"
-                  + " exists."));
+      return form.withError(
+          FORM_FIELD_NAME_EMAIL_ADDRESS,
+          "Email address already in use. Cannot create applicant if an account already"
+              + " exists.");
     }
-    return TIClientCreationResult.success();
+    return form;
   }
 
   private Form<AddApplicantToTrustedIntermediaryGroupForm> validateEmailAddress(
