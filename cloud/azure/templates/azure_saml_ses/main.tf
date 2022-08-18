@@ -61,6 +61,7 @@ module "app" {
   saml_keystore_storage_container_name = module.saml_keystore.storage_container_name
 
   feature_flag_status_tracking_enabled = var.feature_flag_status_tracking_enabled
+  civiform_api_keys_ban_global_subnet  = var.civiform_api_keys_ban_global_subnet
 }
 
 module "custom_hostname" {

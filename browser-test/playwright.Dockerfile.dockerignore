@@ -4,4 +4,14 @@ node_modules
 browser-test-compose.yml
 playwright.Dockerfile
 playwright.Dockerfile.dockerignore
-yarn.lock
+
+
+.bsp/
+.Dockerfile.swp
+.dockerignore
+.DS_Store
+.gitignore
+.idea
+.log
+.secrets
+*.swp

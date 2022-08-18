@@ -76,6 +76,7 @@ locals {
     CIVIFORM_API_SECRET_SALT = data.azurerm_key_vault_secret.api_secret_salt_key.value
 
     CIVIFORM_APPLICATION_STATUS_TRACKING_ENABLED = var.feature_flag_status_tracking_enabled
+    CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET          = var.civiform_api_keys_ban_global_subnet
   }
   adfs_client_id     = "adfs-client-id"
   adfs_discovery_uri = "adfs-discovery-uri"
