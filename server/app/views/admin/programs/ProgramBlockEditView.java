@@ -55,6 +55,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private final boolean featureFlagOptionalQuestions;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
+  public static final String MOVE_QUESTION_POSITION_FIELD = "position";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
@@ -497,7 +498,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .withClasses(Styles.INLINE_BLOCK, Styles.MX_1, isInvisible ? Styles.INVISIBLE : "")
         .withMethod(HttpVerbs.POST)
         .withAction(moveAction)
-        .with(input().isHidden().withName("position").withValue(String.valueOf(newIndex)))
+        .with(
+            input()
+                .isHidden()
+                .withName(MOVE_QUESTION_POSITION_FIELD)
+                .withValue(String.valueOf(newIndex)))
         .with(button);
   }
 
