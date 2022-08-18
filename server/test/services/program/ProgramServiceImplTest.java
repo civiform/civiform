@@ -12,10 +12,12 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
 import io.ebean.DB;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import models.Account;
 import models.DisplayMode;
 import models.Program;
@@ -920,6 +922,69 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 ps.setProgramQuestionDefinitionOptionality(
                     programId, 1L, nameQuestion.getId() + 1, false))
         .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
+  }
+
+  private void assertQuestionsOrder(ProgramDefinition program, QuestionDefinition... expectedOrder)
+      throws Exception {
+    var expectedQuestionNames = Arrays.stream(expectedOrder).map(q -> q.getName());
+    var actualQuestionNames =
+        program.getLastBlockDefinition().programQuestionDefinitions().stream()
+            .map(q -> q.getQuestionDefinition().getName());
+    assertThat(actualQuestionNames)
+        .containsExactlyElementsOf(expectedQuestionNames.collect(Collectors.toList()));
+  }
+
+  @Test
+  public void setProgramQuestionDefinitionPosition() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(addressQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
+            .buildDefinition();
+    BlockDefinition block = programDefinition.getLastBlockDefinition();
+
+    // move address to the beginning
+    programDefinition =
+        ps.setProgramQuestionDefinitionPosition(
+            programDefinition.id(), block.id(), addressQuestion.getId(), 0);
+    assertQuestionsOrder(programDefinition, addressQuestion, nameQuestion, colorQuestion);
+
+    // move address to the end
+    programDefinition =
+        ps.setProgramQuestionDefinitionPosition(
+            programDefinition.id(), block.id(), addressQuestion.getId(), 2);
+    assertQuestionsOrder(programDefinition, nameQuestion, colorQuestion, addressQuestion);
+
+    // move name to itself (shouldn't change position)
+    programDefinition =
+        ps.setProgramQuestionDefinitionPosition(
+            programDefinition.id(), block.id(), nameQuestion.getId(), 0);
+    assertQuestionsOrder(programDefinition, nameQuestion, colorQuestion, addressQuestion);
+  }
+
+  @Test
+  public void setProgramQuestionDefinitionPosition_invalidPosition() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(addressQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
+            .buildDefinition();
+    BlockDefinition block = programDefinition.getLastBlockDefinition();
+
+    assertThatThrownBy(
+            () ->
+                ps.setProgramQuestionDefinitionPosition(
+                    programDefinition.id(), block.id(), addressQuestion.getId(), -1))
+        .isInstanceOf(InvalidQuestionPositionException.class);
+    assertThatThrownBy(
+            () ->
+                ps.setProgramQuestionDefinitionPosition(
+                    programDefinition.id(), block.id(), addressQuestion.getId(), 3))
+        .isInstanceOf(InvalidQuestionPositionException.class);
   }
 
   @Test
