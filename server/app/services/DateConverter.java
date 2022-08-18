@@ -14,6 +14,8 @@ import java.time.format.DateTimeParseException;
 public class DateConverter {
 
   private final ZoneId zoneId;
+  private static final DateTimeFormatter DATE_TIME_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
   @Inject
   public DateConverter(ZoneId zoneId) {
@@ -66,10 +68,10 @@ public class DateConverter {
   /** Formats an {@link Instant} to a date in the local time zone. */
   public String renderDate(Instant time) {
     ZonedDateTime dateTime = time.atZone(zoneId);
-    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+    return dateTime.format(DATE_TIME_FORMATTER);
   }
   /** Formats an {@link LocalDate} to a String. */
   public String renderDate(LocalDate date) {
-    return date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+    return date.format(DATE_TIME_FORMATTER);
   }
 }
