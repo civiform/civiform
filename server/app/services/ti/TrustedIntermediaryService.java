@@ -94,7 +94,7 @@ public final class TrustedIntermediaryService {
     try {
       currentDob = dateConverter.parseIso8601DateToLocalDate(form.value().get().getDob());
     } catch (DateTimeParseException e) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth must be in MM-dd-yyyy format");
+      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth must be in MM/dd/yyyy format");
     }
     if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
       return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth should be in the past");

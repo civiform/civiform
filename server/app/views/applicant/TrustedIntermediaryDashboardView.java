@@ -22,7 +22,6 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.ti.TrustedIntermediaryGroupListView;
@@ -47,10 +47,12 @@ import views.style.Styles;
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ApplicantLayout layout;
+  private final DateConverter dateConverter;
 
   @Inject
-  public TrustedIntermediaryDashboardView(ApplicantLayout layout) {
+  public TrustedIntermediaryDashboardView(ApplicantLayout layout, DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   public Content render(
@@ -241,7 +243,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .get()
             .getApplicantData()
             .getDateOfBirth()
-            .map(LocalDate::toString)
+            .map(localDate -> this.dateConverter.renderDate(localDate))
             .orElse("");
     return td().with(div(currentDob).withClasses(Styles.FONT_SEMIBOLD))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);

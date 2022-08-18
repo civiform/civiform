@@ -90,7 +90,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .bindFromRequest(requestBuilder.build());
     TIClientCreationResult tiClientCreationResult = service.addNewClient(form, tiGroup);
     assertThat(tiClientCreationResult.getForm().get().error("dob").get().message())
-        .isEqualTo("Date of Birth must be in MM-dd-yyyy format");
+        .isEqualTo("Date of Birth must be in MM/dd/yyyy format");
   }
 
   @Test

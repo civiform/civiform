@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.SEE_OTHER;
 
-import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
@@ -22,7 +21,6 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   private UserRepository repo;
   private TrustedIntermediaryController tiController;
   private ProfileFactory profileFactory;
-  private CiviFormProfileData data;
 
   @Before
   public void setup() {
@@ -31,7 +29,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     Applicant managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     repo = instanceOf(UserRepository.class);
-    data = profileFactory.createFakeTrustedIntermediary();
+    profileFactory.createFakeTrustedIntermediary();
   }
 
   @Test

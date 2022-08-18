@@ -66,4 +66,8 @@ public class DateConverter {
     ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
   }
+  /** Formats an {@link LocalDate} to a String. */
+  public String renderDate(LocalDate date) {
+    return date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+  }
 }
