@@ -142,6 +142,8 @@ function addNewEnumeratorField() {
     )
   }
   newInput.setAttribute('data-entity-input', '')
+  // Set disabled to false so the data is submitted with the form.
+  newInput.disabled = false
   newInput.focus()
 }
 
@@ -236,19 +238,7 @@ function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
   if (enumeratorQuestion) {
     const enumeratorInputValues = Array.from(
       enumeratorQuestion.querySelectorAll('input[data-entity-input]'),
-    )
-      .filter((item) => {
-        return (
-          // TODO(clouser): Need to filter out the add button here as well.
-          // Perhaps we could just switch them to be inside of templates and
-          // see if they're exempted from the DOM entirely.
-          // Otherwise, we could just add a class instead of hardcoding IDs
-          // everywhere.
-          item.id !== 'enumerator-delete-template' &&
-          !item.classList.contains('hidden')
-        )
-      })
-      .map((item) => (item as HTMLInputElement).value)
+    ).map((item) => (item as HTMLInputElement).value)
 
     // validate that there are no empty inputs.
     const addButton = <HTMLInputElement>(

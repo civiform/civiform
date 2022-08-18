@@ -68,7 +68,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
               question.getContextualizedPath(),
               /* existingEntity= */ Optional.of(entityNames.get(index)),
               /* existingIndex= */ Optional.of(index),
-              /* extraStyle= */ Optional.empty()));
+              /* extraStyle= */ Optional.empty(),
+              /* isDisabled= */ false));
     }
 
     DivTag enumeratorQuestionFormContent =
@@ -94,7 +95,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
                         question.getContextualizedPath(),
                         /* existingEntity= */ Optional.empty(),
                         /* existingIndex= */ Optional.empty(),
-                        /* extraStyle= */ Optional.of(Styles.HIDDEN))
+                        /* extraStyle= */ Optional.of(Styles.HIDDEN),
+                        // Do not submit this with the form.
+                        /* isDisabled= */ true)
                     .withId(ENUMERATOR_FIELD_TEMPLATE_ID));
 
     return enumeratorQuestionFormContent;
@@ -110,11 +113,13 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
       Path contextualizedPath,
       Optional<String> existingEntity,
       Optional<Integer> existingIndex,
-      Optional<String> extraStyle) {
+      Optional<String> extraStyle,
+      boolean isDisabled) {
     DivTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
+            .setDisabled(isDisabled)
             .setLabelText(
                 messages.at(
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
