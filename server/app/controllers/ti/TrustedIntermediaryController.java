@@ -104,8 +104,7 @@ public class TrustedIntermediaryController {
     }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory.form(AddApplicantToTrustedIntermediaryGroupForm.class).bindFromRequest(request);
-    TIClientCreationResult tiClientCreationResult;
-    tiClientCreationResult = tiService.addNewClient(form, trustedIntermediaryGroup.get());
+    TIClientCreationResult tiClientCreationResult = tiService.addNewClient(form, trustedIntermediaryGroup.get());
     if (tiClientCreationResult.isSuccessful()) {
       return redirect(
           routes.TrustedIntermediaryController.dashboard(
