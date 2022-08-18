@@ -49,88 +49,64 @@ class PreviewController {
   constructor() {
     const textInput = document.getElementById(
       PreviewController.QUESTION_TEXT_INPUT_ID,
-    )
+    ) as HTMLInputElement | null
     if (textInput) {
       textInput.addEventListener(
         'input',
-        PreviewController.onTextChanged,
+        (ev) => {
+          PreviewController.updateFromNewQuestionText(textInput.value)
+        },
         false,
       )
-      const text = (<HTMLInputElement>textInput).value
-      if (text.length > 0) {
-        PreviewController.updateQuestionText(text)
-      }
+      PreviewController.updateFromNewQuestionText(textInput.value)
     }
     const helpTextInput = document.getElementById(
       PreviewController.QUESTION_HELP_TEXT_INPUT_ID,
-    )
+    ) as HTMLInputElement | null
     if (helpTextInput) {
       helpTextInput.addEventListener(
         'input',
-        PreviewController.onHelpTextChanged,
+        (ev) => {
+          PreviewController.updateFromNewQuestionHelpText(helpTextInput.value)
+        },
         false,
       )
-      const helpText = (<HTMLInputElement>helpTextInput).value
-      if (helpText.length > 0) {
-        PreviewController.setTextAndHighlightEnumeratorReferences(
-          PreviewController.QUESTION_HELP_TEXT_CLASS,
-          helpText,
-        )
-      }
+      PreviewController.updateFromNewQuestionHelpText(helpTextInput.value)
     }
     const enumeratorSelector = document.getElementById(
       PreviewController.QUESTION_ENUMERATOR_INPUT_ID,
-    )
+    ) as HTMLInputElement | null
     if (enumeratorSelector) {
       enumeratorSelector.addEventListener(
         'input',
-        PreviewController.onEnumeratorSelectorChanged,
+        (ev) => {
+          PreviewController.updateFromNewEnumeratorSelector(
+            enumeratorSelector.value,
+          )
+        },
         false,
       )
-      const enumerator = (<HTMLInputElement>enumeratorSelector).value
-      const repeatedQuestionInformation = document.querySelector(
-        PreviewController.REPEATED_QUESTION_INFORMATION_ID,
+      PreviewController.updateFromNewEnumeratorSelector(
+        enumeratorSelector.value,
       )
-      repeatedQuestionInformation.classList.toggle('hidden', enumerator === '')
     }
     const entityTypeInput = document.getElementById(
       PreviewController.QUESTION_ENTITY_TYPE_INPUT_ID,
-    )
+    ) as HTMLInputElement | null
     if (entityTypeInput) {
       entityTypeInput.addEventListener(
         'input',
-        PreviewController.onEntityTypeChanged,
+        (ev) => {
+          PreviewController.updateFromNewEntityType(entityTypeInput.value)
+        },
         false,
       )
-      const entityType = (<HTMLInputElement>entityTypeInput).value
-      if (entityType.length > 0) {
-        PreviewController.setAllMatchingElements(
-          PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' label',
-          entityType + ' name',
-        )
-
-        PreviewController.setTextContent(
-          PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
-          'Add ' + entityType,
-        )
-        PreviewController.setAllMatchingElements(
-          PreviewController.QUESTION_ENTITY_DELETE_BUTTON_CLASS,
-          'Remove ' + entityType,
-        )
-      }
+      PreviewController.updateFromNewEntityType(entityTypeInput.value)
     }
   }
 
-  static onTextChanged(e: Event) {
-    const text = (<HTMLInputElement>e.target).value
-    PreviewController.updateQuestionText(text)
-  }
-
-  static updateQuestionText(text: string) {
-    if (text.length === 0) {
-      text = PreviewController.DEFAULT_QUESTION_TEXT
-    }
-
+  private static updateFromNewQuestionText(text: string) {
+    text = text || PreviewController.DEFAULT_QUESTION_TEXT
     const questionType = document.querySelector('.cf-question-type')
     const useAdvancedFormatting =
       questionType && questionType.textContent === 'STATIC'
@@ -155,31 +131,28 @@ class PreviewController {
     }
   }
 
-  static onHelpTextChanged(e: Event) {
-    let text = (<HTMLInputElement>e.target).value
-    if (text.length === 0) {
-      text = PreviewController.DEFAULT_QUESTION_HELP_TEXT
-    }
-
+  private static updateFromNewQuestionHelpText(helpText: string) {
+    helpText = helpText || PreviewController.DEFAULT_QUESTION_HELP_TEXT
     PreviewController.setTextAndHighlightEnumeratorReferences(
       PreviewController.QUESTION_HELP_TEXT_CLASS,
-      text,
+      helpText,
     )
   }
 
-  static onEnumeratorSelectorChanged(e: Event) {
+  private static updateFromNewEnumeratorSelector(
+    enumeratorSelectorValue: string,
+  ) {
     const repeatedQuestionInformation = document.querySelector(
       PreviewController.REPEATED_QUESTION_INFORMATION_ID,
     )
-    const enumerator = (<HTMLInputElement>e.target).value
-    repeatedQuestionInformation.classList.toggle('hidden', enumerator === '')
+    repeatedQuestionInformation.classList.toggle(
+      'hidden',
+      enumeratorSelectorValue === '',
+    )
   }
 
-  static onEntityTypeChanged(e: Event) {
-    let entityType = (<HTMLInputElement>e.target).value
-    if (entityType.length === 0) {
-      entityType = PreviewController.DEFAULT_ENTITY_TYPE
-    }
+  private static updateFromNewEntityType(entityType: string) {
+    entityType = entityType || PreviewController.DEFAULT_ENTITY_TYPE
     PreviewController.setAllMatchingElements(
       PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' label',
       entityType + ' name',
