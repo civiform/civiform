@@ -127,7 +127,8 @@ class Setup(AwsSetupTemplate):
         print()
         fargate_service = f'{app}-{resources.FARGATE_SERVICE}'
         cluster = f'{app}-{resources.CLUSTER}'
-        tasks_url = self._aws_cli.get_url_of_fargate_tasks(cluster, fargate_service)
+        tasks_url = self._aws_cli.get_url_of_fargate_tasks(
+            cluster, fargate_service)
         print('Setup finished. You can monitor civiform tasks status here:')
         print(tasks_url)
 
