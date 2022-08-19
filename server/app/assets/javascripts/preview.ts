@@ -7,6 +7,8 @@ class PreviewController {
     'question-enumerator-select'
   private static readonly QUESTION_ENTITY_TYPE_INPUT_ID =
     'enumerator-question-entity-type-input'
+  private static readonly QUESTION_ADD_OPTION_ID = 'add-new-option'
+  private static readonly QUESTION_SETTINGS_ID = 'question-settings'
 
   private static readonly QUESTION_TEXT_CLASS = '.cf-applicant-question-text'
   private static readonly QUESTION_HELP_TEXT_CLASS =
@@ -106,6 +108,96 @@ class PreviewController {
       )
       PreviewController.updateFromNewEntityType(entityTypeInput.value)
     }
+
+    // TODO(clouser): Currently using the add button as a proxy for a multi-option
+    // question type. Might want to use a class instead so that we can do all of
+    // the querying on the top-level DOM element.
+    const addOptionButton = document.getElementById(
+      PreviewController.QUESTION_ADD_OPTION_ID,
+    ) as HTMLButtonElement | null
+    if (addOptionButton) {
+      const questionSettingsSection = document.getElementById(
+        PreviewController.QUESTION_SETTINGS_ID,
+      ) as HTMLElement | null
+      if (questionSettingsSection) {
+        PreviewController.addOptionObservers(questionSettingsSection)
+      }
+    }
+  }
+
+  private static updateOptionsList(parent: HTMLElement) {
+    const configuredOptions = Array.from(
+      parent.querySelectorAll('.cf-multi-option-question-option input'),
+    ).map((el) => {
+      return (el as HTMLInputElement).value
+    })
+    if (configuredOptions.length == 0) {
+      configuredOptions.push('The default option text.')
+    }
+
+    const allPreviewOptionParents = Array.from(
+      document.querySelectorAll('#sample-question .cf-multi-option'),
+    )
+    if (allPreviewOptionParents.length > configuredOptions.length) {
+      allPreviewOptionParents
+        .slice(configuredOptions.length)
+        .forEach((toClip) => {
+          toClip.parentElement!.removeChild(toClip)
+        })
+    } else if (allPreviewOptionParents.length < configuredOptions.length) {
+      const parentElement = allPreviewOptionParents[0].parentElement!
+      // Clone N nodes.
+      const numToClone =
+        configuredOptions.length - allPreviewOptionParents.length
+      for (let i = 0; i < numToClone; i++) {
+        parentElement.appendChild(allPreviewOptionParents[0].cloneNode(true))
+      }
+    }
+
+    const updatedPreviewOptionParents = Array.from(
+      document.querySelectorAll('#sample-question .cf-multi-option'),
+    )
+
+    for (let i = 0; i < configuredOptions.length; i++) {
+      const optionValue = configuredOptions[i]
+      const previewOptionParent = updatedPreviewOptionParents[i] as HTMLElement
+      const previewOptionText = previewOptionParent.querySelector(
+        '.cf-multi-option-text',
+      )! as HTMLElement
+      previewOptionText.innerText = optionValue
+    }
+  }
+
+  private static addOptionObservers(questionSettingsSection: HTMLElement) {
+    const mutationObserver = new MutationObserver(
+      (records: MutationRecord[]) => {
+        for (const record of records) {
+          if (record.removedNodes.length > 0) {
+            PreviewController.updateOptionsList(questionSettingsSection)
+          }
+          for (const newNode of Array.from(record.addedNodes)) {
+            const newInputs = Array.from(
+              (<Element>newNode).querySelectorAll('input'),
+            )
+            newInputs.forEach((newInput) => {
+              newInput.addEventListener('input', () => {
+                PreviewController.updateOptionsList(questionSettingsSection)
+              })
+            })
+            if (newInputs.length > 0) {
+              // Explicitly call this so that an option is added for the new entry.
+              PreviewController.updateOptionsList(questionSettingsSection)
+            }
+          }
+        }
+      },
+    )
+
+    mutationObserver.observe(questionSettingsSection, {
+      childList: true,
+      subtree: true,
+      characterDataOldValue: true,
+    })
   }
 
   private static updateFromNewQuestionText(text: string) {

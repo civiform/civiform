@@ -3,6 +3,7 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -77,9 +78,11 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .withValue(String.valueOf(option.id()))
                     .withCondChecked(isSelected)
                     .withClasses(
-                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)))
-            .withText(option.optionText());
+                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
+                span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_TEXT));
 
-    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
+    return div()
+        .withClasses(ReferenceClasses.MULTI_OPTION, Styles.MY_2, Styles.RELATIVE)
+        .with(labelTag);
   }
 }
