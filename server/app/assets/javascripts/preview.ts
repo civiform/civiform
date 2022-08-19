@@ -135,37 +135,26 @@ class PreviewController {
       configuredOptions.push('The default option text.')
     }
 
-    const allPreviewOptionParents = Array.from(
+    // Reset the option list in the preview.
+    // Keep track of the first element so new options can be cloned from it.
+    const allOptions = Array.from(
       document.querySelectorAll('#sample-question .cf-multi-option'),
     )
-    if (allPreviewOptionParents.length > configuredOptions.length) {
-      allPreviewOptionParents
-        .slice(configuredOptions.length)
-        .forEach((toClip) => {
-          toClip.parentElement!.removeChild(toClip)
-        })
-    } else if (allPreviewOptionParents.length < configuredOptions.length) {
-      const parentElement = allPreviewOptionParents[0].parentElement!
-      // Clone N nodes.
-      const numToClone =
-        configuredOptions.length - allPreviewOptionParents.length
-      for (let i = 0; i < numToClone; i++) {
-        parentElement.appendChild(allPreviewOptionParents[0].cloneNode(true))
-      }
-    }
+    const firstOption = allOptions[0]
+    const firstOptionParent = firstOption.parentElement!
+    allOptions.forEach((option => {
+      option.remove()
+    }))
 
-    const updatedPreviewOptionParents = Array.from(
-      document.querySelectorAll('#sample-question .cf-multi-option'),
-    )
-
-    for (let i = 0; i < configuredOptions.length; i++) {
-      const optionValue = configuredOptions[i]
-      const previewOptionParent = updatedPreviewOptionParents[i] as HTMLElement
-      const previewOptionText = previewOptionParent.classList.contains('cf-multi-option-text')
-      ? previewOptionParent : previewOptionParent.querySelector(
+    for (const configuredOption of configuredOptions) {
+      const newOptionContainer = firstOption.cloneNode(true) as HTMLElement
+      // Set the underlying value.
+      const optionText = newOptionContainer.classList.contains('cf-multi-option-text')
+      ? newOptionContainer : newOptionContainer.querySelector(
         '.cf-multi-option-text',
       )! as HTMLElement
-      previewOptionText.innerText = optionValue
+      optionText.innerText = configuredOption
+      firstOptionParent.appendChild(newOptionContainer)
     }
   }
 
