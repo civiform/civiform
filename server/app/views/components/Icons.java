@@ -1,5 +1,7 @@
 package views.components;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.question.types.QuestionType;
 
 /**
@@ -287,6 +289,9 @@ public enum Icons {
   ARROW_UPWARD(48, "M22.5 40V13.7L10.1 26.1 8 24 24 8l16 16-2.1 2.1-12.4-12.4V40Z"),
   ARROW_DOWNWARD(48, "M24 40 8 24l2.1-2.1 12.4 12.4V8h3v26.3l12.4-12.4L40 24Z");
 
+  private static final Logger logger = LoggerFactory.getLogger(
+    Icons.class);
+
   public final String path;
   private final int size;
 
@@ -372,12 +377,10 @@ public enum Icons {
   /** Don't use it. Use {@link #questionTypeSvg(QuestionType type) instead} */
   public static SvgTag svg(Icons icon, int size) {
     if (icon.size != size) {
-      throw new IllegalArgumentException(
-          String.format(
-              "Trying override size of icon %s to be %d while its actual size %d. Don't pass"
+      logger.error("Trying override size of icon {} to be {} while its actual size{}. Don't pass"
                   + " explicit size to svg(). See"
                   + " https://github.com/civiform/civiform/issues/3148",
-              icon, size, icon.size));
+              icon, size, icon.size);
     }
     // Setting the viewBox to a specific height/width is insufficient to
     // actually cause the SVG's bounds to match. Here, the width / height
