@@ -369,7 +369,6 @@ public final class QuestionEditView extends BaseHtmlView {
     QuestionTag exportState = questionForm.getQuestionExportStateTag();
     // TODO(#2618): Consider using helpers for grouping related radio controls.
     return fieldset()
-        .withId("demographic-field-content")
         .with(
             legend("Export options *").withClass(BaseStyles.INPUT_LABEL),
             FieldWithLabel.radio()
