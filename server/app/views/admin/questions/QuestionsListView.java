@@ -403,7 +403,7 @@ public final class QuestionsListView extends BaseHtmlView {
       if (draft.isEmpty()) {
         // Active without a draft.
         td.with(renderQuestionViewLink(active.get(), "View →")).with(br());
-        td.with(renderQuestionEditLink(active.get(), "New Version →")).with(br());
+        td.with(renderQuestionEditLink(active.get(), "Edit →")).with(br());
       } else if (draft.isPresent()) {
         // Active with a draft.
         td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());

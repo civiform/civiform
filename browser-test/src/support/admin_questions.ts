@@ -158,7 +158,7 @@ export class AdminQuestions {
     ).toContain('View')
     expect(
       await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('New Version')
+    ).toContain('Edit')
   }
 
   async expectQuestionNotExist(questionName: string) {
@@ -251,7 +251,7 @@ export class AdminQuestions {
   async gotoQuestionNewVersionPage(questionName: string) {
     await this.gotoQuestionEditOrNewVersionPage({
       questionName,
-      buttonText: 'New Version',
+      buttonText: 'Edit',
     })
   }
 
