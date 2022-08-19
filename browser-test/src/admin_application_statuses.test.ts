@@ -13,7 +13,7 @@ import {
 import {Page} from 'playwright'
 
 // TODO(#3071): Re-enable when the feature flag is controllable in tests.
-describe.skip('view program statuses', () => {
+describe('view program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let applicantQuestions: ApplicantQuestions
@@ -54,7 +54,7 @@ describe.skip('view program statuses', () => {
       await logout(pageObject)
     })
 
-    it('does not Show status options', async () => {
+    it('does not show status options or edit note', async () => {
       await loginAsProgramAdmin(pageObject)
 
       await adminPrograms.viewApplications(programWithoutStatusesName)
@@ -62,6 +62,7 @@ describe.skip('view program statuses', () => {
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
 
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
+      expect(await adminPrograms.isEditNoteVisible()).toBe(false)
     })
   })
 
@@ -119,6 +120,12 @@ describe.skip('view program statuses', () => {
         await adminPrograms.expectUpdateStatusToast()
         // TODO(#3020): Assert that the selected status has been updated.
       })
+    })
+
+    it('allows editing a note', async () => {
+      await adminPrograms.editNote('Some note content')
+      await adminPrograms.expectNoteUpdatedToast()
+      // TODO(#3020): Assert that the note has been updated.
     })
   })
 })
