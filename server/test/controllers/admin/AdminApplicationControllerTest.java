@@ -122,4 +122,67 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Result result = controller.updateStatus(request, program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
+
+  @Test
+  public void editNote_flagDisabled() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    // Initialize the controller explicitly to override status tracking enablement.
+    controller =
+        new AdminApplicationController(
+            instanceOf(ProgramService.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ExporterService.class),
+            instanceOf(JsonExporter.class),
+            instanceOf(PdfExporter.class),
+            instanceOf(ProgramApplicationListView.class),
+            instanceOf(ProgramApplicationView.class),
+            instanceOf(ProgramAdminApplicationService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(DateConverter.class),
+            /* nowProvider= */ new Provider<LocalDateTime>() {
+              @Override
+              public LocalDateTime get() {
+                return LocalDateTime.now(ZoneId.systemDefault());
+              }
+            },
+            /* statusTrackingEnabled= */ new Provider<Boolean>() {
+              @Override
+              public Boolean get() {
+                return false;
+              }
+            });
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Result result = controller.editNote(request, program.id, application.id);
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void editNote_programNotFound() {
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    assertThatThrownBy(() -> controller.editNote(request, Long.MAX_VALUE, application.id))
+        .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void editNote_notAdmin() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Result result = controller.editNote(request, program.id, application.id);
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
 }

@@ -96,6 +96,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         status,
                         request))
             .collect(ImmutableList.toImmutableList());
+    Modal editNoteModal = renderEditNoteConfirmationModal(programId, application, request);
 
     DivTag contentDiv =
         div()
@@ -115,6 +116,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
+                        editNoteModal.getButton(),
                         renderStatusOptionsSelector(statusDefinitions))
                     .with(renderDownloadButton(programId, application.id)))
             .with(
@@ -132,6 +134,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             // sizing.
             .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
             .addMainStyles(Styles.W_SCREEN)
+            .addModals(editNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
     Optional<String> maybeSuccessMessage = request.flash().get("success");
@@ -254,6 +257,31 @@ public final class ProgramApplicationView extends BaseHtmlView {
               dropdownTag.with(optionTag);
             });
     return container.with(dropdownTag);
+  }
+
+  private Modal renderEditNoteConfirmationModal(
+      long programId, Application application, Http.Request request) {
+    FormTag modalContent =
+        form()
+            .withAction(
+                controllers.admin.routes.AdminApplicationController.editNote(
+                        programId, application.id)
+                    .url())
+            .withMethod("POST")
+            .withClasses(Styles.PX_6, Styles.PY_2)
+            .with(makeCsrfTokenInputTag(request), p("Edit note:"));
+    modalContent.with(
+        div()
+            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+            .with(
+                div().withClass(Styles.FLEX_GROW),
+                button("Cancel")
+                    .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+    return Modal.builder(Modal.randomModalId(), modalContent)
+        .setModalTitle("Edit note")
+        .setWidth(Width.THREE_FOURTHS)
+        .build();
   }
 
   private Modal renderStatusUpdateConfirmationModal(

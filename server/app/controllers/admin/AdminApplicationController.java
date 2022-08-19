@@ -341,6 +341,37 @@ public final class AdminApplicationController extends CiviFormController {
         .flashing("success", "Application status updated");
   }
 
+  /**
+   * Edits the note for the associated application and redirects to the summary page for the
+   * application.
+   */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result editNote(Http.Request request, long programId, long applicationId)
+      throws ProgramNotFoundException {
+    if (!statusTrackingEnabled.get()) {
+      return notFound("status tracking is not enabled");
+    }
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    String programName = program.adminName();
+
+    try {
+      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+    } catch (CompletionException | NoSuchElementException e) {
+      return unauthorized();
+    }
+
+    Optional<Application> applicationMaybe =
+        programAdminApplicationService.getApplication(applicationId, program);
+    if (!applicationMaybe.isPresent()) {
+      return notFound(String.format("Application %d does not exist.", applicationId));
+    }
+
+    // TODO(#3020): Actually edit the note rather than unconditionally returning success.
+    return redirect(
+            routes.AdminApplicationController.show(programId, applicationMaybe.get().id).url())
+        .flashing("success", "Application note updated");
+  }
+
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(
