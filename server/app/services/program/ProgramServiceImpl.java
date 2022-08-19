@@ -362,13 +362,10 @@ public final class ProgramServiceImpl implements ProgramService {
 
   private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
       long blockId, Optional<Long> maybeEnumeratorBlockId) {
-    String blockName;
-    if (maybeEnumeratorBlockId.isPresent()) {
-      blockName =
-          String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get());
-    } else {
-      blockName = String.format("Screen %d", blockId);
-    }
+    String blockName =
+        maybeEnumeratorBlockId.isPresent()
+            ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
+            : String.format("Screen %d", blockId);
     String blockDescription = String.format("Screen %d description", blockId);
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
