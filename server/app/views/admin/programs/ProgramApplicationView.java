@@ -31,6 +31,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.OptionalLong;
+
 import models.Application;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -43,6 +45,8 @@ import services.program.StatusDefinitions;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
@@ -116,8 +120,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        editNoteModal.getButton(),
-                        renderStatusOptionsSelector(statusDefinitions))
+                        div()
+                            .withClasses(Styles.FLEX, Styles.MR_4, Styles.SPACE_X_2)
+                            .with(
+                                renderStatusOptionsSelector(statusDefinitions),
+                                editNoteModal.getButton()))
                     .with(renderDownloadButton(programId, application.id)))
             .with(
                 each(
@@ -149,7 +156,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
     return new LinkElement()
-        .setId("download-button")
         .setHref(link)
         .setText("Export to PDF")
         .asRightAlignedButton();
@@ -230,7 +236,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 Styles.OUTLINE_NONE,
                 Styles.PX_3,
                 Styles.PY_1,
-                Styles.MX_3,
+                Styles.ML_3,
                 Styles.MY_4,
                 Styles.BORDER,
                 Styles.BORDER_GRAY_500,
@@ -261,6 +267,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   private Modal renderEditNoteConfirmationModal(
       long programId, Application application, Http.Request request) {
+    ButtonTag triggerButton = makeSvgTextButton("Edit note", Icons.EDIT)
+        .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     FormTag modalContent =
         form()
             .withAction(
@@ -269,17 +277,21 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     .url())
             .withMethod("POST")
             .withClasses(Styles.PX_6, Styles.PY_2)
-            .with(makeCsrfTokenInputTag(request), p("Edit note:"));
+            .with(makeCsrfTokenInputTag(request));
     modalContent.with(
+        FieldWithLabel.textArea()
+            .setRows(OptionalLong.of(8))
+            .getTextareaTag(),
         div()
             .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
             .with(
                 div().withClass(Styles.FLEX_GROW),
                 button("Cancel")
                     .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
-                submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                submitButton("Save").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     return Modal.builder(Modal.randomModalId(), modalContent)
         .setModalTitle("Edit note")
+        .setTriggerButtonContent(triggerButton)
         .setWidth(Width.THREE_FOURTHS)
         .build();
   }
