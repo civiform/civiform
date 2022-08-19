@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 
@@ -283,11 +284,19 @@ public final class QuestionEditView extends BaseHtmlView {
       boolean submittable,
       boolean forCreate) {
     QuestionType questionType = questionForm.getQuestionType();
-    FormTag formTag = form().withMethod("POST").with(requiredFieldsExplanationContent());
+    FormTag formTag = form().withMethod("POST").with(
+        // Hidden input indicating the type of question to be created.
+        input()
+            .isHidden()
+            .withName("questionType")
+            .withValue(questionType.name()),
+        requiredFieldsExplanationContent());
 
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, the fields are disabled, and hidden fields to pass
     // enumerator and name data are added.
+    formTag.with(h2("Visible to administrators only")
+        .withClasses(Styles.PB_2));
     FieldWithLabel nameField =
         FieldWithLabel.input()
             .setId("question-name-input")
@@ -324,7 +333,10 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setValue(questionForm.getQuestionDescription())
                 .getTextareaTag(),
             enumeratorOptions.setDisabled(!forCreate).getSelectTag(),
-            repeatedQuestionInformation(),
+            repeatedQuestionInformation());
+    formTag.with(
+            h2("Visible to applicants")
+                .withClasses(Styles.PB_2),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -341,8 +353,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionHelpText())
                 .getTextareaTag()
-                .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN))
-        .with(formQuestionTypeSelect(questionType));
+                .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
 
     formTag.with(QuestionConfig.buildQuestionConfig(questionForm, messages));
 
@@ -385,20 +396,6 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
                 .getRadioTag());
-  }
-
-  private DomContent formQuestionTypeSelect(QuestionType selectedType) {
-    ImmutableMap<String, String> options =
-        Arrays.stream(QuestionType.values()).collect(toImmutableMap(Enum::toString, Enum::name));
-
-    return new SelectWithLabel()
-        .setId("question-type-select")
-        .setFieldName("questionType")
-        .setLabelText("Question type")
-        .setOptions(options)
-        .setValue(selectedType.name())
-        .getSelectTag()
-        .withClasses(Styles.HIDDEN);
   }
 
   /**
