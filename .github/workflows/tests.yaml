@@ -75,7 +75,7 @@ jobs:
       - name: Upload test videos on failure
         uses: actions/upload-artifact@v3
         with:
-          name: test videos directory
+          name: tests videos
           path: browser-test/tmp
         if: failure()
       - name: Print logs on failure
@@ -127,7 +127,7 @@ jobs:
       - name: Upload test videos on failure
         uses: actions/upload-artifact@v3
         with:
-          name: test videos directory
+          name: tests videos
           path: browser-test/tmp
         if: failure()
       - name: Print logs on failure
