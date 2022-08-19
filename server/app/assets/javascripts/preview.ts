@@ -161,7 +161,8 @@ class PreviewController {
     for (let i = 0; i < configuredOptions.length; i++) {
       const optionValue = configuredOptions[i]
       const previewOptionParent = updatedPreviewOptionParents[i] as HTMLElement
-      const previewOptionText = previewOptionParent.querySelector(
+      const previewOptionText = previewOptionParent.classList.contains('cf-multi-option-text')
+      ? previewOptionParent : previewOptionParent.querySelector(
         '.cf-multi-option-text',
       )! as HTMLElement
       previewOptionText.innerText = optionValue
