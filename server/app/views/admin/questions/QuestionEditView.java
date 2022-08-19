@@ -285,12 +285,9 @@ public final class QuestionEditView extends BaseHtmlView {
     QuestionType questionType = questionForm.getQuestionType();
     FormTag formTag = form().withMethod("POST").with(requiredFieldsExplanationContent());
 
-    // The question enumerator and name fields should not be changed after the question is created.
+    // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, the fields are disabled, and hidden fields to pass
-    // enumerator
-    // and name data are added.
-    formTag.with(enumeratorOptions.setDisabled(!forCreate).getSelectTag());
-    formTag.with(repeatedQuestionInformation());
+    // enumerator and name data are added.
     FieldWithLabel nameField =
         FieldWithLabel.input()
             .setId("question-name-input")
@@ -316,19 +313,6 @@ public final class QuestionEditView extends BaseHtmlView {
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
 
-    DivTag questionHelpTextField =
-        FieldWithLabel.textArea()
-            .setId("question-help-text-textarea")
-            .setFieldName("questionHelpText")
-            .setLabelText("Question help text")
-            .setPlaceholderText("The question help text displayed to the applicant")
-            .setDisabled(!submittable)
-            .setValue(questionForm.getQuestionHelpText())
-            .getTextareaTag();
-    if (questionType.equals(QuestionType.STATIC)) { // Hide help text for static questions.
-      questionHelpTextField.withClasses(Styles.HIDDEN);
-    }
-
     formTag
         .with(
             FieldWithLabel.textArea()
@@ -339,6 +323,8 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionDescription())
                 .getTextareaTag(),
+            enumeratorOptions.setDisabled(!forCreate).getSelectTag(),
+            repeatedQuestionInformation(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -347,7 +333,15 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionText())
                 .getTextareaTag(),
-            questionHelpTextField)
+            FieldWithLabel.textArea()
+                .setId("question-help-text-textarea")
+                .setFieldName("questionHelpText")
+                .setLabelText("Question help text")
+                .setPlaceholderText("The question help text displayed to the applicant")
+                .setDisabled(!submittable)
+                .setValue(questionForm.getQuestionHelpText())
+                .getTextareaTag()
+                .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN))
         .with(formQuestionTypeSelect(questionType));
 
     formTag.with(QuestionConfig.buildQuestionConfig(questionForm, messages));
