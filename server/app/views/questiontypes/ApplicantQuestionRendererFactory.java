@@ -17,7 +17,7 @@ import services.question.types.QuestionType;
 import views.FileUploadViewStrategy;
 
 /** A helper class for constructing type-specific applicant question renderers. */
-public class ApplicantQuestionRendererFactory {
+public final class ApplicantQuestionRendererFactory {
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
 

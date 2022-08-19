@@ -947,6 +947,36 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText)
   }
 
+  async expectEnumeratorPreviewValues({
+    questionText,
+    questionHelpText,
+    entityNameInputLabelText,
+    deleteEntityButtonText,
+    addEntityButtonText,
+  }: {
+    questionText: string
+    questionHelpText: string
+    entityNameInputLabelText: string
+    deleteEntityButtonText: string
+    addEntityButtonText: string
+  }) {
+    expect(await this.page.innerText('.cf-applicant-question-text')).toBe(
+      questionText,
+    )
+    expect(await this.page.innerText('.cf-applicant-question-help-text')).toBe(
+      questionHelpText,
+    )
+    expect(await this.page.innerText('.cf-entity-name-input label')).toBe(
+      entityNameInputLabelText,
+    )
+    expect(await this.page.innerText('.cf-enumerator-delete-button')).toBe(
+      deleteEntityButtonText,
+    )
+    expect(await this.page.innerText('#enumerator-field-add-button')).toBe(
+      addEntityButtonText,
+    )
+  }
+
   /**
    * The `enumeratorName` argument is used to make _this_ enumerator question a repeated question.
    */
