@@ -96,7 +96,7 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
       Optional<ToastMessage> message) {
     QuestionType questionType = questionForm.getQuestionType();
-    String title = String.format("New %s question", questionType.getLabel());
+    String title = String.format("New %s question", questionType.getLabel().toLowerCase());
 
     DivTag formContent =
         buildQuestionContainer(title, questionForm)
@@ -147,7 +147,7 @@ public final class QuestionEditView extends BaseHtmlView {
       Optional<ToastMessage> message) {
 
     QuestionType questionType = questionForm.getQuestionType();
-    String title = String.format("Edit %s question", questionType.getLabel());
+    String title = String.format("Edit %s question", questionType.getLabel().toLowerCase());
 
     DivTag formContent =
         buildQuestionContainer(title, questionForm)
