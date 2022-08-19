@@ -374,7 +374,7 @@ public final class QuestionEditView extends BaseHtmlView {
     // TODO(#2618): Consider using helpers for grouping related radio controls.
     return fieldset()
         .with(
-            legend("Data privacy settings *").withClass(BaseStyles.INPUT_LABEL),
+            legend("Data privacy settings*").withClass(BaseStyles.INPUT_LABEL),
             FieldWithLabel.radio()
                 .setId("question-demographic-no-export")
                 .setDisabled(!submittable)
