@@ -12,6 +12,7 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.BaseStyles;
+import views.style.Styles;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
@@ -54,7 +55,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
     FormTag formTag = form().withMethod("POST");
     formTag.with(
         requiredFieldsExplanationContent(),
-        h2("Visible to administrators only"),
+        h2("Visible to administrators only")
+            .withClasses(Styles.PB_2),
         FieldWithLabel.input()
             .setId("program-name-input")
             .setFieldName("adminName")
@@ -86,7 +88,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
                     .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
                     .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
                     .getRadioTag()),
-        h2("Visible to applicants"),
+        h2("Visible to applicants")
+            .withClasses(Styles.PB_2),
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
