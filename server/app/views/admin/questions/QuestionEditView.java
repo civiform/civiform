@@ -371,7 +371,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return fieldset()
         .withId("demographic-field-content")
         .with(
-            legend("Export options*").withClass(BaseStyles.INPUT_LABEL),
+            legend("Export options *").withClass(BaseStyles.INPUT_LABEL),
             FieldWithLabel.radio()
                 .setId("question-demographic-no-export")
                 .setDisabled(!submittable)
