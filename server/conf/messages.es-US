@@ -23,7 +23,12 @@ content.applicantInformation=Applicant Information
 button.untranslatedSubmit=Submit
 
 # Message displayed before the support email address in the page footer for applicants.
-footer.supportLinkDescription=For technical support, contact
+footer.supportLinkDescription=Para obtener asistencia técnica, póngase en contacto con
+
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
+# TODO(#1918): Translate.
+guest=Invitado(a)
 
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Elija un idioma
@@ -33,6 +38,9 @@ header.userName=Conectado como {0}
 
 # Error message to answer a required question
 validation.isRequired=Esta pregunta es obligatoria.
+
+# Validation error that is shown when the user input couldn't be converted for any reason.
+validation.invalidInput=Ingrese información valida
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -60,11 +68,17 @@ button.guestLogin=Continuar como invitado
 content.adminLoginPrompt=¿Está buscando algo más?
 
 # The text on the anchor for admins to log in to their session.
-link.adminLogin=Admin login
+link.adminLogin=Inicio de sesión del administrador
+
+# The text on the anchor for admins to log in to their session.
+link.adminLogin=Inicio de sesión del administrador
 
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
+input.fileAlreadyUploaded=Archivo enviado {0}
 
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Eliminar
@@ -105,8 +119,15 @@ link.createAccountOrSignIn=Configurar una cuenta o iniciar sesión
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Solicitar
+
 # The text read for screen readers.
 button.applySr=Solicitar para {0}
+
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=Editar
+
+# Text describing the date the application was last submitted.
+content.submittedDate=Enviar {0}
 
 # "Get benefits" floating text
 content.benefits=Obtener beneficios
@@ -132,8 +153,14 @@ title.programs=Programas y servicios
 # Subtitle for the list of programs with draft applications
 title.inProgressPrograms=Continuar
 
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=En curso
+
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activePrograms=Programas nuevos
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=No se ha iniciado
 
 # Screen reader format string for program cards
 title.programCard=Programa {0} de {1} -- {2}
@@ -255,6 +282,8 @@ validation.fileRequired=Por favor seleccione un archivo.
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Debe contener un máximo de {0} caracteres.
 validation.idTooShort=Debe contener al menos {0} caracteres.
+validation.numberNonInteger=El número debe ser un número entero, positivo y solo puede contener caracteres numéricos de 0 a 9.
+
 
 validation.numberRequired=Solo debe contener números.
 
