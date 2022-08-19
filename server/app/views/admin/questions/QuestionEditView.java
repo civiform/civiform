@@ -299,7 +299,7 @@ public final class QuestionEditView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("question-name-input")
             .setFieldName(QUESTION_NAME_FIELD)
-            .setLabelText("Name*")
+            .setLabelText("Administrative name*")
             .setDisabled(!submittable)
             .setPlaceholderText("The name displayed in the question builder")
             .setValue(questionForm.getQuestionName());
