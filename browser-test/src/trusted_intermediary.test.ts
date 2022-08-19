@@ -5,6 +5,9 @@ import {
   loginAsTrustedIntermediary,
   endSession,
   AdminTIGroups,
+  TIDashboard,
+  ClientInformation,
+  waitForPageJsLoad,
 } from './support'
 
 describe('Trusted intermediaries', () => {
@@ -13,7 +16,6 @@ describe('Trusted intermediaries', () => {
 
   beforeEach(async () => {
     const session = await startSession()
-
     browser = session.browser
     page = session.page
   })
@@ -22,7 +24,24 @@ describe('Trusted intermediaries', () => {
     await endSession(browser)
   })
 
-  it('managing trusted intermediary groups', async () => {
+  it('expect Dashboard Contain New Client', async () => {
+    await loginAsTrustedIntermediary(page)
+
+    const tiDashboard = new TIDashboard(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'fake@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-05-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+  })
+
+  it('managing trusted intermediary ', async () => {
     await loginAsAdmin(page)
     const adminGroups = new AdminTIGroups(page)
     await adminGroups.gotoAdminTIPage()

@@ -16,6 +16,7 @@ export {AdminPrograms} from './admin_programs'
 export {AdminProgramStatuses} from './admin_program_statuses'
 export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
+export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {ApplicantQuestions} from './applicant_questions'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 import {

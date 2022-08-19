@@ -63,4 +63,20 @@ public class ApplicantDataTest {
     assertThat(data.getFailedUpdates()).isEqualTo(ImmutableMap.of(samplePath, "invalid_value"));
     assertThatThrownBy(() -> data.asJsonString()).isInstanceOf(IllegalStateException.class);
   }
+
+  @Test
+  public void setDateOfBirth_isSuccessful() {
+    ApplicantData data = new ApplicantData();
+    String sampleDob = "2022-01-05";
+    data.setDateOfBirth(sampleDob);
+    assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":1641340800000}}");
+  }
+
+  @Test
+  public void getDateOfBirth_isEmptyWhenNotSet() {
+    ApplicantData applicantData = new ApplicantData();
+    assertThat(applicantData.getDateOfBirth()).isEqualTo(Optional.empty());
+  }
 }

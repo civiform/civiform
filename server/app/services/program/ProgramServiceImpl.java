@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import models.Account;
@@ -716,6 +717,47 @@ public final class ProgramServiceImpl implements ProgramService {
     } catch (IllegalPredicateOrderingException e) {
       // Changing a question between required and optional should not affect predicates. If a
       // question is optional and a predicate depends on its answer, the predicate will be false.
+      throw new RuntimeException(
+          "Unexpected error: updating this question invalidated a block condition");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition setProgramQuestionDefinitionPosition(
+      long programId, long blockDefinitionId, long questionDefinitionId, int newPosition)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, InvalidQuestionPositionException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+    ImmutableList<ProgramQuestionDefinition> questions =
+        blockDefinition.programQuestionDefinitions();
+
+    if (newPosition < 0 || newPosition >= questions.size()) {
+      throw InvalidQuestionPositionException.positionOutOfBounds(newPosition, questions.size());
+    }
+
+    // move question to the new position
+    Optional<ProgramQuestionDefinition> toMove =
+        questions.stream().filter(q -> q.id() == questionDefinitionId).findFirst();
+    if (!toMove.isPresent()) {
+      throw new ProgramQuestionDefinitionNotFoundException(
+          programId, blockDefinitionId, questionDefinitionId);
+    }
+    List<ProgramQuestionDefinition> otherQuestions =
+        questions.stream().filter(q -> q.id() != questionDefinitionId).collect(Collectors.toList());
+    otherQuestions.add(newPosition, toMove.get());
+
+    try {
+      return updateProgramDefinitionWithBlockDefinition(
+          programDefinition,
+          blockDefinition.toBuilder()
+              .setProgramQuestionDefinitions(ImmutableList.copyOf(otherQuestions))
+              .build());
+    } catch (IllegalPredicateOrderingException e) {
+      // Changing a question position within block should not affect predicates
+      // because predicates cannot depend on questions within the same block.
       throw new RuntimeException(
           "Unexpected error: updating this question invalidated a block condition");
     }

@@ -71,10 +71,7 @@ public final class Modal {
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle).withClasses(Styles.TEXT_LG))
         .with(div().withClasses(Styles.FLEX_GROW))
-        .with(
-            div("x")
-                .withId(modalId + "-close")
-                .withClasses(ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON));
+        .with(div("x").withClasses(ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON));
   }
 
   public static String randomModalId() {
@@ -151,7 +148,8 @@ public final class Modal {
     DEFAULT(Styles.W_AUTO),
     HALF(Styles.W_1_2),
     THIRD(Styles.W_1_3),
-    FOURTH(Styles.W_1_4);
+    FOURTH(Styles.W_1_4),
+    THREE_FOURTHS(Styles.W_9_12);
 
     private final String width;
 

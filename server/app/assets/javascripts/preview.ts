@@ -15,7 +15,6 @@ class PreviewController {
   static readonly QUESTION_ENTITY_NAME_INPUT_CLASS = '.cf-entity-name-input'
 
   static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
-  static readonly DEFAULT_QUESTION_HELP_TEXT = 'Sample question help text'
   static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
 
   // This regex is used to match $this and $this.parent (etc) strings so we can
@@ -149,14 +148,9 @@ class PreviewController {
   }
 
   static onHelpTextChanged(e: Event) {
-    let text = (<HTMLInputElement>e.target).value
-    if (text.length === 0) {
-      text = PreviewController.DEFAULT_QUESTION_HELP_TEXT
-    }
-
     PreviewController.setTextAndHighlightEnumeratorReferences(
       PreviewController.QUESTION_HELP_TEXT_CLASS,
-      text,
+      (<HTMLInputElement>e.target).value,
     )
   }
 

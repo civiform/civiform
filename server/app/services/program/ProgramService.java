@@ -315,6 +315,25 @@ public interface ProgramService {
           ProgramQuestionDefinitionNotFoundException;
 
   /**
+   * Set position of a program question within its block. Used to reorder questions.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionDefinitionId the ID of the question to update
+   * @param newPosition Should be between 0 and N-1 where N is number of questions in the block.
+   * @return the updated program definition
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block
+   * @throws ProgramQuestionDefinitionNotFoundException when questionDefinitionId does not
+   *     correspond to a real question in the block
+   */
+  ProgramDefinition setProgramQuestionDefinitionPosition(
+      long programId, long blockDefinitionId, long questionDefinitionId, int newPosition)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, InvalidQuestionPositionException;
+
+  /**
    * Get all the program's submitted applications. Does not include drafts or deleted applications.
    *
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
