@@ -239,7 +239,7 @@ export const validateScreenshot = async (
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,
-    failureThreshold: 0.03,
+    failureThreshold: 0,
     failureThresholdType: 'percent',
     customSnapshotsDir: 'image_snapshots',
     customDiffDir: 'diff_output',
