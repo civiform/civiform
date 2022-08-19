@@ -18,7 +18,6 @@ import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import java.util.Arrays;
 import java.util.Optional;
 import models.QuestionTag;
 import play.i18n.Lang;
@@ -284,19 +283,18 @@ public final class QuestionEditView extends BaseHtmlView {
       boolean submittable,
       boolean forCreate) {
     QuestionType questionType = questionForm.getQuestionType();
-    FormTag formTag = form().withMethod("POST").with(
-        // Hidden input indicating the type of question to be created.
-        input()
-            .isHidden()
-            .withName("questionType")
-            .withValue(questionType.name()),
-        requiredFieldsExplanationContent());
+    FormTag formTag =
+        form()
+            .withMethod("POST")
+            .with(
+                // Hidden input indicating the type of question to be created.
+                input().isHidden().withName("questionType").withValue(questionType.name()),
+                requiredFieldsExplanationContent());
 
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, the fields are disabled, and hidden fields to pass
     // enumerator and name data are added.
-    formTag.with(h2("Visible to administrators only")
-        .withClasses(Styles.PY_2));
+    formTag.with(h2("Visible to administrators only").withClasses(Styles.PY_2));
     FieldWithLabel nameField =
         FieldWithLabel.input()
             .setId("question-name-input")
@@ -322,43 +320,41 @@ public final class QuestionEditView extends BaseHtmlView {
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
 
-    formTag
-        .with(
-            FieldWithLabel.textArea()
-                .setId("question-description-textarea")
-                .setFieldName("questionDescription")
-                .setLabelText("Description")
-                .setPlaceholderText("The description displayed in the question builder")
-                .setDisabled(!submittable)
-                .setValue(questionForm.getQuestionDescription())
-                .getTextareaTag(),
-            enumeratorOptions.setDisabled(!forCreate).getSelectTag(),
-            repeatedQuestionInformation());
     formTag.with(
-            h2("Visible to applicants")
-                .withClasses(Styles.PY_2),
-            FieldWithLabel.textArea()
-                .setId("question-text-textarea")
-                .setFieldName("questionText")
-                .setLabelText("Question text*")
-                .setPlaceholderText("The question text displayed to the applicant")
-                .setDisabled(!submittable)
-                .setValue(questionForm.getQuestionText())
-                .getTextareaTag(),
-            FieldWithLabel.textArea()
-                .setId("question-help-text-textarea")
-                .setFieldName("questionHelpText")
-                .setLabelText("Question help text")
-                .setPlaceholderText("The question help text displayed to the applicant")
-                .setDisabled(!submittable)
-                .setValue(questionForm.getQuestionHelpText())
-                .getTextareaTag()
-                .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
+        FieldWithLabel.textArea()
+            .setId("question-description-textarea")
+            .setFieldName("questionDescription")
+            .setLabelText("Description")
+            .setPlaceholderText("The description displayed in the question builder")
+            .setDisabled(!submittable)
+            .setValue(questionForm.getQuestionDescription())
+            .getTextareaTag(),
+        enumeratorOptions.setDisabled(!forCreate).getSelectTag(),
+        repeatedQuestionInformation());
+    formTag.with(
+        h2("Visible to applicants").withClasses(Styles.PY_2),
+        FieldWithLabel.textArea()
+            .setId("question-text-textarea")
+            .setFieldName("questionText")
+            .setLabelText("Question text*")
+            .setPlaceholderText("The question text displayed to the applicant")
+            .setDisabled(!submittable)
+            .setValue(questionForm.getQuestionText())
+            .getTextareaTag(),
+        FieldWithLabel.textArea()
+            .setId("question-help-text-textarea")
+            .setFieldName("questionHelpText")
+            .setLabelText("Question help text")
+            .setPlaceholderText("The question help text displayed to the applicant")
+            .setDisabled(!submittable)
+            .setValue(questionForm.getQuestionHelpText())
+            .getTextareaTag()
+            .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
     if (questionConfig.isPresent()) {
-        questionSettingsContentBuilder.add(questionConfig.get());
+      questionSettingsContentBuilder.add(questionConfig.get());
     }
 
     if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
@@ -366,10 +362,7 @@ public final class QuestionEditView extends BaseHtmlView {
     }
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
-        formTag.with(
-            h2("Question settings")
-                .withClasses(Styles.PY_2))
-            .with(questionSettingsContent);
+      formTag.with(h2("Question settings").withClasses(Styles.PY_2)).with(questionSettingsContent);
     }
 
     return formTag;
