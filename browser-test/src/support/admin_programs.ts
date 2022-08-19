@@ -609,7 +609,6 @@ export class AdminPrograms {
     expect(toastMessages).toContain('Application note updated')
   }
 
-
   async getJson(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {

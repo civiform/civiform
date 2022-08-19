@@ -32,7 +32,6 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
-
 import models.Application;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -155,10 +154,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
-    return new LinkElement()
-        .setHref(link)
-        .setText("Export to PDF")
-        .asRightAlignedButton();
+    return new LinkElement().setHref(link).setText("Export to PDF").asRightAlignedButton();
   }
 
   private DivTag renderApplicationBlock(
@@ -267,8 +263,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   private Modal renderEditNoteConfirmationModal(
       long programId, Application application, Http.Request request) {
-    ButtonTag triggerButton = makeSvgTextButton("Edit note", Icons.EDIT)
-        .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+    ButtonTag triggerButton =
+        makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     FormTag modalContent =
         form()
             .withAction(
@@ -279,9 +275,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses(Styles.PX_6, Styles.PY_2)
             .with(makeCsrfTokenInputTag(request));
     modalContent.with(
-        FieldWithLabel.textArea()
-            .setRows(OptionalLong.of(8))
-            .getTextareaTag(),
+        FieldWithLabel.textArea().setRows(OptionalLong.of(8)).getTextareaTag(),
         div()
             .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
             .with(
