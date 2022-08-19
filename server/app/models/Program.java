@@ -139,8 +139,7 @@ public class Program extends BaseModel {
   }
 
   /**
-   * Construct a new Program object with the given program name and description, and with an empty
-   * block named Block 1.
+   * Construct a new Program object with the given program name, description, and block definitions.
    */
   public Program(
       String adminName,
@@ -149,6 +148,7 @@ public class Program extends BaseModel {
       String defaultDisplayDescription,
       String externalLink,
       String displayMode,
+      ImmutableList<BlockDefinition> blockDefinitions,
       Version associatedVersion) {
     this.name = adminName;
     this.description = adminDescription;
@@ -157,14 +157,7 @@ public class Program extends BaseModel {
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
     this.externalLink = externalLink;
     this.displayMode = displayMode;
-    BlockDefinition emptyBlock =
-        BlockDefinition.builder()
-            .setId(1L)
-            .setName("Screen 1")
-            .setDescription("Screen 1 Description")
-            .setProgramQuestionDefinitions(ImmutableList.of())
-            .build();
-    this.blockDefinitions = ImmutableList.of(emptyBlock);
+    this.blockDefinitions = blockDefinitions;
     this.statusDefinitions = new StatusDefinitions();
     this.versions.add(associatedVersion);
   }

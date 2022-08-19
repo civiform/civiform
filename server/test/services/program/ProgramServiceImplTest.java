@@ -127,8 +127,10 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().blockDefinitions()).hasSize(1);
-    assertThat(result.getResult().getBlockDefinitionByIndex(0).get().id()).isEqualTo(1L);
-    assertThat(result.getResult().getBlockDefinitionByIndex(0).get().name()).isEqualTo("Screen 1");
+    BlockDefinition firstBlock = result.getResult().getBlockDefinitionByIndex(0).get();
+    assertThat(firstBlock.id()).isEqualTo(1L);
+    assertThat(firstBlock.name()).isEqualTo("Screen 1");
+    assertThat(firstBlock.description()).isEqualTo("Screen 1 description");
   }
 
   @Test
@@ -396,7 +398,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     BlockDefinition newBlock = found.blockDefinitions().get(1);
     assertThat(newBlock.id()).isEqualTo(addedBlock.id());
     assertThat(newBlock.name()).isEqualTo("Screen 2");
-    assertThat(newBlock.description()).isNotEmpty();
+    assertThat(newBlock.description()).isEqualTo("Screen 2 description");
     assertThat(newBlock.programQuestionDefinitions()).hasSize(0);
   }
 
