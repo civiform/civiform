@@ -2,7 +2,6 @@ package views.admin.questions;
 
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.label;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -18,7 +17,6 @@ import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.LabelTag;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.i18n.Messages;
@@ -33,22 +31,10 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Contains methods for rendering type-specific question settings components. */
-public class QuestionConfig {
+public final class QuestionConfig {
 
   private String id = "";
-  private String headerText = "Question settings";
   private DivTag content = div();
-
-  private static final String HEADER_CLASSES =
-      StyleUtils.joinStyles(
-          Styles.BG_TRANSPARENT,
-          Styles.TEXT_GRAY_600,
-          Styles.BLOCK,
-          Styles.TEXT_BASE,
-          Styles._MT_1,
-          Styles.PB_0,
-          Styles.MB_0,
-          Styles.MX_2);
 
   private static final String INNER_DIV_CLASSES =
       StyleUtils.joinStyles(
@@ -63,59 +49,54 @@ public class QuestionConfig {
     return this;
   }
 
-  public QuestionConfig setHeaderText(String headerText) {
-    this.headerText = headerText;
-    return this;
-  }
-
-  public static DivTag buildQuestionConfig(QuestionForm questionForm, Messages messages) {
+  public static Optional<DivTag> buildQuestionConfig(QuestionForm questionForm, Messages messages) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
-        return config
+        return Optional.of(config
             .setId("address-question-config")
             .addAddressQuestionConfig((AddressQuestionForm) questionForm)
-            .getContainer();
+            .getContainer());
       case CHECKBOX:
         MultiOptionQuestionForm form = (MultiOptionQuestionForm) questionForm;
-        return config
+        return Optional.of(config
             .setId("multi-select-question-config")
             .addMultiOptionQuestionFields(form, messages)
             .addMultiSelectQuestionValidation(form)
-            .getContainer();
+            .getContainer());
       case ENUMERATOR:
-        return config
+        return Optional.of(config
             .setId("enumerator-question-config")
             .addEnumeratorQuestionConfig((EnumeratorQuestionForm) questionForm)
-            .getContainer();
+            .getContainer());
       case ID:
-        return config
+        return Optional.of(config
             .setId("id-question-config")
             .addIdQuestionConfig((IdQuestionForm) questionForm)
-            .getContainer();
+            .getContainer());
       case NUMBER:
-        return config
+        return Optional.of(config
             .setId("number-question-config")
             .addNumberQuestionConfig((NumberQuestionForm) questionForm)
-            .getContainer();
+            .getContainer());
       case TEXT:
-        return config
+        return Optional.of(config
             .setId("text-question-config")
             .addTextQuestionConfig((TextQuestionForm) questionForm)
-            .getContainer();
+            .getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
-        return config
+        return Optional.of(config
             .setId("single-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
-            .getContainer();
+            .getContainer());
       case CURRENCY: // fallthrough intended - no options
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
       case DATE: // fallthrough intended
       case EMAIL: // fallthrough intended
       default:
-        return div();
+        return Optional.empty();
     }
   }
 
@@ -324,15 +305,11 @@ public class QuestionConfig {
     return div()
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withClasses(ReferenceClasses.QUESTION_CONFIG)
-        .with(headerLabel(this.headerText))
+        // .with(h2("Question settings"))
         .with(
             div()
                 .withClasses(OUTER_DIV_CLASSES)
                 .with(content.withId("question-settings").withClasses(INNER_DIV_CLASSES)));
-  }
-
-  private static LabelTag headerLabel(String text) {
-    return label().withClasses(HEADER_CLASSES).withText(text);
   }
 
   /**

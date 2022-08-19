@@ -56,7 +56,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
     formTag.with(
         requiredFieldsExplanationContent(),
         h2("Visible to administrators only")
-            .withClasses(Styles.PB_2),
+            .withClasses(Styles.PY_2),
         FieldWithLabel.input()
             .setId("program-name-input")
             .setFieldName("adminName")
@@ -89,7 +89,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
                     .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
                     .getRadioTag()),
         h2("Visible to applicants")
-            .withClasses(Styles.PB_2),
+            .withClasses(Styles.PY_2),
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")

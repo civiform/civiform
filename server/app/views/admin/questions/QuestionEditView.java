@@ -296,7 +296,7 @@ public final class QuestionEditView extends BaseHtmlView {
     // If this form is not for creation, the fields are disabled, and hidden fields to pass
     // enumerator and name data are added.
     formTag.with(h2("Visible to administrators only")
-        .withClasses(Styles.PB_2));
+        .withClasses(Styles.PY_2));
     FieldWithLabel nameField =
         FieldWithLabel.input()
             .setId("question-name-input")
@@ -336,7 +336,7 @@ public final class QuestionEditView extends BaseHtmlView {
             repeatedQuestionInformation());
     formTag.with(
             h2("Visible to applicants")
-                .withClasses(Styles.PB_2),
+                .withClasses(Styles.PY_2),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -355,10 +355,21 @@ public final class QuestionEditView extends BaseHtmlView {
                 .getTextareaTag()
                 .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
 
-    formTag.with(QuestionConfig.buildQuestionConfig(questionForm, messages));
+    ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
+    Optional<DivTag> questionConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
+    if (questionConfig.isPresent()) {
+        questionSettingsContentBuilder.add(questionConfig.get());
+    }
 
     if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
-      formTag.with(buildDemographicFields(questionForm, submittable));
+      questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
+    }
+    ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
+    if (!questionSettingsContent.isEmpty()) {
+        formTag.with(
+            h2("Question settings")
+                .withClasses(Styles.PY_2))
+            .with(questionSettingsContent);
     }
 
     return formTag;
@@ -370,7 +381,7 @@ public final class QuestionEditView extends BaseHtmlView {
     // TODO(#2618): Consider using helpers for grouping related radio controls.
     return fieldset()
         .with(
-            legend("Export options *").withClass(BaseStyles.INPUT_LABEL),
+            legend("Data privacy settings *").withClass(BaseStyles.INPUT_LABEL),
             FieldWithLabel.radio()
                 .setId("question-demographic-no-export")
                 .setDisabled(!submittable)
