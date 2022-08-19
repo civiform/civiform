@@ -45,9 +45,11 @@ describe('End to end enumerator test', () => {
     await pageObject.fill('text=Repeated Entity Type', 'New entity type')
 
     // Verify question preview has the default values.
-    await adminQuestions.expectEnumeratorPreviewValues({
+    await adminQuestions.expectCommonPreviewValues({
       questionText: 'Sample question text',
       questionHelpText: '',
+    })
+    await adminQuestions.expectEnumeratorPreviewValues({
       entityNameInputLabelText: 'New entity type name',
       addEntityButtonText: 'Add New entity type',
       deleteEntityButtonText: 'Remove New entity type',

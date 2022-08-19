@@ -24,6 +24,7 @@ class PreviewController {
 
   private static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
   private static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
+  private static readonly DEFAULT_OPTION_TEXT = 'Sample question option'
 
   // This regex is used to match $this and $this.parent (etc) strings so we can
   // highlight them in the question preview.
@@ -125,45 +126,62 @@ class PreviewController {
     }
   }
 
-  private static updateOptionsList(parent: HTMLElement) {
+  private static updateOptionsList({
+    parent,
+    nodeToCloneParent,
+    nodeToClone,
+  }: {
+    parent: HTMLElement
+    nodeToCloneParent: HTMLElement
+    nodeToClone: HTMLElement
+  }) {
     const configuredOptions = Array.from(
       parent.querySelectorAll('.cf-multi-option-question-option input'),
     ).map((el) => {
       return (el as HTMLInputElement).value
     })
     if (configuredOptions.length == 0) {
-      configuredOptions.push('The default option text.')
+      configuredOptions.push(PreviewController.DEFAULT_OPTION_TEXT)
     }
 
     // Reset the option list in the preview.
-    // Keep track of the first element so new options can be cloned from it.
-    const allOptions = Array.from(
+    Array.from(
       document.querySelectorAll('#sample-question .cf-multi-option'),
-    )
-    const firstOption = allOptions[0]
-    const firstOptionParent = firstOption.parentElement!
-    allOptions.forEach((option => {
+    ).forEach((option) => {
       option.remove()
-    }))
+    })
 
     for (const configuredOption of configuredOptions) {
-      const newOptionContainer = firstOption.cloneNode(true) as HTMLElement
+      const newOptionContainer = nodeToClone.cloneNode(true) as HTMLElement
       // Set the underlying value.
-      const optionText = newOptionContainer.classList.contains('cf-multi-option-text')
-      ? newOptionContainer : newOptionContainer.querySelector(
-        '.cf-multi-option-text',
-      )! as HTMLElement
+      const optionText = newOptionContainer.classList.contains(
+        'cf-multi-option-text',
+      )
+        ? newOptionContainer
+        : (newOptionContainer.querySelector(
+            '.cf-multi-option-text',
+          )! as HTMLElement)
       optionText.innerText = configuredOption
-      firstOptionParent.appendChild(newOptionContainer)
+      nodeToCloneParent.appendChild(newOptionContainer)
     }
   }
 
   private static addOptionObservers(questionSettingsSection: HTMLElement) {
+    const firstOption = document.querySelector('#sample-question .cf-multi-option')
+    if (!firstOption) {
+      return
+    }
+    const nodeToClone = firstOption.cloneNode(true) as HTMLElement
+    const nodeToCloneParent = firstOption.parentElement!
     const mutationObserver = new MutationObserver(
       (records: MutationRecord[]) => {
         for (const record of records) {
           if (record.removedNodes.length > 0) {
-            PreviewController.updateOptionsList(questionSettingsSection)
+            PreviewController.updateOptionsList({
+              parent: questionSettingsSection,
+              nodeToClone,
+              nodeToCloneParent,
+            })
           }
           for (const newNode of Array.from(record.addedNodes)) {
             const newInputs = Array.from(
@@ -171,12 +189,20 @@ class PreviewController {
             )
             newInputs.forEach((newInput) => {
               newInput.addEventListener('input', () => {
-                PreviewController.updateOptionsList(questionSettingsSection)
+                PreviewController.updateOptionsList({
+                  parent: questionSettingsSection,
+                  nodeToClone,
+                  nodeToCloneParent,
+                })
               })
             })
             if (newInputs.length > 0) {
               // Explicitly call this so that an option is added for the new entry.
-              PreviewController.updateOptionsList(questionSettingsSection)
+              PreviewController.updateOptionsList({
+                parent: questionSettingsSection,
+                nodeToClone,
+                nodeToCloneParent,
+              })
             }
           }
         }
