@@ -1,5 +1,3 @@
 package services.application;
 
-public class ApplicationService {
-
-}
+public class ApplicationService {}

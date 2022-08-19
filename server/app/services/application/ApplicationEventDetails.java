@@ -1,12 +1,12 @@
 package services.application;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-import services.program.StatusDefinitions.Status;
 
 // A single Application event and its details.
 //
@@ -21,22 +21,18 @@ public abstract class ApplicationEventDetails {
   @JsonProperty("event_type")
   public abstract Type eventType();
 
+  // Only one of the following Event fields should be set.
+  @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("status_event")
   public abstract Optional<StatusEvent> statusEvent();
 
-    @JsonProperty("note_event")
+  @JsonInclude(Include.NON_EMPTY)
+  @JsonProperty("note_event")
   public abstract Optional<NoteEvent> noteEvent();
 
   public static Builder builder() {
     return new AutoValue_ApplicationEventDetails.Builder();
   }
-
-  /*@JsonCreator
-  public ApplicationEventDetails(@JsonProperty("event_type") Type statuses) {
-    assertStatusNamesNonEmptyAndUnique(statuses);
-    this.statuses = statuses;
-  }*/
-
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -69,23 +65,26 @@ public abstract class ApplicationEventDetails {
     @JsonProperty("email_sent")
     public abstract Boolean emailSent();
 
-     public static Builder builder() {
+    public static Builder builder() {
       return new AutoValue_ApplicationEventDetails_StatusEvent.Builder();
-     }
+    }
 
-     @AutoValue.Builder
-     public abstract static class Builder {
-       @JsonProperty("status_text")
+    @AutoValue.Builder
+    public abstract static class Builder {
+      @JsonProperty("status_text")
       public abstract Builder setStatusText(String statusText);
-       @JsonProperty("email_sent")
+
+      @JsonProperty("email_sent")
       public abstract Builder setEmailSent(Boolean emailSent);
+
       public abstract StatusEvent build();
-     }
+    }
   }
 
   @AutoValue
   public abstract static class NoteEvent {
-    static NoteEvent create(String note) {
+    @JsonCreator
+    public static NoteEvent create(@JsonProperty("note") String note) {
       return new AutoValue_ApplicationEventDetails_NoteEvent(note);
     }
     // A note set on the application.

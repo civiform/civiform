@@ -32,9 +32,8 @@ public class Application extends BaseModel {
 
   @ManyToOne private Program program;
 
-  //@OneToMany(mappedBy = "application_events")
-  //private List<ApplicationEvent> applicationEvents;
-
+  @OneToMany(mappedBy = "application")
+  private List<ApplicationEvent> applicationEvents;
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
