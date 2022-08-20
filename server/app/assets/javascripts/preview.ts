@@ -110,33 +110,30 @@ class PreviewController {
       PreviewController.updateFromNewEntityType(entityTypeInput.value)
     }
 
-    // TODO(clouser): Currently using the add button as a proxy for a multi-option
-    // question type. Might want to use a class instead so that we can do all of
-    // the querying on the top-level DOM element.
     const addOptionButton = document.getElementById(
       PreviewController.QUESTION_ADD_OPTION_ID,
     ) as HTMLButtonElement | null
     if (addOptionButton) {
-      const questionSettingsSection = document.getElementById(
-        PreviewController.QUESTION_SETTINGS_ID,
-      ) as HTMLElement | null
-      if (questionSettingsSection) {
-        PreviewController.addOptionObservers(questionSettingsSection)
+      // The add button is inside the same container that houses the options
+      // themselves.
+      const addOptionParent = addOptionButton.parentElement
+      if (addOptionParent) {
+        PreviewController.addOptionObservers(addOptionParent)
       }
     }
   }
 
   private static updateOptionsList({
-    parent,
-    nodeToCloneParent,
-    nodeToClone,
+    editOptionsContainer,
+    previewOptionContainer,
+    previewOptionTemplate,
   }: {
-    parent: HTMLElement
-    nodeToCloneParent: HTMLElement
-    nodeToClone: HTMLElement
+    editOptionsContainer: HTMLElement
+    previewOptionContainer: HTMLElement
+    previewOptionTemplate: HTMLElement
   }) {
     const configuredOptions = Array.from(
-      parent.querySelectorAll('.cf-multi-option-question-option input'),
+      editOptionsContainer.querySelectorAll('.cf-multi-option-question-option input'),
     ).map((el) => {
       return (el as HTMLInputElement).value
     })
@@ -152,37 +149,37 @@ class PreviewController {
     })
 
     for (const configuredOption of configuredOptions) {
-      const newOptionContainer = nodeToClone.cloneNode(true) as HTMLElement
+      const newPreviewOption = previewOptionTemplate.cloneNode(true) as HTMLElement
       // Set the underlying value.
-      const optionText = newOptionContainer.classList.contains(
+      const optionText = newPreviewOption.classList.contains(
         'cf-multi-option-text',
       )
-        ? newOptionContainer
-        : (newOptionContainer.querySelector(
+        ? newPreviewOption
+        : (newPreviewOption.querySelector(
             '.cf-multi-option-text',
           )! as HTMLElement)
       optionText.innerText = configuredOption
-      nodeToCloneParent.appendChild(newOptionContainer)
+      previewOptionContainer.appendChild(newPreviewOption)
     }
   }
 
-  private static addOptionObservers(questionSettingsSection: HTMLElement) {
-    const firstOption = document.querySelector('#sample-question .cf-multi-option')
-    if (!firstOption) {
+  private static addOptionObservers(editOptionsContainer: HTMLElement) {
+    const firstPreviewOption = document.querySelector('#sample-question .cf-multi-option')
+    if (!firstPreviewOption) {
       return
     }
-    const nodeToClone = firstOption.cloneNode(true) as HTMLElement
-    const nodeToCloneParent = firstOption.parentElement!
+    // The option shown at page load is stored for easier cloning when updating based on the
+    // configured questions.
+    const previewOptionTemplate = firstPreviewOption.cloneNode(true) as HTMLElement
+    const previewOptionContainer = firstPreviewOption.parentElement!
     const mutationObserver = new MutationObserver(
       (records: MutationRecord[]) => {
         for (const record of records) {
-          if (record.removedNodes.length > 0) {
-            PreviewController.updateOptionsList({
-              parent: questionSettingsSection,
-              nodeToClone,
-              nodeToCloneParent,
-            })
-          }
+          PreviewController.updateOptionsList({
+            editOptionsContainer,
+            previewOptionTemplate,
+            previewOptionContainer,
+          })
           for (const newNode of Array.from(record.addedNodes)) {
             const newInputs = Array.from(
               (<Element>newNode).querySelectorAll('input'),
@@ -190,26 +187,18 @@ class PreviewController {
             newInputs.forEach((newInput) => {
               newInput.addEventListener('input', () => {
                 PreviewController.updateOptionsList({
-                  parent: questionSettingsSection,
-                  nodeToClone,
-                  nodeToCloneParent,
+                  editOptionsContainer,
+                  previewOptionTemplate,
+                  previewOptionContainer,
                 })
               })
             })
-            if (newInputs.length > 0) {
-              // Explicitly call this so that an option is added for the new entry.
-              PreviewController.updateOptionsList({
-                parent: questionSettingsSection,
-                nodeToClone,
-                nodeToCloneParent,
-              })
-            }
           }
         }
       },
     )
 
-    mutationObserver.observe(questionSettingsSection, {
+    mutationObserver.observe(editOptionsContainer, {
       childList: true,
       subtree: true,
       characterDataOldValue: true,
