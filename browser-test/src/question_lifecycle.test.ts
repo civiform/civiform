@@ -8,6 +8,7 @@ import {
   seedCanonicalQuestions,
   waitForPageJsLoad,
 } from './support'
+import {QuestionType} from './support/admin_questions'
 
 describe('normal question lifecycle', () => {
   beforeAll(async () => {
@@ -28,76 +29,76 @@ describe('normal question lifecycle', () => {
     await endSession(browser)
   })
 
-  it('create, update, publish, create a new version, and update all questions', async () => {
-    const {browser, page} = await startSession()
-    page.setDefaultTimeout(4000)
+  // Run create-update-publish test for each question type individually to keep
+  // test duration reasonable.
+  for (const type of Object.values(QuestionType)) {
+    it(`${type} question: create, update, publish, create a new version, and update`, async () => {
+      const {browser, page} = await startSession()
+      page.setDefaultTimeout(4000)
 
-    await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
+      await loginAsAdmin(page)
+      const adminQuestions = new AdminQuestions(page)
+      const adminPrograms = new AdminPrograms(page)
 
-    const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes(
-      'qlc-',
-    )
-    const singleBlockQuestions =
-      await adminQuestions.addAllSingleBlockQuestionTypes('qlc-')
-    const repeatedQuestion = 'qlc-repeated-number'
-    await adminQuestions.addNumberQuestion({
-      questionName: repeatedQuestion,
-      description: 'description',
-      questionText: "$this's favorite number",
-      helpText: '',
-      enumeratorName: 'qlc-enumerator',
-    })
+      const questionName = `qlc-${type}`
+      // for most question types there will be only 1 question. But for
+      // enumerator question we'll create repeated question later.
+      const allQuestions = [questionName]
 
-    // Combine all the questions that were made so we can update them all together.
-    const allQuestions = questions.concat(singleBlockQuestions)
-    // Add to the front of the list because creating a new version of the enumerator question will
-    // automatically create a new version of the repeated question.
-    allQuestions.unshift(repeatedQuestion)
+      await adminQuestions.addQuestionForType(type, questionName)
+      const repeatedQuestion = 'qlc-repeated-number'
+      const isEnumerator = type === QuestionType.ENUMERATOR
+      if (isEnumerator) {
+        // Add to the front of the list because creating a new version of the enumerator question will
+        // automatically create a new version of the repeated question. This is important for
+        // createNewVersionForQuestions() call below.
+        allQuestions.unshift(repeatedQuestion)
+        await adminQuestions.addNumberQuestion({
+          questionName: repeatedQuestion,
+          description: 'description',
+          questionText: "$this's favorite number",
+          helpText: '',
+          enumeratorName: questionName,
+        })
+        await adminQuestions.updateQuestion(repeatedQuestion)
+      }
 
-    await adminQuestions.updateAllQuestions(allQuestions)
+      await adminQuestions.updateQuestion(questionName)
 
-    const programName = 'program for question lifecycle'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(
-      programName,
-      'qlc program description',
-      questions,
-    )
-    for (const singleBlockQuestion of singleBlockQuestions) {
-      const blockName = await adminPrograms.addProgramBlock(
+      const programName = `program for ${type} question lifecycle`
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlock(
         programName,
-        'single-block question',
-        [singleBlockQuestion],
+        'qlc program description',
+        [questionName],
       )
-      if (singleBlockQuestion == 'qlc-enumerator') {
+      if (isEnumerator) {
         await adminPrograms.addProgramRepeatedBlock(
           programName,
-          blockName,
+          'Screen 1',
           'repeated block desc',
           [repeatedQuestion],
         )
       }
-    }
-    await adminPrograms.publishProgram(programName)
+      await adminPrograms.publishProgram(programName)
 
-    await adminQuestions.expectActiveQuestions(allQuestions)
+      await adminQuestions.expectActiveQuestions(allQuestions)
 
-    await adminQuestions.createNewVersionForQuestions(allQuestions)
+      await adminQuestions.createNewVersionForQuestions(allQuestions)
 
-    await adminQuestions.updateAllQuestions(allQuestions)
+      await adminQuestions.updateAllQuestions(allQuestions)
 
-    await adminPrograms.publishProgram(programName)
+      await adminPrograms.publishProgram(programName)
 
-    await adminPrograms.createNewVersion(programName)
+      await adminPrograms.createNewVersion(programName)
 
-    await adminPrograms.publishProgram(programName)
+      await adminPrograms.publishProgram(programName)
 
-    await adminQuestions.expectActiveQuestions(allQuestions)
+      await adminQuestions.expectActiveQuestions(allQuestions)
 
-    await endSession(browser)
-  })
+      await endSession(browser)
+    })
+  }
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page} = await startSession()
