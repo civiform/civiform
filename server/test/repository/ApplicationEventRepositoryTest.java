@@ -36,7 +36,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
     ApplicationEvent event =
-        new ApplicationEvent(application, actor, ApplicationEventDetails.Type.STATUS_CHANGE, details);
+        new ApplicationEvent(
+            application, actor, ApplicationEventDetails.Type.STATUS_CHANGE, details);
     repo.insert(event).toCompletableFuture().join();
 
     ImmutableList<ApplicationEvent> events =
