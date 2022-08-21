@@ -138,8 +138,6 @@ public final class AdminProgramStatusesController extends CiviFormController {
         program.id(),
         formData.getConfiguredStatusText(),
         (existingStatus) -> {
-          // TODO(#2752): Disable the English translations UI and only allow setting the localized
-          // text here.
           StatusDefinitions.Status.Builder builder =
               StatusDefinitions.Status.builder()
                   .setStatusText(formData.getStatusText())
@@ -183,9 +181,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     String rawDeleteStatusText = requestData.get(ProgramStatusesView.DELETE_STATUS_TEXT_NAME);
-    // TODO(#2752): Consider only trimming the user-provided data before serializing
-    // to a program's statuses here and when editing a status.
-    final String deleteStatusText = rawDeleteStatusText != null ? rawDeleteStatusText.trim() : "";
+    final String deleteStatusText = rawDeleteStatusText != null ? rawDeleteStatusText : "";
     if (deleteStatusText.isBlank()) {
       return badRequest("missing or empty status text");
     }

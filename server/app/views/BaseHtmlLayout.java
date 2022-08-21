@@ -78,7 +78,7 @@ public class BaseHtmlLayout {
     // Add the warning toast, only for staging
     if (isStaging) {
       ToastMessage privacyBanner =
-          ToastMessage.error(BANNER_TEXT)
+          ToastMessage.warning(BANNER_TEXT)
               .setId("warning-message")
               .setIgnorable(true)
               .setDuration(0);

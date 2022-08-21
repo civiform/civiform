@@ -118,9 +118,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                     .with(makeCsrfTokenInputTag(params.request()))
                     .with(continueOrSubmitButton));
 
-    if (!params.banner().isEmpty()) {
-      bundle.addToastMessages(ToastMessage.error(params.banner()));
-    }
+    params.bannerMessage().ifPresent(bundle::addToastMessages);
 
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
@@ -274,7 +272,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract Optional<String> applicantName();
 
-    abstract String banner();
+    abstract Optional<ToastMessage> bannerMessage();
 
     abstract int completedBlockCount();
 
@@ -299,7 +297,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setApplicantName(Optional<String> applicantName);
 
-      public abstract Builder setBanner(String banner);
+      public abstract Builder setBannerMessage(Optional<ToastMessage> banner);
 
       public abstract Builder setCompletedBlockCount(int completedBlockCount);
 

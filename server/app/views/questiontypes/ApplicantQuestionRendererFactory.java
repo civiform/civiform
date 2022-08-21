@@ -17,7 +17,7 @@ import services.question.types.QuestionType;
 import views.FileUploadViewStrategy;
 
 /** A helper class for constructing type-specific applicant question renderers. */
-public class ApplicantQuestionRendererFactory {
+public final class ApplicantQuestionRendererFactory {
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
 
@@ -79,7 +79,6 @@ public class ApplicantQuestionRendererFactory {
             .setName("")
             .setDescription("")
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Sample question help text"))
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {

@@ -1,5 +1,6 @@
 import {
   AdminPrograms,
+  AdminProgramStatuses,
   AdminQuestions,
   AdminTranslations,
   ApplicantQuestions,
@@ -9,16 +10,17 @@ import {
   logout,
   selectApplicantLanguage,
   startSession,
+  validateScreenshot,
 } from './support'
 
 describe('Admin can manage translations', () => {
-  it('create a program and add translation', async () => {
+  it('creates a program without statuses and adds translation', async () => {
     const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
     const adminPrograms = new AdminPrograms(page)
 
-    const programName = 'program to be translated'
+    const programName = 'program to be translated (no statuses)'
     await adminPrograms.addProgram(programName)
 
     // Go to manage translations page.
@@ -27,11 +29,25 @@ describe('Admin can manage translations', () => {
 
     // Add translations for Spanish and publish
     await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramTranslation({
+      expectProgramName: '',
+      expectProgramDescription: '',
+    })
+    await adminTranslations.expectNoProgramStatusTranslations()
     const publicName = 'Spanish name'
-    await adminTranslations.editProgramTranslations(
-      publicName,
-      'Spanish description',
-    )
+    const publicDescription = 'Spanish description'
+    await adminTranslations.editProgramTranslations({
+      name: publicName,
+      description: publicDescription,
+      statuses: [],
+    })
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramTranslation({
+      expectProgramName: publicName,
+      expectProgramDescription: publicDescription,
+    })
+    await adminTranslations.expectNoProgramStatusTranslations()
     await adminPrograms.publishProgram(programName)
 
     // View the applicant program page in Spanish and check that the translations are present
@@ -47,7 +63,106 @@ describe('Admin can manage translations', () => {
     await endSession(browser)
   })
 
-  it('create a question and add translations', async () => {
+  // TODO(#3071): Re-enable when the feature flag is controllable in tests.
+  it.skip('creates a program with statuses and adds translations for program statuses', async () => {
+    const {browser, page} = await startSession()
+
+    await loginAsAdmin(page)
+    const adminPrograms = new AdminPrograms(page)
+    const adminProgramStatuses = new AdminProgramStatuses(page)
+    const adminTranslations = new AdminTranslations(page)
+
+    const programName = 'program to be translated (with statuses)'
+    await adminPrograms.addProgram(programName)
+
+    // Add two statuses, one with a configured email and another without
+    const statusWithEmailName = 'status-with-email'
+    const statusWithNoEmailName = 'status-with-no-email'
+    await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+    await adminProgramStatuses.createStatus(statusWithEmailName, {
+      emailBody: 'An email',
+    })
+    await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+    await adminProgramStatuses.createStatus(statusWithNoEmailName)
+    await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+
+    // Add only program translations for Spanish. Empty status translations should be accepted.
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramTranslation({
+      expectProgramName: '',
+      expectProgramDescription: '',
+    })
+    await adminTranslations.expectProgramStatusTranslationWithEmail({
+      configuredStatusText: statusWithEmailName,
+      expectStatusText: '',
+      expectStatusEmail: '',
+    })
+    await adminTranslations.expectProgramStatusTranslationWithNoEmail({
+      configuredStatusText: statusWithNoEmailName,
+      expectStatusText: '',
+    })
+    const publicName = 'Spanish name'
+    const publicDescription = 'Spanish description'
+    await adminTranslations.editProgramTranslations({
+      name: publicName,
+      description: publicDescription,
+      statuses: [],
+    })
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramTranslation({
+      expectProgramName: publicName,
+      expectProgramDescription: publicDescription,
+    })
+    await adminTranslations.expectProgramStatusTranslationWithEmail({
+      configuredStatusText: statusWithEmailName,
+      expectStatusText: '',
+      expectStatusEmail: '',
+    })
+    await adminTranslations.expectProgramStatusTranslationWithNoEmail({
+      configuredStatusText: statusWithNoEmailName,
+      expectStatusText: '',
+    })
+
+    // Now add a partial translation for one status and a full translation for the other.
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.editProgramTranslations({
+      name: publicName,
+      description: publicDescription,
+      statuses: [
+        {
+          configuredStatusText: statusWithEmailName,
+          statusText: '',
+          statusEmail: `${statusWithEmailName}-email-spanish`,
+        },
+        {
+          configuredStatusText: statusWithNoEmailName,
+          statusText: `${statusWithNoEmailName}-spanish`,
+        },
+      ],
+    })
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminTranslations.selectLanguage('Spanish')
+    await adminTranslations.expectProgramTranslation({
+      expectProgramName: publicName,
+      expectProgramDescription: publicDescription,
+    })
+    await adminTranslations.expectProgramStatusTranslationWithEmail({
+      configuredStatusText: statusWithEmailName,
+      expectStatusText: '',
+      expectStatusEmail: `${statusWithEmailName}-email-spanish`,
+    })
+    await adminTranslations.expectProgramStatusTranslationWithNoEmail({
+      configuredStatusText: statusWithNoEmailName,
+      expectStatusText: `${statusWithNoEmailName}-spanish`,
+    })
+
+    await endSession(browser)
+  })
+
+  it('creates a question and adds translations', async () => {
     const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
@@ -278,6 +393,8 @@ describe('Admin can manage translations', () => {
     expect(toastMessages).toContain(
       'Lo sentimos, este programa no está totalmente traducido al idioma de su preferencia.',
     )
+
+    await validateScreenshot(page)
 
     await endSession(browser)
   })

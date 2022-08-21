@@ -52,6 +52,10 @@ class Setup(AwsSetupTemplate):
         return True
 
     def post_terraform_setup(self):
+        if self.config.is_test():
+            print(" - Test. Skipping post terraform setup.")
+            return
+
         for name, doc in SECRETS.items():
             self._maybe_set_secret_value(
                 f'{self.config.app_prefix}-{name}', doc)
@@ -107,7 +111,8 @@ class Setup(AwsSetupTemplate):
             print('Database password has been changed.')
             self._aws_cli.set_secret_value(secret_name, new_password)
             self._aws_cli.restart_ecs_service(
-                app_prefix, f'{app_prefix}-{resources.FARGATE_SERVICE}')
+                f'{app_prefix}-{resources.CLUSTER}',
+                f'{app_prefix}-{resources.FARGATE_SERVICE}')
             print(f'ECS service has been restarted to pickup the new password.')
         else:
             print('Password has already been changed. Not touching it.')
@@ -121,7 +126,9 @@ class Setup(AwsSetupTemplate):
         # Print link to ECS tasks.
         print()
         fargate_service = f'{app}-{resources.FARGATE_SERVICE}'
-        tasks_url = self._aws_cli.get_url_of_fargate_tasks(app, fargate_service)
+        cluster = f'{app}-{resources.CLUSTER}'
+        tasks_url = self._aws_cli.get_url_of_fargate_tasks(
+            cluster, fargate_service)
         print('Setup finished. You can monitor civiform tasks status here:')
         print(tasks_url)
 
@@ -130,7 +137,12 @@ class Setup(AwsSetupTemplate):
         lb_dns = self._aws_cli.get_load_balancer_dns(
             f'{app}-{resources.LOAD_BALANCER}')
         print(f'Server is available on url: {lb_dns}')
+        print('\nNext steps to complete your Civiform setup:')
         base_url = self.config.get_config_variables()['BASE_URL']
         print(
-            f'In your domain registrar create a CNAME record for {base_url} to point to the url above.'
+            f'In your domain registrar create a CNAME record for {base_url} to point to {lb_dns}.'
         )
+        ses_address = self.config.get_config_variables()['SENDER_EMAIL_ADDRESS']
+        print(
+            f'Verify email address {ses_address}. If you didn\'t receive the ' +
+            'confirmation email, check that your SES is not in sandbox mode.')

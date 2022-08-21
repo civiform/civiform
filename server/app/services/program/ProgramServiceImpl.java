@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import models.Account;
@@ -160,10 +161,17 @@ public final class ProgramServiceImpl implements ProgramService {
     validateProgramText(errorsBuilder, "display mode", displayMode);
 
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
-
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
+
+    ErrorAnd<BlockDefinition, CiviFormError> maybeEmptyBlock =
+        createEmptyBlockDefinition(
+            /* blockId= */ 1, /* maybeEnumeratorBlockId= */ Optional.empty());
+    if (maybeEmptyBlock.isError()) {
+      return ErrorAnd.error(maybeEmptyBlock.getErrors());
+    }
+    BlockDefinition emptyBlock = maybeEmptyBlock.getResult();
 
     Program program =
         new Program(
@@ -173,6 +181,7 @@ public final class ProgramServiceImpl implements ProgramService {
             defaultDisplayDescription,
             externalLink,
             displayMode,
+            ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersion());
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
@@ -218,14 +227,74 @@ public final class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
+  /**
+   * Determines whether the list of provided localized application status updates exactly correspond
+   * to the list of configured application statuses within the program. This means that:
+   * <li>The lists are of the same length
+   * <li>Have the exact same ordering of statuses
+   */
+  private void validateLocalizationStatuses(
+      LocalizationUpdate localizationUpdate, ProgramDefinition program)
+      throws OutOfDateStatusesException {
+    ImmutableList<String> localizationStatusNames =
+        localizationUpdate.statuses().stream()
+            .map(LocalizationUpdate.StatusUpdate::statusKeyToUpdate)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<String> configuredStatusNames =
+        program.statusDefinitions().getStatuses().stream()
+            .map(StatusDefinitions.Status::statusText)
+            .collect(ImmutableList.toImmutableList());
+    if (!localizationStatusNames.equals(configuredStatusNames)) {
+      throw new OutOfDateStatusesException();
+    }
+  }
+
   @Override
+  @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
-      long programId, Locale locale, String displayName, String displayDescription)
-      throws ProgramNotFoundException {
+      long programId, Locale locale, LocalizationUpdate localizationUpdate)
+      throws ProgramNotFoundException, OutOfDateStatusesException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    validateProgramText(errorsBuilder, "display name", displayName);
-    validateProgramText(errorsBuilder, "display description", displayDescription);
+    validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
+    validateProgramText(
+        errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
+
+    validateLocalizationStatuses(localizationUpdate, programDefinition);
+
+    // We iterate the existing statuses along with the provided statuses since they were verified
+    // to be consistently ordered above.
+    ImmutableList.Builder<StatusDefinitions.Status> toUpdateStatusesBuilder =
+        ImmutableList.builder();
+    for (int statusIdx = 0;
+        statusIdx < programDefinition.statusDefinitions().getStatuses().size();
+        statusIdx++) {
+      LocalizationUpdate.StatusUpdate statusUpdateData =
+          localizationUpdate.statuses().get(statusIdx);
+      StatusDefinitions.Status existingStatus =
+          programDefinition.statusDefinitions().getStatuses().get(statusIdx);
+      StatusDefinitions.Status.Builder updateBuilder =
+          existingStatus.toBuilder()
+              .setLocalizedStatusText(
+                  existingStatus
+                      .localizedStatusText()
+                      .updateTranslation(locale, statusUpdateData.localizedStatusText()));
+      // If the status has email content, update the localization to whatever was provided;
+      // otherwise if there's a localization update when there is no email content to
+      // localize, that indicates a mismatch between the frontend and the database.
+      if (existingStatus.localizedEmailBodyText().isPresent()) {
+        updateBuilder.setLocalizedEmailBodyText(
+            Optional.of(
+                existingStatus
+                    .localizedEmailBodyText()
+                    .get()
+                    .updateTranslation(locale, statusUpdateData.localizedEmailBody())));
+      } else if (statusUpdateData.localizedEmailBody().isPresent()) {
+        throw new OutOfDateStatusesException();
+      }
+      toUpdateStatusesBuilder.add(updateBuilder.build());
+    }
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -234,11 +303,15 @@ public final class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder()
             .setLocalizedName(
-                programDefinition.localizedName().updateTranslation(locale, displayName))
+                programDefinition
+                    .localizedName()
+                    .updateTranslation(locale, localizationUpdate.localizedDisplayName()))
             .setLocalizedDescription(
                 programDefinition
                     .localizedDescription()
-                    .updateTranslation(locale, displayDescription))
+                    .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
+            .setStatusDefinitions(
+                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
             .build()
             .toProgram();
     return ErrorAnd.of(
@@ -287,6 +360,24 @@ public final class ProgramServiceImpl implements ProgramService {
     return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
   }
 
+  private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
+      long blockId, Optional<Long> maybeEnumeratorBlockId) {
+    String blockName =
+        maybeEnumeratorBlockId.isPresent()
+            ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
+            : String.format("Screen %d", blockId);
+    String blockDescription = String.format("Screen %d description", blockId);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(blockId)
+            .setName(blockName)
+            .setDescription(blockDescription)
+            .setEnumeratorId(maybeEnumeratorBlockId)
+            .build();
+    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
+    return errors.isEmpty() ? ErrorAnd.of(blockDefinition) : ErrorAnd.error(errors);
+  }
+
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
       long programId, Optional<Long> enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
@@ -296,30 +387,14 @@ public final class ProgramServiceImpl implements ProgramService {
       throw new ProgramBlockDefinitionNotFoundException(programId, enumeratorBlockId.get());
     }
 
-    long blockId = getNextBlockId(programDefinition);
-    String blockName;
-    if (enumeratorBlockId.isPresent()) {
-      blockName = String.format("Screen %d (repeated from %d)", blockId, enumeratorBlockId.get());
-    } else {
-      blockName = String.format("Screen %d", blockId);
-    }
-    String blockDescription =
-        "What is the purpose of this screen? Add a description that summarizes the information"
-            + " collected.";
-
-    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockName, blockDescription);
-    if (!errors.isEmpty()) {
+    ErrorAnd<BlockDefinition, CiviFormError> maybeBlockDefinition =
+        createEmptyBlockDefinition(getNextBlockId(programDefinition), enumeratorBlockId);
+    if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
-          errors, ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
+          maybeBlockDefinition.getErrors(),
+          ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
     }
-
-    BlockDefinition blockDefinition =
-        BlockDefinition.builder()
-            .setId(blockId)
-            .setName(blockName)
-            .setDescription(blockDescription)
-            .setEnumeratorId(enumeratorBlockId)
-            .build();
+    BlockDefinition blockDefinition = maybeBlockDefinition.getResult();
     Program program =
         programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
     ProgramDefinition updatedProgram =
@@ -327,7 +402,8 @@ public final class ProgramServiceImpl implements ProgramService {
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join();
-    BlockDefinition updatedBlockDefinition = updatedProgram.getBlockDefinition(blockId);
+    BlockDefinition updatedBlockDefinition =
+        updatedProgram.getBlockDefinition(blockDefinition.id());
     return ErrorAnd.of(
         ProgramBlockAdditionResult.of(updatedProgram, Optional.of(updatedBlockDefinition)));
   }
@@ -452,17 +528,15 @@ public final class ProgramServiceImpl implements ProgramService {
       long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    ImmutableSet<CiviFormError> errors =
-        validateBlockDefinition(blockForm.getName(), blockForm.getDescription());
-    if (!errors.isEmpty()) {
-      return ErrorAnd.errorAnd(errors, programDefinition);
-    }
-
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
             .setName(blockForm.getName())
             .setDescription(blockForm.getDescription())
             .build();
+    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
+    if (!errors.isEmpty()) {
+      return ErrorAnd.errorAnd(errors, programDefinition);
+    }
 
     try {
       return ErrorAnd.of(
@@ -474,12 +548,13 @@ public final class ProgramServiceImpl implements ProgramService {
     }
   }
 
-  private ImmutableSet<CiviFormError> validateBlockDefinition(String name, String description) {
+  private static ImmutableSet<CiviFormError> validateBlockDefinition(
+      BlockDefinition blockDefinition) {
     ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
-    if (name.isBlank()) {
+    if (blockDefinition.name().isBlank()) {
       errors.add(CiviFormError.of("screen name cannot be blank"));
     }
-    if (description.isBlank()) {
+    if (blockDefinition.description().isBlank()) {
       errors.add(CiviFormError.of("screen description cannot be blank"));
     }
     return errors.build();
@@ -639,6 +714,47 @@ public final class ProgramServiceImpl implements ProgramService {
     } catch (IllegalPredicateOrderingException e) {
       // Changing a question between required and optional should not affect predicates. If a
       // question is optional and a predicate depends on its answer, the predicate will be false.
+      throw new RuntimeException(
+          "Unexpected error: updating this question invalidated a block condition");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition setProgramQuestionDefinitionPosition(
+      long programId, long blockDefinitionId, long questionDefinitionId, int newPosition)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, InvalidQuestionPositionException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+    ImmutableList<ProgramQuestionDefinition> questions =
+        blockDefinition.programQuestionDefinitions();
+
+    if (newPosition < 0 || newPosition >= questions.size()) {
+      throw InvalidQuestionPositionException.positionOutOfBounds(newPosition, questions.size());
+    }
+
+    // move question to the new position
+    Optional<ProgramQuestionDefinition> toMove =
+        questions.stream().filter(q -> q.id() == questionDefinitionId).findFirst();
+    if (!toMove.isPresent()) {
+      throw new ProgramQuestionDefinitionNotFoundException(
+          programId, blockDefinitionId, questionDefinitionId);
+    }
+    List<ProgramQuestionDefinition> otherQuestions =
+        questions.stream().filter(q -> q.id() != questionDefinitionId).collect(Collectors.toList());
+    otherQuestions.add(newPosition, toMove.get());
+
+    try {
+      return updateProgramDefinitionWithBlockDefinition(
+          programDefinition,
+          blockDefinition.toBuilder()
+              .setProgramQuestionDefinitions(ImmutableList.copyOf(otherQuestions))
+              .build());
+    } catch (IllegalPredicateOrderingException e) {
+      // Changing a question position within block should not affect predicates
+      // because predicates cannot depend on questions within the same block.
       throw new RuntimeException(
           "Unexpected error: updating this question invalidated a block condition");
     }

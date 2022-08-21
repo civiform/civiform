@@ -2,6 +2,7 @@ package controllers.applicant;
 
 import static autovalue.shaded.com.google$.common.base.$Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
+import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -29,6 +30,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.applicant.ApplicantUpsellCreateAccountView;
+import views.components.ToastMessage;
 
 /**
  * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
@@ -174,7 +176,7 @@ public final class RedirectController extends CiviFormController {
                         applicantName.toCompletableFuture().join(),
                         applicationId,
                         messagesApi.preferred(request),
-                        request.flash().get("banner"))),
+                        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT)))),
             httpContext.current())
         .exceptionally(
             ex -> {

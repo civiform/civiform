@@ -23,7 +23,6 @@ import views.HtmlBundle;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
-import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.Styles;
 
@@ -73,15 +72,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       bundle.addMainContent(
           renderLocaleNotSupportedToast(
               params.applicantId(), params.programId(), params.messages()));
-    }
-
-    // Add the hidden enumerator field template
-    if (params.block().isEnumerator()) {
-      bundle.addMainContent(
-          EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
-              params.block().getEnumeratorQuestion().getContextualizedPath(),
-              params.block().getEnumeratorQuestion().createEnumeratorQuestion().getEntityType(),
-              params.messages()));
     }
 
     if (params.block().isFileUpload()) {

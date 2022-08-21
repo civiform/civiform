@@ -31,15 +31,15 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.17.252",
-      "software.amazon.awssdk" % "ses" % "2.17.252",
+      "software.amazon.awssdk" % "s3" % "2.17.257",
+      "software.amazon.awssdk" % "ses" % "2.17.257",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.4",
       "com.azure" % "azure-storage-blob" % "12.19.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.4.1",
+      "org.postgresql" % "postgresql" % "42.4.2",
       "com.h2database" % "h2" % "2.1.214" % Test,
 
       // Parameterized testing
@@ -47,7 +47,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
-      "org.mockito" % "mockito-inline" % "4.6.1",
+      "org.mockito" % "mockito-inline" % "4.7.0",
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
@@ -61,13 +61,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.4.3",
+      "org.pac4j" % "pac4j-core" % "5.4.5",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.4.3",
+      "org.pac4j" % "pac4j-http" % "5.4.5",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.4.3",
+      "org.pac4j" % "pac4j-oidc" % "5.4.5",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.4.3",
+      "org.pac4j" % "pac4j-saml" % "5.4.5",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.9.1",
