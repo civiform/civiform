@@ -17,45 +17,50 @@ public class ApplicationEvent extends BaseModel {
 
   @ManyToOne private Application application;
   @Constraints.Required private Type eventType;
-
-  public Account getActor() {
-    return actor;
-  }
-
-  public void setActor(Account actor) {
-    this.actor = actor;
-  }
-
   // The Account that triggered the event.
-   @ManyToOne @JoinColumn(name="actor_id") private Account actor;
+  @ManyToOne
+  @JoinColumn(name = "actor_id")
+  private Account actor;
   // eventType specific details of the event.
   @Constraints.Required @DbJson private ApplicationEventDetails details;
   @WhenCreated private Instant createTime;
 
   public ApplicationEvent() {}
 
+  public Account getActor() {
+    return actor;
+  }
+
+  public ApplicationEvent setActor(Account actor) {
+    this.actor = actor;
+    return this;
+  }
+
   public Application getApplication() {
     return application;
   }
 
-  public void setApplication(Application application) {
+  public ApplicationEvent setApplication(Application application) {
     this.application = application;
+    return this;
   }
 
   public Type getEventType() {
     return eventType;
   }
 
-  public void setEventType(Type eventType) {
+  public ApplicationEvent setEventType(Type eventType) {
     this.eventType = eventType;
+    return this;
   }
 
   public ApplicationEventDetails getDetails() {
     return details;
   }
 
-  public void setDetails(ApplicationEventDetails details) {
+  public ApplicationEvent setDetails(ApplicationEventDetails details) {
     this.details = details;
+    return this;
   }
 
   public ApplicationEvent(
