@@ -183,7 +183,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink =
           controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                  Optional.empty(), Optional.empty())
+              /* nameQuery= */ Optional.empty(), /* dateQuery= */ Optional.empty(),/* page= */ Optional.of(1))
               .url();
       return div(
           a(tiDashboardText)

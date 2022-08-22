@@ -52,20 +52,4 @@ public class TrustedIntermediaryGroup extends BaseModel {
   public String getDescription() {
     return this.description;
   }
-
-  public ImmutableList<Account> getManagedAccounts(Optional<String> search) {
-    ImmutableList<Account> allAccounts = getManagedAccounts();
-    if (search.isPresent()) {
-      allAccounts =
-          allAccounts.stream()
-              .filter(
-                  account ->
-                      account
-                          .getApplicantName()
-                          .toLowerCase(Locale.ROOT)
-                          .contains(search.get().toLowerCase(Locale.ROOT)))
-              .collect(ImmutableList.toImmutableList());
-    }
-    return allAccounts;
-  }
 }

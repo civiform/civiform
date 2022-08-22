@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import repository.SearchParameters;
 import services.DateConverter;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -61,7 +62,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       ImmutableList<Account> managedAccounts,
       int totalPageCount,
       int page,
-      Optional<String> searchParam,
+      SearchParameters searchParameters,
       Http.Request request,
       Messages messages) {
     HtmlBundle bundle =
@@ -76,8 +77,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Clients"),
-                renderSearchForm(request, searchParam),
-                renderTIApplicantsTable(managedAccounts, searchParam, page, totalPageCount),
+                renderSearchForm(request, searchParameters),
+                renderTIApplicantsTable(managedAccounts, searchParameters, page, totalPageCount),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
@@ -96,27 +97,41 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private FormTag renderSearchForm(Http.Request request, Optional<String> searchParam) {
+  private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
     return form()
-        .withClass(Styles.W_1_4)
-        .withMethod("GET")
-        .withAction(
-            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty())
-                .url())
-        .with(
-            FieldWithLabel.input()
-                .setFieldName("search")
-                .setValue(searchParam)
-                .setLabelText("Search")
-                .getInputTag()
-                .withClasses(Styles.W_FULL),
-            makeCsrfTokenInputTag(request),
-            submitButton("Search").withClasses(Styles.M_2));
+      .withClass(Styles.W_1_4)
+      .withMethod("GET")
+      .withAction(
+        routes.TrustedIntermediaryController.dashboard(
+            /* paramName=  nameQuery */
+            Optional.empty(),
+            /* paramName=  dateQuery */
+            Optional.empty(),
+            /* paramName=  page */
+            Optional.empty())
+          .url())
+      .with(
+        FieldWithLabel.input()
+          .setId("name-query")
+          .setFieldName("nameQuery")
+          .setValue(searchParameters.nameQuery().orElse(""))
+          .setLabelText("Search by Name")
+          .getInputTag()
+          .withClasses(Styles.W_FULL),
+        FieldWithLabel.date()
+          .setId("search-date")
+          .setFieldName("dateQuery")
+          .setValue(searchParameters.dateQuery().orElse(""))
+          .setLabelText("Search Date of Birth")
+          .getInputTag()
+          .withClass(Styles.W_FULL),
+        makeCsrfTokenInputTag(request),
+        submitButton("Search").withClasses(Styles.M_2));
   }
 
   private DivTag renderTIApplicantsTable(
       ImmutableList<Account> managedAccounts,
-      Optional<String> searchParam,
+      SearchParameters searchParameters,
       int page,
       int totalPageCount) {
     DivTag main =
@@ -137,7 +152,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             totalPageCount,
             pageNumber ->
                 routes.TrustedIntermediaryController.dashboard(
-                    searchParam, Optional.of(pageNumber))));
+                    searchParameters.nameQuery(),searchParameters.dateQuery(), Optional.of(pageNumber))));
   }
 
   private DivTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
