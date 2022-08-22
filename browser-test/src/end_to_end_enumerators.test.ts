@@ -179,7 +179,7 @@ describe('End to end enumerator test', () => {
     await validateAccessibility(pageObject)
   })
 
-  it('screenshot', async () => {
+  it('validate screenshot', async () => {
     await loginAsGuest(pageObject)
     await selectApplicantLanguage(pageObject, 'English', true)
     const applicantQuestions = new ApplicantQuestions(pageObject)
@@ -190,10 +190,10 @@ describe('End to end enumerator test', () => {
 
     await applicantQuestions.addEnumeratorAnswer('Bugs')
 
-    await validateScreenshot(pageObject)
+    await validateScreenshot(pageObject, 'enumerator')
   })
 
-  it('error screenshot', async () => {
+  it('validate screenshot with errors', async () => {
     await loginAsGuest(pageObject)
     await selectApplicantLanguage(pageObject, 'English', true)
     const applicantQuestions = new ApplicantQuestions(pageObject)
@@ -204,7 +204,7 @@ describe('End to end enumerator test', () => {
 
     // Click next without adding an enumerator
     await applicantQuestions.clickNext()
-    await validateScreenshot(pageObject)
+    await validateScreenshot(pageObject, 'enumerator-errors')
   })
 
   it('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {

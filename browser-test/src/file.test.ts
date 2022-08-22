@@ -51,23 +51,23 @@ describe('file upload applicant flow', () => {
       await logout(pageObject)
     })
     
-    it('screenshot', async () => {
+    it('validate screenshot', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, {fullPage: true})
+      await validateScreenshot(pageObject, 'file')
     })
     
-    it('error screenshot', async () => {
+    it('validate screenshot with errors', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickUpload()
 
-      await validateScreenshot(pageObject, {fullPage: true})
+      await validateScreenshot(pageObject, 'file-errors')
     })
 
     it('does not show errors initially', async () => {

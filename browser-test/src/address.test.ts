@@ -46,23 +46,23 @@ describe('address applicant flow', () => {
       await logout(pageObject)
     })
     
-    it('screenshot', async () => {
+    it('validate screenshot', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, {fullPage: true})
+      await validateScreenshot(pageObject, 'address')
     })
     
-    it('error screenshot', async () => {
+    it('validate screenshot with errors', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
   
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
   
-      await validateScreenshot(pageObject, {fullPage: true})
+      await validateScreenshot(pageObject, 'address-errors')
     })
 
     it('does not show errors initially', async () => {

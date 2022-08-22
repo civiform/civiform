@@ -48,23 +48,23 @@ describe('Number question for applicant flow', () => {
       await logout(pageObject)
     })
     
-    it('screenshot', async () => {
+    it('validate screenshot', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, {fullPage: true})
+      await validateScreenshot(pageObject, 'number')
     })
     
-    it('error screenshot', async () => {
+    it('validate screenshot with errors', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject, {fullPage: true})
+      await validateScreenshot(pageObject, 'number-errors')
     })
 
     it('with valid number submits successfully', async () => {

@@ -46,13 +46,13 @@ describe('Static text question for applicant flow', () => {
     await resetSession(pageObject)
   })
     
-  it('screenshot', async () => {
+  it('validate screenshot', async () => {
     await loginAsGuest(pageObject)
     await selectApplicantLanguage(pageObject, 'English')
 
     await applicantQuestions.applyProgram(programName)
 
-    await validateScreenshot(pageObject, {fullPage: true})
+    await validateScreenshot(pageObject, 'static-text')
   })
 
   it('displays static text', async () => {
