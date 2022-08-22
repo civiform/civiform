@@ -12,15 +12,11 @@ import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
-
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import javax.print.attribute.URISyntax;
-
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -130,7 +126,8 @@ public final class AdminQuestionController extends CiviFormController {
 
     try {
       return ok(
-          editView.renderNewQuestionForm(request, questionType, enumeratorQuestionDefinitions, redirectUrl));
+          editView.renderNewQuestionForm(
+              request, questionType, enumeratorQuestionDefinitions, redirectUrl));
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
     }

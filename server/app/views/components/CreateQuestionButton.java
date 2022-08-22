@@ -4,8 +4,6 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 
-import java.util.Optional;
-
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import services.question.types.QuestionType;
@@ -37,7 +35,10 @@ public final class CreateQuestionButton {
 
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
-      String link = controllers.admin.routes.AdminQuestionController.newOne(typeString, questionCreateRedirectUrl).url();
+      String link =
+          controllers.admin.routes.AdminQuestionController.newOne(
+                  typeString, questionCreateRedirectUrl)
+              .url();
       ATag linkTag =
           a().withHref(link)
               .withId(String.format("create-%s-question", typeString))

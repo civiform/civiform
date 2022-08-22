@@ -104,8 +104,7 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title, questionForm)
             .with(
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
-                    .with(
-                        makeCsrfTokenInputTag(request)));
+                    .with(makeCsrfTokenInputTag(request)));
 
     message
         .map(m -> m.setDismissible(true))
@@ -292,7 +291,10 @@ public final class QuestionEditView extends BaseHtmlView {
             .with(
                 // Hidden input indicating the type of question to be created.
                 input().isHidden().withName("questionType").withValue(questionType.name()),
-                input().isHidden().withName(QuestionForm.REDIRECT_URL_PARAM).withValue(questionForm.getRedirectUrl()),
+                input()
+                    .isHidden()
+                    .withName(QuestionForm.REDIRECT_URL_PARAM)
+                    .withValue(questionForm.getRedirectUrl()),
                 requiredFieldsExplanationContent());
 
     // The question name and enumerator fields should not be changed after the question is created.

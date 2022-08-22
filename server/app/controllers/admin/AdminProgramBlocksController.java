@@ -116,7 +116,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
 
-      Optional<ToastMessage> maybeToastMessage = request.flash().get("success").map(ToastMessage::success);
+      Optional<ToastMessage> maybeToastMessage =
+          request.flash().get("success").map(ToastMessage::success);
       return renderEditViewWithMessage(request, program, block, maybeToastMessage);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
