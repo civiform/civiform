@@ -26,8 +26,6 @@ public class ApplicationEvent extends BaseModel {
   @Constraints.Required @DbJson private ApplicationEventDetails details;
   @WhenCreated private Instant createTime;
 
-  public ApplicationEvent() {}
-
   public ApplicationEvent(
       Application application,
       Account actor,

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Preconditions;
 import java.util.Optional;
 
 /**
@@ -45,19 +46,30 @@ public abstract class ApplicationEventDetails {
     @JsonProperty("event_type")
     public abstract Builder setEventType(Type type);
 
-    @JsonProperty("status_event")
-    public abstract Builder setStatusEvent(StatusEvent event);
-
     @JsonProperty("note_event")
     public abstract Builder setNoteEvent(NoteEvent event);
 
-    public abstract ApplicationEventDetails build();
+    @JsonProperty("status_event")
+    public abstract Builder setStatusEvent(StatusEvent event);
+
+    abstract ApplicationEventDetails autoBuild();
+
+    public final ApplicationEventDetails build() {
+      ApplicationEventDetails details = autoBuild();
+      // XOR check that one and only one optional is set.
+      Preconditions.checkArgument(
+          details.statusEvent().isPresent() ^ details.noteEvent().isPresent(),
+          "One and only one detail in ApplicationEventDetail must be set.");
+      return details;
+    }
   }
 
   // The type of Event being recorded.
   public enum Type {
-    STATUS_CHANGE,
-    NOTE_CHANGE;
+    // A note was set.
+    NOTE_CHANGE,
+    // The Status Tracking status was changed.
+    STATUS_CHANGE;
   }
 
   @AutoValue
