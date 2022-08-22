@@ -12,7 +12,6 @@ import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -172,9 +171,10 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
-    String redirectUrl = questionForm.getRedirectUrl().isEmpty() ? 
-      routes.AdminQuestionController.index().url()
-      : questionForm.getRedirectUrl();
+    String redirectUrl =
+        questionForm.getRedirectUrl().isEmpty()
+            ? routes.AdminQuestionController.index().url()
+            : questionForm.getRedirectUrl();
     return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
 

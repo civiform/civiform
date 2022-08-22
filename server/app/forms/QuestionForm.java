@@ -2,13 +2,11 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Strings;
 import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
-import com.google.common.base.Strings;
-
 import models.Question;
 import models.QuestionTag;
 import services.LocalizedStrings;
