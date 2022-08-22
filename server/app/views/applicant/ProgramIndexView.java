@@ -86,12 +86,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       Optional<String> userName,
       ApplicantService.RelevantPrograms relevantPrograms,
-      Optional<String> banner) {
+      Optional<ToastMessage> bannerMessage) {
     HtmlBundle bundle = layout.getBundle();
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
-    if (banner.isPresent()) {
-      bundle.addToastMessages(ToastMessage.alert(banner.get()));
-    }
+    bannerMessage.ifPresent(bundle::addToastMessages);
     bundle.addMainContent(
         topContent(
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),

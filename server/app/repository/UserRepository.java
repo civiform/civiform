@@ -19,6 +19,7 @@ import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import services.CiviFormError;
+import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
@@ -230,9 +231,9 @@ public final class UserRepository {
     newAccount.save();
     Applicant applicant = new Applicant();
     applicant.setAccount(newAccount);
-    applicant
-        .getApplicantData()
-        .setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
+    ApplicantData applicantData = applicant.getApplicantData();
+    applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
+    applicantData.setDateOfBirth(form.getDob());
     applicant.save();
   }
 

@@ -30,7 +30,7 @@ jobs:
         run: |
           #  Grab the config from the staging deploy repo to confirm
           #  the changes work with actual data
-          curl https://raw.githubusercontent.com/civiform/staging-aws-deploy/main/civiform_config.sh > civiform_config.sh
+          curl https://raw.githubusercontent.com/civiform/civiform-staging-deploy/main/aws_staging_civiform_config.sh > civiform_config.sh
 
       - name: Source config, set CIVIFORM_MODE to be "test", Run setup with latest tag
         run: |

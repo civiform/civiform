@@ -2,7 +2,6 @@ package views.admin.programs;
 
 import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
@@ -54,7 +53,7 @@ public final class ProgramTranslationView extends TranslationFormView {
       Locale locale,
       ProgramDefinition program,
       ProgramTranslationForm translationForm,
-      Optional<String> errors) {
+      Optional<ToastMessage> message) {
     String formAction =
         controllers.admin.routes.AdminProgramTranslationsController.update(
                 program.id(), locale.toLanguageTag())
@@ -70,7 +69,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             .setTitle(title)
             .addMainContent(renderHeader(title), renderLanguageLinks(program.id(), locale), form);
 
-    errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
+    message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
@@ -98,23 +97,20 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setStyles(Styles.ML_2)
                                 .asAnchorText()),
                     ImmutableList.of(
-                        div()
-                            .with(
-                                FieldWithLabel.input()
-                                    .setFieldName(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
-                                    .setLabelText("Program name")
-                                    .setValue(updateData.localizedDisplayName())
-                                    .getInputTag(),
-                                defaultLocaleTextHint(program.localizedName())),
-                        div()
-                            .with(
-                                FieldWithLabel.input()
-                                    .setFieldName(
-                                        ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
-                                    .setLabelText("Program description")
-                                    .setValue(updateData.localizedDisplayDescription())
-                                    .getInputTag(),
-                                defaultLocaleTextHint(program.localizedDescription())))));
+                        fieldWithDefaultLocaleTextHint(
+                            FieldWithLabel.input()
+                                .setFieldName(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
+                                .setLabelText("Program name")
+                                .setValue(updateData.localizedDisplayName())
+                                .getInputTag(),
+                            program.localizedName()),
+                        fieldWithDefaultLocaleTextHint(
+                            FieldWithLabel.input()
+                                .setFieldName(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
+                                .setLabelText("Program description")
+                                .setValue(updateData.localizedDisplayDescription())
+                                .getInputTag(),
+                            program.localizedDescription()))));
     if (statusTrackingEnabled.get()) {
       String programStatusesLink =
           controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
@@ -137,28 +133,26 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .isHidden()
                         .withName(ProgramTranslationForm.statusKeyToUpdateFieldName(statusIdx))
                         .withValue(configuredStatus.statusText()),
-                    div()
-                        .with(
-                            FieldWithLabel.input()
-                                .setFieldName(
-                                    ProgramTranslationForm.localizedStatusFieldName(statusIdx))
-                                .setLabelText("Status name")
-                                .setScreenReaderText("Status name")
-                                .setValue(statusUpdateData.localizedStatusText())
-                                .getInputTag(),
-                            defaultLocaleTextHint(configuredStatus.localizedStatusText())));
+                    fieldWithDefaultLocaleTextHint(
+                        FieldWithLabel.input()
+                            .setFieldName(
+                                ProgramTranslationForm.localizedStatusFieldName(statusIdx))
+                            .setLabelText("Status name")
+                            .setScreenReaderText("Status name")
+                            .setValue(statusUpdateData.localizedStatusText())
+                            .getInputTag(),
+                        configuredStatus.localizedStatusText()));
         if (configuredStatus.localizedEmailBodyText().isPresent()) {
           fieldsBuilder.add(
-              div()
-                  .with(
-                      FieldWithLabel.textArea()
-                          .setFieldName(ProgramTranslationForm.localizedEmailFieldName(statusIdx))
-                          .setLabelText("Email content")
-                          .setScreenReaderText("Email content")
-                          .setValue(statusUpdateData.localizedEmailBody())
-                          .setRows(OptionalLong.of(8))
-                          .getTextareaTag(),
-                      defaultLocaleTextHint(configuredStatus.localizedEmailBodyText().get())));
+              fieldWithDefaultLocaleTextHint(
+                  FieldWithLabel.textArea()
+                      .setFieldName(ProgramTranslationForm.localizedEmailFieldName(statusIdx))
+                      .setLabelText("Email content")
+                      .setScreenReaderText("Email content")
+                      .setValue(statusUpdateData.localizedEmailBody())
+                      .setRows(OptionalLong.of(8))
+                      .getTextareaTag(),
+                  configuredStatus.localizedEmailBodyText().get()));
         }
         result.add(
             fieldSetForFields(

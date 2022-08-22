@@ -4,7 +4,8 @@ resource "aws_s3_bucket" "civiform_files_s3" {
     Type = "Civiform Files"
   }
 
-  bucket = "${var.app_prefix}-${var.file_storage_bucket}"
+  bucket        = "${var.app_prefix}-civiform-files-s3"
+  force_destroy = local.force_destroy_s3
 }
 
 resource "aws_s3_bucket_public_access_block" "civiform_files_access" {
@@ -76,6 +77,39 @@ resource "aws_s3_bucket_ownership_controls" "civiform_files_ownership" {
 resource "aws_s3_bucket_logging" "civiform_files_logging" {
   bucket = aws_s3_bucket.civiform_files_s3.id
 
-  target_bucket = "${var.app_prefix}-logs"
+  target_bucket = aws_s3_bucket.log_bucket.id
   target_prefix = "file-access-log/"
+}
+
+resource "aws_s3_bucket" "log_bucket" {
+  tags = {
+    Name = "${var.app_prefix} Civiform Logs"
+    Type = "Civiform Logs"
+  }
+
+  bucket        = "${var.app_prefix}-civiform-fileaccesslogs"
+  force_destroy = local.force_destroy_s3
+}
+
+resource "aws_s3_bucket_acl" "log_bucket_acl" {
+  bucket = aws_s3_bucket.log_bucket.id
+  acl    = "log-delivery-write"
+}
+
+resource "aws_s3_bucket_versioning" "logging_versioning" {
+  bucket = aws_s3_bucket.log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "logging_encryption" {
+  bucket = aws_s3_bucket.log_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.file_storage_key.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
 }

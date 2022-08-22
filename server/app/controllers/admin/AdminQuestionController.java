@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
@@ -37,6 +38,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
+import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing questions. */
 public class AdminQuestionController extends CiviFormController {
@@ -151,7 +153,7 @@ public class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
-      String errorMessage = joinErrors(result.getErrors());
+      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
@@ -286,7 +288,8 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
+      ToastMessage errorMessage =
+          new ToastMessage(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()), ERROR);
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(

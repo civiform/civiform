@@ -55,6 +55,7 @@ public class QuestionPreview {
     } catch (UnsupportedQuestionTypeException e) {
       renderedQuestion = div().withText(e.toString());
     }
+
     DivTag innerContentContainer =
         div(renderedQuestion)
             .withClasses(Styles.TEXT_3XL, Styles.PL_16, Styles.PT_20, Styles.W_FULL);

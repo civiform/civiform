@@ -35,7 +35,7 @@ resource "aws_secretsmanager_secret" "postgres_username_secret" {
     Name = "${var.app_prefix} Civiform Postgres Username Secret"
     Type = "Civiform Postgres Username Secret"
   }
-  name                    = "${var.app_prefix}-postgres_username"
+  name                    = "${var.app_prefix}-civiform_postgres_username"
   kms_key_id              = aws_kms_key.civiform_kms_key.arn
   recovery_window_in_days = local.secret_recovery_window_in_days
 }
@@ -63,7 +63,7 @@ resource "aws_secretsmanager_secret" "postgres_password_secret" {
     Name = "${var.app_prefix} Civiform Postgres Password Secret"
     Type = "Civiform Postgres Password Secret"
   }
-  name                    = "${var.app_prefix}-postgres_password"
+  name                    = "${var.app_prefix}-civiform_postgres_password"
   kms_key_id              = aws_kms_key.civiform_kms_key.arn
   recovery_window_in_days = local.secret_recovery_window_in_days
 }
@@ -90,7 +90,7 @@ resource "aws_secretsmanager_secret" "app_secret_key_secret" {
     Name = "${var.app_prefix} Civiform App Secret Secret"
     Type = "Civiform App Secret Secret"
   }
-  name                    = "${var.app_prefix}-app_secret_key"
+  name                    = "${var.app_prefix}-civiform_app_secret_key"
   recovery_window_in_days = local.secret_recovery_window_in_days
 }
 
@@ -113,7 +113,7 @@ resource "aws_secretsmanager_secret" "api_secret_salt_secret" {
     Name = "${var.app_prefix} Civiform Api Secret Salt Secret"
     Type = "Civiform Api Secret Salt Secret"
   }
-  name                    = "${var.app_prefix}-api_secret_salt"
+  name                    = "${var.app_prefix}-civiform_api_secret_salt"
   recovery_window_in_days = local.secret_recovery_window_in_days
 }
 
@@ -129,7 +129,7 @@ resource "aws_secretsmanager_secret" "adfs_secret_secret" {
     Name = "${var.app_prefix} Civiform ADFS Secret Secret"
     Type = "Civiform ADFS Secret Secret"
   }
-  name                    = "${var.app_prefix}-adfs_secret"
+  name                    = "${var.app_prefix}-civiform_adfs_secret"
   kms_key_id              = aws_kms_key.civiform_kms_key.arn
   recovery_window_in_days = local.secret_recovery_window_in_days
 }
@@ -146,7 +146,7 @@ resource "aws_secretsmanager_secret" "adfs_client_id_secret" {
     Name = "${var.app_prefix} Civiform ADFS Client ID Secret"
     Type = "Civiform ADFS Client ID Secret"
   }
-  name                    = "${var.app_prefix}-adfs_client_id"
+  name                    = "${var.app_prefix}-civiform_adfs_client_id"
   kms_key_id              = aws_kms_key.civiform_kms_key.arn
   recovery_window_in_days = local.secret_recovery_window_in_days
 }
@@ -159,7 +159,7 @@ resource "aws_secretsmanager_secret_version" "adfs_client_id_secret_version" {
 
 # Creating a AWS secret for applicant_oidc_secret
 resource "aws_secretsmanager_secret" "applicant_oidc_client_secret_secret" {
-  name                    = "${var.app_prefix}-applicant_oidc_client_secret"
+  name                    = "${var.app_prefix}-civiform_applicant_oidc_client_secret"
   kms_key_id              = aws_kms_key.civiform_kms_key.arn
   recovery_window_in_days = local.secret_recovery_window_in_days
 }
@@ -172,7 +172,7 @@ resource "aws_secretsmanager_secret_version" "applicant_oidc_client_secret_secre
 
 # Creating a AWS secret for applicant_oidc_client_id
 resource "aws_secretsmanager_secret" "applicant_oidc_client_id_secret" {
-  name                    = "${var.app_prefix}-applicant_oidc_client_id"
+  name                    = "${var.app_prefix}-civiform_applicant_oidc_client_id"
   kms_key_id              = aws_kms_key.civiform_kms_key.arn
   recovery_window_in_days = local.secret_recovery_window_in_days
 }

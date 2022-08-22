@@ -135,7 +135,16 @@ function addNewEnumeratorField() {
   enumeratorFields.appendChild(newField)
 
   // Set focus to the new input
-  newField.querySelector('input').focus()
+  const newInput = newField.querySelector('input')
+  if (!newInput) {
+    throw new Error(
+      'Expected an input associated with the new enumerator entity',
+    )
+  }
+  newInput.setAttribute('data-entity-input', '')
+  // Set disabled to false so the data is submitted with the form.
+  newInput.disabled = false
+  newInput.focus()
 }
 
 /**
@@ -189,8 +198,8 @@ function addEnumeratorListeners() {
     return
   }
   const enumeratorInputs = Array.from(
-    enumeratorQuestion.querySelectorAll('input'),
-  ).filter((item) => item.id !== 'enumerator-delete-template')
+    enumeratorQuestion.querySelectorAll('input[data-entity-input]'),
+  )
   // Whenever an input changes we need to revalidate.
   enumeratorInputs.forEach((enumeratorInput) => {
     enumeratorInput.addEventListener('input', () => {
@@ -228,15 +237,8 @@ function addEnumeratorListeners() {
 function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
   if (enumeratorQuestion) {
     const enumeratorInputValues = Array.from(
-      enumeratorQuestion.querySelectorAll('input'),
-    )
-      .filter((item) => {
-        return (
-          item.id !== 'enumerator-delete-template' &&
-          !item.classList.contains('hidden')
-        )
-      })
-      .map((item) => item.value)
+      enumeratorQuestion.querySelectorAll('input[data-entity-input]'),
+    ).map((item) => (item as HTMLInputElement).value)
 
     // validate that there are no empty inputs.
     const addButton = <HTMLInputElement>(
