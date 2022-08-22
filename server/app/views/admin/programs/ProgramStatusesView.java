@@ -264,7 +264,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         p().withClasses(
                                 Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                             .with(
-                                Icons.svg(Icons.EMAIL, 22)
+                                Icons.svg(Icons.EMAIL, 24)
                                     // TODO(#3148): Once SVG icon sizes are consistent, just set
                                     // size to 18.
                                     .withWidth("18")
