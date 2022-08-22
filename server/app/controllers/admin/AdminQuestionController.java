@@ -172,15 +172,10 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
-    Result responseResult = redirect(routes.AdminQuestionController.index().url());
-    if (!questionForm.getRedirectUrl().isEmpty()) {
-      // Only allow relative URLs to ensure that we redirect to the same domain.
-      if (URI.create(questionForm.getRedirectUrl()).isAbsolute()) {
-        return badRequest("");
-      }
-      responseResult = redirect(questionForm.getRedirectUrl());
-    }
-    return withSuccessMessage(responseResult, successMessage);
+    String redirectUrl = questionForm.getRedirectUrl().isEmpty() ? 
+      routes.AdminQuestionController.index().url()
+      : questionForm.getRedirectUrl();
+    return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
 
   /** POST endpoint for un-archiving a question. */

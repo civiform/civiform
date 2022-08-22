@@ -2,9 +2,13 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+
+import com.google.common.base.Strings;
+
 import models.Question;
 import models.QuestionTag;
 import services.LocalizedStrings;
@@ -102,6 +106,10 @@ public abstract class QuestionForm {
   }
 
   public String getRedirectUrl() {
+    if (!Strings.isNullOrEmpty(redirectUrl) && URI.create(redirectUrl).isAbsolute()) {
+      // Only allow relative URLs to ensure that we redirect to the same domain.
+      throw new RuntimeException("Invalid absolute redirect URL. Only relative URLs are allowed.");
+    }
     return redirectUrl;
   }
 
