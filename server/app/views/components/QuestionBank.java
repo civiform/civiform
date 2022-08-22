@@ -31,7 +31,7 @@ import views.style.Styles;
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
   private static final SvgTag PLUS_ICON =
-      Icons.svg(Icons.PLUS, 20)
+      Icons.svg(Icons.PLUS)
           .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_5)
           .attr("fill", "currentColor")
           .attr("stroke-width", "2")
@@ -105,7 +105,7 @@ public class QuestionBank {
                 Styles.SHADOW,
                 StyleUtils.focus(Styles.OUTLINE_NONE));
 
-    SvgTag filterIcon = Icons.svg(Icons.SEARCH, 56).withClasses(Styles.H_4, Styles.W_4);
+    SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses(Styles.H_4, Styles.W_4);
     DivTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
     DivTag filterDiv = div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
@@ -151,7 +151,7 @@ public class QuestionBank {
             .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     SvgTag icon =
-        Icons.questionTypeSvg(definition.getQuestionType(), 24)
+        Icons.questionTypeSvg(definition.getQuestionType())
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
     DivTag content =
         div()
