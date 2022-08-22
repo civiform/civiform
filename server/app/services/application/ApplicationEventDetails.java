@@ -22,6 +22,7 @@ public abstract class ApplicationEventDetails {
   public abstract Type eventType();
 
   // Only one of the following Event fields should be set.
+  // The JsonInclude suppresses empty Optionals from being serialized.
   @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("status_event")
   public abstract Optional<StatusEvent> statusEvent();
