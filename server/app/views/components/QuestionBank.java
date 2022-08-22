@@ -31,8 +31,8 @@ import views.style.Styles;
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
   private static final SvgTag PLUS_ICON =
-      Icons.svg(Icons.PLUS, 24)
-          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6)
+      Icons.svg(Icons.PLUS, 20)
+          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_5)
           .attr("fill", "currentColor")
           .attr("stroke-width", "2")
           .attr("stroke-linecap", "round")
