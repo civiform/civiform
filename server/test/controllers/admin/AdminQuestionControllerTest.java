@@ -66,7 +66,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build(), "text");
 
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("message").get()).contains("created");
+    assertThat(result.flash().get("success").get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
@@ -97,7 +97,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build(), "text");
 
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("message").get()).contains("created");
+    assertThat(result.flash().get("success").get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
@@ -129,7 +129,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build(), "text");
 
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("message").get()).contains("created");
+    assertThat(result.flash().get("success").get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
     assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
@@ -155,7 +155,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(request, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New text question");
+    assertThat(contentAsString(result)).contains("New text field question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Question text cannot be blank");
     assertThat(contentAsString(result)).contains("name");
@@ -206,7 +206,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.edit(request, question.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name question");
+    assertThat(contentAsString(result)).contains("Edit name field question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
   }
@@ -217,7 +217,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name question");
+    assertThat(contentAsString(result)).contains("Edit name field question");
     assertThat(contentAsString(result)).contains("applicant household members");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
@@ -273,7 +273,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void index_showsMessageFlash() {
-    Request request = addCSRFToken(Helpers.fakeRequest().flash("message", "has message")).build();
+    Request request = addCSRFToken(Helpers.fakeRequest().flash("success", "has message")).build();
     Result result = controller.index(request).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -287,7 +287,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.newOne(request, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New text question");
+    assertThat(contentAsString(result)).contains("New text field question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
   }
@@ -326,7 +326,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
-    assertThat(result.flash().get("message").get()).contains("updated");
+    assertThat(result.flash().get("success").get()).contains("updated");
 
     Question updatedNameQuestion =
         questionRepo
@@ -459,7 +459,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.update(request, question.id, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit text question");
+    assertThat(contentAsString(result)).contains("Edit text field question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("question text updated!");
   }

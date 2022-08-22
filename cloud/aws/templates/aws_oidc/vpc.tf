@@ -88,13 +88,3 @@ resource "aws_security_group" "rds" {
     cidr_blocks = var.private_subnets
   }
 }
-
-resource "aws_apprunner_vpc_connector" "connector" {
-  tags = {
-    Name = "${var.app_prefix} Civiform Apprunner VPC Connector"
-    Type = "Civiform Apprunner VPC Connector"
-  }
-  vpc_connector_name = "${var.app_prefix}-civiform_connector"
-  subnets            = module.vpc.private_subnets
-  security_groups    = [aws_security_group.rds.id]
-}

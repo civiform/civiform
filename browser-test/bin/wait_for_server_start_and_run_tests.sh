@@ -6,6 +6,10 @@ START_TIME=$(date +%s)
 DEADLINE=$(($START_TIME + 500))
 SERVER_URL="http://civiform:9000"
 
+# Install any new packages not built into the image
+# Also saves any yarn.lock changes back to your local filesystem.
+yarn install
+
 echo "Polling to check server start"
 
 until $(curl --output /dev/null --silent --head --fail --max-time 2 "${SERVER_URL}"); do

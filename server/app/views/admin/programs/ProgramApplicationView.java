@@ -4,48 +4,75 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.h1;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
+import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.select;
+import static j2html.TagCreator.span;
 
+import annotations.BindingAnnotations.EnUsLang;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.OptionTag;
+import j2html.tags.specialized.SelectTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
+import java.util.Optional;
+import models.Application;
+import org.apache.commons.lang3.RandomStringUtils;
+import play.i18n.Messages;
+import play.mvc.Http;
 import play.twirl.api.Content;
+import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.Block;
+import services.program.StatusDefinitions;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
+import views.components.Modal;
+import views.components.Modal.Width;
+import views.components.ToastMessage;
+import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
+  private final Messages enUsMessages;
 
   @Inject
-  public ProgramApplicationView(BaseHtmlLayout layout) {
+  public ProgramApplicationView(BaseHtmlLayout layout, @EnUsLang Messages enUsMessages) {
     this.layout = checkNotNull(layout);
+    this.enUsMessages = checkNotNull(enUsMessages);
   }
 
   public Content render(
       long programId,
       String programName,
-      long applicationId,
+      Application application,
       String applicantNameWithApplicationId,
       ImmutableList<Block> blocks,
-      ImmutableList<AnswerData> answers) {
+      ImmutableList<AnswerData> answers,
+      StatusDefinitions statusDefinitions,
+      Http.Request request) {
     String title = "Program Application View";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
@@ -57,19 +84,60 @@ public final class ProgramApplicationView extends BaseHtmlView {
       blockToAnswers.put(answerBlock, answer);
     }
 
+    ImmutableList<Modal> statusUpdateConfirmationModals =
+        statusDefinitions.getStatuses().stream()
+            .map(
+                status ->
+                    renderStatusUpdateConfirmationModal(
+                        programId,
+                        programName,
+                        application,
+                        applicantNameWithApplicationId,
+                        status,
+                        request))
+            .collect(ImmutableList.toImmutableList());
+
     DivTag contentDiv =
         div()
             .withId("application-view")
             .withClasses(Styles.PX_20)
             .with(
                 h2("Program: " + programName).withClasses(Styles.MY_4),
-                h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
-                renderDownloadButton(programId, applicationId),
+                div()
+                    .withClasses(Styles.FLEX)
+                    .with(
+                        p(applicantNameWithApplicationId)
+                            .withClasses(
+                                Styles.MY_4, Styles.TEXT_BLACK, Styles.TEXT_2XL, Styles.MB_2),
+                        // Spread out the items, so the following are right
+                        // aligned.
+                        p().withClasses(Styles.FLEX_GROW))
+                    // Status options if configured on the program.
+                    .condWith(
+                        !statusDefinitions.getStatuses().isEmpty(),
+                        renderStatusOptionsSelector(statusDefinitions))
+                    .with(renderDownloadButton(programId, application.id)))
+            .with(
                 each(
                     blocks,
-                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))));
+                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))))
+            .with(each(statusUpdateConfirmationModals, Modal::getButton));
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(title)
+            .addMainContent(contentDiv)
+            // The body and main styles are necessary for modals to appear since they use fixed
+            // sizing.
+            .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
+            .addMainStyles(Styles.W_SCREEN)
+            .addModals(statusUpdateConfirmationModals)
+            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
+    Optional<String> maybeSuccessMessage = request.flash().get("success");
+    if (maybeSuccessMessage.isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
+    }
     return layout.render(htmlBundle);
   }
 
@@ -143,5 +211,120 @@ public final class ProgramApplicationView extends BaseHtmlView {
             div("Answered on " + date)
                 .withClasses(
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
+  }
+
+  private DivTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+    final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
+    DivTag container =
+        div()
+            .withClasses(Styles.FLEX, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
+            .with(label("Status:").withClasses(Styles.SELF_CENTER).withFor(SELECTOR_ID));
+
+    SelectTag dropdownTag =
+        select()
+            .withId(SELECTOR_ID)
+            .withClasses(
+                Styles.OUTLINE_NONE,
+                Styles.PX_3,
+                Styles.PY_1,
+                Styles.MX_3,
+                Styles.MY_4,
+                Styles.BORDER,
+                Styles.BORDER_GRAY_500,
+                Styles.ROUNDED_FULL,
+                Styles.BG_WHITE,
+                Styles.TEXT_XS,
+                StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
+
+    // Add the options available to the admin.
+    // When no status is currently applied to the application, add a placeholder option that is
+    // selected.
+    dropdownTag.with(
+        option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
+            .isDisabled()
+            .isSelected());
+
+    // Add statuses in the order they're provided.
+    statusDefinitions
+        .getStatuses()
+        .forEach(
+            status -> {
+              String value = status.statusText();
+              OptionTag optionTag = option(value).withValue(value);
+              dropdownTag.with(optionTag);
+            });
+    return container.with(dropdownTag);
+  }
+
+  private Modal renderStatusUpdateConfirmationModal(
+      long programId,
+      String programName,
+      Application application,
+      String applicantNameWithApplicationId,
+      StatusDefinitions.Status status,
+      Http.Request request) {
+    Optional<String> maybeApplicantEmail =
+        Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
+    boolean showEmailSelection =
+        status.localizedEmailBodyText().isPresent() && maybeApplicantEmail.isPresent();
+
+    // TODO(#3020): Populate the modal content with the previous configured status.
+    String previousStatus = "Unset";
+    FormTag modalContent =
+        form()
+            .withAction(
+                controllers.admin.routes.AdminApplicationController.updateStatus(
+                        programId, application.id)
+                    .url())
+            .withMethod("POST")
+            .withClasses(Styles.PX_6, Styles.PY_2)
+            .with(
+                makeCsrfTokenInputTag(request),
+                p().with(
+                        span("Status Change: "),
+                        span(previousStatus).withClass(Styles.FONT_SEMIBOLD),
+                        span(" -> ").withClass(Styles.FONT_SEMIBOLD),
+                        span(status.statusText()).withClass(Styles.FONT_SEMIBOLD),
+                        span(" (visible to applicant)")),
+                p().with(
+                        span("Applicant: "),
+                        span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
+                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)));
+    if (showEmailSelection) {
+      // TODO(#2912): Add warnings when either no email is configured or the applicant hasn't
+      // provided an email.
+      modalContent.with(
+          div()
+              .withClasses(Styles.MT_4)
+              .with(
+                  label()
+                      .with(
+                          input()
+                              .withType("checkbox")
+                              .withName("sendEmail")
+                              .withCondChecked(showEmailSelection)
+                              .withClasses(BaseStyles.CHECKBOX),
+                          span("Notify "),
+                          span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+                          span(" of this change at "),
+                          span(maybeApplicantEmail.orElse("")).withClass(Styles.FONT_SEMIBOLD))));
+    }
+    modalContent.with(
+        div()
+            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+            .with(
+                div().withClass(Styles.FLEX_GROW),
+                button("Cancel")
+                    .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+    ButtonTag triggerButton =
+        button("")
+            .withClasses(Styles.HIDDEN)
+            .withData("status-update-confirm-for-status", status.statusText());
+    return Modal.builder(Modal.randomModalId(), modalContent)
+        .setModalTitle("Change the status of this application?")
+        .setWidth(Width.THREE_FOURTHS)
+        .setTriggerButtonContent(triggerButton)
+        .build();
   }
 }

@@ -1,7 +1,8 @@
 class AdminApplications {
   private static BACKGROUND_GRAY_CLASS = 'bg-gray-200'
   private static CARD_SELECTOR = '.cf-admin-application-card'
-  private static DISPLAY_FRAME_SELECTOR = '#application-display-frame'
+  private static DISPLAY_FRAME_SELECTOR =
+    'iframe[name="application-display-frame"]'
 
   private displayFrame: Element
   private cards: Array<HTMLElement>
@@ -16,9 +17,9 @@ class AdminApplications {
     }
 
     this.displayFrame = frame
-    this.cards = document.querySelectorAll(
-      AdminApplications.CARD_SELECTOR,
-    ) as any as Array<HTMLElement>
+    this.cards = Array.from(
+      document.querySelectorAll(AdminApplications.CARD_SELECTOR),
+    )
 
     this.registerApplicationCardEventListeners()
   }
@@ -64,7 +65,7 @@ class AdminApplications {
     this.displayFrame.setAttribute('src', applicationUrlPath)
   }
 
-  _assertNotNull(value: any, description: string) {
+  _assertNotNull<T>(value: T | null | undefined, description: string): T {
     if (value == null) {
       throw new Error(`Expected ${description} not to be null.`)
     }

@@ -73,9 +73,9 @@ export class ApplicantQuestions {
     await this.validateInputValue(lastName, '.cf-name-last input')
   }
 
-  async answerCheckboxQuestion(checked: Array<string>) {
-    for (var index in checked) {
-      await this.page.check(`label:has-text("${checked[index]}")`)
+  async answerCheckboxQuestion(options: Array<string>) {
+    for (const option of options) {
+      await this.page.check(`label:has-text("${option}")`)
     }
   }
 
@@ -143,7 +143,7 @@ export class ApplicantQuestions {
     await this.page.click('button:text("add entity")')
     // TODO(leonwong): may need to specify row index to wait for newly added row.
     await this.page.fill(
-      '#enumerator-fields .cf-enumerator-field:last-of-type input',
+      '#enumerator-fields .cf-enumerator-field:last-of-type input[data-entity-input]',
       entityName,
     )
   }
@@ -178,6 +178,13 @@ export class ApplicantQuestions {
   async clickApplyProgramButton(programName: string) {
     await this.page.click(
       `.cf-application-card:has-text("${programName}") .cf-apply-button`,
+    )
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickProgramDetails(programName: string) {
+    await this.page.click(
+      `.cf-application-card:has-text("${programName}") >> text=Program details`,
     )
     await waitForPageJsLoad(this.page)
   }
@@ -253,7 +260,19 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
-  async submitFromReviewPage(programName: string) {
+  async returnToProgramsFromSubmissionPage() {
+    // Assert that we're on the submission page.
+    expect(await this.page.innerText('h1')).toContain(
+      'Application confirmation',
+    )
+    await this.page.click('text="Apply to another program"')
+    await waitForPageJsLoad(this.page)
+
+    // Ensure that we redirected to the programs list page.
+    expect(this.page.url().split('/').pop()).toEqual('programs')
+  }
+
+  async submitFromReviewPage() {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain(
       'Program application review',
@@ -262,15 +281,9 @@ export class ApplicantQuestions {
     // Click on submit button.
     await this.page.click('text="Submit"')
     await waitForPageJsLoad(this.page)
-
-    await this.page.click('text="Apply to another program"')
-    await waitForPageJsLoad(this.page)
-
-    // Ensure that we redirected to the programs list page.
-    expect(await this.page.url().split('/').pop()).toEqual('programs')
   }
 
-  async submitFromPreviewPage(programName: string) {
+  async submitFromPreviewPage() {
     // Assert that we're on the preview page.
     expect(await this.page.innerText('h1')).toContain(
       'Program application preview',
@@ -279,12 +292,6 @@ export class ApplicantQuestions {
     // Click on submit button.
     await this.page.click('text="Submit"')
     await waitForPageJsLoad(this.page)
-
-    await this.page.click('text="Apply to another program"')
-    await waitForPageJsLoad(this.page)
-
-    // Ensure that we redirected to the programs list page.
-    expect(await this.page.url().split('/').pop()).toEqual('programs')
   }
 
   async validateHeader(lang: string) {

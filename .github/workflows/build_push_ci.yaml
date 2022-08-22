@@ -3,7 +3,6 @@ name: push_build_ci
 on:
   push:
     branches: main
-
   # Setting this enables manually triggering workflow in the GitHub UI
   # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch: {}
@@ -18,30 +17,37 @@ jobs:
     runs-on: ubuntu-latest
     # Only build the latest version.
     strategy:
+      fail-fast: false
       matrix:
         version: ['prod', 'dev']
         include:
           - version: prod
             image: 'civiform/civiform:latest'
             script: 'bin/build-prod'
+            platform: 'linux/amd64'
           - version: dev
             image: 'civiform/civiform-dev:latest'
             script: 'bin/build-dev'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
     concurrency:
       group: build_civiform-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
+    name: Build civiform ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      - name: Set up Docker QEMU
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
-      - name: Run build-${{ matrix.version }} ${{ matrix.image }}
+      - name: Check if we should push
+        if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
+        run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
+      - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
         id: build_and_push
         env:
           DOCKER_BUILDKIT: 1
-          PUSH_IMAGE: 1
+          PLATFORM: ${{ matrix.platform }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: ${{ matrix.script }}
@@ -50,6 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only one at a time (but don't cancel currently running jobs).
     strategy:
+      fail-fast: false
       matrix:
         version: ['formatter', 'localstack', 'browser_test', 'oidc']
         include:
@@ -57,20 +64,25 @@ jobs:
             image: 'civiform/formatter:latest'
             script: 'bin/build-formatter'
             file_pattern: 'formatter/'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: localstack
             image: 'civiform/civiform-localstack:latest'
             script: 'bin/build-localstack-env'
             file_pattern: 'localstack/'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: browser_test
             image: 'civiform/civiform-browser-test:latest'
             script: 'bin/build-browser-tests'
             file_pattern: 'browser-test/'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: oidc
             image: 'civiform/oidc-provider:latest'
             script: 'bin/build-dev-oidc'
             file_pattern: 'test-support/'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
     concurrency:
       group: build_dependancies-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
+    name: Build civiform dependancy ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -80,23 +92,35 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' }}
 
       - name: Check build & push
-        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
-        run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}"
+        id: check_build
+        if: >
+          ${{ (github.event_name == 'workflow_dispatch') ||
+            contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) ||
+            contains(toJSON(steps.file_changes.outputs.files), matrix.script) ||
+            contains(toJSON(steps.file_changes.outputs.files), '.github') }}
+        run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}" && echo "::set-output name=build::build"
 
       - name: Skip build & push
-        if: ${{ github.event_name != 'workflow_dispatch' && !contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
-        run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}"
+        if: ${{ steps.check_build.outputs.build != 'build' }}
+        run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}" "${{steps.check_build.outputs.build}}"
+
+      - name: Set up Docker QEMU
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+        if: ${{ steps.check_build.outputs.build == 'build' }}
 
-      - name: Run build-${{ matrix.version }} ${{ matrix.image }}
-        if: ${{ github.event_name == 'workflow_dispatch' || contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) }}
+      - name: Check if we should push
+        if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
+        run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
+
+      - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
+        if: ${{ steps.check_build.outputs.build == 'build' }}
         id: build_and_push
         env:
           DOCKER_BUILDKIT: 1
-          PUSH_IMAGE: 1
+          PLATFORM: ${{ matrix.platform }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: ${{ matrix.script }}

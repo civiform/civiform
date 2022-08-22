@@ -9,13 +9,19 @@
 	],
 	"settings": {
 		"files.watcherExclude": {
-      "**/target": true,
-      "**/.bloop": true
-    },
+			"**/target": true,
+			"**/.bloop": true
+		},
 		"search.exclude": {
 			"*/target": true,
 			"**/.bloop": true
 		},
 		"java.configuration.updateBuildConfiguration": "automatic"
-	}
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "rvest.vs-code-prettier-eslint"
+    ]
+  }
 }

@@ -35,10 +35,12 @@ public class SimpleStorage implements StorageClient {
 
   public static final String AWS_S3_BUCKET_CONF_PATH = "aws.s3.bucket";
   public static final Duration AWS_PRESIGNED_URL_DURATION = Duration.ofMinutes(10);
+  public static final String AWS_S3_FILE_LIMIT_CONF_PATH = "aws.s3.filelimitmb";
 
   private final Region region;
   private final Credentials credentials;
   private final String bucket;
+  private final int fileLimitMb;
   private final Client client;
 
   @Inject
@@ -51,7 +53,7 @@ public class SimpleStorage implements StorageClient {
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
     this.bucket = checkNotNull(config).getString(AWS_S3_BUCKET_CONF_PATH);
-
+    this.fileLimitMb = checkNotNull(config).getInt(AWS_S3_FILE_LIMIT_CONF_PATH);
     if (environment.isDev()) {
       client = new LocalStackClient(config);
     } else if (environment.isTest()) {
@@ -100,7 +102,8 @@ public class SimpleStorage implements StorageClient {
             .setExpirationDuration(AWS_PRESIGNED_URL_DURATION)
             .setBucket(bucket)
             .setSecretKey(awsCredentials.secretAccessKey())
-            .setRegionName(region.id());
+            .setRegionName(region.id())
+            .setFileLimitMb(fileLimitMb);
     if (awsCredentials instanceof AwsSessionCredentials) {
       AwsSessionCredentials sessionCredentials = (AwsSessionCredentials) awsCredentials;
       builder.setSecurityToken(sessionCredentials.sessionToken());

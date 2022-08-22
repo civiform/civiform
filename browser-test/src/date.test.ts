@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Date question for applicant flow', () => {
@@ -51,7 +52,7 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.answerDateQuestion('2022-05-02')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with no answer does not submit', async () => {
@@ -105,7 +106,7 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits successfully', async () => {
@@ -117,7 +118,16 @@ describe('Date question for applicant flow', () => {
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

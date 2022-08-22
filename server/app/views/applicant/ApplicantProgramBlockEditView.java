@@ -23,7 +23,6 @@ import views.HtmlBundle;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
-import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.Styles;
 
@@ -51,17 +50,18 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
             .withClasses(Styles.MY_8, Styles.M_AUTO);
 
+    String pageTitle =
+        params.programTitle()
+            + " — "
+            + (params.blockIndex() + 1)
+            + " of "
+            + params.totalBlockCount();
+
     HtmlBundle bundle =
         layout
             .getBundle()
-            .setTitle(params.programTitle())
-            .addMainContent(
-                h1(params.programTitle()
-                        + " "
-                        + (params.blockIndex() + 1)
-                        + " of "
-                        + params.totalBlockCount())
-                    .withClasses(Styles.SR_ONLY))
+            .setTitle(pageTitle)
+            .addMainContent(h1(pageTitle).withClasses(Styles.SR_ONLY))
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
@@ -72,15 +72,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       bundle.addMainContent(
           renderLocaleNotSupportedToast(
               params.applicantId(), params.programId(), params.messages()));
-    }
-
-    // Add the hidden enumerator field template
-    if (params.block().isEnumerator()) {
-      bundle.addMainContent(
-          EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
-              params.block().getEnumeratorQuestion().getContextualizedPath(),
-              params.block().getEnumeratorQuestion().createEnumeratorQuestion().getEntityType(),
-              params.messages()));
     }
 
     if (params.block().isFileUpload()) {

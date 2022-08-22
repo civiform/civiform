@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM localstack/localstack
 
 # Localstack tries to connect to the host specified

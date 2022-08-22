@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Radio button question for applicant flow', () => {
@@ -54,7 +55,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with empty selection does not submit', async () => {
@@ -115,7 +116,7 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('mountains')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits successfully', async () => {
@@ -127,7 +128,16 @@ describe('Radio button question for applicant flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

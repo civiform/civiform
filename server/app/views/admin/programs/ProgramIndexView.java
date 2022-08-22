@@ -22,10 +22,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
+import javax.inject.Provider;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;
-import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -36,6 +37,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
+import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -47,17 +49,20 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final DateConverter dateConverter;
-  private final boolean statusTrackingEnabled;
+  private final TranslationLocales translationLocales;
+  private final Provider<Boolean> statusTrackingEnabled;
 
   @Inject
   public ProgramIndexView(
       AdminLayoutFactory layoutFactory,
       Config config,
       DateConverter dateConverter,
-      @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
+      TranslationLocales translationLocales,
+      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
+    this.translationLocales = checkNotNull(translationLocales);
     this.statusTrackingEnabled = statusTrackingEnabled;
   }
 
@@ -112,6 +117,14 @@ public final class ProgramIndexView extends BaseHtmlView {
             .addModals(demographicsCsvModal)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
     maybePublishModal.ifPresent(htmlBundle::addModals);
+
+    Http.Flash flash = request.flash();
+    if (flash.get("error").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
+    } else if (flash.get("success").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
+    }
+
     return layout.renderCentered(htmlBundle);
   }
 
@@ -262,7 +275,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     Styles.JUSTIFY_CENTER)
                 .withStyle("min-width:90px")
                 .with(
-                    Icons.svg(Icons.NOISE_CONTROL_OFF, 20)
+                    Icons.svg(Icons.NOISE_CONTROL_OFF)
                         .withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
                     span(badgeText).withClass(Styles.MR_4)),
             div()
@@ -325,8 +338,12 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
       draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
-      draftRowExtraActions.add(renderManageTranslationsLink(draftProgram.get()));
-      if (statusTrackingEnabled) {
+      Optional<ButtonTag> maybeManageTranslationsLink =
+          renderManageTranslationsLink(draftProgram.get());
+      if (maybeManageTranslationsLink.isPresent()) {
+        draftRowExtraActions.add(maybeManageTranslationsLink.get());
+      }
+      if (statusTrackingEnabled.get()) {
         draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       }
       statusDiv =
@@ -417,7 +434,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   ButtonTag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
-            + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
+            + controllers.applicant.routes.RedirectController.programBySlug(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
         .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
         .withData("copyable-program-link", programLink);
@@ -440,16 +457,17 @@ public final class ProgramIndexView extends BaseHtmlView {
         : asRedirectButton(button, editLink);
   }
 
-  private ButtonTag renderManageTranslationsLink(ProgramDefinition program) {
+  private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
+    if (translationLocales.translatableLocales().isEmpty()) {
+      return Optional.empty();
+    }
     String linkDestination =
-        routes.AdminProgramTranslationsController.edit(
-                program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
-            .url();
+        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withId("program-translations-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return asRedirectButton(button, linkDestination);
+    return Optional.of(asRedirectButton(button, linkDestination));
   }
 
   private ButtonTag renderEditStatusesLink(ProgramDefinition program) {
@@ -497,7 +515,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private ButtonTag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
     ButtonTag button =
-        makeSvgTextButton("Manage admins", Icons.GROUP)
+        makeSvgTextButton("Manage Program Admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectButton(button, adminLink);

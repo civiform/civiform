@@ -71,6 +71,7 @@ class ValidateVariableDefinitions:
             "integer": self.validate_integer_definition_type,
             "string": self.validate_string_definition_type,
             "enum": self.validate_enum_definition_type,
+            "bool": self.validate_bool_definition_type,
         }
 
         validator = type_specific_validators.get(
@@ -79,7 +80,10 @@ class ValidateVariableDefinitions:
         if validator:
             errors.extend(validator(variable_definition))
         else:
-            errors.append("Unknown or missing 'type' field.")
+            supported_typed = list(type_specific_validators.keys())
+            errors.append(
+                f"Unknown or missing 'type' field. Supported types {supported_typed}"
+            )
 
         return errors
 
@@ -87,6 +91,9 @@ class ValidateVariableDefinitions:
         return []
 
     def validate_integer_definition_type(self, variable_definition):
+        return []
+
+    def validate_bool_definition_type(self, variable_definition):
         return []
 
     def validate_string_definition_type(self, variable_definition):

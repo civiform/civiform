@@ -106,7 +106,7 @@ public class LoginForm extends BaseHtmlView {
 
     content.with(
         div()
-            .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles._MT_6, Styles.PX_8)
+            .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles.PX_8)
             .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
             .with(p("CiviForm")));
 
@@ -125,17 +125,15 @@ public class LoginForm extends BaseHtmlView {
     if (applicantAuthIsDisabled) {
       String loginDisabledMessage =
           messages.at(MessageKey.CONTENT_LOGIN_DISABLED_PROMPT.getKeyName());
-      applicantAccountLogin = applicantAccountLogin.with(p(loginDisabledMessage));
+      content.with(applicantAccountLogin.with(p(loginDisabledMessage)));
     } else {
       String loginMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
-      applicantAccountLogin =
-          applicantAccountLogin.with(p(loginMessage)).with(loginButton(messages));
+      content.with(applicantAccountLogin.with(p(loginMessage)).with(loginButton(messages)));
       String alternativeMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
       content.with(p(alternativeMessage).withClasses(Styles.TEXT_LG));
     }
-    content.with(applicantAccountLogin);
 
     DivTag alternativeLoginButtons =
         div()

@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.twirl.api.Content;
 import views.components.Modal;
 import views.components.ToastMessage;
@@ -34,6 +36,8 @@ import views.style.BaseStyles;
 
 /** The HtmlBundle class stores all of the data necessary for rendering a page. */
 public class HtmlBundle {
+  private static final Logger logger = LoggerFactory.getLogger(HtmlBundle.class);
+
   private String pageTitle;
   private String language = "en";
   private Optional<String> faviconURL = Optional.empty();
@@ -224,6 +228,15 @@ public class HtmlBundle {
             .withId("modal-container")
             .withClasses(BaseStyles.MODAL_CONTAINER)
             .with(div().withId("modal-glass-pane").withClasses(BaseStyles.MODAL_GLASS_PANE));
+    // Validate that only one modal has the "displayOnLoad" setting, since popping multiple
+    // modals doesn't make sense. A warning is logged rather than throwing since client-side
+    // code will choose the first modal with the attribute.
+    long displayOnLoadModalCount = modals.stream().filter(Modal::displayOnLoad).count();
+    if (displayOnLoadModalCount > 1) {
+      logger.warn(
+          String.format(
+              "Multiple (%d) modals found containing display on load.", displayOnLoadModalCount));
+    }
     modals.forEach(modal -> modalContainer.with(modal.getContainerTag()));
     return modalContainer;
   }

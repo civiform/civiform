@@ -12,6 +12,7 @@ import repository.VersionRepository;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -24,6 +25,13 @@ import services.question.types.QuestionDefinition;
  * not get persisted to the database.
  */
 public class ProgramBuilder {
+
+  private static BlockDefinition EMPTY_FIRST_BLOCK =
+      BlockDefinition.builder()
+          .setId(1)
+          .setName("Screen 1")
+          .setDescription("Screen 1 description")
+          .build();
 
   private static Injector injector;
 
@@ -67,6 +75,7 @@ public class ProgramBuilder {
             description,
             "",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getDraftVersion());
     program.save();
     ProgramDefinition.Builder builder =
@@ -101,6 +110,7 @@ public class ProgramBuilder {
             description,
             "",
             DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getActiveVersion());
     program.save();
     ProgramDefinition.Builder builder =
@@ -120,6 +130,16 @@ public class ProgramBuilder {
 
   public ProgramBuilder withLocalizedName(Locale locale, String name) {
     builder.addLocalizedName(locale, name);
+    return this;
+  }
+
+  public ProgramBuilder withLocalizedDescription(Locale locale, String description) {
+    builder.addLocalizedDescription(locale, description);
+    return this;
+  }
+
+  public ProgramBuilder withStatusDefinitions(StatusDefinitions statusDefinitions) {
+    builder.setStatusDefinitions(statusDefinitions);
     return this;
   }
 

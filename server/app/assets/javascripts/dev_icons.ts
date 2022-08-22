@@ -6,8 +6,17 @@ window.addEventListener('load', () => {
     if (!svgEl) {
       return
     }
+    const iconWidthEl = rowEl.querySelector('.icon-width')
+    const iconHeightEl = rowEl.querySelector('.icon-height')
     const bbox = svgEl.getBBox()
-    rowEl.querySelector('.icon-width')!.textContent = `${bbox.x + bbox.width}`
-    rowEl.querySelector('.icon-height')!.textContent = `${bbox.y + bbox.height}`
+    // when calculating width/height multiple offset (x and y) values by 2 as
+    // icons usually centered and there is some empty space on all sides of
+    // the icon.
+    if (iconWidthEl != null) {
+      iconWidthEl.textContent = `${2 * bbox.x + bbox.width}`
+    }
+    if (iconHeightEl != null) {
+      iconHeightEl.textContent = `${2 * bbox.y + bbox.height}`
+    }
   })
 })

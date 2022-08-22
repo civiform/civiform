@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
@@ -37,6 +38,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
+import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing questions. */
 public class AdminQuestionController extends CiviFormController {
@@ -66,14 +68,11 @@ public class AdminQuestionController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> index(Request request) {
-    Optional<String> maybeFlash = request.flash().get("message");
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService ->
-                ok(
-                    listView.render(
-                        readOnlyService.getActiveAndDraftQuestions(), maybeFlash, request)),
+                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), request)),
             httpExecutionContext.current());
   }
 
@@ -154,7 +153,7 @@ public class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
-      String errorMessage = joinErrors(result.getErrors());
+      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
@@ -171,7 +170,7 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
-    return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+    return withSuccessMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
   /** POST endpoint for un-archiving a question. */
@@ -289,7 +288,8 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      String errorMessage = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
+      ToastMessage errorMessage =
+          new ToastMessage(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()), ERROR);
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(
@@ -304,12 +304,12 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
-    return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+    return withSuccessMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
-  private Result withMessage(Result result, String message) {
+  private Result withSuccessMessage(Result result, String message) {
     if (!message.isEmpty()) {
-      return result.flashing("message", message);
+      return result.flashing("success", message);
     }
     return result;
   }

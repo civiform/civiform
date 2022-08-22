@@ -25,12 +25,12 @@ describe('create dropdown question with options', () => {
       'Sample question text',
     )
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
-      'Sample question help text',
+      '',
     )
 
     // Fill in basic info
     const questionName = 'favorite ice cream'
-    await page.fill('text="Name"', questionName)
+    await page.fill('text="Administrative name*"', questionName)
     await page.fill('text=Description', 'description')
     await page.fill('text=Question Text', 'questionText')
     await page.fill('text=Question help text', 'helpText')

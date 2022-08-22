@@ -1,7 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -61,6 +61,22 @@ public class ApplicantDataTest {
     data.setFailedUpdates(ImmutableMap.of(samplePath, "invalid_value"));
 
     assertThat(data.getFailedUpdates()).isEqualTo(ImmutableMap.of(samplePath, "invalid_value"));
-    assertThrows(IllegalStateException.class, () -> data.asJsonString());
+    assertThatThrownBy(() -> data.asJsonString()).isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void setDateOfBirth_isSuccessful() {
+    ApplicantData data = new ApplicantData();
+    String sampleDob = "2022-01-05";
+    data.setDateOfBirth(sampleDob);
+    assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":1641340800000}}");
+  }
+
+  @Test
+  public void getDateOfBirth_isEmptyWhenNotSet() {
+    ApplicantData applicantData = new ApplicantData();
+    assertThat(applicantData.getDateOfBirth()).isEqualTo(Optional.empty());
   }
 }

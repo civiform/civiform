@@ -57,7 +57,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       ImmutableList<String> existingAdminEmails,
-      Optional<String> message) {
+      Optional<ToastMessage> message) {
 
     String fullTitle = PAGE_TITLE + program.adminName();
 
@@ -70,10 +70,8 @@ public class ManageProgramAdminsView extends BaseHtmlView {
                 adminEmailTemplate(),
                 renderAdminForm(request, program.id(), existingAdminEmails));
 
-    if (!message.isEmpty()) {
-      htmlBundle.addToastMessages(
-          ToastMessage.error(message.get()).setDuration(6000).setDismissible(false));
-    }
+    message.map(m -> m.setDuration(6000)).ifPresent(htmlBundle::addToastMessages);
+
     return layout.renderCentered(htmlBundle);
   }
 

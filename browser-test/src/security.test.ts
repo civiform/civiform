@@ -13,7 +13,7 @@ describe('applicant security', () => {
     await loginAsGuest(page)
 
     const response = await gotoEndpoint(page, '/applicants/1234/programs')
-    expect(response.status()).toBe(401)
+    expect(response!.status()).toBe(401)
 
     await endSession(browser)
   })
@@ -23,7 +23,7 @@ describe('applicant security', () => {
 
     await loginAsAdmin(page)
     const response = await gotoEndpoint(page, '/applicants/1234567/programs')
-    expect(response.status()).toBe(401)
+    expect(response!.status()).toBe(401)
 
     await endSession(browser)
   })

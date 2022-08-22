@@ -1,28 +1,46 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new production docker image, tagged with short commit SHA and unix seconds timestamp, and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
+# DOC: Build a new production docker image, tagged with short commit SHA and unix seconds timestamp, and optionally push to Docker Hub if PUSH_IMAGE is set to anything. Builds for "linux/amd64" unless PLATFORM is set
 
 source bin/lib.sh
 
+export DOCKER_BUILDKIT=1
 readonly SHORT_SHA="$(git rev-parse --short HEAD)"
+readonly GIT_SHA="$(git rev-parse HEAD)"
 readonly DATE_IN_UNIX_SECONDS="$(date +%s)"
 readonly SNAPSHOT_TAG="SNAPSHOT-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}"
+readonly IMAGE="civiform"
+readonly LOCATION="."
+readonly DOCKERFILE="prod.Dockerfile"
 
 echo "Building ${SNAPSHOT_TAG}..."
 
-docker build -f prod.Dockerfile \
-  -t civiform:latest \
-  --cache-from civiform/civiform:latest \
-  --build-arg BUILDKIT_INLINE_CACHE=1 \
-  --build-arg "image_tag=${SNAPSHOT_TAG}" \
-  .
+BUILD_ARGS=(-f "${DOCKERFILE}"
+  -t "civiform/${IMAGE}"
+  -t "civiform/${IMAGE}:latest"
+  -t "civiform/${IMAGE}:${SNAPSHOT_TAG}"
+  --cache-from "civiform/${IMAGE}"
+  --build-arg BUILDKIT_INLINE_CACHE=1
+  --build-arg "git_commit_sha=${GIT_SHA}"
+  --build-arg "image_tag=${SNAPSHOT_TAG}"
+  "${LOCATION}")
+
+readonly PLATFORM="${PLATFORM:-"linux/amd64"}" # default to x86-64 when platform not specified
+readonly PLATFORM_ARG=(--platform "${PLATFORM}")
+
+# Build the multi-platform image
+echo "start ${IMAGE} build"
+docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+
+# Load the image from the cache
+echo "load ${IMAGE} build"
+docker buildx build --load "${BUILD_ARGS[@]}"
 
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
-
-  docker tag civiform:latest civiform/civiform:latest
-  docker tag civiform:latest "civiform/civiform:${SNAPSHOT_TAG}"
-
-  # push the new image to the Docker Hub registry
-  docker push --all-tags civiform/civiform
+  # Push the image from the cache to dockerhub
+  echo "push ${IMAGE} build"
+  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
+
+docker tag "civiform/${IMAGE}:latest" "${IMAGE}:latest"

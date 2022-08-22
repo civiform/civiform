@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Number question for applicant flow', () => {
@@ -54,7 +55,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('8')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with no input does not submit', async () => {
@@ -126,7 +127,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits successfully', async () => {
@@ -138,7 +139,7 @@ describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with first invalid does not submit', async () => {
@@ -165,6 +166,15 @@ describe('Number question for applicant flow', () => {
       expect(await pageObject.isHidden(numberInputError + ' >> nth=1')).toEqual(
         false,
       )
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

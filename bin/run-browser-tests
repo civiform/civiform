@@ -6,12 +6,16 @@ source bin/lib.sh
 docker::set_project_name_browser_tests
 bin/pull-image
 
+# Run browser tests from within the civiform-browser-test container. We map
+# full browser-test local directory to the container so that it uses local changes.
+# Additionally we map node_modules to a separate volume so that it doesn't
+# conflict with node_modules created locally.
+# --init enables https://github.com/krallin/tini
 docker run --rm -it \
-  -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
-  -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
-  -v "$(pwd)/browser-test/tmp:/usr/src/civiform-browser-tests/tmp" \
+  -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   --network "${DOCKER_NETWORK_NAME}" \
+  --init \
   civiform/civiform-browser-test:latest \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
   "$@"
