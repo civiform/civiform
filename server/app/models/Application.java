@@ -32,9 +32,6 @@ public class Application extends BaseModel {
 
   @ManyToOne private Program program;
 
-  @OneToMany(mappedBy = "application")
-  private List<ApplicationEvent> applicationEvents;
-
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @WhenCreated private Instant createTime;
