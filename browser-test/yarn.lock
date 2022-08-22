@@ -850,7 +850,7 @@ asynckit@^0.4.0:
   resolved "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
-axe-core@^4.4.3:
+axe-core@4.4.3:
   version "4.4.3"
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.4.3.tgz#11c74d23d5013c0fa5d183796729bc3482bd2f6f"
   integrity sha512-32+ub6kkdhhWick/UjvEwRchgoetXqTK14INLqbGm5U2TzBkBNF3nQtLYm8ovxSkQWArjEQvftCKryjZaATu3w==

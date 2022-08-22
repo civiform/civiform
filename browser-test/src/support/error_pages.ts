@@ -1,5 +1,4 @@
 import {Page} from 'playwright'
-import {waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
 
 export class NotFoundPage {
@@ -13,7 +12,7 @@ export class NotFoundPage {
     return await page.goto(BASE_URL + '/ezbezzdebashiboozook')
   }
 
-  async checkPageHeader(lang: String = 'en-US') {
+  async checkPageHeader(lang = 'en-US') {
     if (lang === 'es-US') {
       expect(await this.page.innerText('h1')).toContain(
         'No Pudimos encontrar la página que intentó visitar',
