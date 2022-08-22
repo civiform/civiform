@@ -1,5 +1,7 @@
 package views.questiontypes;
 
+import static j2html.TagCreator.document;
+import static j2html.TagCreator.html;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
@@ -33,8 +35,11 @@ public class ApplicantQuestionRendererFactoryTest {
     ApplicantQuestionRendererFactory factory =
         new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
 
-    ApplicantQuestionRenderer renderer = factory.getSampleRenderer(type);
+    ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
-    assertThat(renderer.render(params)).isInstanceOf(DivTag.class);
+    DivTag content = sampleRenderer.render(params);
+    String renderedContent = document(html(content));
+    assertThat(renderedContent).contains("Sample question text");
+    assertThat(renderedContent).doesNotContain("help text");
   }
 }

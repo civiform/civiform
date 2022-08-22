@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.pre;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
@@ -103,10 +104,17 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * Returns a div containing the default text to be translated. This allows for admins to more
    * easily identify which text to translate.
    */
-  protected final DivTag defaultLocaleTextHint(LocalizedStrings localizedStrings) {
+  protected final DivTag fieldWithDefaultLocaleTextHint(
+      DomContent field, LocalizedStrings localizedStrings) {
     return div()
-        .withClasses(Styles.W_2_3, Styles.ML_2, Styles.P_2, Styles.TEXT_SM, Styles.BG_GRAY_200)
-        .with(p("Default text:").withClass(Styles.FONT_MEDIUM), p(localizedStrings.getDefault()));
+        .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_2)
+        .with(
+            field,
+            div()
+                .withClasses(Styles.PX_2, Styles.PY_1, Styles.TEXT_SM, Styles.BG_GRAY_100)
+                .with(
+                    p("English text:").withClass(Styles.FONT_MEDIUM),
+                    pre(localizedStrings.getDefault()).withClasses(Styles.FONT_SANS)));
   }
 
   /** Creates a fieldset wrapping several form fields to be rendered. */

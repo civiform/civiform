@@ -3,7 +3,7 @@ resource "aws_s3_bucket" "backend_state_bucket" {
     Name = "${var.app_prefix} Civiform Backend State Bucket"
     Type = "Civiform Backend State Bucket"
   }
-  bucket = "${var.app_prefix}-backendstate"
+  bucket = "${var.app_prefix}-civiform-backendstate"
   lifecycle {
     prevent_destroy = true
   }
@@ -71,7 +71,7 @@ resource "aws_dynamodb_table" "state_locking" {
     Type = "Civiform DynamoDB State Lock"
   }
   hash_key = "LockID"
-  name     = "${var.app_prefix}-locktable"
+  name     = "${var.app_prefix}-civiform-locktable"
   attribute {
     name = "LockID"
     type = "S"

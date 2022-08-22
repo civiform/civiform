@@ -12,6 +12,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import play.Application;
+import play.api.inject.BindingKey;
 import play.test.Helpers;
 import support.ProgramBuilder;
 import support.ResourceCreator;
@@ -42,6 +43,10 @@ public class ResetPostgres {
       Helpers.stop(app);
       app = null;
     }
+  }
+
+  protected <T> T instanceOf(BindingKey<T> key) {
+    return app.injector().instanceOf(key);
   }
 
   protected <T> T instanceOf(Class<T> clazz) {

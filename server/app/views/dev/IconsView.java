@@ -17,6 +17,7 @@ import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.Icons;
+import views.style.Styles;
 
 /**
  * Renders a listing of all SVG icons and metadata about the icon size. This is generally useful for
@@ -48,7 +49,7 @@ public final class IconsView extends BaseHtmlView {
   private TrTag renderIconRow(Icons icon) {
     return tr().with(
             td(icon.name()),
-            td(Icons.svg(icon.path, 24)),
+            td(Icons.svg(icon).withClasses(Styles.H_6, Styles.W_6)),
             td(p("").withClass("icon-width")),
             td(p("").withClass("icon-height")));
   }
