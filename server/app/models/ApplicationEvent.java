@@ -9,31 +9,34 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.application.ApplicationEventDetails;
-import services.application.ApplicationEventDetails.Type;
 
 @Entity
 @Table(name = "application_events")
 public class ApplicationEvent extends BaseModel {
 
+  // The Application the event is on.
   @ManyToOne private Application application;
-  @Constraints.Required private Type eventType;
+  // The {@code ApplicationEventDetails.Type} of the event.
+  @Constraints.Required private ApplicationEventDetails.Type eventType;
   // The Account that triggered the event.
   @ManyToOne
   @JoinColumn(name = "actor_id")
   private Account actor;
-  // eventType specific details of the event.
+  // Details of the event specific to the eventType.
   @Constraints.Required @DbJson private ApplicationEventDetails details;
   @WhenCreated private Instant createTime;
 
   public ApplicationEvent() {}
 
-  public Account getActor() {
-    return actor;
-  }
-
-  public ApplicationEvent setActor(Account actor) {
+  public ApplicationEvent(
+      Application application,
+      Account actor,
+      ApplicationEventDetails.Type eventType,
+      ApplicationEventDetails details) {
+    this.application = application;
     this.actor = actor;
-    return this;
+    this.eventType = eventType;
+    this.details = details;
   }
 
   public Application getApplication() {
@@ -45,12 +48,21 @@ public class ApplicationEvent extends BaseModel {
     return this;
   }
 
-  public Type getEventType() {
+  public ApplicationEventDetails.Type getEventType() {
     return eventType;
   }
 
-  public ApplicationEvent setEventType(Type eventType) {
+  public ApplicationEvent setEventType(ApplicationEventDetails.Type eventType) {
     this.eventType = eventType;
+    return this;
+  }
+
+  public Account getActor() {
+    return actor;
+  }
+
+  public ApplicationEvent setActor(Account actor) {
+    this.actor = actor;
     return this;
   }
 
@@ -63,17 +75,7 @@ public class ApplicationEvent extends BaseModel {
     return this;
   }
 
-  public ApplicationEvent(
-      Application application, Account actor, Type eventType, ApplicationEventDetails details) {
-    this.application = application;
-    this.actor = actor;
-    this.eventType = eventType;
-    this.details = details;
+  public Instant getCreateTime() {
+    return createTime;
   }
-  // public static ApplicationEvent create(Application application,Type eventType,
-  // ApplicationEventDetails details) {
-  //  ApplicationEvent event = new ApplicationEvent(application,eventType, details);
-  //  event.save();
-  //  return event;
-  // }
 }

@@ -8,6 +8,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Application;
 import models.ApplicationEvent;
 
 /**
@@ -34,6 +35,10 @@ public class ApplicationEventRepository {
         executionContext);
   }
 
+  /**
+   * Returns all {@link ApplicationEvent} records for the {@link Application} with id {@code
+   * applicationId} asynchronously.
+   */
   public CompletionStage<ImmutableList<ApplicationEvent>> getEvents(Long applicationId) {
     return supplyAsync(
         () -> {

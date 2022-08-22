@@ -8,27 +8,31 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 
-// A single Application event and its details.
-//
-// This class is intended to represent the relevant details of some event related to an Application.
-// The event is identified by {code EventType} and it's corresponding data; as such only one of the
-// Optional detail fields should be present. This class will be json serialized into a database
-// column.
+/**
+ * The details of a single Application event based on its type.
+ *
+ * <p>This class is intended to represent the specific relevant details of some event related to an
+ * {@code Application}. The event is identified by {code EventType} and its corresponding data; as
+ * such only one of the Optional detail fields should be present. This class will be json serialized
+ * into a database column.
+ */
 @AutoValue
 @JsonDeserialize(builder = AutoValue_ApplicationEventDetails.Builder.class)
 public abstract class ApplicationEventDetails {
-  // The event affecting the application.
+  /** The event affecting the application. */
   @JsonProperty("event_type")
   public abstract Type eventType();
 
   // Only one of the following Event fields should be set.
   // The JsonInclude suppresses empty Optionals from being serialized.
+  /** Type STATUS_EVENT representing a change in the Status Tracking status value. */
   @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("status_event")
   public abstract Optional<StatusEvent> statusEvent();
 
   @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("note_event")
+  /** Type NOTE_EVENT representing a note associated with the Application. */
   public abstract Optional<NoteEvent> noteEvent();
 
   public static Builder builder() {
@@ -59,10 +63,12 @@ public abstract class ApplicationEventDetails {
   @AutoValue
   @JsonDeserialize(builder = AutoValue_ApplicationEventDetails_StatusEvent.Builder.class)
   public abstract static class StatusEvent {
-    // The text of the StatusDefinitions.Status applied to the application in the default locale.
+    /**
+     * The text of the StatusDefinitions.Status applied to the application in the default locale.
+     */
     @JsonProperty("status_text")
     public abstract String statusText();
-    // If the status's email was sent.
+    /** If the status has email content and if it was sent as part of setting the status. */
     @JsonProperty("email_sent")
     public abstract Boolean emailSent();
 
@@ -88,8 +94,8 @@ public abstract class ApplicationEventDetails {
     public static NoteEvent create(@JsonProperty("note") String note) {
       return new AutoValue_ApplicationEventDetails_NoteEvent(note);
     }
-    // A note set on the application.
+    /** A note set on the application. */
     @JsonProperty("note")
-    abstract String note();
+    public abstract String note();
   }
 }
