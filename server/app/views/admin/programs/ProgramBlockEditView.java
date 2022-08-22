@@ -604,15 +604,19 @@ public final class ProgramBlockEditView extends BaseHtmlView {
             .url();
 
     QuestionBank qb =
-        new QuestionBank()
-            .setQuestionAction(addQuestionAction)
-            .setCsrfTag(csrfTag)
-            .setQuestions(questionDefinitions)
-            .setProgram(program)
-            .setBlockDefinition(blockDefinition)
-            .setQuestionCreateRedirectUrl(
-                controllers.admin.routes.AdminProgramBlocksController.edit(
-                  program.id(), blockDefinition.id()).url());
+        new QuestionBank(
+            QuestionBank.QuestionBankParams.builder()
+                .setQuestionAction(addQuestionAction)
+                .setCsrfTag(csrfTag)
+                .setQuestions(questionDefinitions)
+                .setProgram(program)
+                .setBlockDefinition(blockDefinition)
+                .setQuestionCreateRedirectUrl(
+                    Optional.of(
+                        controllers.admin.routes.AdminProgramBlocksController.edit(
+                                program.id(), blockDefinition.id())
+                            .url()))
+                .build());
     return qb.getContainer();
   }
 

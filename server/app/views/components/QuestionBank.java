@@ -1,6 +1,6 @@
 package views.components;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -8,7 +8,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
-import com.google.common.base.Strings;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
@@ -31,7 +31,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
-public class QuestionBank {
+public final class QuestionBank {
   private static final SvgTag PLUS_ICON =
       Icons.svg(Icons.PLUS)
           .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_5)
@@ -40,43 +40,11 @@ public class QuestionBank {
           .attr("stroke-linecap", "round")
           .attr("stroke-linejoin", "round");
 
-  private ProgramDefinition program;
-  private BlockDefinition blockDefinition;
+  private final QuestionBankParams params;
   private Optional<Long> enumeratorQuestionId;
-  private Optional<String> questionCreateRedirectUrl = Optional.empty();
-  private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
-  private Optional<InputTag> maybeCsrfTag = Optional.empty();
-  private String questionAction = "";
 
-  public QuestionBank setProgram(ProgramDefinition program) {
-    this.program = program;
-    return this;
-  }
-
-  public QuestionBank setBlockDefinition(BlockDefinition blockDefinition) {
-    this.blockDefinition = blockDefinition;
-    return this;
-  }
-
-  public QuestionBank setQuestionAction(String actionUrl) {
-    this.questionAction = actionUrl;
-    return this;
-  }
-
-  public QuestionBank setCsrfTag(InputTag csrfTag) {
-    this.maybeCsrfTag = Optional.of(csrfTag);
-    return this;
-  }
-
-  public QuestionBank setQuestions(ImmutableList<QuestionDefinition> questionDefinitions) {
-    this.questions = questionDefinitions;
-    return this;
-  }
-
-  public QuestionBank setQuestionCreateRedirectUrl(String url) {
-    checkState(!Strings.isNullOrEmpty(url), "redirect URL is required");
-    this.questionCreateRedirectUrl = Optional.of(url);
-    return this;
+  public QuestionBank(QuestionBankParams params) {
+    this.params = checkNotNull(params);
   }
 
   public FormTag getContainer() {
@@ -84,8 +52,11 @@ public class QuestionBank {
   }
 
   private FormTag questionBankPanel() {
-    InputTag csrfTag = this.maybeCsrfTag.get();
-    FormTag questionForm = form(csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
+    FormTag questionForm =
+        form()
+            .withMethod(HttpVerbs.POST)
+            .withAction(params.questionAction())
+            .with(params.csrfTag());
 
     DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
     questionForm.with(innerDiv);
@@ -130,7 +101,8 @@ public class QuestionBank {
                             .withClass(Styles.FLEX)
                             .with(
                                 div().withClass(Styles.FLEX_GROW),
-                                CreateQuestionButton.renderCreateQuestionButton(questionCreateRedirectUrl.orElseThrow())))));
+                                CreateQuestionButton.renderCreateQuestionButton(
+                                    params.questionCreateRedirectUrl().orElseThrow())))));
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
 
@@ -205,13 +177,15 @@ public class QuestionBank {
     }
 
     Predicate<QuestionDefinition> filter =
-        blockDefinition.getQuestionCount() > 0 ? this::nonEmptyBlockFilter : this::questionFilter;
-    return questions.stream().filter(filter).collect(ImmutableList.toImmutableList());
+        params.blockDefinition().getQuestionCount() > 0
+            ? this::nonEmptyBlockFilter
+            : this::questionFilter;
+    return params.questions().stream().filter(filter).collect(ImmutableList.toImmutableList());
   }
 
   /** If a block already contains a single-block question, no more questions can be added. */
   private boolean containsSingleBlockQuestion() {
-    return blockDefinition.isEnumerator() || blockDefinition.isFileUpload();
+    return params.blockDefinition().isEnumerator() || params.blockDefinition().isFileUpload();
   }
 
   /**
@@ -220,7 +194,7 @@ public class QuestionBank {
    */
   private boolean questionFilter(QuestionDefinition questionDefinition) {
     return questionDefinition.getEnumeratorId().equals(getEnumeratorQuestionId())
-        && !program.hasQuestion(questionDefinition);
+        && !params.program().hasQuestion(questionDefinition);
   }
 
   /**
@@ -248,23 +222,59 @@ public class QuestionBank {
   private Optional<Long> getEnumeratorQuestionId() {
     if (enumeratorQuestionId == null) {
       enumeratorQuestionId = Optional.empty();
-      Optional<Long> enumeratorBlockId = blockDefinition.enumeratorId();
+      Optional<Long> enumeratorBlockId = params.blockDefinition().enumeratorId();
       if (enumeratorBlockId.isPresent()) {
         try {
           BlockDefinition enumeratorBlockDefinition =
-              program.getBlockDefinition(enumeratorBlockId.get());
+              params.program().getBlockDefinition(enumeratorBlockId.get());
           enumeratorQuestionId =
               Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId());
         } catch (ProgramBlockDefinitionNotFoundException e) {
           String errorMessage =
               String.format(
                   "BlockDefinition %d has a broken enumerator block reference to id %d",
-                  blockDefinition.id(), enumeratorBlockId.get());
+                  params.blockDefinition().id(), enumeratorBlockId.get());
           throw new RuntimeException(errorMessage, e);
         }
         ;
       }
     }
     return enumeratorQuestionId;
+  }
+
+  @AutoValue
+  public abstract static class QuestionBankParams {
+    abstract ProgramDefinition program();
+
+    abstract BlockDefinition blockDefinition();
+
+    abstract Optional<String> questionCreateRedirectUrl();
+
+    abstract ImmutableList<QuestionDefinition> questions();
+
+    abstract InputTag csrfTag();
+
+    abstract String questionAction();
+
+    public static Builder builder() {
+      return new AutoValue_QuestionBank_QuestionBankParams.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setProgram(ProgramDefinition v);
+
+      public abstract Builder setBlockDefinition(BlockDefinition v);
+
+      public abstract Builder setQuestionCreateRedirectUrl(Optional<String> v);
+
+      public abstract Builder setQuestions(ImmutableList<QuestionDefinition> v);
+
+      public abstract Builder setCsrfTag(InputTag v);
+
+      public abstract Builder setQuestionAction(String v);
+
+      public abstract QuestionBankParams build();
+    }
   }
 }
