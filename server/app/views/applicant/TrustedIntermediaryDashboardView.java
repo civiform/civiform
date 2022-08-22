@@ -99,34 +99,34 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {
     return form()
-      .withClass(Styles.W_1_4)
-      .withMethod("GET")
-      .withAction(
-        routes.TrustedIntermediaryController.dashboard(
-            /* paramName=  nameQuery */
-            Optional.empty(),
-            /* paramName=  dateQuery */
-            Optional.empty(),
-            /* paramName=  page */
-            Optional.empty())
-          .url())
-      .with(
-        FieldWithLabel.input()
-          .setId("name-query")
-          .setFieldName("nameQuery")
-          .setValue(searchParameters.nameQuery().orElse(""))
-          .setLabelText("Search by Name")
-          .getInputTag()
-          .withClasses(Styles.W_FULL),
-        FieldWithLabel.date()
-          .setId("search-date")
-          .setFieldName("dateQuery")
-          .setValue(searchParameters.dateQuery().orElse(""))
-          .setLabelText("Search Date of Birth")
-          .getInputTag()
-          .withClass(Styles.W_FULL),
-        makeCsrfTokenInputTag(request),
-        submitButton("Search").withClasses(Styles.M_2));
+        .withClass(Styles.W_1_4)
+        .withMethod("GET")
+        .withAction(
+            routes.TrustedIntermediaryController.dashboard(
+                    /* paramName=  nameQuery */
+                    Optional.empty(),
+                    /* paramName=  dateQuery */
+                    Optional.empty(),
+                    /* paramName=  page */
+                    Optional.empty())
+                .url())
+        .with(
+            FieldWithLabel.input()
+                .setId("name-query")
+                .setFieldName("nameQuery")
+                .setValue(searchParameters.nameQuery().orElse(""))
+                .setLabelText("Search by Name")
+                .getInputTag()
+                .withClasses(Styles.W_FULL),
+            FieldWithLabel.date()
+                .setId("search-date")
+                .setFieldName("dateQuery")
+                .setValue(searchParameters.dateQuery().orElse(""))
+                .setLabelText("Search Date of Birth")
+                .getInputTag()
+                .withClass(Styles.W_FULL),
+            makeCsrfTokenInputTag(request),
+            submitButton("Search").withClasses(Styles.M_2));
   }
 
   private DivTag renderTIApplicantsTable(
@@ -152,7 +152,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             totalPageCount,
             pageNumber ->
                 routes.TrustedIntermediaryController.dashboard(
-                    searchParameters.nameQuery(),searchParameters.dateQuery(), Optional.of(pageNumber))));
+                    searchParameters.nameQuery(),
+                    searchParameters.dateQuery(),
+                    Optional.of(pageNumber))));
   }
 
   private DivTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {

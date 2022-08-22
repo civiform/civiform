@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import javax.inject.Inject;
-
 import models.Account;
 import models.TrustedIntermediaryGroup;
 import play.data.Form;
@@ -107,19 +106,18 @@ public final class TrustedIntermediaryService {
   /**
    * Gets all the TrustedIntermediaryAccount managed by the given TI Group with/without filtering
    *
-   * @param searchParameters - This object contains a nameQuery and/or a dateQuery String. If both are
-   *                         empty- an unfiltered list of accounts is returned. If nameQuery is present- a match between
-   *                         the Account holder's name and the nameQuery is performed.
-   *                         If dateQuery is present - a match between the Account holder's Date of Birth
-   *                         and the dateQuery is performed - the matched results are collected and sent as an Immutable List.
-   * @param tiGroup          - this is TrustedIntermediaryGroup for which the list of associated account is
-   *                         requested. This is needed to fetch all the accounts from the user repository.
-   *@return a result object containing the ListOfAccounts which may be filtered by the Search Parameter
-   * and an optional errorMessage which is generated if the filtering has failed.
-   *
+   * @param searchParameters - This object contains a nameQuery and/or a dateQuery String. If both
+   *     are empty- an unfiltered list of accounts is returned. If nameQuery is present- a match
+   *     between the Account holder's name and the nameQuery is performed. If dateQuery is present -
+   *     a match between the Account holder's Date of Birth and the dateQuery is performed - the
+   *     matched results are collected and sent as an Immutable List.
+   * @param tiGroup - this is TrustedIntermediaryGroup for which the list of associated account is
+   *     requested. This is needed to fetch all the accounts from the user repository.
+   * @return a result object containing the ListOfAccounts which may be filtered by the Search
+   *     Parameter and an optional errorMessage which is generated if the filtering has failed.
    */
   public TrustedIntermediarySearchResult getManagedAccounts(
-    SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
+      SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
     ImmutableList<Account> allAccounts = tiGroup.getManagedAccounts();
     if (searchParameters.nameQuery().isEmpty() && searchParameters.dateQuery().isEmpty()) {
       return TrustedIntermediarySearchResult.success(allAccounts);
@@ -128,33 +126,36 @@ public final class TrustedIntermediaryService {
     try {
       searchedResult = searchAccounts(searchParameters, allAccounts);
     } catch (DateTimeParseException e) {
-      TrustedIntermediarySearchResult.fail(allAccounts,"Please enter date in MM/dd/yyyy format");
+      TrustedIntermediarySearchResult.fail(allAccounts, "Please enter date in MM/dd/yyyy format");
     }
     return TrustedIntermediarySearchResult.success(searchedResult);
   }
 
-
   public ImmutableList<Account> searchAccounts(
-    SearchParameters searchParameters, ImmutableList<Account> allAccounts) {;
+      SearchParameters searchParameters, ImmutableList<Account> allAccounts) {
+    ;
     return allAccounts.stream()
-      .filter(
-        account ->
-          ((account.newestApplicant().get().getApplicantData().getDateOfBirth().isPresent()
-            && searchParameters.dateQuery().isPresent()
-            && !searchParameters.dateQuery().get().isEmpty()
-            && account
-            .newestApplicant().get().getApplicantData().getDateOfBirth()
-            .get()
-            .equals(
-              dateConverter.parseIso8601DateToLocalDate(
-                searchParameters.dateQuery().get())))
-            || (searchParameters.nameQuery().isPresent()
-            && !searchParameters.nameQuery().get().isEmpty()
-            && account
-            .getApplicantName()
-            .toLowerCase(Locale.ROOT)
-            .contains(
-              searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))
-      .collect(ImmutableList.toImmutableList());
+        .filter(
+            account ->
+                ((account.newestApplicant().get().getApplicantData().getDateOfBirth().isPresent()
+                        && searchParameters.dateQuery().isPresent()
+                        && !searchParameters.dateQuery().get().isEmpty()
+                        && account
+                            .newestApplicant()
+                            .get()
+                            .getApplicantData()
+                            .getDateOfBirth()
+                            .get()
+                            .equals(
+                                dateConverter.parseIso8601DateToLocalDate(
+                                    searchParameters.dateQuery().get())))
+                    || (searchParameters.nameQuery().isPresent()
+                        && !searchParameters.nameQuery().get().isEmpty()
+                        && account
+                            .getApplicantName()
+                            .toLowerCase(Locale.ROOT)
+                            .contains(
+                                searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))
+        .collect(ImmutableList.toImmutableList());
   }
 }

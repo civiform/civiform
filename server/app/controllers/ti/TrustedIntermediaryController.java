@@ -9,7 +9,6 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import controllers.BadRequestException;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
@@ -60,42 +59,45 @@ public class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result dashboard(Http.Request request, Optional<String> nameQuery, Optional<String> dateQuery, Optional<Integer> page) {
+  public Result dashboard(
+      Http.Request request,
+      Optional<String> nameQuery,
+      Optional<String> dateQuery,
+      Optional<Integer> page) {
     if (page.isEmpty()) {
-      return redirect(routes.TrustedIntermediaryController.dashboard(nameQuery, dateQuery, Optional.of(1)));
+      return redirect(
+          routes.TrustedIntermediaryController.dashboard(nameQuery, dateQuery, Optional.of(1)));
     }
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-      userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
-    SearchParameters searchParameters = SearchParameters.builder()
-      .setNameQuery(nameQuery)
-      .setDateQuery(dateQuery)
-      .build();
+    SearchParameters searchParameters =
+        SearchParameters.builder().setNameQuery(nameQuery).setDateQuery(dateQuery).build();
     TrustedIntermediarySearchResult trustedIntermediarySearchResult =
-      tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
-    if(!trustedIntermediarySearchResult.isSuccessful())
-    {
+        tiService.getManagedAccounts(searchParameters, trustedIntermediaryGroup.get());
+    if (!trustedIntermediarySearchResult.isSuccessful()) {
       throw new BadRequestException(trustedIntermediarySearchResult.getErrorMessage().get());
     }
     PaginationInfo<Account> pageInfo =
-      PaginationInfo.paginate(trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE, page.get());
+        PaginationInfo.paginate(
+            trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE, page.get());
 
     return ok(
-      tiDashboardView.render(
-        trustedIntermediaryGroup.get(),
-        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
-        pageInfo.getPageItems(),
-        pageInfo.getPageCount(),
-        pageInfo.getPage(),
-        searchParameters,
-        request,
-        messagesApi.preferred(request)));
+        tiDashboardView.render(
+            trustedIntermediaryGroup.get(),
+            civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
+            pageInfo.getPageItems(),
+            pageInfo.getPageCount(),
+            pageInfo.getPage(),
+            searchParameters,
+            request,
+            messagesApi.preferred(request)));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -119,7 +121,9 @@ public class TrustedIntermediaryController {
     if (!returnedForm.hasErrors()) {
       return redirect(
           routes.TrustedIntermediaryController.dashboard(
-            /* nameQuery= */ Optional.empty(), /* dateQuery= */ Optional.empty(), /* page= */ Optional.empty()));
+              /* nameQuery= */ Optional.empty(),
+              /* dateQuery= */ Optional.empty(),
+              /* page= */ Optional.empty()));
     }
     return redirectToDashboardWithError(getFormErrors(returnedForm), returnedForm);
   }
@@ -135,7 +139,9 @@ public class TrustedIntermediaryController {
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
-                    /* nameQuery= */ Optional.empty(), /* dateQuery= */ Optional.empty(),/* page= */ Optional.of(1))
+                    /* nameQuery= */ Optional.empty(),
+                    /* dateQuery= */ Optional.empty(),
+                    /* page= */ Optional.of(1))
                 .url())
         .flashing("error", errorMessage)
         .flashing("providedFirstName", form.value().get().getFirstName())
