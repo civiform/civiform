@@ -8,14 +8,17 @@ import {
   waitForPageJsLoad, validateScreenshot,
 } from './support'
 import {QuestionType} from './support/admin_questions'
+import {BASE_URL} from './support/config';
 
 describe('normal question lifecycle', () => {
-  it('has canonical questions available by default', async () => {
+  it('canonical question seeding works', async () => {
     const {browser, page} = await startSession(/* clearDb= */ true)
+    await seedCanonicalQuestions(page)
+
+    await page.goto(BASE_URL)
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
 
-    await seedCanonicalQuestions(page)
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Name')
     await adminQuestions.expectDraftQuestionExist('Applicant Date of Birth')
