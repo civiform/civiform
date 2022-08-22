@@ -9,7 +9,7 @@
   "devDependencies": {
     "@types/jest": "27.5.2",
     "@types/jest-image-snapshot": "5.1.0",
-    "@types/node": "16.11.51",
+    "@types/node": "16.11.52",
     "axe-core": "4.4.3",
     "axios": "0.27.2",
     "jest": "27.5.1",
