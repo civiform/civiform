@@ -99,7 +99,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         status,
                         request))
             .collect(ImmutableList.toImmutableList());
-    Modal editNoteModal = renderEditNoteConfirmationModal(programId, application, request);
+    Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, request);
 
     DivTag contentDiv =
         div()
@@ -123,7 +123,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                             .withClasses(Styles.FLEX, Styles.MR_4, Styles.SPACE_X_2)
                             .with(
                                 renderStatusOptionsSelector(statusDefinitions),
-                                editNoteModal.getButton()))
+                                updateNoteModal.getButton()))
                     .with(renderDownloadButton(programId, application.id)))
             .with(
                 each(
@@ -140,7 +140,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             // sizing.
             .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
             .addMainStyles(Styles.W_SCREEN)
-            .addModals(editNoteModal)
+            .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
     Optional<String> maybeSuccessMessage = request.flash().get("success");
@@ -261,14 +261,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return container.with(dropdownTag);
   }
 
-  private Modal renderEditNoteConfirmationModal(
+  private Modal renderUpdateNoteConfirmationModal(
       long programId, Application application, Http.Request request) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     FormTag modalContent =
         form()
             .withAction(
-                controllers.admin.routes.AdminApplicationController.editNote(
+                controllers.admin.routes.AdminApplicationController.updateNote(
                         programId, application.id)
                     .url())
             .withMethod("POST")

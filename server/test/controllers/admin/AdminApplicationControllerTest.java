@@ -124,7 +124,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void editNote_flagDisabled() throws Exception {
+  public void updateNote_flagDisabled() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application =
@@ -158,31 +158,31 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             });
 
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.editNote(request, program.id, application.id);
+    Result result = controller.updateNote(request, program.id, application.id);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
-  public void editNote_programNotFound() {
+  public void updateNote_programNotFound() {
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    assertThatThrownBy(() -> controller.editNote(request, Long.MAX_VALUE, application.id))
+    assertThatThrownBy(() -> controller.updateNote(request, Long.MAX_VALUE, application.id))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
-  public void editNote_notAdmin() throws Exception {
+  public void updateNote_notAdmin() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.editNote(request, program.id, application.id);
+    Result result = controller.updateNote(request, program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 }

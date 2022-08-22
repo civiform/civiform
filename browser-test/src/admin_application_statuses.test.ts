@@ -48,20 +48,22 @@ describe.skip('view program statuses', () => {
       await applicantQuestions.submitFromPreviewPage()
 
       await logout(pageObject)
+
+      // Navigate to the submitted application as the program admin.
+      await loginAsProgramAdmin(pageObject)
+      await adminPrograms.viewApplications(programWithoutStatusesName)
+      await adminPrograms.viewApplicationForApplicant(userDisplayName())
     })
 
     afterAll(async () => {
       await logout(pageObject)
     })
 
-    it('does not show status options or edit note', async () => {
-      await loginAsProgramAdmin(pageObject)
-
-      await adminPrograms.viewApplications(programWithoutStatusesName)
-
-      await adminPrograms.viewApplicationForApplicant(userDisplayName())
-
+    it('does not show status options', async () => {
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
+    })
+
+    it('does not show edit note', async () => {
       expect(await adminPrograms.isEditNoteVisible()).toBe(false)
     })
   })

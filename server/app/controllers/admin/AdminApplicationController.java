@@ -346,7 +346,7 @@ public final class AdminApplicationController extends CiviFormController {
    * application.
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result editNote(Http.Request request, long programId, long applicationId)
+  public Result updateNote(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
     if (!statusTrackingEnabled.get()) {
       return notFound("status tracking is not enabled");
