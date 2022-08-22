@@ -1,9 +1,10 @@
 import {
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
+  AdminQuestions,
+  loginAsAdmin,
+  startSession,
 } from './support'
+import {QuestionType} from './support/admin_questions'
 
 describe('deleting question lifecycle', () => {
   it('create, publish, delete unused questions', async () => {
@@ -14,11 +15,22 @@ describe('deleting question lifecycle', () => {
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
     const programName = 'deleting program'
-    const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes(
-      'delete-',
+    const onlyUsedQuestion = 'delete-address'
+    await adminQuestions.addQuestionForType(
+      QuestionType.ADDRESS,
+      onlyUsedQuestion,
     )
-    const onlyUsedQuestion = questions[0]
-    const unreferencedQuestions = questions.slice(1)
+
+    const unusedCheckboxQuestion = 'delete-checkbox'
+    await adminQuestions.addQuestionForType(
+      QuestionType.CHECKBOX,
+      unusedCheckboxQuestion,
+    )
+    const unusedEmailQuestion = 'delete-email'
+    await adminQuestions.addQuestionForType(
+      QuestionType.EMAIL,
+      unusedEmailQuestion,
+    )
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(
       programName,
@@ -35,10 +47,10 @@ describe('deleting question lifecycle', () => {
     })
 
     // Make a Draft then discard it.
-    await adminQuestions.createNewVersion(unreferencedQuestions[0])
-    await adminQuestions.expectDraftQuestionExist(unreferencedQuestions[0])
-    await adminQuestions.discardDraft(unreferencedQuestions[0])
-    await adminQuestions.expectActiveQuestionExist(unreferencedQuestions[0])
+    await adminQuestions.createNewVersion(unusedCheckboxQuestion)
+    await adminQuestions.expectDraftQuestionExist(unusedCheckboxQuestion)
+    await adminQuestions.discardDraft(unusedCheckboxQuestion)
+    await adminQuestions.expectActiveQuestionExist(unusedCheckboxQuestion)
 
     // Create an unreferenced question in the draft version.
     const draftOnlyQuestionName = 'draftonly-address'
@@ -47,7 +59,7 @@ describe('deleting question lifecycle', () => {
     })
 
     // Archive, unarchive, archive all unreferenced questions.
-    for (const questionName of unreferencedQuestions) {
+    for (const questionName of [unusedEmailQuestion, unusedCheckboxQuestion]) {
       await adminQuestions.expectActiveQuestionExist(questionName)
       await adminQuestions.archiveQuestion({questionName, expectModal: false})
       await adminQuestions.undeleteQuestion(questionName)
@@ -71,9 +83,11 @@ describe('deleting question lifecycle', () => {
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.publishProgram(programName)
     await adminQuestions.expectActiveQuestionExist(onlyUsedQuestion)
-    for (const questionName of unreferencedQuestions.concat(
+    for (const questionName of [
+      unusedEmailQuestion,
+      unusedCheckboxQuestion,
       draftOnlyQuestionName,
-    )) {
+    ]) {
       await adminQuestions.expectQuestionNotExist(questionName)
     }
   })
