@@ -143,7 +143,7 @@ export class ApplicantQuestions {
     await this.page.click('button:text("add entity")')
     // TODO(leonwong): may need to specify row index to wait for newly added row.
     await this.page.fill(
-      '#enumerator-fields .cf-enumerator-field:last-of-type input',
+      '#enumerator-fields .cf-enumerator-field:last-of-type input[data-entity-input]',
       entityName,
     )
   }

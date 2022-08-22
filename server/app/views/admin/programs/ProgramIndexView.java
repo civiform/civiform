@@ -275,7 +275,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     Styles.JUSTIFY_CENTER)
                 .withStyle("min-width:90px")
                 .with(
-                    Icons.svg(Icons.NOISE_CONTROL_OFF, 20)
+                    Icons.svg(Icons.NOISE_CONTROL_OFF)
                         .withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
                     span(badgeText).withClass(Styles.MR_4)),
             div()

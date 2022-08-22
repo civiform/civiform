@@ -14,6 +14,27 @@ type QuestionParams = {
   exportOption?: string
 }
 
+// Disable no-unused-vars check as values of this enum are iterated through
+// using Object.values(QuestionType) in some tests and that doesn't get detected
+// by the ESLint.
+/* eslint-disable no-unused-vars */
+export enum QuestionType {
+  ADDRESS = 'address',
+  CHECKBOX = 'checkbox',
+  CURRENCY = 'currency',
+  DATE = 'date',
+  DROPDOWN = 'dropdown',
+  EMAIL = 'email',
+  ID = 'id',
+  NAME = 'name',
+  NUMBER = 'number',
+  RADIO = 'radio',
+  TEXT = 'text',
+  ENUMERATOR = 'enumerator',
+  FILE_UPLOAD = 'file_upload',
+}
+/* eslint-enable */
+
 export class AdminQuestions {
   public page!: Page
 
@@ -375,59 +396,69 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, newQuestionText)
   }
 
-  async addAllNonSingleBlockQuestionTypes(questionNamePrefix: string) {
-    await this.addAddressQuestion({
-      questionName: questionNamePrefix + 'address',
-    })
-    await this.addCheckboxQuestion({
-      questionName: questionNamePrefix + 'checkbox',
-      options: ['op1', 'op2', 'op3', 'op4'],
-    })
-    await this.addCurrencyQuestion({
-      questionName: questionNamePrefix + 'currency',
-    })
-    await this.addDateQuestion({questionName: questionNamePrefix + 'date'})
-    await this.addDropdownQuestion({
-      questionName: questionNamePrefix + 'dropdown',
-      options: ['op1', 'op2', 'op3'],
-    })
-    await this.addEmailQuestion({questionName: questionNamePrefix + 'email'})
-    await this.addIdQuestion({questionName: questionNamePrefix + 'id'})
-    await this.addNameQuestion({questionName: questionNamePrefix + 'name'})
-    await this.addNumberQuestion({
-      questionName: questionNamePrefix + 'number',
-    })
-    await this.addRadioButtonQuestion({
-      questionName: questionNamePrefix + 'radio',
-      options: ['one', 'two', 'three'],
-    })
-    await this.addTextQuestion({questionName: questionNamePrefix + 'text'})
-    return [
-      questionNamePrefix + 'address',
-      questionNamePrefix + 'checkbox',
-      questionNamePrefix + 'currency',
-      questionNamePrefix + 'date',
-      questionNamePrefix + 'dropdown',
-      questionNamePrefix + 'email',
-      questionNamePrefix + 'id',
-      questionNamePrefix + 'name',
-      questionNamePrefix + 'number',
-      questionNamePrefix + 'radio',
-      questionNamePrefix + 'text',
-    ]
-  }
-
-  async addAllSingleBlockQuestionTypes(questionNamePrefix: string) {
-    await this.addEnumeratorQuestion({
-      questionName: questionNamePrefix + 'enumerator',
-    })
-    await this.addFileUploadQuestion({
-      questionName: questionNamePrefix + 'fileupload',
-    })
-    return [
-      questionNamePrefix + 'enumerator',
-      questionNamePrefix + 'fileupload',
-    ]
+  async addQuestionForType(type: QuestionType, questionName: string) {
+    switch (type) {
+      case QuestionType.ADDRESS:
+        await this.addAddressQuestion({
+          questionName,
+        })
+        break
+      case QuestionType.CHECKBOX:
+        await this.addCheckboxQuestion({
+          questionName,
+          options: ['op1', 'op2', 'op3', 'op4'],
+        })
+        break
+      case QuestionType.CURRENCY:
+        await this.addCurrencyQuestion({
+          questionName,
+        })
+        break
+      case QuestionType.DATE:
+        await this.addDateQuestion({questionName})
+        break
+      case QuestionType.DROPDOWN:
+        await this.addDropdownQuestion({
+          questionName,
+          options: ['op1', 'op2', 'op3'],
+        })
+        break
+      case QuestionType.EMAIL:
+        await this.addEmailQuestion({questionName})
+        break
+      case QuestionType.ID:
+        await this.addIdQuestion({questionName})
+        break
+      case QuestionType.NAME:
+        await this.addNameQuestion({questionName})
+        break
+      case QuestionType.NUMBER:
+        await this.addNumberQuestion({
+          questionName,
+        })
+        break
+      case QuestionType.RADIO:
+        await this.addRadioButtonQuestion({
+          questionName,
+          options: ['one', 'two', 'three'],
+        })
+        break
+      case QuestionType.TEXT:
+        await this.addTextQuestion({questionName})
+        break
+      case QuestionType.ENUMERATOR:
+        await this.addEnumeratorQuestion({
+          questionName,
+        })
+        break
+      case QuestionType.FILE_UPLOAD:
+        await this.addFileUploadQuestion({
+          questionName,
+        })
+        break
+      default:
+        throw new Error(`Unhandled question type ${type}`)
+    }
   }
 
   async updateAllQuestions(questions: string[]) {
@@ -439,12 +470,6 @@ export class AdminQuestions {
   async createNewVersionForQuestions(questions: string[]) {
     for (const question of questions) {
       await this.createNewVersion(question)
-    }
-  }
-
-  async expectDraftQuestions(questions: string[]) {
-    for (const question of questions) {
-      await this.expectDraftQuestionExist(question)
     }
   }
 
@@ -945,6 +970,36 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
     await this.expectDraftQuestionExist(questionName, questionText)
+  }
+
+  async expectEnumeratorPreviewValues({
+    questionText,
+    questionHelpText,
+    entityNameInputLabelText,
+    deleteEntityButtonText,
+    addEntityButtonText,
+  }: {
+    questionText: string
+    questionHelpText: string
+    entityNameInputLabelText: string
+    deleteEntityButtonText: string
+    addEntityButtonText: string
+  }) {
+    expect(await this.page.innerText('.cf-applicant-question-text')).toBe(
+      questionText,
+    )
+    expect(await this.page.innerText('.cf-applicant-question-help-text')).toBe(
+      questionHelpText,
+    )
+    expect(await this.page.innerText('.cf-entity-name-input label')).toBe(
+      entityNameInputLabelText,
+    )
+    expect(await this.page.innerText('.cf-enumerator-delete-button')).toBe(
+      deleteEntityButtonText,
+    )
+    expect(await this.page.innerText('#enumerator-field-add-button')).toBe(
+      addEntityButtonText,
+    )
   }
 
   /**

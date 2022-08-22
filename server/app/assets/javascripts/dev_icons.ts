@@ -9,11 +9,14 @@ window.addEventListener('load', () => {
     const iconWidthEl = rowEl.querySelector('.icon-width')
     const iconHeightEl = rowEl.querySelector('.icon-height')
     const bbox = svgEl.getBBox()
+    // when calculating width/height multiple offset (x and y) values by 2 as
+    // icons usually centered and there is some empty space on all sides of
+    // the icon.
     if (iconWidthEl != null) {
-      iconWidthEl.textContent = `${bbox.x + bbox.width}`
+      iconWidthEl.textContent = `${2 * bbox.x + bbox.width}`
     }
     if (iconHeightEl != null) {
-      iconHeightEl.textContent = `${bbox.y + bbox.height}`
+      iconHeightEl.textContent = `${2 * bbox.y + bbox.height}`
     }
   })
 })

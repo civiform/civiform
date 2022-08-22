@@ -417,7 +417,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
     SvgTag icon =
-        Icons.questionTypeSvg(questionDefinition.getQuestionType(), 24)
+        Icons.questionTypeSvg(questionDefinition.getQuestionType())
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
     DivTag content =
         div()
@@ -487,7 +487,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       boolean isInvisible) {
     ButtonTag button =
         submitButton("")
-            .with(Icons.svg(icon, 48).withClasses(Styles.W_6, Styles.H_6))
+            .with(Icons.svg(icon).withClasses(Styles.W_6, Styles.H_6))
             .withClasses(AdminStyles.MOVE_BLOCK_BUTTON)
             .attr("aria-label", label);
     String moveAction =
@@ -615,8 +615,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private Modal blockDescriptionModal(
       InputTag csrfTag, BlockForm blockForm, String blockUpdateAction) {
-    String modalTitle = "Screen Name and Description";
-    String modalButtonText = "Edit Name and Description";
+    String modalTitle = "Screen name and description";
+    String modalButtonText = "Edit screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
     blockDescriptionForm

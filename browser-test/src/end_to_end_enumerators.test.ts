@@ -26,6 +26,34 @@ describe('End to end enumerator test', () => {
     await resetSession(pageObject)
   })
 
+  it('Updates enumerator elements in preview', async () => {
+    await loginAsAdmin(pageObject)
+
+    const adminQuestions = new AdminQuestions(pageObject)
+    await adminQuestions.gotoAdminQuestionsPage()
+
+    await pageObject.click('#create-question-button')
+    await pageObject.click('#create-enumerator-question')
+    await waitForPageJsLoad(pageObject)
+
+    // Click the add button in the preview to ensure we get an entity row and corresponding delete
+    // button.
+    await pageObject.click('button:text("Add Sample repeated entity type")')
+
+    // Now update the text when configuing the question and ensure that
+    // the preview values update.
+    await pageObject.fill('text=Repeated Entity Type', 'New entity type')
+
+    // Verify question preview has the default values.
+    await adminQuestions.expectEnumeratorPreviewValues({
+      questionText: 'Sample question text',
+      questionHelpText: '',
+      entityNameInputLabelText: 'New entity type name',
+      addEntityButtonText: 'Add New entity type',
+      deleteEntityButtonText: 'Remove New entity type',
+    })
+  })
+
   it('Create nested enumerator and repeated questions as admin', async () => {
     await loginAsAdmin(pageObject)
     const adminQuestions = new AdminQuestions(pageObject)

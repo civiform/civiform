@@ -16,7 +16,7 @@ bundle.js
 tailwind.css
 .dockerlogs
 *.pem
-
+*.dump
 *.terraform
 *.terraform.lock.hcl
 *.tfvars

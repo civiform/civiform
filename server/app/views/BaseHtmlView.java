@@ -77,7 +77,10 @@ public abstract class BaseHtmlView {
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return TagCreator.button()
         .with(
-            Icons.svg(icon, 18).withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0),
+            Icons.svg(icon)
+                .withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0)
+                // Can't set 18px using Tailwind CSS classes.
+                .withStyle("width: 18px; height: 18px;"),
             span(buttonText).withClass(Styles.TEXT_LEFT));
   }
 
