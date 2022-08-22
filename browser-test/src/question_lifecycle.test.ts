@@ -5,10 +5,11 @@ import {
   AdminPrograms,
   endSession,
   seedCanonicalQuestions,
-  waitForPageJsLoad, validateScreenshot,
+  waitForPageJsLoad,
+  validateScreenshot,
 } from './support'
 import {QuestionType} from './support/admin_questions'
-import {BASE_URL} from './support/config';
+import {BASE_URL} from './support/config'
 
 describe('normal question lifecycle', () => {
   it('canonical question seeding works', async () => {

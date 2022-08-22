@@ -71,7 +71,9 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
  *     session. Should be used in new tests to ensure that test cases are
  *     hermetic and order-independent.
  */
-export const startSession = async (clearDb = false): Promise<{
+export const startSession = async (
+  clearDb = false,
+): Promise<{
   browser: Browser
   context: BrowserContext
   page: Page
