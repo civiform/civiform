@@ -115,7 +115,7 @@ public abstract class QuestionForm {
     this.redirectUrl = checkNotNull(redirectUrl);
   }
 
-  public final QuestionDefinitionBuilder getBuilder() {
+  public QuestionDefinitionBuilder getBuilder() {
     LocalizedStrings questionTextMap =
         questionText.isEmpty()
             ? LocalizedStrings.of()

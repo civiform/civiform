@@ -284,18 +284,19 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void newOne_returnsExpectedForm() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.newOne(request, "text");
+    Result result = controller.newOne(request, "text", "/some/redirect/url");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("New text field question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
+    assertThat(contentAsString(result)).contains("/some/redirect/url");
   }
 
   @Test
   public void newOne_returnsFailureForInvalidQuestionType() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.newOne(request, "nope");
+    Result result = controller.newOne(request, "nope", "/some/redirect/url");
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
