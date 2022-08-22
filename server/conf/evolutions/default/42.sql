@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS application_events (
   event_type VARCHAR NOT NULL,
   details JSONB NOT NULL,
   create_time TIMESTAMP NOT NULL,
-  constraint fk_application foreign key(application_id) references applications(id),
-    constraint fk_actor foreign key(actor_id) references accounts(id)
+  CONSTRAINT fk_application FOREIGN KEY(application_id) REFERENCES applications(id),
+  CONSTRAINT fk_actor FOREIGN KEY(actor_id) REFERENCES accounts(id)
 );
 
 # --- !Downs
