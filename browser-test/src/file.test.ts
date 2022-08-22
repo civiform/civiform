@@ -50,7 +50,7 @@ describe('file upload applicant flow', () => {
 
       await logout(pageObject)
     })
-    
+
     it('validate screenshot', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
@@ -59,7 +59,7 @@ describe('file upload applicant flow', () => {
 
       await validateScreenshot(pageObject, 'file')
     })
-    
+
     it('validate screenshot with errors', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')

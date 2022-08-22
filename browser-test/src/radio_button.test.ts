@@ -56,7 +56,7 @@ describe('Radio button question for applicant flow', () => {
 
       await validateScreenshot(pageObject, 'radio-button')
     })
-    
+
     it('validate screenshot with errors', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')

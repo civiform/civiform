@@ -45,7 +45,7 @@ describe('Static text question for applicant flow', () => {
   afterEach(async () => {
     await resetSession(pageObject)
   })
-    
+
   it('validate screenshot', async () => {
     await loginAsGuest(pageObject)
     await selectApplicantLanguage(pageObject, 'English')

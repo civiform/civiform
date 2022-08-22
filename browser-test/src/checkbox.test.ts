@@ -49,7 +49,7 @@ describe('Checkbox question for applicant flow', () => {
 
       await logout(pageObject)
     })
-    
+
     it('validate screenshot', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
@@ -58,14 +58,14 @@ describe('Checkbox question for applicant flow', () => {
 
       await validateScreenshot(pageObject, 'checkbox')
     })
-    
+
     it('validate screenshot with errors', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
-  
+
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
-  
+
       await validateScreenshot(pageObject, 'checkbox-errors')
     })
 

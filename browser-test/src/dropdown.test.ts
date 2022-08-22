@@ -47,7 +47,7 @@ describe('Dropdown question for applicant flow', () => {
 
       await logout(pageObject)
     })
-    
+
     it('validate screenshot', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
@@ -56,14 +56,14 @@ describe('Dropdown question for applicant flow', () => {
 
       await validateScreenshot(pageObject, 'dropdown')
     })
-    
+
     it('validate screenshot with errors', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
-  
+
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
-  
+
       await validateScreenshot(pageObject, 'dropdown-errors')
     })
 

@@ -48,7 +48,7 @@ describe('Id question for applicant flow', () => {
 
       await logout(pageObject)
     })
-    
+
     it('validate screenshot', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
@@ -57,7 +57,7 @@ describe('Id question for applicant flow', () => {
 
       await validateScreenshot(pageObject, 'id')
     })
-    
+
     it('validate screenshot with errors', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
