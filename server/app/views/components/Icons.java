@@ -1,7 +1,5 @@
 package views.components;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import services.question.types.QuestionType;
 
 /**
@@ -288,8 +286,6 @@ public enum Icons {
   ACCORDION_BUTTON(24, "M19 9l-7 7-7-7"),
   ARROW_UPWARD(48, "M22.5 40V13.7L10.1 26.1 8 24 24 8l16 16-2.1 2.1-12.4-12.4V40Z"),
   ARROW_DOWNWARD(48, "M24 40 8 24l2.1-2.1 12.4 12.4V8h3v26.3l12.4-12.4L40 24Z");
-
-  private static final Logger logger = LoggerFactory.getLogger(Icons.class);
 
   public final String path;
   private final int size;
