@@ -62,7 +62,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
     LabelTag labelTag =
         label()
             .withFor(id)
-            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_TEXT));
+            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
     InputTag inputTag =
         input()
             .withId(id)
@@ -76,7 +76,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
         .withClasses(
             Styles.MY_2,
             Styles.RELATIVE,
-            ReferenceClasses.MULTI_OPTION,
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
             ReferenceClasses.RADIO_OPTION,
             BaseStyles.RADIO_LABEL,
             checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")

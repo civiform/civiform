@@ -79,10 +79,10 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .withCondChecked(isSelected)
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
-                span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_TEXT));
+                span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
     return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION, Styles.MY_2, Styles.RELATIVE)
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, Styles.MY_2, Styles.RELATIVE)
         .with(labelTag);
   }
 }

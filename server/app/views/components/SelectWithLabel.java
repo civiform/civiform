@@ -103,7 +103,9 @@ public class SelectWithLabel extends FieldWithLabel {
           (text, value) -> {
             OptionTag optionTag =
                 option(text)
-                    .withClasses(ReferenceClasses.MULTI_OPTION, ReferenceClasses.MULTI_OPTION_TEXT)
+                    .withClasses(
+                        ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+                        ReferenceClasses.MULTI_OPTION_VALUE)
                     .withValue(value);
             if (value.equals(this.fieldValue)) {
               optionTag.isSelected();
