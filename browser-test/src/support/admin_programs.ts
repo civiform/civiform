@@ -308,34 +308,6 @@ export class AdminPrograms {
     )
   }
 
-  /** Adds a block with a single optional question followed by one or more required ones. */
-  async addProgramBlockWithOptional(
-    programName: string,
-    blockDescription = 'screen description',
-    questionNames: string[],
-    optionalQuestionName: string,
-  ) {
-    await this.page.click('#add-block-button')
-    await waitForPageJsLoad(this.page)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-
-    await this.page.type('textarea', blockDescription)
-    await this.page.click('#update-block-button:not([disabled])')
-
-    // Add the optional question
-    await this.page.click(`button:text("${optionalQuestionName}")`)
-    await waitForPageJsLoad(this.page)
-    // Only allow one optional question per block; this selector will always toggle the first optional button.  It
-    // cannot tell the difference between multiple optional buttons
-    await this.page.click(`:is(button:has-text("optional"))`)
-
-    for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
-      await waitForPageJsLoad(this.page)
-    }
-  }
-
   async addProgramRepeatedBlock(
     programName: string,
     enumeratorBlockName: string,
