@@ -5,57 +5,64 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
+import controllers.LanguageUtils;
 import controllers.routes;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
-import models.Program;
+import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ProgramRepository;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import views.applicant.ApplicantUpsellCreateAccountView;
 
 /**
  * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
  * can access the page.
  */
-public class RedirectController extends CiviFormController {
+public final class RedirectController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
   private final ProfileUtils profileUtils;
-  private final ProgramRepository programRepository;
+  private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
   private final MessagesApi messagesApi;
+  private final LanguageUtils languageUtils;
 
   @Inject
   public RedirectController(
       HttpExecutionContext httpContext,
       ApplicantService applicantService,
       ProfileUtils profileUtils,
-      ProgramRepository programRepository,
+      ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      LanguageUtils languageUtils) {
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.profileUtils = checkNotNull(profileUtils);
-    this.programRepository = checkNotNull(programRepository);
+    this.programService = checkNotNull(programService);
     this.upsellView = checkNotNull(upsellView);
     this.messagesApi = checkNotNull(messagesApi);
+    this.languageUtils = checkNotNull(languageUtils);
   }
 
-  public CompletionStage<Result> programByName(Http.Request request, String programName) {
+  public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     if (profile.isEmpty()) {
@@ -65,31 +72,71 @@ public class RedirectController extends CiviFormController {
       return CompletableFuture.completedFuture(result);
     }
 
-    CompletableFuture<Applicant> applicantFuture = profile.get().getApplicant();
-    CompletableFuture<Program> programFuture = programRepository.getForSlug(programName);
+    return profile
+        .get()
+        .getApplicant()
+        .thenComposeAsync(
+            (Applicant applicant) -> {
+              // Attempt to set default language for the applicant.
+              applicant = languageUtils.maybeSetDefaultLocale(applicant);
+              final long applicantId = applicant.id;
 
-    return CompletableFuture.allOf(applicantFuture, programFuture)
-        .thenApplyAsync(
-            empty -> {
-              if (applicantFuture.isCompletedExceptionally()) {
-                return notFound();
-              } else if (programFuture.isCompletedExceptionally()) {
-                return notFound();
-              }
-
-              Applicant applicant = applicantFuture.join();
-
+              // If the applicant has not yet set their preferred language, redirect to
+              // the information controller to ask for preferred language.
               if (!applicant.getApplicantData().hasPreferredLocale()) {
-                return redirect(
-                        controllers.applicant.routes.ApplicantInformationController.edit(
-                            applicant.id))
-                    .withSession(request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri()));
+                return CompletableFuture.completedFuture(
+                    redirect(
+                            controllers.applicant.routes.ApplicantInformationController.edit(
+                                applicantId))
+                        .withSession(
+                            request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri())));
               }
 
-              return redirect(
-                  controllers.applicant.routes.ApplicantProgramReviewController.preview(
-                      applicant.id, programFuture.join().id));
+              return getProgramVersionForApplicant(applicantId, programSlug)
+                  .thenComposeAsync(
+                      (Optional<ProgramDefinition> programForExistingApplication) -> {
+                        // Check to see if the applicant already has an application
+                        // for this program, redirect to program version associated
+                        // with that application if so.
+                        if (programForExistingApplication.isPresent()) {
+                          return CompletableFuture.completedFuture(
+                              redirect(
+                                  controllers.applicant.routes.ApplicantProgramReviewController
+                                      .preview(
+                                          applicantId, programForExistingApplication.get().id())));
+                        }
+
+                        return redirectToActiveProgram(applicantId, programSlug);
+                      },
+                      httpContext.current());
             },
+            httpContext.current());
+  }
+
+  private CompletionStage<Result> redirectToActiveProgram(long applicantId, String programSlug) {
+    return programService
+        .getActiveProgramDefinitionAsync(programSlug)
+        .thenApplyAsync(
+            (activeProgramDefinition) ->
+                redirect(
+                    controllers.applicant.routes.ApplicantProgramReviewController.preview(
+                        applicantId, activeProgramDefinition.id())),
+            httpContext.current());
+  }
+
+  private CompletionStage<Optional<ProgramDefinition>> getProgramVersionForApplicant(
+      long applicantId, String programSlug) {
+    // Find all applicant's DRAFT applications for programs of the same slug
+    // redirect to the newest program version with a DRAFT application.
+    // TODO(#2573): clean this up, don't compare on program ID
+    return applicantService
+        .relevantPrograms(applicantId)
+        .thenApplyAsync(
+            (ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>> relevantPrograms) ->
+                relevantPrograms.get(LifecycleStage.DRAFT).stream()
+                    .filter(program -> program.slug().equals(programSlug))
+                    .sorted(Comparator.comparingLong(ProgramDefinition::id).reversed())
+                    .findFirst(),
             httpContext.current());
   }
 

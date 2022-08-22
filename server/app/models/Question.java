@@ -9,6 +9,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -95,6 +98,12 @@ public class Question extends BaseModel {
   private @DbJsonB LocalizedStrings enumeratorEntityType;
 
   private @DbArray List<QuestionTag> questionTags;
+
+  /** When the question was created. */
+  @WhenCreated private Instant createTime;
+
+  /** When the question was last modified. */
+  @WhenModified private Instant lastModifiedTime;
 
   @ManyToMany
   @JoinTable(name = "versions_questions")
@@ -289,5 +298,13 @@ public class Question extends BaseModel {
   public ImmutableList<QuestionTag> getQuestionTags() {
     initTags();
     return ImmutableList.copyOf(this.questionTags);
+  }
+
+  public Optional<Instant> getCreateTime() {
+    return Optional.ofNullable(createTime);
+  }
+
+  public Optional<Instant> getLastModifiedTime() {
+    return Optional.ofNullable(lastModifiedTime);
   }
 }

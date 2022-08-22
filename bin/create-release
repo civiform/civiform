@@ -53,7 +53,9 @@ def main():
 
     commit_sha = sys.argv[1]
     release_number = sys.argv[2]
-    releaser_email = shell_cmd('git config --get user.email')
+    releaser_email = os.environ[
+        'GITHUB_ACTOR'] if 'GITHUB_ACTOR' in os.environ else shell_cmd(
+            'git config --get user.email')
 
     ################################################################################
     # Resolve and validate GitHub token, check auth
@@ -65,14 +67,8 @@ def main():
         with open(GH_RELEASE_TOKEN_FILENAME, 'r') as file:
             gh_token = file.read().rstrip()
 
-    if not gh_token.startswith('ghp_'):
-        print(
-            f'Invalid token found in {GH_RELEASE_TOKEN_FILENAME}',
-            file=sys.stderr)
-        exit(1)
-
     check_gh_auth_response = requests.get(
-        'https://api.github.com/repos/seattle-uat/civiform',
+        'https://api.github.com/repos/civiform/civiform',
         headers={'Authorization': f'token {gh_token}'})
     if check_gh_auth_response.status_code != 200:
         print(
@@ -187,7 +183,7 @@ def main():
 
     print('Creating GitHub release')
 
-    create_release_url = 'https://api.github.com/repos/seattle-uat/civiform/releases'
+    create_release_url = 'https://api.github.com/repos/civiform/civiform/releases'
     create_release_body = {
         'tag_name': release_number,
         'name': release_number,

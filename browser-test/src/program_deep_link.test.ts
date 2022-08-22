@@ -9,7 +9,6 @@ import {
   selectApplicantLanguage,
   loginAsGuest,
   loginAsTestUser,
-  waitForPageJsLoad,
 } from './support'
 
 describe('navigating to a deep link', () => {

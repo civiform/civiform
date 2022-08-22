@@ -7,10 +7,10 @@ export COMPOSE_INTERACTIVE_NO_CLI=1
 source bin/lib.sh
 docker::set_project_name_browser_tests
 
+docker volume create browser-tests-node-modules
 docker run \
-  -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
-  -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
-  -v "$(pwd)/browser-test/tmp:/usr/src/civiform-browser-tests/tmp" \
+  -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
+  -v "browser-tests-node-modules:/usr/src/civiform-browser-tests/node_modules" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform-browser-test:latest \

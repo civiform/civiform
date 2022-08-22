@@ -1,7 +1,6 @@
 {
   "extends": ["config:base"],
   "labels": ["dependencies"],
-  "ignoreDeps": ["bellsoft/liberica-openjdk-alpine", "adoptopenjdk/openjdk11"],
   "packageRules": [
     {
       "groupName": "autovalue",
@@ -18,6 +17,18 @@
     {
       "groupName": "pac4j",
       "matchPackagePrefixes": ["org.pac4j:pac4j"]
+    },
+    {
+      "matchPaths": ["cloud/"],
+      "labels": ["dependencies", "infrastructure"]
+    },
+    {
+      "matchPaths": ["browser-test/"],
+      "labels": ["dependencies", "ignore-for-release"]
+    },
+    {
+      "matchPaths": ["formatter/"],
+      "labels": ["dependencies", "ignore-for-release"]
     }
   ]
 }

@@ -8,7 +8,6 @@ import com.typesafe.config.Config;
 import forms.BlockForm;
 import io.ebean.DB;
 import io.ebean.Database;
-import java.util.Locale;
 import java.util.Optional;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -21,7 +20,6 @@ import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
-import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -33,9 +31,17 @@ import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.CurrencyQuestionDefinition;
+import services.question.types.DateQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
+import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.RadioButtonQuestionDefinition;
+import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import tasks.DatabaseSeedTask;
 import views.dev.DatabaseSeedView;
@@ -93,7 +99,7 @@ public class DatabaseSeedController extends DevController {
   }
 
   public Result seed() {
-    // TODO: consider checking whether the test program already exists.
+    // TODO: Check whether test program already exists to prevent error.
     if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
@@ -117,18 +123,6 @@ public class DatabaseSeedController extends DevController {
         .flashing("success", "The database has been cleared");
   }
 
-  private QuestionDefinition insertColorQuestionDefinition() {
-    return questionService
-        .create(
-            new TextQuestionDefinition(
-                "color",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.of(Locale.US, "What is your favorite color?"),
-                LocalizedStrings.of(Locale.US, "help text")))
-        .getResult();
-  }
-
   private QuestionDefinition insertAddressQuestionDefinition() {
     return questionService
         .create(
@@ -136,8 +130,8 @@ public class DatabaseSeedController extends DevController {
                 "address",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(Locale.US, "What is your address?"),
-                LocalizedStrings.of(Locale.US, "help text")))
+                LocalizedStrings.withDefaultValue("What is your address?"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -145,16 +139,56 @@ public class DatabaseSeedController extends DevController {
     return questionService
         .create(
             new CheckboxQuestionDefinition(
-                "kitchen",
+                "checkbox",
                 Optional.empty(),
                 "description",
-                LocalizedStrings.of(
-                    Locale.US, "Which of the following kitchen instruments do you own?"),
-                LocalizedStrings.of(Locale.US, "help text"),
+                LocalizedStrings.withDefaultValue(
+                    "Which of the following kitchen instruments do you own?"),
+                LocalizedStrings.withDefaultValue("help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "toaster")),
-                    QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
-                    QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "garlic press")))))
+                    QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("toaster")),
+                    QuestionOption.create(
+                        2L, 2L, LocalizedStrings.withDefaultValue("pepper grinder")),
+                    QuestionOption.create(
+                        3L, 3L, LocalizedStrings.withDefaultValue("garlic press")))))
+        .getResult();
+  }
+
+  private QuestionDefinition insertCurrencyQuestionDefinition() {
+    return questionService
+        .create(
+            new CurrencyQuestionDefinition(
+                "currency",
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue("How much should a scoop of ice cream cost?"),
+                LocalizedStrings.withDefaultValue("help text")))
+        .getResult();
+  }
+
+  private QuestionDefinition insertDateQuestionDefinitionForEnumerator(long enumeratorId) {
+    return questionService
+        .create(
+            new DateQuestionDefinition(
+                "enumerator date",
+                Optional.of(enumeratorId),
+                "description",
+                LocalizedStrings.withDefaultValue("When is $this's birthday?"),
+                LocalizedStrings.withDefaultValue("help text for $this's birthday")))
+        .getResult();
+  }
+
+  // Create a date question definition with the given name and questionText. We currently create
+  // multiple date questions in a single program for testing.
+  private QuestionDefinition insertDateQuestionDefinition(String name, String questionText) {
+    return questionService
+        .create(
+            new DateQuestionDefinition(
+                name,
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue(questionText),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -165,14 +199,75 @@ public class DatabaseSeedController extends DevController {
                 "dropdown",
                 Optional.empty(),
                 "select your favorite ice cream flavor",
-                LocalizedStrings.of(
-                    Locale.US, "Select your favorite ice cream flavor from the following"),
-                LocalizedStrings.of(Locale.US, "this is sample help text"),
+                LocalizedStrings.withDefaultValue(
+                    "Select your favorite ice cream flavor from the following"),
+                LocalizedStrings.withDefaultValue("this is sample help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "chocolate")),
-                    QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "strawberry")),
-                    QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "vanilla")),
-                    QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "coffee")))))
+                    QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("chocolate")),
+                    QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("strawberry")),
+                    QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("vanilla")),
+                    QuestionOption.create(4L, 4L, LocalizedStrings.withDefaultValue("coffee")))))
+        .getResult();
+  }
+
+  private QuestionDefinition insertEmailQuestionDefinition() {
+    return questionService
+        .create(
+            new EmailQuestionDefinition(
+                "email",
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue("What is your email?"),
+                LocalizedStrings.withDefaultValue("help text")))
+        .getResult();
+  }
+
+  private QuestionDefinition insertEnumeratorQuestionDefinition() {
+    return questionService
+        .create(
+            new EnumeratorQuestionDefinition(
+                "enumerator",
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue("List all members of your household."),
+                LocalizedStrings.withDefaultValue("help text"),
+                LocalizedStrings.withDefaultValue("household member")))
+        .getResult();
+  }
+
+  private QuestionDefinition insertFileUploadQuestionDefinition() {
+    return questionService
+        .create(
+            new FileUploadQuestionDefinition(
+                "file upload",
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue("Upload anything from your computer"),
+                LocalizedStrings.withDefaultValue("help text")))
+        .getResult();
+  }
+
+  private QuestionDefinition insertIdQuestionDefinition() {
+    return questionService
+        .create(
+            new IdQuestionDefinition(
+                "id",
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue("What is your driver's license ID?"),
+                LocalizedStrings.withDefaultValue("help text")))
+        .getResult();
+  }
+
+  private QuestionDefinition insertNumberQuestionDefinition() {
+    return questionService
+        .create(
+            new NumberQuestionDefinition(
+                "number",
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue("How many pets do you have?"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -183,15 +278,44 @@ public class DatabaseSeedController extends DevController {
                 "radio",
                 Optional.empty(),
                 "favorite season in the year",
-                LocalizedStrings.of(Locale.US, "What is your favorite season?"),
-                LocalizedStrings.of(Locale.US, "this is sample help text"),
+                LocalizedStrings.withDefaultValue("What is your favorite season?"),
+                LocalizedStrings.withDefaultValue("this is sample help text"),
                 ImmutableList.of(
                     QuestionOption.create(
-                        1L, 1L, LocalizedStrings.of(Locale.US, "winter (will hide next block)")),
-                    QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "spring")),
-                    QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "summer")),
+                        1L, 1L, LocalizedStrings.withDefaultValue("winter (will hide next block)")),
+                    QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("spring")),
+                    QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("summer")),
                     QuestionOption.create(
-                        4L, 4L, LocalizedStrings.of(Locale.US, "fall (will hide next block)")))))
+                        4L, 4L, LocalizedStrings.withDefaultValue("fall (will hide next block)")))))
+        .getResult();
+  }
+
+  private QuestionDefinition insertStaticTextQuestionDefinition() {
+    return questionService
+        .create(
+            new StaticContentQuestionDefinition(
+                "static content",
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue(
+                    "Hi I'm a block of static text. \n"
+                        + " * Welcome to this test program.\n"
+                        + " * It contains one of every question type. \n\n"
+                        + "### What are the eligibility requirements? \n"
+                        + ">You are 18 years or older."),
+                LocalizedStrings.withDefaultValue("")))
+        .getResult();
+  }
+
+  private QuestionDefinition insertTextQuestionDefinition() {
+    return questionService
+        .create(
+            new TextQuestionDefinition(
+                "text",
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue("What is your favorite color?"),
+                LocalizedStrings.withDefaultValue("help text")))
         .getResult();
   }
 
@@ -212,35 +336,61 @@ public class DatabaseSeedController extends DevController {
       long blockId = 1L;
       BlockForm blockForm = new BlockForm();
       blockForm.setName("Block 1");
-      blockForm.setDescription("name and favorite color");
+      blockForm.setDescription("one of each question type - part 1");
       programService.updateBlock(programId, blockId, blockForm).getResult();
-      programService.setBlockQuestions(
+      programService.addQuestionsToBlock(
           programId,
           blockId,
           ImmutableList.of(
-              ProgramQuestionDefinition.create(nameQuestion, Optional.of(programId)),
-              ProgramQuestionDefinition.create(
-                  insertColorQuestionDefinition(), Optional.of(programId))));
+              insertStaticTextQuestionDefinition().getId(),
+              insertAddressQuestionDefinition().getId(),
+              insertCheckboxQuestionDefinition().getId(),
+              insertCurrencyQuestionDefinition().getId(),
+              insertDateQuestionDefinition("date", "When is your birthday?").getId(),
+              insertDropdownQuestionDefinition().getId()));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("Block 2");
-      blockForm.setDescription("address");
+      blockForm.setDescription("one of each question type - part 2");
       programService.updateBlock(programId, blockId, blockForm);
       programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(insertAddressQuestionDefinition().getId()));
+          programId,
+          blockId,
+          ImmutableList.of(
+              insertEmailQuestionDefinition().getId(),
+              insertIdQuestionDefinition().getId(),
+              nameQuestion.getId(),
+              insertNumberQuestionDefinition().getId(),
+              insertTextQuestionDefinition().getId()));
+
+      blockId =
+          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+      blockForm.setName("enumerator");
+      blockForm.setDescription("this is for an enumerator");
+      programService.updateBlock(programId, blockId, blockForm);
+      long enumeratorId = insertEnumeratorQuestionDefinition().getId();
+      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(enumeratorId));
+      // Create repeated screens based on enumerator.
+      long enumeratorBlockId = blockId;
+      blockId =
+          programService
+              .addRepeatedBlockToProgram(programId, enumeratorBlockId)
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
+      blockForm.setName("repeated screen for enumerator");
+      blockForm.setDescription("this is a repeated screen for an enumerator");
+      programService.updateBlock(programId, blockId, blockForm);
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          ImmutableList.of(insertDateQuestionDefinitionForEnumerator(enumeratorId).getId()));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("Block 3");
-      blockForm.setDescription("Ice Cream Information");
-      programService.updateBlock(programId, blockId, blockForm);
-      programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(insertDropdownQuestionDefinition().getId()));
-
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block 4");
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
       long radioButtonQuestionId = insertRadioButtonQuestionDefinition().getId();
@@ -254,8 +404,11 @@ public class DatabaseSeedController extends DevController {
       programService.updateBlock(programId, blockId, blockForm);
       // Add an unanswered question to the block so it is considered incomplete.
       programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(insertCheckboxQuestionDefinition().getId()));
-      // Add a predicate based on the "favorite season" radio button question in Block 4
+          programId,
+          blockId,
+          ImmutableList.of(
+              insertDateQuestionDefinition("predicate date", "When is your birthday?").getId()));
+      // Add a predicate based on the "favorite season" radio button question in Block 3
       LeafOperationExpressionNode operation =
           LeafOperationExpressionNode.create(
               radioButtonQuestionId,
@@ -266,6 +419,17 @@ public class DatabaseSeedController extends DevController {
           PredicateDefinition.create(
               PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
       programDefinition = programService.setBlockPredicate(programId, blockId, predicate);
+
+      // Add file upload as optional to make local testing easier.
+      blockId =
+          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+      blockForm.setName("file upload");
+      blockForm.setDescription("this is for file upload");
+      programService.updateBlock(programId, blockId, blockForm);
+      long fileQuestionId = insertFileUploadQuestionDefinition().getId();
+      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
+      programService.setProgramQuestionDefinitionOptionality(
+          programId, blockId, fileQuestionId, true);
 
       return programDefinition;
     } catch (Exception e) {

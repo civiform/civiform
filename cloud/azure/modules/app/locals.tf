@@ -5,11 +5,12 @@ locals {
   postgres_private_link = azurerm_private_endpoint.endpoint.private_dns_zone_configs[0].record_sets[0].fqdn
   generated_hostname    = "${var.application_name}-${random_pet.server.id}.azurewebsites.net"
 
-  postgres_password_keyvault_id = "postgres-password"
-  app_secret_key_keyvault_id    = "app-secret-key"
-  adfs_secret_keyvault_id       = "adfs-secret"
-  aws_secret_access_token       = "aws-secret-access-token"
-  aws_access_key_id             = "aws-access-key-id"
+  postgres_password_keyvault_id   = "postgres-password"
+  app_secret_key_keyvault_id      = "app-secret-key"
+  api_secret_salt_key_keyvault_id = "api-secret-salt"
+  adfs_secret_keyvault_id         = "adfs-secret"
+  aws_secret_access_token         = "aws-secret-access-token"
+  aws_access_key_id               = "aws-access-key-id"
 
   app_settings = {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
@@ -33,6 +34,7 @@ locals {
     WHITELABEL_CIVIC_ENTITY_FULL_NAME  = var.civic_entity_full_name
     WHITELABEL_SMALL_LOGO_URL          = var.civic_entity_small_logo_url
     WHITELABEL_LOGO_WITH_NAME_URL      = var.civic_entity_logo_with_name_url
+    FAVICON_URL                        = var.favicon_url
     SUPPORT_EMAIL_ADDRESS              = var.civic_entity_support_email_address
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
@@ -70,6 +72,10 @@ locals {
     # This allows for the default to include atallclaims and for 
     # azure AD to not include that claim.
     ADFS_ADDITIONAL_SCOPES = ""
+
+    CIVIFORM_API_SECRET_SALT = data.azurerm_key_vault_secret.api_secret_salt_key.value
+
+    CIVIFORM_APPLICATION_STATUS_TRACKING_ENABLED = var.feature_flag_status_tracking_enabled
   }
   adfs_client_id     = "adfs-client-id"
   adfs_discovery_uri = "adfs-discovery-uri"

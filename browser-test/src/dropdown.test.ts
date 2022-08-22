@@ -1,3 +1,4 @@
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -8,10 +9,11 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Dropdown question for applicant flow', () => {
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()
@@ -23,7 +25,7 @@ describe('Dropdown question for applicant flow', () => {
   })
 
   describe('single dropdown question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single dropdown'
 
     beforeAll(async () => {
@@ -53,7 +55,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('green')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with no selection does not submit', async () => {
@@ -72,7 +74,7 @@ describe('Dropdown question for applicant flow', () => {
   })
 
   describe('multiple dropdown questions', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple dropdowns'
 
     beforeAll(async () => {
@@ -112,7 +114,7 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('blue', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits successfully', async () => {
@@ -124,7 +126,16 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('red', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

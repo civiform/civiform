@@ -49,3 +49,4 @@ export LOGIN_RADIUS_METADATA_URI="https://civiform-staging.hub.loginradius.com/s
 # Name from the Login Radius Dashboard that you set up for local development:
 # https://docs.civiform.us/contributor-guide/developer-guide/dev-azure#setup-login-radius-for-local-development
 export LOGIN_RADIUS_SAML_APP_NAME="CHANGE ME"
+export FAVICON_URL="https://civiform.us/favicon.png"

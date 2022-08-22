@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "valid-jsdoc": "off",
+    "@typescript-eslint/no-non-null-assertion": "off" // this is test code.
+  }
+}

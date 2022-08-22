@@ -1,5 +1,6 @@
 import {Page} from 'playwright'
-import {waitForPageJsLoad} from './wait'
+import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
+import * as assert from 'assert'
 
 type QuestionParams = {
   questionName: string
@@ -34,7 +35,9 @@ export class AdminQuestions {
 
   async goToViewQuestionPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    await this.page.click('text=View')
+    await this.page.click(
+      this.selectWithinQuestionTableRow(questionName, 'a:has-text("View")'),
+    )
     await waitForPageJsLoad(this.page)
   }
 
@@ -49,8 +52,9 @@ export class AdminQuestions {
 
   async expectViewOnlyQuestion(questionName: string) {
     expect(await this.page.isDisabled('text=No Export')).toEqual(true)
-    // TODO(sgoldblatt): This test does not find any questions need to look into
-    // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
+    expect(
+      await this.page.isDisabled(`input[value="${questionName}"]`),
+    ).toEqual(true)
   }
 
   selectorForExportOption(exportOption: string) {
@@ -73,15 +77,16 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 
-  async expectMultiOptionBlankOptionError(options: String[]) {
-    const questionSettings = await this.page.$('#question-settings')
-    const errors = await questionSettings.$$('.cf-multi-option-input-error')
+  async expectMultiOptionBlankOptionError(options: string[]) {
+    const errors = await this.page.locator(
+      '#question-settings .cf-multi-option-input-error',
+    )
     // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
-    for (let i in errors) {
+    for (let i = 0; i < options.length; i++) {
       if (options[i] === '') {
-        expect(await errors[i].isHidden()).toEqual(false)
+        expect(await errors.nth(i).isHidden()).toEqual(false)
       } else {
-        expect(await errors[i].isHidden()).toEqual(true)
+        expect(await errors.nth(i).isHidden()).toEqual(true)
       }
     }
   }
@@ -96,9 +101,9 @@ export class AdminQuestions {
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
     await this.page.fill('label:has-text("Name")', questionName)
-    await this.page.fill('label:has-text("Description")', description)
-    await this.page.fill('label:has-text("Question Text")', questionText)
-    await this.page.fill('label:has-text("Question help text")', helpText)
+    await this.page.fill('label:has-text("Description")', description ?? '')
+    await this.page.fill('label:has-text("Question Text")', questionText ?? '')
+    await this.page.fill('label:has-text("Question help text")', helpText ?? '')
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })
@@ -156,11 +161,69 @@ export class AdminQuestions {
     ).toContain('New Version')
   }
 
-  async expectActiveQuestionNotExist(questionName: string) {
+  async expectQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await waitForPageJsLoad(this.page)
     const tableInnerText = await this.page.innerText('table')
     expect(tableInnerText).not.toContain(questionName)
+  }
+
+  async expectQuestionProgramReferencesText({
+    questionName,
+    expectedProgramReferencesText,
+  }: {
+    questionName: string
+    expectedProgramReferencesText: string
+  }) {
+    await this.gotoAdminQuestionsPage()
+    const programReferencesText = await this.page.innerText(
+      this.selectProgramReferencesFromRow(questionName),
+    )
+    expect(programReferencesText).toEqual(expectedProgramReferencesText)
+  }
+
+  async expectProgramReferencesModalContains({
+    questionName,
+    expectedDraftProgramReferences,
+    expectedActiveProgramReferences,
+  }: {
+    questionName: string
+    expectedDraftProgramReferences: string[]
+    expectedActiveProgramReferences: string[]
+  }) {
+    await this.page.click(
+      this.selectProgramReferencesFromRow(questionName) + ' a',
+    )
+
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      `Programs including ${questionName}`,
+    )
+
+    const draftReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-draft li',
+    )
+    const draftReferenceNames = await Promise.all(
+      draftReferences.map((reference) => reference.innerText()),
+    )
+    expect(draftReferenceNames).toEqual(expectedDraftProgramReferences)
+
+    const activeReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-active li',
+    )
+    const activeReferenceNames = await Promise.all(
+      activeReferences.map((reference) => reference.innerText()),
+    )
+    expect(activeReferenceNames).toEqual(expectedActiveProgramReferences)
+
+    await dismissModal(this.page)
+  }
+
+  private selectProgramReferencesFromRow(questionName: string) {
+    return (
+      this.selectQuestionTableRow(questionName) +
+      ' .cf-admin-question-program-reference-counts'
+    )
   }
 
   private async gotoQuestionEditOrNewVersionPage({
@@ -195,7 +258,10 @@ export class AdminQuestions {
   async undeleteQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Restore")'),
+      this.selectWithinQuestionTableRow(
+        questionName,
+        ':text("Restore Archived")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -210,13 +276,36 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
-  async archiveQuestion(questionName: string) {
+  async archiveQuestion({
+    questionName,
+    expectModal,
+  }: {
+    questionName: string
+    expectModal: boolean
+  }) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
       this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
-    await waitForPageJsLoad(this.page)
-    await this.expectAdminQuestionsPage()
+    if (expectModal) {
+      const modal = await waitForAnyModal(this.page)
+      expect(await modal.innerText()).toContain(
+        'This question cannot be archived since there are still programs referencing it',
+      )
+      await dismissModal(this.page)
+    } else {
+      await waitForPageJsLoad(this.page)
+      await this.expectAdminQuestionsPage()
+      // Ensure that the page has been reloaded and the "Restore archive" link
+      // appears.
+      const restoreArchiveIsVisible = await this.page.isVisible(
+        this.selectWithinQuestionTableRow(
+          questionName,
+          ':text("Restore Archived")',
+        ),
+      )
+      expect(restoreArchiveIsVisible).toBe(true)
+    }
   }
 
   async goToQuestionTranslationPage(questionName: string) {
@@ -228,7 +317,7 @@ export class AdminQuestions {
       ),
     )
     await waitForPageJsLoad(this.page)
-    await this.expectQuestionTranslationPage()
+    await this.expectQuestionTranslationPage(questionName)
   }
 
   async expectQuestionEditPage(questionName: string) {
@@ -238,9 +327,9 @@ export class AdminQuestions {
     ).toEqual(questionName)
   }
 
-  async expectQuestionTranslationPage() {
+  async expectQuestionTranslationPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Question Translations',
+      `Manage Question Translations: ${questionName}`,
     )
   }
 
@@ -342,26 +431,26 @@ export class AdminQuestions {
   }
 
   async updateAllQuestions(questions: string[]) {
-    for (var i in questions) {
-      await this.updateQuestion(questions[i])
+    for (const question of questions) {
+      await this.updateQuestion(question)
     }
   }
 
   async createNewVersionForQuestions(questions: string[]) {
-    for (var i in questions) {
-      await this.createNewVersion(questions[i])
+    for (const question of questions) {
+      await this.createNewVersion(question)
     }
   }
 
   async expectDraftQuestions(questions: string[]) {
-    for (var i in questions) {
-      await this.expectDraftQuestionExist(questions[i])
+    for (const question of questions) {
+      await this.expectDraftQuestionExist(question)
     }
   }
 
   async expectActiveQuestions(questions: string[]) {
-    for (var i in questions) {
-      await this.expectActiveQuestionExist(questions[i])
+    for (const question of questions) {
+      await this.expectActiveQuestionExist(question)
     }
   }
 
@@ -464,11 +553,11 @@ export class AdminQuestions {
       )
     }
 
-    for (var index in options) {
+    assert(options)
+    for (let index = 0; index < options.length; index++) {
       await this.page.click('#add-new-option')
-      var matchIndex = Number(index) + 1
       await this.page.fill(
-        `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
+        `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
         options[index],
       )
     }
@@ -506,9 +595,10 @@ export class AdminQuestions {
       exportOption,
     })
 
-    for (let index in options) {
+    assert(options)
+    for (let index = 0; index < options.length; index++) {
       await this.page.click('#add-new-option')
-      let matchIndex = Number(index) + 1
+      const matchIndex = index + 1
       await this.changeMultiOptionAnswer(matchIndex, options[index])
     }
 
@@ -565,6 +655,7 @@ export class AdminQuestions {
       questionText,
       helpText,
       enumeratorName,
+      exportOption,
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -607,7 +698,6 @@ export class AdminQuestions {
     description = 'static description',
     questionText = 'static question text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
-    exportOption = '',
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -705,6 +795,7 @@ export class AdminQuestions {
       questionText,
       helpText,
       enumeratorName,
+      exportOption,
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -736,11 +827,11 @@ export class AdminQuestions {
       exportOption,
     })
 
-    for (var index in options) {
+    assert(options)
+    for (let index = 0; index < options.length; index++) {
       await this.page.click('#add-new-option')
-      var matchIndex = Number(index) + 1
       await this.page.fill(
-        `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
+        `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
         options[index],
       )
     }

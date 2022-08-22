@@ -12,6 +12,7 @@ import repository.VersionRepository;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -120,6 +121,16 @@ public class ProgramBuilder {
 
   public ProgramBuilder withLocalizedName(Locale locale, String name) {
     builder.addLocalizedName(locale, name);
+    return this;
+  }
+
+  public ProgramBuilder withLocalizedDescription(Locale locale, String description) {
+    builder.addLocalizedDescription(locale, description);
+    return this;
+  }
+
+  public ProgramBuilder withStatusDefinitions(StatusDefinitions statusDefinitions) {
+    builder.setStatusDefinitions(statusDefinitions);
     return this;
   }
 

@@ -52,10 +52,16 @@ variable "civic_entity_small_logo_url" {
   default     = "https://raw.githubusercontent.com/civiform/staging-azure-deploy/main/logos/civiform-staging.png"
 }
 
+variable "favicon_url" {
+  type        = string
+  description = "Browser Favicon (16x16 or 32x32 pixels, .ico, .png, or .gif) used on all pages"
+  default     = "https://civiform.us/favicon.png"
+}
+
 variable "vpc_name" {
   type        = string
-  description = "Name of the VPC for the database"
-  default     = "civiform_rds_vpc"
+  description = "Name of the VPC"
+  default     = "civiform-vpc"
 }
 
 variable "vpc_cidr" {
@@ -80,17 +86,6 @@ variable "public_subnets" {
   type        = list(string)
   description = "List of the public subnets for the VPC"
   default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
-}
-
-# TODO: determine reasonable max concurrency for a civiform server
-variable "auto_scaling_config" {
-  type        = map(string)
-  description = "Autoscaling config for AppRunner"
-  default = {
-    max_concurrency = "100",
-    max_size        = "10",
-    min_size        = "1"
-  }
 }
 
 variable "postgress_name" {
@@ -151,12 +146,6 @@ variable "log_storage_bucket" {
   type        = string
   description = "Name for S3 bucket to store logs"
   default     = "civiform-aws-staging-log-bucket"
-}
-
-variable "ses_sender_email" {
-  type        = string
-  description = "Email address that emails will be sent from"
-  default     = "azizoval@google.com"
 }
 
 variable "app_prefix" {
@@ -224,21 +213,15 @@ variable "civiform_applicant_idp" {
   default     = ""
 }
 
-variable "applicant_oidc_client_id" {
-  type        = string
-  description = "Client ID"
-  default     = ""
-}
-
-variable "applicant_oidc_client_secret" {
-  type        = string
-  description = "Client Secret"
-  default     = ""
-}
-
 variable "applicant_oidc_discovery_uri" {
   type        = string
   description = "Discovery URI"
+  default     = ""
+}
+
+variable "adfs_discovery_uri" {
+  type        = string
+  description = "ADFS Discovery URI"
   default     = ""
 }
 
@@ -269,4 +252,20 @@ variable "port" {
 variable "civiform_mode" {
   type        = string
   description = "The civiform environment mode (test/dev/staging/prod)"
+}
+
+variable "ssl_certificate_arn" {
+  type        = string
+  description = "ARN of the certificate that will be used to handle SSL traffic. Certificate should be validated."
+}
+
+variable "fargate_desired_task_count" {
+  type        = number
+  description = "Number of Civiform server tasks to run. Can be set to 0 to shutdown server."
+}
+
+variable "feature_flag_status_tracking_enabled" {
+  type        = bool
+  description = "When set to true enable Status Tracking."
+  default     = false
 }

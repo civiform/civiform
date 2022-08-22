@@ -153,6 +153,7 @@ public class ProgramRepository {
     }
   }
 
+  /** Get the current active program with the provided slug. */
   public CompletableFuture<Program> getForSlug(String slug) {
     return supplyAsync(
         () -> {

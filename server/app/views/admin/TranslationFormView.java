@@ -1,20 +1,23 @@
 package views.admin;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.p;
 
 import com.google.common.collect.ImmutableList;
-import j2html.tags.Tag;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LegendTag;
 import java.util.Locale;
-import play.i18n.Lang;
-import play.i18n.Langs;
 import play.mvc.Http;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import views.BaseHtmlView;
 import views.components.LinkElement;
 import views.style.AdminStyles;
@@ -26,20 +29,19 @@ import views.style.Styles;
  */
 public abstract class TranslationFormView extends BaseHtmlView {
 
-  private final ImmutableList<Locale> supportedLocales;
+  private final TranslationLocales translationLocales;
 
-  public TranslationFormView(Langs langs) {
-    this.supportedLocales =
-        langs.availables().stream().map(Lang::toLocale).collect(toImmutableList());
+  public TranslationFormView(TranslationLocales translationLocales) {
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /** Render a list of languages, with the currently selected language underlined. */
-  public DivTag renderLanguageLinks(long entityId, Locale currentlySelected) {
+  protected final DivTag renderLanguageLinks(long entityId, Locale currentlySelected) {
     return div()
         .withClasses(Styles.M_2)
         .with(
             each(
-                supportedLocales,
+                translationLocales.translatableLocales(),
                 locale -> {
                   String linkDestination = languageLinkDestination(entityId, locale);
                   return renderLanguageLink(
@@ -77,8 +79,11 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * Renders a form that allows an admin to enter localized text for an entity's applicant-visible
    * fields.
    */
-  protected <T extends Tag<T>> FormTag renderTranslationForm(
-      Http.Request request, Locale locale, String formAction, ImmutableList<T> formFieldContent) {
+  protected final FormTag renderTranslationForm(
+      Http.Request request,
+      Locale locale,
+      String formAction,
+      ImmutableList<DomContent> formFieldContent) {
     FormTag form =
         form()
             .withMethod("POST")
@@ -92,5 +97,23 @@ public abstract class TranslationFormView extends BaseHtmlView {
                             locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
                     .withId("update-localizations-button"));
     return form;
+  }
+
+  /**
+   * Returns a div containing the default text to be translated. This allows for admins to more
+   * easily identify which text to translate.
+   */
+  protected final DivTag defaultLocaleTextHint(LocalizedStrings localizedStrings) {
+    return div()
+        .withClasses(Styles.W_2_3, Styles.ML_2, Styles.P_2, Styles.TEXT_SM, Styles.BG_GRAY_200)
+        .with(p("Default text:").withClass(Styles.FONT_MEDIUM), p(localizedStrings.getDefault()));
+  }
+
+  /** Creates a fieldset wrapping several form fields to be rendered. */
+  protected final FieldsetTag fieldSetForFields(
+      LegendTag legendContent, ImmutableList<DomContent> fields) {
+    return fieldset()
+        .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
+        .with(legendContent, div().withClasses(Styles.FLEX_ROW, Styles.SPACE_Y_4).with(fields));
   }
 }

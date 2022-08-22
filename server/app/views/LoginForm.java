@@ -106,7 +106,7 @@ public class LoginForm extends BaseHtmlView {
 
     content.with(
         div()
-            .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles._MT_6, Styles.PX_8)
+            .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles.PX_8)
             .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
             .with(p("CiviForm")));
 

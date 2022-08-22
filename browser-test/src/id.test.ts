@@ -1,3 +1,4 @@
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -8,10 +9,11 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('Id question for applicant flow', () => {
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()
@@ -23,7 +25,7 @@ describe('Id question for applicant flow', () => {
   })
 
   describe('single id question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single id'
 
     beforeAll(async () => {
@@ -54,7 +56,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.answerIdQuestion('12345')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with empty id does not submit', async () => {
@@ -116,7 +118,7 @@ describe('Id question for applicant flow', () => {
   })
 
   describe('multiple id questions', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple ids'
 
     beforeAll(async () => {
@@ -154,7 +156,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits successfully', async () => {
@@ -166,7 +168,7 @@ describe('Id question for applicant flow', () => {
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with first invalid does not submit', async () => {
@@ -197,6 +199,15 @@ describe('Id question for applicant flow', () => {
       expect(await pageObject.innerText(identificationId)).toContain(
         'Must contain only numbers.',
       )
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

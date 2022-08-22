@@ -1,3 +1,4 @@
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -8,13 +9,14 @@ import {
   selectApplicantLanguage,
   startSession,
   resetSession,
+  validateAccessibility,
 } from './support'
 
 describe('currency applicant flow', () => {
   const validCurrency = '1000'
   // Not enough decimals.
   const invalidCurrency = '1.0'
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()
@@ -26,7 +28,7 @@ describe('currency applicant flow', () => {
   })
 
   describe('single currency question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single currency'
 
     beforeAll(async () => {
@@ -52,7 +54,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with invalid currency does not submit', async () => {
@@ -74,7 +76,7 @@ describe('currency applicant flow', () => {
   })
 
   describe('multiple currency questions', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple currencies'
 
     beforeAll(async () => {
@@ -112,7 +114,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with unanswered optional question submits', async () => {
@@ -123,7 +125,7 @@ describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with first invalid does not submit', async () => {
@@ -156,6 +158,15 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(currencyError)).toEqual(false)
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 })

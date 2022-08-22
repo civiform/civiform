@@ -5,15 +5,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.github.slugify.Slugify;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import models.Account;
 import models.Application;
@@ -40,7 +45,7 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
 /** Implementation class for {@link ProgramService} interface. */
-public class ProgramServiceImpl implements ProgramService {
+public final class ProgramServiceImpl implements ProgramService {
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
@@ -65,7 +70,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   public ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException {
     try {
-      return getProgramDefinitionAsync(id).toCompletableFuture().join();
+      return getActiveProgramDefinitionAsync(id).toCompletableFuture().join();
     } catch (CompletionException e) {
       if (e.getCause() instanceof ProgramNotFoundException) {
         throw new ProgramNotFoundException(id);
@@ -81,7 +86,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
+  public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
         .thenComposeAsync(
@@ -96,7 +101,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug) {
+  public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug) {
     return programRepository
         .getForSlug(programSlug)
         .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
@@ -213,14 +218,74 @@ public class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
+  /**
+   * Determines whether the list of provided localized application status updates exactly correspond
+   * to the list of configured application statuses within the program. This means that:
+   * <li>The lists are of the same length
+   * <li>Have the exact same ordering of statuses
+   */
+  private void validateLocalizationStatuses(
+      LocalizationUpdate localizationUpdate, ProgramDefinition program)
+      throws OutOfDateStatusesException {
+    ImmutableList<String> localizationStatusNames =
+        localizationUpdate.statuses().stream()
+            .map(LocalizationUpdate.StatusUpdate::statusKeyToUpdate)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<String> configuredStatusNames =
+        program.statusDefinitions().getStatuses().stream()
+            .map(StatusDefinitions.Status::statusText)
+            .collect(ImmutableList.toImmutableList());
+    if (!localizationStatusNames.equals(configuredStatusNames)) {
+      throw new OutOfDateStatusesException();
+    }
+  }
+
   @Override
+  @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
-      long programId, Locale locale, String displayName, String displayDescription)
-      throws ProgramNotFoundException {
+      long programId, Locale locale, LocalizationUpdate localizationUpdate)
+      throws ProgramNotFoundException, OutOfDateStatusesException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    validateProgramText(errorsBuilder, "display name", displayName);
-    validateProgramText(errorsBuilder, "display description", displayDescription);
+    validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
+    validateProgramText(
+        errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
+
+    validateLocalizationStatuses(localizationUpdate, programDefinition);
+
+    // We iterate the existing statuses along with the provided statuses since they were verified
+    // to be consistently ordered above.
+    ImmutableList.Builder<StatusDefinitions.Status> toUpdateStatusesBuilder =
+        ImmutableList.builder();
+    for (int statusIdx = 0;
+        statusIdx < programDefinition.statusDefinitions().getStatuses().size();
+        statusIdx++) {
+      LocalizationUpdate.StatusUpdate statusUpdateData =
+          localizationUpdate.statuses().get(statusIdx);
+      StatusDefinitions.Status existingStatus =
+          programDefinition.statusDefinitions().getStatuses().get(statusIdx);
+      StatusDefinitions.Status.Builder updateBuilder =
+          existingStatus.toBuilder()
+              .setLocalizedStatusText(
+                  existingStatus
+                      .localizedStatusText()
+                      .updateTranslation(locale, statusUpdateData.localizedStatusText()));
+      // If the status has email content, update the localization to whatever was provided;
+      // otherwise if there's a localization update when there is no email content to
+      // localize, that indicates a mismatch between the frontend and the database.
+      if (existingStatus.localizedEmailBodyText().isPresent()) {
+        updateBuilder.setLocalizedEmailBodyText(
+            Optional.of(
+                existingStatus
+                    .localizedEmailBodyText()
+                    .get()
+                    .updateTranslation(locale, statusUpdateData.localizedEmailBody())));
+      } else if (statusUpdateData.localizedEmailBody().isPresent()) {
+        throw new OutOfDateStatusesException();
+      }
+      toUpdateStatusesBuilder.add(updateBuilder.build());
+    }
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -229,11 +294,15 @@ public class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder()
             .setLocalizedName(
-                programDefinition.localizedName().updateTranslation(locale, displayName))
+                programDefinition
+                    .localizedName()
+                    .updateTranslation(locale, localizationUpdate.localizedDisplayName()))
             .setLocalizedDescription(
                 programDefinition
                     .localizedDescription()
-                    .updateTranslation(locale, displayDescription))
+                    .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
+            .setStatusDefinitions(
+                programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
             .build()
             .toProgram();
     return ErrorAnd.of(
@@ -347,19 +416,98 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ErrorAnd<ProgramDefinition, CiviFormError> setStatuses(
-      long programId, StatusDefinitions statuses) throws ProgramNotFoundException {
+  public ErrorAnd<ProgramDefinition, CiviFormError> appendStatus(
+      long programId, StatusDefinitions.Status status)
+      throws ProgramNotFoundException, DuplicateStatusException {
+    ProgramDefinition program = getProgramDefinition(programId);
+    if (program.statusDefinitions().getStatuses().stream()
+        .filter(s -> s.statusText().equals(status.statusText()))
+        .findAny()
+        .isPresent()) {
+      throw new DuplicateStatusException(status.statusText());
+    }
+    program
+        .statusDefinitions()
+        .setStatuses(
+            ImmutableList.<StatusDefinitions.Status>builder()
+                .addAll(program.statusDefinitions().getStatuses())
+                .add(status)
+                .build());
 
-    Program program =
-        getProgramDefinition(programId).toBuilder()
-            .setStatusDefinitions(statuses)
-            .build()
-            .toProgram();
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program).getProgramDefinition())
+                programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  @Override
+  @Transactional
+  public ErrorAnd<ProgramDefinition, CiviFormError> editStatus(
+      long programId,
+      String toReplaceStatusName,
+      Function<StatusDefinitions.Status, StatusDefinitions.Status> statusReplacer)
+      throws ProgramNotFoundException, DuplicateStatusException {
+    ProgramDefinition program = getProgramDefinition(programId);
+    ImmutableMap<String, Integer> statusNameToIndex =
+        statusNameToIndexMap(program.statusDefinitions().getStatuses());
+    if (!statusNameToIndex.containsKey(toReplaceStatusName)) {
+      return ErrorAnd.error(
+          ImmutableSet.of(
+              CiviFormError.of(
+                  "The status being edited no longer exists and may have been modified in a"
+                      + " separate window.")));
+    }
+    List<StatusDefinitions.Status> statusesCopy =
+        Lists.newArrayList(program.statusDefinitions().getStatuses());
+    StatusDefinitions.Status editedStatus =
+        statusReplacer.apply(statusesCopy.get(statusNameToIndex.get(toReplaceStatusName)));
+    // If the status name was changed and it matches another status, issue an error.
+    if (!toReplaceStatusName.equals(editedStatus.statusText())
+        && statusNameToIndex.containsKey(editedStatus.statusText())) {
+      throw new DuplicateStatusException(editedStatus.statusText());
+    }
+    statusesCopy.set(statusNameToIndex.get(toReplaceStatusName), editedStatus);
+    program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
+
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
+            .toCompletableFuture()
+            .join());
+  }
+
+  @Override
+  @Transactional
+  public ErrorAnd<ProgramDefinition, CiviFormError> deleteStatus(
+      long programId, String toRemoveStatusName) throws ProgramNotFoundException {
+    ProgramDefinition program = getProgramDefinition(programId);
+    ImmutableMap<String, Integer> statusNameToIndex =
+        statusNameToIndexMap(program.statusDefinitions().getStatuses());
+    if (!statusNameToIndex.containsKey(toRemoveStatusName)) {
+      return ErrorAnd.error(
+          ImmutableSet.of(
+              CiviFormError.of(
+                  "The status being deleted no longer exists and may have been deleted in a"
+                      + " separate window.")));
+    }
+    List<StatusDefinitions.Status> statusesCopy =
+        Lists.newArrayList(program.statusDefinitions().getStatuses());
+    statusesCopy.remove(statusNameToIndex.get(toRemoveStatusName).intValue());
+    program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
+
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
+            .toCompletableFuture()
+            .join());
+  }
+
+  private static ImmutableMap<String, Integer> statusNameToIndexMap(
+      ImmutableList<StatusDefinitions.Status> statuses) {
+    return IntStream.range(0, statuses.size())
+        .boxed()
+        .collect(ImmutableMap.toImmutableMap(i -> statuses.get(i).statusText(), i -> i));
   }
 
   @Override
@@ -625,13 +773,6 @@ public class ProgramServiceImpl implements ProgramService {
     return userRepository.getGlobalAdmins().stream()
         .map(Account::getEmailAddress)
         .filter(address -> !Strings.isNullOrEmpty(address))
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  @Override
-  public ImmutableList<Program> getOtherProgramVersions(long programId) {
-    return programRepository.getAllProgramVersions(programId).stream()
-        .filter(program -> program.id != programId)
         .collect(ImmutableList.toImmutableList());
   }
 

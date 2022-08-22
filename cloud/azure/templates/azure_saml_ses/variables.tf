@@ -34,6 +34,12 @@ variable "civic_entity_small_logo_url" {
   description = "Logo with name used on the applicant-facing program index page"
 }
 
+variable "favicon_url" {
+  type        = string
+  description = "Browser Favicon (16x16 or 32x32 pixels, .ico, .png, or .gif) used on all pages"
+  default     = "https://civiform.us/favicon.png"
+}
+
 variable "postgres_admin_login" {
   type        = string
   description = "Postgres admin login"
@@ -131,4 +137,10 @@ variable "saml_keystore_container_name" {
   type        = string
   description = "The name of the keystore file"
   default     = "saml-keystore"
+}
+
+variable "feature_flag_status_tracking_enabled" {
+  type        = bool
+  description = "When set to true enable Status Tracking."
+  default     = false
 }

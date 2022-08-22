@@ -1,0 +1,20 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "google",
+    "prettier"
+  ],
+  "env": {
+    "browser": true,
+    "commonjs": true
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "require-jsdoc": "off",
+    "valid-jsdoc": "warn",
+    "@typescript-eslint/no-unused-vars": "off" // overlaps with standard eslint no-unused-vars.
+  }
+}

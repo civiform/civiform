@@ -13,7 +13,7 @@ import {
   userDisplayName,
 } from './support'
 
-describe('normal application flow', () => {
+describe('Program admin review of submitted applications', () => {
   it('all major steps', async () => {
     const {browser, page} = await startSession()
     page.setDefaultTimeout(5000)
@@ -187,7 +187,7 @@ describe('normal application flow', () => {
     await applicantQuestions.clickNext()
 
     // submit
-    await applicantQuestions.submitFromReviewPage(programName)
+    await applicantQuestions.submitFromReviewPage()
 
     await logout(page)
     await loginAsProgramAdmin(page)
@@ -280,7 +280,7 @@ describe('normal application flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(answer)
       await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
 
       await logout(page)
     }

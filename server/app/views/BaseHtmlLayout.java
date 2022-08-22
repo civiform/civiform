@@ -22,6 +22,7 @@ import views.components.ToastMessage;
  */
 public class BaseHtmlLayout {
   private final String civiformImageTag;
+  private final String civiformFaviconUrl;
 
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
   private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast"};
@@ -35,15 +36,17 @@ public class BaseHtmlLayout {
 
   @Inject
   public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
+    checkNotNull(configuration);
     this.viewUtils = checkNotNull(viewUtils);
-    this.measurementId = checkNotNull(configuration).getString("measurement_id");
+    this.measurementId = configuration.getString("measurement_id");
 
-    String baseUrl = checkNotNull(configuration).getString("base_url");
+    String baseUrl = configuration.getString("base_url");
+    String stagingHostname = configuration.getString("staging_hostname");
     this.hostName = URI.create(baseUrl).getHost();
-    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.isStaging = hostName.equals(stagingHostname);
 
     civiformImageTag = configuration.getString("civiform_image_tag");
+    civiformFaviconUrl = configuration.getString("whitelabel.favicon_url");
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
@@ -92,6 +95,8 @@ public class BaseHtmlLayout {
     for (String source : FOOTER_SCRIPTS) {
       bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
     }
+    // Add the favicon link
+    bundle.setFavicon(civiformFaviconUrl);
 
     return bundle;
   }

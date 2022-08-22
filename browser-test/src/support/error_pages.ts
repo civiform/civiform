@@ -1,6 +1,6 @@
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
-import {BASE_URL} from './'
+import {BASE_URL} from './config'
 
 export class NotFoundPage {
   public page!: Page

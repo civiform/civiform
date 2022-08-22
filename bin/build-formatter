@@ -1,18 +1,36 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new formatter docker image, and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
+# DOC: Build a new formatter docker image, and optionally push to Docker Hub if PUSH_IMAGE is set to anything. Builds for "linux/amd64" unless PLATFORM is set
 
 source bin/lib.sh
 
-docker build \
-  -t civiform/formatter:latest \
-  -f formatter/formatter.Dockerfile \
-  --cache-from civiform/formatter:latest \
-  .
+IMAGE="formatter"
+LOCATION="."
+DOCKERFILE="formatter/formatter.Dockerfile"
+
+BUILD_ARGS=(-f "${DOCKERFILE}"
+  -t "civiform/${IMAGE}:latest"
+  --cache-from "civiform/${IMAGE}"
+  --build-arg BUILDKIT_INLINE_CACHE=1
+  "${LOCATION}")
+
+PLATFORM_ARG=()
+if [[ "${PLATFORM}" ]]; then
+  PLATFORM_ARG=(--platform "${PLATFORM}")
+fi
+
+# Build the multi-platform image
+echo "start ${IMAGE} build"
+docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+
+# Load the image from the cache
+echo "load ${IMAGE} build"
+docker buildx build --load "${BUILD_ARGS[@]}"
 
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
-
-  # Push the new image to the Docker Hub registry.
-  docker push docker.io/civiform/formatter:latest
+  # Push the image from the cache to dockerhub
+  echo "push ${IMAGE} build"
+  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 fi
+docker tag "civiform/${IMAGE}:latest" "civiform-${IMAGE}:latest"

@@ -7,6 +7,7 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.NotChangeableException;
+import java.util.concurrent.CompletionException;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
@@ -75,6 +76,25 @@ public class ErrorHandlerTest extends ResetPostgres {
     Result result =
         handler.onServerError(fakeRequest().build(), exception).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void onServerError_handlesBadRequestInsideCompleatableFutureException() {
+    Throwable exception = new ProgramNotFoundException("test exception");
+    Throwable wrappedException = new CompletionException(exception);
+    Result result =
+        handler.onServerError(fakeRequest().build(), wrappedException).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void onServerError_handlesCompleatableFutureException() {
+    // A non overriden type is handled by the framework still.
+    Throwable exception = new RuntimeException("test exception");
+    Throwable wrappedException = new CompletionException(exception);
+    Result result =
+        handler.onServerError(fakeRequest().build(), wrappedException).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(INTERNAL_SERVER_ERROR);
   }
 
   @Test

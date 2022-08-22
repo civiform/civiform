@@ -5,6 +5,7 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import auth.AdminAuthClient;
 import auth.ApplicantAuthClient;
 import auth.AuthIdentityProviderName;
+import auth.CiviFormHttpActionAdapter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
@@ -19,7 +20,6 @@ import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.PlayWebContext;
-import org.pac4j.play.http.PlayHttpActionAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Controller;
@@ -47,12 +47,13 @@ public class LoginController extends Controller {
   public LoginController(
       @AdminAuthClient @Nullable IndirectClient adminClient,
       @ApplicantAuthClient @Nullable IndirectClient applicantClient,
+      CiviFormHttpActionAdapter civiFormHttpActionAdapter,
       SessionStore sessionStore,
       Config config) {
     this.adminClient = adminClient;
     this.applicantClient = applicantClient;
     this.sessionStore = Preconditions.checkNotNull(sessionStore);
-    this.httpActionAdapter = PlayHttpActionAdapter.INSTANCE;
+    this.httpActionAdapter = civiFormHttpActionAdapter;
     this.config = config;
   }
 

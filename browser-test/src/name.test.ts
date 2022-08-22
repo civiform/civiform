@@ -9,6 +9,7 @@ import {
   resetSession,
   selectApplicantLanguage,
   startSession,
+  validateAccessibility,
 } from './support'
 
 const NAME_FIRST = '.cf-name-first'
@@ -66,7 +67,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with empty name does not submit', async () => {
@@ -117,7 +118,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with first invalid does not submit', async () => {
@@ -163,6 +164,15 @@ describe('name applicant flow', () => {
       error = await pageObject.$(`${NAME_LAST}-error >> nth=1`)
       expect(await error?.isHidden()).toEqual(false)
     })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
+    })
   })
 
   // One optional name followed by one required name.
@@ -203,7 +213,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
       await applicantQuestions.clickNext()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with invalid optional name does not submit', async () => {
@@ -216,7 +226,7 @@ describe('name applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // Optional question has an error.
-      let error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
+      const error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
       expect(await error?.isHidden()).toEqual(false)
     })
 

@@ -24,4 +24,20 @@ public class HomeControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .contains(routes.HomeController.loginForm(Optional.of("login")).url());
   }
+
+  @Test
+  public void testFavicon() {
+    Http.RequestBuilder request =
+        fakeRequest(routes.HomeController.favicon())
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
+    Result result = route(app, request);
+    assertThat(result.status())
+        .as("Result status should 302 redirect")
+        .isEqualTo(HttpConstants.FOUND);
+    assertThat(result.redirectLocation().isPresent()).as("Should have redirect location").isTrue();
+    ;
+    assertThat(result.redirectLocation().get())
+        .as("Should redirect to set favicon")
+        .contains("civiform.us");
+  }
 }

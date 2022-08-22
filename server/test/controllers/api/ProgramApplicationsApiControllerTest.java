@@ -1,7 +1,7 @@
 package controllers.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
@@ -145,10 +145,9 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 /* pageSize= */ Optional.empty())
             .url();
 
-    var exception =
-        assertThrows(UnauthorizedApiRequestException.class, () -> doRequest(requestUrl));
-
-    assertThat(exception).hasMessage("API key key-id does not have access to test-program");
+    assertThatThrownBy(() -> doRequest(requestUrl))
+        .isInstanceOf(UnauthorizedApiRequestException.class)
+        .hasMessage("API key key-id does not have access to test-program");
   }
 
   private Result doRequest(String requestUrl) {

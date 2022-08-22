@@ -23,6 +23,7 @@ resource "aws_kms_key" "backend_storage_key" {
   }
   description             = "This key is used to encrypt backend state bucket objects"
   deletion_window_in_days = 10
+  enable_key_rotation     = true
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "backend_state_encryption" {

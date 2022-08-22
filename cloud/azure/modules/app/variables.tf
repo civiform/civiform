@@ -39,6 +39,13 @@ variable "civic_entity_small_logo_url" {
   description = "Logo with name used on the applicant-facing program index page"
 }
 
+variable "favicon_url" {
+  type        = string
+  description = "Browser Favicon (16x16 or 32x32 pixels, .ico, .png, or .gif) used on all pages"
+  default     = "https://civiform.us/favicon.png"
+}
+
+
 variable "docker_username" {
   type        = string
   description = "Docker username"
@@ -248,4 +255,10 @@ variable "staging_applicant_notification_mailing_list" {
   type        = string
   description = "Applicant notification mailing list for staging"
   default     = ""
+}
+
+variable "feature_flag_status_tracking_enabled" {
+  type        = bool
+  description = "When set to true enable Status Tracking."
+  default     = false
 }

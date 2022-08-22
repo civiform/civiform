@@ -2,11 +2,11 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.22.0"
+      version = "4.26.0"
     }
     azurerm = {
       source  = "azurerm"
-      version = "3.14.0"
+      version = "3.18.0"
     }
     random = {}
   }
@@ -59,6 +59,8 @@ module "app" {
   saml_keystore_storage_access_key     = module.saml_keystore.storage_access_key
   saml_keystore_storage_account_name   = module.saml_keystore.storage_account_name
   saml_keystore_storage_container_name = module.saml_keystore.storage_container_name
+
+  feature_flag_status_tracking_enabled = var.feature_flag_status_tracking_enabled
 }
 
 module "custom_hostname" {

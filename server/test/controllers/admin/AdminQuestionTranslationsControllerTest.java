@@ -22,20 +22,25 @@ import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import support.TestQuestionBank;
 
 public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
+  private static Locale ES_LOCALE = Locale.forLanguageTag("es-US");
+
+  private static String ENGLISH_QUESTION_TEXT = "english question text";
+  private static String ENGLISH_QUESTION_HELP_TEXT = "english question help text";
+  private static String SPANISH_QUESTION_TEXT = "spanish question text";
+  private static String SPANISH_QUESTION_HELP_TEXT = "spanish question help text";
+
   private Version draftVersion;
-  private TestQuestionBank questionBank;
   private QuestionRepository questionRepository;
   private AdminQuestionTranslationsController controller;
 
   @Before
   public void setup() {
-    questionBank = new TestQuestionBank(true);
     questionRepository = instanceOf(QuestionRepository.class);
     controller = instanceOf(AdminQuestionTranslationsController.class);
     // Create a new draft version.
@@ -44,8 +49,8 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_rendersForm() {
-    Question question = questionBank.applicantName();
+  public void edit_defaultLocaleRedirectsWithError() {
+    Question question = createDraftQuestionEnglishAndSpanish();
 
     Result result =
         controller
@@ -53,16 +58,39 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
 
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
+    assertThat(result.flash().get("error")).isPresent();
+    assertThat(result.flash().get("error").get()).isEqualTo("The en-US locale is not supported");
+  }
+
+  @Test
+  public void edit_rendersForm_otherLocale() throws UnsupportedQuestionTypeException {
+    Question question = createDraftQuestionEnglishAndSpanish();
+
+    Result result =
+        controller
+            .edit(addCSRFToken(fakeRequest()).build(), question.id, "es-US")
+            .toCompletableFuture()
+            .join();
+
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains("Manage Question Translations", "English", "Spanish", "what is your name?");
+        .contains(
+            String.format(
+                "Manage Question Translations: %s", question.getQuestionDefinition().getName()),
+            "Spanish",
+            SPANISH_QUESTION_TEXT,
+            SPANISH_QUESTION_HELP_TEXT);
+    assertThat(contentAsString(result))
+        .contains("Default text:", ENGLISH_QUESTION_TEXT, ENGLISH_QUESTION_HELP_TEXT);
   }
 
   @Test
   public void edit_questionNotFound_returnsNotFound() {
     Result result =
         controller
-            .edit(addCSRFToken(fakeRequest()).build(), 1000L, "en-US")
+            .edit(addCSRFToken(fakeRequest()).build(), 1000L, "es-US")
             .toCompletableFuture()
             .join();
 
@@ -71,14 +99,19 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_addsNewLocalesAndRedirects() throws TranslationNotFoundException {
-    Question question = createDraftQuestion();
+    Question question = createDraftQuestionEnglishOnly();
     Http.RequestBuilder requestBuilder =
         fakeRequest()
-            .bodyForm(ImmutableMap.of("questionText", "french", "questionHelpText", "french help"));
+            .bodyForm(
+                ImmutableMap.of(
+                    "questionText",
+                    "updated spanish question text",
+                    "questionHelpText",
+                    "updated spanish help text"));
 
     Result result =
         controller
-            .update(addCSRFToken(requestBuilder).build(), question.id, "fr")
+            .update(addCSRFToken(requestBuilder).build(), question.id, "es-US")
             .toCompletableFuture()
             .join();
 
@@ -91,20 +124,28 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
             .join()
             .get()
             .getQuestionDefinition();
-    assertThat(updatedQuestion.getQuestionText().get(Locale.FRENCH)).isEqualTo("french");
-    assertThat(updatedQuestion.getQuestionHelpText().get(Locale.FRENCH)).isEqualTo("french help");
+    assertThat(updatedQuestion.getQuestionText().get(ES_LOCALE))
+        .isEqualTo("updated spanish question text");
+    assertThat(updatedQuestion.getQuestionHelpText().get(ES_LOCALE))
+        .isEqualTo("updated spanish help text");
   }
 
   @Test
-  public void update_updatesExistingLocalesAndRedirects() throws TranslationNotFoundException {
-    Question question = createDraftQuestion();
+  public void update_updatesExistingLocalesAndRedirects()
+      throws TranslationNotFoundException, UnsupportedQuestionTypeException {
+    Question question = createDraftQuestionEnglishAndSpanish();
     Http.RequestBuilder requestBuilder =
         fakeRequest()
-            .bodyForm(ImmutableMap.of("questionText", "new", "questionHelpText", "new help"));
+            .bodyForm(
+                ImmutableMap.of(
+                    "questionText",
+                    "updated spanish question text",
+                    "questionHelpText",
+                    "updated spanish question help text"));
 
     Result result =
         controller
-            .update(addCSRFToken(requestBuilder).build(), question.id, "en-US")
+            .update(addCSRFToken(requestBuilder).build(), question.id, "es-US")
             .toCompletableFuture()
             .join();
 
@@ -117,15 +158,17 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
             .join()
             .get()
             .getQuestionDefinition();
-    assertThat(updatedQuestion.getQuestionText().get(Locale.US)).isEqualTo("new");
-    assertThat(updatedQuestion.getQuestionHelpText().get(Locale.US)).isEqualTo("new help");
+    assertThat(updatedQuestion.getQuestionText().get(ES_LOCALE))
+        .isEqualTo("updated spanish question text");
+    assertThat(updatedQuestion.getQuestionHelpText().get(ES_LOCALE))
+        .isEqualTo("updated spanish question help text");
   }
 
   @Test
   public void update_questionNotFound_returnsNotFound() {
     Result result =
         controller
-            .update(addCSRFToken(fakeRequest()).build(), 1000L, "en-US")
+            .update(addCSRFToken(fakeRequest()).build(), 1000L, "es-US")
             .toCompletableFuture()
             .join();
 
@@ -133,32 +176,53 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_validationErrors_rendersEditFormWithMessage() {
-    Question question = createDraftQuestion();
+  public void update_validationErrors_rendersEditFormWithMessage()
+      throws UnsupportedQuestionTypeException {
+    Question question = createDraftQuestionEnglishAndSpanish();
     Http.RequestBuilder requestBuilder =
         fakeRequest().bodyForm(ImmutableMap.of("questionText", "", "questionHelpText", ""));
 
     Result result =
         controller
-            .update(addCSRFToken(requestBuilder).build(), question.id, "en-US")
+            .update(addCSRFToken(requestBuilder).build(), question.id, "es-US")
             .toCompletableFuture()
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains("Manage Question Translations", "Question text cannot be blank");
+        .contains(
+            String.format(
+                "Manage Question Translations: %s", question.getQuestionDefinition().getName()),
+            "Question text cannot be blank");
   }
 
-  /** Creates a draft question, since only draft questions are editable. */
-  private Question createDraftQuestion() {
+  private Question createDraftQuestionEnglishOnly() {
     QuestionDefinition definition =
         new NameQuestionDefinition(
             "applicant name",
             Optional.empty(),
             "name of applicant",
-            LocalizedStrings.of(Locale.US, "what is your name?"),
-            LocalizedStrings.of(Locale.US, "help text"));
+            LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT),
+            LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT));
     Question question = new Question(definition);
+    // Only draft questions are editable.
+    question.addVersion(draftVersion);
+    question.save();
+    return question;
+  }
+
+  private Question createDraftQuestionEnglishAndSpanish() {
+    QuestionDefinition definition =
+        new NameQuestionDefinition(
+            "applicant name",
+            Optional.empty(),
+            "name of applicant",
+            LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT)
+                .updateTranslation(ES_LOCALE, SPANISH_QUESTION_TEXT),
+            LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT)
+                .updateTranslation(ES_LOCALE, SPANISH_QUESTION_HELP_TEXT));
+    Question question = new Question(definition);
+    // Only draft questions are editable.
     question.addVersion(draftVersion);
     question.save();
     return question;

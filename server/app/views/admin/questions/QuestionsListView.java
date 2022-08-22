@@ -1,23 +1,44 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.br;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.thead;
+import static j2html.TagCreator.tr;
+import static j2html.TagCreator.ul;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.SpanTag;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.DeletionStatus;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.TranslationNotFoundException;
+import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -28,6 +49,8 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
+import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -37,33 +60,40 @@ import views.style.Styles;
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final TranslationLocales translationLocales;
 
   @Inject
-  public QuestionsListView(AdminLayoutFactory layoutFactory) {
+  public QuestionsListView(
+      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /** Renders a page with a table view of all questions. */
-  public Content render(
-      ActiveAndDraftQuestions activeAndDraftQuestions,
-      Optional<String> maybeFlash,
-      Http.Request request) {
+  public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     String title = "All Questions";
+
+    Pair<TableTag, ImmutableList<Modal>> questionTableAndModals =
+        renderQuestionTable(activeAndDraftQuestions, request);
 
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle(title)
+            .addModals(questionTableAndModals.getRight())
             .addMainContent(
                 renderHeader(title),
                 renderAddQuestionLink(),
-                div(renderQuestionTable(activeAndDraftQuestions, request)).withClasses(Styles.M_4),
+                div(questionTableAndModals.getLeft()).withClasses(Styles.M_4),
                 renderSummary(activeAndDraftQuestions));
 
-    if (maybeFlash.isPresent()) {
-      // Right now, we only show success messages when this page is rendered with maybeFlash set,
-      // so we use the success ToastMessage type by default.
-      htmlBundle.addToastMessages(ToastMessage.success(maybeFlash.get()).setDismissible(false));
+    Http.Flash flash = request.flash();
+    if (flash.get("success").isPresent()) {
+      htmlBundle.addToastMessages(
+          ToastMessage.success(flash.get("success").get()).setDismissible(false));
+    } else if (flash.get("error").isPresent()) {
+      htmlBundle.addToastMessages(
+          ToastMessage.error(flash.get("error").get()).setDismissible(false));
     }
 
     return layout.renderCentered(htmlBundle);
@@ -124,37 +154,44 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Renders the full table. */
-  private TableTag renderQuestionTable(
+  private Pair<TableTag, ImmutableList<Modal>> renderQuestionTable(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
-    return table()
-        .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
-        .with(renderQuestionTableHeaderRow())
-        .with(
-            tbody(
-                each(
-                    activeAndDraftQuestions.getQuestionNames(),
-                    (questionName) ->
-                        renderQuestionTableRow(
-                            activeAndDraftQuestions.getActiveQuestionDefinition(questionName),
-                            activeAndDraftQuestions.getDraftQuestionDefinition(questionName),
-                            activeAndDraftQuestions.getDeletionStatus(questionName),
-                            request))));
+    ImmutableList<Pair<TrTag, ImmutableList<Modal>>> tableRowAndModals =
+        activeAndDraftQuestions.getQuestionNames().stream()
+            .map(
+                (questionName) ->
+                    renderQuestionTableRow(questionName, activeAndDraftQuestions, request))
+            .collect(ImmutableList.toImmutableList());
+    TableTag tableTag =
+        table()
+            .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
+            .with(renderQuestionTableHeaderRow())
+            .with(tbody(each(tableRowAndModals, (tableRowAndModal) -> tableRowAndModal.getLeft())));
+    ImmutableList<Modal> modals =
+        tableRowAndModals.stream()
+            .map(Pair::getRight)
+            .flatMap(ImmutableList::stream)
+            .collect(ImmutableList.toImmutableList());
+    return Pair.of(tableTag, modals);
   }
 
   /** Render the question table header row. */
   private TheadTag renderQuestionTableHeaderRow() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
-            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-            .with(th("Supported languages").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_6))
+            .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_12))
+            .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_3_12))
+            .with(
+                th("Supported languages").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_12))
+            .with(
+                th("Referencing programs").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_12))
             .with(
                 th("Actions")
                     .withClasses(
                         BaseStyles.TABLE_CELL_STYLES,
                         Styles.TEXT_RIGHT,
                         Styles.PR_8,
-                        Styles.W_1_6)));
+                        Styles.W_2_12)));
   }
 
   /**
@@ -162,30 +199,46 @@ public final class QuestionsListView extends BaseHtmlView {
    *
    * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.
    */
-  private TrTag renderQuestionTableRow(
-      Optional<QuestionDefinition> activeDefinition,
-      Optional<QuestionDefinition> draftDefinition,
-      DeletionStatus deletionStatus,
-      Http.Request request) {
+  private Pair<TrTag, ImmutableList<Modal>> renderQuestionTableRow(
+      String questionName, ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
+    Optional<QuestionDefinition> activeDefinition =
+        activeAndDraftQuestions.getActiveQuestionDefinition(questionName);
+    Optional<QuestionDefinition> draftDefinition =
+        activeAndDraftQuestions.getDraftQuestionDefinition(questionName);
     if (draftDefinition.isEmpty() && activeDefinition.isEmpty()) {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
     QuestionDefinition latestDefinition = draftDefinition.orElseGet(() -> activeDefinition.get());
-    return tr().withClasses(
-            ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
-            Styles.BORDER_B,
-            Styles.BORDER_GRAY_300,
-            StyleUtils.even(Styles.BG_GRAY_100))
-        .with(renderInfoCell(latestDefinition))
-        .with(renderQuestionTextCell(latestDefinition))
-        .with(renderSupportedLanguages(latestDefinition))
-        .with(renderActionsCell(activeDefinition, draftDefinition, deletionStatus, request));
+
+    Pair<TdTag, Optional<Modal>> referencingProgramAndModal =
+        renderReferencingPrograms(questionName, activeAndDraftQuestions);
+    Pair<TdTag, Optional<Modal>> actionsCellAndModal =
+        renderActionsCell(activeDefinition, draftDefinition, activeAndDraftQuestions, request);
+    TrTag rowTag =
+        tr().withClasses(
+                ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
+                Styles.BORDER_B,
+                Styles.BORDER_GRAY_300,
+                StyleUtils.even(Styles.BG_GRAY_100))
+            .with(renderInfoCell(latestDefinition))
+            .with(renderQuestionTextCell(latestDefinition))
+            .with(renderSupportedLanguages(latestDefinition))
+            .with(referencingProgramAndModal.getLeft())
+            .with(actionsCellAndModal.getLeft());
+    ImmutableList.Builder<Modal> modals = ImmutableList.builder();
+    if (referencingProgramAndModal.getRight().isPresent()) {
+      modals.add(referencingProgramAndModal.getRight().get());
+    }
+    if (actionsCellAndModal.getRight().isPresent()) {
+      modals.add(actionsCellAndModal.getRight().get());
+    }
+    return Pair.of(rowTag, modals.build());
   }
 
   private TdTag renderInfoCell(QuestionDefinition definition) {
     return td().with(div(definition.getName()).withClasses(Styles.FONT_SEMIBOLD))
         .with(div(definition.getDescription()).withClasses(Styles.TEXT_XS))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+        .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
   private TdTag renderQuestionTextCell(QuestionDefinition definition) {
@@ -204,7 +257,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     return td().with(div(questionText).withClasses(Styles.FONT_SEMIBOLD))
         .with(div(questionHelpText).withClasses(Styles.TEXT_XS))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+        .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
   /**
@@ -216,47 +269,134 @@ public final class QuestionsListView extends BaseHtmlView {
         definition.getSupportedLocales().stream()
             .map(locale -> locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE))
             .collect(Collectors.joining(", "));
-    return td().with(div(formattedLanguages))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    return td().with(div(formattedLanguages)).withClasses(BaseStyles.TABLE_CELL_STYLES);
+  }
+
+  private Pair<TdTag, Optional<Modal>> renderReferencingPrograms(
+      String questionName, ActiveAndDraftQuestions activeAndDraftQuestions) {
+    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
+        activeAndDraftQuestions.getReferencingPrograms(questionName);
+
+    Optional<Modal> maybeReferencingProgramsModal =
+        makeReferencingProgramsModal(
+            questionName, referencingPrograms, /* modalHeader= */ Optional.empty());
+
+    SpanTag referencingProgramsCount =
+        span(String.format("%d active", referencingPrograms.activeReferences().size()))
+            .condWith(
+                activeAndDraftQuestions.draftVersionHasAnyEdits(),
+                span(String.format(" & %d draft", referencingPrograms.draftReferences().size())))
+            .with(span(" programs"))
+            .withClass(Styles.FONT_SEMIBOLD);
+
+    ContainerTag referencingProgramsCountContainer = referencingProgramsCount;
+    if (maybeReferencingProgramsModal.isPresent()) {
+      referencingProgramsCountContainer =
+          a().withId(maybeReferencingProgramsModal.get().getTriggerButtonId())
+              .withClasses(Styles.DECORATION_SOLID, Styles.CURSOR_POINTER)
+              .with(referencingProgramsCount);
+    }
+
+    TdTag tag =
+        td().with(p().with(span("Used across "), referencingProgramsCountContainer))
+            .withClasses(
+                ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS,
+                BaseStyles.TABLE_CELL_STYLES);
+    return Pair.of(tag, maybeReferencingProgramsModal);
+  }
+
+  private Optional<Modal> makeReferencingProgramsModal(
+      String questionName,
+      ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms,
+      Optional<DomContent> modalHeader) {
+    ImmutableList<ProgramDefinition> activeProgramReferences =
+        referencingPrograms.activeReferences().stream()
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> draftProgramReferences =
+        referencingPrograms.draftReferences().stream()
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+
+    if (activeProgramReferences.isEmpty() && draftProgramReferences.isEmpty()) {
+      return Optional.empty();
+    }
+
+    DivTag referencingProgramModalContent =
+        div().withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6);
+    if (modalHeader.isPresent()) {
+      referencingProgramModalContent.with(modalHeader.get());
+    }
+    referencingProgramModalContent.with(
+        div()
+            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE)
+            .with(
+                referencingProgramList("Active programs:", referencingPrograms.activeReferences())),
+        div()
+            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
+            .with(referencingProgramList("Draft programs:", referencingPrograms.draftReferences())),
+        p("Note: This list does not automatically refresh. If edits are made to a program"
+                + " in a separate tab, they won't be reflected until the page has been"
+                + " refreshed.")
+            .withClass(Styles.TEXT_SM));
+    return Optional.of(
+        Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
+            .setModalTitle(String.format("Programs including %s", questionName))
+            .setWidth(Width.HALF)
+            .build());
+  }
+
+  private DivTag referencingProgramList(
+      String title, ImmutableSet<ProgramDefinition> referencingPrograms) {
+    // TODO(#3162): Add ability to view a published program. Then add
+    // links to the specific block that references the question.
+    ImmutableList<ProgramDefinition> sortedReferencingPrograms =
+        referencingPrograms.stream()
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    return div()
+        .with(p(title).withClass(Styles.FONT_SEMIBOLD))
+        .condWith(sortedReferencingPrograms.isEmpty(), p("None").withClass(Styles.PL_5))
+        .condWith(
+            !sortedReferencingPrograms.isEmpty(),
+            div()
+                .with(
+                    ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                        .with(
+                            each(
+                                sortedReferencingPrograms,
+                                programReference -> {
+                                  return li(programReference.adminName());
+                                }))));
   }
 
   private ATag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
-    return new LinkElement()
-        .setId("edit-question-link-" + definition.getId())
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asAnchorText();
+    return new LinkElement().setHref(link).setText(linkText).setStyles(Styles.MR_2).asAnchorText();
   }
 
-  private ATag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
+  private Optional<ATag> renderQuestionTranslationLink(
+      QuestionDefinition definition, String linkText) {
+    if (translationLocales.translatableLocales().isEmpty()) {
+      return Optional.empty();
+    }
     String link =
-        controllers.admin.routes.AdminQuestionTranslationsController.edit(
-                definition.getId(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
+        controllers.admin.routes.AdminQuestionTranslationsController.redirectToFirstLocale(
+                definition.getId())
             .url();
-    return new LinkElement()
-        .setId("translate-question-link-" + definition.getId())
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asAnchorText();
+    return Optional.of(
+        new LinkElement().setHref(link).setText(linkText).setStyles(Styles.MR_2).asAnchorText());
   }
 
   private ATag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
-    return new LinkElement()
-        .setId("view-question-link-" + definition.getId())
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asAnchorText();
+    return new LinkElement().setHref(link).setText(linkText).setStyles(Styles.MR_2).asAnchorText();
   }
 
-  private TdTag renderActionsCell(
+  private Pair<TdTag, Optional<Modal>> renderActionsCell(
       Optional<QuestionDefinition> active,
       Optional<QuestionDefinition> draft,
-      DeletionStatus deletionStatus,
+      ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
     TdTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
     if (active.isPresent()) {
@@ -268,24 +408,30 @@ public final class QuestionsListView extends BaseHtmlView {
         // Active with a draft.
         td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
         td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-        td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"))
-            .with(br());
+        Optional<ATag> maybeTranslationLink =
+            renderQuestionTranslationLink(draft.get(), "Manage Translations →");
+        if (maybeTranslationLink.isPresent()) {
+          td.with(maybeTranslationLink.get(), br());
+        }
         td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request)).with(br());
       }
     } else if (draft.isPresent()) {
       // First revision of a question.
       td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →")).with(br());
-    }
-    // Add Archive options.
-    if (active.isPresent()) {
-      if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
-        td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request)).with(br());
-      } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
-        td.with(renderArchiveQuestionLink(active.get(), "Archive →", request)).with(br());
+      Optional<ATag> maybeTranslationLink =
+          renderQuestionTranslationLink(draft.get(), "Manage Translations →");
+      if (maybeTranslationLink.isPresent()) {
+        td.with(maybeTranslationLink.get(), br());
       }
     }
-    return td;
+    // Add Archive options.
+    QuestionDefinition questionForArchive = draft.isPresent() ? draft.get() : active.get();
+    Pair<DomContent, Optional<Modal>> archiveOptionsAndModal =
+        renderArchiveOptions(questionForArchive, activeAndDraftQuestions, request);
+    DomContent archiveOptions = archiveOptionsAndModal.getLeft();
+    Optional<Modal> maybeArchiveModal = archiveOptionsAndModal.getRight();
+    td.with(archiveOptions, br());
+    return Pair.of(td, maybeArchiveModal);
   }
 
   private FormTag renderDiscardDraftLink(
@@ -293,34 +439,64 @@ public final class QuestionsListView extends BaseHtmlView {
     String link =
         controllers.admin.routes.AdminQuestionController.discardDraft(definition.getId()).url();
     return new LinkElement()
-        .setId("discard-question-link-" + definition.getId())
         .setHref(link)
         .setText(linkText)
         .setStyles(Styles.MR_2)
         .asHiddenFormLink(request);
   }
 
-  private FormTag renderRestoreQuestionLink(
-      QuestionDefinition definition, String linkText, Http.Request request) {
-    String link =
-        controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
-    return new LinkElement()
-        .setId("restore-question-link-" + definition.getId())
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asHiddenFormLink(request);
-  }
+  private Pair<DomContent, Optional<Modal>> renderArchiveOptions(
+      QuestionDefinition definition,
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      Http.Request request) {
+    switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
+      case PENDING_DELETION:
+        String restoreLink =
+            controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
+        return Pair.of(
+            new LinkElement()
+                .setHref(restoreLink)
+                .setText("Restore Archived →")
+                .setStyles(Styles.MR_2)
+                .asHiddenFormLink(request),
+            Optional.empty());
+      case DELETABLE:
+        String archiveLink =
+            controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
+        return Pair.of(
+            new LinkElement()
+                .setHref(archiveLink)
+                .setText("Archive →")
+                .setStyles(Styles.MR_2)
+                .asHiddenFormLink(request),
+            Optional.empty());
+      default:
+        DivTag modalHeader =
+            div()
+                .withClasses(
+                    Styles.P_2,
+                    Styles.BORDER,
+                    Styles.BORDER_GRAY_400,
+                    Styles.BG_GRAY_200,
+                    Styles.TEXT_SM)
+                .with(
+                    span(
+                        "This question cannot be archived since there are still programs"
+                            + " referencing  it. Please remove all references from the below"
+                            + " programs before attempting to archive."));
 
-  private FormTag renderArchiveQuestionLink(
-      QuestionDefinition definition, String linkText, Http.Request request) {
-    String link =
-        controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
-    return new LinkElement()
-        .setId("archive-question-link-" + definition.getId())
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asHiddenFormLink(request);
+        Optional<Modal> maybeModal =
+            makeReferencingProgramsModal(
+                definition.getName(),
+                activeAndDraftQuestions.getReferencingPrograms(definition.getName()),
+                Optional.of(modalHeader));
+
+        return Pair.of(
+            a("Archive →")
+                .withId(maybeModal.get().getTriggerButtonId())
+                .withClasses(
+                    BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, Styles.CURSOR_POINTER),
+            maybeModal);
+    }
   }
 }

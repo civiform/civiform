@@ -9,16 +9,16 @@ import {
   dropTables,
   seedCanonicalQuestions,
   resetSession,
-  endSession,
   selectApplicantLanguage,
   startSession,
+  validateAccessibility,
 } from './support'
 
 describe('file upload applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const {browser, page} = await startSession()
+    const {page} = await startSession()
     await dropTables(page)
     await seedCanonicalQuestions(page)
     await resetSession(page)
@@ -80,7 +80,7 @@ describe('file upload applicant flow', () => {
       const downloadedFileContent =
         await applicantQuestions.downloadSingleQuestionFromReviewPage()
       expect(downloadedFileContent).toEqual(fileContent)
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('with no file does not submit', async () => {
@@ -92,6 +92,15 @@ describe('file upload applicant flow', () => {
 
       const error = await pageObject.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
+    })
+
+    it('has no accessiblity violations', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(pageObject)
     })
   })
 
@@ -135,7 +144,7 @@ describe('file upload applicant flow', () => {
       expect(await error?.isHidden()).toEqual(false)
       await applicantQuestions.clickSkip()
 
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     it('can be skipped', async () => {
@@ -144,7 +153,7 @@ describe('file upload applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickSkip()
-      await applicantQuestions.submitFromReviewPage(programName)
+      await applicantQuestions.submitFromReviewPage()
     })
   })
 })

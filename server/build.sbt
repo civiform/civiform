@@ -31,15 +31,15 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.17.235",
-      "software.amazon.awssdk" % "ses" % "2.17.235",
+      "software.amazon.awssdk" % "s3" % "2.17.253",
+      "software.amazon.awssdk" % "ses" % "2.17.253",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.5.3",
-      "com.azure" % "azure-storage-blob" % "12.18.0",
+      "com.azure" % "azure-identity" % "1.5.4",
+      "com.azure" % "azure-storage-blob" % "12.19.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.4.0",
+      "org.postgresql" % "postgresql" % "42.4.1",
       "com.h2database" % "h2" % "2.1.214" % Test,
 
       // Parameterized testing
@@ -47,7 +47,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
-      "org.mockito" % "mockito-inline" % "4.6.1",
+      "org.mockito" % "mockito-inline" % "4.7.0",
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
@@ -78,7 +78,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly (),
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.14.0",
+      "com.google.errorprone" % "error_prone_core" % "2.15.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",
@@ -104,7 +104,7 @@ lazy val root = (project in file("."))
       "-XDcompilePolicy=simple",
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF",
+      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF",
       "-implicit:class",
       "-Werror"
     ),
