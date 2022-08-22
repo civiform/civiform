@@ -136,6 +136,6 @@ public abstract class BaseHtmlView {
 
   protected static final PTag requiredFieldsExplanationContent() {
     return p("Note: Fields marked with a * are required.")
-        .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600, Styles.MB_2);
+        .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600);
   }
 }
