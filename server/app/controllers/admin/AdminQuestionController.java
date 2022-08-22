@@ -41,7 +41,7 @@ import views.admin.questions.QuestionsListView;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing questions. */
-public class AdminQuestionController extends CiviFormController {
+public final class AdminQuestionController extends CiviFormController {
   private final QuestionService service;
   private final QuestionsListView listView;
   private final QuestionEditView editView;

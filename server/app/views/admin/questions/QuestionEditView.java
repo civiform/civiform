@@ -77,8 +77,9 @@ public final class QuestionEditView extends BaseHtmlView {
       String redirectUrl)
       throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
+    questionForm.setRedirectUrl(redirectUrl);
     return renderNewQuestionForm(
-        request, questionForm, enumeratorQuestionDefinitions, redirectUrl, Optional.empty());
+        request, questionForm, enumeratorQuestionDefinitions, /* message= */ Optional.empty());
   }
 
   /** Render a New Question Form with a partially filled form and an error message. */
@@ -88,14 +89,13 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
       ToastMessage errorMessage) {
     return renderNewQuestionForm(
-        request, questionForm, enumeratorQuestionDefinitions, "", Optional.of(errorMessage));
+        request, questionForm, enumeratorQuestionDefinitions, Optional.of(errorMessage));
   }
 
   private Content renderNewQuestionForm(
       Request request,
       QuestionForm questionForm,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
-      String redirectUrl,
       Optional<ToastMessage> message) {
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("New %s question", questionType.getLabel().toLowerCase());
@@ -105,11 +105,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .with(
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
                     .with(
-                        makeCsrfTokenInputTag(request),
-                        input()
-                            .withName(QuestionForm.REDIRECT_URL_PARAM)
-                            .withValue(redirectUrl)
-                            .isHidden()));
+                        makeCsrfTokenInputTag(request)));
 
     message
         .map(m -> m.setDismissible(true))
@@ -296,6 +292,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .with(
                 // Hidden input indicating the type of question to be created.
                 input().isHidden().withName("questionType").withValue(questionType.name()),
+                input().isHidden().withName(QuestionForm.REDIRECT_URL_PARAM).withValue(questionForm.getRedirectUrl()),
                 requiredFieldsExplanationContent());
 
     // The question name and enumerator fields should not be changed after the question is created.
