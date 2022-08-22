@@ -1,7 +1,5 @@
 package views.components;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import services.question.types.QuestionType;
 
 /**
@@ -289,8 +287,6 @@ public enum Icons {
   ARROW_UPWARD(48, "M22.5 40V13.7L10.1 26.1 8 24 24 8l16 16-2.1 2.1-12.4-12.4V40Z"),
   ARROW_DOWNWARD(48, "M24 40 8 24l2.1-2.1 12.4 12.4V8h3v26.3l12.4-12.4L40 24Z");
 
-  private static final Logger logger = LoggerFactory.getLogger(Icons.class);
-
   public final String path;
   private final int size;
 
@@ -300,23 +296,10 @@ public enum Icons {
   }
 
   /**
-   * Returns SVG element for given icon. Note that callers need to size this element using Tailwind
-   * classes like any other element.
-   */
-  public static SvgTag svg(Icons icon) {
-    return svg(icon, icon.size);
-  }
-
-  /**
    * Returns SVG element for given question. Note that callers need to size this element using
    * Tailwind classes like any other element.
    */
   public static SvgTag questionTypeSvg(QuestionType type) {
-    return questionTypeSvg(type, 24);
-  }
-
-  /** Don't use it. Use {@link #questionTypeSvg(QuestionType type) instead} */
-  public static SvgTag questionTypeSvg(QuestionType type, int size) {
     Icons icon;
     switch (type) {
       case ADDRESS:
@@ -326,7 +309,7 @@ public enum Icons {
         icon = Icons.CHECKBOX;
         break;
       case CURRENCY:
-        return svg(Icons.CURRENCY, size)
+        return svg(Icons.CURRENCY)
             .attr("fill", "none")
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round")
@@ -359,7 +342,7 @@ public enum Icons {
         icon = Icons.ENUMERATOR;
         break;
       case STATIC:
-        return svg(Icons.ANNOTATION, size)
+        return svg(Icons.ANNOTATION)
             .attr("fill", "none")
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round")
@@ -370,31 +353,25 @@ public enum Icons {
       default:
         icon = Icons.UNKNOWN;
     }
-    return svg(icon, size);
+    return svg(icon);
   }
 
-  /** Don't use it. Use {@link #questionTypeSvg(QuestionType type) instead} */
-  public static SvgTag svg(Icons icon, int size) {
-    if (icon.size != size) {
-      logger.error(
-          "Trying override size of icon {} to be {} while its actual size{}. Don't pass"
-              + " explicit size to svg(). See"
-              + " https://github.com/civiform/civiform/issues/3148",
-          icon,
-          size,
-          icon.size);
-    }
+  /**
+   * Returns SVG element for given icon. Note that callers need to size this element using Tailwind
+   * classes like any other element.
+   */
+  public static SvgTag svg(Icons icon) {
     // Setting the viewBox to a specific height/width is insufficient to
     // actually cause the SVG's bounds to match. Here, the width / height
     // of the SVG element are explicitly set, which is more consistent
     // with what one would expect given the method signature.
     return svg()
         .with(path(icon.path))
-        .attr("viewBox", String.format("0 0 %1$d %2$d", size, size))
+        .attr("viewBox", String.format("0 0 %1$d %2$d", icon.size, icon.size))
         // TODO(#3148): don't set width/height on the element. Callers should
         // style element themselves using tailwind's classes.
-        .withWidth(String.valueOf(size))
-        .withHeight(String.valueOf(size));
+        .withWidth(String.valueOf(icon.size))
+        .withHeight(String.valueOf(icon.size));
   }
 
   private static SvgTag svg() {
