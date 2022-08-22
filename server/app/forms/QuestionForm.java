@@ -60,50 +60,50 @@ public abstract class QuestionForm {
     }
   }
 
-  public String getQuestionName() {
+  public final String getQuestionName() {
     return questionName;
   }
 
-  public void setQuestionName(String questionName) {
+  public final void setQuestionName(String questionName) {
     this.questionName = checkNotNull(questionName);
   }
 
-  public String getQuestionDescription() {
+  public final String getQuestionDescription() {
     return questionDescription;
   }
 
-  public void setQuestionDescription(String questionDescription) {
+  public final void setQuestionDescription(String questionDescription) {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public Optional<Long> getEnumeratorId() {
+  public final Optional<Long> getEnumeratorId() {
     return enumeratorId;
   }
 
-  public void setEnumeratorId(String enumeratorId) {
+  public final void setEnumeratorId(String enumeratorId) {
     this.enumeratorId =
         enumeratorId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(enumeratorId));
   }
 
   public abstract QuestionType getQuestionType();
 
-  public String getQuestionText() {
+  public final String getQuestionText() {
     return questionText;
   }
 
-  public void setQuestionText(String questionText) {
+  public final void setQuestionText(String questionText) {
     this.questionText = checkNotNull(questionText);
   }
 
-  public String getQuestionHelpText() {
+  public final String getQuestionHelpText() {
     return questionHelpText;
   }
 
-  public void setQuestionHelpText(String questionHelpText) {
+  public final void setQuestionHelpText(String questionHelpText) {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
-  public String getRedirectUrl() {
+  public final String getRedirectUrl() {
     if (!Strings.isNullOrEmpty(redirectUrl) && URI.create(redirectUrl).isAbsolute()) {
       // Only allow relative URLs to ensure that we redirect to the same domain.
       throw new RuntimeException("Invalid absolute redirect URL. Only relative URLs are allowed.");
@@ -111,11 +111,11 @@ public abstract class QuestionForm {
     return redirectUrl;
   }
 
-  public void setRedirectUrl(String redirectUrl) {
+  public final void setRedirectUrl(String redirectUrl) {
     this.redirectUrl = checkNotNull(redirectUrl);
   }
 
-  public QuestionDefinitionBuilder getBuilder() {
+  public final QuestionDefinitionBuilder getBuilder() {
     LocalizedStrings questionTextMap =
         questionText.isEmpty()
             ? LocalizedStrings.of()
@@ -136,7 +136,7 @@ public abstract class QuestionForm {
     return builder;
   }
 
-  public void setQuestionExportState(String questionExportState) {
+  public final void setQuestionExportState(String questionExportState) {
     this.questionExportState = Optional.of(questionExportState);
   }
 
@@ -154,7 +154,7 @@ public abstract class QuestionForm {
    * The {@link QuestionTag} to use for export state. Callers external to this class should use this
    * rather than {@link getQuestionExportState}.
    */
-  public QuestionTag getQuestionExportStateTag() {
+  public final QuestionTag getQuestionExportStateTag() {
     String rawState = getQuestionExportState();
     return rawState.isEmpty() ? QuestionTag.NON_DEMOGRAPHIC : QuestionTag.valueOf(rawState);
   }
@@ -164,7 +164,7 @@ public abstract class QuestionForm {
    * requires public getters and setters. Callers external to this class should prefer {@link
    * getQuestionExportStateTag}.
    */
-  public String getQuestionExportState() {
+  public final String getQuestionExportState() {
     if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(getQuestionType())) {
       return QuestionTag.NON_DEMOGRAPHIC.getValue();
     }
