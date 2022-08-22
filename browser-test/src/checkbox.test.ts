@@ -10,6 +10,7 @@ import {
   startSession,
   resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Checkbox question for applicant flow', () => {
@@ -47,6 +48,25 @@ describe('Checkbox question for applicant flow', () => {
       )
 
       await logout(pageObject)
+    })
+    
+    it('screenshot', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(pageObject, {fullPage: true})
+    })
+    
+    it('error screenshot', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+  
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+  
+      await validateScreenshot(pageObject, {fullPage: true})
     })
 
     it('with single checked box submits successfully', async () => {

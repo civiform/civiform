@@ -12,6 +12,7 @@ import {
   selectApplicantLanguage,
   startSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('file upload applicant flow', () => {
@@ -48,6 +49,25 @@ describe('file upload applicant flow', () => {
       )
 
       await logout(pageObject)
+    })
+    
+    it('screenshot', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(pageObject, {fullPage: true})
+    })
+    
+    it('error screenshot', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickUpload()
+
+      await validateScreenshot(pageObject, {fullPage: true})
     })
 
     it('does not show errors initially', async () => {

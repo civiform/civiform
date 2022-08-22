@@ -10,6 +10,7 @@ import {
   startSession,
   resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Static text question for applicant flow', () => {
@@ -43,6 +44,15 @@ describe('Static text question for applicant flow', () => {
 
   afterEach(async () => {
     await resetSession(pageObject)
+  })
+    
+  it('screenshot', async () => {
+    await loginAsGuest(pageObject)
+    await selectApplicantLanguage(pageObject, 'English')
+
+    await applicantQuestions.applyProgram(programName)
+
+    await validateScreenshot(pageObject, {fullPage: true})
   })
 
   it('displays static text', async () => {
