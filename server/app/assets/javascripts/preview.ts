@@ -9,20 +9,20 @@ class PreviewController {
     'enumerator-question-entity-type-input'
   private static readonly QUESTION_ADD_OPTION_ID = 'add-new-option'
   private static readonly QUESTION_SETTINGS_ID = 'question-settings'
+  private static readonly QUESTION_ENTITY_TYPE_BUTTON_ID =
+    'enumerator-field-add-button'
+  private static readonly REPEATED_QUESTION_INFORMATION_ID =
+    'repeated-question-information'
   private static readonly SAMPLE_QUESTION_ID = 'sample-question'
 
-  private static readonly QUESTION_TEXT_CLASS = '.cf-applicant-question-text'
-  private static readonly QUESTION_HELP_TEXT_CLASS =
+  private static readonly QUESTION_TEXT_SELECTOR = '.cf-applicant-question-text'
+  private static readonly QUESTION_HELP_TEXT_SELECTOR =
     '.cf-applicant-question-help-text'
-  private static readonly REPEATED_QUESTION_INFORMATION_ID =
-    '#repeated-question-information'
-  private static readonly QUESTION_ENTITY_TYPE_BUTTON_ID =
-    '#enumerator-field-add-button'
-  private static readonly QUESTION_ENTITY_NAME_INPUT_CLASS =
+  private static readonly QUESTION_ENTITY_NAME_INPUT_SELECTOR =
     '.cf-entity-name-input'
-  private static readonly QUESTION_ENTITY_DELETE_BUTTON_CLASS =
+  private static readonly QUESTION_ENTITY_DELETE_BUTTON_SELECTOR =
     '.cf-enumerator-delete-button'
-  private static readonly QUESTION_MULTI_OPTION_CLASS =
+  private static readonly QUESTION_MULTI_OPTION_SELECTOR =
     '.cf-multi-option-question-option'
   private static readonly QUESTION_MULTI_OPTION_VALUE_CLASS =
     'cf-multi-option-value'
@@ -137,7 +137,7 @@ class PreviewController {
     questionPreviewContainer: HTMLElement
   }) {
     const firstPreviewOption = questionPreviewContainer.querySelector(
-      PreviewController.QUESTION_MULTI_OPTION_CLASS,
+      PreviewController.QUESTION_MULTI_OPTION_SELECTOR,
     )
     if (!firstPreviewOption) {
       return
@@ -197,7 +197,7 @@ class PreviewController {
   }) {
     const configuredOptions = Array.from(
       questionSettings.querySelectorAll(
-        `${PreviewController.QUESTION_MULTI_OPTION_CLASS} input`,
+        `${PreviewController.QUESTION_MULTI_OPTION_SELECTOR} input`,
       ),
     ).map((el) => {
       return (el as HTMLInputElement).value
@@ -209,7 +209,7 @@ class PreviewController {
     // Reset the option list in the preview.
     Array.from(
       previewQuestionOptionContainer.querySelectorAll(
-        PreviewController.QUESTION_MULTI_OPTION_CLASS,
+        PreviewController.QUESTION_MULTI_OPTION_SELECTOR,
       ),
     ).forEach((previewOption) => {
       previewOption.remove()
@@ -245,7 +245,7 @@ class PreviewController {
       contentElement.classList.add('pr-16')
 
       const contentParent = document.querySelector(
-        PreviewController.QUESTION_TEXT_CLASS,
+        PreviewController.QUESTION_TEXT_SELECTOR,
       ) as Element
       if (contentParent) {
         contentParent.innerHTML = ''
@@ -253,7 +253,7 @@ class PreviewController {
       }
     } else {
       PreviewController.setTextAndHighlightEnumeratorReferences(
-        PreviewController.QUESTION_TEXT_CLASS,
+        PreviewController.QUESTION_TEXT_SELECTOR,
         text,
       )
     }
@@ -261,7 +261,7 @@ class PreviewController {
 
   private static updateFromNewQuestionHelpText(helpText: string) {
     PreviewController.setTextAndHighlightEnumeratorReferences(
-      PreviewController.QUESTION_HELP_TEXT_CLASS,
+      PreviewController.QUESTION_HELP_TEXT_SELECTOR,
       helpText,
     )
   }
@@ -269,7 +269,7 @@ class PreviewController {
   private static updateFromNewEnumeratorSelector(
     enumeratorSelectorValue: string,
   ) {
-    const repeatedQuestionInformation = document.querySelector(
+    const repeatedQuestionInformation = document.getElementById(
       PreviewController.REPEATED_QUESTION_INFORMATION_ID,
     )
     repeatedQuestionInformation.classList.toggle(
@@ -281,15 +281,15 @@ class PreviewController {
   private static updateFromNewEntityType(entityType: string) {
     entityType = entityType || PreviewController.DEFAULT_ENTITY_TYPE
     PreviewController.setAllMatchingElements(
-      PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' label',
+      PreviewController.QUESTION_ENTITY_NAME_INPUT_SELECTOR + ' label',
       entityType + ' name',
     )
     PreviewController.setTextContent(
-      PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
+      `#${PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID}`,
       'Add ' + entityType,
     )
     PreviewController.setAllMatchingElements(
-      PreviewController.QUESTION_ENTITY_DELETE_BUTTON_CLASS,
+      PreviewController.QUESTION_ENTITY_DELETE_BUTTON_SELECTOR,
       'Remove ' + entityType,
     )
   }
