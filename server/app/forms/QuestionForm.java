@@ -16,6 +16,8 @@ import services.question.types.QuestionType;
 
 /** Superclass for all forms updating a question. */
 public abstract class QuestionForm {
+  public static final String REDIRECT_URL_PARAM = "redirectUrl";
+
   private String questionName;
   private String questionDescription;
   private Optional<Long> enumeratorId;
@@ -23,6 +25,7 @@ public abstract class QuestionForm {
   private String questionHelpText;
   private Optional<String> questionExportState;
   private QuestionDefinition qd;
+  private String redirectUrl;
 
   protected QuestionForm() {
     questionName = "";
@@ -31,6 +34,7 @@ public abstract class QuestionForm {
     questionText = "";
     questionHelpText = "";
     questionExportState = Optional.of("");
+    redirectUrl = "";
   }
 
   protected QuestionForm(QuestionDefinition qd) {
@@ -39,6 +43,7 @@ public abstract class QuestionForm {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     enumeratorId = qd.getEnumeratorId();
+    redirectUrl = "";
 
     try {
       questionText = qd.getQuestionText().get(LocalizedStrings.DEFAULT_LOCALE);
@@ -94,6 +99,14 @@ public abstract class QuestionForm {
 
   public void setQuestionHelpText(String questionHelpText) {
     this.questionHelpText = checkNotNull(questionHelpText);
+  }
+
+  public String getRedirectUrl() {
+    return redirectUrl;
+  }
+
+  public void setRedirectUrl(String redirectUrl) {
+    this.redirectUrl = checkNotNull(redirectUrl);
   }
 
   public QuestionDefinitionBuilder getBuilder() {

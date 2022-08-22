@@ -1,5 +1,6 @@
 package views.components;
 
+import static com.google.common.base.Preconditions.checkState;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -7,6 +8,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
@@ -41,6 +43,7 @@ public class QuestionBank {
   private ProgramDefinition program;
   private BlockDefinition blockDefinition;
   private Optional<Long> enumeratorQuestionId;
+  private Optional<String> questionCreateRedirectUrl = Optional.empty();
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
   private Optional<InputTag> maybeCsrfTag = Optional.empty();
   private String questionAction = "";
@@ -67,6 +70,12 @@ public class QuestionBank {
 
   public QuestionBank setQuestions(ImmutableList<QuestionDefinition> questionDefinitions) {
     this.questions = questionDefinitions;
+    return this;
+  }
+
+  public QuestionBank setQuestionCreateRedirectUrl(String url) {
+    checkState(!Strings.isNullOrEmpty(url), "redirect URL is required");
+    this.questionCreateRedirectUrl = Optional.of(url);
     return this;
   }
 
@@ -121,7 +130,7 @@ public class QuestionBank {
                             .withClass(Styles.FLEX)
                             .with(
                                 div().withClass(Styles.FLEX_GROW),
-                                CreateQuestionButton.renderCreateQuestionButton()))));
+                                CreateQuestionButton.renderCreateQuestionButton(questionCreateRedirectUrl.orElseThrow())))));
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
 

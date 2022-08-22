@@ -73,11 +73,12 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderNewQuestionForm(
       Request request,
       QuestionType questionType,
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions)
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      String redirectUrl)
       throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     return renderNewQuestionForm(
-        request, questionForm, enumeratorQuestionDefinitions, Optional.empty());
+        request, questionForm, enumeratorQuestionDefinitions, redirectUrl, Optional.empty());
   }
 
   /** Render a New Question Form with a partially filled form and an error message. */
@@ -87,13 +88,14 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
       ToastMessage errorMessage) {
     return renderNewQuestionForm(
-        request, questionForm, enumeratorQuestionDefinitions, Optional.of(errorMessage));
+        request, questionForm, enumeratorQuestionDefinitions, "", Optional.of(errorMessage));
   }
 
   private Content renderNewQuestionForm(
       Request request,
       QuestionForm questionForm,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      String redirectUrl,
       Optional<ToastMessage> message) {
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("New %s question", questionType.getLabel().toLowerCase());
@@ -102,7 +104,12 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title, questionForm)
             .with(
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
-                    .with(makeCsrfTokenInputTag(request)));
+                    .with(
+                        makeCsrfTokenInputTag(request),
+                        input()
+                            .withName(QuestionForm.REDIRECT_URL_PARAM)
+                            .withValue(redirectUrl)
+                            .isHidden()));
 
     message
         .map(m -> m.setDismissible(true))

@@ -108,7 +108,7 @@ public class AdminQuestionController extends CiviFormController {
 
   /** Return a HTML page containing a form to create a new question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result newOne(Request request, String type) {
+  public Result newOne(Request request, String type, String redirectUrl) {
     QuestionType questionType;
     try {
       questionType = QuestionType.of(type);
@@ -125,7 +125,7 @@ public class AdminQuestionController extends CiviFormController {
 
     try {
       return ok(
-          editView.renderNewQuestionForm(request, questionType, enumeratorQuestionDefinitions));
+          editView.renderNewQuestionForm(request, questionType, enumeratorQuestionDefinitions, redirectUrl));
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
     }
@@ -170,7 +170,12 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
-    return withSuccessMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+    Result responseResult = redirect(routes.AdminQuestionController.index().url());
+    if (!questionForm.getRedirectUrl().isEmpty()) {
+      // TODO(clouser): Check that this is a relative url.
+      responseResult = redirect(questionForm.getRedirectUrl());
+    }
+    return withSuccessMessage(responseResult, successMessage);
   }
 
   /** POST endpoint for un-archiving a question. */

@@ -82,7 +82,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .addModals(questionTableAndModals.getRight())
             .addMainContent(
                 renderHeader(title),
-                CreateQuestionButton.renderCreateQuestionButton(),
+                CreateQuestionButton.renderCreateQuestionButton(controllers.admin.routes.AdminQuestionController.index().url()),
                 div(questionTableAndModals.getLeft()).withClasses(Styles.M_4),
                 renderSummary(activeAndDraftQuestions));
 

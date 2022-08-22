@@ -31,7 +31,7 @@ import views.admin.programs.ProgramBlockEditView;
 import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
-public class AdminProgramBlocksController extends CiviFormController {
+public final class AdminProgramBlocksController extends CiviFormController {
 
   private final ProgramService programService;
   private final ProgramBlockEditView editView;
@@ -115,7 +115,9 @@ public class AdminProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
-      return renderEditViewWithMessage(request, program, block, /* message= */ Optional.empty());
+
+      Optional<ToastMessage> maybeToastMessage = request.flash().get("success").map(ToastMessage::success);
+      return renderEditViewWithMessage(request, program, block, maybeToastMessage);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }

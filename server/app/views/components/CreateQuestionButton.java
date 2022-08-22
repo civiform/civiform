@@ -4,6 +4,8 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 
+import java.util.Optional;
+
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import services.question.types.QuestionType;
@@ -15,7 +17,7 @@ import views.style.Styles;
  */
 public final class CreateQuestionButton {
   /** Renders the "Create new question" button with a dropdown for each question type. */
-  public static DivTag renderCreateQuestionButton() {
+  public static DivTag renderCreateQuestionButton(String questionCreateRedirectUrl) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     DivTag linkButton =
@@ -35,7 +37,7 @@ public final class CreateQuestionButton {
 
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
-      String link = controllers.admin.routes.AdminQuestionController.newOne(typeString).url();
+      String link = controllers.admin.routes.AdminQuestionController.newOne(typeString, questionCreateRedirectUrl).url();
       ATag linkTag =
           a().withHref(link)
               .withId(String.format("create-%s-question", typeString))
