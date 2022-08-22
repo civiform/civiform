@@ -66,9 +66,7 @@ describe('program creation', () => {
       '.cf-program-question:has-text("apc-name") >> .cf-remove-question-button',
     )
     await page.click('button:text("apc-enumerator")')
-    expect(await page.innerText('id=question-bank-questions')).toBe(
-      'Add Question',
-    )
+    expect(await page.innerText('id=question-bank-questions')).toBe('')
 
     // Create a repeated block. The repeated question should be the only option.
     await page.click('#create-repeated-block-button')

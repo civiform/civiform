@@ -106,9 +106,7 @@ describe('End to end enumerator test', () => {
 
     // Add an enumerator question. All options should go away.
     await pageObject.click('button:text("enumerator-ete-householdmembers")')
-    expect(await pageObject.innerText('id=question-bank-questions')).toBe(
-      'Add Question',
-    )
+    expect(await pageObject.innerText('id=question-bank-questions')).toBe('')
 
     // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
     await pageObject.click(

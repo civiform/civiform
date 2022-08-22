@@ -85,7 +85,7 @@ public class QuestionBank {
     innerDiv.with(contentDiv);
 
     H1Tag headerDiv = h1("Add Question").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
-    contentDiv.withId("question-bank-questions").with(div().with(headerDiv));
+    contentDiv.with(div().with(headerDiv));
 
     InputTag filterInput =
         input()
@@ -129,8 +129,10 @@ public class QuestionBank {
         ImmutableList.sortedCopyOf(
             Comparator.comparing(QuestionDefinition::getName), filteredQuestions);
 
+    DivTag questionsDiv = div().withId("question-bank-questions");
     sortedQuestions.forEach(
-        questionDefinition -> contentDiv.with(renderQuestionDefinition(questionDefinition)));
+        questionDefinition -> questionsDiv.with(renderQuestionDefinition(questionDefinition)));
+    contentDiv.with(questionsDiv);
 
     return questionForm;
   }
