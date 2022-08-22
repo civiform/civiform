@@ -102,7 +102,7 @@ public final class QuestionBank {
                             .with(
                                 div().withClass(Styles.FLEX_GROW),
                                 CreateQuestionButton.renderCreateQuestionButton(
-                                    params.questionCreateRedirectUrl().orElseThrow())))));
+                                    params.questionCreateRedirectUrl())))));
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
 
@@ -248,7 +248,7 @@ public final class QuestionBank {
 
     abstract BlockDefinition blockDefinition();
 
-    abstract Optional<String> questionCreateRedirectUrl();
+    abstract String questionCreateRedirectUrl();
 
     abstract ImmutableList<QuestionDefinition> questions();
 
@@ -266,7 +266,7 @@ public final class QuestionBank {
 
       public abstract Builder setBlockDefinition(BlockDefinition v);
 
-      public abstract Builder setQuestionCreateRedirectUrl(Optional<String> v);
+      public abstract Builder setQuestionCreateRedirectUrl(String v);
 
       public abstract Builder setQuestions(ImmutableList<QuestionDefinition> v);
 

@@ -612,10 +612,9 @@ public final class ProgramBlockEditView extends BaseHtmlView {
                 .setProgram(program)
                 .setBlockDefinition(blockDefinition)
                 .setQuestionCreateRedirectUrl(
-                    Optional.of(
-                        controllers.admin.routes.AdminProgramBlocksController.edit(
-                                program.id(), blockDefinition.id())
-                            .url()))
+                    controllers.admin.routes.AdminProgramBlocksController.edit(
+                            program.id(), blockDefinition.id())
+                        .url())
                 .build());
     return qb.getContainer();
   }
