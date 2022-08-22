@@ -12,10 +12,15 @@ import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import javax.print.attribute.URISyntax;
+
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -172,7 +177,10 @@ public final class AdminQuestionController extends CiviFormController {
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
     Result responseResult = redirect(routes.AdminQuestionController.index().url());
     if (!questionForm.getRedirectUrl().isEmpty()) {
-      // TODO(clouser): Check that this is a relative url.
+      // Only allow relative URLs to ensure that we redirect to the same domain.
+      if (URI.create(questionForm.getRedirectUrl()).isAbsolute()) {
+        return badRequest("");
+      }
       responseResult = redirect(questionForm.getRedirectUrl());
     }
     return withSuccessMessage(responseResult, successMessage);
