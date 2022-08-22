@@ -4,24 +4,18 @@ import {
   AdminQuestions,
   AdminPrograms,
   endSession,
-  dropTables,
   seedCanonicalQuestions,
-  waitForPageJsLoad,
+  waitForPageJsLoad, validateScreenshot,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 
 describe('normal question lifecycle', () => {
-  beforeAll(async () => {
-    const {page} = await startSession()
-    await dropTables(page)
-    await seedCanonicalQuestions(page)
-  })
-
   it('has canonical questions available by default', async () => {
-    const {browser, page} = await startSession()
+    const {browser, page} = await startSession(/* clearDb= */ true)
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
 
+    await seedCanonicalQuestions(page)
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Name')
     await adminQuestions.expectDraftQuestionExist('Applicant Date of Birth')
@@ -33,7 +27,7 @@ describe('normal question lifecycle', () => {
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
     it(`${type} question: create, update, publish, create a new version, and update`, async () => {
-      const {browser, page} = await startSession()
+      const {browser, page} = await startSession(/* clearDb= */ true)
       page.setDefaultTimeout(4000)
 
       await loginAsAdmin(page)
@@ -84,9 +78,17 @@ describe('normal question lifecycle', () => {
 
       await adminQuestions.expectActiveQuestions(allQuestions)
 
+      // Take screenshot of questions being published and active.
+      await adminQuestions.gotoAdminQuestionsPage()
+      await validateScreenshot(page)
+
       await adminQuestions.createNewVersionForQuestions(allQuestions)
 
       await adminQuestions.updateAllQuestions(allQuestions)
+
+      // Take screenshot of question being in draft state.
+      await adminQuestions.gotoAdminQuestionsPage()
+      await validateScreenshot(page)
 
       await adminPrograms.publishProgram(programName)
 
@@ -101,7 +103,7 @@ describe('normal question lifecycle', () => {
   }
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
-    const {page} = await startSession()
+    const {page} = await startSession(/* clearDb= */ true)
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -125,7 +127,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
-    const {page} = await startSession()
+    const {page} = await startSession(/* clearDb= */ true)
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -149,7 +151,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
-    const {page} = await startSession()
+    const {page} = await startSession(/* clearDb= */ true)
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -178,7 +180,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
-    const {page} = await startSession()
+    const {page} = await startSession(/* clearDb= */ true)
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -209,7 +211,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('persists export state', async () => {
-    const {page} = await startSession()
+    const {page} = await startSession(/* clearDb= */ true)
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -257,7 +259,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
-    const {page} = await startSession()
+    const {page} = await startSession(/* clearDb= */ true)
     await loginAsAdmin(page)
 
     const adminQuestions = new AdminQuestions(page)
