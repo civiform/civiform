@@ -194,11 +194,11 @@ export const seedCanonicalQuestions = async (page: Page) => {
 }
 
 export const enableFeatureFlag = async (page: Page, flag: string) => {
-  await page.goto(BASE_URL + '/dev/feature/$flag/enable')
+  await page.goto(BASE_URL + `/dev/feature/${flag}/enable`)
 }
 
 export const disableFeatureFlag = async (page: Page, flag: string) => {
-  await page.goto(BASE_URL + '/dev/feature/$flag/disable')
+  await page.goto(BASE_URL + `/dev/feature/${flag}/disable`)
 }
 
 export const closeWarningMessage = async (page: Page) => {

@@ -27,13 +27,6 @@ describe('view program statuses', () => {
     adminPrograms = new AdminPrograms(pageObject)
     applicantQuestions = new ApplicantQuestions(pageObject)
     adminProgramStatuses = new AdminProgramStatuses(pageObject)
-    await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
-    // Need to navigate back to the Admin page after enabling the feature flag.
-    await gotoEndpoint(pageObject, '')
-  })
-
-  afterAll(async () => {
-    await disableFeatureFlag(pageObject, 'application_status_tracking_enabled')
   })
 
   describe('without program statuses', () => {
@@ -79,6 +72,7 @@ describe('view program statuses', () => {
     const statusName = 'Status 1'
     beforeAll(async () => {
       await loginAsAdmin(pageObject)
+      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithStatusesName)
@@ -99,6 +93,7 @@ describe('view program statuses', () => {
 
       await logout(pageObject)
       await loginAsProgramAdmin(pageObject)
+      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
 
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
