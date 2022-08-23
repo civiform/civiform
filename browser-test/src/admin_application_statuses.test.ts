@@ -14,18 +14,8 @@ import {
   disableFeatureFlag,
 } from './support'
 import {Page} from 'playwright'
-import EmptyFunction = jest.EmptyFunction
 
-const describeIf = (
-  condition: () => boolean,
-  name: string,
-  fn: EmptyFunction,
-) => (condition() ? describe(name, fn) : describe.skip(name, fn))
-
-describeIf(
-  () => !process.env.BROWSER_TESTS_ONLY_RUN_PROBER_TESTS,
-  'view program statuses',
-  () => {
+describe('view program statuses', () => {
     let pageObject: Page
     let adminPrograms: AdminPrograms
     let applicantQuestions: ApplicantQuestions
