@@ -10,8 +10,6 @@ import {
   userDisplayName,
   AdminProgramStatuses,
   enableFeatureFlag,
-  gotoEndpoint,
-  disableFeatureFlag,
 } from './support'
 import {Page} from 'playwright'
 
