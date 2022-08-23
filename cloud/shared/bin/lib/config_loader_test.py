@@ -113,7 +113,8 @@ class TestConfigLoader(unittest.TestCase):
 
         config_loader.configs = {"FOO": "somenumbers123"}
         self.assertEqual(
-            config_loader.validate_config(), ['[FOO] \'somenumbers123\' not valid: some message'])
+            config_loader.validate_config(),
+            ['[FOO] \'somenumbers123\' not valid: some message'])
 
     def test_value_regex_ignored_for_not_required_and_not_provided(self):
         config_loader = ConfigLoader()
