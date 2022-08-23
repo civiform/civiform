@@ -197,10 +197,6 @@ export const enableFeatureFlag = async (page: Page, flag: string) => {
   await page.goto(BASE_URL + `/dev/feature/${flag}/enable`)
 }
 
-export const disableFeatureFlag = async (page: Page, flag: string) => {
-  await page.goto(BASE_URL + `/dev/feature/${flag}/disable`)
-}
-
 export const closeWarningMessage = async (page: Page) => {
   // The warning message may be in the way of this link
   const element = await page.$('#warning-message-dismiss')
