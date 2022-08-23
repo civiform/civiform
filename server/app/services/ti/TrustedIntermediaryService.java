@@ -126,7 +126,8 @@ public final class TrustedIntermediaryService {
     try {
       searchedResult = searchAccounts(searchParameters, allAccounts);
     } catch (DateTimeParseException e) {
-      TrustedIntermediarySearchResult.fail(allAccounts, "Please enter date in MM/dd/yyyy format");
+      return TrustedIntermediarySearchResult.fail(
+          allAccounts, "Please enter date in MM/dd/yyyy format");
     }
     return TrustedIntermediarySearchResult.success(searchedResult);
   }

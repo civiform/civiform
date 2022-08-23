@@ -242,11 +242,11 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void getManagedAccounts_SearchByDob() {
     setupTIAccount("First", "2022-07-08", "email1", tiGroup);
     setupTIAccount("Second", "2022-07-08", "email2", tiGroup);
-    setupTIAccount("Third", "2022-07-10", "email3", tiGroup);
+    setupTIAccount("Third", "2022-12-12", "email3", tiGroup);
     SearchParameters searchParameters =
         SearchParameters.builder()
             .setNameQuery(Optional.empty())
-            .setDateQuery(Optional.of("2022-07-10"))
+            .setDateQuery(Optional.of("2022-12-12"))
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
@@ -273,7 +273,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   @Test
   public void getManagedAccounts_ExpectUnformattedDobException() {
     setupTIAccount("First", "2022-07-08", "email11", tiGroup);
-    setupTIAccount("Second", "2022-07-08", "email21", tiGroup);
+    setupTIAccount("Second", "2022-10-10", "email21", tiGroup);
     setupTIAccount("Third", "2022-07-10", "email31", tiGroup);
     SearchParameters searchParameters =
         SearchParameters.builder()
