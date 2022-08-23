@@ -28,21 +28,28 @@ public class FeatureFlagsTest {
   }
 
   @Test
-  public void isStatusTrackingEnabled_enabled() {
+  public void isStatusTrackingEnabled_withOverride_isEnabled() {
     assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesEnabledRequest)).isTrue();
   }
 
   @Test
-  public void isStatusTrackingEnabled_disabled() {
+  public void isStatusTrackingEnabled_isDisabled() {
     assertThat(featureFlags.isStatusTrackingEnabled(fakeRequest().build())).isFalse();
   }
 
   @Test
-  public void isStatusTrackingEnabled_enabled_overridesDisabled() {
-    featureFlags =
-        new FeatureFlags(
-            ConfigFactory.parseMap(ImmutableMap.of("feature_flag_overrides_enabled", "false")));
+  public void isStatusTrackingEnabled_withOverrides_overridesDisabled_doesNotOverride() {
+    featureFlags = new FeatureFlags(ConfigFactory.empty());
 
     assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesEnabledRequest)).isFalse();
+  }
+
+  @Test
+  public void isStatusTrackingEnabled_withDefault_overridesDisabled_isEnabled() {
+    featureFlags =
+        new FeatureFlags(
+            ConfigFactory.parseMap(ImmutableMap.of("application_status_tracking_enabled", "true")));
+
+    assertThat(featureFlags.isStatusTrackingEnabled(fakeRequest().build())).isTrue();
   }
 }

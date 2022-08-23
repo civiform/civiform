@@ -6,6 +6,7 @@ import featureflags.FeatureFlags;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.Environment;
+import play.mvc.Http.HeaderNames;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 
@@ -27,7 +28,7 @@ public final class FeatureFlagOverrideController extends DevController {
     if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
-    String redirectTo = request.getHeaders().get("referer").orElse("/");
+    String redirectTo = request.getHeaders().get(HeaderNames.REFERER).orElse("/");
 
     return redirect(redirectTo).addingToSession(request, flagName, "true");
   }
@@ -37,7 +38,7 @@ public final class FeatureFlagOverrideController extends DevController {
     if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
-    String redirectTo = request.getHeaders().get("referer").orElse("/");
+    String redirectTo = request.getHeaders().get(HeaderNames.REFERER).orElse("/");
     return redirect(redirectTo).addingToSession(request, flagName, "false");
   }
 }
