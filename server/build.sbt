@@ -126,6 +126,11 @@ lazy val root = (project in file("."))
     ),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
+    // Uncomment the following line to disable JVM forking, which allows attaching a remote
+    // debugger (https://stackoverflow.com/a/57396198). This isn't disabled unilaterally
+    // since running in non-forked mode causes javaOptions to not be propagated, which
+    // causes the configuration override above not to have an effect.
+    // Test / fork := false,
     // Turn off scaladoc link warnings
     Compile / doc / scalacOptions += "-no-link-warnings",
     // Turn off scaladoc
