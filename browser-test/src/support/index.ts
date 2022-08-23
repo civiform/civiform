@@ -256,7 +256,7 @@ export const validateScreenshot = async (
     failureThresholdType: 'percent',
     customSnapshotsDir: 'image_snapshots',
     customDiffDir: 'diff_output',
-    customSnapshotIdentifier: ({counter, currentTestName, testPath}) => {
+    customSnapshotIdentifier: ({testPath}) => {
       const dir = path.basename(testPath).replace('.test.ts', '_test')
       return `${dir}/${screenshotFileName}`
     },
