@@ -34,7 +34,7 @@ public final class FeatureFlags {
   }
 
   /**
-   * Returns the current setting for {@param flag} from session cookie if present or then the system
+   * Returns the current setting for {@code flag} from session cookie if present or then the system
    * {@link Config}.
    */
   private boolean getFlagEnabled(Request request, String flag) {
