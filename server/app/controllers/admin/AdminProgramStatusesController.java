@@ -137,8 +137,6 @@ public final class AdminProgramStatusesController extends CiviFormController {
         program.id(),
         formData.getConfiguredStatusText(),
         (existingStatus) -> {
-          // TODO(#2754): Disable the English translations UI and only allow setting the localized
-          // text here.
           StatusDefinitions.Status.Builder builder =
               StatusDefinitions.Status.builder()
                   .setStatusText(formData.getStatusText())

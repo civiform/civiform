@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -23,6 +24,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
+import views.components.ToastMessage;
 
 /**
  * Controller for reviewing program responses for an applicant.
@@ -64,7 +66,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> view(
       Request request, long applicantId, long programId, boolean inReview) {
-    Optional<String> banner = request.flash().get("banner");
+    Optional<ToastMessage> banner =
+        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
     CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage
@@ -78,7 +81,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   this.generateParamsBuilder(roApplicantProgramService)
                       .setApplicantId(applicantId)
                       .setApplicantName(applicantStage.toCompletableFuture().join())
-                      .setBanner(banner.isPresent() ? banner.get() : "")
+                      .setBannerMessage(banner)
                       .setInReview(inReview)
                       .setMessages(messagesApi.preferred(request))
                       .setProgramId(programId)

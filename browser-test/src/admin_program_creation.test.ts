@@ -4,9 +4,11 @@ import {
   AdminQuestions,
   AdminPrograms,
   endSession,
+  validateScreenshot,
 } from './support'
+import {Page} from 'playwright'
 
-describe('Create program with enumerator and repeated questions', () => {
+describe('program creation', () => {
   it('create program with enumerator and repeated questions', async () => {
     const {browser, page} = await startSession()
     page.setDefaultTimeout(4000)
@@ -65,7 +67,7 @@ describe('Create program with enumerator and repeated questions', () => {
     )
     await page.click('button:text("apc-enumerator")')
     expect(await page.innerText('id=question-bank-questions')).toBe(
-      'Question bank',
+      'Add Question',
     )
 
     // Create a repeated block. The repeated question should be the only option.
@@ -76,4 +78,64 @@ describe('Create program with enumerator and repeated questions', () => {
 
     await endSession(browser)
   })
+
+  it('change questions order within block', async () => {
+    const {browser, page} = await startSession()
+    page.setDefaultTimeout(4000)
+
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
+    const adminPrograms = new AdminPrograms(page)
+
+    const color = 'favorite-color'
+    const movie = 'favorite-movie'
+    const song = 'favorite-song'
+    for (const question of [movie, color, song]) {
+      await adminQuestions.addTextQuestion({questionName: question})
+    }
+
+    const programName = 'apc program 2'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'apc program description')
+
+    for (const question of [movie, color, song]) {
+      await page.click(`button:text("${question}")`)
+    }
+    // verify original order
+    await expectQuestionsOrderWithinBlock(page, [movie, color, song])
+
+    // move movie question down
+    await page.click(
+      adminPrograms.selectWithinQuestionWithinBlock(
+        movie,
+        '[aria-label="move down"]',
+      ),
+    )
+    await expectQuestionsOrderWithinBlock(page, [color, movie, song])
+
+    // move song question up
+    await page.click(
+      adminPrograms.selectWithinQuestionWithinBlock(
+        song,
+        '[aria-label="move up"]',
+      ),
+    )
+    await expectQuestionsOrderWithinBlock(page, [color, song, movie])
+
+    await validateScreenshot(page)
+    await endSession(browser)
+  })
+
+  async function expectQuestionsOrderWithinBlock(
+    page: Page,
+    expectedQuestions: string[],
+  ) {
+    const actualQuestions = await page
+      .locator('.cf-program-question')
+      .allTextContents()
+    expect(actualQuestions.length).toEqual(expectedQuestions.length)
+    for (let i = 0; i < actualQuestions.length; i++) {
+      expect(actualQuestions[i]).toContain(expectedQuestions[i])
+    }
+  }
 })

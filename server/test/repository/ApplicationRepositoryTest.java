@@ -3,6 +3,7 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.ImmutableList;
 import java.time.Instant;
 import java.util.Optional;
 import models.Applicant;
@@ -224,7 +225,15 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   private Program createDraftProgram(String name) {
     Program program =
-        new Program(name, "desc", name, "desc", "", DisplayMode.PUBLIC.getValue(), draftVersion);
+        new Program(
+            name,
+            "desc",
+            name,
+            "desc",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            draftVersion);
     program.save();
     return program;
   }

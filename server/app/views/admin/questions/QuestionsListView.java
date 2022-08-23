@@ -129,7 +129,7 @@ public final class QuestionsListView extends BaseHtmlView {
                   Styles.TEXT_GRAY_600,
                   StyleUtils.hover(Styles.BG_GRAY_100, Styles.TEXT_GRAY_800))
               .with(
-                  Icons.questionTypeSvg(type, 24)
+                  Icons.questionTypeSvg(type)
                       .withClasses(
                           Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6, Styles.MR_1, Styles.TEXT_SM))
               .with(

@@ -42,7 +42,6 @@ import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 import views.style.Styles;
 
 public final class ProgramStatusesView extends BaseHtmlView {
@@ -252,8 +251,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 Styles.FONT_NORMAL,
                 Styles.SPACE_X_2,
                 Styles.FLEX,
-                Styles.ITEMS_CENTER,
-                StyleUtils.hover(Styles.BG_GRAY_100))
+                Styles.ITEMS_CENTER)
             .with(
                 div()
                     .withClass(Styles.W_1_4)
@@ -266,11 +264,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         p().withClasses(
                                 Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                             .with(
-                                Icons.svg(Icons.EMAIL, 22)
-                                    // TODO(#3148): Once SVG icon sizes are consistent, just set
-                                    // size to 18.
-                                    .withWidth("18")
-                                    .withHeight("18")
+                                Icons.svg(Icons.EMAIL)
+                                    // Tailwind doesn't have classes for 18px so use inline
+                                    // style.
+                                    .withStyle("width: 18px; height: 18px;")
                                     .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
                                 span("Applicant notification email added"))),
                 div().withClass(Styles.FLEX_GROW),

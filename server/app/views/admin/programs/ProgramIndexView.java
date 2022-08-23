@@ -274,7 +274,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     Styles.JUSTIFY_CENTER)
                 .withStyle("min-width:90px")
                 .with(
-                    Icons.svg(Icons.NOISE_CONTROL_OFF, 20)
+                    Icons.svg(Icons.NOISE_CONTROL_OFF)
                         .withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
                     span(badgeText).withClass(Styles.MR_4)),
             div()
@@ -514,7 +514,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private ButtonTag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
     ButtonTag button =
-        makeSvgTextButton("Manage admins", Icons.GROUP)
+        makeSvgTextButton("Manage Program Admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectButton(button, adminLink);

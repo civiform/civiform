@@ -1,6 +1,13 @@
 import axe = require('axe-core')
-import {Browser, BrowserContext, chromium, Page} from 'playwright'
+import {
+  Browser,
+  BrowserContext,
+  chromium,
+  Page,
+  PageScreenshotOptions,
+} from 'playwright'
 import * as path from 'path'
+import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -9,9 +16,15 @@ export {AdminPrograms} from './admin_programs'
 export {AdminProgramStatuses} from './admin_program_statuses'
 export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
+export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {ApplicantQuestions} from './applicant_questions'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
-import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
+import {
+  BASE_URL,
+  TEST_USER_LOGIN,
+  TEST_USER_PASSWORD,
+  DISABLE_SCREENSHOTS,
+} from './config'
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -211,4 +224,38 @@ export const validateAccessibility = async (page: Page) => {
   })
 
   expect(results).toHaveNoA11yViolations()
+}
+
+/**
+ * Saves a screenshot to a file such as
+ * __snapshots__/test_file_name/name-of-the-test-1-snap.png
+ * If the screenshot already exists, compare the new screenshot with the
+ * existing screenshot, and save a pixel diff instead if the two don't match
+ */
+export const validateScreenshot = async (
+  page: Page,
+  pageScreenshotOptions?: PageScreenshotOptions,
+  matchImageSnapshotOptions?: MatchImageSnapshotOptions,
+) => {
+  // Do not make image snapshots when running locally
+  if (DISABLE_SCREENSHOTS) {
+    return
+  }
+  expect(
+    await page.screenshot({
+      ...pageScreenshotOptions,
+    }),
+  ).toMatchImageSnapshot({
+    allowSizeMismatch: true,
+    failureThreshold: 0.03,
+    failureThresholdType: 'percent',
+    customSnapshotsDir: 'image_snapshots',
+    customDiffDir: 'diff_output',
+    customSnapshotIdentifier: ({counter, currentTestName, testPath}) => {
+      const dir = path.basename(testPath).replace('.test.ts', '_test')
+      const fileName = currentTestName.replace(/\s+/g, '-')
+      return `${dir}/${fileName}-${counter}`
+    },
+    ...matchImageSnapshotOptions,
+  })
 }

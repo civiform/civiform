@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import controllers.CiviFormController;
@@ -9,17 +10,19 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
-import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.LocalizedStrings;
 import services.TranslationLocales;
+import services.program.OutOfDateStatusesException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramTranslationView;
+import views.components.ToastMessage;
 
 /** Provides methods for updating localizations for a given program. */
 public class AdminProgramTranslationsController extends CiviFormController {
@@ -74,6 +77,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
       throws ProgramNotFoundException {
     ProgramDefinition program = service.getProgramDefinition(programId);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
+    Optional<ToastMessage> errorMessage =
+        request.flash().get("error").map(m -> new ToastMessage(m, ERROR));
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", String.format("The %s locale is not supported", locale));
@@ -84,8 +89,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
             request,
             localeToEdit,
             program,
-            /* maybeTranslationForm= */ Optional.empty(),
-            Optional.empty()));
+            ProgramTranslationForm.fromProgram(program, localeToEdit, formFactory),
+            errorMessage));
   }
 
   /**
@@ -107,32 +112,29 @@ public class AdminProgramTranslationsController extends CiviFormController {
     }
     Locale localeToUpdate = maybeLocaleToUpdate.get();
 
-    Form<ProgramTranslationForm> translationForm = formFactory.form(ProgramTranslationForm.class);
-    if (translationForm.hasErrors()) {
-      return badRequest();
-    }
-    ProgramTranslationForm translations = translationForm.bindFromRequest(request).get();
+    ProgramTranslationForm translationForm =
+        ProgramTranslationForm.bindFromRequest(
+            request, formFactory, program.statusDefinitions().getStatuses().size());
 
+    final ErrorAnd<ProgramDefinition, CiviFormError> result;
     try {
-      ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateLocalization(
-              program.id(),
-              localeToUpdate,
-              translations.getDisplayName(),
-              translations.getDisplayDescription());
-      if (result.isError()) {
-        String errorMessage = joinErrors(result.getErrors());
-        return ok(
-            translationView.render(
-                request,
-                localeToUpdate,
-                program,
-                Optional.of(translations),
-                Optional.of(errorMessage)));
-      }
-      return redirect(routes.AdminProgramController.index().url());
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
+      result =
+          service.updateLocalization(program.id(), localeToUpdate, translationForm.getUpdateData());
+    } catch (OutOfDateStatusesException e) {
+      return redirect(routes.AdminProgramTranslationsController.edit(programId, locale))
+          .flashing("error", e.userFacingMessage());
     }
+    if (result.isError()) {
+      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      return ok(
+          translationView.render(
+              request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
+    }
+    return redirect(routes.AdminProgramController.index().url())
+        .flashing(
+            "success",
+            String.format(
+                "Program translations updated for %s",
+                localeToUpdate.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)));
   }
 }
