@@ -1,6 +1,5 @@
 package controllers.dev;
 
-import annotations.FeatureFlagOverrides;
 import auth.Authorizers;
 import com.typesafe.config.Config;
 import javax.inject.Inject;
@@ -11,13 +10,10 @@ import play.mvc.Result;
 
 /** Allows for overriding of feature flags by the CiviForm Admin via HTTP request. */
 public final class FeatureFlagOverrideController extends DevController {
-  private final FeatureFlagOverrides overrides;
 
   @Inject
-  public FeatureFlagOverrideController(
-      FeatureFlagOverrides overrides, Environment environment, Config configuration) {
+  public FeatureFlagOverrideController(Environment environment, Config configuration) {
     super(environment, configuration);
-    this.overrides = overrides;
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -25,8 +21,9 @@ public final class FeatureFlagOverrideController extends DevController {
     if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
-    overrides.setOverride(flagName, "true");
-    return ok();
+    String redirectTo = request.getHeaders().get("referer").orElse("/");
+
+    return redirect(redirectTo).addingToSession(request, flagName, "true");
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -34,7 +31,7 @@ public final class FeatureFlagOverrideController extends DevController {
     if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
-    overrides.setOverride(flagName, "false");
-    return ok();
+    String redirectTo = request.getHeaders().get("referer").orElse("/");
+    return redirect(redirectTo).addingToSession(request, flagName, "false");
   }
 }
