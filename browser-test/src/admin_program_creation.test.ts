@@ -4,6 +4,7 @@ import {
   AdminQuestions,
   AdminPrograms,
   endSession,
+  waitForPageJsLoad,
   validateScreenshot,
 } from './support'
 import {Page} from 'playwright'
@@ -66,9 +67,7 @@ describe('program creation', () => {
       '.cf-program-question:has-text("apc-name") >> .cf-remove-question-button',
     )
     await page.click('button:text("apc-enumerator")')
-    expect(await page.innerText('id=question-bank-questions')).toBe(
-      'Add Question',
-    )
+    expect(await page.innerText('id=question-bank-questions')).toBe('')
 
     // Create a repeated block. The repeated question should be the only option.
     await page.click('#create-repeated-block-button')
@@ -123,6 +122,41 @@ describe('program creation', () => {
     await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
     await validateScreenshot(page)
+    await endSession(browser)
+  })
+
+  it('create question from question bank', async () => {
+    const {browser, page} = await startSession()
+
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
+    const adminPrograms = new AdminPrograms(page)
+    const programName = 'apc program 3'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToManageQuestionsPage(programName)
+    await page.click('#create-question-button')
+    await page.click('#create-text-question')
+    await waitForPageJsLoad(page)
+
+    const questionName = 'new-from-question-bank'
+    const questionText = 'Question text'
+    await adminQuestions.fillInQuestionBasics({
+      questionName: questionName,
+      description: '',
+      questionText: questionText,
+      helpText: 'Question help text',
+    })
+    await adminQuestions.clickSubmitButtonAndNavigate('Create')
+
+    // TODO(#3032): Assert that we're on the program question builder page.
+    await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast()
+
+    await adminQuestions.expectDraftQuestionExist(questionName, questionText)
+    // Ensure the question can be added from the question bank.
+    await adminPrograms.editProgramBlock(programName, 'dummy description', [
+      questionName,
+    ])
+
     await endSession(browser)
   })
 
