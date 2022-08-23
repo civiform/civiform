@@ -138,10 +138,8 @@ describe('program creation', () => {
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
 
-    const [questionName, questionText] = [
-      'new-from-question-bank',
-      'Question text',
-    ]
+    const questionName = 'new-from-question-bank'
+    const questionText = 'Question text'
     await adminQuestions.fillInQuestionBasics({
       questionName: questionName,
       description: '',
