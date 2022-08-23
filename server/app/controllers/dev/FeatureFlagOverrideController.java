@@ -9,10 +9,12 @@ import play.Environment;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 
-/** Allows for overriding of feature flags by an Admin via HTTP request.
+/**
+ * Allows for overriding of feature flags by an Admin via HTTP request.
  *
- * <p>Overrides are stored in the session cookie and used by {@link FeatureFlags} to control system behavior</p>
-*/
+ * <p>Overrides are stored in the session cookie and used by {@link FeatureFlags} to control system
+ * behavior
+ */
 public final class FeatureFlagOverrideController extends DevController {
 
   @Inject
