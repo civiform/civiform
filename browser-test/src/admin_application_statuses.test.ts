@@ -145,5 +145,5 @@ describeIf(
         // TODO(#3020): Assert that the selected status has been updated.
       })
     })
-  })
-})
+  },
+)
