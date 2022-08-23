@@ -3,6 +3,9 @@
 # DOC: Run the browser tests in CI mode.
 
 export COMPOSE_INTERACTIVE_NO_CLI=1
+# Enable video recording on CI tests as it will be helpful to debug test
+# failures.
+export RECORD_VIDEO=1
 
 source bin/lib.sh
 docker::set_project_name_browser_tests

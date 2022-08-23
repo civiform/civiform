@@ -26,14 +26,14 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders an enumerator question. */
-public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
+public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
   private static final String DELETE_ENTITY_TEMPLATE_ID = "enumerator-delete-template";
 
-  public static final String ENUMERATOR_FIELD_CLASSES =
+  private static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
           ReferenceClasses.ENUMERATOR_FIELD,
           Styles.GRID,
@@ -66,8 +66,10 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
               messages,
               localizedEntityType,
               question.getContextualizedPath(),
-              Optional.of(entityNames.get(index)),
-              Optional.of(index)));
+              /* existingEntity= */ Optional.of(entityNames.get(index)),
+              /* existingIndex= */ Optional.of(index),
+              /* extraStyle= */ Optional.empty(),
+              /* isDisabled= */ false));
     }
 
     DivTag enumeratorQuestionFormContent =
@@ -84,7 +86,19 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 localizedEntityType)))
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
-                        StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)));
+                        StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)))
+            .with(
+                // Add the hidden enumerator field template.
+                enumeratorField(
+                        messages,
+                        localizedEntityType,
+                        question.getContextualizedPath(),
+                        /* existingEntity= */ Optional.empty(),
+                        /* existingIndex= */ Optional.empty(),
+                        /* extraStyle= */ Optional.of(Styles.HIDDEN),
+                        // Do not submit this with the form.
+                        /* isDisabled= */ true)
+                    .withId(ENUMERATOR_FIELD_TEMPLATE_ID));
 
     return enumeratorQuestionFormContent;
   }
@@ -98,11 +112,14 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
       String localizedEntityType,
       Path contextualizedPath,
       Optional<String> existingEntity,
-      Optional<Integer> existingIndex) {
+      Optional<Integer> existingIndex,
+      Optional<String> extraStyle,
+      boolean isDisabled) {
     DivTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
+            .setDisabled(isDisabled)
             .setLabelText(
                 messages.at(
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
@@ -122,26 +139,15 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                         + " window.event; e.stopImmediatePropagation(); return false; }",
                     confirmationMessage))
             .withClasses(
-                existingEntity.isPresent()
-                    ? StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON)
-                    : "",
+                ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON,
                 ApplicantStyles.BUTTON_ENUMERATOR_REMOVE_ENTITY)
             .withText(
                 messages.at(
                     MessageKey.ENUMERATOR_BUTTON_REMOVE_ENTITY.getKeyName(), localizedEntityType));
 
-    return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityButton);
-  }
-
-  /**
-   * Create an enumerator field template for new entries. These come with a button to delete itself.
-   */
-  public static DivTag newEnumeratorFieldTemplate(
-      Path contextualizedPath, String localizedEntityType, Messages messages) {
-    return enumeratorField(
-            messages, localizedEntityType, contextualizedPath, Optional.empty(), Optional.empty())
-        .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
-        .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
+    return div()
+        .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, extraStyle.orElse("")))
+        .with(entityNameInput, removeEntityButton);
   }
 
   /**
