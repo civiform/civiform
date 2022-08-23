@@ -131,7 +131,7 @@ public final class TrustedIntermediaryService {
     return TrustedIntermediarySearchResult.success(searchedResult);
   }
 
-  public ImmutableList<Account> searchAccounts(
+  private ImmutableList<Account> searchAccounts(
       SearchParameters searchParameters, ImmutableList<Account> allAccounts) {
     ;
     return allAccounts.stream()
