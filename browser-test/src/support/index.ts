@@ -66,14 +66,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   }
 }
 
-/**
- * @param clearDb When set to true clears all data from DB as part of starting
- *     session. Should be used in new tests to ensure that test cases are
- *     hermetic and order-independent.
- */
-export const startSession = async (
-  clearDb = false,
-): Promise<{
+export const startSession = async (): Promise<{
   browser: Browser
   context: BrowserContext
   page: Page
@@ -82,9 +75,6 @@ export const startSession = async (
   const context = await makeBrowserContext(browser)
   const page = await context.newPage()
 
-  if (clearDb) {
-    await dropTables(page)
-  }
   await page.goto(BASE_URL)
   await closeWarningMessage(page)
 
@@ -95,11 +85,19 @@ export const endSession = async (browser: Browser) => {
   await browser.close()
 }
 
-// Logs out the user if they are logged in and goes to the site landing page.
-export const resetSession = async (page: Page) => {
+/**
+ *  Logs out the user if they are logged in and goes to the site landing page.
+ * @param clearDb When set to true clears all data from DB as part of starting
+ *     session. Should be used in new tests to ensure that test cases are
+ *     hermetic and order-independent.
+ */
+export const resetSession = async (page: Page, clearDb = false) => {
   const logoutText = await page.$('text=Logout')
   if (logoutText !== null) {
     await logout(page)
+  }
+  if (clearDb) {
+    await dropTables(page)
   }
   await page.goto(BASE_URL)
 }
