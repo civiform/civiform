@@ -66,7 +66,11 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest().session(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "false")).build();
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .session(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "false"))
+            .build();
     assertThatThrownBy(() -> controller.updateStatus(request, Long.MAX_VALUE, application.id))
         .isInstanceOf(ProgramNotFoundException.class);
   }

@@ -79,7 +79,7 @@ public final class AdminApplicationController extends CiviFormController {
       MessagesApi messagesApi,
       DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider,
-    FeatureFlags featureFlags) {
+      FeatureFlags featureFlags) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationListView = checkNotNull(applicationListView);
