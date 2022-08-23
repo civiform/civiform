@@ -12,9 +12,8 @@ services:
     stdin_open: true # docker run -i
     tty: true # docker run -t
     ports:
-      - 9100:9000
-      - 9457:8457
-    command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf
+      - 9457:9457
+    command: -jvm-debug "*:9457" ~run -Dconfig.file=conf/application.dev.conf
 
 volumes:
   node_modules-data:
