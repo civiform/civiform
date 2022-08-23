@@ -220,15 +220,13 @@ export const validateAccessibility = async (page: Page) => {
 
 /**
  * Saves a screenshot to a file such as
- * __snapshots__/test_file_name/name-of-the-test-1-snap.png
+ * __snapshots__/test_file_name/{fileName}-snap.png.
  * If the screenshot already exists, compare the new screenshot with the
  * existing screenshot, and save a pixel diff instead if the two don't match.
- * You can optionally specify customFileName, which will replace the default generated file name but
- * preserve the default path.
  */
 export const validateScreenshot = async (
   page: Page,
-  customFileName?: string,
+  fileName: string,
   pageScreenshotOptions?: PageScreenshotOptions,
   matchImageSnapshotOptions?: MatchImageSnapshotOptions,
 ) => {
@@ -248,13 +246,7 @@ export const validateScreenshot = async (
     customDiffDir: 'diff_output',
     customSnapshotIdentifier: ({counter, currentTestName, testPath}) => {
       const dir = path.basename(testPath).replace('.test.ts', '_test')
-      let fileName
-      if (customFileName) {
-        fileName = customFileName
-      } else {
-        fileName = currentTestName.replace(/\s+/g, '-')
-      }
-      return `${dir}/${fileName}-${counter}`
+      return `${dir}/${fileName}`
     },
     ...matchImageSnapshotOptions,
   })

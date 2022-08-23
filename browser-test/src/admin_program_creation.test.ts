@@ -122,7 +122,7 @@ describe('program creation', () => {
     )
     await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
-    await validateScreenshot(page)
+    await validateScreenshot(page, 'program-creation', {fullPage: true})
     await endSession(browser)
   })
 
