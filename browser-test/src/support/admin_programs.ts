@@ -552,7 +552,6 @@ export class AdminPrograms {
       this.page.waitForEvent('download'),
       this.page.click('text="Download JSON"'),
     ])
-    await dismissModal(this.page)
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -572,7 +571,6 @@ export class AdminPrograms {
       this.page.waitForEvent('download'),
       this.page.click('text="Download CSV"'),
     ])
-    await dismissModal(this.page)
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
