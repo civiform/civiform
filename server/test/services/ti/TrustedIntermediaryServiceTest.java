@@ -282,7 +282,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .build();
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
-    assertThat(tiResult.getAccounts().get().size()).isEqualTo(3);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(tiGroup.getManagedAccounts().size());
     assertThat(tiResult.getErrorMessage().get())
         .isEqualTo("Please enter date in MM/dd/yyyy format");
   }
