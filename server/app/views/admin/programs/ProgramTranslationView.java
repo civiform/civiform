@@ -58,7 +58,8 @@ public final class ProgramTranslationView extends TranslationFormView {
                 program.id(), locale.toLanguageTag())
             .url();
     FormTag form =
-        renderTranslationForm(request, locale, formAction, formFields(request, program, translationForm));
+        renderTranslationForm(
+            request, locale, formAction, formFields(request, program, translationForm));
 
     String title = String.format("Manage program translations: %s", program.adminName());
 
@@ -79,8 +80,7 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<DomContent> formFields(
-      Http.Request request,
-      ProgramDefinition program, ProgramTranslationForm translationForm) {
+      Http.Request request, ProgramDefinition program, ProgramTranslationForm translationForm) {
     LocalizationUpdate updateData = translationForm.getUpdateData();
     String programDetailsLink =
         controllers.admin.routes.AdminProgramController.edit(program.id()).url();
