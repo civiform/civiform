@@ -147,11 +147,16 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
-  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+  async goToManageQuestionsPage(programName: string) {
     await this.gotoDraftProgramEditPage(programName)
+
     await this.page.click('text=Manage Questions')
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
+  }
+
+  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+    await this.goToManageQuestionsPage(programName)
 
     // Click on the block to edit
     await this.page.click(`a:has-text("${blockName}")`)
@@ -228,11 +233,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -250,11 +251,7 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -278,11 +275,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
@@ -314,11 +307,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await this.page.click(`text=${enumeratorBlockName}`)
     await waitForPageJsLoad(this.page)
