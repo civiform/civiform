@@ -211,6 +211,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 TagCreator.button("Download CSV")
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
+                                        ReferenceClasses.MODAL_CLOSE,
                                         AdminStyles.PRIMARY_BUTTON_STYLES)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
@@ -225,6 +226,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 TagCreator.button("Download JSON")
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
+                                        ReferenceClasses.MODAL_CLOSE,
                                         AdminStyles.PRIMARY_BUTTON_STYLES)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController

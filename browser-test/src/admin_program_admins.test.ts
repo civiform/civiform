@@ -29,7 +29,7 @@ describe('manage program admins', () => {
     await adminPrograms.expectManageProgramAdminsPage()
     await adminPrograms.expectAddProgramAdminErrorToast()
 
-    await validateScreenshot(page)
+    await validateScreenshot(page, 'add-program-admin-error')
 
     await endSession(browser)
   })
