@@ -84,7 +84,7 @@ describe('normal question lifecycle', () => {
 
       // Take screenshot of questions being published and active.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(page)
+      await validateScreenshot(page, `${type}-only-active`)
 
       await adminQuestions.createNewVersionForQuestions(allQuestions)
 
@@ -92,7 +92,7 @@ describe('normal question lifecycle', () => {
 
       // Take screenshot of question being in draft state.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(page)
+      await validateScreenshot(page, `${type}-active-and-draft`)
 
       await adminPrograms.publishProgram(programName)
 

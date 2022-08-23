@@ -230,13 +230,14 @@ export const validateAccessibility = async (page: Page) => {
 
 /**
  * Saves a screenshot to a file such as
- * __snapshots__/test_file_name/{fileName}-snap.png.
+ * browser-test/image_snapshots/test_file_name/{screenshotFileName}-snap.png.
  * If the screenshot already exists, compare the new screenshot with the
  * existing screenshot, and save a pixel diff instead if the two don't match.
+ * @param screenshotFileName Must use dash-separated-case for consistency.
  */
 export const validateScreenshot = async (
   page: Page,
-  fileName: string,
+  screenshotFileName: string,
   pageScreenshotOptions?: PageScreenshotOptions,
   matchImageSnapshotOptions?: MatchImageSnapshotOptions,
 ) => {
@@ -244,6 +245,7 @@ export const validateScreenshot = async (
   if (DISABLE_SCREENSHOTS) {
     return
   }
+  expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
   expect(
     await page.screenshot({
       ...pageScreenshotOptions,
@@ -256,7 +258,7 @@ export const validateScreenshot = async (
     customDiffDir: 'diff_output',
     customSnapshotIdentifier: ({counter, currentTestName, testPath}) => {
       const dir = path.basename(testPath).replace('.test.ts', '_test')
-      return `${dir}/${fileName}`
+      return `${dir}/${screenshotFileName}`
     },
     ...matchImageSnapshotOptions,
   })
