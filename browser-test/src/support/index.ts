@@ -82,11 +82,15 @@ export const startSession = async (): Promise<{
   return {browser, context, page}
 }
 
-export const createBrowserContext = (clearDb = true): {
+export const createBrowserContext = (
+  clearDb = true,
+): {
   page: Page
 } => {
-  const result = {page: undefined as unknown as Page,
-    browser: undefined as unknown as Browser};
+  const result = {
+    page: undefined as unknown as Page,
+    browser: undefined as unknown as Browser,
+  }
   beforeAll(async () => {
     const {page, browser} = await startSession()
     result.page = page

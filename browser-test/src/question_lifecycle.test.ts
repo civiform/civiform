@@ -13,7 +13,6 @@ import {BASE_URL} from './support/config'
 import {Page} from 'playwright'
 
 describe('normal question lifecycle', () => {
-
   const ctx = createBrowserContext()
 
   it('canonical question seeding works', async () => {
@@ -281,8 +280,8 @@ describe('normal question lifecycle', () => {
     // Try edit the original published question and make sure that we see the draft version.
     await ctx.page.goto(editUrl)
     await waitForPageJsLoad(ctx.page)
-    expect(await ctx.page.inputValue('label:has-text("Question text")')).toContain(
-      newQuestionText,
-    )
+    expect(
+      await ctx.page.inputValue('label:has-text("Question text")'),
+    ).toContain(newQuestionText)
   })
 })
