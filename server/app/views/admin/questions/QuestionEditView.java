@@ -9,6 +9,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -40,6 +41,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -252,13 +254,26 @@ public final class QuestionEditView extends BaseHtmlView {
     SelectWithLabel enumeratorOptions =
         enumeratorOptionsFromEnumerationQuestionDefinitions(
             questionForm, enumeratorQuestionDefinitions);
+    String cancelUrl = questionForm.getRedirectUrl();
+    if (Strings.isNullOrEmpty(cancelUrl)) {
+      cancelUrl = controllers.admin.routes.AdminQuestionController.index().url();
+    }
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
                     questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Create").withClass(Styles.M_4));
+        .with(
+            div()
+                .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.MT_3)
+                .with(
+                    div().withClasses(Styles.FLEX_GROW),
+                    asRedirectButton(button("Cancel"), questionForm.getRedirectUrl())
+                        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
+                    submitButton("Create")
+                        .withClass(Styles.M_4)
+                        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)));
 
     return formTag;
   }

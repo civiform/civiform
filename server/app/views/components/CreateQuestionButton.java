@@ -42,7 +42,10 @@ public final class CreateQuestionButton {
 
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
-      String link = controllers.admin.routes.AdminQuestionController.newOne(typeString, questionCreateRedirectUrl).url();
+      String link =
+          controllers.admin.routes.AdminQuestionController.newOne(
+                  typeString, questionCreateRedirectUrl)
+              .url();
       ATag linkTag =
           a().withHref(link)
               .withId(String.format("create-%s-question", typeString))
