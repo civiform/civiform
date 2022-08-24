@@ -19,7 +19,7 @@ public final class ApplicationEventRepository {
     this.database = checkNotNull(DB.getDefault());
   }
 
-  /** Insert a new {@link ApplicationEvent} record asynchronously. */
+  /** Insert a new {@link ApplicationEvent} record synchronously. */
   public ApplicationEvent insertSync(ApplicationEvent event) {
     database.insert(event);
     event.refresh();
@@ -28,14 +28,16 @@ public final class ApplicationEventRepository {
 
   /**
    * Returns all {@link ApplicationEvent} records for the {@link Application} with id {@code
-   * applicationId} asynchronously.
+   * applicationId} synchronously.
    */
-  public ImmutableList<ApplicationEvent> getEvents(Long applicationId) {
+  public ImmutableList<ApplicationEvent> getEventsOrderByCreateTimeDesc(Long applicationId) {
     return ImmutableList.copyOf(
         database
             .find(ApplicationEvent.class)
             .where()
             .eq("application_id", applicationId)
+            .orderBy()
+            .desc("create_time")
             .findList());
   }
 }

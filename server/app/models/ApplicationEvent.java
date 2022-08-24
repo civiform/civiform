@@ -1,5 +1,7 @@
 package models;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
@@ -12,7 +14,7 @@ import services.application.ApplicationEventDetails;
 
 @Entity
 @Table(name = "application_events")
-public class ApplicationEvent extends BaseModel {
+public final class ApplicationEvent extends BaseModel {
 
   // The Application the event is on.
   @ManyToOne private Application application;
@@ -20,21 +22,26 @@ public class ApplicationEvent extends BaseModel {
   @Constraints.Required private ApplicationEventDetails.Type eventType;
   // The Account that triggered the event.
   @ManyToOne
-  @JoinColumn(name = "actor_id")
-  private Account actor;
+  @JoinColumn(name = "creator_id")
+  private Account creator;
   // Details of the event specific to the eventType.
   @Constraints.Required @DbJson private ApplicationEventDetails details;
   @WhenCreated private Instant createTime;
 
+  /**
+   * Creates a representation of a single event happening to an Application.
+   *
+   * @param creator the Account that created the event.
+   */
   public ApplicationEvent(
       Application application,
-      Account actor,
+      Account creator,
       ApplicationEventDetails.Type eventType,
       ApplicationEventDetails details) {
-    this.application = application;
-    this.actor = actor;
-    this.eventType = eventType;
-    this.details = details;
+    this.application = checkNotNull(application);
+    this.creator = checkNotNull(creator);
+    this.eventType = checkNotNull(eventType);
+    this.details = checkNotNull(details);
   }
 
   public Application getApplication() {
@@ -42,7 +49,7 @@ public class ApplicationEvent extends BaseModel {
   }
 
   public ApplicationEvent setApplication(Application application) {
-    this.application = application;
+    this.application = checkNotNull(application);
     return this;
   }
 
@@ -51,16 +58,16 @@ public class ApplicationEvent extends BaseModel {
   }
 
   public ApplicationEvent setEventType(ApplicationEventDetails.Type eventType) {
-    this.eventType = eventType;
+    this.eventType = checkNotNull(eventType);
     return this;
   }
 
-  public Account getActor() {
-    return actor;
+  public Account getCreator() {
+    return creator;
   }
 
-  public ApplicationEvent setActor(Account actor) {
-    this.actor = actor;
+  public ApplicationEvent setCreator(Account creator) {
+    this.creator = checkNotNull(creator);
     return this;
   }
 
@@ -69,7 +76,7 @@ public class ApplicationEvent extends BaseModel {
   }
 
   public ApplicationEvent setDetails(ApplicationEventDetails details) {
-    this.details = details;
+    this.details = checkNotNull(details);
     return this;
   }
 

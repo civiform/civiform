@@ -80,6 +80,7 @@ public abstract class ApplicationEventDetails {
      */
     @JsonProperty("status_text")
     public abstract String statusText();
+
     /** If the status has email content and if it was sent as part of setting the status. */
     @JsonProperty("email_sent")
     public abstract Boolean emailSent();
@@ -106,6 +107,7 @@ public abstract class ApplicationEventDetails {
     public static NoteEvent create(@JsonProperty("note") String note) {
       return new AutoValue_ApplicationEventDetails_NoteEvent(note);
     }
+
     /** A note set on the application. */
     @JsonProperty("note")
     public abstract String note();

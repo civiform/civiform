@@ -46,7 +46,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
     // Pass through values.
     assertThat(insertedEvent.getApplication()).isEqualTo(application);
-    assertThat(insertedEvent.getActor()).isEqualTo(actor);
+    assertThat(insertedEvent.getCreator()).isEqualTo(actor);
     assertThat(insertedEvent.getDetails()).isEqualTo(details);
     assertThat(insertedEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
   }
@@ -72,7 +72,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     repo.insertSync(event);
 
     // Execute
-    ImmutableList<ApplicationEvent> gotEvents = repo.getEvents(application.id);
+    ImmutableList<ApplicationEvent> gotEvents = repo.getEventsOrderByCreateTimeDesc(application.id);
 
     // Verify
     assertThat(gotEvents).hasSize(1);
@@ -82,7 +82,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(gotEvent.getCreateTime()).isAfter(startInstant);
     // Pass through values.
     assertThat(gotEvent.getApplication()).isEqualTo(application);
-    assertThat(gotEvent.getActor()).isEqualTo(actor);
+    assertThat(gotEvent.getCreator()).isEqualTo(actor);
     assertThat(gotEvent.getDetails()).isEqualTo(details);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     // NoteEvent wasn't set and should be available as an empty Optional.
