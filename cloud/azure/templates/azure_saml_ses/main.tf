@@ -62,6 +62,7 @@ module "app" {
 
   feature_flag_status_tracking_enabled = var.feature_flag_status_tracking_enabled
   civiform_api_keys_ban_global_subnet  = var.civiform_api_keys_ban_global_subnet
+  civiform_server_metrics_enabled      = var.civiform_server_metrics_enabled
 }
 
 module "custom_hostname" {
