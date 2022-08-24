@@ -78,7 +78,7 @@ describe('program creation', () => {
     await endSession(browser)
   })
 
-  it('change questions order within block', async () => {
+  fit('change questions order within block', async () => {
     const {browser, page} = await startSession()
     page.setDefaultTimeout(4000)
 
@@ -121,6 +121,10 @@ describe('program creation', () => {
     )
     await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
+    // Questions in the question bank use animation. And it causes flakiness
+    // as buttons have very brief animation upon initial rendering and it can
+    // capturef by screenshot. So delay taking screenshot.
+    await page.waitForTimeout(2000)
     await validateScreenshot(page, 'program-creation')
     await endSession(browser)
   })
