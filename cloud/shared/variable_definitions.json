@@ -52,7 +52,7 @@
     "required": false,
     "secret": false,
     "tfvar": true,
-    "type": "boolean",
+    "type": "bool",
     "values": [false, true]
   },
   "APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM": {
