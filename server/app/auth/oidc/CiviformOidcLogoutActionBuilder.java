@@ -36,11 +36,11 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
-  private final Optional<String> postLogoutRedirectParam;
-  private final ImmutableMap<String, String> extraParams;
+  private Optional<String> postLogoutRedirectParam;
+  private ImmutableMap<String, String> extraParams;
 
   public CiviformOidcLogoutActionBuilder(
-      Config civiformConfiguration, final OidcConfiguration oidcConfiguration, String clientID) {
+      Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientID) {
     super(oidcConfiguration);
     checkNotNull(civiformConfiguration);
     this.postLogoutRedirectParam =
