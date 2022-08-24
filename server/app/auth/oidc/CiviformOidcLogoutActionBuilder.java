@@ -71,14 +71,11 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
    */
   @Override
   public Optional<RedirectionAction> getLogoutAction(
-      final WebContext context,
-      final SessionStore sessionStore,
-      final UserProfile currentProfile,
-      final String targetUrl) {
-    final String logoutUrl = configuration.findLogoutUrl();
+      WebContext context, SessionStore sessionStore, UserProfile currentProfile, String targetUrl) {
+    String logoutUrl = configuration.findLogoutUrl();
     if (CommonHelper.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
       try {
-        final URI endSessionEndpoint = new URI(logoutUrl);
+        URI endSessionEndpoint = new URI(logoutUrl);
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
                 endSessionEndpoint,
@@ -88,7 +85,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
 
         return Optional.of(
             HttpActionHelper.buildRedirectUrlAction(context, logoutRequest.toURI().toString()));
-      } catch (final URISyntaxException e) {
+      } catch (URISyntaxException e) {
         throw new TechnicalException(e);
       }
     }
