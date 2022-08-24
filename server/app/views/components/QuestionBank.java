@@ -85,7 +85,7 @@ public class QuestionBank {
     innerDiv.with(contentDiv);
 
     H1Tag headerDiv = h1("Add Question").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
-    contentDiv.withId("question-bank-questions").with(headerDiv);
+    contentDiv.with(div().with(headerDiv));
 
     InputTag filterInput =
         input()
@@ -108,8 +108,20 @@ public class QuestionBank {
     SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses(Styles.H_4, Styles.W_4);
     DivTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
-    DivTag filterDiv = div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
+    DivTag filterDiv =
+        div().withClasses(Styles.MB_2, Styles.RELATIVE).with(filterIconDiv, filterInput);
     contentDiv.with(filterDiv);
+    contentDiv.with(
+        div()
+            .with(
+                div()
+                    .with(
+                        p("Not finding a question you're looking for in this list?"),
+                        div()
+                            .withClass(Styles.FLEX)
+                            .with(
+                                div().withClass(Styles.FLEX_GROW),
+                                CreateQuestionButton.renderCreateQuestionButton()))));
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
 
@@ -117,8 +129,10 @@ public class QuestionBank {
         ImmutableList.sortedCopyOf(
             Comparator.comparing(QuestionDefinition::getName), filteredQuestions);
 
+    DivTag questionsDiv = div().withId("question-bank-questions");
     sortedQuestions.forEach(
-        questionDefinition -> contentDiv.with(renderQuestionDefinition(questionDefinition)));
+        questionDefinition -> questionsDiv.with(renderQuestionDefinition(questionDefinition)));
+    contentDiv.with(questionsDiv);
 
     return questionForm;
   }
