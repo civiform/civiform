@@ -18,6 +18,9 @@ RUN pip install yapf
 
 COPY formatter/package.json /package.json
 COPY formatter/package-lock.json /package-lock.json
+COPY .prettier* /
+COPY .estlint* /
+COPY .editorconfig* /
 
 RUN npm install
 

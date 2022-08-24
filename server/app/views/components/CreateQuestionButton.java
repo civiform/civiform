@@ -1,12 +1,15 @@
 package views.components;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import services.question.types.QuestionType;
+import views.style.AdminStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -18,8 +21,11 @@ public final class CreateQuestionButton {
   public static DivTag renderCreateQuestionButton(String questionCreateRedirectUrl) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
-    DivTag linkButton =
-        new LinkElement().setId(parentId).setText("Create new question").asButtonNoHref();
+    ButtonTag createNewQuestionButton =
+        button("Create new question")
+            .withId(parentId)
+            .withType("button")
+            .withClass(AdminStyles.PRIMARY_BUTTON_STYLES);
     DivTag dropdown =
         div()
             .withId(dropdownId)
@@ -30,15 +36,13 @@ public final class CreateQuestionButton {
                 Styles.TEXT_GRAY_600,
                 Styles.SHADOW_LG,
                 Styles.ABSOLUTE,
-                Styles.MT_3,
+                Styles.ML_3,
+                Styles.MT_1,
                 Styles.HIDDEN);
 
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
-      String link =
-          controllers.admin.routes.AdminQuestionController.newOne(
-                  typeString, questionCreateRedirectUrl)
-              .url();
+      String link = controllers.admin.routes.AdminQuestionController.newOne(typeString, questionCreateRedirectUrl).url();
       ATag linkTag =
           a().withHref(link)
               .withId(String.format("create-%s-question", typeString))
@@ -62,6 +66,6 @@ public final class CreateQuestionButton {
                           Styles.UPPERCASE));
       dropdown.with(linkTag);
     }
-    return linkButton.with(dropdown);
+    return div().withClasses(Styles.RELATIVE).with(createNewQuestionButton, dropdown);
   }
 }
