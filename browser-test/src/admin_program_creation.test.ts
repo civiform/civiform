@@ -78,7 +78,7 @@ describe('program creation', () => {
     await endSession(browser)
   })
 
-  fit('change questions order within block', async () => {
+  it('change questions order within block', async () => {
     const {browser, page} = await startSession()
     page.setDefaultTimeout(4000)
 
