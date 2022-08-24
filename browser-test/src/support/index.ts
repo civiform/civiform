@@ -230,6 +230,9 @@ export const validateScreenshot = async (
   pageScreenshotOptions?: PageScreenshotOptions,
   matchImageSnapshotOptions?: MatchImageSnapshotOptions,
 ) => {
+  // Wait for page JS load in case it wasn't awaited by the caller. This
+  // helps to ensure page CSS and stuff loaded properly.
+  await waitForPageJsLoad(page)
   // Do not make image snapshots when running locally
   if (DISABLE_SCREENSHOTS) {
     return
