@@ -220,12 +220,13 @@ export const validateAccessibility = async (page: Page) => {
 
 /**
  * Saves a screenshot to a file such as
- * __snapshots__/test_file_name/name-of-the-test-1-snap.png
+ * __snapshots__/test_file_name/{fileName}-snap.png.
  * If the screenshot already exists, compare the new screenshot with the
- * existing screenshot, and save a pixel diff instead if the two don't match
+ * existing screenshot, and save a pixel diff instead if the two don't match.
  */
 export const validateScreenshot = async (
   page: Page,
+  fileName: string,
   pageScreenshotOptions?: PageScreenshotOptions,
   matchImageSnapshotOptions?: MatchImageSnapshotOptions,
 ) => {
@@ -243,10 +244,9 @@ export const validateScreenshot = async (
     failureThresholdType: 'percent',
     customSnapshotsDir: 'image_snapshots',
     customDiffDir: 'diff_output',
-    customSnapshotIdentifier: ({counter, currentTestName, testPath}) => {
+    customSnapshotIdentifier: ({testPath}) => {
       const dir = path.basename(testPath).replace('.test.ts', '_test')
-      const fileName = currentTestName.replace(/\s+/g, '-')
-      return `${dir}/${fileName}-${counter}`
+      return `${dir}/${fileName}`
     },
     ...matchImageSnapshotOptions,
   })

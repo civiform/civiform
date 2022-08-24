@@ -45,7 +45,7 @@ public class Accordion {
     DivTag titleDiv = div(this.title).withClasses(Styles.TEXT_XL, Styles.FONT_LIGHT);
 
     SvgTag accordionSvg =
-        Icons.svg(Icons.ACCORDION_BUTTON, 24)
+        Icons.svg(Icons.ACCORDION_BUTTON)
             .withClasses(Styles.H_6, Styles.W_6)
             .attr("fill", "none")
             .attr("stroke-width", "2")
