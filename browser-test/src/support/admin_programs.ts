@@ -147,11 +147,16 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
-  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+  async goToManageQuestionsPage(programName: string) {
     await this.gotoDraftProgramEditPage(programName)
+
     await this.page.click('text=Manage Questions')
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
+  }
+
+  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+    await this.goToManageQuestionsPage(programName)
 
     // Click on the block to edit
     await this.page.click(`a:has-text("${blockName}")`)
@@ -228,11 +233,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -250,11 +251,7 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -278,11 +275,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
@@ -308,45 +301,13 @@ export class AdminPrograms {
     )
   }
 
-  /** Adds a block with a single optional question followed by one or more required ones. */
-  async addProgramBlockWithOptional(
-    programName: string,
-    blockDescription = 'screen description',
-    questionNames: string[],
-    optionalQuestionName: string,
-  ) {
-    await this.page.click('#add-block-button')
-    await waitForPageJsLoad(this.page)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-
-    await this.page.type('textarea', blockDescription)
-    await this.page.click('#update-block-button:not([disabled])')
-
-    // Add the optional question
-    await this.page.click(`button:text("${optionalQuestionName}")`)
-    await waitForPageJsLoad(this.page)
-    // Only allow one optional question per block; this selector will always toggle the first optional button.  It
-    // cannot tell the difference between multiple optional buttons
-    await this.page.click(`:is(button:has-text("optional"))`)
-
-    for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
-      await waitForPageJsLoad(this.page)
-    }
-  }
-
   async addProgramRepeatedBlock(
     programName: string,
     enumeratorBlockName: string,
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await this.page.click(`text=${enumeratorBlockName}`)
     await waitForPageJsLoad(this.page)
@@ -580,7 +541,6 @@ export class AdminPrograms {
       this.page.waitForEvent('download'),
       this.page.click('text="Download JSON"'),
     ])
-    await dismissModal(this.page)
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -600,7 +560,6 @@ export class AdminPrograms {
       this.page.waitForEvent('download'),
       this.page.click('text="Download CSV"'),
     ])
-    await dismissModal(this.page)
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')

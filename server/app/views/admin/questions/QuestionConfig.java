@@ -2,10 +2,8 @@ package views.admin.questions;
 
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.label;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -18,7 +16,6 @@ import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.LabelTag;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.i18n.Messages;
@@ -33,22 +30,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Contains methods for rendering type-specific question settings components. */
-public class QuestionConfig {
-
-  private String id = "";
-  private String headerText = "Question settings";
-  private DivTag content = div();
-
-  private static final String HEADER_CLASSES =
-      StyleUtils.joinStyles(
-          Styles.BG_TRANSPARENT,
-          Styles.TEXT_GRAY_600,
-          Styles.BLOCK,
-          Styles.TEXT_BASE,
-          Styles._MT_1,
-          Styles.PB_0,
-          Styles.MB_0,
-          Styles.MX_2);
+public final class QuestionConfig {
 
   private static final String INNER_DIV_CLASSES =
       StyleUtils.joinStyles(
@@ -58,78 +40,63 @@ public class QuestionConfig {
   private static final String OUTER_DIV_CLASSES =
       StyleUtils.joinStyles(Styles.W_FULL, Styles.PT_0, Styles._MT_4);
 
-  public QuestionConfig setId(String id) {
-    this.id = id;
-    return this;
-  }
+  private DivTag content = div();
 
-  public QuestionConfig setHeaderText(String headerText) {
-    this.headerText = headerText;
-    return this;
-  }
+  private QuestionConfig() {}
 
-  public static DivTag buildQuestionConfig(QuestionForm questionForm, Messages messages) {
+  public static Optional<DivTag> buildQuestionConfig(QuestionForm questionForm, Messages messages) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
-        return config
-            .setId("address-question-config")
-            .addAddressQuestionConfig((AddressQuestionForm) questionForm)
-            .getContainer();
+        return Optional.of(
+            config.addAddressQuestionConfig((AddressQuestionForm) questionForm).getContainer());
       case CHECKBOX:
         MultiOptionQuestionForm form = (MultiOptionQuestionForm) questionForm;
-        return config
-            .setId("multi-select-question-config")
-            .addMultiOptionQuestionFields(form, messages)
-            .addMultiSelectQuestionValidation(form)
-            .getContainer();
+        return Optional.of(
+            config
+                .addMultiOptionQuestionFields(form, messages)
+                .addMultiSelectQuestionValidation(form)
+                .getContainer());
       case ENUMERATOR:
-        return config
-            .setId("enumerator-question-config")
-            .addEnumeratorQuestionConfig((EnumeratorQuestionForm) questionForm)
-            .getContainer();
+        return Optional.of(
+            config
+                .addEnumeratorQuestionConfig((EnumeratorQuestionForm) questionForm)
+                .getContainer());
       case ID:
-        return config
-            .setId("id-question-config")
-            .addIdQuestionConfig((IdQuestionForm) questionForm)
-            .getContainer();
+        return Optional.of(
+            config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
       case NUMBER:
-        return config
-            .setId("number-question-config")
-            .addNumberQuestionConfig((NumberQuestionForm) questionForm)
-            .getContainer();
+        return Optional.of(
+            config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());
       case TEXT:
-        return config
-            .setId("text-question-config")
-            .addTextQuestionConfig((TextQuestionForm) questionForm)
-            .getContainer();
+        return Optional.of(
+            config.addTextQuestionConfig((TextQuestionForm) questionForm).getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
-        return config
-            .setId("single-select-question-config")
-            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
-            .getContainer();
+        return Optional.of(
+            config
+                .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
+                .getContainer());
       case CURRENCY: // fallthrough intended - no options
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
       case DATE: // fallthrough intended
       case EMAIL: // fallthrough intended
+      case STATIC:
       default:
-        return div();
+        return Optional.empty();
     }
   }
 
   private QuestionConfig addAddressQuestionConfig(AddressQuestionForm addressQuestionForm) {
     content.with(
         new SelectWithLabel()
-            .setId("address-question-default-state-select")
             .setFieldName("defaultState")
             .setLabelText("Default state")
             .setOptions(stateOptions())
             .setValue("-")
             .getSelectTag(),
         FieldWithLabel.checkbox()
-            .setId("address-question-disallow-po-box-checkbox")
             .setFieldName("disallowPoBox")
             .setLabelText("Disallow post office boxes")
             .setValue("true")
@@ -141,13 +108,11 @@ public class QuestionConfig {
   private QuestionConfig addIdQuestionConfig(IdQuestionForm idQuestionForm) {
     content.with(
         FieldWithLabel.number()
-            .setId("id-question-min-length-input")
             .setFieldName("minLength")
             .setLabelText("Minimum length")
             .setValue(idQuestionForm.getMinLength())
             .getNumberTag(),
         FieldWithLabel.number()
-            .setId("id-question-max-length-input")
             .setFieldName("maxLength")
             .setLabelText("Maximum length")
             .setValue(idQuestionForm.getMaxLength())
@@ -158,13 +123,11 @@ public class QuestionConfig {
   private QuestionConfig addTextQuestionConfig(TextQuestionForm textQuestionForm) {
     content.with(
         FieldWithLabel.number()
-            .setId("text-question-min-length-input")
             .setFieldName("minLength")
             .setLabelText("Minimum length")
             .setValue(textQuestionForm.getMinLength())
             .getNumberTag(),
         FieldWithLabel.number()
-            .setId("text-question-max-length-input")
             .setFieldName("maxLength")
             .setLabelText("Maximum length")
             .setValue(textQuestionForm.getMaxLength())
@@ -283,7 +246,6 @@ public class QuestionConfig {
   private QuestionConfig addMultiSelectQuestionValidation(MultiOptionQuestionForm multiOptionForm) {
     content.with(
         FieldWithLabel.number()
-            .setId("multi-select-min-choices-input")
             .setFieldName("minChoicesRequired")
             .setLabelText("Minimum number of choices required")
             // Negative numbers aren't allowed. Force the admin to provide
@@ -292,7 +254,6 @@ public class QuestionConfig {
             .setValue(multiOptionForm.getMinChoicesRequired())
             .getNumberTag(),
         FieldWithLabel.number()
-            .setId("multi-select-max-choices-input")
             .setFieldName("maxChoicesAllowed")
             .setLabelText("Maximum number of choices allowed")
             // Negative numbers aren't allowed. Force the admin to provide
@@ -306,13 +267,11 @@ public class QuestionConfig {
   private QuestionConfig addNumberQuestionConfig(NumberQuestionForm numberQuestionForm) {
     content.with(
         FieldWithLabel.number()
-            .setId("number-question-min-value-input")
             .setFieldName("min")
             .setLabelText("Minimum value")
             .setValue(numberQuestionForm.getMin())
             .getNumberTag(),
         FieldWithLabel.number()
-            .setId("number-question-max-value-input")
             .setFieldName("max")
             .setLabelText("Maximum value")
             .setValue(numberQuestionForm.getMax())
@@ -322,17 +281,11 @@ public class QuestionConfig {
 
   public DivTag getContainer() {
     return div()
-        .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withClasses(ReferenceClasses.QUESTION_CONFIG)
-        .with(headerLabel(this.headerText))
         .with(
             div()
                 .withClasses(OUTER_DIV_CLASSES)
                 .with(content.withId("question-settings").withClasses(INNER_DIV_CLASSES)));
-  }
-
-  private static LabelTag headerLabel(String text) {
-    return label().withClasses(HEADER_CLASSES).withText(text);
   }
 
   /**
