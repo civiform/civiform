@@ -64,7 +64,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   }
 
   /**
-   * Override the parent's getLogoutAction, since it check that the profile is an instance of
+   * Override the parent's getLogoutAction, since it checks that the profile is an instance of
    * OidcProfile, and uses fields we don't have access to. Generally keeps the same basic logic.
    *
    * <p>Also use the custom CustomOidcLogoutRequest to build the URL.
