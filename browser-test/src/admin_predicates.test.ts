@@ -93,7 +93,7 @@ describe('create and edit predicates', () => {
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
 
     const applicationText = await adminPrograms
-      .applicationFrame()
+      .applicationFrameLocator()
       .locator('#application-view')
       .innerText()
     expect(applicationText).not.toContain('Screen 2')
@@ -185,7 +185,7 @@ describe('create and edit predicates', () => {
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
     expect(
       await adminPrograms
-        .applicationFrame()
+        .applicationFrameLocator()
         .locator('#application-view')
         .innerText(),
     ).toContain('Screen 2')

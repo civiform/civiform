@@ -73,12 +73,6 @@ def main():
             print("Starting port-terraform setup")
             template_setup.post_terraform_setup()
 
-            subprocess.check_call(
-                [
-                    "terraform", f"-chdir={terraform_template_dir}", "apply",
-                    "-input=false", f"-var-file={config_loader.tfvars_filename}"
-                ])
-
         subprocess.run(
             [
                 "/bin/bash", "-c",
@@ -92,8 +86,13 @@ def main():
                 f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_failed {log_args}"
             ],
             check=True)
-        print("Deployment Failed :(", file=sys.stderr)
-        print("error:", err)
+        print(
+            "\nDeployment Failed. Check Troubleshooting page for known issues:\n"
+            +
+            "https://docs.civiform.us/it-manual/sre-playbook/terraform-deploy-system#troubleshooting\n",
+            file=sys.stderr)
+        # rethrow error so that full stack trace is printed
+        raise err
 
     finally:
         template_setup.cleanup()

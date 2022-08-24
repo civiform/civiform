@@ -1,6 +1,13 @@
 import axe = require('axe-core')
-import {Browser, BrowserContext, chromium, Page} from 'playwright'
+import {
+  Browser,
+  BrowserContext,
+  chromium,
+  Page,
+  PageScreenshotOptions,
+} from 'playwright'
 import * as path from 'path'
+import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -9,9 +16,15 @@ export {AdminPrograms} from './admin_programs'
 export {AdminProgramStatuses} from './admin_program_statuses'
 export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
+export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {ApplicantQuestions} from './applicant_questions'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
-import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
+import {
+  BASE_URL,
+  TEST_USER_LOGIN,
+  TEST_USER_PASSWORD,
+  DISABLE_SCREENSHOTS,
+} from './config'
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -72,11 +85,19 @@ export const endSession = async (browser: Browser) => {
   await browser.close()
 }
 
-// Logs out the user if they are logged in and goes to the site landing page.
-export const resetSession = async (page: Page) => {
+/**
+ *  Logs out the user if they are logged in and goes to the site landing page.
+ * @param clearDb When set to true clears all data from DB as part of starting
+ *     session. Should be used in new tests to ensure that test cases are
+ *     hermetic and order-independent.
+ */
+export const resetSession = async (page: Page, clearDb = false) => {
   const logoutText = await page.$('text=Logout')
   if (logoutText !== null) {
     await logout(page)
+  }
+  if (clearDb) {
+    await dropTables(page)
   }
   await page.goto(BASE_URL)
 }
@@ -180,6 +201,10 @@ export const seedCanonicalQuestions = async (page: Page) => {
   await page.click('#canonical-questions')
 }
 
+export const enableFeatureFlag = async (page: Page, flag: string) => {
+  await page.goto(BASE_URL + `/dev/feature/${flag}/enable`)
+}
+
 export const closeWarningMessage = async (page: Page) => {
   // The warning message may be in the way of this link
   const element = await page.$('#warning-message-dismiss')
@@ -203,4 +228,42 @@ export const validateAccessibility = async (page: Page) => {
   })
 
   expect(results).toHaveNoA11yViolations()
+}
+
+/**
+ * Saves a screenshot to a file such as
+ * browser-test/image_snapshots/test_file_name/{screenshotFileName}-snap.png.
+ * If the screenshot already exists, compare the new screenshot with the
+ * existing screenshot, and save a pixel diff instead if the two don't match.
+ * @param screenshotFileName Must use dash-separated-case for consistency.
+ */
+export const validateScreenshot = async (
+  page: Page,
+  screenshotFileName: string,
+  pageScreenshotOptions?: PageScreenshotOptions,
+  matchImageSnapshotOptions?: MatchImageSnapshotOptions,
+) => {
+  // Do not make image snapshots when running locally
+  if (DISABLE_SCREENSHOTS) {
+    return
+  }
+  expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
+  expect(
+    await page.screenshot({
+      ...pageScreenshotOptions,
+    }),
+  ).toMatchImageSnapshot({
+    allowSizeMismatch: true,
+    // threshold is 1% it's pretty wide but there is some noise that we can't
+    // explain
+    failureThreshold: 0.01,
+    failureThresholdType: 'percent',
+    customSnapshotsDir: 'image_snapshots',
+    customDiffDir: 'diff_output',
+    customSnapshotIdentifier: ({testPath}) => {
+      const dir = path.basename(testPath).replace('.test.ts', '_test')
+      return `${dir}/${screenshotFileName}`
+    },
+    ...matchImageSnapshotOptions,
+  })
 }

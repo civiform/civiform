@@ -10,6 +10,7 @@ import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -25,7 +26,6 @@ import play.i18n.MessagesApi;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApplicationRepository;
 import repository.TimeFilter;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
@@ -35,6 +35,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applications.ProgramAdminApplicationService;
 import services.export.ExporterService;
 import services.export.JsonExporter;
 import services.export.PdfExporter;
@@ -47,11 +48,12 @@ import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationView;
 
 /** Controller for admins viewing applications to programs. */
-public class AdminApplicationController extends CiviFormController {
+public final class AdminApplicationController extends CiviFormController {
+  private static final int PAGE_SIZE = 10;
 
   private final ProgramService programService;
   private final ApplicantService applicantService;
-  private final ApplicationRepository applicationRepository;
+  private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
   private final ExporterService exporterService;
@@ -61,7 +63,7 @@ public class AdminApplicationController extends CiviFormController {
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
-  private static final int PAGE_SIZE = 10;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public AdminApplicationController(
@@ -72,23 +74,25 @@ public class AdminApplicationController extends CiviFormController {
       PdfExporter pdfExporter,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
-      ApplicationRepository applicationRepository,
+      ProgramAdminApplicationService programAdminApplicationService,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       DateConverter dateConverter,
-      @Now Provider<LocalDateTime> nowProvider) {
+      @Now Provider<LocalDateTime> nowProvider,
+      FeatureFlags featureFlags) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationListView = checkNotNull(applicationListView);
     this.profileUtils = checkNotNull(profileUtils);
     this.applicationView = checkNotNull(applicationView);
-    this.applicationRepository = checkNotNull(applicationRepository);
+    this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(exporterService);
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -232,20 +236,20 @@ public class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getProgramDefinition(programId);
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
 
     Optional<Application> applicationMaybe =
-        this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
-
+        programAdminApplicationService.getApplication(applicationId, program);
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
     Application application = applicationMaybe.get();
+
     PdfExporter.InMemoryPdf pdf;
     try {
       pdf = pdfExporter.export(application);
@@ -272,13 +276,12 @@ public class AdminApplicationController extends CiviFormController {
     }
 
     Optional<Application> applicationMaybe =
-        this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
-
+        programAdminApplicationService.getApplication(applicationId, program);
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-
     Application application = applicationMaybe.get();
+
     Messages messages = messagesApi.preferred(request);
     String applicantNameWithApplicationId =
         String.format(
@@ -299,11 +302,43 @@ public class AdminApplicationController extends CiviFormController {
         applicationView.render(
             programId,
             programName,
-            applicationId,
+            application,
             applicantNameWithApplicationId,
             blocks,
             answers,
-            program.statusDefinitions()));
+            program.statusDefinitions(),
+            request));
+  }
+
+  /**
+   * Updates the status for the associated application and redirects to the summary page for the
+   * application.
+   */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result updateStatus(Http.Request request, long programId, long applicationId)
+      throws ProgramNotFoundException {
+    if (!featureFlags.isStatusTrackingEnabled(request)) {
+      return notFound("status tracking is not enabled");
+    }
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    String programName = program.adminName();
+
+    try {
+      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+    } catch (CompletionException | NoSuchElementException e) {
+      return unauthorized();
+    }
+
+    Optional<Application> applicationMaybe =
+        programAdminApplicationService.getApplication(applicationId, program);
+    if (!applicationMaybe.isPresent()) {
+      return notFound(String.format("Application %d does not exist.", applicationId));
+    }
+
+    // TODO(#3020): Actually update the status rather than unconditionally returning success.
+    return redirect(
+            routes.AdminApplicationController.show(programId, applicationMaybe.get().id).url())
+        .flashing("success", "Application status updated");
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */

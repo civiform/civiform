@@ -1,6 +1,11 @@
-import {Page} from 'playwright'
+import {ElementHandle, Page} from 'playwright'
 import {readFileSync} from 'fs'
-import {clickAndWaitForModal, waitForPageJsLoad} from './wait'
+import {
+  clickAndWaitForModal,
+  dismissModal,
+  waitForAnyModal,
+  waitForPageJsLoad,
+} from './wait'
 import {AdminProgramStatuses} from './admin_program_statuses'
 
 export class AdminPrograms {
@@ -135,18 +140,23 @@ export class AdminPrograms {
       this.withinProgramCardSelector(
         programName,
         'Draft',
-        ':text("Manage Admins")',
+        ':text("Manage Program Admins")',
       ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectManageProgramAdminsPage()
   }
 
-  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+  async goToManageQuestionsPage(programName: string) {
     await this.gotoDraftProgramEditPage(programName)
+
     await this.page.click('text=Manage Questions')
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
+  }
+
+  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+    await this.goToManageQuestionsPage(programName)
 
     // Click on the block to edit
     await this.page.click(`a:has-text("${blockName}")`)
@@ -215,7 +225,7 @@ export class AdminPrograms {
         await this.page.innerText('[for=block-description-textarea]')
       ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
-    expect(await this.page.innerText('h1')).toContain('Question bank')
+    expect(await this.page.innerText('h1')).toContain('Add Question')
   }
 
   async editProgramBlock(
@@ -223,11 +233,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -245,11 +251,7 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -273,11 +275,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
@@ -303,45 +301,13 @@ export class AdminPrograms {
     )
   }
 
-  /** Adds a block with a single optional question followed by one or more required ones. */
-  async addProgramBlockWithOptional(
-    programName: string,
-    blockDescription = 'screen description',
-    questionNames: string[],
-    optionalQuestionName: string,
-  ) {
-    await this.page.click('#add-block-button')
-    await waitForPageJsLoad(this.page)
-
-    await clickAndWaitForModal(this.page, 'block-description-modal')
-
-    await this.page.type('textarea', blockDescription)
-    await this.page.click('#update-block-button:not([disabled])')
-
-    // Add the optional question
-    await this.page.click(`button:text("${optionalQuestionName}")`)
-    await waitForPageJsLoad(this.page)
-    // Only allow one optional question per block; this selector will always toggle the first optional button.  It
-    // cannot tell the difference between multiple optional buttons
-    await this.page.click(`:is(button:has-text("optional"))`)
-
-    for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
-      await waitForPageJsLoad(this.page)
-    }
-  }
-
   async addProgramRepeatedBlock(
     programName: string,
     enumeratorBlockName: string,
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
+    await this.goToManageQuestionsPage(programName)
 
     await this.page.click(`text=${enumeratorBlockName}`)
     await waitForPageJsLoad(this.page)
@@ -422,6 +388,14 @@ export class AdminPrograms {
     )
   }
 
+  selectQuestionWithinBlock(question: string) {
+    return `.cf-program-question:has-text("${question}")`
+  }
+
+  selectWithinQuestionWithinBlock(question: string, selector: string) {
+    return this.selectQuestionWithinBlock(question) + ' ' + selector
+  }
+
   async filterProgramApplications(filterFragment: string) {
     await this.page.fill('input[name="search"]', filterFragment)
     await this.page.click('button:has-text("Filter")')
@@ -437,18 +411,32 @@ export class AdminPrograms {
   }
 
   async viewApplicationForApplicant(applicantName: string) {
-    await this.page.click(
-      this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'),
-    )
-    await this.waitForApplicationFrame()
+    await Promise.all([
+      this.waitForApplicationFrame(),
+      this.page.click(
+        this.selectWithinApplicationForApplicant(
+          applicantName,
+          'a:text("View")',
+        ),
+      ),
+    ])
   }
 
-  applicationFrame() {
-    return this.page.frameLocator('#application-display-frame')
+  private static APPLICATION_DISPLAY_FRAME_NAME = 'application-display-frame'
+
+  applicationFrameLocator() {
+    return this.page.frameLocator(
+      `iframe[name="${AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME}"]`,
+    )
   }
 
   async waitForApplicationFrame() {
-    await waitForPageJsLoad(this.page.frames()[0])
+    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    if (!frame) {
+      throw new Error('Expected an application frame')
+    }
+    await frame.waitForNavigation()
+    await waitForPageJsLoad(frame)
   }
 
   async expectApplicationAnswers(
@@ -456,7 +444,7 @@ export class AdminPrograms {
     questionName: string,
     answer: string,
   ) {
-    const blockText = await this.applicationFrame()
+    const blockText = await this.applicationFrameLocator()
       .locator(this.selectApplicationBlock(blockName))
       .innerText()
 
@@ -466,27 +454,80 @@ export class AdminPrograms {
 
   async expectApplicationAnswerLinks(blockName: string, questionName: string) {
     expect(
-      await this.applicationFrame()
+      await this.applicationFrameLocator()
         .locator(this.selectApplicationBlock(blockName))
         .innerText(),
     ).toContain(questionName)
     expect(
-      await this.applicationFrame()
+      await this.applicationFrameLocator()
         .locator(this.selectWithinApplicationBlock(blockName, 'a'))
         .getAttribute('href'),
     ).not.toBeNull()
   }
 
   async isStatusSelectorVisible(): Promise<boolean> {
-    return this.applicationFrame()
-      .locator('.cf-program-admin-status-selector-label:has-text("Status:")')
+    return this.applicationFrameLocator()
+      .locator(this.statusSelector())
       .isVisible()
   }
 
   async getStatusOption(): Promise<string> {
-    return this.applicationFrame()
-      .locator('.cf-program-admin-status-selector-label')
+    return this.applicationFrameLocator()
+      .locator(this.statusSelector())
       .inputValue()
+  }
+
+  /**
+   * Selects the provided status option and then clicks the confirm button on the resulting
+   * confirmation dialog.
+   */
+  async setStatusOptionAndConfirmModal(status: string) {
+    const confirmationModal = await this.setStatusOptionAndAwaitModal(status)
+
+    // TODO(#2912): Add support for confirming that the email checkbox appears when an email is
+    // configured.
+
+    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
+    // to taking the action that would trigger navigation.
+    const confirmButton = (await confirmationModal.$('text=Confirm'))!
+    await Promise.all([this.waitForApplicationFrame(), confirmButton.click()])
+  }
+
+  /**
+   * Selects the provided status option and then clicks the cancel button on the resulting
+   * dialog.
+   */
+  async setStatusOptionAndDismissModal(status: string) {
+    await this.setStatusOptionAndAwaitModal(status)
+    return dismissModal(
+      this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)!,
+    )
+  }
+
+  private async setStatusOptionAndAwaitModal(
+    status: string,
+  ): Promise<ElementHandle<HTMLElement>> {
+    await this.applicationFrameLocator()
+      .locator(this.statusSelector())
+      .selectOption(status)
+
+    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    if (!frame) {
+      throw new Error('Expected an application frame')
+    }
+
+    return waitForAnyModal(frame)
+  }
+
+  async expectUpdateStatusToast() {
+    const toastMessages = await this.applicationFrameLocator()
+      .locator('#toast-container')
+      .innerText()
+    expect(toastMessages).toContain('Application status updated')
+  }
+
+  private statusSelector() {
+    return '.cf-program-admin-status-selector label:has-text("Status:")'
   }
 
   async getJson(applyFilters: boolean) {
@@ -500,7 +541,6 @@ export class AdminPrograms {
       this.page.waitForEvent('download'),
       this.page.click('text="Download JSON"'),
     ])
-    await this.page.click('#download-program-applications-modal-close')
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -520,7 +560,6 @@ export class AdminPrograms {
       this.page.waitForEvent('download'),
       this.page.click('text="Download CSV"'),
     ])
-    await this.page.click('#download-program-applications-modal-close')
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -536,7 +575,7 @@ export class AdminPrograms {
         '#download-demographics-csv-modal button:has-text("Download Exported Data (CSV)")',
       ),
     ])
-    await this.page.click('#download-demographics-csv-modal-close')
+    await dismissModal(this.page)
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')

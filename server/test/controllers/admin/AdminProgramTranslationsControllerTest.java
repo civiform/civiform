@@ -79,14 +79,14 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             SPANISH_DISPLAY_NAME,
             SPANISH_DESCRIPTION);
     assertThat(contentAsString(result))
-        .contains("Default text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
+        .contains("English text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
     assertThat(contentAsString(result))
         .contains(
             SPANISH_FIRST_STATUS_TEXT, SPANISH_FIRST_STATUS_EMAIL,
             SPANISH_SECOND_STATUS_TEXT, SPANISH_SECOND_STATUS_EMAIL);
     assertThat(contentAsString(result))
         .contains(
-            "Default text:",
+            "English text:",
             ENGLISH_FIRST_STATUS_TEXT,
             ENGLISH_FIRST_STATUS_EMAIL,
             ENGLISH_SECOND_STATUS_TEXT,
@@ -108,13 +108,13 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             SPANISH_DISPLAY_NAME,
             SPANISH_DESCRIPTION);
     assertThat(contentAsString(result))
-        .contains("Default text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
+        .contains("English text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
     assertThat(contentAsString(result))
         .contains(SPANISH_FIRST_STATUS_TEXT, SPANISH_SECOND_STATUS_TEXT);
     assertThat(contentAsString(result))
         .doesNotContain(SPANISH_FIRST_STATUS_EMAIL, SPANISH_SECOND_STATUS_EMAIL);
     assertThat(contentAsString(result))
-        .contains("Default text:", ENGLISH_FIRST_STATUS_TEXT, ENGLISH_SECOND_STATUS_TEXT);
+        .contains("English text:", ENGLISH_FIRST_STATUS_TEXT, ENGLISH_SECOND_STATUS_TEXT);
     assertThat(contentAsString(result))
         .doesNotContain(ENGLISH_FIRST_STATUS_EMAIL, ENGLISH_SECOND_STATUS_EMAIL);
   }
@@ -127,20 +127,29 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_savesNewFields() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
         fakeRequest()
             .bodyForm(
-                ImmutableMap.of(
-                    "displayName",
-                    "updated spanish program display name",
-                    "displayDescription",
-                    "updated spanish program description"));
+                ImmutableMap.<String, String>builder()
+                    .put("displayName", "updated spanish program display name")
+                    .put("displayDescription", "updated spanish program description")
+                    .put("status-key-to-update-0", ENGLISH_FIRST_STATUS_TEXT)
+                    .put("localized-status-0", "updated spanish first status text")
+                    .put("localized-email-0", "updated spanish first status email")
+                    .put("status-key-to-update-1", ENGLISH_SECOND_STATUS_TEXT)
+                    .put("localized-status-1", "updated spanish second status text")
+                    .put("localized-email-1", "updated spanish second status email")
+                    .build());
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().orElse(""))
+        .isEqualTo(controllers.admin.routes.AdminProgramController.index().url());
+    assertThat(result.flash().get("success").get())
+        .isEqualTo("Program translations updated for Spanish");
 
     ProgramDefinition updatedProgram =
         programRepository
@@ -153,6 +162,41 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .isEqualTo("updated spanish program display name");
     assertThat(updatedProgram.localizedDescription().get(ES_LOCALE))
         .isEqualTo("updated spanish program description");
+    assertThat(updatedProgram.statusDefinitions().getStatuses())
+        .isEqualTo(
+            ImmutableList.of(
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUSES_WITH_EMAIL.get(0).statusText())
+                    .setLocalizedStatusText(
+                        STATUSES_WITH_EMAIL
+                            .get(0)
+                            .localizedStatusText()
+                            .updateTranslation(ES_LOCALE, "updated spanish first status text"))
+                    .setLocalizedEmailBodyText(
+                        Optional.of(
+                            STATUSES_WITH_EMAIL
+                                .get(0)
+                                .localizedEmailBodyText()
+                                .get()
+                                .updateTranslation(
+                                    ES_LOCALE, "updated spanish first status email")))
+                    .build(),
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUSES_WITH_EMAIL.get(1).statusText())
+                    .setLocalizedStatusText(
+                        STATUSES_WITH_EMAIL
+                            .get(1)
+                            .localizedStatusText()
+                            .updateTranslation(ES_LOCALE, "updated spanish second status text"))
+                    .setLocalizedEmailBodyText(
+                        Optional.of(
+                            STATUSES_WITH_EMAIL
+                                .get(1)
+                                .localizedEmailBodyText()
+                                .get()
+                                .updateTranslation(
+                                    ES_LOCALE, "updated spanish second status email")))
+                    .build()));
   }
 
   @Test
@@ -167,7 +211,20 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
-        fakeRequest().bodyForm(ImmutableMap.of("displayName", "", "displayDescription", ""));
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.<String, String>builder()
+                    .put("displayName", "")
+                    .put("displayDescription", "")
+                    // Initialize fields for the two existing status values to new values and
+                    // assert that they're preserved when rendering the error.
+                    .put("status-key-to-update-0", ENGLISH_FIRST_STATUS_TEXT)
+                    .put("localized-status-0", "new first status text")
+                    .put("localized-email-0", "new first status email")
+                    .put("status-key-to-update-1", ENGLISH_SECOND_STATUS_TEXT)
+                    .put("localized-status-1", "new second status text")
+                    .put("localized-email-1", "new second status email")
+                    .build());
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
 
@@ -176,7 +233,62 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .contains(
             String.format("Manage program translations: Internal program name"),
             "program display name cannot be blank",
-            "program display description cannot be blank");
+            "program display description cannot be blank",
+            "new first status text",
+            "new first status email",
+            "new second status text",
+            "new second status email");
+
+    assertProgramNotChanged(program);
+  }
+
+  @Test
+  public void update_outOfSyncFormData_redirectsToFreshData() throws Exception {
+    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+
+    Http.RequestBuilder requestBuilder =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.<String, String>builder()
+                    .put("displayName", "updated spanish program display name")
+                    .put("displayDescription", "updated spanish program description")
+                    // We intentionally mix up the order of the list to simulate a situation
+                    // where the tab is out of sync with the configured program definition.
+                    .put("status-key-to-update-0", ENGLISH_SECOND_STATUS_TEXT)
+                    .put("localized-status-0", "updated spanish first status text")
+                    .put("localized-email-0", "updated spanish first status email")
+                    .put("status-key-to-update-1", ENGLISH_FIRST_STATUS_TEXT)
+                    .put("localized-status-1", "updated spanish second status text")
+                    .put("localized-email-1", "updated spanish second status email")
+                    .build());
+
+    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().orElse(""))
+        .isEqualTo(
+            controllers.admin.routes.AdminProgramTranslationsController.edit(program.id, "es-US")
+                .url());
+    assertThat(result.flash().get("error").get())
+        .isEqualTo("The program's associated statuses are out of date.");
+
+    assertProgramNotChanged(program);
+  }
+
+  private void assertProgramNotChanged(Program initialProgram) {
+    ProgramDefinition freshProgram =
+        programRepository
+            .lookupProgram(initialProgram.id)
+            .toCompletableFuture()
+            .join()
+            .get()
+            .getProgramDefinition();
+    assertThat(freshProgram.localizedName())
+        .isEqualTo(initialProgram.getProgramDefinition().localizedName());
+    assertThat(freshProgram.localizedDescription())
+        .isEqualTo(initialProgram.getProgramDefinition().localizedDescription());
+    assertThat(freshProgram.statusDefinitions().getStatuses())
+        .isEqualTo(initialProgram.getProgramDefinition().statusDefinitions().getStatuses());
   }
 
   private static final ImmutableList<StatusDefinitions.Status> STATUSES_WITH_EMAIL =

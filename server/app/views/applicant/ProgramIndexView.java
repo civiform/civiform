@@ -76,12 +76,10 @@ public class ProgramIndexView extends BaseHtmlView {
       Optional<String> userName,
       ImmutableList<ProgramDefinition> draftPrograms,
       ImmutableList<ProgramDefinition> activePrograms,
-      Optional<String> banner) {
+      Optional<ToastMessage> bannerMessage) {
     HtmlBundle bundle = layout.getBundle();
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
-    if (banner.isPresent()) {
-      bundle.addToastMessages(ToastMessage.alert(banner.get()));
-    }
+    bannerMessage.ifPresent(bundle::addToastMessages);
     bundle.addMainContent(
         topContent(
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
@@ -290,7 +288,7 @@ public class ProgramIndexView extends BaseHtmlView {
               .opensInNewTab()
               .asAnchorText()
               .with(
-                  Icons.svg(Icons.OPEN_IN_NEW, 24, 24)
+                  Icons.svg(Icons.OPEN_IN_NEW)
                       .withClasses(
                           Styles.FLEX_SHRINK_0,
                           Styles.H_5,

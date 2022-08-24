@@ -67,6 +67,18 @@ jobs:
         run: bin/run-browser-test-env --aws --ci
       - name: Run browser tests with Localstack
         run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
+      - name: Upload image diff outputs
+        uses: actions/upload-artifact@v3
+        with:
+          name: image diff output directory
+          path: browser-test/diff_output
+        if: failure()
+      - name: Upload test videos on failure
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests videos
+          path: browser-test/tmp
+        if: failure()
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
@@ -108,6 +120,18 @@ jobs:
         run: bin/run-browser-test-env --azure --ci
       - name: Run browser tests with Azurite
         run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
+      - name: Upload image diff outputs
+        uses: actions/upload-artifact@v3
+        with:
+          name: image diff output directory
+          path: browser-test/diff_output
+        if: failure()
+      - name: Upload test videos on failure
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests videos
+          path: browser-test/tmp
+        if: failure()
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs

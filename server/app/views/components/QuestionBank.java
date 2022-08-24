@@ -31,8 +31,8 @@ import views.style.Styles;
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
   private static final SvgTag PLUS_ICON =
-      Icons.svg(Icons.PLUS, 24)
-          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6)
+      Icons.svg(Icons.PLUS)
+          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_5)
           .attr("fill", "currentColor")
           .attr("stroke-width", "2")
           .attr("stroke-linecap", "round")
@@ -84,15 +84,15 @@ public class QuestionBank {
         div().withClasses(Styles.RELATIVE, Styles.GRID, Styles.GAP_6, Styles.PX_5, Styles.PY_6);
     innerDiv.with(contentDiv);
 
-    H1Tag headerDiv = h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
-    contentDiv.withId("question-bank-questions").with(headerDiv);
+    H1Tag headerDiv = h1("Add Question").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
+    contentDiv.with(div().with(headerDiv));
 
     InputTag filterInput =
         input()
             .withId("question-bank-filter")
             .withType("text")
             .withName("questionFilter")
-            .withPlaceholder("Filter questions")
+            .withPlaceholder("Search questions")
             .withClasses(
                 Styles.H_10,
                 Styles.PX_10,
@@ -105,11 +105,23 @@ public class QuestionBank {
                 Styles.SHADOW,
                 StyleUtils.focus(Styles.OUTLINE_NONE));
 
-    SvgTag filterIcon = Icons.svg(Icons.SEARCH, 56).withClasses(Styles.H_4, Styles.W_4);
+    SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses(Styles.H_4, Styles.W_4);
     DivTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
-    DivTag filterDiv = div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
+    DivTag filterDiv =
+        div().withClasses(Styles.MB_2, Styles.RELATIVE).with(filterIconDiv, filterInput);
     contentDiv.with(filterDiv);
+    contentDiv.with(
+        div()
+            .with(
+                div()
+                    .with(
+                        p("Not finding a question you're looking for in this list?"),
+                        div()
+                            .withClass(Styles.FLEX)
+                            .with(
+                                div().withClass(Styles.FLEX_GROW),
+                                CreateQuestionButton.renderCreateQuestionButton()))));
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
 
@@ -117,8 +129,10 @@ public class QuestionBank {
         ImmutableList.sortedCopyOf(
             Comparator.comparing(QuestionDefinition::getName), filteredQuestions);
 
+    DivTag questionsDiv = div().withId("question-bank-questions");
     sortedQuestions.forEach(
-        questionDefinition -> contentDiv.with(renderQuestionDefinition(questionDefinition)));
+        questionDefinition -> questionsDiv.with(renderQuestionDefinition(questionDefinition)));
+    contentDiv.with(questionsDiv);
 
     return questionForm;
   }
@@ -151,7 +165,7 @@ public class QuestionBank {
             .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     SvgTag icon =
-        Icons.questionTypeSvg(definition.getQuestionType(), 24)
+        Icons.questionTypeSvg(definition.getQuestionType())
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
     DivTag content =
         div()

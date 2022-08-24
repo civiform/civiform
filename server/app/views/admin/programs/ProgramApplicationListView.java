@@ -108,7 +108,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 Styles.MT_6, StyleUtils.responsiveLarge(Styles.MT_12), Styles.W_FULL, Styles.H_FULL)
             .with(
                 iframe()
-                    .withId("application-display-frame")
+                    .withName("application-display-frame")
                     .withClasses(Styles.W_FULL, Styles.H_FULL));
 
     HtmlBundle htmlBundle =
@@ -211,6 +211,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 TagCreator.button("Download CSV")
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
+                                        ReferenceClasses.MODAL_CLOSE,
                                         AdminStyles.PRIMARY_BUTTON_STYLES)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
@@ -225,6 +226,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 TagCreator.button("Download JSON")
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
+                                        ReferenceClasses.MODAL_CLOSE,
                                         AdminStyles.PRIMARY_BUTTON_STYLES)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController

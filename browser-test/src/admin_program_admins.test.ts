@@ -1,4 +1,10 @@
-import {startSession, loginAsAdmin, AdminPrograms, endSession} from './support'
+import {
+  startSession,
+  loginAsAdmin,
+  AdminPrograms,
+  endSession,
+  validateScreenshot,
+} from './support'
 
 describe('manage program admins', () => {
   it('does not add a program admin that does not exist', async () => {
@@ -22,6 +28,8 @@ describe('manage program admins', () => {
 
     await adminPrograms.expectManageProgramAdminsPage()
     await adminPrograms.expectAddProgramAdminErrorToast()
+
+    await validateScreenshot(page, 'add-program-admin-error')
 
     await endSession(browser)
   })

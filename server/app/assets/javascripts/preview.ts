@@ -1,26 +1,31 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 class PreviewController {
-  static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
-  static readonly QUESTION_HELP_TEXT_INPUT_ID = 'question-help-text-textarea'
-  static readonly QUESTION_ENUMERATOR_INPUT_ID = 'question-enumerator-select'
-  static readonly QUESTION_ENTITY_TYPE_INPUT_ID =
+  private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
+  private static readonly QUESTION_HELP_TEXT_INPUT_ID =
+    'question-help-text-textarea'
+  private static readonly QUESTION_ENUMERATOR_INPUT_ID =
+    'question-enumerator-select'
+  private static readonly QUESTION_ENTITY_TYPE_INPUT_ID =
     'enumerator-question-entity-type-input'
 
-  static readonly QUESTION_TEXT_CLASS = '.cf-applicant-question-text'
-  static readonly QUESTION_HELP_TEXT_CLASS = '.cf-applicant-question-help-text'
-  static readonly REPEATED_QUESTION_INFORMATION_ID =
+  private static readonly QUESTION_TEXT_CLASS = '.cf-applicant-question-text'
+  private static readonly QUESTION_HELP_TEXT_CLASS =
+    '.cf-applicant-question-help-text'
+  private static readonly REPEATED_QUESTION_INFORMATION_ID =
     '#repeated-question-information'
-  static readonly QUESTION_ENTITY_TYPE_BUTTON_ID =
+  private static readonly QUESTION_ENTITY_TYPE_BUTTON_ID =
     '#enumerator-field-add-button'
-  static readonly QUESTION_ENTITY_NAME_INPUT_CLASS = '.cf-entity-name-input'
+  private static readonly QUESTION_ENTITY_NAME_INPUT_CLASS =
+    '.cf-entity-name-input'
+  private static readonly QUESTION_ENTITY_DELETE_BUTTON_CLASS =
+    '.cf-enumerator-delete-button'
 
-  static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
-  static readonly DEFAULT_QUESTION_HELP_TEXT = 'Sample question help text'
-  static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
+  private static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
+  private static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
 
   // This regex is used to match $this and $this.parent (etc) strings so we can
   // highlight them in the question preview.
-  static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g
+  private static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g
 
   private static accordionClasses = [
     'cf-accordion',
@@ -40,90 +45,71 @@ class PreviewController {
   private static accordionHeaderClasses = ['cf-accordion-header', 'relative']
   private static accordionTitleClasses = ['text-xl', 'font-light']
 
-  static accordionContent = '>'
-  static accordionHeader = '### '
-  static bulletedItem = '* '
+  private static accordionContent = '>'
+  private static accordionHeader = '### '
+  private static bulletedItem = '* '
 
   constructor() {
     const textInput = document.getElementById(
       PreviewController.QUESTION_TEXT_INPUT_ID,
-    )
+    ) as HTMLInputElement | null
     if (textInput) {
       textInput.addEventListener(
         'input',
-        PreviewController.onTextChanged,
+        (ev) => {
+          PreviewController.updateFromNewQuestionText(textInput.value)
+        },
         false,
       )
-      const text = (<HTMLInputElement>textInput).value
-      if (text.length > 0) {
-        PreviewController.updateQuestionText(text)
-      }
+      PreviewController.updateFromNewQuestionText(textInput.value)
     }
     const helpTextInput = document.getElementById(
       PreviewController.QUESTION_HELP_TEXT_INPUT_ID,
-    )
+    ) as HTMLInputElement | null
     if (helpTextInput) {
       helpTextInput.addEventListener(
         'input',
-        PreviewController.onHelpTextChanged,
+        (ev) => {
+          PreviewController.updateFromNewQuestionHelpText(helpTextInput.value)
+        },
         false,
       )
-      const helpText = (<HTMLInputElement>helpTextInput).value
-      if (helpText.length > 0) {
-        PreviewController.setTextAndHighlightEnumeratorReferences(
-          PreviewController.QUESTION_HELP_TEXT_CLASS,
-          helpText,
-        )
-      }
+      PreviewController.updateFromNewQuestionHelpText(helpTextInput.value)
     }
     const enumeratorSelector = document.getElementById(
       PreviewController.QUESTION_ENUMERATOR_INPUT_ID,
-    )
+    ) as HTMLInputElement | null
     if (enumeratorSelector) {
       enumeratorSelector.addEventListener(
         'input',
-        PreviewController.onEnumeratorSelectorChanged,
+        (ev) => {
+          PreviewController.updateFromNewEnumeratorSelector(
+            enumeratorSelector.value,
+          )
+        },
         false,
       )
-      const enumerator = (<HTMLInputElement>enumeratorSelector).value
-      const repeatedQuestionInformation = document.querySelector(
-        PreviewController.REPEATED_QUESTION_INFORMATION_ID,
+      PreviewController.updateFromNewEnumeratorSelector(
+        enumeratorSelector.value,
       )
-      repeatedQuestionInformation.classList.toggle('hidden', enumerator === '')
     }
     const entityTypeInput = document.getElementById(
       PreviewController.QUESTION_ENTITY_TYPE_INPUT_ID,
-    )
+    ) as HTMLInputElement | null
     if (entityTypeInput) {
       entityTypeInput.addEventListener(
         'input',
-        PreviewController.onEntityTypeChanged,
+        (ev) => {
+          PreviewController.updateFromNewEntityType(entityTypeInput.value)
+        },
         false,
       )
-      const entityType = (<HTMLInputElement>entityTypeInput).value
-      if (entityType.length > 0) {
-        PreviewController.setAllMatchingPlaceholders(
-          PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' input',
-          entityType + ' name',
-        )
-        PreviewController.setTextContent(
-          PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
-          'Add ' + entityType,
-        )
-      }
+      PreviewController.updateFromNewEntityType(entityTypeInput.value)
     }
   }
 
-  static onTextChanged(e: Event) {
-    const text = (<HTMLInputElement>e.target).value
-    PreviewController.updateQuestionText(text)
-  }
-
-  static updateQuestionText(text: string) {
-    if (text.length === 0) {
-      text = PreviewController.DEFAULT_QUESTION_TEXT
-    }
-
+  private static updateFromNewQuestionText(text: string) {
+    text = text || PreviewController.DEFAULT_QUESTION_TEXT
     const questionType = document.querySelector('.cf-question-type')
     const useAdvancedFormatting =
       questionType && questionType.textContent === 'STATIC'
@@ -148,38 +134,38 @@ class PreviewController {
     }
   }
 
-  static onHelpTextChanged(e: Event) {
-    let text = (<HTMLInputElement>e.target).value
-    if (text.length === 0) {
-      text = PreviewController.DEFAULT_QUESTION_HELP_TEXT
-    }
-
+  private static updateFromNewQuestionHelpText(helpText: string) {
     PreviewController.setTextAndHighlightEnumeratorReferences(
       PreviewController.QUESTION_HELP_TEXT_CLASS,
-      text,
+      helpText,
     )
   }
 
-  static onEnumeratorSelectorChanged(e: Event) {
+  private static updateFromNewEnumeratorSelector(
+    enumeratorSelectorValue: string,
+  ) {
     const repeatedQuestionInformation = document.querySelector(
       PreviewController.REPEATED_QUESTION_INFORMATION_ID,
     )
-    const enumerator = (<HTMLInputElement>e.target).value
-    repeatedQuestionInformation.classList.toggle('hidden', enumerator === '')
+    repeatedQuestionInformation.classList.toggle(
+      'hidden',
+      enumeratorSelectorValue === '',
+    )
   }
 
-  static onEntityTypeChanged(e: Event) {
-    let entityType = (<HTMLInputElement>e.target).value
-    if (entityType.length === 0) {
-      entityType = PreviewController.DEFAULT_ENTITY_TYPE
-    }
-    PreviewController.setAllMatchingPlaceholders(
-      PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS,
+  private static updateFromNewEntityType(entityType: string) {
+    entityType = entityType || PreviewController.DEFAULT_ENTITY_TYPE
+    PreviewController.setAllMatchingElements(
+      PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' label',
       entityType + ' name',
     )
     PreviewController.setTextContent(
       PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
       'Add ' + entityType,
+    )
+    PreviewController.setAllMatchingElements(
+      PreviewController.QUESTION_ENTITY_DELETE_BUTTON_CLASS,
+      'Remove ' + entityType,
     )
   }
 
@@ -194,7 +180,7 @@ class PreviewController {
    * @param {string} selector The query selector used to find the preview div
    * @param {string} text The text to parse for $this and $this.parent (etc) strings.
    */
-  static setTextAndHighlightEnumeratorReferences(
+  private static setTextAndHighlightEnumeratorReferences(
     selector: string,
     text: string,
   ) {
@@ -214,21 +200,24 @@ class PreviewController {
     })
   }
 
-  static setTextContent(selector: string, text: string) {
+  private static setTextContent(selector: string, text: string) {
     const previewDiv = document.querySelector(selector)
     if (previewDiv) {
       previewDiv.textContent = text
     }
   }
 
-  static setAllMatchingPlaceholders(selector: string, text: string) {
-    const inputFields = document.querySelectorAll(selector)
-    Array.from(inputFields).forEach(function (inputField) {
-      ;(<HTMLInputElement>inputField).placeholder = text
+  private static setAllMatchingElements(selector: string, text: string) {
+    const matchingElements = document.querySelectorAll(selector)
+    Array.from(matchingElements).forEach(function (matchingElement) {
+      ;(<HTMLElement>matchingElement).textContent = text
     })
   }
 
-  static formatText(text: string, preserveEmptyLines: boolean): Element {
+  private static formatText(
+    text: string,
+    preserveEmptyLines: boolean,
+  ): Element {
     const ret = document.createElement('div')
     const lines = text.split('\n')
     for (let i = 0; i < lines.length; i++) {
@@ -271,7 +260,7 @@ class PreviewController {
     return ret
   }
 
-  static buildAccordion(title: string, content: string): Element {
+  private static buildAccordion(title: string, content: string): Element {
     const childContent = PreviewController.formatText(
       content,
       /* preserveEmptyLines = */ true,
@@ -311,7 +300,7 @@ class PreviewController {
     return accordion
   }
 
-  static buildList(items: string[]): Element {
+  private static buildList(items: string[]): Element {
     const listTag = document.createElement('ul')
     listTag.classList.add('list-disc')
     listTag.classList.add('mx-8')

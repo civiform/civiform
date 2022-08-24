@@ -15,7 +15,7 @@ import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 /** Provides helper functions to build a QuestionDefinition. */
-public class QuestionDefinitionBuilder {
+public final class QuestionDefinitionBuilder {
 
   private OptionalLong id = OptionalLong.empty();
   private String name;
@@ -55,29 +55,6 @@ public class QuestionDefinitionBuilder {
       MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
       questionOptions = multiOption.getOptions();
     }
-  }
-
-  public static QuestionDefinitionBuilder sample() {
-    return sample(QuestionType.TEXT);
-  }
-
-  public static QuestionDefinitionBuilder sample(QuestionType questionType) {
-    QuestionDefinitionBuilder builder =
-        new QuestionDefinitionBuilder()
-            .setName("")
-            .setDescription("")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Sample question help text"))
-            .setQuestionType(questionType);
-
-    if (questionType.isMultiOptionType()) {
-      builder.setQuestionOptions(
-          ImmutableList.of(
-              QuestionOption.create(
-                  1L, 1L, LocalizedStrings.of(Locale.US, "Sample question option"))));
-    }
-
-    return builder;
   }
 
   public QuestionDefinitionBuilder clearId() {

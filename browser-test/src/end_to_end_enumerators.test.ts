@@ -11,6 +11,7 @@ import {
   resetSession,
   validateAccessibility,
   waitForPageJsLoad,
+  validateScreenshot,
 } from './support'
 
 describe('End to end enumerator test', () => {
@@ -24,6 +25,34 @@ describe('End to end enumerator test', () => {
 
   afterEach(async () => {
     await resetSession(pageObject)
+  })
+
+  it('Updates enumerator elements in preview', async () => {
+    await loginAsAdmin(pageObject)
+
+    const adminQuestions = new AdminQuestions(pageObject)
+    await adminQuestions.gotoAdminQuestionsPage()
+
+    await pageObject.click('#create-question-button')
+    await pageObject.click('#create-enumerator-question')
+    await waitForPageJsLoad(pageObject)
+
+    // Click the add button in the preview to ensure we get an entity row and corresponding delete
+    // button.
+    await pageObject.click('button:text("Add Sample repeated entity type")')
+
+    // Now update the text when configuing the question and ensure that
+    // the preview values update.
+    await pageObject.fill('text=Repeated Entity Type', 'New entity type')
+
+    // Verify question preview has the default values.
+    await adminQuestions.expectEnumeratorPreviewValues({
+      questionText: 'Sample question text',
+      questionHelpText: '',
+      entityNameInputLabelText: 'New entity type name',
+      addEntityButtonText: 'Add New entity type',
+      deleteEntityButtonText: 'Remove New entity type',
+    })
   })
 
   it('Create nested enumerator and repeated questions as admin', async () => {
@@ -78,9 +107,7 @@ describe('End to end enumerator test', () => {
 
     // Add an enumerator question. All options should go away.
     await pageObject.click('button:text("enumerator-ete-householdmembers")')
-    expect(await pageObject.innerText('id=question-bank-questions')).toBe(
-      'Question bank',
-    )
+    expect(await pageObject.innerText('id=question-bank-questions')).toBe('')
 
     // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
     await pageObject.click(
@@ -148,6 +175,34 @@ describe('End to end enumerator test', () => {
 
     // Validate that enumerators are accessible
     await validateAccessibility(pageObject)
+  })
+
+  it('validate screenshot', async () => {
+    await loginAsGuest(pageObject)
+    await selectApplicantLanguage(pageObject, 'English', true)
+    const applicantQuestions = new ApplicantQuestions(pageObject)
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+    await applicantQuestions.clickNext()
+
+    await applicantQuestions.addEnumeratorAnswer('Bugs')
+
+    await validateScreenshot(pageObject, 'enumerator')
+  })
+
+  it('validate screenshot with errors', async () => {
+    await loginAsGuest(pageObject)
+    await selectApplicantLanguage(pageObject, 'English', true)
+    const applicantQuestions = new ApplicantQuestions(pageObject)
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+    await applicantQuestions.clickNext()
+
+    // Click next without adding an enumerator
+    await applicantQuestions.clickNext()
+    await validateScreenshot(pageObject, 'enumerator-errors')
   })
 
   it('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {

@@ -9,11 +9,11 @@ import {
   AdminPrograms,
   userDisplayName,
   AdminProgramStatuses,
+  enableFeatureFlag,
 } from './support'
 import {Page} from 'playwright'
 
-// TODO(#3071): Re-enable when the feature flag is controllable in tests.
-describe.skip('view program statuses', () => {
+describe('view program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let applicantQuestions: ApplicantQuestions
@@ -70,6 +70,7 @@ describe.skip('view program statuses', () => {
     const statusName = 'Status 1'
     beforeAll(async () => {
       await loginAsAdmin(pageObject)
+      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithStatusesName)
@@ -90,6 +91,7 @@ describe.skip('view program statuses', () => {
 
       await logout(pageObject)
       await loginAsProgramAdmin(pageObject)
+      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
 
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
@@ -105,6 +107,20 @@ describe.skip('view program statuses', () => {
 
     it('shows default option as placeholder', async () => {
       expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+    })
+
+    describe('when a status is changed, a confirmation dialog is shown', () => {
+      it('when rejecting, the selected status is not changed', async () => {
+        await adminPrograms.setStatusOptionAndDismissModal(statusName)
+        expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+      })
+
+      it('when confirmed, the page is redirected with a success toast', async () => {
+        await adminPrograms.setStatusOptionAndConfirmModal(statusName)
+        expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+        await adminPrograms.expectUpdateStatusToast()
+        // TODO(#3020): Assert that the selected status has been updated.
+      })
     })
   })
 })

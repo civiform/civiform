@@ -1,6 +1,5 @@
 package views.admin.programs;
 
-import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -16,13 +15,13 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
-import javax.inject.Provider;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;
@@ -50,7 +49,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final String baseUrl;
   private final DateConverter dateConverter;
   private final TranslationLocales translationLocales;
-  private final Provider<Boolean> statusTrackingEnabled;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramIndexView(
@@ -58,12 +57,12 @@ public final class ProgramIndexView extends BaseHtmlView {
       Config config,
       DateConverter dateConverter,
       TranslationLocales translationLocales,
-      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
     this.translationLocales = checkNotNull(translationLocales);
-    this.statusTrackingEnabled = statusTrackingEnabled;
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -275,7 +274,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     Styles.JUSTIFY_CENTER)
                 .withStyle("min-width:90px")
                 .with(
-                    Icons.svg(Icons.NOISE_CONTROL_OFF, 20)
+                    Icons.svg(Icons.NOISE_CONTROL_OFF)
                         .withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
                     span(badgeText).withClass(Styles.MR_4)),
             div()
@@ -343,7 +342,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeManageTranslationsLink.isPresent()) {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
-      if (statusTrackingEnabled.get()) {
+      if (featureFlags.isStatusTrackingEnabled(request)) {
         draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       }
       statusDiv =
@@ -515,7 +514,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private ButtonTag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
     ButtonTag button =
-        makeSvgTextButton("Manage admins", Icons.GROUP)
+        makeSvgTextButton("Manage Program Admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectButton(button, adminLink);

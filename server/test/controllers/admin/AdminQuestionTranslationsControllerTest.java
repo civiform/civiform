@@ -83,7 +83,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
             SPANISH_QUESTION_TEXT,
             SPANISH_QUESTION_HELP_TEXT);
     assertThat(contentAsString(result))
-        .contains("Default text:", ENGLISH_QUESTION_TEXT, ENGLISH_QUESTION_HELP_TEXT);
+        .contains("English text:", ENGLISH_QUESTION_TEXT, ENGLISH_QUESTION_HELP_TEXT);
   }
 
   @Test

@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
@@ -16,6 +17,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.PTag;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -75,7 +77,10 @@ public abstract class BaseHtmlView {
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return TagCreator.button()
         .with(
-            Icons.svg(icon, 18).withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0),
+            Icons.svg(icon)
+                .withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0)
+                // Can't set 18px using Tailwind CSS classes.
+                .withStyle("width: 18px; height: 18px;"),
             span(buttonText).withClass(Styles.TEXT_LEFT));
   }
 
@@ -127,5 +132,10 @@ public abstract class BaseHtmlView {
             .with(input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken"));
 
     return buttonEl.withForm(formId).with(hiddenForm);
+  }
+
+  protected static final PTag requiredFieldsExplanationContent() {
+    return p("Note: Fields marked with a * are required.")
+        .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600);
   }
 }

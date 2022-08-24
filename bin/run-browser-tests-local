@@ -3,5 +3,29 @@
 # DOC: Run the browser tests locally. Requires browser test env already running.
 
 source bin/lib.sh
+export BASE_URL=http://localhost:9999
+export DISABLE_SCREENSHOTS=true
 
-BASE_URL=http://localhost:9999 yarn test "$@"
+START_TIME=$(date +%s)
+DEADLINE=$(($START_TIME + 500))
+
+if ! output="$(node -v)"; then
+  echo output
+  echo "You must have node installed locally to run this command. Go to https://nodejs.org/en/download/package-manager/ for installation instructions."
+  exit 1
+fi
+
+npx yarn --cwd browser-test install
+
+echo "Polling to check server start"
+
+until $(curl --output /dev/null --silent --head --fail --max-time 2 "${BASE_URL}"); do
+  if (($(date +%s) > "${DEADLINE}")); then
+    echo "Deadline exceeded waiting for server start"
+    exit 1
+  fi
+done
+
+echo "Detected server start"
+
+npx yarn --cwd browser-test test "$@"

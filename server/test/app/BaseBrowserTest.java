@@ -141,12 +141,6 @@ public class BaseBrowserTest extends WithBrowser {
     selectAnOption("questionParentPath", parentPath);
     fillTextArea("questionText", "question text");
 
-    // Check that the question form contains a Question Settings section.
-    assertThat(browser.$(By.id("text-question-config")))
-        .hasSize(questionType.equals(QuestionType.TEXT) ? 1 : 0);
-    assertThat(browser.$(By.id("address-question-config")))
-        .hasSize(questionType.equals(QuestionType.ADDRESS) ? 1 : 0);
-
     browser.$("button", withText("Create")).first().click();
 
     // Check that question is added.

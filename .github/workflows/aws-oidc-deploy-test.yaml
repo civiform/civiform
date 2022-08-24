@@ -1,0 +1,50 @@
+name: aws_oidc deploy test
+on:
+  workflow_dispatch: {}
+  pull_request:
+    branches: main
+    paths:
+      - 'cloud/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      USE_LOCAL_BACKEND: true
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Resolve latest snapshot tag
+        run: source cloud/shared/bin/resolve-latest-snapshot-tag
+
+      - name: Copy the config from staging
+        run: |
+          #  Grab the config from the staging deploy repo to confirm
+          #  the changes work with actual data
+          curl https://raw.githubusercontent.com/civiform/civiform-staging-deploy/main/aws_staging_civiform_config.sh > civiform_config.sh
+
+      - name: Source config, set CIVIFORM_MODE to be "test", Run setup with latest tag
+        run: |
+          source civiform_config.sh
+          export CIVIFORM_MODE="test"
+          export APP_PREFIX="$(git rev-parse --short HEAD)"
+          echo "${LATEST_SNAPSHOT_TAG}"
+          cloud/shared/bin/setup  "--tag=${LATEST_SNAPSHOT_TAG}"
+          exit $?
+
+      - name: Source config, set CIVIFORM_MODE to be "test", Run deploy with latest tag
+        run: |
+          source civiform_config.sh
+          export CIVIFORM_MODE="test"
+          echo "${LATEST_SNAPSHOT_TAG}"
+          cloud/shared/bin/deploy "--tag=${LATEST_SNAPSHOT_TAG}"
+          exit $?

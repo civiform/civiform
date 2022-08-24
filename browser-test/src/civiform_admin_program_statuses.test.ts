@@ -2,13 +2,13 @@ import {
   dismissModal,
   startSession,
   loginAsAdmin,
+  enableFeatureFlag,
   AdminPrograms,
   AdminProgramStatuses,
 } from './support'
 import {Page} from 'playwright'
 
-// TODO(#3071): Re-enable when the feature flag is controllable in tests.
-describe.skip('modify program statuses', () => {
+describe('modify program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let adminProgramStatuses: AdminProgramStatuses
@@ -20,6 +20,7 @@ describe.skip('modify program statuses', () => {
     adminProgramStatuses = new AdminProgramStatuses(pageObject)
 
     await loginAsAdmin(pageObject)
+    await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
   })
 
   describe('statuses list', () => {
@@ -137,6 +138,11 @@ describe.skip('modify program statuses', () => {
         expectEmailExists: false,
       })
       await adminProgramStatuses.expectStatusNotExists(secondStatusName)
+      const emailWarningVisible =
+        await adminProgramStatuses.emailTranslationWarningIsVisible(
+          'Updated status name',
+        )
+      expect(emailWarningVisible).toBe(false)
     })
 
     it('edits an existing status, configures email, and deletes the configured email', async () => {
@@ -153,6 +159,11 @@ describe.skip('modify program statuses', () => {
         statusName: firstStatusName,
         expectedEmailBody: 'An email body',
       })
+      const emailWarningVisible =
+        await adminProgramStatuses.emailTranslationWarningIsVisible(
+          firstStatusName,
+        )
+      expect(emailWarningVisible).toBe(true)
 
       // Edit the configured email.
       await adminProgramStatuses.editStatus(firstStatusName, {

@@ -13,12 +13,12 @@ class ModalController {
       })
     }
 
-    const modalClose = document.querySelector(`#${modal.id}-close`)
-    if (modalClose) {
-      modalClose.addEventListener('click', function () {
+    const modalCloses = Array.from(modal.querySelectorAll('.cf-modal-close'))
+    modalCloses.forEach((modalCloses) => {
+      modalCloses.addEventListener('click', () => {
         ModalController.toggleModal(modalContainer, modal)
       })
-    }
+    })
   }
 
   static toggleModal(modalContainer: Element, modal: Element) {

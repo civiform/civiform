@@ -1,7 +1,7 @@
 module "ecs_cluster" {
   source  = "cn-terraform/ecs-cluster/aws"
   version = "1.0.10"
-  name    = var.app_prefix
+  name    = "${var.app_prefix}-civiform"
   tags = {
     Name = "${var.app_prefix} Civiform ECS Cluster"
     Type = "Civiform ECS Cluster"
@@ -12,7 +12,7 @@ module "ecs_cluster" {
 module "aws_cw_logs" {
   source    = "cn-terraform/cloudwatch-logs/aws"
   version   = "1.0.12"
-  logs_path = "${var.app_prefix}_ecslogs/"
+  logs_path = "${var.app_prefix}-civiformlogs/"
   tags = {
     Name = "${var.app_prefix} Civiform Cloud Watch Logs"
     Type = "Civiform Cloud Watch Logs"
@@ -22,8 +22,8 @@ module "aws_cw_logs" {
 module "td" {
   source          = "cn-terraform/ecs-fargate-task-definition/aws"
   version         = "1.0.30"
-  name_prefix     = var.app_prefix
-  container_name  = var.app_prefix
+  name_prefix     = "${var.app_prefix}-civiform"
+  container_name  = "${var.app_prefix}-civiform"
   container_image = "${var.civiform_image_repo}:${var.image_tag}"
 
   port_mappings = [
@@ -53,6 +53,7 @@ module "td" {
               aws_secretsmanager_secret.postgres_username_secret.arn,
               aws_secretsmanager_secret.postgres_password_secret.arn,
               aws_secretsmanager_secret.app_secret_key_secret.arn,
+              aws_secretsmanager_secret.api_secret_salt_secret.arn,
               aws_secretsmanager_secret.adfs_secret_secret.arn,
               aws_secretsmanager_secret.adfs_client_id_secret.arn,
               aws_secretsmanager_secret.applicant_oidc_client_secret_secret.arn,
@@ -68,7 +69,7 @@ module "td" {
               "kms:GenerateDataKey*",
               "kms:DescribeKey"
             ],
-            "Resource" : [aws_kms_key.civiform_kms_key.arn]
+            "Resource" : [aws_kms_key.civiform_kms_key.arn, aws_kms_key.file_storage_key.arn]
           },
           {
             "Effect" : "Allow",
@@ -78,6 +79,15 @@ module "td" {
             "Resource" : [
               aws_s3_bucket.civiform_files_s3.arn,
               "${aws_s3_bucket.civiform_files_s3.arn}/*",
+            ]
+          },
+          {
+            "Effect" : "Allow",
+            "Action" : [
+              "ses:*"
+            ],
+            "Resource" : [
+              for email in module.email_service : email.email_arn
             ]
           },
         ]
@@ -97,6 +107,10 @@ module "td" {
     {
       name      = "SECRET_KEY"
       valueFrom = aws_secretsmanager_secret_version.app_secret_key_secret_version.arn
+    },
+    {
+      name      = "CIVIFORM_API_SECRET_SALT"
+      valueFrom = aws_secretsmanager_secret_version.api_secret_salt_secret_version.arn
     },
     {
       name      = "ADFS_SECRET"
@@ -158,6 +172,7 @@ module "td" {
     ADFS_DISCOVERY_URI                        = var.adfs_discovery_uri
 
     CIVIFORM_APPLICATION_STATUS_TRACKING_ENABLED = var.feature_flag_status_tracking_enabled
+    CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET          = var.civiform_api_keys_ban_global_subnet
   }
   log_configuration = {
     logDriver = "awslogs"
@@ -183,14 +198,14 @@ module "td" {
 
 module "ecs_fargate_service" {
   source                  = "cn-terraform/ecs-fargate-service/aws"
-  version                 = "2.0.32"
-  name_prefix             = var.app_prefix
+  version                 = "2.0.34"
+  name_prefix             = "${var.app_prefix}-civiform"
   desired_count           = var.fargate_desired_task_count
   default_certificate_arn = var.ssl_certificate_arn
   ssl_policy              = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
   vpc_id                  = module.vpc.vpc_id
   task_definition_arn     = module.td.aws_ecs_task_definition_td_arn
-  container_name          = var.app_prefix
+  container_name          = "${var.app_prefix}-civiform"
   ecs_cluster_name        = module.ecs_cluster.aws_ecs_cluster_cluster_name
   ecs_cluster_arn         = module.ecs_cluster.aws_ecs_cluster_cluster_arn
   private_subnets         = module.vpc.private_subnets
