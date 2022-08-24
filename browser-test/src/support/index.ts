@@ -75,10 +75,30 @@ export const startSession = async (): Promise<{
   const context = await makeBrowserContext(browser)
   const page = await context.newPage()
 
+  await dropTables(page)
   await page.goto(BASE_URL)
   await closeWarningMessage(page)
 
   return {browser, context, page}
+}
+
+export const createBrowserContext = (clearDb = true): {
+  page: Page
+} => {
+  const result = {page: undefined as unknown as Page,
+    browser: undefined as unknown as Browser};
+  beforeAll(async () => {
+    const {page, browser} = await startSession()
+    result.page = page
+    result.browser = browser
+  })
+  afterEach(async () => {
+    await resetSession(result.page, clearDb)
+  })
+  afterAll(async () => {
+    await endSession(result.browser)
+  })
+  return result
 }
 
 export const endSession = async (browser: Browser) => {
