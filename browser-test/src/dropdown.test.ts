@@ -10,6 +10,7 @@ import {
   startSession,
   resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Dropdown question for applicant flow', () => {
@@ -89,6 +90,25 @@ describe('Dropdown question for applicant flow', () => {
         /* clickSubmit= */ false,
       )
       await adminQuestions.expectPreviewOptions(['Sample question option'])
+    })
+
+    it('validate screenshot', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(pageObject, 'dropdown')
+    })
+
+    it('validate screenshot with errors', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+
+      await validateScreenshot(pageObject, 'dropdown-errors')
     })
 
     it('with selected option submits successfully', async () => {

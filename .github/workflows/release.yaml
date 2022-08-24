@@ -20,6 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Run bin/create-release
         run: 'GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }}'
