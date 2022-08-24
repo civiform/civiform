@@ -190,6 +190,7 @@ variable "civiform_applicant_idp" {
 variable "applicant_oidc_provider_logout" {
   type        = bool
   description = "If the applicant OIDC logout should also perform a central logout from the auth provider"
+  default     = true
 }
 
 variable "applicant_oidc_post_logout_redirect_param" {
