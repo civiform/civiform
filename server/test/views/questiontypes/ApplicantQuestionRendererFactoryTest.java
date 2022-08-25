@@ -57,6 +57,7 @@ public class ApplicantQuestionRendererFactoryTest {
   @Parameters(method = "compositeTypes")
   public void compositeQuestionsUseFieldset(QuestionType type)
       throws UnsupportedQuestionTypeException {
+    // Multi-input questions should be wrapped in fieldsets for screen reader users.
     ApplicantQuestionRendererFactory factory =
         new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
 
