@@ -544,6 +544,46 @@ export class AdminPrograms {
     return '.cf-program-admin-status-selector label:has-text("Status:")'
   }
 
+  async isEditNoteVisible(): Promise<boolean> {
+    return this.applicationFrameLocator()
+      .locator(this.editNoteSelector())
+      .isVisible()
+  }
+
+  /**
+   * Edit note clicks the edit button, sets the note content to the provided
+   * text, and confirms the dialog.
+   */
+  async editNote(noteContent: string) {
+    await this.applicationFrameLocator()
+      .locator(this.editNoteSelector())
+      .click()
+
+    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    if (!frame) {
+      throw new Error('Expected an application frame')
+    }
+    const editModal = await waitForAnyModal(frame)
+    const noteContentArea = (await editModal.$('textarea'))!
+    await noteContentArea.fill(noteContent)
+
+    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
+    // to taking the action that would trigger navigation.
+    const saveButton = (await editModal.$('text=Save'))!
+    await Promise.all([this.waitForApplicationFrame(), saveButton.click()])
+  }
+
+  private editNoteSelector() {
+    return 'button:has-text("Edit note")'
+  }
+
+  async expectNoteUpdatedToast() {
+    const toastMessages = await this.applicationFrameLocator()
+      .locator('#toast-container')
+      .innerText()
+    expect(toastMessages).toContain('Application note updated')
+  }
+
   async getJson(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
