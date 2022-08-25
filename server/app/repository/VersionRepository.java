@@ -361,24 +361,4 @@ public final class VersionRepository {
                     .isEmpty())
         .forEach(program -> programRepository.createOrUpdateDraft(program));
   }
-
-  public List<Version> listAllVersions() {
-    return database.find(Version.class).findList();
-  }
-
-  /** Sets a previous version to ACTIVE again, and hides any DRAFT version. */
-  public void setLiveVersion(long versionId) {
-    // TODO: Verify if these are done in a transaction.
-    Version currentDraftVersion = getDraftVersion();
-    Version currentActiveVersion = getActiveVersion();
-    Version newActiveVersion = database.find(Version.class).setId(versionId).findOne();
-    Preconditions.checkState(
-        currentDraftVersion.id != versionId, "Can't rollback to the DRAFT version.");
-    Preconditions.checkState(
-        currentActiveVersion.id != versionId, "Can't rollback to the current ACTIVE version.");
-
-    newActiveVersion.setLifecycleStage(LifecycleStage.ACTIVE).save();
-    currentActiveVersion.setLifecycleStage(LifecycleStage.OBSOLETE).save();
-    currentDraftVersion.setLifecycleStage(LifecycleStage.DELETED).save();
-  }
 }
