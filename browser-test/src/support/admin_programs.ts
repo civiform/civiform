@@ -503,7 +503,7 @@ export class AdminPrograms {
    * Clicks the confirm button in the status update confirmation dialog and waits until the IFrame
    * containing the modal has been refreshed.
    */
-   async confirmStatusUpdateModal(modal: ElementHandle<HTMLElement>) {
+  async confirmStatusUpdateModal(modal: ElementHandle<HTMLElement>) {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const confirmButton = (await modal.$('text=Confirm'))!
