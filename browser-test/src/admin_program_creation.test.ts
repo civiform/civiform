@@ -144,7 +144,6 @@ describe('program creation', () => {
 
     const questionName = 'new-from-question-bank'
     const questionText = 'Question text'
-
     await adminQuestions.fillInQuestionBasics({
       questionName: questionName,
       description: '',

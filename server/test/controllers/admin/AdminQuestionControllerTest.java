@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
@@ -298,6 +299,14 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.newOne(request, "nope", "/some/redirect/url");
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void newOne_absoluteRedirectUrl_throws() {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    assertThatThrownBy(() -> controller.newOne(request, "text", "https://www.example.com"))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContainingAll("Invalid absolute redirect URL.");
   }
 
   @Test
