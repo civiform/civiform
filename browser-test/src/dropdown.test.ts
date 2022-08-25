@@ -59,7 +59,7 @@ describe('Dropdown question for applicant flow', () => {
 
       await adminQuestions.createDropdownQuestion(
         {
-          questionName: '',
+          questionName: 'not-used-in-test',
           questionText: 'Sample question text',
           helpText: 'Sample question help text',
           options: ['red', 'green', 'orange', 'blue'],

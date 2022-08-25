@@ -202,7 +202,7 @@ class PreviewController {
     ).map((el) => {
       return (el as HTMLInputElement).value
     })
-    if (configuredOptions.length == 0) {
+    if (configuredOptions.length === 0) {
       configuredOptions.push(PreviewController.DEFAULT_OPTION_TEXT)
     }
 

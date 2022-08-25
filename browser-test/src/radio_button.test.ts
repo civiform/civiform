@@ -59,7 +59,7 @@ describe('Radio button question for applicant flow', () => {
 
       await adminQuestions.createRadioButtonQuestion(
         {
-          questionName: '',
+          questionName: 'not-used-in-test',
           questionText: 'Sample question text',
           helpText: 'Sample question help text',
           options: ['red', 'green', 'orange', 'blue'],

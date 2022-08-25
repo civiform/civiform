@@ -61,7 +61,7 @@ describe('Checkbox question for applicant flow', () => {
 
       await adminQuestions.createCheckboxQuestion(
         {
-          questionName: '',
+          questionName: 'not-used-in-test',
           questionText: 'Sample question text',
           helpText: 'Sample question help text',
           options: ['red', 'green', 'orange', 'blue'],
