@@ -8,6 +8,7 @@ import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import javax.inject.Inject;
 import play.mvc.Result;
 
@@ -27,6 +28,10 @@ public final class MetricsController extends CiviFormController {
     this.metricsEnabled = checkNotNull(config).getBoolean("server_metrics.enabled");
   }
 
+  /**
+   * Exports server metrics in Prometheus 0.0.4 text format
+   * (https://github.com/Showmax/prometheus-docs/blob/master/content/docs/instrumenting/exposition_formats.md#format-version-004).
+   */
   public Result getMetrics() {
     if (!metricsEnabled) {
       return notFound();
@@ -37,7 +42,7 @@ public final class MetricsController extends CiviFormController {
     try {
       TextFormat.write004(writer, collectorRegistry.metricFamilySamples());
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
 
     return ok(writer.toString()).as(TextFormat.CONTENT_TYPE_004);
