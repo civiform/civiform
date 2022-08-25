@@ -57,26 +57,23 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Program program = resourceCreator.insertActiveProgram("Program");
     Account actor = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicant();
-    Application application = resourceCreator.insertActiveApplication(applicant,
-      program);
+    Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
-      ApplicationEventDetails.builder()
-        .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-        .setStatusEvent(
-          StatusEvent.builder().setStatusText("Status").setEmailSent(true)
-            .build()).build();
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(
+                StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
+            .build();
 
     ApplicationEvent event1 =
-      new ApplicationEvent(
-        application, actor, ApplicationEventDetails.Type.STATUS_CHANGE,
-        details);
+        new ApplicationEvent(
+            application, actor, ApplicationEventDetails.Type.STATUS_CHANGE, details);
     ApplicationEvent insertedEvent1 = repo.insertSync(event1);
 
     ApplicationEvent event2 =
-      new ApplicationEvent(
-        application, actor, ApplicationEventDetails.Type.STATUS_CHANGE,
-        details);
+        new ApplicationEvent(
+            application, actor, ApplicationEventDetails.Type.STATUS_CHANGE, details);
 
     ApplicationEvent insertedEvent2 = repo.insertSync(event2);
 
@@ -89,11 +86,11 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(insertedEvent2.getApplication()).isEqualTo(application);
     assertThat(insertedEvent2.getCreator()).isEqualTo(actor);
     assertThat(insertedEvent2.getDetails()).isEqualTo(details);
-    assertThat(insertedEvent2.getEventType()).isEqualTo(
-      ApplicationEventDetails.Type.STATUS_CHANGE);
+    assertThat(insertedEvent2.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
   }
-    @Test
-    public void getEvents() {
+
+  @Test
+  public void getEvents() {
     // Setup
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");
