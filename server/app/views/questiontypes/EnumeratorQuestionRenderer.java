@@ -41,7 +41,6 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
           Styles.GAP_4,
           Styles.MB_4);
 
-  // DELETE: double check how extra enumerators render
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
     super(question, InputFieldType.COMPOSITE);
   }
