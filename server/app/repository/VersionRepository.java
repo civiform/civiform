@@ -14,7 +14,6 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import javax.inject.Inject;
