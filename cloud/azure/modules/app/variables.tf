@@ -271,6 +271,6 @@ variable "civiform_api_keys_ban_global_subnet" {
 
 variable "civiform_server_metrics_enabled" {
   type        = bool
-  description = "Whether enable exporting server metrics on the /metrics route."
+  description = "Whether to enable exporting server metrics on the /metrics route."
   default     = false
 }
