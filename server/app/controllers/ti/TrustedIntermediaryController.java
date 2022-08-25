@@ -120,7 +120,6 @@ public class TrustedIntermediaryController {
         formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);
     try {
       tiService.updateApplicantDateOfBirth(accountId, form);
-
     } catch (IncorrectDateFormatException
         | MissingDateOfBirthException
         | ApplicantNotFoundException
