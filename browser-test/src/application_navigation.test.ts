@@ -135,7 +135,6 @@ describe('Applicant navigation flow', () => {
       expect(await pageObject.innerText('head')).toContain('Login')
       await validateAccessibility(pageObject)
       await validateScreenshot(pageObject, 'landing-page')
-
     })
 
     it('verify language selection page', async () => {

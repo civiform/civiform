@@ -1,4 +1,4 @@
-import {endSession, startSession, validateScreenshot} from './support'
+import {endSession, startSession} from './support'
 
 describe('the landing page', () => {
   it('it has login options', async () => {
