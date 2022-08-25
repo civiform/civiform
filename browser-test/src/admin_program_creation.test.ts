@@ -121,7 +121,11 @@ describe('program creation', () => {
     )
     await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
-    await validateScreenshot(page, 'program-creation', {fullPage: true})
+    // Questions in the question bank use animation. And it causes flakiness
+    // as buttons have very brief animation upon initial rendering and it can
+    // capturef by screenshot. So delay taking screenshot.
+    await page.waitForTimeout(2000)
+    await validateScreenshot(page, 'program-creation')
     await endSession(browser)
   })
 
