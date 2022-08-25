@@ -130,11 +130,11 @@ public class TrustedIntermediaryController {
 
     return redirect(
         routes.TrustedIntermediaryController.dashboard(
-            /* paramName=  nameQuery */
+            /* nameQuery=  */
             Optional.empty(),
-            /* paramName=  searchDate */
+            /* searchDate=  */
             Optional.empty(),
-            /* paramName=  page */
+            /* page= */
             Optional.empty()));
   }
 
