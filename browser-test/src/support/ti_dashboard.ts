@@ -37,6 +37,19 @@ export class TIDashboard {
     expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
   }
 
+  async expectDashboardNotContainClient(client: ClientInformation) {
+    const tableInnerText = await this.page.innerText('table')
+    expect(tableInnerText).not.toContain(this.convertToMMDDYYYY(client.dobDate))
+    expect(tableInnerText).not.toContain(client.emailAddress)
+    expect(tableInnerText).not.toContain(client.firstName)
+    expect(tableInnerText).not.toContain(client.lastName)
+  }
+
+  async searchByDateOfBirth(dobDate: string) {
+    await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
+    await this.page.click('button:text("Search")')
+  }
+
   convertToMMDDYYYY(dobDate: string): string {
     const [year, month, day] = dobDate.split('-')
     return `${month}-${day}-${year}`

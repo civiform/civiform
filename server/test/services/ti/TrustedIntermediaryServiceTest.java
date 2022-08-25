@@ -8,6 +8,7 @@ import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
@@ -16,7 +17,9 @@ import org.junit.Test;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
+import repository.SearchParameters;
 import repository.UserRepository;
+import services.applicant.ApplicantData;
 
 public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
@@ -25,6 +28,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   private TrustedIntermediaryService service;
   private FormFactory formFactory;
   private ProfileFactory profileFactory;
+  private TrustedIntermediaryGroup tiGroup;
 
   @Before
   public void setup() {
@@ -36,6 +40,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     createTIWithMockedProfile(managedApplicant);
     repo = instanceOf(UserRepository.class);
     profileFactory.createFakeTrustedIntermediary();
+    tiGroup = repo.listTrustedIntermediaryGroups().get(0);
   }
 
   @Test
@@ -55,7 +60,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "sample1@fake.com",
                         "dob",
                         "")));
-    TrustedIntermediaryGroup tiGroup = repo.listTrustedIntermediaryGroups().get(0);
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory
             .form(AddApplicantToTrustedIntermediaryGroupForm.class)
@@ -82,7 +86,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "sample1@fake.com",
                         "dob",
                         "20-20-20")));
-    TrustedIntermediaryGroup tiGroup = repo.listTrustedIntermediaryGroups().get(0);
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory
             .form(AddApplicantToTrustedIntermediaryGroupForm.class)
@@ -110,7 +113,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "sample1@fake.com",
                         "dob",
                         "2022-07-07")));
-    TrustedIntermediaryGroup tiGroup = repo.listTrustedIntermediaryGroups().get(0);
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory
             .form(AddApplicantToTrustedIntermediaryGroupForm.class)
@@ -137,7 +139,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "sample1@fake.com",
                         "dob",
                         "2012-07-07")));
-    TrustedIntermediaryGroup tiGroup = repo.listTrustedIntermediaryGroups().get(0);
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory
             .form(AddApplicantToTrustedIntermediaryGroupForm.class)
@@ -164,7 +165,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "sample@fake.com",
                         "dob",
                         "2012-07-07")));
-    TrustedIntermediaryGroup tiGroup = repo.listTrustedIntermediaryGroups().get(0);
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory
             .form(AddApplicantToTrustedIntermediaryGroupForm.class)
@@ -198,7 +198,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "",
                         "dob",
                         "2012-07-07")));
-    TrustedIntermediaryGroup tiGroup = repo.listTrustedIntermediaryGroups().get(0);
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory
             .form(AddApplicantToTrustedIntermediaryGroupForm.class)
@@ -226,7 +225,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "sample1@fake.com",
                         "dob",
                         "2022-07-07")));
-    TrustedIntermediaryGroup tiGroup = repo.listTrustedIntermediaryGroups().get(0);
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory
             .form(AddApplicantToTrustedIntermediaryGroupForm.class)
@@ -238,5 +236,68 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
     assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-07");
+  }
+
+  @Test
+  public void getManagedAccounts_SearchByDob() {
+    setupTIAccount("First", "2022-07-08", "email1", tiGroup);
+    setupTIAccount("Second", "2022-07-08", "email2", tiGroup);
+    setupTIAccount("Third", "2022-12-12", "email3", tiGroup);
+    SearchParameters searchParameters =
+        SearchParameters.builder()
+            .setNameQuery(Optional.empty())
+            .setDateQuery(Optional.of("2022-12-12"))
+            .build();
+    TrustedIntermediarySearchResult tiResult =
+        service.getManagedAccounts(searchParameters, tiGroup);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
+    assertThat(tiResult.getAccounts().get().get(0).getEmailAddress()).isEqualTo("email3");
+  }
+
+  @Test
+  public void getManagedAccounts_SearchByName() {
+    setupTIAccount("First", "2022-07-08", "email10", tiGroup);
+    setupTIAccount("Emily", "2022-07-08", "email20", tiGroup);
+    setupTIAccount("Third", "2022-07-10", "email30", tiGroup);
+    SearchParameters searchParameters =
+        SearchParameters.builder()
+            .setNameQuery(Optional.of("Emily"))
+            .setDateQuery(Optional.empty())
+            .build();
+    TrustedIntermediarySearchResult tiResult =
+        service.getManagedAccounts(searchParameters, tiGroup);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(1);
+    assertThat(tiResult.getAccounts().get().get(0).getEmailAddress()).isEqualTo("email20");
+  }
+
+  @Test
+  public void getManagedAccounts_ExpectUnformattedDobException() {
+    setupTIAccount("First", "2022-07-08", "email11", tiGroup);
+    setupTIAccount("Second", "2022-10-10", "email21", tiGroup);
+    setupTIAccount("Third", "2022-07-10", "email31", tiGroup);
+    SearchParameters searchParameters =
+        SearchParameters.builder()
+            .setNameQuery(Optional.empty())
+            .setDateQuery(Optional.of("22-22-22"))
+            .build();
+    TrustedIntermediarySearchResult tiResult =
+        service.getManagedAccounts(searchParameters, tiGroup);
+    assertThat(tiResult.getAccounts().get().size()).isEqualTo(tiGroup.getManagedAccounts().size());
+    assertThat(tiResult.getErrorMessage().get())
+        .isEqualTo("Please enter date in MM/dd/yyyy format");
+  }
+
+  private void setupTIAccount(
+      String firstName, String dob, String email, TrustedIntermediaryGroup tiGroup) {
+    Account account = new Account();
+    account.setEmailAddress(email);
+    account.setManagedByGroup(tiGroup);
+    account.save();
+    Applicant applicant = new Applicant();
+    applicant.setAccount(account);
+    ApplicantData applicantData = applicant.getApplicantData();
+    applicantData.setUserName(firstName, "", "Last");
+    applicantData.setDateOfBirth(dob);
+    applicant.save();
   }
 }
