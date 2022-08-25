@@ -1,4 +1,5 @@
 import {
+  dismissModal,
   startSession,
   logout,
   loginAsGuest,
@@ -114,12 +115,14 @@ describe('view program statuses', () => {
 
     describe('when a status is changed, a confirmation dialog is shown', () => {
       it('when rejecting, the selected status is not changed', async () => {
-        await adminPrograms.setStatusOptionAndDismissModal(statusName)
+        const modal = await adminPrograms.setStatusOptionAndAwaitModal(statusName)
+        await dismissModal(adminPrograms.applicationFrame())
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
 
       it('when confirmed, the page is redirected with a success toast', async () => {
-        await adminPrograms.setStatusOptionAndConfirmModal(statusName)
+        const modal = await adminPrograms.setStatusOptionAndAwaitModal(statusName)
+        await adminPrograms.confirmStatusUpdateModal(modal)
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
         await adminPrograms.expectUpdateStatusToast()
         // TODO(#3020): Assert that the selected status has been updated.
