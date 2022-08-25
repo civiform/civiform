@@ -13,6 +13,7 @@ public class Models {
           ApiKey.class,
           Applicant.class,
           Application.class,
+          ApplicationEvent.class,
           Program.class,
           Question.class,
           StoredFile.class,
