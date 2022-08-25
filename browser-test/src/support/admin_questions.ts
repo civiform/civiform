@@ -608,7 +608,6 @@ export class AdminQuestions {
 
     await this.page.click('#create-question-button')
     await this.page.click('#create-dropdown-question')
-    await this.page.waitForURL('**/admin/questions/new?type=dropdown')
     await waitForPageJsLoad(this.page)
 
     await this.fillInQuestionBasics({
