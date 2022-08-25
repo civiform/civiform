@@ -5,7 +5,6 @@ describe('the landing page', () => {
     const {browser, page} = await startSession()
 
     expect(await page.textContent('html')).toContain('Continue as guest')
-    await validateScreenshot(page, 'landing-page', {fullPage: true})
 
     await endSession(browser)
   })
