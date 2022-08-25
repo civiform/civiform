@@ -7,6 +7,7 @@ import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import java.util.EnumSet;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
@@ -29,6 +30,15 @@ public class ApplicantQuestionRendererFactoryTest {
           .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
           .build();
 
+  private static EnumSet<QuestionType> compositeTypes() {
+    return EnumSet.of(
+        QuestionType.ADDRESS,
+        QuestionType.CHECKBOX,
+        QuestionType.ENUMERATOR,
+        QuestionType.NAME,
+        QuestionType.RADIO_BUTTON);
+  }
+
   @Test
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
@@ -41,5 +51,19 @@ public class ApplicantQuestionRendererFactoryTest {
     String renderedContent = document(html(content));
     assertThat(renderedContent).contains("Sample question text");
     assertThat(renderedContent).doesNotContain("help text");
+  }
+
+  @Test
+  @Parameters(method = "compositeTypes")
+  public void compositeQuestionsUseFieldset(QuestionType type)
+      throws UnsupportedQuestionTypeException {
+    ApplicantQuestionRendererFactory factory =
+        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
+
+    ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
+
+    DivTag content = sampleRenderer.render(params);
+    String renderedContent = document(html(content));
+    assertThat(renderedContent).contains("fieldset");
   }
 }
