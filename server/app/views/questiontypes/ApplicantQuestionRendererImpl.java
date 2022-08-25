@@ -35,7 +35,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
   protected final ApplicantQuestion question;
   private final InputFieldType inputFieldType;
-  
+
   ApplicantQuestionRendererImpl(ApplicantQuestion question, InputFieldType inputFieldType) {
     this.question = checkNotNull(question);
     this.inputFieldType = inputFieldType;
@@ -52,18 +52,18 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   @Override
   public final DivTag render(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
-    DivTag questionSecondaryTextDiv = div()
-      .with(
+    DivTag questionSecondaryTextDiv =
         div()
-        // Question help text
-          .withClasses(
-              ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
-              ApplicantStyles.QUESTION_HELP_TEXT)
-          .with(
-              TextFormatter.createLinksAndEscapeText(
-                  question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab))
-      )
-      .withClasses(Styles.MB_4);
+            .with(
+                div()
+                    // Question help text
+                    .withClasses(
+                        ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
+                        ApplicantStyles.QUESTION_HELP_TEXT)
+                    .with(
+                        TextFormatter.createLinksAndEscapeText(
+                            question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab)))
+            .withClasses(Styles.MB_4);
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
     switch (params.errorDisplayMode()) {
@@ -97,30 +97,31 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
     if (inputFieldType == InputFieldType.COMPOSITE) {
       // Group fields with fieldset and legend for a11y.
-      LegendTag legend = legend()
-        .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-        .with(
-            TextFormatter.createLinksAndEscapeText(
-                question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab));
+      LegendTag legend =
+          legend()
+              .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
+              .with(
+                  TextFormatter.createLinksAndEscapeText(
+                      question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab));
 
-      FieldsetTag fieldset = fieldset()
-        // legend must be a direct child of fieldset for screenreaders to work properly
-        .with(legend)
-        .with(questionSecondaryTextDiv)
-        .with(renderTag(params, validationErrors));
+      FieldsetTag fieldset =
+          fieldset()
+              // legend must be a direct child of fieldset for screenreaders to work properly
+              .with(legend)
+              .with(questionSecondaryTextDiv)
+              .with(renderTag(params, validationErrors));
 
       return div()
-        .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
-        .with(fieldset);
+          .withId(question.getContextualizedPath().toString())
+          .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
+          .with(fieldset);
     } else {
       DivTag questionPrimaryTextDiv =
-        div()
-            .withClasses(
-                ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-            .with(
-                TextFormatter.createLinksAndEscapeText(
-                    question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab));
+          div()
+              .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
+              .with(
+                  TextFormatter.createLinksAndEscapeText(
+                      question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab));
 
       return div()
           .withId(question.getContextualizedPath().toString())

@@ -1,18 +1,16 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.legend;
 
 import controllers.applicant.routes;
 import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.FieldsetTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LegendTag;
 import java.util.Optional;
@@ -57,10 +55,11 @@ public class ApplicantInformationView extends BaseHtmlView {
         legend(questionText)
             .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
     String preferredLanguage = layout.languageSelector.getPreferredLangage(request).code();
-    FieldsetTag languageSelectorFieldset = fieldset()
-        // legend must be a direct child of fieldset for screenreaders to work properly
-        .with(questionTextLegend)
-        .with(layout.languageSelector.renderRadios(preferredLanguage));
+    FieldsetTag languageSelectorFieldset =
+        fieldset()
+            // legend must be a direct child of fieldset for screenreaders to work properly
+            .with(questionTextLegend)
+            .with(layout.languageSelector.renderRadios(preferredLanguage));
     FormTag formContent =
         form()
             .withAction(formAction)
