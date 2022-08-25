@@ -94,34 +94,11 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    // Initialize the controller explicitly to override status tracking enablement.
-    controller =
-        new AdminApplicationController(
-            instanceOf(ProgramService.class),
-            instanceOf(ApplicantService.class),
-            instanceOf(ExporterService.class),
-            instanceOf(JsonExporter.class),
-            instanceOf(PdfExporter.class),
-            instanceOf(ProgramApplicationListView.class),
-            instanceOf(ProgramApplicationView.class),
-            instanceOf(ProgramAdminApplicationService.class),
-            instanceOf(ProfileUtils.class),
-            instanceOf(MessagesApi.class),
-            instanceOf(DateConverter.class),
-            /* nowProvider= */ new Provider<LocalDateTime>() {
-              @Override
-              public LocalDateTime get() {
-                return LocalDateTime.now(ZoneId.systemDefault());
-              }
-            },
-            /* statusTrackingEnabled= */ new Provider<Boolean>() {
-              @Override
-              public Boolean get() {
-                return false;
-              }
-            });
-
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .session(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "false"))
+            .build();
     Result result = controller.updateNote(request, program.id, application.id);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
