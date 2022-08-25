@@ -71,6 +71,10 @@ public final class DatabaseSeedTask {
                           "Nombre (nombre y la inicial del apellido está bien)",
                           Lang.forCode("zh-TW").toLocale(),
                           "姓名（名字和姓氏第一個字母便可）")))
+              .setQuestionHelpText(
+                LocalizedStrings.of(
+                    Lang.forCode("en-US").toLocale(),
+                    "Enter your legal name"))
               .unsafeBuild(),
           new QuestionDefinitionBuilder()
               .setQuestionType(QuestionType.DATE)

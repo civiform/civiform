@@ -28,7 +28,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   public CheckboxQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.COMPOSITE);
   }
 
   @Override
@@ -39,7 +39,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
 
     DivTag checkboxQuestionFormContent =
         div()
-            // Hidden input that's always selected to allow for clearing mutli-select data.
+            // Hidden input that's always selected to allow for clearing multi-select data.
             .with(
                 input()
                     .withType("checkbox")

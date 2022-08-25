@@ -2,10 +2,14 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.fieldset;
+import static j2html.TagCreator.legend;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
+import j2html.tags.specialized.LegendTag;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -23,10 +27,18 @@ import views.style.Styles;
  */
 abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRenderer {
 
-  protected final ApplicantQuestion question;
+  /** Whether the question is comprised of a single input field or multiple. */
+  protected enum InputFieldType {
+    SINGLE,
+    COMPOSITE
+  }
 
-  ApplicantQuestionRendererImpl(ApplicantQuestion question) {
+  protected final ApplicantQuestion question;
+  private final InputFieldType inputFieldType;
+  
+  ApplicantQuestionRendererImpl(ApplicantQuestion question, InputFieldType inputFieldType) {
     this.question = checkNotNull(question);
+    this.inputFieldType = inputFieldType;
   }
 
   private String getRequiredClass() {
@@ -40,26 +52,18 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   @Override
   public final DivTag render(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
-    DivTag questionTextDiv =
+    DivTag questionSecondaryTextDiv = div()
+      .with(
         div()
-            // Question text
-            .with(
-                div()
-                    .withClasses(
-                        ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-                    .with(
-                        TextFormatter.createLinksAndEscapeText(
-                            question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab)))
-            // Question help text
-            .with(
-                div()
-                    .withClasses(
-                        ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
-                        ApplicantStyles.QUESTION_HELP_TEXT)
-                    .with(
-                        TextFormatter.createLinksAndEscapeText(
-                            question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab)))
-            .withClasses(Styles.MB_4);
+        // Question help text
+          .withClasses(
+              ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
+              ApplicantStyles.QUESTION_HELP_TEXT)
+          .with(
+              TextFormatter.createLinksAndEscapeText(
+                  question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab))
+      )
+      .withClasses(Styles.MB_4);
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
     switch (params.errorDisplayMode()) {
@@ -78,23 +82,52 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
       // Question error text
-      questionTextDiv.with(
+      questionSecondaryTextDiv.with(
           BaseHtmlView.fieldErrors(
               messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS));
     }
 
     if (question.isRequiredButWasSkippedInCurrentProgram()) {
       String requiredQuestionMessage = messages.at(MessageKey.VALIDATION_REQUIRED.getKeyName());
-      questionTextDiv.with(
+      questionSecondaryTextDiv.with(
           div()
               .withClasses(Styles.P_1, Styles.TEXT_RED_600)
               .withText("*" + requiredQuestionMessage));
     }
 
-    return div()
+    if (inputFieldType == InputFieldType.COMPOSITE) {
+      // Group fields with fieldset and legend for a11y.
+      LegendTag legend = legend()
+        .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
+        .with(
+            TextFormatter.createLinksAndEscapeText(
+                question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab));
+
+      FieldsetTag fieldset = fieldset()
+        // legend must be a direct child of fieldset for screenreaders to work properly
+        .with(legend)
+        .with(questionSecondaryTextDiv)
+        .with(renderTag(params, validationErrors));
+
+      return div()
         .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
-        .with(questionTextDiv)
-        .with(renderTag(params, validationErrors));
+        .with(fieldset);
+    } else {
+      DivTag questionPrimaryTextDiv =
+        div()
+            .withClasses(
+                ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
+            .with(
+                TextFormatter.createLinksAndEscapeText(
+                    question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab));
+
+      return div()
+          .withId(question.getContextualizedPath().toString())
+          .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
+          .with(questionPrimaryTextDiv)
+          .with(questionSecondaryTextDiv)
+          .with(renderTag(params, validationErrors));
+    }
   }
 }
