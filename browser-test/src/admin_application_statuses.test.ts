@@ -48,20 +48,23 @@ describe('view program statuses', () => {
       await applicantQuestions.submitFromPreviewPage()
 
       await logout(pageObject)
+
+      // Navigate to the submitted application as the program admin.
+      await loginAsProgramAdmin(pageObject)
+      await adminPrograms.viewApplications(programWithoutStatusesName)
+      await adminPrograms.viewApplicationForApplicant(userDisplayName())
     })
 
     afterAll(async () => {
       await logout(pageObject)
     })
 
-    it('does not Show status options', async () => {
-      await loginAsProgramAdmin(pageObject)
-
-      await adminPrograms.viewApplications(programWithoutStatusesName)
-
-      await adminPrograms.viewApplicationForApplicant(userDisplayName())
-
+    it('does not show status options', async () => {
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
+    })
+
+    it('does not show edit note', async () => {
+      expect(await adminPrograms.isEditNoteVisible()).toBe(false)
     })
   })
 
@@ -121,6 +124,12 @@ describe('view program statuses', () => {
         await adminPrograms.expectUpdateStatusToast()
         // TODO(#3020): Assert that the selected status has been updated.
       })
+    })
+
+    it('allows editing a note', async () => {
+      await adminPrograms.editNote('Some note content')
+      await adminPrograms.expectNoteUpdatedToast()
+      // TODO(#3020): Assert that the note has been updated.
     })
   })
 })

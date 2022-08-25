@@ -86,4 +86,44 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Result result = controller.updateStatus(request, program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
+
+  @Test
+  public void updateNote_flagDisabled() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .session(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "false"))
+            .build();
+    Result result = controller.updateNote(request, program.id, application.id);
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void updateNote_programNotFound() {
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    assertThatThrownBy(() -> controller.updateNote(request, Long.MAX_VALUE, application.id))
+        .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void updateNote_notAdmin() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Result result = controller.updateNote(request, program.id, application.id);
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
 }
