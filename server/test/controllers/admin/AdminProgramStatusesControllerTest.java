@@ -12,16 +12,15 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import featureflags.FeatureFlags;
 import java.util.Locale;
 import java.util.Optional;
-import javax.inject.Provider;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import play.data.FormFactory;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
@@ -32,7 +31,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import support.ProgramBuilder;
-import views.admin.programs.ProgramStatusesView;
 import views.style.ReferenceClasses;
 
 @RunWith(JUnitParamsRunner.class)
@@ -87,22 +85,14 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   public void index_flagDisabled(String httpMethod) throws ProgramNotFoundException {
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
 
-    // Initialize the controller explicitly to override status tracking enablement.
-    controller =
-        new AdminProgramStatusesController(
-            instanceOf(ProgramService.class),
-            instanceOf(ProgramStatusesView.class),
-            instanceOf(RequestChecker.class),
-            instanceOf(FormFactory.class),
-            /* statusTrackingEnabled= */ new Provider<Boolean>() {
-              @Override
-              public Boolean get() {
-                return false;
-              }
-            });
-
     Result result =
-        controller.index(addCSRFToken(fakeRequest().method(httpMethod)).build(), program.id);
+        controller.index(
+            addCSRFToken(
+                    fakeRequest()
+                        .method(httpMethod)
+                        .session(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "false"))
+                .build(),
+            program.id);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
