@@ -3,6 +3,7 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -58,7 +59,10 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
       String selectionPath, LocalizedQuestionOption option, boolean checked) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
-    LabelTag labelTag = label().withFor(id).withText(option.optionText());
+    LabelTag labelTag =
+        label()
+            .withFor(id)
+            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
     InputTag inputTag =
         input()
             .withId(id)
@@ -72,6 +76,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
         .withClasses(
             Styles.MY_2,
             Styles.RELATIVE,
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
             ReferenceClasses.RADIO_OPTION,
             BaseStyles.RADIO_LABEL,
             checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")

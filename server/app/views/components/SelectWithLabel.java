@@ -8,6 +8,7 @@ import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
+import views.style.ReferenceClasses;
 
 /** Utility class for rendering a select input field with an optional label. */
 public class SelectWithLabel extends FieldWithLabel {
@@ -100,7 +101,12 @@ public class SelectWithLabel extends FieldWithLabel {
     } else {
       this.options.forEach(
           (text, value) -> {
-            OptionTag optionTag = option(text).withValue(value);
+            OptionTag optionTag =
+                option(text)
+                    .withClasses(
+                        ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+                        ReferenceClasses.MULTI_OPTION_VALUE)
+                    .withValue(value);
             if (value.equals(this.fieldValue)) {
               optionTag.isSelected();
             }

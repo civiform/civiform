@@ -50,6 +50,50 @@ describe('Checkbox question for applicant flow', () => {
       await logout(pageObject)
     })
 
+    afterEach(async () => {
+      await logout(pageObject)
+    })
+
+    it('Updates options in preview', async () => {
+      await loginAsAdmin(pageObject)
+
+      const adminQuestions = new AdminQuestions(pageObject)
+
+      await adminQuestions.createCheckboxQuestion(
+        {
+          questionName: 'not-used-in-test',
+          questionText: 'Sample question text',
+          helpText: 'Sample question help text',
+          options: ['red', 'green', 'orange', 'blue'],
+        },
+        /* clickSubmit= */ false,
+      )
+
+      // Verify question preview has the default values.
+      await adminQuestions.expectCommonPreviewValues({
+        questionText: 'Sample question text',
+        questionHelpText: 'Sample question help text',
+      })
+      await adminQuestions.expectPreviewOptions([
+        'red',
+        'green',
+        'orange',
+        'blue',
+      ])
+
+      // Empty options renders default text.
+      await adminQuestions.createCheckboxQuestion(
+        {
+          questionName: '',
+          questionText: 'Sample question text',
+          helpText: 'Sample question help text',
+          options: [],
+        },
+        /* clickSubmit= */ false,
+      )
+      await adminQuestions.expectPreviewOptions(['Sample question option'])
+    })
+
     it('validate screenshot', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')

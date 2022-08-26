@@ -71,7 +71,7 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
         applicantData, question.getContextualizedPath(), 2L);
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).contains("<option value=\"2\" selected");
+    assertThat(result.render()).contains("value=\"2\" selected");
   }
 
   @Test
