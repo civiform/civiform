@@ -10,6 +10,7 @@ import {
   startSession,
   resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Applicant navigation flow', () => {
@@ -129,13 +130,14 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('login page has no accessiblity violations', async () => {
+    it('verify login page', async () => {
       // Verify we are on login page.
       expect(await pageObject.innerText('head')).toContain('Login')
       await validateAccessibility(pageObject)
+      await validateScreenshot(pageObject, 'landing-page')
     })
 
-    it('language selection page has no accessiblity violations', async () => {
+    it('verify language selection page', async () => {
       await loginAsGuest(pageObject)
 
       // Verify we are on language selection page.
@@ -143,18 +145,20 @@ describe('Applicant navigation flow', () => {
         'Please select your preferred language.',
       )
       await validateAccessibility(pageObject)
+      await validateScreenshot(pageObject, 'language-selection')
     })
 
-    it('program list page has no accessiblity violations', async () => {
+    it('verify program list page', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
       // Verify we are on program list page.
       expect(await pageObject.innerText('h1')).toContain('Get benefits')
       await validateAccessibility(pageObject)
+      await validateScreenshot(pageObject, 'program-list-page')
     })
 
-    it('program details page has no accessiblity violations', async () => {
+    it('verify program details page', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
       await applicantQuestions.clickProgramDetails(programName)
@@ -162,9 +166,10 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program details page. Url should end in "/programs/{program ID}"
       expect(pageObject.url()).toMatch(/\/programs\/[0-9]+$/)
       await validateAccessibility(pageObject)
+      await validateScreenshot(pageObject, 'program-details-page')
     })
 
-    it('program preview page has no accessiblity violations', async () => {
+    it('verify program preview page', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
       await applicantQuestions.clickApplyProgramButton(programName)
@@ -174,9 +179,10 @@ describe('Applicant navigation flow', () => {
         'Program application preview',
       )
       await validateAccessibility(pageObject)
+      await validateScreenshot(pageObject, 'program-preview')
     })
 
-    it('program review page has no accessiblity violations', async () => {
+    it('verify program review page', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
       await applicantQuestions.applyProgram(programName)
@@ -202,9 +208,10 @@ describe('Applicant navigation flow', () => {
         'Program application review',
       )
       await validateAccessibility(pageObject)
+      await validateScreenshot(pageObject, 'program-review')
     })
 
-    it('program submission page has no accessiblity violations', async () => {
+    it('verify program submission page', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
       await applicantQuestions.applyProgram(programName)
@@ -231,6 +238,7 @@ describe('Applicant navigation flow', () => {
         'Application confirmation',
       )
       await validateAccessibility(pageObject)
+      await validateScreenshot(pageObject, 'program-submission')
     })
   })
 

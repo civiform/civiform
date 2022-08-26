@@ -18,6 +18,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -297,11 +298,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantNameWithApplicationId,
       StatusDefinitions.Status status,
       Http.Request request) {
-    Optional<String> maybeApplicantEmail =
-        Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
-    boolean showEmailSelection =
-        status.localizedEmailBodyText().isPresent() && maybeApplicantEmail.isPresent();
-
     // TODO(#3020): Populate the modal content with the previous configured status.
     String previousStatus = "Unset";
     FormTag modalContent =
@@ -323,34 +319,20 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 p().with(
                         span("Applicant: "),
                         span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
-                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)));
-    if (showEmailSelection) {
-      // TODO(#2912): Add warnings when either no email is configured or the applicant hasn't
-      // provided an email.
-      modalContent.with(
-          div()
-              .withClasses(Styles.MT_4)
-              .with(
-                  label()
-                      .with(
-                          input()
-                              .withType("checkbox")
-                              .withName("sendEmail")
-                              .withCondChecked(showEmailSelection)
-                              .withClasses(BaseStyles.CHECKBOX),
-                          span("Notify "),
-                          span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
-                          span(" of this change at "),
-                          span(maybeApplicantEmail.orElse("")).withClass(Styles.FONT_SEMIBOLD))));
-    }
-    modalContent.with(
-        div()
-            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
-            .with(
-                div().withClass(Styles.FLEX_GROW),
-                button("Cancel")
-                    .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
-                submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)),
+                div()
+                    .withClasses(Styles.MT_4)
+                    .with(
+                        renderStatusUpdateConfirmationModalEmailSection(
+                            applicantNameWithApplicationId, application, status)),
+                div()
+                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        button("Cancel")
+                            .withClasses(
+                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     ButtonTag triggerButton =
         button("")
             .withClasses(Styles.HIDDEN)
@@ -360,5 +342,38 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setWidth(Width.THREE_FOURTHS)
         .setTriggerButtonContent(triggerButton)
         .build();
+  }
+
+  private DomContent renderStatusUpdateConfirmationModalEmailSection(
+      String applicantNameWithApplicationId,
+      Application application,
+      StatusDefinitions.Status status) {
+    Optional<String> maybeApplicantEmail =
+        Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
+    if (!status.localizedEmailBodyText().isPresent()) {
+      return p().with(
+              span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+              span(
+                  " will not receive an email because there is no email content set for this"
+                      + " status. Connect with your CiviForm Admin to add an email to this"
+                      + " status."));
+    } else if (maybeApplicantEmail.isEmpty()) {
+      return p().with(
+              span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+              span(
+                  " will not receive an email for this change since they have not provided an"
+                      + " email address."));
+    }
+    return label()
+        .with(
+            input()
+                .withType("checkbox")
+                .isChecked()
+                .withName("sendEmail")
+                .withClasses(BaseStyles.CHECKBOX),
+            span("Notify "),
+            span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+            span(" of this change at "),
+            span(maybeApplicantEmail.orElse("")).withClass(Styles.FONT_SEMIBOLD));
   }
 }

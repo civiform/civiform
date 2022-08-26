@@ -7,21 +7,29 @@ class PreviewController {
     'question-enumerator-select'
   private static readonly QUESTION_ENTITY_TYPE_INPUT_ID =
     'enumerator-question-entity-type-input'
-
-  private static readonly QUESTION_TEXT_CLASS = '.cf-applicant-question-text'
-  private static readonly QUESTION_HELP_TEXT_CLASS =
-    '.cf-applicant-question-help-text'
-  private static readonly REPEATED_QUESTION_INFORMATION_ID =
-    '#repeated-question-information'
+  private static readonly QUESTION_ADD_OPTION_ID = 'add-new-option'
+  private static readonly QUESTION_SETTINGS_ID = 'question-settings'
   private static readonly QUESTION_ENTITY_TYPE_BUTTON_ID =
-    '#enumerator-field-add-button'
-  private static readonly QUESTION_ENTITY_NAME_INPUT_CLASS =
+    'enumerator-field-add-button'
+  private static readonly REPEATED_QUESTION_INFORMATION_ID =
+    'repeated-question-information'
+  private static readonly SAMPLE_QUESTION_ID = 'sample-question'
+
+  private static readonly QUESTION_TEXT_SELECTOR = '.cf-applicant-question-text'
+  private static readonly QUESTION_HELP_TEXT_SELECTOR =
+    '.cf-applicant-question-help-text'
+  private static readonly QUESTION_ENTITY_NAME_INPUT_SELECTOR =
     '.cf-entity-name-input'
-  private static readonly QUESTION_ENTITY_DELETE_BUTTON_CLASS =
+  private static readonly QUESTION_ENTITY_DELETE_BUTTON_SELECTOR =
     '.cf-enumerator-delete-button'
+  private static readonly QUESTION_MULTI_OPTION_SELECTOR =
+    '.cf-multi-option-question-option'
+  private static readonly QUESTION_MULTI_OPTION_VALUE_CLASS =
+    'cf-multi-option-value'
 
   private static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
   private static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
+  private static readonly DEFAULT_OPTION_TEXT = 'Sample question option'
 
   // This regex is used to match $this and $this.parent (etc) strings so we can
   // highlight them in the question preview.
@@ -106,6 +114,123 @@ class PreviewController {
       )
       PreviewController.updateFromNewEntityType(entityTypeInput.value)
     }
+
+    const questionSettings = document.getElementById(
+      PreviewController.QUESTION_SETTINGS_ID,
+    ) as HTMLElement | null
+    const questionPreviewContainer = document.getElementById(
+      PreviewController.SAMPLE_QUESTION_ID,
+    )
+    if (questionSettings && questionPreviewContainer) {
+      PreviewController.addOptionObservers({
+        questionSettings,
+        questionPreviewContainer,
+      })
+    }
+  }
+
+  private static addOptionObservers({
+    questionSettings,
+    questionPreviewContainer,
+  }: {
+    questionSettings: HTMLElement
+    questionPreviewContainer: HTMLElement
+  }) {
+    const firstPreviewOption = questionPreviewContainer.querySelector(
+      PreviewController.QUESTION_MULTI_OPTION_SELECTOR,
+    )
+    if (!firstPreviewOption) {
+      return
+    }
+    // In some cases, the element containing options is distinct from the question settings
+    // element. (e.g. <select><option>option1</option><option>option2</option></select>).
+    const previewQuestionOptionContainer = firstPreviewOption.parentElement
+    if (!previewQuestionOptionContainer) {
+      return
+    }
+    // The option shown at page load is stored for easier cloning when updating based on the
+    // configured questions.
+    const previewOptionTemplate = firstPreviewOption.cloneNode(
+      true,
+    ) as HTMLElement
+    const mutationObserver = new MutationObserver(
+      (records: MutationRecord[]) => {
+        for (const record of records) {
+          PreviewController.updateOptionsList({
+            questionSettings,
+            previewOptionTemplate,
+            previewQuestionOptionContainer,
+          })
+          for (const newNode of Array.from(record.addedNodes)) {
+            const newInputs = Array.from(
+              (<Element>newNode).querySelectorAll('input'),
+            )
+            newInputs.forEach((newInput) => {
+              newInput.addEventListener('input', () => {
+                PreviewController.updateOptionsList({
+                  questionSettings,
+                  previewOptionTemplate,
+                  previewQuestionOptionContainer,
+                })
+              })
+            })
+          }
+        }
+      },
+    )
+
+    mutationObserver.observe(questionSettings, {
+      childList: true,
+      subtree: true,
+      characterDataOldValue: true,
+    })
+  }
+
+  private static updateOptionsList({
+    questionSettings,
+    previewQuestionOptionContainer,
+    previewOptionTemplate,
+  }: {
+    questionSettings: HTMLElement
+    previewQuestionOptionContainer: HTMLElement
+    previewOptionTemplate: HTMLElement
+  }) {
+    const configuredOptions = Array.from(
+      questionSettings.querySelectorAll(
+        `${PreviewController.QUESTION_MULTI_OPTION_SELECTOR} input`,
+      ),
+    ).map((el) => {
+      return (el as HTMLInputElement).value
+    })
+    if (configuredOptions.length === 0) {
+      configuredOptions.push(PreviewController.DEFAULT_OPTION_TEXT)
+    }
+
+    // Reset the option list in the preview.
+    Array.from(
+      previewQuestionOptionContainer.querySelectorAll(
+        PreviewController.QUESTION_MULTI_OPTION_SELECTOR,
+      ),
+    ).forEach((previewOption) => {
+      previewOption.remove()
+    })
+
+    for (const configuredOption of configuredOptions) {
+      const newPreviewOption = previewOptionTemplate.cloneNode(
+        true,
+      ) as HTMLElement
+      // Set the underlying value. In some cases, the container element for an option is the same
+      // as the element containing the element value (e.g. <option>Value</option>).
+      const optionText = newPreviewOption.classList.contains(
+        PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS,
+      )
+        ? newPreviewOption
+        : (newPreviewOption.querySelector(
+            `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
+          ) as HTMLElement)
+      optionText.innerText = configuredOption
+      previewQuestionOptionContainer.appendChild(newPreviewOption)
+    }
   }
 
   private static updateFromNewQuestionText(text: string) {
@@ -120,7 +245,7 @@ class PreviewController {
       contentElement.classList.add('pr-16')
 
       const contentParent = document.querySelector(
-        PreviewController.QUESTION_TEXT_CLASS,
+        PreviewController.QUESTION_TEXT_SELECTOR,
       ) as Element
       if (contentParent) {
         contentParent.innerHTML = ''
@@ -128,7 +253,7 @@ class PreviewController {
       }
     } else {
       PreviewController.setTextAndHighlightEnumeratorReferences(
-        PreviewController.QUESTION_TEXT_CLASS,
+        PreviewController.QUESTION_TEXT_SELECTOR,
         text,
       )
     }
@@ -136,7 +261,7 @@ class PreviewController {
 
   private static updateFromNewQuestionHelpText(helpText: string) {
     PreviewController.setTextAndHighlightEnumeratorReferences(
-      PreviewController.QUESTION_HELP_TEXT_CLASS,
+      PreviewController.QUESTION_HELP_TEXT_SELECTOR,
       helpText,
     )
   }
@@ -144,7 +269,7 @@ class PreviewController {
   private static updateFromNewEnumeratorSelector(
     enumeratorSelectorValue: string,
   ) {
-    const repeatedQuestionInformation = document.querySelector(
+    const repeatedQuestionInformation = document.getElementById(
       PreviewController.REPEATED_QUESTION_INFORMATION_ID,
     )
     repeatedQuestionInformation.classList.toggle(
@@ -156,15 +281,15 @@ class PreviewController {
   private static updateFromNewEntityType(entityType: string) {
     entityType = entityType || PreviewController.DEFAULT_ENTITY_TYPE
     PreviewController.setAllMatchingElements(
-      PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' label',
+      PreviewController.QUESTION_ENTITY_NAME_INPUT_SELECTOR + ' label',
       entityType + ' name',
     )
     PreviewController.setTextContent(
-      PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
+      `#${PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID}`,
       'Add ' + entityType,
     )
     PreviewController.setAllMatchingElements(
-      PreviewController.QUESTION_ENTITY_DELETE_BUTTON_CLASS,
+      PreviewController.QUESTION_ENTITY_DELETE_BUTTON_SELECTOR,
       'Remove ' + entityType,
     )
   }
