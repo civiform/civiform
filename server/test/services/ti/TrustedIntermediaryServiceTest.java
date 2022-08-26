@@ -320,22 +320,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-20-20")));
     Form<UpdateApplicantDob> form =
         formFactory.form(UpdateApplicantDob.class).bindFromRequest(requestBuilder.build());
-    Account account = repo.lookupAccountByEmail("email3").get();
+    Account account = repo.lookupAccountByEmail("email30").get();
     Form<UpdateApplicantDob> returnedForm = service.updateApplicantDateOfBirth(account.id, form);
     assertThat(returnedForm.hasErrors()).isTrue();
-    assertThat(returnedForm.error("dob")).isEqualTo("Please enter date in MM/dd/yyyy format");
+    assertThat(returnedForm.error("dob").get().message())
+        .isEqualTo("Date of Birth must be in MM/dd/yyyy format");
   }
 
   @Test
   public void updateApplicantDateOfBirth_ApplicantDobUpdated() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
-        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-09-09")));
+        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
     Form<UpdateApplicantDob> form =
         formFactory.form(UpdateApplicantDob.class).bindFromRequest(requestBuilder.build());
-    Account account = repo.lookupAccountByEmail("email3").get();
+    Account account = repo.lookupAccountByEmail("email30").get();
     Form<UpdateApplicantDob> returnedForm = service.updateApplicantDateOfBirth(account.id, form);
     assertThat(returnedForm.hasErrors()).isFalse();
     assertThat(account.newestApplicant().get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-09-09");
+        .isEqualTo("2021-09-09");
   }
 }
