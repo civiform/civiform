@@ -229,7 +229,7 @@ export class AdminQuestions {
   async gotoQuestionEditPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, `:text("Edit →")`),
+      this.selectWithinQuestionTableRow(questionName, `:text("Edit")`),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
