@@ -24,6 +24,24 @@ describe('Trusted intermediaries', () => {
     await endSession(browser)
   })
 
+  it('expect Client Date Of Birth to be Updated', async () => {
+    await loginAsTrustedIntermediary(page)
+    const tiDashboard = new TIDashboard(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
+    await tiDashboard.expectClientDateOfBirthUpdated(client, '2021-12-12')
+  })
+
   it('expect Dashboard Contain New Client', async () => {
     await loginAsTrustedIntermediary(page)
 

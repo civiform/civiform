@@ -2,7 +2,8 @@ import {Page} from 'playwright'
 
 /*
  * This class is to test Civiform in the TI path
- * It impements functionality to create a new client,Test if the given client is present in the dashboard
+ * It impements functionality to create a new client,Test if the given client is present/not present in the dashboard
+ * It can also update a Client's Data of Birth to a new one
  * It also have a ClientInformation Interface to easily store clients
  * It requires the tests to be logged as a TI
  */
@@ -24,6 +25,25 @@ export class TIDashboard {
     await this.page.fill('label:has-text("Last Name")', client.lastName)
     await this.page.fill('label:has-text("Date Of Birth")', client.dobDate)
     await this.page.click('text="Add"')
+  }
+
+  async expectClientDateOfBirthUpdated(
+    client: ClientInformation,
+    newDob: string,
+  ) {
+    expect(
+      `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
+        newDob,
+      )}")`,
+    )
+    expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`)
+    expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`)
+    expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
+  }
+
+  async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
+    await this.page.locator('id=date-of-birth-update').fill(newDobDate)
+    await this.page.click('text ="Update DOB"')
   }
 
   async expectDashboardContainClient(client: ClientInformation) {

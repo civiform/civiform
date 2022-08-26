@@ -1,6 +1,7 @@
 package services.ti;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.test.Helpers.fakeRequest;
 
@@ -8,6 +9,7 @@ import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import forms.UpdateApplicantDob;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
@@ -20,6 +22,7 @@ import play.mvc.Http;
 import repository.SearchParameters;
 import repository.UserRepository;
 import services.applicant.ApplicantData;
+import services.applicant.exception.ApplicantNotFoundException;
 
 public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
@@ -70,7 +73,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void addClient_withUnformmatedDob() {
+  public void addClient_withUnformattedDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -222,7 +225,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "lastName",
                         "Last",
                         "emailAddress",
-                        "sample1@fake.com",
+                        "add1@fake.com",
                         "dob",
                         "2022-07-07")));
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
@@ -232,7 +235,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
         service.addNewClient(form, tiGroup);
     assertThat(returnedForm).isEqualTo(form);
-    Account account = repo.lookupAccountByEmail("sample1@fake.com").get();
+    Account account = repo.lookupAccountByEmail("add1@fake.com").get();
 
     assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-07");
@@ -299,5 +302,28 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     applicantData.setUserName(firstName, "", "Last");
     applicantData.setDateOfBirth(dob);
     applicant.save();
+  }
+
+  @Test
+  public void updateApplicantDateOfBirth_throwsApplicantNotFoundException() {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
+    Form<UpdateApplicantDob> form =
+        formFactory.form(UpdateApplicantDob.class).bindFromRequest(requestBuilder.build());
+    assertThrows(
+        ApplicantNotFoundException.class, () -> service.updateApplicantDateOfBirth((long) 0, form));
+  }
+
+  @Test
+  public void updateApplicantDateOfBirth_ApplicantDobUpdated() throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-09-09")));
+    Form<UpdateApplicantDob> form =
+        formFactory.form(UpdateApplicantDob.class).bindFromRequest(requestBuilder.build());
+    Account account = repo.lookupAccountByEmail("email3").get();
+    Form<UpdateApplicantDob> returnedForm = service.updateApplicantDateOfBirth(account.id, form);
+    assertThat(returnedForm.hasErrors()).isFalse();
+    assertThat(account.newestApplicant().get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2022-09-09");
   }
 }
