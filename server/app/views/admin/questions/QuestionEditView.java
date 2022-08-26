@@ -379,7 +379,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setId("question-demographic-no-export")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
-                .setLabelText("No export")
+                .setLabelText("Don't allow answers to be exported")
                 .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
                 .getRadioTag(),
@@ -387,7 +387,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setId("question-demographic-export-demographic")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
-                .setLabelText("Export Value")
+                .setLabelText("Export exact answers")
                 .setValue(QuestionTag.DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
                 .getRadioTag(),
@@ -395,7 +395,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setId("question-demographic-export-pii")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
-                .setLabelText("Export Obfuscated")
+                .setLabelText("Export obfuscated answers")
                 .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
                 .getRadioTag());

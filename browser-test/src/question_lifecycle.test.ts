@@ -222,7 +222,8 @@ describe('normal question lifecycle', () => {
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
 
-    // Navigate to the new question page and ensure that "No export" is pre-selected.
+    // Navigate to the new question page and ensure that "Don't allow answers to be exported"
+    // is pre-selected.
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
