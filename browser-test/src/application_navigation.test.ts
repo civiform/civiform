@@ -11,6 +11,7 @@ import {
   resetSession,
   validateAccessibility,
   validateScreenshot,
+  dropTables,
 } from './support'
 
 describe('Applicant navigation flow', () => {
@@ -18,6 +19,7 @@ describe('Applicant navigation flow', () => {
 
   beforeAll(async () => {
     const {page} = await startSession()
+    await dropTables(page)
     pageObject = page
   })
 
