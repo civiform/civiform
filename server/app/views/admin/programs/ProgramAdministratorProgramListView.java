@@ -174,12 +174,12 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
       String viewApplicationsLink =
           routes.AdminApplicationController.index(
                   activeProgram.get().id(),
-                  Optional.empty(),
-                  Optional.empty(),
-                  Optional.empty(),
-                  Optional.empty())
+                  /* search= */ Optional.empty(),
+                  /* page= */ Optional.empty(),
+                  /* fromDate= */ Optional.empty(),
+                  /* untilDate= */ Optional.empty(),
+                  /* applicationStatus= */ Optional.empty())
               .url();
-
       return new LinkElement()
           .setId("program-view-apps-link-" + activeProgram.get().id())
           .setHref(viewApplicationsLink)

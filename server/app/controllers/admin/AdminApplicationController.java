@@ -42,6 +42,7 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.StatusDefinitions;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
@@ -380,12 +381,13 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<Integer> page,
       Optional<String> fromDate,
-      Optional<String> untilDate)
+      Optional<String> untilDate,
+      Optional<String> applicationStatus)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(
           routes.AdminApplicationController.index(
-              programId, search, Optional.of(1), fromDate, untilDate));
+              programId, search, Optional.of(1), fromDate, untilDate, applicationStatus));
     }
 
     TimeFilter submitTimeFilter =
@@ -411,12 +413,24 @@ public final class AdminApplicationController extends CiviFormController {
         applicationListView.render(
             request,
             program,
+            getAllApplicationStatusesForProgram(program),
             paginationSpec,
             applications,
             RenderFilterParams.builder()
                 .setSearch(search)
                 .setFromDate(fromDate)
                 .setUntilDate(untilDate)
+                .setSelectedApplicationStatus(applicationStatus)
                 .build()));
+  }
+
+  private ImmutableList<String> getAllApplicationStatusesForProgram(ProgramDefinition program) {
+    return programService.getAllProgramDefinitionVersions(program.id()).stream()
+        .map(pdef -> pdef.statusDefinitions().getStatuses())
+        .flatMap(ImmutableList::stream)
+        .map(StatusDefinitions.Status::statusText)
+        .distinct()
+        .sorted()
+        .collect(ImmutableList.toImmutableList());
   }
 }

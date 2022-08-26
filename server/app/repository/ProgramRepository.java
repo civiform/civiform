@@ -40,7 +40,7 @@ import services.program.ProgramNotFoundException;
  * ProgramRepository performs complicated operations on {@link Program} that often involve other
  * EBean models or asynchronous handling.
  */
-public class ProgramRepository {
+public final class ProgramRepository {
   private static final Logger logger = LoggerFactory.getLogger(ProgramRepository.class);
 
   private final Database database;

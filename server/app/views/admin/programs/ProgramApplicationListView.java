@@ -14,6 +14,8 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.TagCreator;
@@ -23,6 +25,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
+import java.util.function.Function;
 import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +45,7 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
+import views.components.SelectWithLabel;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -52,12 +56,16 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private static final String FROM_DATE_PARAM = "fromDate";
   private static final String UNTIL_DATE_PARAM = "untilDate";
   private static final String SEARCH_PARAM = "search";
+  private static final String APPLICATION_STATUS_PARAM = "applicationStatus";
   private static final String IGNORE_FILTERS_PARAM = "ignoreFilters";
 
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
   private final DateConverter dateConverter;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
+
+  private static final String NO_STATUS_FILTERS_OPTION_UUID =
+      "ad80b347-5ae4-43c3-8578-e503b043be12";
 
   @Inject
   public ProgramApplicationListView(
@@ -72,6 +80,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       ProgramDefinition program,
+      ImmutableList<String> allApplicationStatuses,
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       RenderFilterParams filterParams) {
@@ -90,10 +99,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 filterParams.search(),
                                 Optional.of(pageNumber),
                                 filterParams.fromDate(),
-                                filterParams.untilDate()))
+                                filterParams.untilDate(),
+                                filterParams.selectedApplicationStatus()))
                     .withClasses(Styles.MB_2),
                 br(),
-                renderSearchForm(program, downloadModal.getButton(), filterParams),
+                renderSearchForm(
+                    program, allApplicationStatuses, downloadModal.getButton(), filterParams),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
             .withClasses(
                 Styles.MT_6,
@@ -124,17 +135,21 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private FormTag renderSearchForm(
-      ProgramDefinition program, ButtonTag downloadButton, RenderFilterParams filterParams) {
+      ProgramDefinition program,
+      ImmutableList<String> allApplicationStatuses,
+      ButtonTag downloadButton,
+      RenderFilterParams filterParams) {
     return form()
         .withClasses(Styles.MT_6)
         .withMethod("GET")
         .withAction(
             routes.AdminApplicationController.index(
                     program.id(),
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty())
+                    /* search= */ Optional.empty(),
+                    /* page= */ Optional.empty(),
+                    /* fromDate= */ Optional.empty(),
+                    /* untilDate= */ Optional.empty(),
+                    /* applicationStatus= */ Optional.empty())
                 .url())
         .with(
             fieldset()
@@ -161,7 +176,25 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .setValue(filterParams.search().orElse(""))
                 .setLabelText("Search by name, email, or application ID")
                 .getInputTag()
-                .withClasses(Styles.W_FULL, Styles.MT_4),
+                .withClasses(Styles.W_FULL, Styles.MT_4))
+        .condWith(
+            allApplicationStatuses.size() > 0,
+            new SelectWithLabel()
+                .setFieldName(APPLICATION_STATUS_PARAM)
+                .setLabelText("Application status")
+                .setValue(filterParams.selectedApplicationStatus().orElse(""))
+                .setOptions(
+                    ImmutableMap.<String, String>builder()
+                        .put("Any application status", "")
+                        .put("Only applications without a status", NO_STATUS_FILTERS_OPTION_UUID)
+                        .putAll(
+                            allApplicationStatuses.stream()
+                                .collect(
+                                    ImmutableMap.toImmutableMap(
+                                        Function.identity(), Function.identity())))
+                        .build())
+                .getSelectTag())
+        .with(
             div()
                 .withClasses(Styles.MT_6, Styles.MB_8, Styles.FLEX, Styles.SPACE_X_2)
                 .with(
@@ -311,6 +344,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     public abstract Optional<String> untilDate();
 
+    public abstract Optional<String> selectedApplicationStatus();
+
     public static Builder builder() {
       return new AutoValue_ProgramApplicationListView_RenderFilterParams.Builder();
     }
@@ -322,6 +357,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       public abstract Builder setFromDate(Optional<String> fromDate);
 
       public abstract Builder setUntilDate(Optional<String> untilDate);
+
+      public abstract Builder setSelectedApplicationStatus(
+          Optional<String> selectedApplicationStatus);
 
       public abstract RenderFilterParams build();
     }

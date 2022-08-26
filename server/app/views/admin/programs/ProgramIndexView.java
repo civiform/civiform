@@ -496,12 +496,12 @@ public final class ProgramIndexView extends BaseHtmlView {
       String editLink =
           routes.AdminApplicationController.index(
                   activeProgram.id(),
-                  Optional.empty(),
-                  Optional.empty(),
-                  Optional.empty(),
-                  Optional.empty())
+                  /* search= */ Optional.empty(),
+                  /* page= */ Optional.empty(),
+                  /* fromDate= */ Optional.empty(),
+                  /* untilDate= */ Optional.empty(),
+                  /* applicationStatus= */ Optional.empty())
               .url();
-
       ButtonTag button =
           makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
               .withId("program-view-apps-link-" + activeProgram.id())
