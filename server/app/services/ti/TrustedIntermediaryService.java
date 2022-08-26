@@ -108,7 +108,6 @@ public final class TrustedIntermediaryService {
     try {
       currentDob = dateConverter.parseIso8601DateToLocalDate(dob);
     } catch (DateTimeParseException e) {
-      System.out.println("cating Exception");
       return Optional.of("Date of Birth must be in MM/dd/yyyy format");
     }
     if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
@@ -208,7 +207,7 @@ public final class TrustedIntermediaryService {
   private Form<UpdateApplicantDob> validateDateOfBirthForUpdateDob(Form<UpdateApplicantDob> form) {
     Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
     if (errorMessage.isPresent()) {
-      form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
+      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
     }
     return form;
   }

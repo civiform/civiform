@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.UpdateApplicantDob;
+import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
@@ -19,6 +20,7 @@ import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
+import play.data.validation.ValidationError;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -133,7 +135,7 @@ public class TrustedIntermediaryController {
               /* page= */ Optional.empty()));
     }
 
-    return redirectToDashboardWithUpdateDateOfBirthError(getFormErrors(returnedForm));
+    return redirectToDashboardWithUpdateDateOfBirthError(getValidationErros(returnedForm.errors()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -148,11 +150,6 @@ public class TrustedIntermediaryController {
       return notFound();
     }
     if (!trustedIntermediaryGroup.get().id.equals(id)) {
-      System.out.println(
-          "trustedIntermediaryGroup.get().id.equals(id)"
-              + trustedIntermediaryGroup.get().id
-              + " == "
-              + id);
       return unauthorized();
     }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
@@ -166,12 +163,12 @@ public class TrustedIntermediaryController {
               /* dateQuery= */ Optional.empty(),
               /* page= */ Optional.empty()));
     }
-    return redirectToDashboardWithError(getFormErrors(returnedForm), returnedForm);
+    return redirectToDashboardWithError(getValidationErros(returnedForm.errors()), returnedForm);
   }
 
-  private String getFormErrors(Form<?> form) {
+  private String getValidationErros(List<ValidationError> errors) {
     StringBuilder errorMessage = new StringBuilder();
-    form.errors().stream()
+    errors.stream()
         .forEach(validationError -> errorMessage.append(validationError.message() + "\n"));
     return errorMessage.toString();
   }
