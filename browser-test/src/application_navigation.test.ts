@@ -11,7 +11,6 @@ import {
   resetSession,
   validateAccessibility,
   validateScreenshot,
-  dropTables,
 } from './support'
 
 describe('Applicant navigation flow', () => {
