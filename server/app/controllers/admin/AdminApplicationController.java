@@ -15,12 +15,14 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
+import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.F;
@@ -35,6 +37,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.application.ApplicationEventDetails;
 import services.applications.ProgramAdminApplicationService;
 import services.export.ExporterService;
 import services.export.JsonExporter;
@@ -51,12 +54,13 @@ import views.admin.programs.ProgramApplicationView;
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
 
-  private final ProgramService programService;
   private final ApplicantService applicantService;
   private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
+  private final ProgramService programService;
   private final ExporterService exporterService;
+  private final FormFactory formFactory;
   private final JsonExporter jsonExporter;
   private final PdfExporter pdfExporter;
   private final ProfileUtils profileUtils;
@@ -70,6 +74,7 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramService programService,
       ApplicantService applicantService,
       ExporterService exporterService,
+      FormFactory formFactory,
       JsonExporter jsonExporter,
       PdfExporter pdfExporter,
       ProgramApplicationListView applicationListView,
@@ -88,6 +93,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(exporterService);
+    this.formFactory = checkNotNull(formFactory);
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
@@ -335,7 +341,22 @@ public final class AdminApplicationController extends CiviFormController {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
 
-    // TODO(#3020): Actually update the status rather than unconditionally returning success.
+    Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+    Optional<String> maybeNewStatus = Optional.ofNullable(formData.get("newStatus"));
+    // TODO(shanemc-goog): check that the previous status is the current previous status for
+    // consistency.
+    if (maybeNewStatus.isEmpty()) {
+      return notFound("new status not present");
+    }
+
+    programAdminApplicationService.setStatus(
+        applicationMaybe.get(),
+        ApplicationEventDetails.StatusEvent.builder()
+            .setStatusText(maybeNewStatus.get())
+            .setEmailSent(false)
+            .build(),
+        profileUtils.currentUserProfile(request).get().getAccount().join(),
+        ApplicationEventDetails.Type.STATUS_CHANGE);
     return redirect(
             routes.AdminApplicationController.show(programId, applicationMaybe.get().id).url())
         .flashing("success", "Application status updated");

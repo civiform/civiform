@@ -366,6 +366,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
     }
     return label()
         .with(
+                    // Add the current and new status to the form hidden.
+                        input()
+                            .isHidden()
+                            .withType("text")
+                            .withName("newStatus")
+                            .withValue(status.statusText()),
             input()
                 .withType("checkbox")
                 .isChecked()

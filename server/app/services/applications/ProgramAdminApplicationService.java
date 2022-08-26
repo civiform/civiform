@@ -4,17 +4,25 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
 import java.util.Optional;
+import models.Account;
 import models.Application;
+import models.ApplicationEvent;
+import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import services.application.ApplicationEventDetails;
+import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramDefinition;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
 public final class ProgramAdminApplicationService {
   private final ApplicationRepository applicationRepository;
+  private final ApplicationEventRepository eventRepository;
 
   @Inject
-  ProgramAdminApplicationService(ApplicationRepository applicationRepository) {
+  ProgramAdminApplicationService(
+      ApplicationRepository applicationRepository, ApplicationEventRepository eventRepository) {
     this.applicationRepository = checkNotNull(applicationRepository);
+    this.eventRepository = checkNotNull(eventRepository);
   }
 
   /**
@@ -37,5 +45,16 @@ public final class ProgramAdminApplicationService {
       return Optional.empty();
     }
     return Optional.of(application);
+  }
+
+  public void setStatus(
+      Application application,
+      StatusEvent newStatus,
+      Account admin,
+      ApplicationEventDetails.Type type) {
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder().setEventType(type).setStatusEvent(newStatus).build();
+    ApplicationEvent event = new ApplicationEvent(application, admin, type, details);
+    eventRepository.insertSync(event);
   }
 }
