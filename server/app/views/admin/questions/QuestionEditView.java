@@ -322,7 +322,6 @@ public final class QuestionEditView extends BaseHtmlView {
 
     formTag.with(
         FieldWithLabel.textArea()
-            .setId("question-description-textarea")
             .setFieldName("questionDescription")
             .setLabelText("Description")
             .setPlaceholderText("The description displayed in the question builder")
@@ -376,7 +375,6 @@ public final class QuestionEditView extends BaseHtmlView {
         .with(
             legend("Data privacy settings*").withClass(BaseStyles.INPUT_LABEL),
             FieldWithLabel.radio()
-                .setId("question-demographic-no-export")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
                 .setLabelText("Don't allow answers to be exported")
@@ -384,7 +382,6 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
                 .getRadioTag(),
             FieldWithLabel.radio()
-                .setId("question-demographic-export-demographic")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
                 .setLabelText("Export exact answers")
@@ -392,7 +389,6 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
                 .getRadioTag(),
             FieldWithLabel.radio()
-                .setId("question-demographic-export-pii")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
                 .setLabelText("Export obfuscated answers")
