@@ -78,7 +78,7 @@ public final class ExporterService {
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
   public String getProgramAllVersionsCsv(
-      long programId, Optional<String> searchFragment, TimeFilter submitTimeFilter)
+      long programId, Optional<String> searchFragment, TimeFilter submitTimeFilter, Optional<String> applicationStatus)
       throws ProgramNotFoundException {
     ImmutableList<ProgramDefinition> allProgramVersions =
         programService.getAllProgramDefinitionVersions(programId).stream()
@@ -91,7 +91,8 @@ public final class ExporterService {
                 programId,
                 F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
                 searchFragment,
-                submitTimeFilter)
+                submitTimeFilter,
+                applicationStatus)
             .getPageContents();
 
     return exportCsv(exportConfig, applications);

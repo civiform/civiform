@@ -250,10 +250,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAll(
                                                 program.id(),
-                                                Optional.empty(),
-                                                Optional.empty(),
-                                                Optional.empty(),
-                                                Optional.empty())
+                                                /* search= */ Optional.empty(),
+                                                /* fromDate= */ Optional.empty(),
+                                                /* untilDate= */ Optional.empty(),
+                                                /* applicationStatus= */ Optional.empty(),
+                                                /* ignoreFilters= */ Optional.empty())
                                             .url())
                                     .withType("submit"),
                                 TagCreator.button("Download JSON")
@@ -265,10 +266,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAllJson(
                                                 program.id(),
-                                                Optional.empty(),
-                                                Optional.empty(),
-                                                Optional.empty(),
-                                                Optional.empty())
+                                                /* search= */ Optional.empty(),
+                                                /* fromDate= */ Optional.empty(),
+                                                /* untilDate= */ Optional.empty(),
+                                                /* applicationStatus= */ Optional.empty(),
+                                                /* ignoreFilters= */ Optional.empty())
                                             .url())
                                     .withType("submit"))));
     return Modal.builder(modalId, modalContent)

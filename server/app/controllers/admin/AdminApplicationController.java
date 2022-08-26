@@ -104,6 +104,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> untilDate,
+      Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     final ProgramDefinition program;
@@ -132,7 +133,8 @@ public final class AdminApplicationController extends CiviFormController {
                 program,
                 IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
                 searchFragment,
-                submitTimeFilter)
+                submitTimeFilter,
+                applicationStatus)
             .getLeft();
 
     return ok(json)
@@ -148,6 +150,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> untilDate,
+      Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
@@ -164,7 +167,7 @@ public final class AdminApplicationController extends CiviFormController {
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv =
-          exporterService.getProgramAllVersionsCsv(programId, searchFragment, submitTimeFilter);
+          exporterService.getProgramAllVersionsCsv(programId, searchFragment, submitTimeFilter, applicationStatus);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -407,7 +410,8 @@ public final class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<Application> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), search, submitTimeFilter);
+            programId, F.Either.Right(paginationSpec), search, submitTimeFilter,
+            applicationStatus);
 
     return ok(
         applicationListView.render(

@@ -229,7 +229,8 @@ public final class ProgramRepository {
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
       Optional<String> searchNameFragment,
-      TimeFilter submitTimeFilter) {
+      TimeFilter submitTimeFilter,
+      Optional<String> applicationStatus) {
     ExpressionList<Application> query =
         database
             .find(Application.class)

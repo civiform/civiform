@@ -795,9 +795,10 @@ public final class ProgramServiceImpl implements ProgramService {
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
       Optional<String> searchNameFragment,
-      TimeFilter submitTimeFilter) {
+      TimeFilter submitTimeFilter,
+      Optional<String> applicationStatus) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpecEither, searchNameFragment, submitTimeFilter);
+        programId, paginationSpecEither, searchNameFragment, submitTimeFilter, applicationStatus);
   }
 
   @Override

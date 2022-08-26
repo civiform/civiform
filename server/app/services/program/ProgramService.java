@@ -363,7 +363,9 @@ public interface ProgramService {
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
       Optional<String> searchNameFragment,
-      TimeFilter submitTimeFilter)
+      TimeFilter submitTimeFilter,
+      // TODO(clouser): Autovalue.
+      Optional<String> applicationStatus)
       throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */

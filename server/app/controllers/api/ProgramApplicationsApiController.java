@@ -105,7 +105,8 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
                         programDefinition.id(),
                         F.Either.Left(paginationSpec),
                         /* searchNameFragment= */ Optional.empty(),
-                        submitTimeFilter);
+                        submitTimeFilter,
+                        /* applicationStatus= */ Optional.empty());
               } catch (ProgramNotFoundException e) {
                 throw new RuntimeException(e);
               }

@@ -46,7 +46,8 @@ public class JsonExporter {
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
       Optional<String> searchFragment,
-      TimeFilter submitTimeFilter) {
+      TimeFilter submitTimeFilter,
+      Optional<String> applicationStatus) {
     PaginationResult<Application> paginationResult;
     try {
       paginationResult =
@@ -54,7 +55,8 @@ public class JsonExporter {
               programDefinition.id(),
               F.Either.Left(paginationSpec),
               searchFragment,
-              submitTimeFilter);
+              submitTimeFilter,
+              applicationStatus);
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException(e);
     }
