@@ -144,7 +144,7 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionText)
     expect(
       await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('Edit Draft')
+    ).toContain('Edit Draft →')
   }
 
   async expectActiveQuestionExist(questionName: string, questionText = '') {
@@ -155,10 +155,10 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionText)
     expect(
       await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('View')
+    ).toContain('View →')
     expect(
       await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('Edit')
+    ).toContain('Edit →')
   }
 
   async expectQuestionNotExist(questionName: string) {
@@ -226,33 +226,13 @@ export class AdminQuestions {
     )
   }
 
-  private async gotoQuestionEditOrNewVersionPage({
-    questionName,
-    buttonText,
-  }: {
-    questionName: string
-    buttonText: string
-  }) {
+  async gotoQuestionEditPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, `:text("${buttonText}")`),
+      this.selectWithinQuestionTableRow(questionName, `:text("Edit")`),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
-  }
-
-  async gotoQuestionEditPage(questionName: string) {
-    await this.gotoQuestionEditOrNewVersionPage({
-      questionName,
-      buttonText: 'Edit',
-    })
-  }
-
-  async gotoQuestionNewVersionPage(questionName: string) {
-    await this.gotoQuestionEditOrNewVersionPage({
-      questionName,
-      buttonText: 'Edit',
-    })
   }
 
   async undeleteQuestion(questionName: string) {
@@ -367,7 +347,7 @@ export class AdminQuestions {
   }
 
   async createNewVersion(questionName: string) {
-    await this.gotoQuestionNewVersionPage(questionName)
+    await this.gotoQuestionEditPage(questionName)
     const newQuestionText = await this.updateQuestionText(' new version')
 
     await this.clickSubmitButtonAndNavigate('Update')
