@@ -54,7 +54,7 @@ public class ApplicantQuestionRendererFactoryTest {
   }
 
   @Test
-  @Parameters(method = "compositeTypes")
+  @Parameters(source = QuestionType.class)
   public void compositeQuestionsUseFieldset(QuestionType type)
       throws UnsupportedQuestionTypeException {
     // Multi-input questions should be wrapped in fieldsets for screen reader users.
@@ -65,6 +65,10 @@ public class ApplicantQuestionRendererFactoryTest {
 
     DivTag content = sampleRenderer.render(params);
     String renderedContent = document(html(content));
-    assertThat(renderedContent).contains("fieldset");
+    if (compositeTypes().contains(type)) {
+      assertThat(renderedContent).contains("fieldset");
+    } else {
+      assertThat(renderedContent).doesNotContain("fieldset");
+    }
   }
 }

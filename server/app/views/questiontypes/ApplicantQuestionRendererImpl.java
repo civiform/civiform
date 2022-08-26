@@ -5,11 +5,14 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.legend;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.LegendTag;
+import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -38,7 +41,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
   ApplicantQuestionRendererImpl(ApplicantQuestion question, InputFieldType inputFieldType) {
     this.question = checkNotNull(question);
-    this.inputFieldType = inputFieldType;
+    this.inputFieldType = checkNotNull(inputFieldType);
   }
 
   private String getRequiredClass() {
@@ -95,40 +98,33 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
               .withText("*" + requiredQuestionMessage));
     }
 
+    // Composite fields should be rendered with fieldset and legend for screen reader users.
+    ContainerTag questionPrimaryTextTag;
+    ImmutableList<DomContent> questionTextDoms = TextFormatter.createLinksAndEscapeText(
+            question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab);
     if (inputFieldType == InputFieldType.COMPOSITE) {
-      // Group fields with fieldset and legend for a11y.
-      LegendTag legend =
-          legend()
-              .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-              .with(
-                  TextFormatter.createLinksAndEscapeText(
-                      question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab));
-
-      FieldsetTag fieldset =
-          fieldset()
-              // legend must be a direct child of fieldset for screenreaders to work properly
-              .with(legend)
-              .with(questionSecondaryTextDiv)
-              .with(renderTag(params, validationErrors));
-
-      return div()
-          .withId(question.getContextualizedPath().toString())
-          .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
-          .with(fieldset);
+      questionPrimaryTextTag = legend().with(questionTextDoms);
     } else {
-      DivTag questionPrimaryTextDiv =
-          div()
-              .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-              .with(
-                  TextFormatter.createLinksAndEscapeText(
-                      question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab));
-
-      return div()
-          .withId(question.getContextualizedPath().toString())
-          .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
-          .with(questionPrimaryTextDiv)
-          .with(questionSecondaryTextDiv)
-          .with(renderTag(params, validationErrors));
+      questionPrimaryTextTag = div().with(questionTextDoms);
     }
+    questionPrimaryTextTag
+      .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
+
+    ContainerTag questionTag;
+    if (inputFieldType == InputFieldType.COMPOSITE) {
+      // Legend must be a direct child of fieldset for screen readers to work properly.
+      questionTag = fieldset().with(questionPrimaryTextTag)
+        .with(questionSecondaryTextDiv)
+        .with(renderTag(params, validationErrors));
+    } else {
+      questionTag = div().with(questionPrimaryTextTag)
+        .with(questionSecondaryTextDiv)
+        .with(renderTag(params, validationErrors));
+    }
+
+    return div()
+        .withId(question.getContextualizedPath().toString())
+        .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
+        .with(questionTag);
   }
 }
