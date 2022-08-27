@@ -8,11 +8,9 @@ import static j2html.TagCreator.legend;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FieldsetTag;
-import j2html.tags.specialized.LegendTag;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -100,26 +98,31 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
     // Composite fields should be rendered with fieldset and legend for screen reader users.
     ContainerTag questionPrimaryTextTag;
-    ImmutableList<DomContent> questionTextDoms = TextFormatter.createLinksAndEscapeText(
+    ImmutableList<DomContent> questionTextDoms =
+        TextFormatter.createLinksAndEscapeText(
             question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab);
     if (inputFieldType == InputFieldType.COMPOSITE) {
       questionPrimaryTextTag = legend().with(questionTextDoms);
     } else {
       questionPrimaryTextTag = div().with(questionTextDoms);
     }
-    questionPrimaryTextTag
-      .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
+    questionPrimaryTextTag.withClasses(
+        ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
 
     ContainerTag questionTag;
     if (inputFieldType == InputFieldType.COMPOSITE) {
       // Legend must be a direct child of fieldset for screen readers to work properly.
-      questionTag = fieldset().with(questionPrimaryTextTag)
-        .with(questionSecondaryTextDiv)
-        .with(renderTag(params, validationErrors));
+      questionTag =
+          fieldset()
+              .with(questionPrimaryTextTag)
+              .with(questionSecondaryTextDiv)
+              .with(renderTag(params, validationErrors));
     } else {
-      questionTag = div().with(questionPrimaryTextTag)
-        .with(questionSecondaryTextDiv)
-        .with(renderTag(params, validationErrors));
+      questionTag =
+          div()
+              .with(questionPrimaryTextTag)
+              .with(questionSecondaryTextDiv)
+              .with(renderTag(params, validationErrors));
     }
 
     return div()
