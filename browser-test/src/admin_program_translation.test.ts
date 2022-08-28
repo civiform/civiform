@@ -394,7 +394,7 @@ describe('Admin can manage translations', () => {
       'Lo sentimos, este programa no está totalmente traducido al idioma de su preferencia.',
     )
 
-    await validateScreenshot(page)
+    await validateScreenshot(page, 'applicant-toast-error')
 
     await endSession(browser)
   })

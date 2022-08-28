@@ -79,7 +79,7 @@ public abstract class BaseHtmlView {
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return TagCreator.button()
         .with(
-            Icons.svg(icon, 20)
+            Icons.svg(icon)
                 .withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0)
                 // Can't set 18px using Tailwind CSS classes.
                 .withStyle("width: 18px; height: 18px;"),
@@ -146,6 +146,6 @@ public abstract class BaseHtmlView {
 
   protected static final PTag requiredFieldsExplanationContent() {
     return p("Note: Fields marked with a * are required.")
-        .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600, Styles.MB_2);
+        .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600);
   }
 }

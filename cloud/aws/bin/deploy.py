@@ -26,10 +26,10 @@ def main():
 
     print()
     print('Deployment finished. You can monitor civiform tasks status here:')
-    fargate_service = f'{config_loader.app_prefix}-{resources.FARGATE_SERVICE}'
     print(
         AwsCli(config_loader).get_url_of_fargate_tasks(
-            config_loader.app_prefix, fargate_service))
+            f'{config_loader.app_prefix}-{resources.CLUSTER}',
+            f'{config_loader.app_prefix}-{resources.FARGATE_SERVICE}'))
 
 
 if __name__ == "__main__":

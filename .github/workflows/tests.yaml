@@ -72,6 +72,7 @@ jobs:
         with:
           name: image diff output directory
           path: browser-test/diff_output
+        if: failure()
       - name: Upload test videos on failure
         uses: actions/upload-artifact@v3
         with:
@@ -124,6 +125,7 @@ jobs:
         with:
           name: image diff output directory
           path: browser-test/diff_output
+        if: failure()
       - name: Upload test videos on failure
         uses: actions/upload-artifact@v3
         with:

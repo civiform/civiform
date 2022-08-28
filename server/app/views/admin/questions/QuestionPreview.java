@@ -46,7 +46,7 @@ public class QuestionPreview {
             .withText("Sample Question of type: ")
             .with(
                 span()
-                    .withText(type.toString())
+                    .withText(type.getLabel())
                     .withClasses(ReferenceClasses.QUESTION_TYPE, Styles.FONT_SEMIBOLD));
 
     DivTag renderedQuestion = div();

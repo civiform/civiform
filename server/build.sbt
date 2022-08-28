@@ -31,16 +31,19 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.17.257",
-      "software.amazon.awssdk" % "ses" % "2.17.257",
+      "software.amazon.awssdk" % "s3" % "2.17.259",
+      "software.amazon.awssdk" % "ses" % "2.17.259",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.4",
       "com.azure" % "azure-storage-blob" % "12.19.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.4.2",
+      "org.postgresql" % "postgresql" % "42.5.0",
       "com.h2database" % "h2" % "2.1.214" % Test,
+
+      // Metrics collection and export for Prometheus
+      "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
 
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
@@ -126,6 +129,11 @@ lazy val root = (project in file("."))
     ),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
+    // Uncomment the following line to disable JVM forking, which allows attaching a remote
+    // debugger (https://stackoverflow.com/a/57396198). This isn't disabled unilaterally
+    // since running in non-forked mode causes javaOptions to not be propagated, which
+    // causes the configuration override above not to have an effect.
+    // Test / fork := false,
     // Turn off scaladoc link warnings
     Compile / doc / scalacOptions += "-no-link-warnings",
     // Turn off scaladoc

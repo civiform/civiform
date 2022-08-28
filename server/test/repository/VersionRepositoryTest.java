@@ -257,35 +257,6 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void testRollback() {
-    resourceCreator.insertActiveProgram("foo");
-    resourceCreator.insertDraftProgram("bar");
-    Version oldDraft = versionRepository.getDraftVersion();
-    Version oldActive = versionRepository.getActiveVersion();
-    versionRepository.publishNewSynchronizedVersion();
-    oldDraft.refresh();
-    oldActive.refresh();
-
-    assertThat(oldDraft.getPrograms()).hasSize(2);
-    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
-
-    versionRepository.setLiveVersion(oldActive.id);
-
-    oldActive.refresh();
-    oldDraft.refresh();
-    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
-
-    versionRepository.setLiveVersion(oldDraft.id);
-
-    oldActive.refresh();
-    oldDraft.refresh();
-    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
-    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-  }
-
-  @Test
   public void testTransactionality() {
     Transaction outer = DB.getDefault().beginTransaction();
     assertThat(outer.isActive()).isTrue();

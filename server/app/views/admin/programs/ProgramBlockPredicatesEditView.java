@@ -190,7 +190,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 div()
                     .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
                     .with(
-                        Icons.questionTypeSvg(questionDefinition.getQuestionType(), 24)
+                        Icons.questionTypeSvg(questionDefinition.getQuestionType())
                             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
                     .with(
                         div()
@@ -258,7 +258,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
             Styles.BORDER,
             Styles.BORDER_GRAY_200)
         .with(
-            Icons.questionTypeSvg(questionDefinition.getQuestionType(), 24)
+            Icons.questionTypeSvg(questionDefinition.getQuestionType())
                 .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
         .with(
             div()
