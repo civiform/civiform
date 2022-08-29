@@ -77,10 +77,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     controller = makeNoOpProfileController();
     Program program = ProgramBuilder.newActiveProgram().build();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    applicant.refresh();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
-    application.refresh();
+    Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result =
         controller.index(
