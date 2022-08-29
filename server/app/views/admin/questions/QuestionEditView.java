@@ -8,6 +8,8 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -38,6 +40,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
@@ -322,7 +325,6 @@ public final class QuestionEditView extends BaseHtmlView {
 
     formTag.with(
         FieldWithLabel.textArea()
-            .setId("question-description-textarea")
             .setFieldName("questionDescription")
             .setLabelText("Description")
             .setPlaceholderText("The description displayed in the question builder")
@@ -375,27 +377,34 @@ public final class QuestionEditView extends BaseHtmlView {
     return fieldset()
         .with(
             legend("Data privacy settings*").withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses(Styles.PX_1, Styles.PB_2, Styles.TEXT_SM, Styles.TEXT_GRAY_600)
+                .with(
+                    span("Learn more about each of the data export settings in the "),
+                    new LinkElement()
+                        .setHref(
+                            "https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings")
+                        .setText("documentation")
+                        .opensInNewTab()
+                        .asAnchorText(),
+                    span(".")),
             FieldWithLabel.radio()
-                .setId("question-demographic-no-export")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
-                .setLabelText("No export")
+                .setLabelText("Don't allow answers to be exported")
                 .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
                 .getRadioTag(),
             FieldWithLabel.radio()
-                .setId("question-demographic-export-demographic")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
-                .setLabelText("Export Value")
+                .setLabelText("Export exact answers")
                 .setValue(QuestionTag.DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
                 .getRadioTag(),
             FieldWithLabel.radio()
-                .setId("question-demographic-export-pii")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
-                .setLabelText("Export Obfuscated")
+                .setLabelText("Export obfuscated answers")
                 .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
                 .getRadioTag());
