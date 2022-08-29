@@ -366,7 +366,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     }
     return label()
         .with(
-            // Add the current and new status to the form hidden.
+            // Add the new status to the form hidden.
             input()
                 .isHidden()
                 .withType("text")

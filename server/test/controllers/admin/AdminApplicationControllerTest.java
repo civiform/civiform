@@ -93,9 +93,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
   private static final ImmutableList<Status> ORIGINAL_STATUSES =
       ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS);
-  // NOTE: the controller asserts the user is valid on the program that applications are requested
-  // for. However, we currently have no pattern for setting a profile in a test request, so we can't
-  // make affirmative tests.
   private AdminApplicationController controller;
 
   @Before
