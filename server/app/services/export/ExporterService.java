@@ -78,7 +78,10 @@ public final class ExporterService {
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
   public String getProgramAllVersionsCsv(
-      long programId, Optional<String> searchFragment, TimeFilter submitTimeFilter, Optional<String> applicationStatus)
+      long programId,
+      Optional<String> searchFragment,
+      TimeFilter submitTimeFilter,
+      Optional<String> applicationStatus)
       throws ProgramNotFoundException {
     ImmutableList<ProgramDefinition> allProgramVersions =
         programService.getAllProgramDefinitionVersions(programId).stream()

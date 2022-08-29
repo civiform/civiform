@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
 import models.Application;
+import models.ApplicationEvent;
 import models.LifecycleStage;
 import models.Program;
 import models.Version;
@@ -33,6 +34,7 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.Path;
 import services.WellKnownPaths;
+import services.application.ApplicationEventDetails;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 
@@ -290,10 +292,37 @@ public final class ProgramRepository {
 
     pagedQuery.loadCount();
 
+    // TODO(clouser): Filter this in the SQL query. Also note that keeping as-is wouldn't
+    // work anyway since we load the total count above, which we would want to be accurate when
+    // showing the pages of results. We shouldn't loop through all results every time if we have
+    // a status filter.
+    ImmutableList<Application> results =
+        pagedQuery.getList().stream()
+            .filter(
+                r -> {
+                  String status = applicationStatus.orElse("");
+                  if (status.isBlank()) {
+                    return true;
+                  }
+                  List<ApplicationEvent> events =
+                      database
+                          .find(ApplicationEvent.class)
+                          .where()
+                          .eq("application.id", r.id)
+                          .eq("eventType", ApplicationEventDetails.Type.NOTE_CHANGE.name())
+                          .orderBy()
+                          .desc("createTime")
+                          .findList();
+                  if (events.size() == 0) {
+                    return ProgramFilter.NO_STATUS_FILTERS_OPTION_UUID.equals(status);
+                  }
+                  ApplicationEvent latestEvent = events.get(0);
+                  return latestEvent.getDetails().statusEvent().get().statusText().equals(status);
+                })
+            .collect(ImmutableList.toImmutableList());
+
     return new PaginationResult<Application>(
-        pagedQuery.hasNext(),
-        pagedQuery.getTotalPageCount(),
-        pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));
+        pagedQuery.hasNext(), pagedQuery.getTotalPageCount(), results);
   }
 
   private Query<Program> allProgramVersionsQuery(long programId) {

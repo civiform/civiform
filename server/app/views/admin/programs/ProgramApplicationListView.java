@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import repository.ProgramFilter;
 import services.DateConverter;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -63,9 +64,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private final ApplicantUtils applicantUtils;
   private final DateConverter dateConverter;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
-
-  private static final String NO_STATUS_FILTERS_OPTION_UUID =
-      "ad80b347-5ae4-43c3-8578-e503b043be12";
 
   @Inject
   public ProgramApplicationListView(
@@ -186,7 +184,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .setOptions(
                     ImmutableMap.<String, String>builder()
                         .put("Any application status", "")
-                        .put("Only applications without a status", NO_STATUS_FILTERS_OPTION_UUID)
+                        .put(
+                            "Only applications without a status",
+                            ProgramFilter.NO_STATUS_FILTERS_OPTION_UUID)
                         .putAll(
                             allApplicationStatuses.stream()
                                 .collect(

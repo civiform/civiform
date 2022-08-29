@@ -167,7 +167,8 @@ public final class AdminApplicationController extends CiviFormController {
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv =
-          exporterService.getProgramAllVersionsCsv(programId, searchFragment, submitTimeFilter, applicationStatus);
+          exporterService.getProgramAllVersionsCsv(
+              programId, searchFragment, submitTimeFilter, applicationStatus);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -410,8 +411,7 @@ public final class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<Application> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), search, submitTimeFilter,
-            applicationStatus);
+            programId, F.Either.Right(paginationSpec), search, submitTimeFilter, applicationStatus);
 
     return ok(
         applicationListView.render(
