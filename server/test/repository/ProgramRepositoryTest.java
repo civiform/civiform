@@ -216,8 +216,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
-            Optional.of(bobApp.id.toString()),
-            TimeFilter.EMPTY);
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of(bobApp.id.toString()))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build());
 
     assertThat(
             paginationResult.getPageContents().stream()
@@ -278,8 +280,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
-            Optional.of(searchFragment),
-            TimeFilter.EMPTY);
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(Optional.of(searchFragment))
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .build());
 
     assertThat(
             paginationResult.getPageContents().stream()
@@ -340,10 +344,12 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             program.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 10)),
-            Optional.empty(),
-            TimeFilter.builder()
-                .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
-                .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
+            SubmittedApplicationFilter.builder()
+                .setSubmitTimeFilter(
+                    TimeFilter.builder()
+                        .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
+                        .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
+                        .build())
                 .build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
@@ -376,8 +382,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
-            Optional.empty(),
-            TimeFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -390,8 +395,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Right(
                 new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2)),
-            Optional.empty(),
-            TimeFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
@@ -421,8 +425,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),
-            Optional.empty(),
-            TimeFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -436,8 +439,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             F.Either.Left(
                 new IdentifierBasedPaginationSpec<>(
                     2, paginationResult.getPageContents().get(1).id)),
-            Optional.empty(),
-            TimeFilter.EMPTY);
+            SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);
