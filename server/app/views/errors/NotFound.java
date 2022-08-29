@@ -22,7 +22,7 @@ import views.style.BaseStyles;
 import views.style.ErrorStyles;
 import views.style.Styles;
 
-public class NotFound extends BaseHtmlView {
+public final class NotFound extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final LanguageSelector languageSelector;
@@ -31,6 +31,11 @@ public class NotFound extends BaseHtmlView {
   public NotFound(ApplicantLayout layout, LanguageSelector languageSelector) {
     this.layout = checkNotNull(layout);
     this.languageSelector = checkNotNull(languageSelector);
+  }
+
+  public Content render(Http.RequestHeader request, Messages messages) {
+    HtmlBundle bundle = addBodyFooter(request, messages);
+    return layout.render(bundle);
   }
 
   private H1Tag h1Content(Messages messages) {
@@ -61,10 +66,5 @@ public class NotFound extends BaseHtmlView {
     bundle.addMainContent(mainContent(messages));
 
     return bundle;
-  }
-
-  public Content render(Http.RequestHeader request, Messages messages) {
-    HtmlBundle bundle = addBodyFooter(request, messages);
-    return layout.render(bundle);
   }
 }

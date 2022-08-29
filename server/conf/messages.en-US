@@ -42,10 +42,6 @@ validation.isRequired=This question is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Please enter valid input.
 
-# For use in cases where sentences are broken up
-general.space=' '
-general.period=.
-
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -139,9 +135,6 @@ content.description1=CiviForm lets you apply for many benefits at once by reusin
 
 # Long form description of the CiviForm site shown to the applicant. Line 2.
 content.description2=Get started by choosing an application below.
-
-label.street=Address line 1
-placeholder.street=Street address
 
 # Link text to read more about a program.
 link.programDetails=Program details

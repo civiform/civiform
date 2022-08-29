@@ -1,5 +1,7 @@
 package controllers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -60,8 +62,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       NotFound notFoundPage,
       MessagesApi messagesApi) {
     super(config, environment, sourceMapper, routes);
-    this.notFoundPage = notFoundPage;
-    this.messagesApi = messagesApi;
+    this.notFoundPage = checkNotNull(notFoundPage);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   @Override
@@ -113,6 +115,6 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   @Override
   public CompletionStage<Result> onNotFound(RequestHeader request, String message) {
     return CompletableFuture.completedFuture(
-        Results.ok(notFoundPage.render(request, messagesApi.preferred(request))));
+        Results.notFound(notFoundPage.render(request, messagesApi.preferred(request))));
   }
 }
