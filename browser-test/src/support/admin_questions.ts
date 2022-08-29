@@ -40,9 +40,9 @@ export class AdminQuestions {
 
   static readonly DOES_NOT_REPEAT_OPTION = 'does not repeat'
 
-  public static readonly NO_EXPORT_OPTION = 'No export'
-  public static readonly EXPORT_VALUE_OPTION = 'Export Value'
-  public static readonly EXPORT_OBFUSCATED_OPTION = 'Export Obfuscated'
+  public static readonly NO_EXPORT_OPTION = "Don't allow answers to be exported"
+  public static readonly EXPORT_VALUE_OPTION = 'Export exact answers'
+  public static readonly EXPORT_OBFUSCATED_OPTION = 'Export obfuscated answers'
 
   constructor(page: Page) {
     this.page = page
@@ -72,7 +72,9 @@ export class AdminQuestions {
   }
 
   async expectViewOnlyQuestion(questionName: string) {
-    expect(await this.page.isDisabled('text=No Export')).toEqual(true)
+    expect(
+      await this.page.isDisabled(`text=${AdminQuestions.NO_EXPORT_OPTION}`),
+    ).toEqual(true)
     expect(
       await this.page.isDisabled(`input[value="${questionName}"]`),
     ).toEqual(true)
@@ -373,7 +375,7 @@ export class AdminQuestions {
 
   async exportQuestion(questionName: string) {
     await this.gotoQuestionEditPage(questionName)
-    await this.page.click('text="Export Value"')
+    await this.page.click(`text="${AdminQuestions.EXPORT_VALUE_OPTION}"`)
     await this.clickSubmitButtonAndNavigate('Update')
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName)
@@ -381,7 +383,7 @@ export class AdminQuestions {
 
   async exportQuestionOpaque(questionName: string) {
     await this.gotoQuestionEditPage(questionName)
-    await this.page.click('text="Export Obfuscated"')
+    await this.page.click(`text="${AdminQuestions.EXPORT_OBFUSCATED_OPTION}"`)
     await this.clickSubmitButtonAndNavigate('Update')
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName)
@@ -641,7 +643,6 @@ export class AdminQuestions {
 
     await this.page.click('#create-question-button')
     await this.page.click('#create-dropdown-question')
-    await this.page.waitForURL('**/admin/questions/new?type=dropdown')
     await waitForPageJsLoad(this.page)
 
     await this.fillInQuestionBasics({
