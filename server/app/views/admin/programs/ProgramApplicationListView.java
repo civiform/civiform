@@ -305,13 +305,15 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 application.getSubmitterEmail().isPresent(),
                 p(application.getSubmitterEmail().orElse(""))
                     .withClasses(Styles.TEXT_LG, Styles.TEXT_GRAY_800, Styles.MB_2))
+            .with(p(renderSubmitTime(application))
+                .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700, Styles.ITALIC))
             .with(
                 div()
                     .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL)
                     .with(
-                        p(renderSubmitTime(application))
-                            .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
-                        p().withClasses(Styles.FLEX_GROW),
+                        p("Status: TODO(clouser)")
+                            .withClasses(Styles.TEXT_GRAY_700),
+                        div().withClasses(Styles.FLEX_GROW),
                         renderViewLink(viewLinkText, application)));
 
     return div(cardContent)
