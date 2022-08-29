@@ -2,6 +2,7 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -16,6 +17,8 @@ import services.question.types.QuestionType;
 
 /** Superclass for all forms updating a question. */
 public abstract class QuestionForm {
+  public static final String REDIRECT_URL_PARAM = "redirectUrl";
+
   private String questionName;
   private String questionDescription;
   private Optional<Long> enumeratorId;
@@ -23,6 +26,7 @@ public abstract class QuestionForm {
   private String questionHelpText;
   private Optional<String> questionExportState;
   private QuestionDefinition qd;
+  private String redirectUrl;
 
   protected QuestionForm() {
     questionName = "";
@@ -31,6 +35,7 @@ public abstract class QuestionForm {
     questionText = "";
     questionHelpText = "";
     questionExportState = Optional.of("");
+    redirectUrl = "";
   }
 
   protected QuestionForm(QuestionDefinition qd) {
@@ -39,6 +44,7 @@ public abstract class QuestionForm {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     enumeratorId = qd.getEnumeratorId();
+    redirectUrl = "";
 
     try {
       questionText = qd.getQuestionText().get(LocalizedStrings.DEFAULT_LOCALE);
@@ -53,47 +59,65 @@ public abstract class QuestionForm {
     }
   }
 
-  public String getQuestionName() {
+  public final String getQuestionName() {
     return questionName;
   }
 
-  public void setQuestionName(String questionName) {
+  public final void setQuestionName(String questionName) {
     this.questionName = checkNotNull(questionName);
   }
 
-  public String getQuestionDescription() {
+  public final String getQuestionDescription() {
     return questionDescription;
   }
 
-  public void setQuestionDescription(String questionDescription) {
+  public final void setQuestionDescription(String questionDescription) {
     this.questionDescription = checkNotNull(questionDescription);
   }
 
-  public Optional<Long> getEnumeratorId() {
+  public final Optional<Long> getEnumeratorId() {
     return enumeratorId;
   }
 
-  public void setEnumeratorId(String enumeratorId) {
+  public final void setEnumeratorId(String enumeratorId) {
     this.enumeratorId =
         enumeratorId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(enumeratorId));
   }
 
   public abstract QuestionType getQuestionType();
 
-  public String getQuestionText() {
+  public final String getQuestionText() {
     return questionText;
   }
 
-  public void setQuestionText(String questionText) {
+  public final void setQuestionText(String questionText) {
     this.questionText = checkNotNull(questionText);
   }
 
-  public String getQuestionHelpText() {
+  public final String getQuestionHelpText() {
     return questionHelpText;
   }
 
-  public void setQuestionHelpText(String questionHelpText) {
+  public final void setQuestionHelpText(String questionHelpText) {
     this.questionHelpText = checkNotNull(questionHelpText);
+  }
+
+  public final String getRedirectUrl() {
+    // Adding validation to prevent a non-absolute URL from being returned by the form.
+    // There are potentially many ways for the private variable to be set (constructor,
+    // reflection, etc) and the bad value being consumed is what we care to guard against.
+    if (redirectUrl == null) {
+      return "";
+    }
+    if (!redirectUrl.isBlank() && URI.create(redirectUrl).isAbsolute()) {
+      // Only allow relative URLs to ensure that we redirect to the same domain.
+      throw new RuntimeException("Invalid absolute redirect URL. Only relative URLs are allowed.");
+    }
+    return redirectUrl;
+  }
+
+  public final void setRedirectUrl(String redirectUrl) {
+    this.redirectUrl = checkNotNull(redirectUrl);
   }
 
   public QuestionDefinitionBuilder getBuilder() {
@@ -117,7 +141,7 @@ public abstract class QuestionForm {
     return builder;
   }
 
-  public void setQuestionExportState(String questionExportState) {
+  public final void setQuestionExportState(String questionExportState) {
     this.questionExportState = Optional.of(questionExportState);
   }
 
@@ -135,7 +159,7 @@ public abstract class QuestionForm {
    * The {@link QuestionTag} to use for export state. Callers external to this class should use this
    * rather than {@link getQuestionExportState}.
    */
-  public QuestionTag getQuestionExportStateTag() {
+  public final QuestionTag getQuestionExportStateTag() {
     String rawState = getQuestionExportState();
     return rawState.isEmpty() ? QuestionTag.NON_DEMOGRAPHIC : QuestionTag.valueOf(rawState);
   }
@@ -145,7 +169,7 @@ public abstract class QuestionForm {
    * requires public getters and setters. Callers external to this class should prefer {@link
    * getQuestionExportStateTag}.
    */
-  public String getQuestionExportState() {
+  public final String getQuestionExportState() {
     if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(getQuestionType())) {
       return QuestionTag.NON_DEMOGRAPHIC.getValue();
     }

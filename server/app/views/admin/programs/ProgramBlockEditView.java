@@ -49,7 +49,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page for an admin to edit the configuration for a single block of a program. */
-public class ProgramBlockEditView extends BaseHtmlView {
+public final class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final boolean featureFlagOptionalQuestions;
@@ -604,12 +604,18 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .url();
 
     QuestionBank qb =
-        new QuestionBank()
-            .setQuestionAction(addQuestionAction)
-            .setCsrfTag(csrfTag)
-            .setQuestions(questionDefinitions)
-            .setProgram(program)
-            .setBlockDefinition(blockDefinition);
+        new QuestionBank(
+            QuestionBank.QuestionBankParams.builder()
+                .setQuestionAction(addQuestionAction)
+                .setCsrfTag(csrfTag)
+                .setQuestions(questionDefinitions)
+                .setProgram(program)
+                .setBlockDefinition(blockDefinition)
+                .setQuestionCreateRedirectUrl(
+                    controllers.admin.routes.AdminProgramBlocksController.edit(
+                            program.id(), blockDefinition.id())
+                        .url())
+                .build());
     return qb.getContainer();
   }
 
