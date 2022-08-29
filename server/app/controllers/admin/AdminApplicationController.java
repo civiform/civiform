@@ -45,6 +45,7 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.StatusDefinitions.Status;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
@@ -340,25 +341,35 @@ public final class AdminApplicationController extends CiviFormController {
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
+    Application application = applicationMaybe.get();
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeNewStatus = Optional.ofNullable(formData.get("newStatus"));
+    Optional<String> maybeSendEmail = Optional.ofNullable(formData.get("sendEmail"));
     // TODO(shanemc-goog): check that the previous status is the current previous status for
     // consistency.
     if (maybeNewStatus.isEmpty()) {
-      return notFound("new status not present");
+      return badRequest("A selected status is not present");
+    }
+    if (maybeSendEmail.isEmpty()) {
+      return badRequest("Sending email selection is not present");
+    }
+    String newStatus = maybeNewStatus.get();
+    if (!application.getProgram().getStatusDefinitions().getStatuses().stream()
+        .map(Status::statusText)
+        .anyMatch(newStatus::equals)) {
+      return badRequest("New status {} is invalid", newStatus);
     }
 
     programAdminApplicationService.setStatus(
-        applicationMaybe.get(),
+        application,
         ApplicationEventDetails.StatusEvent.builder()
-            .setStatusText(maybeNewStatus.get())
-            .setEmailSent(false)
+            .setStatusText(newStatus)
+            .setEmailSent(Boolean.parseBoolean(maybeSendEmail.get()))
             .build(),
         profileUtils.currentUserProfile(request).get().getAccount().join(),
         ApplicationEventDetails.Type.STATUS_CHANGE);
-    return redirect(
-            routes.AdminApplicationController.show(programId, applicationMaybe.get().id).url())
+    return redirect(routes.AdminApplicationController.show(programId, application.id).url())
         .flashing("success", "Application status updated");
   }
 
