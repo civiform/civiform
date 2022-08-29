@@ -7,6 +7,7 @@ import {
   waitForPageJsLoad,
   validateScreenshot,
   resetSession,
+  dropTables,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
@@ -25,6 +26,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('canonical question seeding works', async () => {
+    await dropTables(page)
     await seedCanonicalQuestions(page)
 
     await page.goto(BASE_URL)
