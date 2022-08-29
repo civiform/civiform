@@ -177,6 +177,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
+  // TODO(shanemc-goog): Add invalid data tests.
+  // TODO(shanemc-goog): Add email set tests.
   @Test
   public void updateStatus() throws Exception {
     // Setup
