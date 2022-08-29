@@ -103,6 +103,9 @@ public abstract class QuestionForm {
   }
 
   public final String getRedirectUrl() {
+    // Adding validation to prevent a non-absolute URL from being returned by the form.
+    // There are potentially many ways for the private variable to be set (constructor,
+    // reflection, etc) and the bad value being consumed is what we care to guard against.
     if (redirectUrl == null) {
       return "";
     }

@@ -152,10 +152,8 @@ describe('program creation', () => {
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
 
-    await adminPrograms.expectProgramBlockEditPageWithSuccessToast({
-      programName,
-      successToastMessage: `question ${questionName} created`,
-    })
+    await adminPrograms.expectSuccessToast(`question ${questionName} created`)
+    await adminPrograms.expectProgramBlockEditPage(programName)
 
     await adminQuestions.expectDraftQuestionExist(questionName, questionText)
     // Ensure the question can be added from the question bank.

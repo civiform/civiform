@@ -213,18 +213,11 @@ export class AdminPrograms {
     )
   }
 
-  async expectProgramBlockEditPageWithSuccessToast({
-    programName,
-    successToastMessage,
-  }: {
-    programName: string
-    successToastMessage: string
-  }) {
+  async expectSuccessToast(successToastMessage: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
     expect(toastContainer).toContain('bg-green-200')
     expect(toastContainer).toContain(successToastMessage)
-    await this.expectProgramBlockEditPage(programName)
   }
 
   async expectProgramBlockEditPage(programName = '') {
