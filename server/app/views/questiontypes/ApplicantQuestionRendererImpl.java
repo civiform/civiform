@@ -96,39 +96,35 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
               .withText("*" + requiredQuestionMessage));
     }
 
-    // Composite fields should be rendered with fieldset and legend for screen reader users.
-    ContainerTag questionPrimaryTextTag;
+    ContainerTag questionTag;
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
             question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab);
     switch (inputFieldType) {
       case COMPOSITE:
-        questionPrimaryTextTag = legend().with(questionTextDoms);
-        break;
-      case SINGLE:
-        questionPrimaryTextTag = div().with(questionTextDoms);
-        break;
-      default:
-        throw new IllegalArgumentException(
-            String.format("Unhandled input field type: %s", inputFieldType));
-    }
-    questionPrimaryTextTag.withClasses(
-        ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
-
-    ContainerTag questionTag;
-    switch (inputFieldType) {
-      case COMPOSITE:
-        // Legend must be a direct child of fieldset for screen readers to work properly.
+        // Composite fields should be rendered with fieldset and legend for screen reader users.
         questionTag =
             fieldset()
-                .with(questionPrimaryTextTag)
+                .with(
+                    // Legend must be a direct child of fieldset for screen readers to work
+                    // properly.
+                    legend()
+                        .with(questionTextDoms)
+                        .withClasses(
+                            ReferenceClasses.APPLICANT_QUESTION_TEXT,
+                            ApplicantStyles.QUESTION_TEXT))
                 .with(questionSecondaryTextDiv)
                 .with(renderTag(params, validationErrors));
         break;
       case SINGLE:
         questionTag =
             div()
-                .with(questionPrimaryTextTag)
+                .with(
+                    div()
+                        .with(questionTextDoms)
+                        .withClasses(
+                            ReferenceClasses.APPLICANT_QUESTION_TEXT,
+                            ApplicantStyles.QUESTION_TEXT))
                 .with(questionSecondaryTextDiv)
                 .with(renderTag(params, validationErrors));
         break;
