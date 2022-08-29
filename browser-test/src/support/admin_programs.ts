@@ -213,6 +213,13 @@ export class AdminPrograms {
     )
   }
 
+  async expectSuccessToast(successToastMessage: string) {
+    const toastContainer = await this.page.innerHTML('#toast-container')
+
+    expect(toastContainer).toContain('bg-green-200')
+    expect(toastContainer).toContain(successToastMessage)
+  }
+
   async expectProgramBlockEditPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
