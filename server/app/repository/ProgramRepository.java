@@ -307,7 +307,7 @@ public final class ProgramRepository {
                           .find(ApplicationEvent.class)
                           .where()
                           .eq("application.id", r.id)
-                          .eq("eventType", ApplicationEventDetails.Type.NOTE_CHANGE.name())
+                          .eq("eventType", ApplicationEventDetails.Type.STATUS_CHANGE.name())
                           .orderBy()
                           .desc("createTime")
                           .findList();
