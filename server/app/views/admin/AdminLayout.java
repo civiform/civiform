@@ -31,7 +31,6 @@ public class AdminLayout extends BaseHtmlLayout {
   public enum NavPage {
     PROGRAMS,
     QUESTIONS,
-    VERSIONS,
     INTERMEDIARIES,
     API_KEYS
   }
@@ -112,7 +111,6 @@ public class AdminLayout extends BaseHtmlLayout {
 
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
-    String versionLink = routes.AdminVersionController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
 
@@ -132,9 +130,6 @@ public class AdminLayout extends BaseHtmlLayout {
                 "Questions",
                 questionLink,
                 activeNavPage == NavPage.QUESTIONS ? activeNavStyle : ""))
-        .with(
-            headerLink(
-                "Versions", versionLink, activeNavPage == NavPage.VERSIONS ? activeNavStyle : ""))
         .with(
             headerLink(
                 "Intermediaries",

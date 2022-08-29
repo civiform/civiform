@@ -37,9 +37,6 @@ GET     /admin/programs/:programId/translations/edit controllers.admin.AdminProg
 GET     /admin/programs/:programId/translations/:locale/edit    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programId: Long, locale: String)
 POST    /admin/programs/:programId/translations/:locale         controllers.admin.AdminProgramTranslationsController.update(request: Request, programId: Long, locale: String)
 
-# A controller for versions for an admin to set older versions live.
-GET     /admin/versions                       controllers.admin.AdminVersionController.index(request: Request)
-POST    /admin/versions/:versionId/setLive    controllers.admin.AdminVersionController.setVersionLive(versionId: Long, request: Request)
 
 # A controller for pages for an admin to create and maintain blocks for a program
 GET     /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.index(programId: Long)
@@ -193,3 +190,5 @@ POST    /dev/seed/clear                  controllers.dev.DatabaseSeedController.
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)
 GET     /dev/feature/:flag/enable      controllers.dev.FeatureFlagOverrideController.enable(request: Request, flag: String)
 
+## Prometheus metrics export
+GET         /metrics          controllers.monitoring.MetricsController.getMetrics()
