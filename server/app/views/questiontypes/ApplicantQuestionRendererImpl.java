@@ -101,28 +101,40 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
             question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab);
-    if (inputFieldType == InputFieldType.COMPOSITE) {
-      questionPrimaryTextTag = legend().with(questionTextDoms);
-    } else {
-      questionPrimaryTextTag = div().with(questionTextDoms);
+    switch (inputFieldType) {
+      case COMPOSITE:
+        questionPrimaryTextTag = legend().with(questionTextDoms);
+        break;
+      case SINGLE:
+        questionPrimaryTextTag = div().with(questionTextDoms);
+        break;
+      default:
+        throw new IllegalArgumentException(
+            String.format("Unhandled input field type: %s", inputFieldType));
     }
     questionPrimaryTextTag.withClasses(
         ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
 
     ContainerTag questionTag;
-    if (inputFieldType == InputFieldType.COMPOSITE) {
-      // Legend must be a direct child of fieldset for screen readers to work properly.
-      questionTag =
-          fieldset()
-              .with(questionPrimaryTextTag)
-              .with(questionSecondaryTextDiv)
-              .with(renderTag(params, validationErrors));
-    } else {
-      questionTag =
-          div()
-              .with(questionPrimaryTextTag)
-              .with(questionSecondaryTextDiv)
-              .with(renderTag(params, validationErrors));
+    switch (inputFieldType) {
+      case COMPOSITE:
+        // Legend must be a direct child of fieldset for screen readers to work properly.
+        questionTag =
+            fieldset()
+                .with(questionPrimaryTextTag)
+                .with(questionSecondaryTextDiv)
+                .with(renderTag(params, validationErrors));
+        break;
+      case SINGLE:
+        questionTag =
+            div()
+                .with(questionPrimaryTextTag)
+                .with(questionSecondaryTextDiv)
+                .with(renderTag(params, validationErrors));
+        break;
+      default:
+        throw new IllegalArgumentException(
+            String.format("Unhandled input field type: %s", inputFieldType));
     }
 
     return div()
