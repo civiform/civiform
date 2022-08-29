@@ -210,7 +210,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
-    assertThat(gotEvent.getDetails().statusEvent().get().statusText()).isEqualTo(APPROVED_STATUS.statusText());
+    assertThat(gotEvent.getDetails().statusEvent().get().statusText())
+        .isEqualTo(APPROVED_STATUS.statusText());
     assertThat(gotEvent.getCreator()).isEqualTo(adminAccount);
     assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
