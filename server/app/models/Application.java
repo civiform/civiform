@@ -32,10 +32,6 @@ public class Application extends BaseModel {
 
   @ManyToOne private Program program;
 
-  public List<ApplicationEvent> getApplicationEvents() {
-    return applicationEvents;
-  }
-
   @OneToMany(mappedBy = "application")
   private List<ApplicationEvent> applicationEvents;
 
@@ -94,6 +90,10 @@ public class Application extends BaseModel {
         data.hasPreferredLocale() ? data.preferredLocale().toLanguageTag() : null;
     this.object = data.asJsonString();
     return this;
+  }
+
+  public List<ApplicationEvent> getApplicationEvents() {
+    return applicationEvents;
   }
 
   public LifecycleStage getLifecycleStage() {
