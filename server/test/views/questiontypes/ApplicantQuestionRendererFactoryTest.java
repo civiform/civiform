@@ -65,10 +65,25 @@ public class ApplicantQuestionRendererFactoryTest {
 
     DivTag content = sampleRenderer.render(params);
     String renderedContent = document(html(content));
-    if (compositeTypes().contains(type)) {
-      assertThat(renderedContent).contains("fieldset");
-    } else {
-      assertThat(renderedContent).doesNotContain("fieldset");
+    switch (type) {
+      case ADDRESS:
+      case CHECKBOX:
+      case ENUMERATOR:
+      case NAME:
+      case RADIO_BUTTON:
+        assertThat(renderedContent).contains("fieldset");
+        break;
+      case CURRENCY:
+      case DATE:
+      case DROPDOWN:
+      case EMAIL:
+      case FILEUPLOAD:
+      case ID:
+      case NUMBER:
+      case STATIC:
+      case TEXT:
+        assertThat(renderedContent).doesNotContain("fieldset");
+        break;
     }
   }
 }
