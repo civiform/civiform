@@ -4,12 +4,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import models.Application;
 import play.libs.F;
-import repository.TimeFilter;
+import repository.SubmittedApplicationFilter;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.IdentifierBasedPaginationSpec;
@@ -343,29 +342,18 @@ public interface ProgramService {
 
   /**
    * Get all submitted applications for this program and all other previous and future versions of
-   * it where the applicant's name, email, or application ID contains the search query. Does not
-   * include drafts or deleted applications.
-   *
-   * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
-   * email, first name, or last name that contain it.
-   *
-   * <p>If searchNameFragment is an unsigned integer, query will filter to applications with an
-   * applicant ID matching it.
+   * it that match the specified filter.
    *
    * @param paginationSpecEither the query supports two types of pagination, F.Either wraps the
    *     pagination spec to use for a given call.
-   * @param searchNameFragment a text fragment used for filtering the applications.
-   * @param submitTimeFilter specifies a filter for the submission time for returned results.
+   * @param filter a filter to apply to examined applications
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      Optional<String> searchNameFragment,
-      TimeFilter submitTimeFilter,
-      // TODO(clouser): Autovalue.
-      Optional<String> applicationStatus)
+      SubmittedApplicationFilter filter)
       throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */

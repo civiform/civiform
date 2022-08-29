@@ -7,12 +7,11 @@ import com.jayway.jsonpath.DocumentContext;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
 import org.apache.commons.lang3.tuple.Pair;
 import play.libs.F;
-import repository.TimeFilter;
+import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
@@ -45,18 +44,12 @@ public class JsonExporter {
   public Pair<String, PaginationResult<Application>> export(
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
-      Optional<String> searchFragment,
-      TimeFilter submitTimeFilter,
-      Optional<String> applicationStatus) {
+      SubmittedApplicationFilter filter) {
     PaginationResult<Application> paginationResult;
     try {
       paginationResult =
           programService.getSubmittedProgramApplicationsAllVersions(
-              programDefinition.id(),
-              F.Either.Left(paginationSpec),
-              searchFragment,
-              submitTimeFilter,
-              applicationStatus);
+              programDefinition.id(), F.Either.Left(paginationSpec), filter);
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException(e);
     }

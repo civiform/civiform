@@ -230,9 +230,7 @@ public final class ProgramRepository {
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      Optional<String> searchNameFragment,
-      TimeFilter submitTimeFilter,
-      Optional<String> applicationStatus) {
+      SubmittedApplicationFilter filters) {
     ExpressionList<Application> query =
         database
             .find(Application.class)
@@ -244,16 +242,16 @@ public final class ProgramRepository {
                 "lifecycle_stage",
                 ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
 
-    if (submitTimeFilter.fromTime().isPresent()) {
-      query = query.where().ge("submit_time", submitTimeFilter.fromTime().get());
+    if (filters.submitTimeFilter().fromTime().isPresent()) {
+      query = query.where().ge("submit_time", filters.submitTimeFilter().fromTime().get());
     }
 
-    if (submitTimeFilter.untilTime().isPresent()) {
-      query = query.where().lt("submit_time", submitTimeFilter.untilTime().get());
+    if (filters.submitTimeFilter().untilTime().isPresent()) {
+      query = query.where().lt("submit_time", filters.submitTimeFilter().untilTime().get());
     }
 
-    if (searchNameFragment.isPresent() && !searchNameFragment.get().isBlank()) {
-      String search = searchNameFragment.get().trim();
+    if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
+      String search = filters.searchNameFragment().get().trim();
 
       if (search.matches("^\\d+$")) {
         query = query.eq("id", Integer.parseInt(search));
@@ -300,7 +298,7 @@ public final class ProgramRepository {
         pagedQuery.getList().stream()
             .filter(
                 r -> {
-                  String status = applicationStatus.orElse("");
+                  String status = filters.applicationStatus().orElse("");
                   if (status.isBlank()) {
                     return true;
                   }
@@ -314,7 +312,7 @@ public final class ProgramRepository {
                           .desc("createTime")
                           .findList();
                   if (events.size() == 0) {
-                    return ProgramFilter.NO_STATUS_FILTERS_OPTION_UUID.equals(status);
+                    return SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID.equals(status);
                   }
                   ApplicationEvent latestEvent = events.get(0);
                   return latestEvent.getDetails().statusEvent().get().statusText().equals(status);

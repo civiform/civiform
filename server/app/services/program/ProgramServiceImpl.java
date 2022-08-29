@@ -31,7 +31,7 @@ import play.db.ebean.Transactional;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
-import repository.TimeFilter;
+import repository.SubmittedApplicationFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -794,11 +794,9 @@ public final class ProgramServiceImpl implements ProgramService {
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      Optional<String> searchNameFragment,
-      TimeFilter submitTimeFilter,
-      Optional<String> applicationStatus) {
+      SubmittedApplicationFilter filters) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpecEither, searchNameFragment, submitTimeFilter, applicationStatus);
+        programId, paginationSpecEither, filters);
   }
 
   @Override
