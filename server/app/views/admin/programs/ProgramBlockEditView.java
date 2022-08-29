@@ -49,7 +49,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page for an admin to edit the configuration for a single block of a program. */
-public class ProgramBlockEditView extends BaseHtmlView {
+public final class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final boolean featureFlagOptionalQuestions;
@@ -417,7 +417,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
     SvgTag icon =
-        Icons.questionTypeSvg(questionDefinition.getQuestionType(), 24)
+        Icons.questionTypeSvg(questionDefinition.getQuestionType())
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
     DivTag content =
         div()
@@ -487,7 +487,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       boolean isInvisible) {
     ButtonTag button =
         submitButton("")
-            .with(Icons.svg(icon, 48).withClasses(Styles.W_6, Styles.H_6))
+            .with(Icons.svg(icon).withClasses(Styles.W_6, Styles.H_6))
             .withClasses(AdminStyles.MOVE_BLOCK_BUTTON)
             .attr("aria-label", label);
     String moveAction =
@@ -604,12 +604,18 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .url();
 
     QuestionBank qb =
-        new QuestionBank()
-            .setQuestionAction(addQuestionAction)
-            .setCsrfTag(csrfTag)
-            .setQuestions(questionDefinitions)
-            .setProgram(program)
-            .setBlockDefinition(blockDefinition);
+        new QuestionBank(
+            QuestionBank.QuestionBankParams.builder()
+                .setQuestionAction(addQuestionAction)
+                .setCsrfTag(csrfTag)
+                .setQuestions(questionDefinitions)
+                .setProgram(program)
+                .setBlockDefinition(blockDefinition)
+                .setQuestionCreateRedirectUrl(
+                    controllers.admin.routes.AdminProgramBlocksController.edit(
+                            program.id(), blockDefinition.id())
+                        .url())
+                .build());
     return qb.getContainer();
   }
 

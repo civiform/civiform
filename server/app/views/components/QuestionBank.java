@@ -1,5 +1,6 @@
 package views.components;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -7,6 +8,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
@@ -29,45 +31,20 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
-public class QuestionBank {
+public final class QuestionBank {
   private static final SvgTag PLUS_ICON =
-      Icons.svg(Icons.PLUS, 24)
-          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6)
+      Icons.svg(Icons.PLUS)
+          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_5)
           .attr("fill", "currentColor")
           .attr("stroke-width", "2")
           .attr("stroke-linecap", "round")
           .attr("stroke-linejoin", "round");
 
-  private ProgramDefinition program;
-  private BlockDefinition blockDefinition;
+  private final QuestionBankParams params;
   private Optional<Long> enumeratorQuestionId;
-  private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
-  private Optional<InputTag> maybeCsrfTag = Optional.empty();
-  private String questionAction = "";
 
-  public QuestionBank setProgram(ProgramDefinition program) {
-    this.program = program;
-    return this;
-  }
-
-  public QuestionBank setBlockDefinition(BlockDefinition blockDefinition) {
-    this.blockDefinition = blockDefinition;
-    return this;
-  }
-
-  public QuestionBank setQuestionAction(String actionUrl) {
-    this.questionAction = actionUrl;
-    return this;
-  }
-
-  public QuestionBank setCsrfTag(InputTag csrfTag) {
-    this.maybeCsrfTag = Optional.of(csrfTag);
-    return this;
-  }
-
-  public QuestionBank setQuestions(ImmutableList<QuestionDefinition> questionDefinitions) {
-    this.questions = questionDefinitions;
-    return this;
+  public QuestionBank(QuestionBankParams params) {
+    this.params = checkNotNull(params);
   }
 
   public FormTag getContainer() {
@@ -75,8 +52,11 @@ public class QuestionBank {
   }
 
   private FormTag questionBankPanel() {
-    InputTag csrfTag = this.maybeCsrfTag.get();
-    FormTag questionForm = form(csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
+    FormTag questionForm =
+        form()
+            .withMethod(HttpVerbs.POST)
+            .withAction(params.questionAction())
+            .with(params.csrfTag());
 
     DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
     questionForm.with(innerDiv);
@@ -85,7 +65,7 @@ public class QuestionBank {
     innerDiv.with(contentDiv);
 
     H1Tag headerDiv = h1("Add Question").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
-    contentDiv.withId("question-bank-questions").with(headerDiv);
+    contentDiv.with(div().with(headerDiv));
 
     InputTag filterInput =
         input()
@@ -105,11 +85,24 @@ public class QuestionBank {
                 Styles.SHADOW,
                 StyleUtils.focus(Styles.OUTLINE_NONE));
 
-    SvgTag filterIcon = Icons.svg(Icons.SEARCH, 56).withClasses(Styles.H_4, Styles.W_4);
+    SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses(Styles.H_4, Styles.W_4);
     DivTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
-    DivTag filterDiv = div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
+    DivTag filterDiv =
+        div().withClasses(Styles.MB_2, Styles.RELATIVE).with(filterIconDiv, filterInput);
     contentDiv.with(filterDiv);
+    contentDiv.with(
+        div()
+            .with(
+                div()
+                    .with(
+                        p("Not finding a question you're looking for in this list?"),
+                        div()
+                            .withClass(Styles.FLEX)
+                            .with(
+                                div().withClass(Styles.FLEX_GROW),
+                                CreateQuestionButton.renderCreateQuestionButton(
+                                    params.questionCreateRedirectUrl())))));
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
 
@@ -117,8 +110,10 @@ public class QuestionBank {
         ImmutableList.sortedCopyOf(
             Comparator.comparing(QuestionDefinition::getName), filteredQuestions);
 
+    DivTag questionsDiv = div().withId("question-bank-questions");
     sortedQuestions.forEach(
-        questionDefinition -> contentDiv.with(renderQuestionDefinition(questionDefinition)));
+        questionDefinition -> questionsDiv.with(renderQuestionDefinition(questionDefinition)));
+    contentDiv.with(questionsDiv);
 
     return questionForm;
   }
@@ -151,7 +146,7 @@ public class QuestionBank {
             .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     SvgTag icon =
-        Icons.questionTypeSvg(definition.getQuestionType(), 24)
+        Icons.questionTypeSvg(definition.getQuestionType())
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
     DivTag content =
         div()
@@ -182,13 +177,15 @@ public class QuestionBank {
     }
 
     Predicate<QuestionDefinition> filter =
-        blockDefinition.getQuestionCount() > 0 ? this::nonEmptyBlockFilter : this::questionFilter;
-    return questions.stream().filter(filter).collect(ImmutableList.toImmutableList());
+        params.blockDefinition().getQuestionCount() > 0
+            ? this::nonEmptyBlockFilter
+            : this::questionFilter;
+    return params.questions().stream().filter(filter).collect(ImmutableList.toImmutableList());
   }
 
   /** If a block already contains a single-block question, no more questions can be added. */
   private boolean containsSingleBlockQuestion() {
-    return blockDefinition.isEnumerator() || blockDefinition.isFileUpload();
+    return params.blockDefinition().isEnumerator() || params.blockDefinition().isFileUpload();
   }
 
   /**
@@ -197,7 +194,7 @@ public class QuestionBank {
    */
   private boolean questionFilter(QuestionDefinition questionDefinition) {
     return questionDefinition.getEnumeratorId().equals(getEnumeratorQuestionId())
-        && !program.hasQuestion(questionDefinition);
+        && !params.program().hasQuestion(questionDefinition);
   }
 
   /**
@@ -225,23 +222,59 @@ public class QuestionBank {
   private Optional<Long> getEnumeratorQuestionId() {
     if (enumeratorQuestionId == null) {
       enumeratorQuestionId = Optional.empty();
-      Optional<Long> enumeratorBlockId = blockDefinition.enumeratorId();
+      Optional<Long> enumeratorBlockId = params.blockDefinition().enumeratorId();
       if (enumeratorBlockId.isPresent()) {
         try {
           BlockDefinition enumeratorBlockDefinition =
-              program.getBlockDefinition(enumeratorBlockId.get());
+              params.program().getBlockDefinition(enumeratorBlockId.get());
           enumeratorQuestionId =
               Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId());
         } catch (ProgramBlockDefinitionNotFoundException e) {
           String errorMessage =
               String.format(
                   "BlockDefinition %d has a broken enumerator block reference to id %d",
-                  blockDefinition.id(), enumeratorBlockId.get());
+                  params.blockDefinition().id(), enumeratorBlockId.get());
           throw new RuntimeException(errorMessage, e);
         }
         ;
       }
     }
     return enumeratorQuestionId;
+  }
+
+  @AutoValue
+  public abstract static class QuestionBankParams {
+    abstract ProgramDefinition program();
+
+    abstract BlockDefinition blockDefinition();
+
+    abstract String questionCreateRedirectUrl();
+
+    abstract ImmutableList<QuestionDefinition> questions();
+
+    abstract InputTag csrfTag();
+
+    abstract String questionAction();
+
+    public static Builder builder() {
+      return new AutoValue_QuestionBank_QuestionBankParams.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setProgram(ProgramDefinition v);
+
+      public abstract Builder setBlockDefinition(BlockDefinition v);
+
+      public abstract Builder setQuestionCreateRedirectUrl(String v);
+
+      public abstract Builder setQuestions(ImmutableList<QuestionDefinition> v);
+
+      public abstract Builder setCsrfTag(InputTag v);
+
+      public abstract Builder setQuestionAction(String v);
+
+      public abstract QuestionBankParams build();
+    }
   }
 }

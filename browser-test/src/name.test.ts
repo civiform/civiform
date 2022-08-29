@@ -10,6 +10,7 @@ import {
   selectApplicantLanguage,
   startSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 const NAME_FIRST = '.cf-name-first'
@@ -45,6 +46,25 @@ describe('name applicant flow', () => {
         programName,
       )
       await logout(pageObject)
+    })
+
+    it('validate screenshot', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(pageObject, 'name')
+    })
+
+    it('validate screenshot with errors', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+
+      await validateScreenshot(pageObject, 'name-errors')
     })
 
     it('does not show errors initially', async () => {

@@ -3,37 +3,45 @@ import {
   loginAsAdmin,
   AdminQuestions,
   AdminPrograms,
-  endSession,
-  dropTables,
   seedCanonicalQuestions,
   waitForPageJsLoad,
+  validateScreenshot,
+  resetSession,
+  dropTables,
 } from './support'
 import {QuestionType} from './support/admin_questions'
+import {BASE_URL} from './support/config'
+import {Page} from 'playwright'
 
 describe('normal question lifecycle', () => {
+  let page: Page
+
   beforeAll(async () => {
-    const {page} = await startSession()
-    await dropTables(page)
-    await seedCanonicalQuestions(page)
+    const obj = await startSession()
+    page = obj.page
   })
 
-  it('has canonical questions available by default', async () => {
-    const {browser, page} = await startSession()
+  afterEach(async () => {
+    await resetSession(page, /* clearDb= */ true)
+  })
+
+  it('canonical question seeding works', async () => {
+    await dropTables(page)
+    await seedCanonicalQuestions(page)
+
+    await page.goto(BASE_URL)
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Name')
     await adminQuestions.expectDraftQuestionExist('Applicant Date of Birth')
-
-    await endSession(browser)
   })
 
   // Run create-update-publish test for each question type individually to keep
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
     it(`${type} question: create, update, publish, create a new version, and update`, async () => {
-      const {browser, page} = await startSession()
       page.setDefaultTimeout(4000)
 
       await loginAsAdmin(page)
@@ -84,9 +92,17 @@ describe('normal question lifecycle', () => {
 
       await adminQuestions.expectActiveQuestions(allQuestions)
 
+      // Take screenshot of questions being published and active.
+      await adminQuestions.gotoAdminQuestionsPage()
+      await validateScreenshot(page, `${type}-only-active`)
+
       await adminQuestions.createNewVersionForQuestions(allQuestions)
 
       await adminQuestions.updateAllQuestions(allQuestions)
+
+      // Take screenshot of question being in draft state.
+      await adminQuestions.gotoAdminQuestionsPage()
+      await validateScreenshot(page, `${type}-active-and-draft`)
 
       await adminPrograms.publishProgram(programName)
 
@@ -95,13 +111,10 @@ describe('normal question lifecycle', () => {
       await adminPrograms.publishProgram(programName)
 
       await adminQuestions.expectActiveQuestions(allQuestions)
-
-      await endSession(browser)
     })
   }
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
-    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -125,7 +138,6 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
-    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -149,7 +161,6 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
-    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -178,7 +189,6 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
-    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -209,13 +219,13 @@ describe('normal question lifecycle', () => {
   })
 
   it('persists export state', async () => {
-    const {page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
 
-    // Navigate to the new question page and ensure that "No export" is pre-selected.
+    // Navigate to the new question page and ensure that "Don't allow answers to be exported"
+    // is pre-selected.
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
@@ -257,7 +267,6 @@ describe('normal question lifecycle', () => {
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
-    const {page} = await startSession()
     await loginAsAdmin(page)
 
     const adminQuestions = new AdminQuestions(page)

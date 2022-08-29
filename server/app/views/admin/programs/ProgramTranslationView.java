@@ -1,6 +1,5 @@
 package views.admin.programs;
 
-import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
@@ -9,6 +8,7 @@ import static j2html.TagCreator.span;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import forms.translation.ProgramTranslationForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
@@ -16,7 +16,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.TranslationLocales;
@@ -36,16 +35,16 @@ import views.style.Styles;
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
-  private final Provider<Boolean> statusTrackingEnabled;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramTranslationView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
+      FeatureFlags featureFlags) {
     super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    this.statusTrackingEnabled = statusTrackingEnabled;
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -59,7 +58,8 @@ public final class ProgramTranslationView extends TranslationFormView {
                 program.id(), locale.toLanguageTag())
             .url();
     FormTag form =
-        renderTranslationForm(request, locale, formAction, formFields(program, translationForm));
+        renderTranslationForm(
+            request, locale, formAction, formFields(request, program, translationForm));
 
     String title = String.format("Manage program translations: %s", program.adminName());
 
@@ -80,7 +80,7 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<DomContent> formFields(
-      ProgramDefinition program, ProgramTranslationForm translationForm) {
+      Http.Request request, ProgramDefinition program, ProgramTranslationForm translationForm) {
     LocalizationUpdate updateData = translationForm.getUpdateData();
     String programDetailsLink =
         controllers.admin.routes.AdminProgramController.edit(program.id()).url();
@@ -111,7 +111,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setValue(updateData.localizedDisplayDescription())
                                 .getInputTag(),
                             program.localizedDescription()))));
-    if (statusTrackingEnabled.get()) {
+    if (featureFlags.isStatusTrackingEnabled(request)) {
       String programStatusesLink =
           controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
 

@@ -382,7 +382,9 @@ public final class ApplicantService {
     String tiDashLink =
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                    Optional.empty(), Optional.empty())
+                    /* nameQuery= */ Optional.empty(),
+                    /* dateQuery= */ Optional.empty(),
+                    /* page= */ Optional.of(1))
                 .url();
     String subject =
         String.format(
