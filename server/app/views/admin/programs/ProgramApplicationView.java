@@ -23,6 +23,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URLEncoder;
@@ -322,6 +323,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)),
                 div()
                     .withClasses(Styles.MT_4)
+                    // Add the new status to the form hidden.
+                    .with(
+                        input()
+                            .isHidden()
+                            .withType("text")
+                            .withName("newStatus")
+                            .withValue(status.statusText()))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
                             applicantNameWithApplicationId, application, status)),
@@ -350,8 +358,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
       StatusDefinitions.Status status) {
     Optional<String> maybeApplicantEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
+    // Send an affirmative sendEmail = false if it's not valid for the Application.
+    InputTag hiddenDisabledEmail = input().withType("checkbox").isHidden().withName("sendEmail");
     if (!status.localizedEmailBodyText().isPresent()) {
       return p().with(
+              hiddenDisabledEmail,
               span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
               span(
                   " will not receive an email because there is no email content set for this"
@@ -359,6 +370,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                       + " status."));
     } else if (maybeApplicantEmail.isEmpty()) {
       return p().with(
+              hiddenDisabledEmail,
               span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
               span(
                   " will not receive an email for this change since they have not provided an"
@@ -366,12 +378,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
     }
     return label()
         .with(
-            // Add the new status to the form hidden.
-            input()
-                .isHidden()
-                .withType("text")
-                .withName("newStatus")
-                .withValue(status.statusText()),
             input()
                 .withType("checkbox")
                 .isChecked()
