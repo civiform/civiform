@@ -228,16 +228,20 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             .getRadioTag(),
                         input()
                             .withName(FROM_DATE_PARAM)
-                            .withValue(filterParams.fromDate().orElse(""))
-                            .withType("hidden"),
+                            .isHidden()
+                            .withValue(filterParams.fromDate().orElse("")),
                         input()
                             .withName(UNTIL_DATE_PARAM)
-                            .withValue(filterParams.untilDate().orElse(""))
-                            .withType("hidden"),
+                            .isHidden()
+                            .withValue(filterParams.untilDate().orElse("")),
                         input()
                             .withName(SEARCH_PARAM)
-                            .withValue(filterParams.search().orElse(""))
-                            .withType("hidden"),
+                            .isHidden()
+                            .withValue(filterParams.search().orElse("")),
+                        input()
+                            .withName(APPLICATION_STATUS_PARAM)
+                            .isHidden()
+                            .withValue(filterParams.selectedApplicationStatus().orElse("")),
                         div()
                             .withClasses(Styles.FLEX, Styles.MT_6, Styles.SPACE_X_2)
                             .with(

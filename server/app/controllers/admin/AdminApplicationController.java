@@ -429,7 +429,6 @@ public final class AdminApplicationController extends CiviFormController {
             getAllApplicationStatusesForProgram(program),
             paginationSpec,
             applications,
-            // TODO(clouser): Use SubmittedApplicationFilter instead.
             RenderFilterParams.builder()
                 .setSearch(search)
                 .setFromDate(fromDate)
