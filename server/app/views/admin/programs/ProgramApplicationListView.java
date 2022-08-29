@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
@@ -63,16 +64,19 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
   private final DateConverter dateConverter;
+  private final FeatureFlags featureFlags;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
   public ProgramApplicationListView(
       AdminLayoutFactory layoutFactory,
       ApplicantUtils applicantUtils,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS).setOnlyProgramAdminType();
     this.applicantUtils = checkNotNull(applicantUtils);
     this.dateConverter = checkNotNull(dateConverter);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -83,6 +87,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       PaginationResult<Application> paginatedApplications,
       RenderFilterParams filterParams) {
 
+    boolean isStatusTrackingEnabled = featureFlags.isStatusTrackingEnabled(request);
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     DivTag applicationListDiv =
         div()
@@ -103,7 +108,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 br(),
                 renderSearchForm(
                     program, allApplicationStatuses, downloadModal.getButton(), filterParams),
-                each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
+                each(
+                    paginatedApplications.getPageContents(),
+                    item -> renderApplicationListItem(item, isStatusTrackingEnabled)))
             .withClasses(
                 Styles.MT_6,
                 StyleUtils.responsiveLarge(Styles.MT_12),
@@ -286,7 +293,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .build();
   }
 
-  private DivTag renderApplicationListItem(Application application) {
+  private DivTag renderApplicationListItem(
+      Application application, boolean isStatusTrackingEnabled) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -305,14 +313,15 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 application.getSubmitterEmail().isPresent(),
                 p(application.getSubmitterEmail().orElse(""))
                     .withClasses(Styles.TEXT_LG, Styles.TEXT_GRAY_800, Styles.MB_2))
-            .with(p(renderSubmitTime(application))
-                .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700, Styles.ITALIC))
+            .condWith(
+                isStatusTrackingEnabled,
+                p("Status: TODO(clouser)").withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700))
             .with(
                 div()
                     .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL)
                     .with(
-                        p("Status: TODO(clouser)")
-                            .withClasses(Styles.TEXT_GRAY_700),
+                        p(renderSubmitTime(application))
+                            .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                         div().withClasses(Styles.FLEX_GROW),
                         renderViewLink(viewLinkText, application)));
 
