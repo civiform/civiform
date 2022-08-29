@@ -7,7 +7,6 @@ import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
-import java.util.EnumSet;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
