@@ -30,15 +30,6 @@ public class ApplicantQuestionRendererFactoryTest {
           .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
           .build();
 
-  private static EnumSet<QuestionType> compositeTypes() {
-    return EnumSet.of(
-        QuestionType.ADDRESS,
-        QuestionType.CHECKBOX,
-        QuestionType.ENUMERATOR,
-        QuestionType.NAME,
-        QuestionType.RADIO_BUTTON);
-  }
-
   @Test
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
