@@ -11,6 +11,7 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -43,6 +44,7 @@ import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -76,11 +78,13 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderNewQuestionForm(
       Request request,
       QuestionType questionType,
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions)
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      String redirectUrl)
       throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
+    questionForm.setRedirectUrl(redirectUrl);
     return renderNewQuestionForm(
-        request, questionForm, enumeratorQuestionDefinitions, Optional.empty());
+        request, questionForm, enumeratorQuestionDefinitions, /* message= */ Optional.empty());
   }
 
   /** Render a New Question Form with a partially filled form and an error message. */
@@ -253,13 +257,26 @@ public final class QuestionEditView extends BaseHtmlView {
     SelectWithLabel enumeratorOptions =
         enumeratorOptionsFromEnumerationQuestionDefinitions(
             questionForm, enumeratorQuestionDefinitions);
+    String cancelUrl = questionForm.getRedirectUrl();
+    if (Strings.isNullOrEmpty(cancelUrl)) {
+      cancelUrl = controllers.admin.routes.AdminQuestionController.index().url();
+    }
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
                     questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Create").withClass(Styles.M_4));
+        .with(
+            div()
+                .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.MT_3)
+                .with(
+                    div().withClasses(Styles.FLEX_GROW),
+                    asRedirectButton(button("Cancel"), questionForm.getRedirectUrl())
+                        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
+                    submitButton("Create")
+                        .withClass(Styles.M_4)
+                        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)));
 
     return formTag;
   }
@@ -292,6 +309,10 @@ public final class QuestionEditView extends BaseHtmlView {
             .with(
                 // Hidden input indicating the type of question to be created.
                 input().isHidden().withName("questionType").withValue(questionType.name()),
+                input()
+                    .isHidden()
+                    .withName(QuestionForm.REDIRECT_URL_PARAM)
+                    .withValue(questionForm.getRedirectUrl()),
                 requiredFieldsExplanationContent());
 
     // The question name and enumerator fields should not be changed after the question is created.
