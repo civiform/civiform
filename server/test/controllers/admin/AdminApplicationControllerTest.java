@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.util.Providers;
 import controllers.admin.AdminApplicationControllerTest.ProfileUtilsNoOpTester.ProfileTester;
 import featureflags.FeatureFlags;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Locale;
@@ -26,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import models.Account;
 import models.Applicant;
 import models.Application;
+import models.ApplicationEvent;
 import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
@@ -43,6 +45,7 @@ import repository.ResetPostgres;
 import services.DateConverter;
 import services.LocalizedStrings;
 import services.applicant.ApplicantService;
+import services.application.ApplicationEventDetails;
 import services.applications.ProgramAdminApplicationService;
 import services.export.ExporterService;
 import services.export.JsonExporter;
@@ -180,6 +183,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus() throws Exception {
     // Setup
+    Instant start = Instant.now();
     Account adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program =
@@ -202,6 +206,14 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     // Evaluate
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+    assertThat(gotEvent.getDetails().statusEvent()).isPresent();
+    assertThat(gotEvent.getDetails().statusEvent().get().statusText()).isEqualTo(APPROVED_STATUS.statusText());
+    assertThat(gotEvent.getCreator()).isEqualTo(adminAccount);
+    assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
 
   @Test
