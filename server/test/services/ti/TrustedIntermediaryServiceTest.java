@@ -309,7 +309,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateApplicantDateOfBirth_throwsApplicantNotException() {
+  public void updateApplicantDateOfBirth_throwsApplicantNotFoundException() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
     Form<UpdateApplicantDobForm> form =
@@ -320,7 +320,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateApplicantDateOfBirth_throwsApplicantNotExceptionDueToIncorrectTIGroup() {
+  public void updateApplicantDateOfBirth_throwsApplicantNotFoundExceptionDueToIncorrectTIGroup() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
     Form<UpdateApplicantDobForm> form =
