@@ -7,7 +7,6 @@ import auth.oidc.OidcProfileAdapter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
-import java.util.List;
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
@@ -73,8 +72,7 @@ public class AdfsProfileAdapter extends OidcProfileAdapter {
       logger.error("Missing group claim in ADFS OIDC profile.");
       return false;
     }
-    ImmutableList<Object> groups =
-        ImmutableList.copyOf(profile.getAttribute(this.ad_groups_attribute_name, List.class));
+    ImmutableList<Object> groups = profile.getAttribute(this.ad_groups_attribute_name, ImmutableList.class);
     return groups.contains(this.adminGroupName);
   }
 
