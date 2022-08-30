@@ -52,9 +52,26 @@ public class ApplicationTest extends ResetPostgres {
 
     // Trigger an update in the application.
     application.setSubmitTimeToNow();
-    application.setLatestStatus("foobar");
+    application.setLatestStatus("some-status-value");
     application.save();
     application.refresh();
     assertThat(application.getLatestStatus()).isEqualTo(Optional.of(APPROVED_STATUS.statusText()));
+  }
+
+  @Test
+  public void latestStatusIsNotPersistedEvenWithNoApplicationEvents() {
+    Program program =
+        ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+
+    Application application =
+        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+    assertThat(application.getLatestStatus()).isEmpty();
+
+    application.setLatestStatus("some-status-value");
+    application.save();
+    application.refresh();
+    assertThat(application.getLatestStatus()).isEmpty();
   }
 }
