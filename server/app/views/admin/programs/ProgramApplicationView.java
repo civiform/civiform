@@ -60,6 +60,9 @@ import views.style.Styles;
 
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
+
+  public static final String SEND_EMAIL = "sendEmail";
+  public static final String NEW_STATUS = "newStatus";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
 
@@ -328,7 +331,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         input()
                             .isHidden()
                             .withType("text")
-                            .withName("newStatus")
+                            .withName(NEW_STATUS)
                             .withValue(status.statusText()))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
@@ -359,7 +362,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     Optional<String> maybeApplicantEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
     // Send an affirmative sendEmail = false if it's not valid for the Application.
-    InputTag hiddenDisabledEmail = input().withType("checkbox").isHidden().withName("sendEmail");
+    InputTag hiddenDisabledEmail = input().withType("checkbox").isHidden().withName(SEND_EMAIL);
     if (!status.localizedEmailBodyText().isPresent()) {
       return p().with(
               hiddenDisabledEmail,
@@ -381,7 +384,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             input()
                 .withType("checkbox")
                 .isChecked()
-                .withName("sendEmail")
+                .withName(SEND_EMAIL)
                 .withClasses(BaseStyles.CHECKBOX),
             span("Notify "),
             span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),

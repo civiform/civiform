@@ -1,6 +1,8 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.admin.programs.ProgramApplicationView.NEW_STATUS;
+import static views.admin.programs.ProgramApplicationView.SEND_EMAIL;
 
 import annotations.BindingAnnotations.Now;
 import auth.Authorizers;
@@ -344,9 +346,9 @@ public final class AdminApplicationController extends CiviFormController {
     Application application = applicationMaybe.get();
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
-    Optional<String> maybeNewStatus = Optional.ofNullable(formData.get("newStatus"));
-    Optional<String> maybeSendEmail = Optional.ofNullable(formData.get("sendEmail"));
-    // TODO(shanemc-goog): check that the previous status is the current previous status for
+    Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
+    Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
+    // TODO(#3263): check that the previous status is the current previous status for
     // consistency.
     if (maybeNewStatus.isEmpty()) {
       return badRequest("A selected status is not present");
@@ -367,8 +369,7 @@ public final class AdminApplicationController extends CiviFormController {
             .setStatusText(newStatus)
             .setEmailSent(Boolean.parseBoolean(maybeSendEmail.get()))
             .build(),
-        profileUtils.currentUserProfile(request).get().getAccount().join(),
-        ApplicationEventDetails.Type.STATUS_CHANGE);
+        profileUtils.currentUserProfile(request).get().getAccount().join());
     return redirect(routes.AdminApplicationController.show(programId, application.id).url())
         .flashing("success", "Application status updated");
   }

@@ -47,14 +47,15 @@ public final class ProgramAdminApplicationService {
     return Optional.of(application);
   }
 
-  public void setStatus(
-      Application application,
-      StatusEvent newStatus,
-      Account admin,
-      ApplicationEventDetails.Type type) {
+  public void setStatus(Application application, StatusEvent newStatus, Account admin) {
     ApplicationEventDetails details =
-        ApplicationEventDetails.builder().setEventType(type).setStatusEvent(newStatus).build();
-    ApplicationEvent event = new ApplicationEvent(application, admin, type, details);
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(newStatus)
+            .build();
+    ApplicationEvent event =
+        new ApplicationEvent(
+            application, admin, ApplicationEventDetails.Type.STATUS_CHANGE, details);
     eventRepository.insertSync(event);
   }
 }
