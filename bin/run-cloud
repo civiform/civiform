@@ -1,0 +1,4 @@
+export IMAGE_TAG=SNAPSHOT-dfb8f41-1661293487 
+export COMMAND=deploy
+export CONFIG=cloud/deploys/dev_aws/civiform_config.sh 
+docker compose -f cloud/docker-compose.yaml up
