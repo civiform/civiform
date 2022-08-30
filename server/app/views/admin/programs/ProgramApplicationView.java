@@ -59,6 +59,9 @@ import views.style.Styles;
 
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
+
+  public static final String SEND_EMAIL = "sendEmail";
+  public static final String NEW_STATUS = "newStatus";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
 
@@ -322,6 +325,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)),
                 div()
                     .withClasses(Styles.MT_4)
+                    // Add the new status to the form hidden.
+                    .with(
+                        input()
+                            .isHidden()
+                            .withType("text")
+                            .withName(NEW_STATUS)
+                            .withValue(status.statusText()))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
                             applicantNameWithApplicationId, application, status)),
@@ -369,7 +379,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             input()
                 .withType("checkbox")
                 .isChecked()
-                .withName("sendEmail")
+                .withName(SEND_EMAIL)
                 .withClasses(BaseStyles.CHECKBOX),
             span("Notify "),
             span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),

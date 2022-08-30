@@ -60,7 +60,7 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:question
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions             controllers.admin.AdminQuestionController.index(request: Request)
 # Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
-GET     /admin/questions/new         controllers.admin.AdminQuestionController.newOne(request: Request, type: String ?= "text")
+GET     /admin/questions/new         controllers.admin.AdminQuestionController.newOne(request: Request, type: String ?= "text", redirectUrl: String)
 GET     /admin/questions/:id/edit    controllers.admin.AdminQuestionController.edit(request: Request, id: Long)
 GET     /admin/questions/:id         controllers.admin.AdminQuestionController.show(id: Long)
 POST    /admin/questions/:id         controllers.admin.AdminQuestionController.update(request: Request, id: Long, type: String)

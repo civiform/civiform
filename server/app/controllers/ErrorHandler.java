@@ -1,5 +1,7 @@
 package controllers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -16,12 +18,14 @@ import play.Environment;
 import play.api.OptionalSourceMapper;
 import play.api.routing.Router;
 import play.http.DefaultHttpErrorHandler;
+import play.i18n.MessagesApi;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
 import services.apikey.ApiKeyNotFoundException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
+import views.errors.NotFound;
 
 /**
  * Override for the system default {@code HttpErrorHandler}.
@@ -33,6 +37,9 @@ import services.program.ProgramNotFoundException;
  */
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
+
+  private final NotFound notFoundPage;
+  private final MessagesApi messagesApi;
 
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
       ImmutableSet.of(
@@ -51,8 +58,12 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       Config config,
       Environment environment,
       OptionalSourceMapper sourceMapper,
-      Provider<Router> routes) {
+      Provider<Router> routes,
+      NotFound notFoundPage,
+      MessagesApi messagesApi) {
     super(config, environment, sourceMapper, routes);
+    this.notFoundPage = checkNotNull(notFoundPage);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   @Override
@@ -99,5 +110,11 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       root = Optional.ofNullable(root.get().getCause());
     }
     return Optional.empty();
+  }
+
+  @Override
+  public CompletionStage<Result> onNotFound(RequestHeader request, String message) {
+    return CompletableFuture.completedFuture(
+        Results.notFound(notFoundPage.render(request, messagesApi.preferred(request))));
   }
 }

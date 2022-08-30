@@ -3,10 +3,12 @@ package models;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
@@ -29,6 +31,9 @@ public class Application extends BaseModel {
   @ManyToOne private Applicant applicant;
 
   @ManyToOne private Program program;
+
+  @OneToMany(mappedBy = "application")
+  private List<ApplicationEvent> applicationEvents;
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
@@ -85,6 +90,10 @@ public class Application extends BaseModel {
         data.hasPreferredLocale() ? data.preferredLocale().toLanguageTag() : null;
     this.object = data.asJsonString();
     return this;
+  }
+
+  public List<ApplicationEvent> getApplicationEvents() {
+    return applicationEvents;
   }
 
   public LifecycleStage getLifecycleStage() {

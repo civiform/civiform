@@ -18,6 +18,8 @@ describe('Applicant navigation flow', () => {
 
   beforeAll(async () => {
     const {page} = await startSession()
+    // Clear db to prevent screenshot test failures.
+    await resetSession(page, /* clearDb= */ true)
     pageObject = page
   })
 
