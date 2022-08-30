@@ -349,7 +349,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                     TimeFilter.builder()
                         .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
                         .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
-                        .build()));
+                        .build())
+                .build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
     assertThat(
