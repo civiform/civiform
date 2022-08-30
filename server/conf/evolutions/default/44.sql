@@ -1,5 +1,7 @@
 # --- Add database triggers to set the latest_status column on creating an application_event or
 # --- updating an application.
+# --- For rationale behind choosing database triggers, see:
+# ---   https://github.com/civiform/civiform/issues/3269#issuecomment-1232193163
 # --- Relevant documentation:
 # --- Trigger functions: https://www.postgresql.org/docs/current/sql-createtrigger.html
 # --- Create trigger statement: https://www.postgresql.org/docs/current/sql-createtrigger.html
