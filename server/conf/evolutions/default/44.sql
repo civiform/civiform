@@ -8,7 +8,11 @@ CREATE OR REPLACE FUNCTION process_status_change() RETURNS TRIGGER AS $$
   BEGIN
     IF ((NEW.details->>'event_type') = 'STATUS_CHANGE') THEN
       UPDATE applications
-        SET latest_status = NEW.details->'status_event'->>'status_text'
+        SET latest_status = (
+          CASE WHEN NEW.details->'status_event'->>'status_text' = ''
+            THEN NULL
+            ELSE NEW.details->'status_event'->>'status_text'
+          END)
         WHERE id = NEW.application_id;;
     END IF;;
     RETURN NULL;; -- result is ignored since this is an AFTER

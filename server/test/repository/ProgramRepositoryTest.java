@@ -325,37 +325,30 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)))
             .build();
 
-    Applicant firstStatusApplicant =
-        resourceCreator.insertApplicantWithAccount(Optional.of("first@example.com"));
+    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+
     Application firstStatusApplication =
-        resourceCreator.insertActiveApplication(firstStatusApplicant, program);
-    createStatusEvents(firstStatusApplication, FIRST_STATUS);
+        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+    createStatusEvents(adminAccount, firstStatusApplication, FIRST_STATUS);
 
-    Applicant secondStatusApplicant =
-        resourceCreator.insertApplicantWithAccount(Optional.of("second@example.com"));
     Application secondStatusApplication =
-        resourceCreator.insertActiveApplication(secondStatusApplicant, program);
-    createStatusEvents(secondStatusApplication, SECOND_STATUS);
+        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+    createStatusEvents(adminAccount, secondStatusApplication, SECOND_STATUS);
 
-    Applicant thirdStatusApplicant =
-        resourceCreator.insertApplicantWithAccount(Optional.of("third@example.com"));
     Application thirdStatusApplication =
-        resourceCreator.insertActiveApplication(thirdStatusApplicant, program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
     // Create a few status events before-hand to ensure that the latest status is used.
-    createStatusEvents(thirdStatusApplication, FIRST_STATUS, SECOND_STATUS, THIRD_STATUS);
+    createStatusEvents(
+        adminAccount, thirdStatusApplication, FIRST_STATUS, SECOND_STATUS, THIRD_STATUS);
 
-    Applicant noStatusApplicant =
-        resourceCreator.insertApplicantWithAccount(Optional.of("fourth@example.com"));
     Application noStatusApplication =
-        resourceCreator.insertActiveApplication(noStatusApplicant, program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
 
-    Applicant backToNoStatusApplicant =
-        resourceCreator.insertApplicantWithAccount(Optional.of("backtonostatus@example.com"));
     Application backToNoStatusApplication =
-        resourceCreator.insertActiveApplication(backToNoStatusApplicant, program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
     // Application has transitioned through statuses and arrived back at an empty status (indicated
     // by null).
-    createStatusEvents(backToNoStatusApplication, SECOND_STATUS, null);
+    createStatusEvents(adminAccount, backToNoStatusApplication, SECOND_STATUS, null);
 
     // Unspecified status returns all results.
     assertThat(applicationIdsForProgramAndFilter(program, SubmittedApplicationFilter.EMPTY))
@@ -428,7 +421,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         .collect(ImmutableSet.toImmutableSet());
   }
 
-  private void createStatusEvents(Application application, StatusDefinitions.Status... statuses)
+  private void createStatusEvents(
+      Account actorAccount, Application application, StatusDefinitions.Status... statuses)
       throws InterruptedException {
     for (StatusDefinitions.Status status : statuses) {
       String statusText = status != null ? status.statusText() : "";
@@ -440,10 +434,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
               .build();
       ApplicationEvent event =
           new ApplicationEvent(
-              application,
-              application.getApplicant().getAccount(),
-              ApplicationEventDetails.Type.STATUS_CHANGE,
-              details);
+              application, actorAccount, ApplicationEventDetails.Type.STATUS_CHANGE, details);
       event.save();
 
       // When persisting models with @WhenModified fields, EBean

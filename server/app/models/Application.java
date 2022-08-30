@@ -39,6 +39,7 @@ public class Application extends BaseModel {
   private Instant submitTime;
   private String preferredLocale;
   private String submitterEmail;
+  private String latestStatus;
 
   public Application(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
@@ -97,6 +98,10 @@ public class Application extends BaseModel {
 
   public Instant getCreateTime() {
     return this.createTime;
+  }
+
+  public Optional<String> getLatestStatus() {
+    return Optional.ofNullable(this.latestStatus);
   }
 
   public Application setLifecycleStage(LifecycleStage stage) {
