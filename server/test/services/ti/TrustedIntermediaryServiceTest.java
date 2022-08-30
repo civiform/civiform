@@ -332,7 +332,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         .isInstanceOf(RuntimeException.class)
         .cause()
         .isInstanceOf(ApplicantNotFoundException.class)
-        .hasMessage("Applicant not found for ID 548");
+        .hasMessage("Applicant not found for ID " + account.id);
   }
 
   @Test
