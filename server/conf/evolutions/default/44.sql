@@ -26,7 +26,7 @@ CREATE OR REPLACE FUNCTION process_application_change() RETURNS TRIGGER AS $$
   END;;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION process_status_change() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION process_application_event_change() RETURNS TRIGGER AS $$
   BEGIN
     IF ((NEW.details->>'event_type') = 'STATUS_CHANGE') THEN
       UPDATE applications
@@ -37,13 +37,18 @@ CREATE OR REPLACE FUNCTION process_status_change() RETURNS TRIGGER AS $$
   END;;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER status_change
+CREATE TRIGGER application_event_change
 AFTER INSERT OR UPDATE ON application_events
-  FOR EACH ROW EXECUTE FUNCTION process_status_change();
+  FOR EACH ROW EXECUTE FUNCTION process_application_event_change();
 
 CREATE TRIGGER application_change BEFORE INSERT OR UPDATE ON applications
     FOR EACH ROW EXECUTE FUNCTION process_application_change();
 
 # --- !Downs
 
+DROP TRIGGER application_change ON applications;
+DROP TRIGGER application_event_change ON application_events;
+DROP FUNCTION IF EXISTS process_application_event_change;
+DROP FUNCTION IF EXISTS process_application_change;
+DROP FUNCTION IF EXISTS retrieve_latest_status;
 alter table applications drop column if exists latest_status;

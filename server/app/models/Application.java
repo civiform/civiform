@@ -120,7 +120,14 @@ public class Application extends BaseModel {
     return this;
   }
 
-  /** Returns the latest application status value associated with the applicaton. */
+  /**
+   * Returns the latest application status value associated with the application.
+   *
+   * <p>This value is updated by DB triggers defined in conf/evolutions/default/44.sql which set the
+   * status to the latest ApplicationEventDetails event for the application with a type of
+   * "status_change". Attempts to update the status manually will be overridden by the trigger (and
+   * has associated tests confirming this).
+   */
   public Optional<String> getLatestStatus() {
     return Optional.ofNullable(latestStatus);
   }
