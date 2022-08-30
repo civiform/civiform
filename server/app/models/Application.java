@@ -1,5 +1,6 @@
 package models;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
@@ -102,6 +103,15 @@ public class Application extends BaseModel {
 
   public Optional<String> getLatestStatus() {
     return Optional.ofNullable(this.latestStatus);
+  }
+
+  /**
+   * This is visible only for tests to manipulate the latest status directly in order to ensure that
+   * updates to it are overridden by the configured database trigger.
+   */
+  @VisibleForTesting
+  void setLatestStatus(String v) {
+    this.latestStatus = v;
   }
 
   public Application setLifecycleStage(LifecycleStage stage) {

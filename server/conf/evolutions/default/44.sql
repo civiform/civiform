@@ -23,6 +23,25 @@ CREATE TRIGGER status_change
 AFTER INSERT OR UPDATE ON application_events
   FOR EACH ROW EXECUTE FUNCTION process_status_change();
 
+CREATE OR REPLACE FUNCTION process_application_change() RETURNS TRIGGER AS $$
+  BEGIN
+    NEW.latest_status := (SELECT
+      (CASE WHEN details->'status_event'->>'status_text' = ''
+        THEN NULL
+        ELSE details->'status_event'->>'status_text'
+       END) AS latest_status
+      FROM application_events
+      WHERE
+        application_id = NEW.id AND
+        details->>'event_type' = 'STATUS_CHANGE');;
+
+    RETURN NEW;;
+  END;;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER application_change BEFORE INSERT OR UPDATE ON applications
+    FOR EACH ROW EXECUTE FUNCTION process_application_change();
+
 # --- !Downs
 
 alter table applications drop column if exists latest_status;
