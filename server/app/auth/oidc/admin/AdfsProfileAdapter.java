@@ -68,12 +68,14 @@ public class AdfsProfileAdapter extends OidcProfileAdapter {
   @SuppressWarnings("unchecked")
   // profile.getAttribute returns List<Object>. There's no way to make it type safe.
   private boolean isGlobalAdmin(OidcProfile profile) {
-    if (!profile.containsAttribute(this.ad_groups_attribute_name)) {
+    ImmutableList<Object> groups =
+        profile.containsAttribute(this.ad_groups_attribute_name)
+            ? profile.getAttribute(this.ad_groups_attribute_name, ImmutableList.class)
+            : null;
+    if (groups == null) {
       logger.error("Missing group claim in ADFS OIDC profile.");
       return false;
     }
-    ImmutableList<Object> groups =
-        profile.getAttribute(this.ad_groups_attribute_name, ImmutableList.class);
     return groups.contains(this.adminGroupName);
   }
 
