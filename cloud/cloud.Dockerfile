@@ -4,16 +4,19 @@
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:11.0.16_8-jdk-alpine as amd64
-FROM bellsoft/liberica-openjdk-alpine:11.0.16-8 as arm64
+FROM eclipse-temurin:11.0.16_8-jre-alpine as amd64
+FROM bellsoft/liberica-openjre-alpine:11.0.16-8 as arm64
+
+FROM ${TARGETARCH}
 
 COPY --from=hashicorp/terraform:1.2.8 /bin/terraform /usr/local/bin/
-COPY --from=amazon/aws-cli:2.7.27 /user/local /usr/local
+COPY --from=amazon/aws-cli:2.7.27 /usr/local /usr/local
 COPY --from=amazon/aws-cli:2.7.27 /aws /aws
-COPY --from=mcr.microsoft.com/azure-cli:2.39.0 /usr/local/bin/az /usr/local/bin
+# COPY --from=mcr.microsoft.com/azure-cli:2.39.0 /usr/local /usr/local
 
-RUN /bin/sh -c set -o pipefail && apk update && apk add --upgrade apk-tools && apk upgrade --available && apk add --no-cache --update bash 
+RUN /bin/sh -c set -o pipefail && apk update && \
+    apk add --upgrade apk-tools && apk upgrade --available && \
+    apk add --no-cache --update bash python3 git
 
-ENTRYPOINT ["/bin/bash"]
+COPY ./cloud/ cloud/
 
-COPY ./ cloud/
