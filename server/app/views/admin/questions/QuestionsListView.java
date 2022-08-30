@@ -2,7 +2,6 @@ package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.li;
@@ -21,9 +20,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
@@ -47,10 +45,11 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.CreateQuestionButton;
-import views.components.LinkElement;
+import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -141,11 +140,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 th("Referencing programs").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_12))
             .with(
                 th("Actions")
-                    .withClasses(
-                        BaseStyles.TABLE_CELL_STYLES,
-                        Styles.TEXT_RIGHT,
-                        Styles.PR_8,
-                        Styles.W_2_12)));
+                    .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PL_8, Styles.W_2_12)));
   }
 
   /**
@@ -324,13 +319,14 @@ public final class QuestionsListView extends BaseHtmlView {
                                 }))));
   }
 
-  private ATag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
+  private ButtonTag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
-    return new LinkElement().setHref(link).setText(linkText).setStyles(Styles.MR_2).asAnchorText();
+    return asRedirectButton(
+        makeSvgTextButton(linkText, Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+        link);
   }
 
-  private Optional<ATag> renderQuestionTranslationLink(
-      QuestionDefinition definition, String linkText) {
+  private Optional<ButtonTag> renderQuestionTranslationLink(QuestionDefinition definition) {
     if (translationLocales.translatableLocales().isEmpty()) {
       return Optional.empty();
     }
@@ -338,13 +334,21 @@ public final class QuestionsListView extends BaseHtmlView {
         controllers.admin.routes.AdminQuestionTranslationsController.redirectToFirstLocale(
                 definition.getId())
             .url();
-    return Optional.of(
-        new LinkElement().setHref(link).setText(linkText).setStyles(Styles.MR_2).asAnchorText());
+
+    ButtonTag button =
+        asRedirectButton(
+            makeSvgTextButton("Manage Translations", Icons.TRANSLATE)
+                .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+            link);
+    return Optional.of(button);
   }
 
-  private ATag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
+  private ButtonTag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
-    return new LinkElement().setHref(link).setText(linkText).setStyles(Styles.MR_2).asAnchorText();
+    return asRedirectButton(
+        makeSvgTextButton(linkText, Icons.VISIBILITY)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+        link);
   }
 
   private Pair<TdTag, Optional<Modal>> renderActionsCell(
@@ -352,30 +356,28 @@ public final class QuestionsListView extends BaseHtmlView {
       Optional<QuestionDefinition> draft,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
-    TdTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
+    TdTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES);
     if (active.isPresent()) {
       if (draft.isEmpty()) {
         // Active without a draft.
-        td.with(renderQuestionViewLink(active.get(), "View →")).with(br());
-        td.with(renderQuestionEditLink(active.get(), "New Version →")).with(br());
+        td.with(renderQuestionViewLink(active.get(), "View"));
+        td.with(renderQuestionEditLink(active.get(), "New Version"));
       } else if (draft.isPresent()) {
         // Active with a draft.
-        td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
-        td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-        Optional<ATag> maybeTranslationLink =
-            renderQuestionTranslationLink(draft.get(), "Manage Translations →");
+        td.with(renderQuestionViewLink(active.get(), "View Published"));
+        td.with(renderQuestionEditLink(draft.get(), "Edit Draft"));
+        Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(draft.get());
         if (maybeTranslationLink.isPresent()) {
-          td.with(maybeTranslationLink.get(), br());
+          td.with(maybeTranslationLink.get());
         }
-        td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request)).with(br());
+        td.with(renderDiscardDraftLink(draft.get(), request));
       }
     } else if (draft.isPresent()) {
       // First revision of a question.
-      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-      Optional<ATag> maybeTranslationLink =
-          renderQuestionTranslationLink(draft.get(), "Manage Translations →");
+      td.with(renderQuestionEditLink(draft.get(), "Edit Draft"));
+      Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(draft.get());
       if (maybeTranslationLink.isPresent()) {
-        td.with(maybeTranslationLink.get(), br());
+        td.with(maybeTranslationLink.get());
       }
     }
     // Add Archive options.
@@ -384,19 +386,18 @@ public final class QuestionsListView extends BaseHtmlView {
         renderArchiveOptions(questionForArchive, activeAndDraftQuestions, request);
     DomContent archiveOptions = archiveOptionsAndModal.getLeft();
     Optional<Modal> maybeArchiveModal = archiveOptionsAndModal.getRight();
-    td.with(archiveOptions, br());
+    td.with(archiveOptions);
     return Pair.of(td, maybeArchiveModal);
   }
 
-  private FormTag renderDiscardDraftLink(
-      QuestionDefinition definition, String linkText, Http.Request request) {
+  private ButtonTag renderDiscardDraftLink(QuestionDefinition definition, Http.Request request) {
     String link =
         controllers.admin.routes.AdminQuestionController.discardDraft(definition.getId()).url();
-    return new LinkElement()
-        .setHref(link)
-        .setText(linkText)
-        .setStyles(Styles.MR_2)
-        .asHiddenFormLink(request);
+    return toLinkButtonForPost(
+        makeSvgTextButton("Discard Draft", Icons.DELETE)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+        link,
+        request);
   }
 
   private Pair<DomContent, Optional<Modal>> renderArchiveOptions(
@@ -407,23 +408,24 @@ public final class QuestionsListView extends BaseHtmlView {
       case PENDING_DELETION:
         String restoreLink =
             controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
-        return Pair.of(
-            new LinkElement()
-                .setHref(restoreLink)
-                .setText("Restore Archived →")
-                .setStyles(Styles.MR_2)
-                .asHiddenFormLink(request),
-            Optional.empty());
+        ButtonTag unarchiveButton =
+            toLinkButtonForPost(
+                makeSvgTextButton("Restore Archived", Icons.UNARCHIVE)
+                    .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+                restoreLink,
+                request);
+        return Pair.of(unarchiveButton, Optional.empty());
       case DELETABLE:
         String archiveLink =
             controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
-        return Pair.of(
-            new LinkElement()
-                .setHref(archiveLink)
-                .setText("Archive →")
-                .setStyles(Styles.MR_2)
-                .asHiddenFormLink(request),
-            Optional.empty());
+
+        ButtonTag archiveButton =
+            toLinkButtonForPost(
+                makeSvgTextButton("Archive", Icons.ARCHIVE)
+                    .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+                archiveLink,
+                request);
+        return Pair.of(archiveButton, Optional.empty());
       default:
         DivTag modalHeader =
             div()
@@ -445,12 +447,12 @@ public final class QuestionsListView extends BaseHtmlView {
                 activeAndDraftQuestions.getReferencingPrograms(definition.getName()),
                 Optional.of(modalHeader));
 
-        return Pair.of(
-            a("Archive →")
-                .withId(maybeModal.get().getTriggerButtonId())
-                .withClasses(
-                    BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, Styles.CURSOR_POINTER),
-            maybeModal);
+        ButtonTag cantArchiveButton =
+            makeSvgTextButton("Archive", Icons.ARCHIVE)
+                .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES)
+                .withId(maybeModal.get().getTriggerButtonId());
+
+        return Pair.of(cantArchiveButton, maybeModal);
     }
   }
 }
