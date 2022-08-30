@@ -129,9 +129,8 @@ describe('view program statuses', () => {
           noEmailStatusName,
         )
         await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+        expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
         await adminPrograms.expectUpdateStatusToast()
-        // TODO(#3020): Assert that the selected status has been updated.
       })
 
       it('when no email is configured for the status, a warning is shown', async () => {
