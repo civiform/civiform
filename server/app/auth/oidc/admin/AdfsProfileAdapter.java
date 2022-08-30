@@ -72,7 +72,8 @@ public class AdfsProfileAdapter extends OidcProfileAdapter {
       logger.error("Missing group claim in ADFS OIDC profile.");
       return false;
     }
-    ImmutableList<Object> groups = profile.getAttribute(this.ad_groups_attribute_name, ImmutableList.class);
+    ImmutableList<Object> groups =
+        profile.getAttribute(this.ad_groups_attribute_name, ImmutableList.class);
     return groups.contains(this.adminGroupName);
   }
 
