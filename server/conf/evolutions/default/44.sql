@@ -33,7 +33,9 @@ CREATE OR REPLACE FUNCTION process_application_change() RETURNS TRIGGER AS $$
       FROM application_events
       WHERE
         application_id = NEW.id AND
-        details->>'event_type' = 'STATUS_CHANGE');;
+        details->>'event_type' = 'STATUS_CHANGE'
+      ORDER BY create_time DESC
+      LIMIT 1);;
 
     RETURN NEW;;
   END;;
