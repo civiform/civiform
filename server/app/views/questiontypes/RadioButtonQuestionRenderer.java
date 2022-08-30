@@ -26,7 +26,7 @@ import views.style.Styles;
 public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public RadioButtonQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.COMPOSITE);
   }
 
   @Override

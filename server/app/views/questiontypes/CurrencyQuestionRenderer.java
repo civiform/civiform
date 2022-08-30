@@ -16,7 +16,7 @@ import views.style.Styles;
 public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public CurrencyQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.SINGLE);
   }
 
   @Override

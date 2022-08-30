@@ -18,6 +18,7 @@ export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
 export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {ApplicantQuestions} from './applicant_questions'
+export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
@@ -133,6 +134,11 @@ export const loginAsTrustedIntermediary = async (page: Page) => {
 export const loginAsGuest = async (page: Page) => {
   await page.click('#guest')
   await waitForPageJsLoad(page)
+}
+
+export const setLangEsUS = async (page: Page) => {
+  await page.click('text=Español')
+  await page.click('text=Submit')
 }
 
 export const loginAsTestUser = async (page: Page) => {

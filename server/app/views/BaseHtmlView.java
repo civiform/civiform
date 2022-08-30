@@ -12,12 +12,14 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
+import j2html.tags.Tag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.PTag;
+import j2html.tags.specialized.SpanTag;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -82,6 +84,14 @@ public abstract class BaseHtmlView {
                 // Can't set 18px using Tailwind CSS classes.
                 .withStyle("width: 18px; height: 18px;"),
             span(buttonText).withClass(Styles.TEXT_LEFT));
+  }
+
+  protected static SpanTag spanNowrap(String tag) {
+    return span(tag).withClasses(Styles.WHITESPACE_NOWRAP);
+  }
+
+  protected static SpanTag spanNowrap(Tag... tags) {
+    return span().with(tags).withClasses(Styles.WHITESPACE_NOWRAP);
   }
 
   /**
