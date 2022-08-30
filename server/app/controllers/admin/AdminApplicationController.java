@@ -357,7 +357,7 @@ public final class AdminApplicationController extends CiviFormController {
     if (!application.getProgram().getStatusDefinitions().getStatuses().stream()
         .map(Status::statusText)
         .anyMatch(newStatus::equals)) {
-      return badRequest("New status {} is not valid for program", newStatus);
+      return badRequest(String.format("New status (%s) is not valid for program", newStatus));
     }
     final boolean sendEmail;
     if (maybeSendEmail.isEmpty()) {
@@ -365,7 +365,7 @@ public final class AdminApplicationController extends CiviFormController {
     } else if (maybeSendEmail.get().equalsIgnoreCase("on")) {
       sendEmail = true;
     } else {
-      return badRequest("Sending email value is invalid {}", maybeSendEmail.get());
+      return badRequest(String.format("%s value is invalid: %s", SEND_EMAIL, maybeSendEmail.get()));
     }
 
     programAdminApplicationService.setStatus(

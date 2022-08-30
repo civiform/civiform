@@ -18,9 +18,23 @@ import play.mvc.Result;
  */
 public final class FeatureFlagOverrideController extends DevController {
 
+  private final FeatureFlags featureFlags;
+
   @Inject
-  public FeatureFlagOverrideController(Environment environment, Config configuration) {
+  public FeatureFlagOverrideController(
+      Environment environment, Config configuration, FeatureFlags featureFlags) {
     super(environment, configuration);
+    this.featureFlags = featureFlags;
+  }
+
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result index(Request request) {
+    return ok(
+        String.format(
+            "Overrides are allowed if all are true:\n"
+                + "Server environment: %s\n"
+                + "Configuration: %s",
+            isDevOrStagingEnvironment(), featureFlags.areOverridesEnabled()));
   }
 
   @Secure(authorizers = Labels.ANY_ADMIN)
