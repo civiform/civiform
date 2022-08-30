@@ -11,7 +11,7 @@ import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.UpdateApplicantDob;
+import forms.UpdateApplicantDobForm;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -116,26 +116,28 @@ public class TrustedIntermediaryController {
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
-
-    Form<UpdateApplicantDob> form =
-        formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);
-    Form<UpdateApplicantDob> returnedForm = null;
-
+    final Form<UpdateApplicantDobForm> form;
     try {
-      returnedForm = tiService.updateApplicantDateOfBirth(accountId, form);
+      form =
+          tiService.updateApplicantDateOfBirth(
+              trustedIntermediaryGroup.get(),
+              accountId,
+              formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(request));
     } catch (ApplicantNotFoundException e) {
-      throw new BadRequestException(e.getMessage());
+      return notFound(e.getMessage());
     }
 
-    if (!returnedForm.hasErrors()) {
+    if (!form.hasErrors()) {
       return redirect(
-          routes.TrustedIntermediaryController.dashboard(
-              /* nameQuery= */ Optional.empty(),
-              /* dateQuery= */ Optional.empty(),
-              /* page= */ Optional.empty()));
+              routes.TrustedIntermediaryController.dashboard(
+                      /* nameQuery= */ Optional.empty(),
+                      /* dateQuery= */ Optional.empty(),
+                      /* page= */ Optional.empty())
+                  .url())
+          .flashing("success", "Date of Birth is updated");
     }
 
-    return redirectToDashboardWithUpdateDateOfBirthError(getValidationErros(returnedForm.errors()));
+    return redirectToDashboardWithUpdateDateOfBirthError(getValidationErros(form.errors()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -153,17 +155,19 @@ public class TrustedIntermediaryController {
       return unauthorized();
     }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory.form(AddApplicantToTrustedIntermediaryGroupForm.class).bindFromRequest(request);
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
-        tiService.addNewClient(form, trustedIntermediaryGroup.get());
-    if (!returnedForm.hasErrors()) {
+        tiService.addNewClient(
+            formFactory
+                .form(AddApplicantToTrustedIntermediaryGroupForm.class)
+                .bindFromRequest(request),
+            trustedIntermediaryGroup.get());
+    if (!form.hasErrors()) {
       return redirect(
           routes.TrustedIntermediaryController.dashboard(
               /* nameQuery= */ Optional.empty(),
               /* dateQuery= */ Optional.empty(),
               /* page= */ Optional.empty()));
     }
-    return redirectToDashboardWithError(getValidationErros(returnedForm.errors()), returnedForm);
+    return redirectToDashboardWithError(getValidationErros(form.errors()), form);
   }
 
   private String getValidationErros(List<ValidationError> errors) {

@@ -86,15 +86,13 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
             .addMainStyles(Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO);
 
-    if (request.flash().get("error").isPresent()) {
+    Http.Flash flash = request.flash();
+    if (flash.get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
           .info(request.flash().get("error").get());
-      String error = request.flash().get("error").get();
-      bundle.addToastMessages(
-          ToastMessage.error(error)
-              .setId("warning-message-ti-add-fill")
-              .setIgnorable(false)
-              .setDuration(0));
+      bundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
+    } else if (flash.get("success").isPresent()) {
+      bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
     return layout.renderWithNav(request, userName, messages, bundle);
   }

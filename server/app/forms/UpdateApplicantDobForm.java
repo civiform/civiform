@@ -1,6 +1,6 @@
 package forms;
 
-public final class UpdateApplicantDob {
+public final class UpdateApplicantDobForm {
   private String dob;
 
   public String getDob() {

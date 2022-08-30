@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.UpdateApplicantDob;
+import forms.UpdateApplicantDobForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
@@ -177,6 +177,8 @@ public final class TrustedIntermediaryService {
    * This function updates the Applicant's date of birth by calling the UpdateApplicant() on the
    * User Repository.
    *
+   * @param trustedIntermediaryGroup - the TIGroup who manages the account whose Dob needs to be
+   *     updated.
    * @param accountId - the account Id of the applicant whose Dob should be updated
    * @param form - this contains the dob field which would be parsed into local date and updated for
    *     the applicant
@@ -185,15 +187,21 @@ public final class TrustedIntermediaryService {
    * @throws ApplicantNotFoundException - if the account is not found for the given AccountId, this
    *     exception is raised.
    */
-  public Form<UpdateApplicantDob> updateApplicantDateOfBirth(
-      Long accountId, Form<UpdateApplicantDob> form) throws ApplicantNotFoundException {
+  public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
+      TrustedIntermediaryGroup trustedIntermediaryGroup,
+      Long accountId,
+      Form<UpdateApplicantDobForm> form)
+      throws ApplicantNotFoundException {
 
     form = validateDateOfBirthForUpdateDob(form);
 
     if (form.hasErrors()) {
       return form;
     }
-    Optional<Account> optionalAccount = userRepository.lookupAccount(accountId);
+    Optional<Account> optionalAccount =
+        trustedIntermediaryGroup.getManagedAccounts().stream()
+            .filter(account -> account.id.equals(accountId))
+            .findAny();
 
     if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
       throw new ApplicantNotFoundException(accountId);
@@ -204,7 +212,8 @@ public final class TrustedIntermediaryService {
     return form;
   }
 
-  private Form<UpdateApplicantDob> validateDateOfBirthForUpdateDob(Form<UpdateApplicantDob> form) {
+  private Form<UpdateApplicantDobForm> validateDateOfBirthForUpdateDob(
+      Form<UpdateApplicantDobForm> form) {
     Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
     if (errorMessage.isPresent()) {
       return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());

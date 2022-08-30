@@ -39,7 +39,14 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
     await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
-    await tiDashboard.expectClientDateOfBirthUpdated(client, '2021-12-12')
+    const updatedClient: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-12-12',
+    }
+    await tiDashboard.expectDashboardContainClient(updatedClient)
   })
 
   it('expect Dashboard Contain New Client', async () => {

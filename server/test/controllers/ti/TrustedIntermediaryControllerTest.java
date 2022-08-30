@@ -5,6 +5,7 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.SEE_OTHER;
 
 import auth.ProfileFactory;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
@@ -23,6 +24,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   private UserRepository repo;
   private TrustedIntermediaryController tiController;
   private ProfileFactory profileFactory;
+  private ProfileUtils profileUtils;
 
   @Before
   public void setup() {
@@ -32,6 +34,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     createTIWithMockedProfile(managedApplicant);
     repo = instanceOf(UserRepository.class);
     profileFactory.createFakeTrustedIntermediary();
+    profileUtils = instanceOf(ProfileUtils.class);
   }
 
   @Test
@@ -51,8 +54,10 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                         "sample1@fake.com",
                         "dob",
                         "")));
-    TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
-    Result result = tiController.addApplicant(group.id + 2, requestBuilder.build());
+    Http.Request request = requestBuilder.build();
+    TrustedIntermediaryGroup trustedIntermediaryGroup =
+        repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request).get()).get();
+    Result result = tiController.addApplicant(trustedIntermediaryGroup.id, request);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().get("error").get().trim()).isEqualTo("Date of Birth required");
   }
@@ -86,20 +91,24 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   @Test
   public void testUpdateDOBFunctionWithExistingDob() {
 
-    TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);
     AddApplicantToTrustedIntermediaryGroupForm form =
         new AddApplicantToTrustedIntermediaryGroupForm();
     form.setEmailAddress("sample3@example.com");
     form.setFirstName("foo");
     form.setLastName("bar");
     form.setDob("2022-07-10");
-    repo.createNewApplicantForTrustedIntermediaryGroup(form, group);
-    Optional<Account> account = repo.lookupAccountByEmail("sample3@example.com");
+
     Http.RequestBuilder requestBuilder =
         addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-05-05")));
-    Result result = tiController.updateDateOfBirth(account.get().id, requestBuilder.build());
+    Http.Request request = requestBuilder.build();
+    TrustedIntermediaryGroup trustedIntermediaryGroup =
+        repo.getTrustedIntermediaryGroup(profileUtils.currentUserProfile(request).get()).get();
+    repo.createNewApplicantForTrustedIntermediaryGroup(form, trustedIntermediaryGroup);
+    Optional<Account> account = repo.lookupAccountByEmail("sample3@example.com");
+    Result result = tiController.updateDateOfBirth(account.get().id, request);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Optional<Applicant> applicant = repo.lookupAccount(account.get().id).get().newestApplicant();
+    Optional<Applicant> applicant =
+        repo.lookupAccountByEmail("sample3@example.com").get().newestApplicant();
     assertThat(applicant.get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-05-05");
   }

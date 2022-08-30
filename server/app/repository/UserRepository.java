@@ -250,7 +250,7 @@ public class UserRepository {
     }
   }
 
-  public Optional<Account> lookupAccount(long accountId) {
+  private Optional<Account> lookupAccount(long accountId) {
     return database.find(Account.class).setId(accountId).findOneOrEmpty();
   }
 

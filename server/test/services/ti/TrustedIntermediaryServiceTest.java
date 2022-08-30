@@ -9,7 +9,7 @@ import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.UpdateApplicantDob;
+import forms.UpdateApplicantDobForm;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
@@ -32,6 +32,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   private FormFactory formFactory;
   private ProfileFactory profileFactory;
   private TrustedIntermediaryGroup tiGroup;
+  private TrustedIntermediaryGroup tiGroup2;
 
   @Before
   public void setup() {
@@ -41,9 +42,12 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     profileFactory = instanceOf(ProfileFactory.class);
     Applicant managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
+    Applicant managedApplicant2 = createApplicant();
+    createTIWithMockedProfile(managedApplicant2);
     repo = instanceOf(UserRepository.class);
     profileFactory.createFakeTrustedIntermediary();
     tiGroup = repo.listTrustedIntermediaryGroups().get(0);
+    tiGroup2 = repo.listTrustedIntermediaryGroups().get(1);
   }
 
   @Test
@@ -305,23 +309,37 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateApplicantDateOfBirth_throwsApplicantNotFoundException() {
+  public void updateApplicantDateOfBirth_throwsApplicantNotException() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
-    Form<UpdateApplicantDob> form =
-        formFactory.form(UpdateApplicantDob.class).bindFromRequest(requestBuilder.build());
+    Form<UpdateApplicantDobForm> form =
+        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
     assertThrows(
-        ApplicantNotFoundException.class, () -> service.updateApplicantDateOfBirth((long) 0, form));
+        ApplicantNotFoundException.class,
+        () -> service.updateApplicantDateOfBirth(tiGroup, (long) 0, form));
+  }
+
+  @Test
+  public void updateApplicantDateOfBirth_throwsApplicantNotExceptionDueToIncorrectTIGroup() {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
+    Form<UpdateApplicantDobForm> form =
+        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+    Account account = tiGroup.getManagedAccounts().stream().findAny().get();
+    assertThrows(
+        ApplicantNotFoundException.class,
+        () -> service.updateApplicantDateOfBirth(tiGroup2, account.id, form));
   }
 
   @Test
   public void updateApplicantDateOfBirth_unformattedDate() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-20-20")));
-    Form<UpdateApplicantDob> form =
-        formFactory.form(UpdateApplicantDob.class).bindFromRequest(requestBuilder.build());
+    Form<UpdateApplicantDobForm> form =
+        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
     Account account = repo.lookupAccountByEmail("email30").get();
-    Form<UpdateApplicantDob> returnedForm = service.updateApplicantDateOfBirth(account.id, form);
+    Form<UpdateApplicantDobForm> returnedForm =
+        service.updateApplicantDateOfBirth(tiGroup, account.id, form);
     assertThat(returnedForm.hasErrors()).isTrue();
     assertThat(returnedForm.error("dob").get().message())
         .isEqualTo("Date of Birth must be in MM/dd/yyyy format");
@@ -331,10 +349,11 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void updateApplicantDateOfBirth_ApplicantDobUpdated() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
-    Form<UpdateApplicantDob> form =
-        formFactory.form(UpdateApplicantDob.class).bindFromRequest(requestBuilder.build());
+    Form<UpdateApplicantDobForm> form =
+        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
     Account account = repo.lookupAccountByEmail("email30").get();
-    Form<UpdateApplicantDob> returnedForm = service.updateApplicantDateOfBirth(account.id, form);
+    Form<UpdateApplicantDobForm> returnedForm =
+        service.updateApplicantDateOfBirth(tiGroup, account.id, form);
     assertThat(returnedForm.hasErrors()).isFalse();
     assertThat(account.newestApplicant().get().getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2021-09-09");

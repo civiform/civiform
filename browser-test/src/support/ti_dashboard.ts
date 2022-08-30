@@ -27,23 +27,9 @@ export class TIDashboard {
     await this.page.click('text="Add"')
   }
 
-  async expectClientDateOfBirthUpdated(
-    client: ClientInformation,
-    newDob: string,
-  ) {
-    expect(
-      `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
-        newDob,
-      )}")`,
-    )
-    expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`)
-    expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`)
-    expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
-  }
-
   async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
     await this.page.locator('id=date-of-birth-update').fill(newDobDate)
-    await this.page.click('text ="Update DOB"')
+    await this.page.click('text="Update DOB"')
   }
 
   async expectDashboardContainClient(client: ClientInformation) {
