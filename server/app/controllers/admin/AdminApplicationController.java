@@ -353,21 +353,26 @@ public final class AdminApplicationController extends CiviFormController {
     if (maybeNewStatus.isEmpty()) {
       return badRequest("A selected status is not present");
     }
-    if (maybeSendEmail.isEmpty()) {
-      return badRequest("Sending email selection is not present");
-    }
     String newStatus = maybeNewStatus.get();
     if (!application.getProgram().getStatusDefinitions().getStatuses().stream()
         .map(Status::statusText)
         .anyMatch(newStatus::equals)) {
-      return badRequest("New status {} is invalid", newStatus);
+      return badRequest("New status {} is not valid for program", newStatus);
+    }
+    final boolean sendEmail;
+    if (maybeSendEmail.isEmpty()) {
+      sendEmail = false;
+    } else if (maybeSendEmail.get().equalsIgnoreCase("on")) {
+      sendEmail = true;
+    } else {
+      return badRequest("Sending email value is invalid {}", maybeSendEmail.get());
     }
 
     programAdminApplicationService.setStatus(
         application,
         ApplicationEventDetails.StatusEvent.builder()
             .setStatusText(newStatus)
-            .setEmailSent(Boolean.parseBoolean(maybeSendEmail.get()))
+            .setEmailSent(sendEmail)
             .build(),
         profileUtils.currentUserProfile(request).get().getAccount().join());
     return redirect(routes.AdminApplicationController.show(programId, application.id).url())

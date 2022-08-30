@@ -195,9 +195,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest()
-                    .bodyForm(
-                        Map.of("newStatus", APPROVED_STATUS.statusText(), "sendEmail", "false")))
+                Helpers.fakeRequest().bodyForm(Map.of("newStatus", APPROVED_STATUS.statusText())))
             .build();
 
     // Execute
