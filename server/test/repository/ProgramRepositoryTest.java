@@ -8,11 +8,13 @@ import io.ebean.DB;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Account;
 import models.Applicant;
 import models.Application;
+import models.ApplicationEvent;
 import models.DisplayMode;
 import models.Program;
 import org.junit.Before;
@@ -25,8 +27,12 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
+import services.application.ApplicationEventDetails;
+import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramNotFoundException;
+import services.program.StatusDefinitions;
 import support.CfTestHelpers;
+import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
@@ -291,6 +297,162 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 .collect(ImmutableSet.toImmutableSet()))
         .isEqualTo(wantEmails);
     assertThat(paginationResult.getNumPages()).isEqualTo(wantEmails.isEmpty() ? 0 : 1);
+  }
+
+  private static final StatusDefinitions.Status FIRST_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("First status")
+          .setLocalizedStatusText(LocalizedStrings.withDefaultValue("First status"))
+          .build();
+
+  private static final StatusDefinitions.Status SECOND_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Second status")
+          .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Second status"))
+          .build();
+
+  private static final StatusDefinitions.Status THIRD_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Third status")
+          .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Third status"))
+          .build();
+
+  @Test
+  public void getApplicationsForAllProgramVersions_filterByStatus() throws Exception {
+    Program program =
+        ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(
+                new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)))
+            .build();
+
+    Applicant firstStatusApplicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("first@example.com"));
+    Application firstStatusApplication =
+        resourceCreator.insertActiveApplication(firstStatusApplicant, program);
+    createStatusEvents(firstStatusApplication, FIRST_STATUS);
+
+    Applicant secondStatusApplicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("second@example.com"));
+    Application secondStatusApplication =
+        resourceCreator.insertActiveApplication(secondStatusApplicant, program);
+    createStatusEvents(secondStatusApplication, SECOND_STATUS);
+
+    Applicant thirdStatusApplicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("third@example.com"));
+    Application thirdStatusApplication =
+        resourceCreator.insertActiveApplication(thirdStatusApplicant, program);
+    // Create a few status events before-hand to ensure that the latest status is used.
+    createStatusEvents(thirdStatusApplication, FIRST_STATUS, SECOND_STATUS, THIRD_STATUS);
+
+    Applicant noStatusApplicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("fourth@example.com"));
+    Application noStatusApplication =
+        resourceCreator.insertActiveApplication(noStatusApplicant, program);
+
+    Applicant backToNoStatusApplicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("backtonostatus@example.com"));
+    Application backToNoStatusApplication =
+        resourceCreator.insertActiveApplication(backToNoStatusApplicant, program);
+    // Application has transitioned through statuses and arrived back at an empty status (indicated
+    // by null).
+    createStatusEvents(backToNoStatusApplication, SECOND_STATUS, null);
+
+    // Unspecified status returns all results.
+    assertThat(applicationIdsForProgramAndFilter(program, SubmittedApplicationFilter.EMPTY))
+        .isEqualTo(
+            ImmutableSet.of(
+                firstStatusApplication.id,
+                secondStatusApplication.id,
+                thirdStatusApplication.id,
+                noStatusApplication.id,
+                backToNoStatusApplication.id));
+
+    // Empty status returns all results.
+    assertThat(
+            applicationIdsForProgramAndFilter(
+                program,
+                SubmittedApplicationFilter.builder()
+                    .setApplicationStatus(Optional.of(""))
+                    .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .build()))
+        .isEqualTo(
+            ImmutableSet.of(
+                firstStatusApplication.id,
+                secondStatusApplication.id,
+                thirdStatusApplication.id,
+                noStatusApplication.id,
+                backToNoStatusApplication.id));
+
+    // Specific status returns only statuses with that result.
+    assertThat(
+            applicationIdsForProgramAndFilter(
+                program,
+                SubmittedApplicationFilter.builder()
+                    .setApplicationStatus(Optional.of(SECOND_STATUS.statusText()))
+                    .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .build()))
+        .isEqualTo(ImmutableSet.of(secondStatusApplication.id));
+
+    // Specifies only with no status set.
+    assertThat(
+            applicationIdsForProgramAndFilter(
+                program,
+                SubmittedApplicationFilter.builder()
+                    .setApplicationStatus(
+                        Optional.of(SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID))
+                    .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .build()))
+        .isEqualTo(ImmutableSet.of(noStatusApplication.id, backToNoStatusApplication.id));
+
+    // Unrecognized status option.
+    assertThat(
+            applicationIdsForProgramAndFilter(
+                program,
+                SubmittedApplicationFilter.builder()
+                    .setApplicationStatus(Optional.of("some-random-status"))
+                    .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .build()))
+        .isEqualTo(ImmutableSet.of());
+  }
+
+  private ImmutableSet<Long> applicationIdsForProgramAndFilter(
+      Program program, SubmittedApplicationFilter filter) {
+    PaginationResult<Application> result =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            filter);
+    assertThat(result.hasMorePages()).isEqualTo(false);
+    return result.getPageContents().stream()
+        .map(app -> app.id)
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  private void createStatusEvents(Application application, StatusDefinitions.Status... statuses)
+      throws InterruptedException {
+    for (StatusDefinitions.Status status : statuses) {
+      String statusText = status != null ? status.statusText() : "";
+      ApplicationEventDetails details =
+          ApplicationEventDetails.builder()
+              .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+              .setStatusEvent(
+                  StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build())
+              .build();
+      ApplicationEvent event =
+          new ApplicationEvent(
+              application,
+              application.getApplicant().getAccount(),
+              ApplicationEventDetails.Type.STATUS_CHANGE,
+              details);
+      event.save();
+
+      // When persisting models with @WhenModified fields, EBean
+      // truncates the persisted timestamp to milliseconds:
+      // https://github.com/seattle-uat/civiform/pull/2499#issuecomment-1133325484.
+      // Sleep for a few milliseconds to ensure that a subsequent
+      // update would have a distinct timestamp.
+      TimeUnit.MILLISECONDS.sleep(5);
+    }
   }
 
   private Application makeApplicationWithName(
