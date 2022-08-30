@@ -1,6 +1,8 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.admin.programs.ProgramApplicationView.NEW_STATUS;
+import static views.admin.programs.ProgramApplicationView.SEND_EMAIL;
 
 import annotations.BindingAnnotations.Now;
 import auth.Authorizers;
@@ -15,12 +17,14 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
+import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.F;
@@ -36,6 +40,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.application.ApplicationEventDetails;
 import services.applications.ProgramAdminApplicationService;
 import services.export.ExporterService;
 import services.export.JsonExporter;
@@ -44,6 +49,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
+import services.program.StatusDefinitions.Status;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
@@ -53,12 +59,13 @@ import views.admin.programs.ProgramApplicationView;
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
 
-  private final ProgramService programService;
   private final ApplicantService applicantService;
   private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
+  private final ProgramService programService;
   private final ExporterService exporterService;
+  private final FormFactory formFactory;
   private final JsonExporter jsonExporter;
   private final PdfExporter pdfExporter;
   private final ProfileUtils profileUtils;
@@ -72,6 +79,7 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramService programService,
       ApplicantService applicantService,
       ExporterService exporterService,
+      FormFactory formFactory,
       JsonExporter jsonExporter,
       PdfExporter pdfExporter,
       ProgramApplicationListView applicationListView,
@@ -90,6 +98,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(exporterService);
+    this.formFactory = checkNotNull(formFactory);
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
@@ -343,10 +352,39 @@ public final class AdminApplicationController extends CiviFormController {
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
+    Application application = applicationMaybe.get();
 
-    // TODO(#3020): Actually update the status rather than unconditionally returning success.
-    return redirect(
-            routes.AdminApplicationController.show(programId, applicationMaybe.get().id).url())
+    Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+    Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
+    Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
+    // TODO(#3263): check that the previous status is the current previous status for
+    // consistency.
+    if (maybeNewStatus.isEmpty()) {
+      return badRequest("A selected status is not present");
+    }
+    String newStatus = maybeNewStatus.get();
+    if (!application.getProgram().getStatusDefinitions().getStatuses().stream()
+        .map(Status::statusText)
+        .anyMatch(newStatus::equals)) {
+      return badRequest("New status {} is not valid for program", newStatus);
+    }
+    final boolean sendEmail;
+    if (maybeSendEmail.isEmpty()) {
+      sendEmail = false;
+    } else if (maybeSendEmail.get().equalsIgnoreCase("on")) {
+      sendEmail = true;
+    } else {
+      return badRequest("Sending email value is invalid {}", maybeSendEmail.get());
+    }
+
+    programAdminApplicationService.setStatus(
+        application,
+        ApplicationEventDetails.StatusEvent.builder()
+            .setStatusText(newStatus)
+            .setEmailSent(sendEmail)
+            .build(),
+        profileUtils.currentUserProfile(request).get().getAccount().join());
+    return redirect(routes.AdminApplicationController.show(programId, application.id).url())
         .flashing("success", "Application status updated");
   }
 

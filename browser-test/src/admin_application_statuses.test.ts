@@ -154,7 +154,7 @@ describe('view program statuses', () => {
         await dismissModal(adminPrograms.applicationFrame())
       })
 
-      // TODO(#2912): Add a test that the send email checkbox is shown when an applicant has logged
+      // TODO(#3297): Add a test that the send email checkbox is shown when an applicant has logged
       // in and an email is configured for the status.
     })
 
