@@ -13,7 +13,7 @@ import views.components.FieldWithLabel;
 public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public TextQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.SINGLE);
   }
 
   @Override

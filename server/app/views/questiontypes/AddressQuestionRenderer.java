@@ -19,7 +19,7 @@ import views.style.Styles;
 public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public AddressQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.COMPOSITE);
   }
 
   @Override
