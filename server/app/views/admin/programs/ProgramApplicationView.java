@@ -301,8 +301,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantNameWithApplicationId,
       StatusDefinitions.Status status,
       Http.Request request) {
-    // TODO(#3020): Populate the modal content with the previous configured status.
-    String previousStatus = "Unset";
+    String previousStatus = application.getLatestStatus().orElse("Unset");
     FormTag modalContent =
         form()
             .withAction(
