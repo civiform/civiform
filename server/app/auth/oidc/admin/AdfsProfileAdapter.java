@@ -4,9 +4,10 @@ import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.OidcProfileAdapter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.nimbusds.jose.shaded.json.JSONArray;
 import com.typesafe.config.Config;
+import java.util.List;
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
@@ -65,17 +66,15 @@ public class AdfsProfileAdapter extends OidcProfileAdapter {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  // profile.getAttribute returns List<Object>. There's no way to make it type safe.
   private boolean isGlobalAdmin(OidcProfile profile) {
-    JSONArray groups = (JSONArray) null;
-    if (profile.containsAttribute(this.ad_groups_attribute_name)) {
-      groups = profile.getAttribute(this.ad_groups_attribute_name, JSONArray.class);
-    }
-
-    if (groups == null) {
+    if (!profile.containsAttribute(this.ad_groups_attribute_name)) {
       logger.error("Missing group claim in ADFS OIDC profile.");
       return false;
     }
-
+    ImmutableList<Object> groups =
+        ImmutableList.copyOf(profile.getAttribute(this.ad_groups_attribute_name, List.class));
     return groups.contains(this.adminGroupName);
   }
 
