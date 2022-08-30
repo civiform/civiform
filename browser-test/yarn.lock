@@ -2023,10 +2023,10 @@ jest-haste-map@^27.5.1:
   optionalDependencies:
     fsevents "^2.3.2"
 
-jest-image-snapshot@5.1.0:
-  version "5.1.0"
-  resolved "https://registry.npmjs.org/jest-image-snapshot/-/jest-image-snapshot-5.1.0.tgz"
-  integrity sha512-GpTaiJehsVeMRvszSuMkRK0ODSHxr31zalk3qoHVqHKGztgYlJ+Y6AheWHU6azODuoVpMQH52zY/sxri9d/GaA==
+jest-image-snapshot@5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/jest-image-snapshot/-/jest-image-snapshot-5.1.1.tgz#b28b9329a13043e077bf4cbd09a62769248fecb5"
+  integrity sha512-zxkwtkfInCEeVIalaP2SEC4sUOpC6LJgtGngLBdJ08fDNlafc7S044sAXO74I94niso5fqgiUAvgKg9j1iPexg==
   dependencies:
     chalk "^1.1.3"
     get-stdin "^5.0.1"
