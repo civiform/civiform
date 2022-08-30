@@ -27,7 +27,6 @@ import play.mvc.Result;
 import repository.SearchParameters;
 import repository.UserRepository;
 import services.PaginationInfo;
-import services.applicant.exception.ApplicantNotFoundException;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
 import views.applicant.TrustedIntermediaryDashboardView;
@@ -117,15 +116,11 @@ public class TrustedIntermediaryController {
       return notFound();
     }
     final Form<UpdateApplicantDobForm> form;
-    try {
-      form =
-          tiService.updateApplicantDateOfBirth(
-              trustedIntermediaryGroup.get(),
-              accountId,
-              formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(request));
-    } catch (ApplicantNotFoundException e) {
-      return notFound(e.getMessage());
-    }
+    form =
+        tiService.updateApplicantDateOfBirth(
+            trustedIntermediaryGroup.get(),
+            accountId,
+            formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(request));
 
     if (!form.hasErrors()) {
       return redirect(

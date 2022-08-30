@@ -183,15 +183,13 @@ public final class TrustedIntermediaryService {
    * @param form - this contains the dob field which would be parsed into local date and updated for
    *     the applicant
    * @return form - the form object is always returned. If the form contains error, the controller
-   *     will handle the flash messages
-   * @throws ApplicantNotFoundException - if the account is not found for the given AccountId, this
-   *     exception is raised.
+   *     will handle the flash messages If the account is not found for the given AccountId, a
+   *     runtime exception is raised.
    */
   public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
       TrustedIntermediaryGroup trustedIntermediaryGroup,
       Long accountId,
-      Form<UpdateApplicantDobForm> form)
-      throws ApplicantNotFoundException {
+      Form<UpdateApplicantDobForm> form) {
 
     form = validateDateOfBirthForUpdateDob(form);
 
@@ -204,7 +202,7 @@ public final class TrustedIntermediaryService {
             .findAny();
 
     if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
-      throw new ApplicantNotFoundException(accountId);
+      throw new RuntimeException(new ApplicantNotFoundException(accountId));
     }
     Applicant applicant = optionalAccount.get().newestApplicant().get();
     applicant.getApplicantData().setDateOfBirth(form.get().getDob());

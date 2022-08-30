@@ -1,7 +1,7 @@
 package services.ti;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.test.Helpers.fakeRequest;
 
@@ -314,9 +314,11 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
     Form<UpdateApplicantDobForm> form =
         formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
-    assertThrows(
-        ApplicantNotFoundException.class,
-        () -> service.updateApplicantDateOfBirth(tiGroup, (long) 0, form));
+    assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup, (long) 0, form))
+        .isInstanceOf(RuntimeException.class)
+        .cause()
+        .isInstanceOf(ApplicantNotFoundException.class)
+        .hasMessage("Applicant not found for ID 0");
   }
 
   @Test
@@ -326,13 +328,15 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     Form<UpdateApplicantDobForm> form =
         formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
     Account account = tiGroup.getManagedAccounts().stream().findAny().get();
-    assertThrows(
-        ApplicantNotFoundException.class,
-        () -> service.updateApplicantDateOfBirth(tiGroup2, account.id, form));
+    assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup2, account.id, form))
+        .isInstanceOf(RuntimeException.class)
+        .cause()
+        .isInstanceOf(ApplicantNotFoundException.class)
+        .hasMessage("Applicant not found for ID 548");
   }
 
   @Test
-  public void updateApplicantDateOfBirth_unformattedDate() throws ApplicantNotFoundException {
+  public void updateApplicantDateOfBirth_unformattedDate() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-20-20")));
     Form<UpdateApplicantDobForm> form =
@@ -346,7 +350,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateApplicantDateOfBirth_ApplicantDobUpdated() throws ApplicantNotFoundException {
+  public void updateApplicantDateOfBirth_ApplicantDobUpdated() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
     Form<UpdateApplicantDobForm> form =
