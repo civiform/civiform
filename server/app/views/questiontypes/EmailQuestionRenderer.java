@@ -14,7 +14,7 @@ import views.style.ReferenceClasses;
 public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public EmailQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.SINGLE);
   }
 
   @Override

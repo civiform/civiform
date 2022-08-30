@@ -16,7 +16,7 @@ import views.components.FieldWithLabel;
 public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public NumberQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.SINGLE);
   }
 
   @Override

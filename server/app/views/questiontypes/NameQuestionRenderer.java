@@ -18,7 +18,7 @@ import views.style.ReferenceClasses;
 public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public NameQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.COMPOSITE);
   }
 
   @Override
