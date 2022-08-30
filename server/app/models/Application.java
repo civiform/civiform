@@ -1,5 +1,6 @@
 package models;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
@@ -44,6 +45,7 @@ public class Application extends BaseModel {
   private Instant submitTime;
   private String preferredLocale;
   private String submitterEmail;
+  private String latestStatus;
 
   public Application(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
@@ -116,5 +118,19 @@ public class Application extends BaseModel {
   public Application setSubmitTimeToNow() {
     this.submitTime = Instant.now();
     return this;
+  }
+
+  /** Returns the latest application status value associated with the applicaton. */
+  public Optional<String> getLatestStatus() {
+    return Optional.ofNullable(latestStatus);
+  }
+
+  /**
+   * This is visible only for tests to manipulate the latest status directly in order to ensure that
+   * updates to it are overridden by the configured database trigger.
+   */
+  @VisibleForTesting
+  void setLatestStatusForTest(String latestStatus) {
+    this.latestStatus = latestStatus;
   }
 }
