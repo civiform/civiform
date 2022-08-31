@@ -1,15 +1,16 @@
 import {
-  AdminQuestions,
-  createBrowserContext,
   loginAsAdmin,
   waitForPageJsLoad,
+  AdminQuestions,
+  createBrowserContext,
 } from './support'
 
 describe('create dropdown question with options', () => {
   const ctx = createBrowserContext()
 
   it('add remove buttons work correctly', async () => {
-    const page = ctx.page
+    const {page} = ctx
+
     await loginAsAdmin(page)
 
     const adminQuestions = new AdminQuestions(page)

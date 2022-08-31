@@ -2,16 +2,17 @@ import {
   AdminPrograms,
   AdminQuestions,
   ApplicantQuestions,
-  createBrowserContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
+  validateScreenshot,
+  createBrowserContext,
 } from './support'
 
 describe('Applicant navigation flow', () => {
-  const ctx = createBrowserContext(/* clearDb= */ false)
+  const ctx = createBrowserContext()
 
   describe('navigation with four blocks', () => {
     let applicantQuestions: ApplicantQuestions
@@ -118,13 +119,14 @@ describe('Applicant navigation flow', () => {
       )
     })
 
-    it('login page has no accessiblity violations', async () => {
+    it('verify login page', async () => {
       // Verify we are on login page.
       expect(await ctx.page.innerText('head')).toContain('Login')
       await validateAccessibility(ctx.page)
+      await validateScreenshot(ctx.page, 'landing-page')
     })
 
-    it('language selection page has no accessiblity violations', async () => {
+    it('verify language selection page', async () => {
       await loginAsGuest(ctx.page)
 
       // Verify we are on language selection page.
@@ -132,18 +134,20 @@ describe('Applicant navigation flow', () => {
         'Please select your preferred language.',
       )
       await validateAccessibility(ctx.page)
+      await validateScreenshot(ctx.page, 'language-selection')
     })
 
-    it('program list page has no accessiblity violations', async () => {
+    it('verify program list page', async () => {
       await loginAsGuest(ctx.page)
       await selectApplicantLanguage(ctx.page, 'English')
 
       // Verify we are on program list page.
       expect(await ctx.page.innerText('h1')).toContain('Get benefits')
       await validateAccessibility(ctx.page)
+      await validateScreenshot(ctx.page, 'program-list-page')
     })
 
-    it('program details page has no accessiblity violations', async () => {
+    it('verify program details page', async () => {
       await loginAsGuest(ctx.page)
       await selectApplicantLanguage(ctx.page, 'English')
       await applicantQuestions.clickProgramDetails(programName)
@@ -151,9 +155,10 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program details page. Url should end in "/programs/{program ID}"
       expect(ctx.page.url()).toMatch(/\/programs\/[0-9]+$/)
       await validateAccessibility(ctx.page)
+      await validateScreenshot(ctx.page, 'program-details-page')
     })
 
-    it('program preview page has no accessiblity violations', async () => {
+    it('verify program preview page', async () => {
       await loginAsGuest(ctx.page)
       await selectApplicantLanguage(ctx.page, 'English')
       await applicantQuestions.clickApplyProgramButton(programName)
@@ -163,9 +168,10 @@ describe('Applicant navigation flow', () => {
         'Program application preview',
       )
       await validateAccessibility(ctx.page)
+      await validateScreenshot(ctx.page, 'program-preview')
     })
 
-    it('program review page has no accessiblity violations', async () => {
+    it('verify program review page', async () => {
       await loginAsGuest(ctx.page)
       await selectApplicantLanguage(ctx.page, 'English')
       await applicantQuestions.applyProgram(programName)
@@ -191,9 +197,10 @@ describe('Applicant navigation flow', () => {
         'Program application review',
       )
       await validateAccessibility(ctx.page)
+      await validateScreenshot(ctx.page, 'program-review')
     })
 
-    it('program submission page has no accessiblity violations', async () => {
+    it('verify program submission page', async () => {
       await loginAsGuest(ctx.page)
       await selectApplicantLanguage(ctx.page, 'English')
       await applicantQuestions.applyProgram(programName)
@@ -220,6 +227,7 @@ describe('Applicant navigation flow', () => {
         'Application confirmation',
       )
       await validateAccessibility(ctx.page)
+      await validateScreenshot(ctx.page, 'program-submission')
     })
   })
 
