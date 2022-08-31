@@ -4,6 +4,7 @@ import argparse
 import os
 import shlex
 import subprocess
+import importlib
 
 from cloud.shared.bin.lib.config_loader import ConfigLoader
 
@@ -18,16 +19,21 @@ def main():
     args = parser.parse_args()
     os.environ['TF_VAR_image_tag'] = args.image
 
-    config_loader = ConfigLoader()
-    validation_errors = config_loader.load_config()
-    if validation_errors:
-        new_line = '\n\t'
-        exit(
-            f'Found the following validation errors: {new_line}{f"{new_line}".join(validation_errors)}'
-        )
+    config = ConfigLoader()
+    validation_errors = config.load_config()
+    # if validation_errors:
+    #     new_line = '\n\t'
+    #     exit(
+    #         f'Found the following validation errors: {new_line}{f"{new_line}".join(validation_errors)}'
+    #     )
 
     if args.command:
-        subprocess.check_call(shlex.split(f'python3 cloud/shared/bin/lib/{args.command}.py'))
+        if not os.path.exists(f'cloud/shared/bin/lib/{args.command}.py'):
+            exit(f'Command {args.command} not found.')
+        command_module = importlib.import_module(f'cloud.shared.bin.lib.{args.command}')
+        if not command_module:
+            exit(f'Command {args.command} not found.')
+        command_module.main(config)
 
 
 if __name__ == "__main__":

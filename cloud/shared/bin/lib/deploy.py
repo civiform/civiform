@@ -1,5 +1,5 @@
-def main():
-    pass
+def main(config=None):
+    print('Deploy.')
 
 
 if __name__ == "__main__":
