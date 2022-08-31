@@ -85,7 +85,7 @@ def main():
         exit(1)
 
     if not 'civiform' in shell_cmd('docker info'):
-        print('Unable to login to docker hub', file=sys.stderr)
+        print('Login information does not contain civiform user name', file=sys.stderr)
         exit(1)
 
     ################################################################################
@@ -153,6 +153,7 @@ def main():
         tags_url = response_json['next']
 
     print(f'Found existing server image: {snapshot_tag}')
+    return
 
     ################################################################################
     # Add tag to git history
