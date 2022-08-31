@@ -89,7 +89,9 @@ def main():
         exit(1)
 
     if not 'civiform' in shell_cmd('docker info'):
-        print('Login information does not contain civiform user name', file=sys.stderr)
+        print(
+            'Login information does not contain civiform user name',
+            file=sys.stderr)
         exit(1)
 
     ################################################################################
