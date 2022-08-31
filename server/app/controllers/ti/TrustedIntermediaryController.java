@@ -11,6 +11,8 @@ import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import forms.UpdateApplicantDobForm;
+import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
@@ -18,12 +20,14 @@ import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
+import play.data.validation.ValidationError;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.SearchParameters;
 import repository.UserRepository;
 import services.PaginationInfo;
+import services.applicant.exception.ApplicantNotFoundException;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
 import views.applicant.TrustedIntermediaryDashboardView;
@@ -101,6 +105,39 @@ public class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
+  public Result updateDateOfBirth(Long accountId, Http.Request request)
+      throws ApplicantNotFoundException {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    if (civiformProfile.isEmpty()) {
+      return unauthorized();
+    }
+
+    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
+        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return notFound();
+    }
+    final Form<UpdateApplicantDobForm> form;
+    form =
+        tiService.updateApplicantDateOfBirth(
+            trustedIntermediaryGroup.get(),
+            accountId,
+            formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(request));
+
+    if (!form.hasErrors()) {
+      return redirect(
+              routes.TrustedIntermediaryController.dashboard(
+                      /* nameQuery= */ Optional.empty(),
+                      /* dateQuery= */ Optional.empty(),
+                      /* page= */ Optional.empty())
+                  .url())
+          .flashing("success", "Date of Birth is updated");
+    }
+
+    return redirectToDashboardWithUpdateDateOfBirthError(getValidationErros(form.errors()));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.TI)
   public Result addApplicant(Long id, Http.Request request) {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
@@ -115,22 +152,24 @@ public class TrustedIntermediaryController {
       return unauthorized();
     }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
-        formFactory.form(AddApplicantToTrustedIntermediaryGroupForm.class).bindFromRequest(request);
-    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
-        tiService.addNewClient(form, trustedIntermediaryGroup.get());
-    if (!returnedForm.hasErrors()) {
+        tiService.addNewClient(
+            formFactory
+                .form(AddApplicantToTrustedIntermediaryGroupForm.class)
+                .bindFromRequest(request),
+            trustedIntermediaryGroup.get());
+    if (!form.hasErrors()) {
       return redirect(
           routes.TrustedIntermediaryController.dashboard(
               /* nameQuery= */ Optional.empty(),
               /* dateQuery= */ Optional.empty(),
               /* page= */ Optional.empty()));
     }
-    return redirectToDashboardWithError(getFormErrors(returnedForm), returnedForm);
+    return redirectToDashboardWithError(getValidationErros(form.errors()), form);
   }
 
-  private String getFormErrors(Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
+  private String getValidationErros(List<ValidationError> errors) {
     StringBuilder errorMessage = new StringBuilder();
-    form.errors().stream()
+    errors.stream()
         .forEach(validationError -> errorMessage.append(validationError.message() + "\n"));
     return errorMessage.toString();
   }
@@ -149,5 +188,18 @@ public class TrustedIntermediaryController {
         .flashing("providedLastName", form.value().get().getLastName())
         .flashing("providedEmail", form.value().get().getEmailAddress())
         .flashing("providedDateOfBirth", form.value().get().getDob());
+  }
+
+  private Result redirectToDashboardWithUpdateDateOfBirthError(String errorMessage) {
+    return redirect(
+            routes.TrustedIntermediaryController.dashboard(
+                    /* paramName=  nameQuery */
+                    Optional.empty(),
+                    /* paramName=  searchDate */
+                    Optional.empty(),
+                    /* paramName=  page */
+                    Optional.of(1))
+                .url())
+        .flashing("error", errorMessage);
   }
 }

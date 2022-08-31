@@ -321,7 +321,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private ButtonTag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
-    return asRedirectButton(
+    return asRedirectElement(
         makeSvgTextButton(linkText, Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
         link);
   }
@@ -336,7 +336,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .url();
 
     ButtonTag button =
-        asRedirectButton(
+        asRedirectElement(
             makeSvgTextButton("Manage Translations", Icons.TRANSLATE)
                 .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
             link);
@@ -345,7 +345,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private ButtonTag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
-    return asRedirectButton(
+    return asRedirectElement(
         makeSvgTextButton(linkText, Icons.VISIBILITY)
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
         link);
