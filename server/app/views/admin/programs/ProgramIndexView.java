@@ -205,7 +205,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Create new program", Icons.ADD)
             .withId("new-program-button")
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
-    return asRedirectButton(button, link);
+    return asRedirectElement(button, link);
   }
 
   public ProgramDefinition getDisplayProgram(
@@ -453,7 +453,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     return isActive
         ? toLinkButtonForPost(button, editLink, request)
-        : asRedirectButton(button, editLink);
+        : asRedirectElement(button, editLink);
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
@@ -466,7 +466,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withId("program-translations-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return Optional.of(asRedirectButton(button, linkDestination));
+    return Optional.of(asRedirectElement(button, linkDestination));
   }
 
   private ButtonTag renderEditStatusesLink(ProgramDefinition program) {
@@ -474,7 +474,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage application statuses", Icons.FLAKY)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return asRedirectButton(button, linkDestination);
+    return asRedirectElement(button, linkDestination);
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(
@@ -506,7 +506,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
               .withId("program-view-apps-link-" + activeProgram.id())
               .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-      return Optional.of(asRedirectButton(button, editLink));
+      return Optional.of(asRedirectElement(button, editLink));
     }
     return Optional.empty();
   }
@@ -517,6 +517,6 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Manage Program Admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return asRedirectButton(button, adminLink);
+    return asRedirectElement(button, adminLink);
   }
 }

@@ -68,12 +68,21 @@ public abstract class BaseHtmlView {
   }
 
   protected static ButtonTag redirectButton(String id, String text, String redirectUrl) {
-    return asRedirectButton(
+    return asRedirectElement(
         TagCreator.button(text).withId(id).withClasses(Styles.M_2), redirectUrl);
   }
 
-  protected static ButtonTag asRedirectButton(ButtonTag buttonEl, String redirectUrl) {
-    return buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
+  /**
+   * Turns provided element into a clickable element. Upon click the user will be redirected to the
+   * provided url. It's up to caller of this method to style element appropriately to make it clear
+   * that the element is clickable. For example add hover effect and change cursor style.
+   *
+   * @return The element itself.
+   */
+  protected static <T extends Tag> T asRedirectElement(T element, String redirectUrl) {
+    // Attribute `data-redirect-to` is handled in JS by main.ts file.
+    element.attr("data-redirect-to", redirectUrl);
+    return element;
   }
 
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
