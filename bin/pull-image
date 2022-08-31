@@ -26,7 +26,7 @@ function pull_all() {
   docker pull civiform/civiform-dev:latest
 
   # Explicitly pull dev dependencies. (in parallel)
-  docker pull docker.io/civiform/oidc-provider:latest &
+  # docker pull docker.io/civiform/oidc-provider:latest &
   docker pull mcr.microsoft.com/azure-storage/azurite &
   docker pull localstack/localstack &
 
@@ -76,7 +76,7 @@ while [ "${1:-}" != "" ]; do
 
     "--oidc-provider")
       echo "Pull oidc-provider docker image"
-      docker pull docker.io/civiform/oidc-provider:latest
+      # docker pull docker.io/civiform/oidc-provider:latest
       ;;
 
     "--browser-tests")

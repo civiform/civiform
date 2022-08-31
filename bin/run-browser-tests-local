@@ -5,6 +5,10 @@
 source bin/lib.sh
 export BASE_URL=http://localhost:9999
 export DISABLE_SCREENSHOTS=true
+export TEST_USER_AUTH_STRATEGY=fake-oidc
+export TEST_USER_LOGIN=testuser@example.com
+export TEST_USER_PASSWORD=anotsecretpassword
+export TEST_USER_DISPLAY_NAME="User, Test"
 
 START_TIME=$(date +%s)
 DEADLINE=$(($START_TIME + 500))

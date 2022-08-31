@@ -6,6 +6,7 @@ import {
   waitForAnyModal,
   waitForPageJsLoad,
 } from './wait'
+import {BASE_URL} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 
 export class AdminPrograms {
@@ -372,6 +373,10 @@ export class AdminPrograms {
   }
 
   async viewApplications(programName: string) {
+    // Navigate back to the main page for the program admin.
+    await this.page.goto(BASE_URL)
+    await waitForPageJsLoad(this.page)
+
     // TODO(#1238): Consolidate the program admin and civiform admin views
     // and use the updated selector for this that clicks a button rather
     // than a link.

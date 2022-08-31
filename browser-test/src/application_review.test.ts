@@ -10,7 +10,7 @@ import {
   logout,
   selectApplicantLanguage,
   ApplicantQuestions,
-  userDisplayName,
+  testUserDisplayName,
 } from './support'
 
 describe('Program admin review of submitted applications', () => {
@@ -193,7 +193,7 @@ describe('Program admin review of submitted applications', () => {
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       'address-q',
@@ -242,7 +242,7 @@ describe('Program admin review of submitted applications', () => {
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'favorite-trees-q',

@@ -8,9 +8,9 @@ import {
   selectApplicantLanguage,
   ApplicantQuestions,
   AdminPrograms,
-  userDisplayName,
   AdminProgramStatuses,
   enableFeatureFlag,
+  loginAsTestUser,
 } from './support'
 import {Page} from 'playwright'
 
@@ -39,21 +39,18 @@ describe('view program statuses', () => {
       await adminPrograms.expectActiveProgram(programWithoutStatusesName)
 
       await logout(pageObject)
+
+      // Submit an application as a guest.
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
-
-      // Submit an application.
       await applicantQuestions.clickApplyProgramButton(
         programWithoutStatusesName,
       )
       await applicantQuestions.submitFromPreviewPage()
-
       await logout(pageObject)
 
       // Navigate to the submitted application as the program admin.
       await loginAsProgramAdmin(pageObject)
-      await adminPrograms.viewApplications(programWithoutStatusesName)
-      await adminPrograms.viewApplicationForApplicant(userDisplayName())
     })
 
     afterAll(async () => {
@@ -61,10 +58,14 @@ describe('view program statuses', () => {
     })
 
     it('does not show status options', async () => {
+      await adminPrograms.viewApplications(programWithoutStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
     })
 
     it('does not show edit note', async () => {
+      await adminPrograms.viewApplications(programWithoutStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
       expect(await adminPrograms.isEditNoteVisible()).toBe(false)
     })
   })
@@ -90,19 +91,23 @@ describe('view program statuses', () => {
       await adminPrograms.expectActiveProgram(programWithStatusesName)
 
       await logout(pageObject)
+
+      // Submit an application as a guest.
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
-
-      // Submit an application.
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
       await applicantQuestions.submitFromPreviewPage()
-
       await logout(pageObject)
+
+      // Submit an application as the logged in test user.
+      await loginAsTestUser(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.submitFromPreviewPage()
+      await logout(pageObject)
+
       await loginAsProgramAdmin(pageObject)
       await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
-
-      await adminPrograms.viewApplications(programWithStatusesName)
-      await adminPrograms.viewApplicationForApplicant(userDisplayName())
     })
 
     afterAll(async () => {
@@ -110,21 +115,29 @@ describe('view program statuses', () => {
     })
 
     it('shows status selector', async () => {
+      await adminPrograms.viewApplications(programWithStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(true)
     })
 
     it('shows default option as placeholder', async () => {
+      await adminPrograms.viewApplications(programWithStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
       expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
     })
 
     describe('when a status is changed, a confirmation dialog is shown', () => {
       it('when rejecting, the selected status is not changed', async () => {
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant('Guest')
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
         await dismissModal(adminPrograms.applicationFrame())
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
 
       it('when confirmed, the page is redirected with a success toast', async () => {
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant('Guest')
         const modal = await adminPrograms.setStatusOptionAndAwaitModal(
           noEmailStatusName,
         )
@@ -135,6 +148,8 @@ describe('view program statuses', () => {
       })
 
       it('when no email is configured for the status, a warning is shown', async () => {
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant('Guest')
         const modal = await adminPrograms.setStatusOptionAndAwaitModal(
           noEmailStatusName,
         )
@@ -145,6 +160,8 @@ describe('view program statuses', () => {
       })
 
       it('when no email is configured for the applicant, a warning is shown', async () => {
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant('Guest')
         const modal = await adminPrograms.setStatusOptionAndAwaitModal(
           emailStatusName,
         )
@@ -159,6 +176,8 @@ describe('view program statuses', () => {
     })
 
     it('allows editing a note', async () => {
+      await adminPrograms.viewApplications(programWithStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
       await adminPrograms.editNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
       // TODO(#3020): Assert that the note has been updated.

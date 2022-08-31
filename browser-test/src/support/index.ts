@@ -22,8 +22,10 @@ export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
+  TEST_USER_AUTH_STRATEGY,
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
+  TEST_USER_DISPLAY_NAME,
   DISABLE_SCREENSHOTS,
 } from './config'
 
@@ -113,7 +115,7 @@ export const logout = async (page: Page) => {
   // page with civiform js where we should waitForPageJsLoad. Because
   // the process goes through a sequence of redirects we need to wait
   // for the final destination URL to make tests reliable.
-  await page.waitForURL('**/loginForm')
+  await page.waitForURL('**/loginForm', {waitUntil: 'networkidle'})
 }
 
 export const loginAsAdmin = async (page: Page) => {
@@ -142,34 +144,76 @@ export const setLangEsUS = async (page: Page) => {
 }
 
 export const loginAsTestUser = async (page: Page) => {
-  if (isTestUser()) {
-    await page.click('#idcs')
-    // Wait for the IDCS login page to make sure we've followed all redirects.
-    // If running this against a site with a real IDCS (i.e. staging) and this
-    // test fails with a timeout try re-running the tests. Sometimes there are
-    // just transient network hiccups that will pass on a second run.
-    // In short: If using a real IDCS retry test if this has a timeout failure.
-    await page.waitForURL('**/#/login*')
-    await page.fill('input[name=userName]', TEST_USER_LOGIN)
-    await page.fill('input[name=password]', TEST_USER_PASSWORD)
-    await page.click('button:has-text("Login"):not([disabled])')
-    await page.waitForNavigation({waitUntil: 'networkidle'})
-  } else {
-    await page.click('#guest')
+  switch (TEST_USER_AUTH_STRATEGY) {
+    case 'fake-oidc':
+      await loginAsTestUserFakeOidc(page)
+      break
+    case 'seattle-staging':
+      await loginAsTestUserSeattleStaging(page)
+      break
+    default:
+      throw new Error(
+        `unrecognized TEST_USER_AUTH_STRATEGY "${TEST_USER_AUTH_STRATEGY}"`,
+      )
   }
   await waitForPageJsLoad(page)
 }
 
-function isTestUser() {
-  return TEST_USER_LOGIN !== '' && TEST_USER_PASSWORD !== ''
+async function loginAsTestUserSeattleStaging(page: Page) {
+  await page.click('#idcs')
+  // Wait for the IDCS login page to make sure we've followed all redirects.
+  // If running this against a site with a real IDCS (i.e. staging) and this
+  // test fails with a timeout try re-running the tests. Sometimes there are
+  // just transient network hiccups that will pass on a second run.
+  // In short: If using a real IDCS retry test if this has a timeout failure.
+  await page.waitForURL('**/#/login*')
+  await page.fill('input[name=userName]', TEST_USER_LOGIN)
+  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await page.click('button:has-text("Login"):not([disabled])')
+  await page.waitForNavigation({waitUntil: 'networkidle'})
 }
 
-export const userDisplayName = () => {
-  if (isTestUser()) {
-    return 'TEST, UATAPP'
-  } else {
-    return 'Guest'
+async function loginAsTestUserFakeOidc(page: Page) {
+  await Promise.all([
+    page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Log in")'),
+  ])
+
+  // If the user has previously signed in to the provider, a prompt is shown
+  // to reauthorize rather than sign-in. In this case, click "Continue" instead
+  // and skip filling out any login information. If we want to support logging
+  // in as multiple users, this will need to be adjusted.
+  const pageText = await page.innerText('html')
+  if (
+    pageText.includes(
+      'the client is asking you to confirm previously given authorization',
+    )
+  ) {
+    return Promise.all([
+      page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+      page.click('button:has-text("Continue")'),
+    ])
   }
+
+  await page.fill('input[name=login]', TEST_USER_LOGIN)
+  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await Promise.all([
+    page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Sign-in"):not([disabled])'),
+  ])
+  // A screen is shown prompting the user to authorize a set of scopes.
+  // This screen is skipped if the user has already logged in once.
+  await Promise.all([
+    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Continue")'),
+  ])
+}
+
+export const testUserDisplayName = () => {
+  if (!TEST_USER_DISPLAY_NAME) {
+    throw new Error('TEST_USER_DISPLAY_NAME environment variable must be set')
+  }
+  return TEST_USER_DISPLAY_NAME
 }
 
 /**
