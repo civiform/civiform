@@ -376,7 +376,7 @@ export class AdminPrograms {
       this.withinProgramCardSelector(
         programName,
         'ACTIVE',
-        ':text("Applications")',
+        'button :text("Applications")',
       ),
     )
     await waitForPageJsLoad(this.page)
