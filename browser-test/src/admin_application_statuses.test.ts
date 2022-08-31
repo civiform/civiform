@@ -11,6 +11,7 @@ import {
   AdminProgramStatuses,
   enableFeatureFlag,
   loginAsTestUser,
+  testUserDisplayName,
 } from './support'
 import {Page} from 'playwright'
 
@@ -171,8 +172,20 @@ describe('view program statuses', () => {
         await dismissModal(adminPrograms.applicationFrame())
       })
 
-      // TODO(#3297): Add a test that the send email checkbox is shown when an applicant has logged
-      // in and an email is configured for the status.
+      it('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', async () => {
+        await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+          emailStatusName,
+        )
+        const notifyCheckbox = await modal.$('input[type=checkbox]')
+        if (!notifyCheckbox) {
+          throw new Error('Expected a checkbox input')
+        }
+        expect(await notifyCheckbox.isChecked()).toBe(true)
+        expect(await modal.innerText()).toContain(' of this change at ')
+        await dismissModal(adminPrograms.applicationFrame())
+      })
     })
 
     it('allows editing a note', async () => {
