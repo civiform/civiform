@@ -1,13 +1,14 @@
 import {
-  AdminPrograms,
-  AdminProgramStatuses,
-  createBrowserContext,
   dismissModal,
+  startSession,
   loginAsAdmin,
+  enableFeatureFlag,
+  AdminPrograms,
+  AdminProgramStatuses, createBrowserContext,
 } from './support'
+import {Page} from 'playwright'
 
-// TODO(#3071): Re-enable when the feature flag is controllable in tests.
-describe.skip('modify program statuses', () => {
+describe('modify program statuses', () => {
   const ctx = createBrowserContext(/* clearDb= */ false)
   let adminPrograms: AdminPrograms
   let adminProgramStatuses: AdminProgramStatuses
@@ -15,7 +16,9 @@ describe.skip('modify program statuses', () => {
   beforeAll(async () => {
     adminPrograms = new AdminPrograms(ctx.page)
     adminProgramStatuses = new AdminProgramStatuses(ctx.page)
+
     await loginAsAdmin(ctx.page)
+    await enableFeatureFlag(ctx.page, 'application_status_tracking_enabled')
   })
 
   describe('statuses list', () => {
