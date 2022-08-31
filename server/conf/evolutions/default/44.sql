@@ -60,7 +60,7 @@ $$ LANGUAGE plpgsql;
 -- unit tests to assert this in ApplicationTest.java.
 CREATE TRIGGER application_change BEFORE INSERT OR UPDATE ON applications
     FOR EACH ROW EXECUTE FUNCTION process_latest_status_on_application_change();
-CREATE TRIGGER application_event_change BEFORE INSERT OR UPDATE ON application_events
+CREATE TRIGGER application_event_change AFTER INSERT OR UPDATE ON application_events
     FOR EACH ROW EXECUTE FUNCTION process_latest_status_on_application_event_change();
 
 # --- !Downs
