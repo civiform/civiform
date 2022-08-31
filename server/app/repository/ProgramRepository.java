@@ -259,6 +259,15 @@ public final class ProgramRepository {
       }
     }
 
+    String toMatchStatus = filters.applicationStatus().orElse("");
+    if (!toMatchStatus.isBlank()) {
+      if (toMatchStatus.equals(SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID)) {
+        query = query.where().isNull("latest_status");
+      } else {
+        query = query.where().eq("latest_status", toMatchStatus);
+      }
+    }
+
     PagedList<Application> pagedQuery;
 
     if (paginationSpecEither.left.isPresent()) {
