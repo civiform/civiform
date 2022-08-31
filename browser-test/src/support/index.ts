@@ -148,6 +148,10 @@ export const loginAsTestUser = async (page: Page) => {
     case 'fake-oidc':
       await loginAsTestUserFakeOidc(page)
       break
+    case 'aws-staging':
+      // TODO(clouser): Remove this once a strategy for AWS staging is in place.
+      await loginAsGuest(page)
+      break
     case 'seattle-staging':
       await loginAsTestUserSeattleStaging(page)
       break
@@ -211,7 +215,9 @@ async function loginAsTestUserFakeOidc(page: Page) {
 
 export const testUserDisplayName = () => {
   if (!TEST_USER_DISPLAY_NAME) {
-    throw new Error('TEST_USER_DISPLAY_NAME environment variable must be set')
+    // TODO(clouser): Throw an error once this is in place.
+    return 'Guest'
+    // throw new Error('TEST_USER_DISPLAY_NAME environment variable must be set')
   }
   return TEST_USER_DISPLAY_NAME
 }
