@@ -408,7 +408,7 @@ public final class AdminApplicationController extends CiviFormController {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
 
-    // TODO(#3020): Actually edit the note rather than unconditionally returning success.
+    // TODO(#3264): Actually edit the note rather than unconditionally returning success.
     return redirect(
             routes.AdminApplicationController.show(programId, applicationMaybe.get().id).url())
         .flashing("success", "Application note updated");

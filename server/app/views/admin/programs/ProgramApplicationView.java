@@ -23,7 +23,6 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -126,7 +125,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         div()
                             .withClasses(Styles.FLEX, Styles.MR_4, Styles.SPACE_X_2)
                             .with(
-                                renderStatusOptionsSelector(statusDefinitions),
+                                renderStatusOptionsSelector(application, statusDefinitions),
                                 updateNoteModal.getButton()))
                     .with(renderDownloadButton(programId, application.id)))
             .with(
@@ -222,7 +221,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private DivTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+  private DivTag renderStatusOptionsSelector(
+      Application application, StatusDefinitions statusDefinitions) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     DivTag container =
         div()
@@ -251,16 +251,17 @@ public final class ProgramApplicationView extends BaseHtmlView {
     dropdownTag.with(
         option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .isDisabled()
-            .isSelected());
+            .withCondSelected(!application.getLatestStatus().isPresent()));
 
     // Add statuses in the order they're provided.
-    statusDefinitions
-        .getStatuses()
+    String latestStatusText = application.getLatestStatus().orElse("");
+    statusDefinitions.getStatuses().stream()
+        .map(StatusDefinitions.Status::statusText)
         .forEach(
-            status -> {
-              String value = status.statusText();
-              OptionTag optionTag = option(value).withValue(value);
-              dropdownTag.with(optionTag);
+            statusText -> {
+              boolean isCurrentStatus = statusText.equals(latestStatusText);
+              dropdownTag.with(
+                  option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
             });
     return container.with(dropdownTag);
   }
@@ -301,8 +302,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantNameWithApplicationId,
       StatusDefinitions.Status status,
       Http.Request request) {
-    // TODO(#3020): Populate the modal content with the previous configured status.
-    String previousStatus = "Unset";
+    String previousStatus = application.getLatestStatus().orElse("Unset");
     FormTag modalContent =
         form()
             .withAction(
