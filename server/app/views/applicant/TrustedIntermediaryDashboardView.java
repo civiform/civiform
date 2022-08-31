@@ -262,7 +262,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .get()
             .getApplicantData()
             .getDateOfBirth()
-            .map(localDate -> this.dateConverter.renderDate(localDate))
+            .map(localDate -> this.dateConverter.formatIso8601Date(localDate))
             .orElse("");
     return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.FONT_SEMIBOLD)
         .with(

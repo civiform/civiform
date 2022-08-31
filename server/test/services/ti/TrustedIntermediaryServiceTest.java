@@ -315,8 +315,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     Form<UpdateApplicantDobForm> form =
         formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
     assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup, (long) 0, form))
-        .isInstanceOf(RuntimeException.class)
-        .cause()
         .isInstanceOf(ApplicantNotFoundException.class)
         .hasMessage("Applicant not found for ID 0");
   }
@@ -329,14 +327,12 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
     Account account = tiGroup.getManagedAccounts().stream().findAny().get();
     assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup2, account.id, form))
-        .isInstanceOf(RuntimeException.class)
-        .cause()
         .isInstanceOf(ApplicantNotFoundException.class)
         .hasMessage("Applicant not found for ID " + account.id);
   }
 
   @Test
-  public void updateApplicantDateOfBirth_unformattedDate() {
+  public void updateApplicantDateOfBirth_unformattedDate() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-20-20")));
     Form<UpdateApplicantDobForm> form =
@@ -350,7 +346,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateApplicantDateOfBirth_ApplicantDobUpdated() {
+  public void updateApplicantDateOfBirth_ApplicantDobUpdated() throws ApplicantNotFoundException {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
     Form<UpdateApplicantDobForm> form =

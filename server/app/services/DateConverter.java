@@ -73,7 +73,7 @@ public class DateConverter {
     return dateTime.format(DATE_TIME_FORMATTER_WITH_SLASH);
   }
   /** Formats an {@link LocalDate} to a String. */
-  public String renderDate(LocalDate date) {
+  public String formatIso8601Date(LocalDate date) {
     return date.format(DATE_TIME_FORMATTER_WITH_DASH);
   }
 }

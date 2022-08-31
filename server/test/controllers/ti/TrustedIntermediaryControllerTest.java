@@ -19,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.UserRepository;
+import services.applicant.exception.ApplicantNotFoundException;
 
 public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   private UserRepository repo;
@@ -89,7 +90,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testUpdateDOBFunctionWithExistingDob() {
+  public void testUpdateDOBFunctionWithExistingDob() throws ApplicantNotFoundException {
 
     AddApplicantToTrustedIntermediaryGroupForm form =
         new AddApplicantToTrustedIntermediaryGroupForm();

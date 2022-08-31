@@ -189,7 +189,8 @@ public final class TrustedIntermediaryService {
   public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
       TrustedIntermediaryGroup trustedIntermediaryGroup,
       Long accountId,
-      Form<UpdateApplicantDobForm> form) {
+      Form<UpdateApplicantDobForm> form)
+      throws ApplicantNotFoundException {
 
     form = validateDateOfBirthForUpdateDob(form);
 
@@ -202,7 +203,7 @@ public final class TrustedIntermediaryService {
             .findAny();
 
     if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
-      throw new RuntimeException(new ApplicantNotFoundException(accountId));
+      throw new ApplicantNotFoundException(accountId);
     }
     Applicant applicant = optionalAccount.get().newestApplicant().get();
     applicant.getApplicantData().setDateOfBirth(form.get().getDob());

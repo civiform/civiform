@@ -40,7 +40,7 @@ public class DateConverterTest {
   public void renderDate_isSuccessful() {
     String expectedResult = "2020-01-01";
     LocalDate date = LocalDate.of(2020, 1, 1);
-    String result = dateConverter.renderDate(date);
+    String result = dateConverter.formatIso8601Date(date);
     assertThat(expectedResult).isEqualTo(result);
   }
 }
