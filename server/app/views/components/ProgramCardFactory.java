@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
@@ -31,9 +30,8 @@ public final class ProgramCardFactory {
     this.dateConverter = checkNotNull(dateConverter);
   }
 
-  public DivTag renderCard(ProgramCardParams params) {
-    ProgramDefinition displayProgram =
-        getDisplayProgram(params.draftProgram(), params.activeProgram());
+  public DivTag renderCard(ProgramCardData params) {
+    ProgramDefinition displayProgram = getDisplayProgram(params);
 
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
@@ -41,12 +39,7 @@ public final class ProgramCardFactory {
     DivTag statusDiv = div();
     if (params.draftProgram().isPresent()) {
       statusDiv =
-          statusDiv.with(
-              renderProgramRow(
-                  /* isActive = */ false,
-                  params.draftProgram().get(),
-                  params.draftRowActions(),
-                  params.draftRowExtraActions()));
+          statusDiv.with(renderProgramRow(/* isActive = */ false, params.draftProgram().get()));
     }
 
     if (params.activeProgram().isPresent()) {
@@ -55,8 +48,6 @@ public final class ProgramCardFactory {
               renderProgramRow(
                   /* isActive = */ true,
                   params.activeProgram().get(),
-                  params.activeRowActions(),
-                  params.activeRowExtraActions(),
                   params.draftProgram().isPresent() ? Styles.BORDER_T : ""));
     }
 
@@ -97,19 +88,13 @@ public final class ProgramCardFactory {
                     Styles.TEXT_GRAY_700,
                     Styles.TEXT_BASE))
         // Add data attributes used for client-side sorting.
-        .withData(
-            "last-updated-millis",
-            Long.toString(
-                extractLastUpdated(params.draftProgram(), params.activeProgram()).toEpochMilli()))
+        .withData("last-updated-millis", Long.toString(extractLastUpdated(params).toEpochMilli()))
         .withData("name", programTitleText);
   }
 
   private DivTag renderProgramRow(
-      boolean isActive,
-      ProgramDefinition program,
-      List<ButtonTag> actions,
-      List<ButtonTag> extraActions,
-      String... extraStyles) {
+      boolean isActive, ProgramCardData.ProgramRow programRow, String... extraStyles) {
+    ProgramDefinition program = programRow.program();
     String badgeText = "Draft";
     String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
     String badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
@@ -138,7 +123,7 @@ public final class ProgramCardFactory {
                 AdminStyles.TERTIARY_BUTTON_STYLES,
                 ReferenceClasses.WITH_DROPDOWN,
                 Styles.H_12,
-                extraActions.size() == 0 ? Styles.INVISIBLE : "");
+                programRow.extraRowActions().size() == 0 ? Styles.INVISIBLE : "");
 
     return div()
         .withClasses(
@@ -188,7 +173,7 @@ public final class ProgramCardFactory {
             div().withClass(Styles.FLEX_GROW),
             div()
                 .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.PR_6, Styles.FONT_MEDIUM)
-                .with(actions)
+                .with(programRow.rowActions())
                 .with(
                     div()
                         .withClass(Styles.RELATIVE)
@@ -206,26 +191,27 @@ public final class ProgramCardFactory {
                                     Styles.RIGHT_0,
                                     Styles.W_56,
                                     Styles.Z_50)
-                                .with(extraActions))));
+                                .with(programRow.extraRowActions()))));
   }
 
-  private ProgramDefinition getDisplayProgram(
-      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
-    if (draftProgram.isPresent()) {
-      return draftProgram.get();
+  private ProgramDefinition getDisplayProgram(ProgramCardData cardData) {
+    if (cardData.draftProgram().isPresent()) {
+      return cardData.draftProgram().get().program();
     }
-    return activeProgram.get();
+    return cardData.activeProgram().get().program();
   }
 
-  private static Instant extractLastUpdated(
-      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
+  private static Instant extractLastUpdated(ProgramCardData cardData) {
     // Prefer when the draft was last updated, since active versions should be immutable after
     // being published.
-    if (draftProgram.isEmpty() && activeProgram.isEmpty()) {
+    if (cardData.draftProgram().isEmpty() && cardData.activeProgram().isEmpty()) {
       throw new IllegalArgumentException("Program neither active nor draft.");
     }
 
-    ProgramDefinition program = draftProgram.isPresent() ? draftProgram.get() : activeProgram.get();
+    ProgramDefinition program =
+        cardData.draftProgram().isPresent()
+            ? cardData.draftProgram().get().program()
+            : cardData.activeProgram().get().program();
     return program.lastModifiedTime().orElse(Instant.EPOCH);
   }
 
@@ -241,42 +227,46 @@ public final class ProgramCardFactory {
   }
 
   @AutoValue
-  public abstract static class ProgramCardParams {
-    abstract Optional<ProgramDefinition> activeProgram();
+  public abstract static class ProgramCardData {
+    abstract Optional<ProgramRow> activeProgram();
 
-    abstract ImmutableList<ButtonTag> activeRowActions();
-
-    abstract ImmutableList<ButtonTag> activeRowExtraActions();
-
-    abstract Optional<ProgramDefinition> draftProgram();
-
-    abstract ImmutableList<ButtonTag> draftRowActions();
-
-    abstract ImmutableList<ButtonTag> draftRowExtraActions();
+    abstract Optional<ProgramRow> draftProgram();
 
     public static Builder builder() {
-      return new AutoValue_ProgramCardFactory_ProgramCardParams.Builder()
-          .setActiveRowActions(ImmutableList.of())
-          .setActiveRowExtraActions(ImmutableList.of())
-          .setDraftRowActions(ImmutableList.of())
-          .setDraftRowExtraActions(ImmutableList.of());
+      return new AutoValue_ProgramCardFactory_ProgramCardData.Builder();
     }
 
     @AutoValue.Builder
     public abstract static class Builder {
-      public abstract Builder setActiveProgram(Optional<ProgramDefinition> v);
+      public abstract Builder setActiveProgram(Optional<ProgramRow> v);
 
-      public abstract Builder setActiveRowActions(ImmutableList<ButtonTag> v);
+      public abstract Builder setDraftProgram(Optional<ProgramRow> v);
 
-      public abstract Builder setActiveRowExtraActions(ImmutableList<ButtonTag> v);
+      public abstract ProgramCardData build();
+    }
 
-      public abstract Builder setDraftProgram(Optional<ProgramDefinition> v);
+    @AutoValue
+    public abstract static class ProgramRow {
+      abstract ProgramDefinition program();
 
-      public abstract Builder setDraftRowActions(ImmutableList<ButtonTag> v);
+      abstract ImmutableList<ButtonTag> rowActions();
 
-      public abstract Builder setDraftRowExtraActions(ImmutableList<ButtonTag> v);
+      abstract ImmutableList<ButtonTag> extraRowActions();
 
-      public abstract ProgramCardParams build();
+      public static Builder builder() {
+        return new AutoValue_ProgramCardFactory_ProgramCardData_ProgramRow.Builder();
+      }
+
+      @AutoValue.Builder
+      public abstract static class Builder {
+        public abstract Builder setProgram(ProgramDefinition v);
+
+        public abstract Builder setRowActions(ImmutableList<ButtonTag> v);
+
+        public abstract Builder setExtraRowActions(ImmutableList<ButtonTag> v);
+
+        public abstract ProgramRow build();
+      }
     }
   }
 }

@@ -210,11 +210,9 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
-    ProgramCardFactory.ProgramCardParams.Builder cardBuilder =
-        ProgramCardFactory.ProgramCardParams.builder()
-            .setActiveProgram(activeProgram)
-            .setDraftProgram(draftProgram);
 
+    Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
+    Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
@@ -228,10 +226,13 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (featureFlags.isStatusTrackingEnabled(request)) {
         draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       }
-      cardBuilder =
-          cardBuilder
-              .setDraftRowActions(ImmutableList.copyOf(draftRowActions))
-              .setDraftRowExtraActions(ImmutableList.copyOf(draftRowExtraActions));
+      draftRow =
+          Optional.of(
+              ProgramCardFactory.ProgramCardData.ProgramRow.builder()
+                  .setProgram(draftProgram.get())
+                  .setRowActions(ImmutableList.copyOf(draftRowActions))
+                  .setExtraRowActions(ImmutableList.copyOf(draftRowExtraActions))
+                  .build());
     }
 
     if (activeProgram.isPresent()) {
@@ -245,13 +246,20 @@ public final class ProgramIndexView extends BaseHtmlView {
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
       activeRowActions.add(renderShareLink(activeProgram.get()));
-      cardBuilder =
-          cardBuilder
-              .setActiveRowActions(ImmutableList.copyOf(activeRowActions))
-              .setActiveRowExtraActions(ImmutableList.copyOf(activeRowExtraActions));
+      activeRow =
+          Optional.of(
+              ProgramCardFactory.ProgramCardData.ProgramRow.builder()
+                  .setProgram(activeProgram.get())
+                  .setRowActions(ImmutableList.copyOf(activeRowActions))
+                  .setExtraRowActions(ImmutableList.copyOf(activeRowExtraActions))
+                  .build());
     }
 
-    return programCardFactory.renderCard(cardBuilder.build());
+    return programCardFactory.renderCard(
+        ProgramCardFactory.ProgramCardData.builder()
+            .setActiveProgram(activeRow)
+            .setDraftProgram(draftRow)
+            .build());
   }
 
   ButtonTag renderShareLink(ProgramDefinition program) {

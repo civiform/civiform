@@ -24,6 +24,7 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.Icons;
 import views.components.ProgramCardFactory;
+import views.components.ProgramCardFactory.ProgramCardData;
 import views.style.AdminStyles;
 import views.style.Styles;
 
@@ -75,14 +76,17 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
 
   private DivTag renderProgramListItem(ProgramDefinition activeProgram) {
     return programCardFactory.renderCard(
-        ProgramCardFactory.ProgramCardParams.builder()
-            .setActiveProgram(Optional.of(activeProgram))
-            .setActiveRowActions(
-                ImmutableList.of(
-                    renderShareLink(activeProgram), renderViewApplicationsLink(activeProgram)))
-            .setActiveRowExtraActions(ImmutableList.of())
-            .setDraftRowActions(ImmutableList.of())
-            .setDraftRowExtraActions(ImmutableList.of())
+        ProgramCardFactory.ProgramCardData.builder()
+            .setActiveProgram(
+                Optional.of(
+                    ProgramCardData.ProgramRow.builder()
+                        .setProgram(activeProgram)
+                        .setRowActions(
+                            ImmutableList.of(
+                                renderShareLink(activeProgram),
+                                renderViewApplicationsLink(activeProgram)))
+                        .setExtraRowActions(ImmutableList.of())
+                        .build()))
             .build());
   }
 
