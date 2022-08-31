@@ -8,9 +8,9 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -18,13 +18,11 @@ import controllers.admin.routes;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.DateConverter;
 import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
@@ -36,32 +34,31 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
+import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page so the admin can view all active programs and draft programs. */
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
-  private final DateConverter dateConverter;
   private final TranslationLocales translationLocales;
+  private final ProgramCardFactory programCardFactory;
   private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramIndexView(
       AdminLayoutFactory layoutFactory,
       Config config,
-      DateConverter dateConverter,
       TranslationLocales translationLocales,
+      ProgramCardFactory programCardFactory,
       FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.dateConverter = checkNotNull(dateConverter);
     this.translationLocales = checkNotNull(translationLocales);
+    this.programCardFactory = checkNotNull(programCardFactory);
     this.featureFlags = checkNotNull(featureFlags);
   }
 
@@ -208,130 +205,16 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectButton(button, link);
   }
 
-  public ProgramDefinition getDisplayProgram(
-      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
-    if (draftProgram.isPresent()) {
-      return draftProgram.get();
-    }
-    return activeProgram.get();
-  }
-
-  private DivTag renderProgramRow(
-      boolean isActive,
-      ProgramDefinition program,
-      List<ButtonTag> actions,
-      List<ButtonTag> extraActions,
-      String... extraStyles) {
-    String badgeText = "Draft";
-    String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
-    String badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
-    String updatedPrefix = "Edited on ";
-    Optional<Instant> updatedTime = program.lastModifiedTime();
-    if (isActive) {
-      badgeText = "Active";
-      badgeBGColor = BaseStyles.BG_CIVIFORM_GREEN_LIGHT;
-      badgeFillColor = BaseStyles.TEXT_CIVIFORM_GREEN;
-      updatedPrefix = "Published on ";
-    }
-
-    String formattedUpdateTime =
-        updatedTime.map(t -> dateConverter.renderDateTime(t)).orElse("unknown");
-    String formattedUpdateDate =
-        updatedTime.map(t -> dateConverter.renderDate(t)).orElse("unknown");
-
-    int blockCount = program.getBlockCount();
-    int questionCount = program.getQuestionCount();
-
-    String extraActionsButtonId = "extra-actions-" + program.id();
-    ButtonTag extraActionsButton =
-        makeSvgTextButton("", Icons.MORE_VERT)
-            .withId(extraActionsButtonId)
-            .withClasses(
-                AdminStyles.TERTIARY_BUTTON_STYLES,
-                ReferenceClasses.WITH_DROPDOWN,
-                Styles.H_12,
-                extraActions.size() == 0 ? Styles.INVISIBLE : "");
-
-    return div()
-        .withClasses(
-            Styles.PY_7,
-            Styles.FLEX,
-            Styles.FLEX_ROW,
-            StyleUtils.hover(Styles.BG_GRAY_100),
-            StyleUtils.joinStyles(extraStyles))
-        .with(
-            p().withClasses(
-                    badgeBGColor,
-                    badgeFillColor,
-                    Styles.ML_2,
-                    StyleUtils.responsiveXLarge(Styles.ML_8),
-                    Styles.FONT_MEDIUM,
-                    Styles.ROUNDED_FULL,
-                    Styles.FLEX,
-                    Styles.FLEX_ROW,
-                    Styles.GAP_X_2,
-                    Styles.PLACE_ITEMS_CENTER,
-                    Styles.JUSTIFY_CENTER)
-                .withStyle("min-width:90px")
-                .with(
-                    Icons.svg(Icons.NOISE_CONTROL_OFF)
-                        .withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
-                    span(badgeText).withClass(Styles.MR_4)),
-            div()
-                .withClasses(Styles.ML_4, StyleUtils.responsiveXLarge(Styles.ML_10))
-                .with(
-                    p().with(
-                            span(updatedPrefix),
-                            span(formattedUpdateTime)
-                                .withClasses(
-                                    Styles.FONT_SEMIBOLD,
-                                    Styles.HIDDEN,
-                                    StyleUtils.responsiveLarge(Styles.INLINE)),
-                            span(formattedUpdateDate)
-                                .withClasses(
-                                    Styles.FONT_SEMIBOLD,
-                                    StyleUtils.responsiveLarge(Styles.HIDDEN))),
-                    p().with(
-                            span(String.format("%d", blockCount)).withClass(Styles.FONT_SEMIBOLD),
-                            span(blockCount == 1 ? " screen, " : " screens, "),
-                            span(String.format("%d", questionCount))
-                                .withClass(Styles.FONT_SEMIBOLD),
-                            span(questionCount == 1 ? " question" : " questions"))),
-            div().withClass(Styles.FLEX_GROW),
-            div()
-                .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.PR_6, Styles.FONT_MEDIUM)
-                .with(actions)
-                .with(
-                    div()
-                        .withClass(Styles.RELATIVE)
-                        .with(
-                            extraActionsButton,
-                            div()
-                                .withId(extraActionsButtonId + "-dropdown")
-                                .withClasses(
-                                    Styles.HIDDEN,
-                                    Styles.FLEX,
-                                    Styles.FLEX_COL,
-                                    Styles.BORDER,
-                                    Styles.BG_WHITE,
-                                    Styles.ABSOLUTE,
-                                    Styles.RIGHT_0,
-                                    Styles.W_56,
-                                    Styles.Z_50)
-                                .with(extraActions))));
-  }
-
-  public DivTag renderProgramListItem(
+  private DivTag renderProgramListItem(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
-    ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
+    ProgramCardFactory.ProgramCardParams.Builder cardBuilder =
+        ProgramCardFactory.ProgramCardParams.builder()
+            .setActiveProgram(activeProgram)
+            .setDraftProgram(draftProgram);
 
-    String programTitleText = displayProgram.adminName();
-    String programDescriptionText = displayProgram.adminDescription();
-
-    DivTag statusDiv = div();
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
@@ -345,13 +228,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (featureFlags.isStatusTrackingEnabled(request)) {
         draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       }
-      statusDiv =
-          statusDiv.with(
-              renderProgramRow(
-                  /* isActive = */ false,
-                  draftProgram.get(),
-                  draftRowActions,
-                  draftRowExtraActions));
+      cardBuilder =
+          cardBuilder
+              .setDraftRowActions(ImmutableList.copyOf(draftRowActions))
+              .setDraftRowExtraActions(ImmutableList.copyOf(draftRowExtraActions));
     }
 
     if (activeProgram.isPresent()) {
@@ -365,69 +245,13 @@ public final class ProgramIndexView extends BaseHtmlView {
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
       activeRowActions.add(renderShareLink(activeProgram.get()));
-      statusDiv =
-          statusDiv.with(
-              renderProgramRow(
-                  /* isActive = */ true,
-                  activeProgram.get(),
-                  activeRowActions,
-                  activeRowExtraActions,
-                  draftProgram.isPresent() ? Styles.BORDER_T : ""));
+      cardBuilder =
+          cardBuilder
+              .setActiveRowActions(ImmutableList.copyOf(activeRowActions))
+              .setActiveRowExtraActions(ImmutableList.copyOf(activeRowExtraActions));
     }
 
-    DivTag titleAndStatus =
-        div()
-            .withClass(Styles.FLEX)
-            .with(
-                p(programTitleText)
-                    .withClasses(
-                        ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
-                        Styles.W_1_4,
-                        Styles.PY_7,
-                        Styles.TEXT_BLACK,
-                        Styles.FONT_BOLD,
-                        Styles.TEXT_XL),
-                statusDiv.withClasses(
-                    Styles.FLEX_GROW,
-                    Styles.TEXT_SM,
-                    StyleUtils.responsiveLarge(Styles.TEXT_BASE)));
-
-    return div()
-        .withClasses(
-            ReferenceClasses.ADMIN_PROGRAM_CARD,
-            Styles.W_FULL,
-            Styles.MY_4,
-            Styles.PL_6,
-            Styles.BORDER,
-            Styles.BORDER_GRAY_300,
-            Styles.ROUNDED_LG)
-        .with(
-            titleAndStatus,
-            p(programDescriptionText)
-                .withClasses(
-                    Styles.W_3_4,
-                    Styles.MB_8,
-                    Styles.PT_4,
-                    Styles.LINE_CLAMP_3,
-                    Styles.TEXT_GRAY_700,
-                    Styles.TEXT_BASE))
-        // Add data attributes used for client-side sorting.
-        .withData(
-            "last-updated-millis",
-            Long.toString(extractLastUpdated(draftProgram, activeProgram).toEpochMilli()))
-        .withData("name", programTitleText);
-  }
-
-  private static Instant extractLastUpdated(
-      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
-    // Prefer when the draft was last updated, since active versions should be immutable after
-    // being published.
-    if (draftProgram.isEmpty() && activeProgram.isEmpty()) {
-      throw new IllegalArgumentException("Program neither active nor draft.");
-    }
-
-    ProgramDefinition program = draftProgram.isPresent() ? draftProgram.get() : activeProgram.get();
-    return program.lastModifiedTime().orElse(Instant.EPOCH);
+    return programCardFactory.renderCard(cardBuilder.build());
   }
 
   ButtonTag renderShareLink(ProgramDefinition program) {
@@ -504,7 +328,6 @@ public final class ProgramIndexView extends BaseHtmlView {
 
       ButtonTag button =
           makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
-              .withId("program-view-apps-link-" + activeProgram.id())
               .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
       return Optional.of(asRedirectButton(button, editLink));
     }
