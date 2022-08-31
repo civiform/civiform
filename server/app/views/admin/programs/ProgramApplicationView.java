@@ -254,11 +254,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withCondSelected(!application.getLatestStatus().isPresent()));
 
     // Add statuses in the order they're provided.
+    String latestStatusText = application.getLatestStatus().orElse("");
     statusDefinitions.getStatuses().stream()
         .map(StatusDefinitions.Status::statusText)
         .forEach(
             statusText -> {
-              String latestStatusText = application.getLatestStatus().orElse("");
               boolean isCurrentStatus = statusText.equals(latestStatusText);
               dropdownTag.with(
                   option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
