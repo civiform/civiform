@@ -55,12 +55,11 @@ def main():
     # Set release variables
     ################################################################################
 
-    commit_sha = sys.argv[1].strip()
-    release_number = sys.argv[2].strip()
+    commit_sha = sys.argv[1]
+    release_number = sys.argv[2]
     releaser_email = os.environ[
         'GITHUB_ACTOR'] if 'GITHUB_ACTOR' in os.environ else shell_cmd(
             'git config --get user.email')
-    print(f'Starting release at commit {commit_sha} as version {release_number}.')
 
     ################################################################################
     # Resolve and validate GitHub token, check auth
