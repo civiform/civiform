@@ -1,7 +1,6 @@
 package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -15,15 +14,14 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
 import services.program.ProgramDefinition;
+import views.ViewUtils;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-/**
- * Responsible for generating a program card for view by CiviForm admins / program admins.
- */
+/** Responsible for generating a program card for view by CiviForm admins / program admins. */
 public final class ProgramCardFactory {
 
   private final DateConverter dateConverter;
@@ -120,7 +118,7 @@ public final class ProgramCardFactory {
 
     String extraActionsButtonId = "extra-actions-" + program.id();
     ButtonTag extraActionsButton =
-        makeSvgTextButton("", Icons.MORE_VERT)
+        ViewUtils.makeSvgTextButton("", Icons.MORE_VERT)
             .withId(extraActionsButtonId)
             .withClasses(
                 AdminStyles.TERTIARY_BUTTON_STYLES,
@@ -216,17 +214,6 @@ public final class ProgramCardFactory {
             ? cardData.draftProgram().get().program()
             : cardData.activeProgram().get().program();
     return program.lastModifiedTime().orElse(Instant.EPOCH);
-  }
-
-  // TODO(clouser): Helper.
-  private static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
-    return button()
-        .with(
-            Icons.svg(icon)
-                .withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0)
-                // Can't set 18px using Tailwind CSS classes.
-                .withStyle("width: 18px; height: 18px;"),
-            span(buttonText).withClass(Styles.TEXT_LEFT));
   }
 
   @AutoValue
