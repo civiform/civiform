@@ -258,7 +258,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .map(StatusDefinitions.Status::statusText)
         .forEach(
             statusText -> {
-              boolean isCurrentStatus = statusText.equals(application.getLatestStatus().orElse(""));
+              String latestStatusText = application.getLatestStatus().orElse("");
+              boolean isCurrentStatus = statusText.equals(latestStatusText);
               dropdownTag.with(
                   option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
             });
