@@ -68,12 +68,16 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   }
 }
 
-export const startSession = async (): Promise<{
+export const startSession = async (
+  browser: Browser | null = null,
+): Promise<{
   browser: Browser
   context: BrowserContext
   page: Page
 }> => {
-  const browser = await chromium.launch()
+  if (browser == null) {
+    browser = await chromium.launch()
+  }
   const context = await makeBrowserContext(browser)
   const page = await context.newPage()
 
@@ -102,30 +106,61 @@ export const startSession = async (): Promise<{
  * Context object should be accessed only from within it(), before/afterEach(),
  * before/afterAll() functions.
  *
- * @param clearDb Whether database is cleared between tests. True by default. It's recommended that database is cleared between tests to keep tests hermetic.
+ * @param clearDb Whether database is cleared between tests. True by default.
+ *     It's recommended that database is cleared between tests to keep tests
+ *     hermetic.
+ * @return object containing browser page. The page instance will be different
+ *     for each test so it shouldn't be cached across tests. Each test should
+ *     access it using `ctx.page` to make sure it receives latest version.
  */
 export const createBrowserContext = (
   clearDb = true,
 ): {
   page: Page
 } => {
+  let browser: Browser
+  let browserContext: BrowserContext
+
   const result = {
-    // page and browser undefined initially as they are set in beforeAll().
+    // page is undefined initially as it's set in beforeEach().
     // We need to cast them to Page and Browser types so that users can assume
     // they are always non-null.
     page: undefined as unknown as Page,
-    browser: undefined as unknown as Browser,
   }
+
+  /**
+   * We create new browser context and session before each test. It's
+   * important to get fresh browser context so that each test gets its own
+   * videos. If we reuse same browser context - we'll get one huge video for
+   * all tests.
+   */
+  async function resetContext() {
+    if (browserContext != null) {
+      await browserContext.close()
+    }
+    browserContext = await makeBrowserContext(browser)
+    result.page = await browserContext.newPage()
+    await result.page.goto(BASE_URL)
+  }
+
   beforeAll(async () => {
-    const {page, browser} = await startSession()
-    result.page = page
-    result.browser = browser
+    browser = await chromium.launch()
+    await resetContext()
+  })
+  beforeEach(async () => {
+    await resetContext()
   })
   afterEach(async () => {
-    await resetSession(result.page, clearDb)
+    if (clearDb) {
+      await dropTables(result.page)
+    }
+    // resetting context here so that afterAll() functions of current describe()
+    // block and beforeAll() functions of the next describe() block have fresh
+    // result.page object.
+    await resetContext()
   })
   afterAll(async () => {
-    await endSession(result.browser)
+    await endSession(browser)
   })
   return result
 }

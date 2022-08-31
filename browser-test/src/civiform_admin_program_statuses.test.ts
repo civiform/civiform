@@ -1,22 +1,20 @@
 import {
   dismissModal,
-  startSession,
   loginAsAdmin,
   enableFeatureFlag,
   AdminPrograms,
-  AdminProgramStatuses, createBrowserContext,
+  AdminProgramStatuses,
+  createBrowserContext,
 } from './support'
-import {Page} from 'playwright'
 
 describe('modify program statuses', () => {
-  const ctx = createBrowserContext(/* clearDb= */ false)
+  const ctx = createBrowserContext()
   let adminPrograms: AdminPrograms
   let adminProgramStatuses: AdminProgramStatuses
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     adminPrograms = new AdminPrograms(ctx.page)
     adminProgramStatuses = new AdminProgramStatuses(ctx.page)
-
     await loginAsAdmin(ctx.page)
     await enableFeatureFlag(ctx.page, 'application_status_tracking_enabled')
   })
@@ -34,7 +32,7 @@ describe('modify program statuses', () => {
   describe('new status creation', () => {
     const programName = 'test program create statuses'
 
-    beforeAll(async () => {
+    beforeEach(async () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
@@ -85,7 +83,7 @@ describe('modify program statuses', () => {
     const firstStatusName = 'First status'
     const secondStatusName = 'Second status'
 
-    beforeAll(async () => {
+    beforeEach(async () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
 
@@ -200,7 +198,7 @@ describe('modify program statuses', () => {
     const firstStatusName = 'First status'
     const secondStatusName = 'Second status'
 
-    beforeAll(async () => {
+    beforeEach(async () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
 

@@ -1,6 +1,5 @@
 import {
   dismissModal,
-  startSession,
   logout,
   loginAsGuest,
   loginAsProgramAdmin,
@@ -11,36 +10,34 @@ import {
   userDisplayName,
   AdminProgramStatuses,
   enableFeatureFlag,
+  createBrowserContext,
 } from './support'
-import {Page} from 'playwright'
 
 describe('view program statuses', () => {
-  let pageObject: Page
+  const ctx = createBrowserContext()
   let adminPrograms: AdminPrograms
   let applicantQuestions: ApplicantQuestions
   let adminProgramStatuses: AdminProgramStatuses
 
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-    adminPrograms = new AdminPrograms(pageObject)
-    applicantQuestions = new ApplicantQuestions(pageObject)
-    adminProgramStatuses = new AdminProgramStatuses(pageObject)
+  beforeEach(async () => {
+    adminPrograms = new AdminPrograms(ctx.page)
+    applicantQuestions = new ApplicantQuestions(ctx.page)
+    adminProgramStatuses = new AdminProgramStatuses(ctx.page)
   })
 
   describe('without program statuses', () => {
     const programWithoutStatusesName = 'test program without statuses'
-    beforeAll(async () => {
-      await loginAsAdmin(pageObject)
+    beforeEach(async () => {
+      await loginAsAdmin(ctx.page)
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithoutStatusesName)
       await adminPrograms.publishProgram(programWithoutStatusesName)
       await adminPrograms.expectActiveProgram(programWithoutStatusesName)
 
-      await logout(pageObject)
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await logout(ctx.page)
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       // Submit an application.
       await applicantQuestions.clickApplyProgramButton(
@@ -48,16 +45,12 @@ describe('view program statuses', () => {
       )
       await applicantQuestions.submitFromPreviewPage()
 
-      await logout(pageObject)
+      await logout(ctx.page)
 
       // Navigate to the submitted application as the program admin.
-      await loginAsProgramAdmin(pageObject)
+      await loginAsProgramAdmin(ctx.page)
       await adminPrograms.viewApplications(programWithoutStatusesName)
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
-    })
-
-    afterAll(async () => {
-      await logout(pageObject)
     })
 
     it('does not show status options', async () => {
@@ -73,9 +66,9 @@ describe('view program statuses', () => {
     const programWithStatusesName = 'test program with statuses'
     const noEmailStatusName = 'No email status'
     const emailStatusName = 'Email status'
-    beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+    beforeEach(async () => {
+      await loginAsAdmin(ctx.page)
+      await enableFeatureFlag(ctx.page, 'application_status_tracking_enabled')
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithStatusesName)
@@ -89,24 +82,20 @@ describe('view program statuses', () => {
       await adminPrograms.publishProgram(programWithStatusesName)
       await adminPrograms.expectActiveProgram(programWithStatusesName)
 
-      await logout(pageObject)
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await logout(ctx.page)
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       // Submit an application.
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
       await applicantQuestions.submitFromPreviewPage()
 
-      await logout(pageObject)
-      await loginAsProgramAdmin(pageObject)
-      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+      await logout(ctx.page)
+      await loginAsProgramAdmin(ctx.page)
+      await enableFeatureFlag(ctx.page, 'application_status_tracking_enabled')
 
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
-    })
-
-    afterAll(async () => {
-      await logout(pageObject)
     })
 
     it('shows status selector', async () => {
