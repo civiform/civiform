@@ -10,8 +10,8 @@
 
 alter table applications add column if not exists latest_status varchar;
 
--- The latest status associated with an application is set to NULL if no application event entries
--- exist. Otherwise, the text from the latest event corresponding to a status change is used.
+-- Retrieves the status text from the latest event corresponding to a status change. If no
+-- application event entries exist, the column is set to NULL.
 CREATE OR REPLACE FUNCTION retrieve_latest_application_status(app_id applications.id%TYPE) RETURNS text AS $$
   SELECT
       (CASE WHEN details->'status_event'->>'status_text' = ''
