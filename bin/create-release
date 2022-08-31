@@ -21,8 +21,12 @@ import sys
 
 
 def shell_cmd(command_string):
-    process = subprocess.run(
-        shlex.split(command_string), check=True, capture_output=True)
+    try:
+        process = subprocess.run(
+            shlex.split(command_string), check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        print('Failed to run {command_string}.\n{e.output}')
+        raise e
     return process.stdout.decode('ascii') if process else ''
 
 
