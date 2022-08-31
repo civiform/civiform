@@ -9,9 +9,9 @@ docker run \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   -e BASE_URL="https://staging.seattle.civiform.com" \
-  -e TEST_USER_AUTH_STRATEGY="${TEST_USER_AUTH_STRATEGY}" \
+  -e TEST_USER_AUTH_STRATEGY="seattle-staging" \
   -e TEST_USER_LOGIN="${TEST_USER_LOGIN}" \
   -e TEST_USER_PASSWORD="${TEST_USER_PASSWORD}" \
-  -e TEST_USER_DISPLAY_NAME="${TEST_USER_DISPLAY_NAME}" \
+  -e TEST_USER_DISPLAY_NAME="TEST, UATAPP" \
   civiform-browser-test:latest \
   /bin/bash -c "yarn install && yarn probe"
