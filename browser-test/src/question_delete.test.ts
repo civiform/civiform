@@ -1,14 +1,15 @@
 import {
   AdminPrograms,
   AdminQuestions,
+  createBrowserContext,
   loginAsAdmin,
-  startSession,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 
 describe('deleting question lifecycle', () => {
+  const ctx = createBrowserContext()
   it('create, publish, delete unused questions', async () => {
-    const {page} = await startSession()
+    const {page} = ctx
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)

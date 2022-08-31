@@ -9,6 +9,13 @@ import {
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
+import {
+  BASE_URL,
+  DISABLE_SCREENSHOTS,
+  TEST_USER_LOGIN,
+  TEST_USER_PASSWORD,
+} from './config'
+
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
@@ -20,12 +27,6 @@ export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {ApplicantQuestions} from './applicant_questions'
 export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
-import {
-  BASE_URL,
-  TEST_USER_LOGIN,
-  TEST_USER_PASSWORD,
-  DISABLE_SCREENSHOTS,
-} from './config'
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -83,12 +84,35 @@ export const startSession = async (): Promise<{
   return {browser, context, page}
 }
 
+/**
+ * Launches a browser and returns context that contains objects needed to
+ * interact with the browser. Example usage:
+ *
+ * describe('some test', () => {
+ *   const ctx = createBrowserContext()
+ *
+ *   it('should do foo', async () => {
+ *     await ctx.page.click('#some-button')
+ *   })
+ * })
+ *
+ * Browser session is reset between tests and database is cleared by default.
+ * Each test starts on the login page.
+ *
+ * Context object should be accessed only from within it(), before/afterEach(),
+ * before/afterAll() functions.
+ *
+ * @param clearDb Whether database is cleared between tests. True by default. It's recommended that database is cleared between tests to keep tests hermetic.
+ */
 export const createBrowserContext = (
   clearDb = true,
 ): {
   page: Page
 } => {
   const result = {
+    // page and browser undefined initially as they are set in beforeAll().
+    // We need to cast them to Page and Browser types so that users can assume
+    // they are always non-null.
     page: undefined as unknown as Page,
     browser: undefined as unknown as Browser,
   }

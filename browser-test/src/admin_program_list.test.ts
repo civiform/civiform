@@ -1,8 +1,9 @@
-import {startSession, loginAsAdmin, AdminPrograms, endSession} from './support'
+import {AdminPrograms, createBrowserContext, loginAsAdmin} from './support'
 
 describe('Most recently updated program is at top of list.', () => {
+  const ctx = createBrowserContext()
   it('sorts by last updated, preferring draft over active', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     await loginAsAdmin(page)
     const adminPrograms = new AdminPrograms(page)
@@ -44,7 +45,5 @@ describe('Most recently updated program is at top of list.', () => {
       programOne,
       programTwo,
     ])
-
-    await endSession(browser)
   })
 })

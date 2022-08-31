@@ -1,14 +1,12 @@
-import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
   ApplicantQuestions,
+  createBrowserContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
-  resetSession,
   selectApplicantLanguage,
-  startSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -17,26 +15,17 @@ const NAME_FIRST = '.cf-name-first'
 const NAME_LAST = '.cf-name-last'
 
 describe('name applicant flow', () => {
-  let pageObject: Page
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
+  const ctx = createBrowserContext(/* clearDb= */ false)
 
   describe('single required name question', () => {
     let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single name'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addNameQuestion({
         questionName: 'name-test-q',
@@ -45,43 +34,43 @@ describe('name applicant flow', () => {
         ['name-test-q'],
         programName,
       )
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('validate screenshot', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, 'name')
+      await validateScreenshot(ctx.page, 'name')
     })
 
     it('validate screenshot with errors', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject, 'name-errors')
+      await validateScreenshot(ctx.page, 'name-errors')
     })
 
     it('does not show errors initially', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
-      let error = await pageObject.$(`${NAME_FIRST}-error`)
+      let error = await ctx.page.$(`${NAME_FIRST}-error`)
       expect(await error?.isHidden()).toEqual(true)
-      error = await pageObject.$(`${NAME_LAST}-error`)
+      error = await ctx.page.$(`${NAME_LAST}-error`)
       expect(await error?.isHidden()).toEqual(true)
     })
 
     it('with valid name does submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
@@ -91,16 +80,16 @@ describe('name applicant flow', () => {
     })
 
     it('with empty name does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       await applicantQuestions.clickNext()
 
-      let error = await pageObject.$(`${NAME_FIRST}-error`)
+      let error = await ctx.page.$(`${NAME_FIRST}-error`)
       expect(await error?.isHidden()).toEqual(false)
-      error = await pageObject.$(`${NAME_LAST}-error`)
+      error = await ctx.page.$(`${NAME_LAST}-error`)
       expect(await error?.isHidden()).toEqual(false)
     })
   })
@@ -110,10 +99,10 @@ describe('name applicant flow', () => {
     const programName = 'test program for multiple names'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addNameQuestion({
         questionName: 'name-test-a-q',
@@ -126,12 +115,12 @@ describe('name applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('with valid name does submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
@@ -142,8 +131,8 @@ describe('name applicant flow', () => {
     })
 
     it('with first invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', 0)
@@ -151,21 +140,21 @@ describe('name applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has errors.
-      let error = await pageObject.$(`${NAME_FIRST}-error >> nth=0`)
+      let error = await ctx.page.$(`${NAME_FIRST}-error >> nth=0`)
       expect(await error?.isHidden()).toEqual(false)
-      error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
+      error = await ctx.page.$(`${NAME_LAST}-error >> nth=0`)
       expect(await error?.isHidden()).toEqual(false)
 
       // Second question has no errors.
-      error = await pageObject.$(`${NAME_FIRST}-error >> nth=1`)
+      error = await ctx.page.$(`${NAME_FIRST}-error >> nth=1`)
       expect(await error?.isHidden()).toEqual(true)
-      error = await pageObject.$(`${NAME_LAST}-error >> nth=1`)
+      error = await ctx.page.$(`${NAME_LAST}-error >> nth=1`)
       expect(await error?.isHidden()).toEqual(true)
     })
 
     it('with second invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
@@ -173,25 +162,25 @@ describe('name applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has no errors.
-      let error = await pageObject.$(`${NAME_FIRST}-error >> nth=0`)
+      let error = await ctx.page.$(`${NAME_FIRST}-error >> nth=0`)
       expect(await error?.isHidden()).toEqual(true)
-      error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
+      error = await ctx.page.$(`${NAME_LAST}-error >> nth=0`)
       expect(await error?.isHidden()).toEqual(true)
 
       // Second question has errors.
-      error = await pageObject.$(`${NAME_FIRST}-error >> nth=1`)
+      error = await ctx.page.$(`${NAME_FIRST}-error >> nth=1`)
       expect(await error?.isHidden()).toEqual(false)
-      error = await pageObject.$(`${NAME_LAST}-error >> nth=1`)
+      error = await ctx.page.$(`${NAME_LAST}-error >> nth=1`)
       expect(await error?.isHidden()).toEqual(false)
     })
 
     it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(ctx.page)
     })
   })
 
@@ -201,10 +190,10 @@ describe('name applicant flow', () => {
     const programName = 'test program for optional name'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addNameQuestion({
         questionName: 'name-test-optional-q',
@@ -222,12 +211,12 @@ describe('name applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('with valid required name does submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
@@ -237,8 +226,8 @@ describe('name applicant flow', () => {
     })
 
     it('with invalid optional name does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', '', '', 0)
@@ -246,14 +235,14 @@ describe('name applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // Optional question has an error.
-      const error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
+      const error = await ctx.page.$(`${NAME_LAST}-error >> nth=0`)
       expect(await error?.isHidden()).toEqual(false)
     })
 
     describe('with invalid required name', () => {
       beforeEach(async () => {
-        await loginAsGuest(pageObject)
-        await selectApplicantLanguage(pageObject, 'English')
+        await loginAsGuest(ctx.page)
+        await selectApplicantLanguage(ctx.page, 'English')
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNameQuestion('', '', '', 1)
@@ -262,17 +251,17 @@ describe('name applicant flow', () => {
 
       it('does not submit', async () => {
         // Second question has errors.
-        let error = await pageObject.$(`${NAME_FIRST}-error >> nth=1`)
+        let error = await ctx.page.$(`${NAME_FIRST}-error >> nth=1`)
         expect(await error?.isHidden()).toEqual(false)
-        error = await pageObject.$(`${NAME_LAST}-error >> nth=1`)
+        error = await ctx.page.$(`${NAME_LAST}-error >> nth=1`)
         expect(await error?.isHidden()).toEqual(false)
       })
 
       it('optional has no errors', async () => {
         // First question has no errors.
-        let error = await pageObject.$(`${NAME_FIRST}-error >> nth=0`)
+        let error = await ctx.page.$(`${NAME_FIRST}-error >> nth=0`)
         expect(await error?.isHidden()).toEqual(true)
-        error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
+        error = await ctx.page.$(`${NAME_LAST}-error >> nth=0`)
         expect(await error?.isHidden()).toEqual(true)
       })
     })

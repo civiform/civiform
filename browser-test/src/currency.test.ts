@@ -1,14 +1,12 @@
-import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
   ApplicantQuestions,
+  createBrowserContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
   selectApplicantLanguage,
-  startSession,
-  resetSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -17,26 +15,17 @@ describe('currency applicant flow', () => {
   const validCurrency = '1000'
   // Not enough decimals.
   const invalidCurrency = '1.0'
-  let pageObject: Page
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
+  const ctx = createBrowserContext(/* clearDb= */ false)
 
   describe('single currency question', () => {
     let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single currency'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
@@ -44,31 +33,31 @@ describe('currency applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('validate screenshot', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, 'currency')
+      await validateScreenshot(ctx.page, 'currency')
     })
 
     it('validate screenshot with errors', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject, 'currency-errors')
+      await validateScreenshot(ctx.page, 'currency-errors')
     })
 
     it('with valid currency does submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
@@ -78,20 +67,20 @@ describe('currency applicant flow', () => {
     })
 
     it('with invalid currency does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error'
       // When there are no validation errors, the div still exists but is hidden.
-      expect(await pageObject.isHidden(currencyError)).toEqual(true)
+      expect(await ctx.page.isHidden(currencyError)).toEqual(true)
 
       // Input has not enough decimal points.
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency)
       await applicantQuestions.clickNext()
 
       // The block should be displayed still with the error shown.
-      expect(await pageObject.isHidden(currencyError)).toEqual(false)
+      expect(await ctx.page.isHidden(currencyError)).toEqual(false)
     })
   })
 
@@ -100,10 +89,10 @@ describe('currency applicant flow', () => {
     const programName = 'test program for multiple currencies'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addCurrencyQuestion({
         questionName: 'currency-a-q',
@@ -122,12 +111,12 @@ describe('currency applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('with valid currencies does submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
@@ -138,8 +127,8 @@ describe('currency applicant flow', () => {
     })
 
     it('with unanswered optional question submits', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
@@ -149,44 +138,44 @@ describe('currency applicant flow', () => {
     })
 
     it('with first invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=0'
       // When there are no validation errors, the div still exists but is hidden.
-      expect(await pageObject.isHidden(currencyError)).toEqual(true)
+      expect(await ctx.page.isHidden(currencyError)).toEqual(true)
 
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
 
-      expect(await pageObject.isHidden(currencyError)).toEqual(false)
+      expect(await ctx.page.isHidden(currencyError)).toEqual(false)
     })
 
     it('with second invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=1'
       // When there are no validation errors, the div still exists but is hidden.
-      expect(await pageObject.isHidden(currencyError)).toEqual(true)
+      expect(await ctx.page.isHidden(currencyError)).toEqual(true)
 
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 1)
       await applicantQuestions.clickNext()
 
-      expect(await pageObject.isHidden(currencyError)).toEqual(false)
+      expect(await ctx.page.isHidden(currencyError)).toEqual(false)
     })
 
     it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(ctx.page)
     })
   })
 })

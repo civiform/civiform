@@ -1,30 +1,18 @@
-import {Browser, Page} from 'playwright'
 import {
-  startSession,
+  AdminTIGroups,
+  ClientInformation,
+  createBrowserContext,
   loginAsAdmin,
   loginAsTrustedIntermediary,
-  endSession,
-  AdminTIGroups,
   TIDashboard,
-  ClientInformation,
   waitForPageJsLoad,
 } from './support'
 
 describe('Trusted intermediaries', () => {
-  let browser: Browser
-  let page: Page
-
-  beforeEach(async () => {
-    const session = await startSession()
-    browser = session.browser
-    page = session.page
-  })
-
-  afterEach(async () => {
-    await endSession(browser)
-  })
+  const ctx = createBrowserContext()
 
   it('expect Client Date Of Birth to be Updated', async () => {
+    const {page} = ctx
     await loginAsTrustedIntermediary(page)
     const tiDashboard = new TIDashboard(page)
     await tiDashboard.gotoTIDashboardPage(page)
@@ -50,6 +38,7 @@ describe('Trusted intermediaries', () => {
   })
 
   it('expect Dashboard Contain New Client', async () => {
+    const {page} = ctx
     await loginAsTrustedIntermediary(page)
 
     const tiDashboard = new TIDashboard(page)
@@ -67,6 +56,7 @@ describe('Trusted intermediaries', () => {
   })
 
   it('search For Client In TI Dashboard', async () => {
+    const {page} = ctx
     await loginAsTrustedIntermediary(page)
 
     const tiDashboard = new TIDashboard(page)
@@ -105,6 +95,7 @@ describe('Trusted intermediaries', () => {
   })
 
   it('managing trusted intermediary ', async () => {
+    const {page} = ctx
     await loginAsAdmin(page)
     const adminGroups = new AdminTIGroups(page)
     await adminGroups.gotoAdminTIPage()
@@ -117,6 +108,7 @@ describe('Trusted intermediaries', () => {
   })
 
   it('logging in as a trusted intermediary', async () => {
+    const {page} = ctx
     await loginAsTrustedIntermediary(page)
     expect(await page.innerText('#ti-dashboard-link')).toContain(
       'TRUSTED INTERMEDIARY DASHBOARD',

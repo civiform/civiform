@@ -1,21 +1,21 @@
 import {
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
+  AdminQuestions,
+  createBrowserContext,
+  dropTables,
+  loginAsAdmin,
   seedCanonicalQuestions,
-  waitForPageJsLoad,
   validateScreenshot,
-  resetSession,
+  waitForPageJsLoad,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
-import {Page} from 'playwright'
 
 describe('normal question lifecycle', () => {
   const ctx = createBrowserContext()
 
   it('canonical question seeding works', async () => {
+    const {page} = ctx
     await dropTables(page)
     await seedCanonicalQuestions(page)
 
@@ -32,6 +32,7 @@ describe('normal question lifecycle', () => {
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
     it(`${type} question: create, update, publish, create a new version, and update`, async () => {
+      const {page} = ctx
       page.setDefaultTimeout(4000)
 
       await loginAsAdmin(page)
@@ -105,6 +106,7 @@ describe('normal question lifecycle', () => {
   }
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
+    const {page} = ctx
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -128,6 +130,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
+    const {page} = ctx
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -151,6 +154,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
+    const {page} = ctx
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -179,6 +183,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
+    const {page} = ctx
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -209,6 +214,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('persists export state', async () => {
+    const {page} = ctx
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -256,6 +262,7 @@ describe('normal question lifecycle', () => {
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
+    const {page} = ctx
     await loginAsAdmin(page)
 
     const adminQuestions = new AdminQuestions(page)

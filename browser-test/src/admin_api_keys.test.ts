@@ -1,31 +1,17 @@
-import {Browser, Page} from 'playwright'
 import {
-  startSession,
-  loginAsAdmin,
   AdminApiKeys,
   AdminPrograms,
-  endSession,
+  createBrowserContext,
+  loginAsAdmin,
 } from './support'
 
 describe('Managing API keys', () => {
-  let browser: Browser
-  let page: Page
-
-  beforeEach(async () => {
-    const session = await startSession()
-
-    browser = session.browser
-    page = session.page
-  })
-
-  afterEach(async () => {
-    await endSession(browser)
-  })
+  const ctx = createBrowserContext()
 
   it('Creates, views and retires new API key', async () => {
-    await loginAsAdmin(page)
-    const adminApiKeys = new AdminApiKeys(page)
-    const adminPrograms = new AdminPrograms(page)
+    await loginAsAdmin(ctx.page)
+    const adminApiKeys = new AdminApiKeys(ctx.page)
+    const adminPrograms = new AdminPrograms(ctx.page)
 
     const programName = 'API using program'
     const programDescription = 'This program uses the API.'

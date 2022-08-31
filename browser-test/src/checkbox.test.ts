@@ -1,29 +1,18 @@
-import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
   ApplicantQuestions,
+  createBrowserContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
   selectApplicantLanguage,
-  startSession,
-  resetSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
 
 describe('Checkbox question for applicant flow', () => {
-  let pageObject: Page
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
+  const ctx = createBrowserContext(/* clearDb= */ false)
 
   describe('single checkbox question', () => {
     let applicantQuestions: ApplicantQuestions
@@ -31,10 +20,10 @@ describe('Checkbox question for applicant flow', () => {
 
     beforeAll(async () => {
       // As admin, create program with single checkbox question.
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addCheckboxQuestion({
         questionName: 'checkbox-color-q',
@@ -47,17 +36,13 @@ describe('Checkbox question for applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
-    })
-
-    afterEach(async () => {
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('Updates options in preview', async () => {
-      await loginAsAdmin(pageObject)
+      await loginAsAdmin(ctx.page)
 
-      const adminQuestions = new AdminQuestions(pageObject)
+      const adminQuestions = new AdminQuestions(ctx.page)
 
       await adminQuestions.createCheckboxQuestion(
         {
@@ -95,27 +80,27 @@ describe('Checkbox question for applicant flow', () => {
     })
 
     it('validate screenshot', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, 'checkbox')
+      await validateScreenshot(ctx.page, 'checkbox')
     })
 
     it('validate screenshot with errors', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject, 'checkbox-errors')
+      await validateScreenshot(ctx.page, 'checkbox-errors')
     })
 
     it('with single checked box submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
@@ -125,34 +110,34 @@ describe('Checkbox question for applicant flow', () => {
     })
 
     it('with no checked boxes does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
       // No validation errors on first page load.
       const checkBoxError = '.cf-applicant-question-errors'
-      expect(await pageObject.isHidden(checkBoxError)).toEqual(true)
+      expect(await ctx.page.isHidden(checkBoxError)).toEqual(true)
 
       // Click next without selecting anything.
       await applicantQuestions.clickNext()
 
       // Check checkbox error and required error are present.
-      expect(await pageObject.isHidden(checkBoxError)).toEqual(false)
+      expect(await ctx.page.isHidden(checkBoxError)).toEqual(false)
       const checkboxId = '.cf-question-checkbox'
-      expect(await pageObject.innerText(checkboxId)).toContain(
+      expect(await ctx.page.innerText(checkboxId)).toContain(
         'This question is required.',
       )
     })
 
     it('with greater than max allowed checked boxes does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       const checkBoxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
-      expect(await pageObject.isHidden(checkBoxError)).toEqual(true)
+      expect(await ctx.page.isHidden(checkBoxError)).toEqual(true)
 
       // Max of two checked boxes are allowed, but we select three.
       await applicantQuestions.answerCheckboxQuestion([
@@ -163,7 +148,7 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // Check error is shown.
-      expect(await pageObject.isHidden(checkBoxError)).toEqual(false)
+      expect(await ctx.page.isHidden(checkBoxError)).toEqual(false)
     })
   })
 
@@ -172,10 +157,10 @@ describe('Checkbox question for applicant flow', () => {
     const programName = 'test program for multiple checkboxes'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addCheckboxQuestion({
         questionName: 'checkbox-fave-color-q',
@@ -200,12 +185,12 @@ describe('Checkbox question for applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('with valid checkboxes submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
@@ -216,8 +201,8 @@ describe('Checkbox question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
@@ -228,13 +213,13 @@ describe('Checkbox question for applicant flow', () => {
     })
 
     it('with first invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
-      expect(await pageObject.isHidden(checkboxError)).toEqual(true)
+      expect(await ctx.page.isHidden(checkboxError)).toEqual(true)
 
       // Max of 2 answers allowed.
       await applicantQuestions.answerCheckboxQuestion([
@@ -245,17 +230,17 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickNext()
 
-      expect(await pageObject.isHidden(checkboxError)).toEqual(false)
+      expect(await ctx.page.isHidden(checkboxError)).toEqual(false)
     })
 
     it('with second invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
-      expect(await pageObject.isHidden(checkboxError)).toEqual(true)
+      expect(await ctx.page.isHidden(checkboxError)).toEqual(true)
 
       await applicantQuestions.answerCheckboxQuestion(['red'])
       // Max of 2 answers allowed.
@@ -266,16 +251,16 @@ describe('Checkbox question for applicant flow', () => {
       ])
       await applicantQuestions.clickNext()
 
-      expect(await pageObject.isHidden(checkboxError)).toEqual(false)
+      expect(await ctx.page.isHidden(checkboxError)).toEqual(false)
     })
 
     it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(ctx.page)
     })
   })
 })

@@ -3,19 +3,20 @@ import {
   AdminPrograms,
   AdminQuestions,
   ApplicantQuestions,
-  endSession,
+  createBrowserContext,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
-  startSession,
   userDisplayName,
 } from './support'
 
 describe('create and edit predicates', () => {
+  const ctx = createBrowserContext()
+
   it('add a hide predicate', async () => {
-    const {browser, page} = await startSession()
+    const page = ctx.page
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -97,12 +98,10 @@ describe('create and edit predicates', () => {
       .locator('#application-view')
       .innerText()
     expect(applicationText).not.toContain('Screen 2')
-
-    await endSession(browser)
   })
 
   it('add a show predicate', async () => {
-    const {browser, page} = await startSession()
+    const page = ctx.page
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -189,12 +188,10 @@ describe('create and edit predicates', () => {
         .locator('#application-view')
         .innerText(),
     ).toContain('Screen 2')
-
-    await endSession(browser)
   })
 
   it('every right hand type evaluates correctly', async () => {
-    const {browser, page} = await startSession()
+    const page = ctx.page
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -322,6 +319,5 @@ describe('create and edit predicates', () => {
 
     // We should now be on the summary page
     await applicant.submitFromReviewPage()
-    await endSession(browser)
   })
 })

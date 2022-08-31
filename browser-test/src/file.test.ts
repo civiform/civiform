@@ -1,33 +1,26 @@
-import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
   ApplicantQuestions,
+  createBrowserContext,
+  dropTables,
   loginAsAdmin,
   loginAsGuest,
   logout,
-  dropTables,
   seedCanonicalQuestions,
-  resetSession,
   selectApplicantLanguage,
-  startSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
+import {BASE_URL} from './support/config'
 
 describe('file upload applicant flow', () => {
-  let pageObject: Page
+  const ctx = createBrowserContext(/* clearDb= */ false)
 
   beforeAll(async () => {
-    const {page} = await startSession()
-    await dropTables(page)
-    await seedCanonicalQuestions(page)
-    await resetSession(page)
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
+    await dropTables(ctx.page)
+    await seedCanonicalQuestions(ctx.page)
+    await ctx.page.goto(BASE_URL)
   })
 
   describe('single file upload question', () => {
@@ -35,10 +28,10 @@ describe('file upload applicant flow', () => {
     const programName = 'test program for single file upload'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addFileUploadQuestion({
         questionName: 'file-upload-test-q',
@@ -48,49 +41,49 @@ describe('file upload applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('validate screenshot', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, 'file')
+      await validateScreenshot(ctx.page, 'file')
     })
 
     it('validate screenshot with errors', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickUpload()
 
-      await validateScreenshot(pageObject, 'file-errors')
+      await validateScreenshot(ctx.page, 'file-errors')
     })
 
     it('does not show errors initially', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion('file key')
-      const error = await pageObject.$('.cf-fileupload-error')
+      const error = await ctx.page.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(true)
     })
 
     it('does not show skip button for required question', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      expect(await pageObject.$('#fileupload-skip-button')).toBeNull()
+      expect(await ctx.page.$('#fileupload-skip-button')).toBeNull()
     })
 
     it('with valid file does submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
@@ -104,23 +97,23 @@ describe('file upload applicant flow', () => {
     })
 
     it('with no file does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickUpload()
 
-      const error = await pageObject.$('.cf-fileupload-error')
+      const error = await ctx.page.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
     })
 
     it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(ctx.page)
     })
   })
 
@@ -130,10 +123,10 @@ describe('file upload applicant flow', () => {
     const programName = 'test program for optional file upload'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addFileUploadQuestion({
         questionName: 'file-upload-test-optional-q',
@@ -148,19 +141,19 @@ describe('file upload applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('with missing file can be skipped', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       // Initially clicking upload with no file provided generates
       // an error. Then we click skip to ensure that the question
       // is optional.
       await applicantQuestions.clickUpload()
-      const error = await pageObject.$('.cf-fileupload-error')
+      const error = await ctx.page.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
       await applicantQuestions.clickSkip()
 
@@ -168,8 +161,8 @@ describe('file upload applicant flow', () => {
     })
 
     it('can be skipped', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickSkip()

@@ -1,29 +1,18 @@
-import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
   ApplicantQuestions,
+  createBrowserContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
   selectApplicantLanguage,
-  startSession,
-  resetSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
 
 describe('Date question for applicant flow', () => {
-  let pageObject: Page
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
+  const ctx = createBrowserContext(/* clearDb= */ false)
 
   describe('single date question', () => {
     let applicantQuestions: ApplicantQuestions
@@ -31,10 +20,10 @@ describe('Date question for applicant flow', () => {
 
     beforeAll(async () => {
       // As admin, create program with single date question.
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addDateQuestion({questionName: 'general-date-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
@@ -42,31 +31,31 @@ describe('Date question for applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('validate screenshot', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, 'date')
+      await validateScreenshot(ctx.page, 'date')
     })
 
     it('validate screenshot with errors', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject, 'date-errors')
+      await validateScreenshot(ctx.page, 'date-errors')
     })
 
     it('with filled in date submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-05-02')
@@ -76,8 +65,8 @@ describe('Date question for applicant flow', () => {
     })
 
     it('with no answer does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       // Click next without selecting anything.
@@ -85,7 +74,7 @@ describe('Date question for applicant flow', () => {
 
       // Check required error is present
       const dateId = '.cf-question-date'
-      expect(await pageObject.innerText(dateId)).toContain(
+      expect(await ctx.page.innerText(dateId)).toContain(
         'This question is required.',
       )
     })
@@ -96,10 +85,10 @@ describe('Date question for applicant flow', () => {
     const programName = 'test program for multiple date questions'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addDateQuestion({questionName: 'birthday-date-q'})
       await adminQuestions.addDateQuestion({questionName: 'todays-date-q'})
@@ -114,12 +103,12 @@ describe('Date question for applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('with valid dates submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-07-04', 0)
@@ -130,8 +119,8 @@ describe('Date question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       // Only answer second question.
       await applicantQuestions.applyProgram(programName)
@@ -142,12 +131,12 @@ describe('Date question for applicant flow', () => {
     })
 
     it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(ctx.page)
     })
   })
 })

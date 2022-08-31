@@ -1,26 +1,21 @@
 import {
-  dismissModal,
-  startSession,
-  loginAsAdmin,
-  enableFeatureFlag,
   AdminPrograms,
   AdminProgramStatuses,
+  createBrowserContext,
+  dismissModal,
+  loginAsAdmin,
 } from './support'
-import {Page} from 'playwright'
 
-describe('modify program statuses', () => {
-  let pageObject: Page
+// TODO(#3071): Re-enable when the feature flag is controllable in tests.
+describe.skip('modify program statuses', () => {
+  const ctx = createBrowserContext(/* clearDb= */ false)
   let adminPrograms: AdminPrograms
   let adminProgramStatuses: AdminProgramStatuses
 
   beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-    adminPrograms = new AdminPrograms(pageObject)
-    adminProgramStatuses = new AdminProgramStatuses(pageObject)
-
-    await loginAsAdmin(pageObject)
-    await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+    adminPrograms = new AdminPrograms(ctx.page)
+    adminProgramStatuses = new AdminProgramStatuses(ctx.page)
+    await loginAsAdmin(ctx.page)
   })
 
   describe('statuses list', () => {
@@ -67,7 +62,7 @@ describe('modify program statuses', () => {
       await adminProgramStatuses.expectCreateStatusModalWithError(
         'This field is required',
       )
-      await dismissModal(pageObject)
+      await dismissModal(ctx.page)
     })
 
     it('fails to create status with an existing name', async () => {
@@ -78,7 +73,7 @@ describe('modify program statuses', () => {
       await adminProgramStatuses.expectCreateStatusModalWithError(
         'A status with name Existing status already exists',
       )
-      await dismissModal(pageObject)
+      await dismissModal(ctx.page)
     })
   })
 
@@ -114,7 +109,7 @@ describe('modify program statuses', () => {
       await adminProgramStatuses.expectEditStatusModalWithError(
         `A status with name ${secondStatusName} already exists`,
       )
-      await dismissModal(pageObject)
+      await dismissModal(ctx.page)
     })
 
     it('fails to edit status with an empty name', async () => {
@@ -125,7 +120,7 @@ describe('modify program statuses', () => {
       await adminProgramStatuses.expectEditStatusModalWithError(
         'This field is required',
       )
-      await dismissModal(pageObject)
+      await dismissModal(ctx.page)
     })
 
     it('edits an existing status name', async () => {

@@ -1,30 +1,19 @@
-import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
   ApplicantQuestions,
+  createBrowserContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
   selectApplicantLanguage,
-  startSession,
-  resetSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
 
 describe('Number question for applicant flow', () => {
-  let pageObject: Page
+  const ctx = createBrowserContext(/* clearDb= */ false)
   const numberInputError = 'div.cf-question-number-error'
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
 
   describe('single number question', () => {
     let applicantQuestions: ApplicantQuestions
@@ -32,10 +21,10 @@ describe('Number question for applicant flow', () => {
 
     beforeAll(async () => {
       // As admin, create program with single number question.
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addNumberQuestion({
         questionName: 'fave-number-q',
@@ -45,31 +34,31 @@ describe('Number question for applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('validate screenshot', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, 'number')
+      await validateScreenshot(ctx.page, 'number')
     })
 
     it('validate screenshot with errors', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject, 'number-errors')
+      await validateScreenshot(ctx.page, 'number-errors')
     })
 
     it('with valid number submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('8')
@@ -79,22 +68,22 @@ describe('Number question for applicant flow', () => {
     })
 
     it('with no input does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       // Leave field blank.
       await applicantQuestions.clickNext()
 
       const numberId = '.cf-question-number'
-      expect(await pageObject.innerText(numberId)).toContain(
+      expect(await ctx.page.innerText(numberId)).toContain(
         'This question is required.',
       )
     })
 
     it('with non-numeric inputs does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       const testValues = ['12e3', '12E3', '-123', '1.23']
@@ -102,7 +91,7 @@ describe('Number question for applicant flow', () => {
       for (const testValue of testValues) {
         await applicantQuestions.answerNumberQuestion(testValue)
         await applicantQuestions.clickNext()
-        expect(await pageObject.isHidden(numberInputError)).toEqual(false)
+        expect(await ctx.page.isHidden(numberInputError)).toEqual(false)
         await applicantQuestions.answerNumberQuestion('')
       }
     })
@@ -113,10 +102,10 @@ describe('Number question for applicant flow', () => {
     const programName = 'test program for multiple numbers'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(ctx.page)
+      const adminQuestions = new AdminQuestions(ctx.page)
+      const adminPrograms = new AdminPrograms(ctx.page)
+      applicantQuestions = new ApplicantQuestions(ctx.page)
 
       await adminQuestions.addNumberQuestion({
         questionName: 'my-number-q',
@@ -135,12 +124,12 @@ describe('Number question for applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(ctx.page)
     })
 
     it('with valid numbers submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('100', 0)
@@ -151,8 +140,8 @@ describe('Number question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
@@ -163,38 +152,38 @@ describe('Number question for applicant flow', () => {
     })
 
     it('with first invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('-10', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
 
-      expect(await pageObject.isHidden(numberInputError)).toEqual(false)
+      expect(await ctx.page.isHidden(numberInputError)).toEqual(false)
     })
 
     it('with second invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('10', 0)
       await applicantQuestions.answerNumberQuestion('-5', 1)
       await applicantQuestions.clickNext()
 
-      expect(await pageObject.isHidden(numberInputError + ' >> nth=1')).toEqual(
+      expect(await ctx.page.isHidden(numberInputError + ' >> nth=1')).toEqual(
         false,
       )
     })
 
     it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(ctx.page)
+      await selectApplicantLanguage(ctx.page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(ctx.page)
     })
   })
 })

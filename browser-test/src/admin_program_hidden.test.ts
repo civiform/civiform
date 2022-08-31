@@ -1,17 +1,17 @@
 import {
-  startSession,
-  loginAsAdmin,
   AdminPrograms,
-  endSession,
-  logout,
-  loginAsGuest,
-  selectApplicantLanguage,
   ApplicantQuestions,
+  createBrowserContext,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  selectApplicantLanguage,
 } from './support'
 
 describe('Hide a program that should not be public yet', () => {
+  const ctx = createBrowserContext()
   it('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
@@ -32,13 +32,10 @@ describe('Hide a program that should not be public yet', () => {
 
     // Verify the program cannot be seen
     await applicantQuestions.expectProgramHidden(programName)
-
-    await logout(page)
-    await endSession(browser)
   })
 
   it('create a public program, verify applicants can see it on the home page', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
@@ -61,7 +58,5 @@ describe('Hide a program that should not be public yet', () => {
       programName,
       programDescription,
     )
-
-    await endSession(browser)
   })
 })

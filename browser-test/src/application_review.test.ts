@@ -1,21 +1,21 @@
 import {
-  startSession,
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  createBrowserContext,
   loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
   loginAsTestUser,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
   logout,
   selectApplicantLanguage,
-  ApplicantQuestions,
   userDisplayName,
 } from './support'
 
 describe('Program admin review of submitted applications', () => {
+  const ctx = createBrowserContext()
   it('all major steps', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
@@ -248,12 +248,10 @@ describe('Program admin review of submitted applications', () => {
       'favorite-trees-q',
       'pine cherry',
     )
-
-    await endSession(browser)
   })
 
   it('program applications listed most recent first', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
     page.setDefaultTimeout(5000)
 
     // Create a simple one question program application.
@@ -305,9 +303,5 @@ describe('Program admin review of submitted applications', () => {
         answers[answers.length - i - 1],
       )
     }
-
-    await logout(page)
-
-    await endSession(browser)
   })
 })

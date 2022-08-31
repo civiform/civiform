@@ -4,18 +4,19 @@ import {
   AdminQuestions,
   AdminTranslations,
   ApplicantQuestions,
-  endSession,
+  createBrowserContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
   selectApplicantLanguage,
-  startSession,
   validateScreenshot,
 } from './support'
 
 describe('Admin can manage translations', () => {
+  const ctx = createBrowserContext()
+
   it('creates a program without statuses and adds translation', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     await loginAsAdmin(page)
     const adminPrograms = new AdminPrograms(page)
@@ -59,13 +60,11 @@ describe('Admin can manage translations', () => {
     )
     expect(cardText).toContain('Spanish name')
     expect(cardText).toContain('Spanish description')
-
-    await endSession(browser)
   })
 
   // TODO(#3071): Re-enable when the feature flag is controllable in tests.
   it.skip('creates a program with statuses and adds translations for program statuses', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     await loginAsAdmin(page)
     const adminPrograms = new AdminPrograms(page)
@@ -158,12 +157,10 @@ describe('Admin can manage translations', () => {
       configuredStatusText: statusWithNoEmailName,
       expectStatusText: `${statusWithNoEmailName}-spanish`,
     })
-
-    await endSession(browser)
   })
 
   it('creates a question and adds translations', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -212,11 +209,10 @@ describe('Admin can manage translations', () => {
     expect(await page.innerText('.cf-applicant-question-help-text')).toContain(
       'Spanish help text',
     )
-    await endSession(browser)
   })
 
   it('create a multi-option question and add translations for options', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -255,11 +251,10 @@ describe('Admin can manage translations', () => {
     expect(await page.innerText('main form')).toContain('uno')
     expect(await page.innerText('main form')).toContain('dos')
     expect(await page.innerText('main form')).toContain('tres')
-    await endSession(browser)
   })
 
   it('create an enumerator question and add translations for entity type', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -291,11 +286,10 @@ describe('Admin can manage translations', () => {
     await applicantQuestions.applyProgram(programName)
 
     expect(await page.innerText('main form')).toContain('family member')
-    await endSession(browser)
   })
 
   it('updating a question does not clobber translations', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -322,11 +316,10 @@ describe('Admin can manage translations', () => {
     expect(await page.inputValue('text=Question text')).toContain(
       'something different',
     )
-    await endSession(browser)
   })
 
   it('deleting help text in question edit view deletes all help text translations', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -357,12 +350,10 @@ describe('Admin can manage translations', () => {
       'something different',
     )
     expect(await page.inputValue('text=Question help text')).toEqual('')
-
-    await endSession(browser)
   })
 
   it('Applicant sees toast message warning translation is not complete', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     // Add a new program with one non-translated question
     await loginAsAdmin(page)
@@ -395,7 +386,5 @@ describe('Admin can manage translations', () => {
     )
 
     await validateScreenshot(page, 'applicant-toast-error')
-
-    await endSession(browser)
   })
 })

@@ -1,19 +1,19 @@
 import {
-  gotoEndpoint,
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
-  endSession,
-  logout,
-  selectApplicantLanguage,
+  AdminQuestions,
+  createBrowserContext,
+  gotoEndpoint,
+  loginAsAdmin,
   loginAsGuest,
   loginAsTestUser,
+  logout,
+  selectApplicantLanguage,
 } from './support'
 
 describe('navigating to a deep link', () => {
+  const ctx = createBrowserContext()
   it('as a guest user or registered user', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     // Arrange
     await loginAsAdmin(page)
@@ -65,7 +65,5 @@ describe('navigating to a deep link', () => {
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
       questionText,
     )
-
-    await endSession(browser)
   })
 })

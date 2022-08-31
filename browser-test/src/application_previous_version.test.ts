@@ -1,20 +1,21 @@
 import {
-  startSession,
-  loginAsProgramAdmin,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
-  endSession,
-  logout,
-  loginAsTestUser,
-  selectApplicantLanguage,
+  AdminQuestions,
   ApplicantQuestions,
+  createBrowserContext,
+  loginAsAdmin,
+  loginAsProgramAdmin,
+  loginAsTestUser,
+  logout,
+  selectApplicantLanguage,
   userDisplayName,
 } from './support'
 
 describe('view an application in an older version', () => {
+  const ctx = createBrowserContext()
+
   it('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
@@ -72,7 +73,5 @@ describe('view an application in an older version', () => {
       questionName,
       'some text',
     )
-
-    await endSession(browser)
   })
 })

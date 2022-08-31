@@ -1,17 +1,18 @@
 import {
-  startSession,
-  loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
-  endSession,
-  waitForPageJsLoad,
+  AdminQuestions,
+  createBrowserContext,
+  loginAsAdmin,
   validateScreenshot,
+  waitForPageJsLoad,
 } from './support'
 import {Page} from 'playwright'
 
 describe('program creation', () => {
+  const ctx = createBrowserContext()
+
   it('create program with enumerator and repeated questions', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -74,12 +75,10 @@ describe('program creation', () => {
     expect(await page.innerText('id=question-bank-questions')).toContain(
       'apc-repeated',
     )
-
-    await endSession(browser)
   })
 
   it('change questions order within block', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -126,11 +125,10 @@ describe('program creation', () => {
     // capturef by screenshot. So delay taking screenshot.
     await page.waitForTimeout(2000)
     await validateScreenshot(page, 'program-creation')
-    await endSession(browser)
   })
 
   it('create question from question bank', async () => {
-    const {browser, page} = await startSession()
+    const {page} = ctx
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -160,8 +158,6 @@ describe('program creation', () => {
     await adminPrograms.editProgramBlock(programName, 'dummy description', [
       questionName,
     ])
-
-    await endSession(browser)
   })
 
   async function expectQuestionsOrderWithinBlock(
