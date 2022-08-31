@@ -21,6 +21,9 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/**
+ * Responsible for generating a program card for view by CiviForm admins / program admins.
+ */
 public final class ProgramCardFactory {
 
   private final DateConverter dateConverter;
@@ -30,25 +33,25 @@ public final class ProgramCardFactory {
     this.dateConverter = checkNotNull(dateConverter);
   }
 
-  public DivTag renderCard(ProgramCardData params) {
-    ProgramDefinition displayProgram = getDisplayProgram(params);
+  public DivTag renderCard(ProgramCardData cardData) {
+    ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
 
     DivTag statusDiv = div();
-    if (params.draftProgram().isPresent()) {
+    if (cardData.draftProgram().isPresent()) {
       statusDiv =
-          statusDiv.with(renderProgramRow(/* isActive = */ false, params.draftProgram().get()));
+          statusDiv.with(renderProgramRow(/* isActive = */ false, cardData.draftProgram().get()));
     }
 
-    if (params.activeProgram().isPresent()) {
+    if (cardData.activeProgram().isPresent()) {
       statusDiv =
           statusDiv.with(
               renderProgramRow(
                   /* isActive = */ true,
-                  params.activeProgram().get(),
-                  params.draftProgram().isPresent() ? Styles.BORDER_T : ""));
+                  cardData.activeProgram().get(),
+                  cardData.draftProgram().isPresent() ? Styles.BORDER_T : ""));
     }
 
     DivTag titleAndStatus =
@@ -88,7 +91,7 @@ public final class ProgramCardFactory {
                     Styles.TEXT_GRAY_700,
                     Styles.TEXT_BASE))
         // Add data attributes used for client-side sorting.
-        .withData("last-updated-millis", Long.toString(extractLastUpdated(params).toEpochMilli()))
+        .withData("last-updated-millis", Long.toString(extractLastUpdated(cardData).toEpochMilli()))
         .withData("name", programTitleText);
   }
 
