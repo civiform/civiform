@@ -157,7 +157,6 @@ def main():
         tags_url = response_json['next']
 
     print(f'Found existing server image: {snapshot_tag}')
-    return
 
     ################################################################################
     # Add tag to git history
