@@ -124,7 +124,10 @@ class ConfigLoader:
         return self.configs.get('CIVIFORM_CLOUD_PROVIDER')
 
     def get_template_dir(self):
-        return self.configs.get('TERRAFORM_TEMPLATE_DIR')
+        template_dir = self.configs.get('TERRAFORM_TEMPLATE_DIR')
+        if template_dir is None or not os.path.exists(template_dir):
+            exit(f'Cound not find template directory {template_dir}')
+        return template_dir
 
     def is_test(self):
         return self.civiform_mode == 'test'
