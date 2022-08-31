@@ -149,16 +149,17 @@ export const loginAsTestUser = async (page: Page) => {
       await loginAsTestUserFakeOidc(page)
       break
     case 'aws-staging':
-      // TODO(clouser): Remove this once a strategy for AWS staging is in place.
-      await loginAsGuest(page)
+      await loginAsTestUserAwsStaging(page)
       break
     case 'seattle-staging':
       await loginAsTestUserSeattleStaging(page)
       break
     default:
-      throw new Error(
-        `unrecognized TEST_USER_AUTH_STRATEGY "${TEST_USER_AUTH_STRATEGY}"`,
-      )
+      // TODO(clouser): Throw an error for an unrecognized strategy.
+      // throw new Error(
+      //   `unrecognized TEST_USER_AUTH_STRATEGY "${TEST_USER_AUTH_STRATEGY}"`,
+      // )
+      await loginAsGuest(page)
   }
   await waitForPageJsLoad(page)
 }
@@ -175,6 +176,20 @@ async function loginAsTestUserSeattleStaging(page: Page) {
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await page.click('button:has-text("Login"):not([disabled])')
   await page.waitForNavigation({waitUntil: 'networkidle'})
+}
+
+async function loginAsTestUserAwsStaging(page: Page) {
+  await Promise.all([
+    page.waitForURL('**/u/login/*', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Log in")'),
+  ])
+
+  await page.fill('input[name=username]', TEST_USER_LOGIN)
+  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await Promise.all([
+    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Continue")'),
+  ])
 }
 
 async function loginAsTestUserFakeOidc(page: Page) {
@@ -216,8 +231,8 @@ async function loginAsTestUserFakeOidc(page: Page) {
 export const testUserDisplayName = () => {
   if (!TEST_USER_DISPLAY_NAME) {
     // TODO(clouser): Throw an error once this is in place.
-    return 'Guest'
     // throw new Error('TEST_USER_DISPLAY_NAME environment variable must be set')
+    return 'Guest'
   }
   return TEST_USER_DISPLAY_NAME
 }
