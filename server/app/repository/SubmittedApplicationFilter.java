@@ -4,7 +4,8 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 
 /**
- * Filters that can be applied to retrieve a list of applications matching all of the provided data.
+ * Filters that can be applied to retrieve a list of submitted applications matching all of the
+ * provided data. This does not include draft or deleted applications.
  */
 @AutoValue
 public abstract class SubmittedApplicationFilter {
@@ -20,7 +21,7 @@ public abstract class SubmittedApplicationFilter {
    */
   public abstract Optional<String> searchNameFragment();
 
-  /** Returns applications that were submitted within the provided date range. */
+  /** Filters to applications that were submitted within the provided date range. */
   public abstract TimeFilter submitTimeFilter();
 
   public static Builder builder() {
