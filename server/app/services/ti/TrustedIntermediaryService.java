@@ -4,16 +4,20 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import forms.UpdateApplicantDobForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
+import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
+import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import play.data.Form;
 import repository.SearchParameters;
 import repository.UserRepository;
 import services.DateConverter;
+import services.applicant.exception.ApplicantNotFoundException;
 
 /**
  * Service Class for TrustedIntermediaryController.
@@ -47,7 +51,7 @@ public final class TrustedIntermediaryService {
     form = validateEmailAddress(form);
     form = validateFirstName(form);
     form = validateLastName(form);
-    form = validateDateOfBirth(form);
+    form = validateDateOfBirthForAddApplicant(form);
     if (form.hasErrors()) {
       return form;
     }
@@ -87,22 +91,31 @@ public final class TrustedIntermediaryService {
     return form;
   }
 
-  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateDateOfBirth(
+  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateDateOfBirthForAddApplicant(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    if (Strings.isNullOrEmpty(form.value().get().getDob())) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth required");
-    }
-    LocalDate currentDob = null;
-    try {
-      currentDob = dateConverter.parseIso8601DateToLocalDate(form.value().get().getDob());
-    } catch (DateTimeParseException e) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth must be in MM/dd/yyyy format");
-    }
-    if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
-      return form.withError(FORM_FIELD_NAME_DOB, "Date of Birth should be in the past");
+    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
+    if (errorMessage.isPresent()) {
+      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
     }
     return form;
   }
+
+  private Optional<String> validateDateOfBirth(String dob) {
+    if (Strings.isNullOrEmpty(dob)) {
+      return Optional.of("Date of Birth required");
+    }
+    LocalDate currentDob = null;
+    try {
+      currentDob = dateConverter.parseIso8601DateToLocalDate(dob);
+    } catch (DateTimeParseException e) {
+      return Optional.of("Date of Birth must be in MM/dd/yyyy format");
+    }
+    if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
+      return Optional.of("Date of Birth should be in the past");
+    }
+    return Optional.empty();
+  }
+
   /**
    * Gets all the TrustedIntermediaryAccount managed by the given TI Group with/without filtering
    *
@@ -158,5 +171,52 @@ public final class TrustedIntermediaryService {
                             .contains(
                                 searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
+   * This function updates the Applicant's date of birth by calling the UpdateApplicant() on the
+   * User Repository.
+   *
+   * @param trustedIntermediaryGroup - the TIGroup who manages the account whose Dob needs to be
+   *     updated.
+   * @param accountId - the account Id of the applicant whose Dob should be updated
+   * @param form - this contains the dob field which would be parsed into local date and updated for
+   *     the applicant
+   * @return form - the form object is always returned. If the form contains error, the controller
+   *     will handle the flash messages If the account is not found for the given AccountId, a
+   *     runtime exception is raised.
+   */
+  public Form<UpdateApplicantDobForm> updateApplicantDateOfBirth(
+      TrustedIntermediaryGroup trustedIntermediaryGroup,
+      Long accountId,
+      Form<UpdateApplicantDobForm> form)
+      throws ApplicantNotFoundException {
+
+    form = validateDateOfBirthForUpdateDob(form);
+
+    if (form.hasErrors()) {
+      return form;
+    }
+    Optional<Account> optionalAccount =
+        trustedIntermediaryGroup.getManagedAccounts().stream()
+            .filter(account -> account.id.equals(accountId))
+            .findAny();
+
+    if (optionalAccount.isEmpty() || optionalAccount.get().newestApplicant().isEmpty()) {
+      throw new ApplicantNotFoundException(accountId);
+    }
+    Applicant applicant = optionalAccount.get().newestApplicant().get();
+    applicant.getApplicantData().setDateOfBirth(form.get().getDob());
+    userRepository.updateApplicant(applicant).toCompletableFuture().join();
+    return form;
+  }
+
+  private Form<UpdateApplicantDobForm> validateDateOfBirthForUpdateDob(
+      Form<UpdateApplicantDobForm> form) {
+    Optional<String> errorMessage = validateDateOfBirth(form.value().get().getDob());
+    if (errorMessage.isPresent()) {
+      return form.withError(FORM_FIELD_NAME_DOB, errorMessage.get());
+    }
+    return form;
   }
 }
