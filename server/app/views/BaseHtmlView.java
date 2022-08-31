@@ -72,8 +72,9 @@ public abstract class BaseHtmlView {
         TagCreator.button(text).withId(id).withClasses(Styles.M_2), redirectUrl);
   }
 
-  protected static ButtonTag asRedirectButton(ButtonTag buttonEl, String redirectUrl) {
-    return buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
+  protected static <T extends Tag> T asRedirectButton(T buttonEl, String redirectUrl) {
+    buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
+    return buttonEl;
   }
 
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
