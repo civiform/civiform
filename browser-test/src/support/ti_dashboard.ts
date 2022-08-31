@@ -2,7 +2,8 @@ import {Page} from 'playwright'
 
 /*
  * This class is to test Civiform in the TI path
- * It impements functionality to create a new client,Test if the given client is present in the dashboard
+ * It implements functionality to create a new client,Test if the given client is present/not present in the dashboard
+ * It can also update a Client's Data of Birth to a new one
  * It also have a ClientInformation Interface to easily store clients
  * It requires the tests to be logged as a TI
  */
@@ -26,6 +27,11 @@ export class TIDashboard {
     await this.page.click('text="Add"')
   }
 
+  async updateClientDateOfBirth(client: ClientInformation, newDobDate: string) {
+    await this.page.locator('id=date-of-birth-update').fill(newDobDate)
+    await this.page.click('text="Update DOB"')
+  }
+
   async expectDashboardContainClient(client: ClientInformation) {
     expect(
       `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
@@ -35,6 +41,19 @@ export class TIDashboard {
     expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`)
     expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`)
     expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
+  }
+
+  async expectDashboardNotContainClient(client: ClientInformation) {
+    const tableInnerText = await this.page.innerText('table')
+    expect(tableInnerText).not.toContain(this.convertToMMDDYYYY(client.dobDate))
+    expect(tableInnerText).not.toContain(client.emailAddress)
+    expect(tableInnerText).not.toContain(client.firstName)
+    expect(tableInnerText).not.toContain(client.lastName)
+  }
+
+  async searchByDateOfBirth(dobDate: string) {
+    await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
+    await this.page.click('button:text("Search")')
   }
 
   convertToMMDDYYYY(dobDate: string): string {

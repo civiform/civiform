@@ -18,6 +18,7 @@ export {AdminTranslations} from './admin_translations'
 export {AdminTIGroups} from './admin_ti_groups'
 export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {ApplicantQuestions} from './applicant_questions'
+export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
@@ -159,6 +160,11 @@ export const loginAsGuest = async (page: Page) => {
   await waitForPageJsLoad(page)
 }
 
+export const setLangEsUS = async (page: Page) => {
+  await page.click('text=Español')
+  await page.click('text=Submit')
+}
+
 export const loginAsTestUser = async (page: Page) => {
   if (isTestUser()) {
     await page.click('#idcs')
@@ -223,6 +229,10 @@ export const dropTables = async (page: Page) => {
 export const seedCanonicalQuestions = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed')
   await page.click('#canonical-questions')
+}
+
+export const enableFeatureFlag = async (page: Page, flag: string) => {
+  await page.goto(BASE_URL + `/dev/feature/${flag}/enable`)
 }
 
 export const closeWarningMessage = async (page: Page) => {

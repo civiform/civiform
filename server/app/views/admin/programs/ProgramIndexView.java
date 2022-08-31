@@ -1,6 +1,5 @@
 package views.admin.programs;
 
-import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -16,13 +15,13 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
-import javax.inject.Provider;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;
@@ -50,7 +49,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final String baseUrl;
   private final DateConverter dateConverter;
   private final TranslationLocales translationLocales;
-  private final Provider<Boolean> statusTrackingEnabled;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramIndexView(
@@ -58,12 +57,12 @@ public final class ProgramIndexView extends BaseHtmlView {
       Config config,
       DateConverter dateConverter,
       TranslationLocales translationLocales,
-      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
     this.translationLocales = checkNotNull(translationLocales);
-    this.statusTrackingEnabled = statusTrackingEnabled;
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -206,7 +205,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Create new program", Icons.ADD)
             .withId("new-program-button")
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
-    return asRedirectButton(button, link);
+    return asRedirectElement(button, link);
   }
 
   public ProgramDefinition getDisplayProgram(
@@ -343,7 +342,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeManageTranslationsLink.isPresent()) {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
-      if (statusTrackingEnabled.get()) {
+      if (featureFlags.isStatusTrackingEnabled(request)) {
         draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       }
       statusDiv =
@@ -454,7 +453,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     return isActive
         ? toLinkButtonForPost(button, editLink, request)
-        : asRedirectButton(button, editLink);
+        : asRedirectElement(button, editLink);
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
@@ -467,7 +466,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withId("program-translations-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return Optional.of(asRedirectButton(button, linkDestination));
+    return Optional.of(asRedirectElement(button, linkDestination));
   }
 
   private ButtonTag renderEditStatusesLink(ProgramDefinition program) {
@@ -475,7 +474,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage application statuses", Icons.FLAKY)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return asRedirectButton(button, linkDestination);
+    return asRedirectElement(button, linkDestination);
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(
@@ -507,7 +506,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
               .withId("program-view-apps-link-" + activeProgram.id())
               .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-      return Optional.of(asRedirectButton(button, editLink));
+      return Optional.of(asRedirectElement(button, editLink));
     }
     return Optional.empty();
   }
@@ -518,6 +517,6 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Manage Program Admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return asRedirectButton(button, adminLink);
+    return asRedirectElement(button, adminLink);
   }
 }

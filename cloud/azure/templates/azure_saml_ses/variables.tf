@@ -150,3 +150,9 @@ variable "civiform_api_keys_ban_global_subnet" {
   description = "Whether to allow 0.0.0.0/0 subnet for API key access."
   default     = true
 }
+
+variable "civiform_server_metrics_enabled" {
+  type        = bool
+  description = "Whether to enable exporting server metrics on the /metrics route."
+  default     = false
+}

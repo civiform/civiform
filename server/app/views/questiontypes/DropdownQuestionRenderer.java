@@ -20,7 +20,7 @@ import views.components.SelectWithLabel;
 public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public DropdownQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.SINGLE);
   }
 
   @Override

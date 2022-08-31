@@ -6,7 +6,7 @@ import {
   seedCanonicalQuestions,
   waitForPageJsLoad,
   validateScreenshot,
-  createBrowserContext,
+  resetSession,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
@@ -16,11 +16,12 @@ describe('normal question lifecycle', () => {
   const ctx = createBrowserContext()
 
   it('canonical question seeding works', async () => {
-    await seedCanonicalQuestions(ctx.page)
+    await dropTables(page)
+    await seedCanonicalQuestions(page)
 
-    await ctx.page.goto(BASE_URL)
-    await loginAsAdmin(ctx.page)
-    const adminQuestions = new AdminQuestions(ctx.page)
+    await page.goto(BASE_URL)
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Name')
@@ -31,11 +32,11 @@ describe('normal question lifecycle', () => {
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
     it(`${type} question: create, update, publish, create a new version, and update`, async () => {
-      ctx.page.setDefaultTimeout(4000)
+      page.setDefaultTimeout(4000)
 
-      await loginAsAdmin(ctx.page)
-      const adminQuestions = new AdminQuestions(ctx.page)
-      const adminPrograms = new AdminPrograms(ctx.page)
+      await loginAsAdmin(page)
+      const adminQuestions = new AdminQuestions(page)
+      const adminPrograms = new AdminPrograms(page)
 
       const questionName = `qlc-${type}`
       // for most question types there will be only 1 question. But for
@@ -83,7 +84,7 @@ describe('normal question lifecycle', () => {
 
       // Take screenshot of questions being published and active.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(ctx.page, `${type}-only-active`)
+      await validateScreenshot(page, `${type}-only-active`)
 
       await adminQuestions.createNewVersionForQuestions(allQuestions)
 
@@ -91,7 +92,7 @@ describe('normal question lifecycle', () => {
 
       // Take screenshot of question being in draft state.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(ctx.page, `${type}-active-and-draft`)
+      await validateScreenshot(page, `${type}-active-and-draft`)
 
       await adminPrograms.publishProgram(programName)
 
@@ -104,10 +105,10 @@ describe('normal question lifecycle', () => {
   }
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
-    ctx.page.setDefaultTimeout(4000)
+    page.setDefaultTimeout(4000)
 
-    await loginAsAdmin(ctx.page)
-    const adminQuestions = new AdminQuestions(ctx.page)
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2', '']
 
@@ -127,10 +128,10 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
-    ctx.page.setDefaultTimeout(4000)
+    page.setDefaultTimeout(4000)
 
-    await loginAsAdmin(ctx.page)
-    const adminQuestions = new AdminQuestions(ctx.page)
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2', '']
 
@@ -150,10 +151,10 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
-    ctx.page.setDefaultTimeout(4000)
+    page.setDefaultTimeout(4000)
 
-    await loginAsAdmin(ctx.page)
-    const adminQuestions = new AdminQuestions(ctx.page)
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2']
     const questionName = 'updateEmptyDropdown'
@@ -161,7 +162,7 @@ describe('normal question lifecycle', () => {
     // Add a new valid dropdown question
     await adminQuestions.addDropdownQuestion({questionName, options})
     // Edit the newly created question
-    await ctx.page.click(
+    await page.click(
       adminQuestions.selectWithinQuestionTableRow(
         questionName,
         ':text("Edit")',
@@ -169,7 +170,7 @@ describe('normal question lifecycle', () => {
     )
 
     // Add an empty option
-    await ctx.page.click('#add-new-option')
+    await page.click('#add-new-option')
     // Add the empty option to the options array
     options.push('')
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
@@ -178,10 +179,10 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
-    ctx.page.setDefaultTimeout(4000)
+    page.setDefaultTimeout(4000)
 
-    await loginAsAdmin(ctx.page)
-    const adminQuestions = new AdminQuestions(ctx.page)
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2']
     const questionName = 'updateEmptyRadio'
@@ -190,7 +191,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.addRadioButtonQuestion({questionName, options})
 
     // Edit the newly created question
-    await ctx.page.click(
+    await page.click(
       adminQuestions.selectWithinQuestionTableRow(
         questionName,
         ':text("Edit")',
@@ -198,7 +199,7 @@ describe('normal question lifecycle', () => {
     )
 
     // Add an empty option
-    await ctx.page.click('#add-new-option')
+    await page.click('#add-new-option')
     // Add the empty option to the options array
     options.push('')
 
@@ -208,10 +209,10 @@ describe('normal question lifecycle', () => {
   })
 
   it('persists export state', async () => {
-    ctx.page.setDefaultTimeout(4000)
+    page.setDefaultTimeout(4000)
 
-    await loginAsAdmin(ctx.page)
-    const adminQuestions = new AdminQuestions(ctx.page)
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
 
     // Navigate to the new question page and ensure that "No export" is pre-selected.
     await adminQuestions.gotoAdminQuestionsPage()
@@ -219,7 +220,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.page.click('#create-text-question')
     await waitForPageJsLoad(adminQuestions.page)
     expect(
-      await ctx.page.isChecked(
+      await page.isChecked(
         adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION),
       ),
     ).toBeTruthy()
@@ -233,7 +234,7 @@ describe('normal question lifecycle', () => {
     // Confirm that the previously selected export option was propagated.
     await adminQuestions.gotoQuestionEditPage(questionName)
     expect(
-      await ctx.page.isChecked(
+      await page.isChecked(
         adminQuestions.selectorForExportOption(
           AdminQuestions.EXPORT_OBFUSCATED_OPTION,
         ),
@@ -246,7 +247,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     await adminQuestions.gotoQuestionEditPage(questionName)
     expect(
-      await ctx.page.isChecked(
+      await page.isChecked(
         adminQuestions.selectorForExportOption(
           AdminQuestions.EXPORT_VALUE_OPTION,
         ),
@@ -255,10 +256,10 @@ describe('normal question lifecycle', () => {
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
-    await loginAsAdmin(ctx.page)
+    await loginAsAdmin(page)
 
-    const adminQuestions = new AdminQuestions(ctx.page)
-    const adminPrograms = new AdminPrograms(ctx.page)
+    const adminQuestions = new AdminQuestions(page)
+    const adminPrograms = new AdminPrograms(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.addNameQuestion({questionName: 'name-q'})
@@ -271,17 +272,17 @@ describe('normal question lifecycle', () => {
     await adminQuestions.gotoQuestionNewVersionPage('name-q')
     // The ID in the URL after clicking new version corresponds to the active question form (e.g. ID=15).
     // After a draft is created, the ID will reflect the newly created draft version (e.g. ID=16).
-    const editUrl = ctx.page.url()
+    const editUrl = page.url()
     const newQuestionText = await adminQuestions.updateQuestionText(
       'second version',
     )
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
 
     // Try edit the original published question and make sure that we see the draft version.
-    await ctx.page.goto(editUrl)
-    await waitForPageJsLoad(ctx.page)
-    expect(
-      await ctx.page.inputValue('label:has-text("Question text")'),
-    ).toContain(newQuestionText)
+    await page.goto(editUrl)
+    await waitForPageJsLoad(page)
+    expect(await page.inputValue('label:has-text("Question text")')).toContain(
+      newQuestionText,
+    )
   })
 })

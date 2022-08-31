@@ -43,7 +43,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public FileUploadQuestionRenderer(
       ApplicantQuestion question, FileUploadViewStrategy fileUploadViewStrategy) {
-    super(question);
+    super(question, InputFieldType.SINGLE);
     this.fileUploadQuestion = question.createFileUploadQuestion();
     this.fileUploadViewStrategy = fileUploadViewStrategy;
     this.fileInputId = RandomStringUtils.randomAlphabetic(8);

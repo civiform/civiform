@@ -1,4 +1,5 @@
 import {
+  dismissModal,
   startSession,
   logout,
   loginAsGuest,
@@ -9,11 +10,11 @@ import {
   AdminPrograms,
   userDisplayName,
   AdminProgramStatuses,
+  enableFeatureFlag,
 } from './support'
 import {Page} from 'playwright'
 
-// TODO(#3071): Re-enable when the feature flag is controllable in tests.
-describe.skip('view program statuses', () => {
+describe('view program statuses', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let applicantQuestions: ApplicantQuestions
@@ -48,35 +49,43 @@ describe.skip('view program statuses', () => {
       await applicantQuestions.submitFromPreviewPage()
 
       await logout(pageObject)
+
+      // Navigate to the submitted application as the program admin.
+      await loginAsProgramAdmin(pageObject)
+      await adminPrograms.viewApplications(programWithoutStatusesName)
+      await adminPrograms.viewApplicationForApplicant(userDisplayName())
     })
 
     afterAll(async () => {
       await logout(pageObject)
     })
 
-    it('does not Show status options', async () => {
-      await loginAsProgramAdmin(pageObject)
-
-      await adminPrograms.viewApplications(programWithoutStatusesName)
-
-      await adminPrograms.viewApplicationForApplicant(userDisplayName())
-
+    it('does not show status options', async () => {
       expect(await adminPrograms.isStatusSelectorVisible()).toBe(false)
+    })
+
+    it('does not show edit note', async () => {
+      expect(await adminPrograms.isEditNoteVisible()).toBe(false)
     })
   })
 
   describe('with program statuses', () => {
     const programWithStatusesName = 'test program with statuses'
-    const statusName = 'Status 1'
+    const noEmailStatusName = 'No email status'
+    const emailStatusName = 'Email status'
     beforeAll(async () => {
       await loginAsAdmin(pageObject)
+      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithStatusesName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(
         programWithStatusesName,
       )
-      await adminProgramStatuses.createStatus(statusName)
+      await adminProgramStatuses.createStatus(noEmailStatusName)
+      await adminProgramStatuses.createStatus(emailStatusName, {
+        emailBody: 'Some email content',
+      })
       await adminPrograms.publishProgram(programWithStatusesName)
       await adminPrograms.expectActiveProgram(programWithStatusesName)
 
@@ -90,6 +99,7 @@ describe.skip('view program statuses', () => {
 
       await logout(pageObject)
       await loginAsProgramAdmin(pageObject)
+      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
 
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant(userDisplayName())
@@ -109,16 +119,49 @@ describe.skip('view program statuses', () => {
 
     describe('when a status is changed, a confirmation dialog is shown', () => {
       it('when rejecting, the selected status is not changed', async () => {
-        await adminPrograms.setStatusOptionAndDismissModal(statusName)
+        await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
+        await dismissModal(adminPrograms.applicationFrame())
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
 
       it('when confirmed, the page is redirected with a success toast', async () => {
-        await adminPrograms.setStatusOptionAndConfirmModal(statusName)
+        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+          noEmailStatusName,
+        )
+        await adminPrograms.confirmStatusUpdateModal(modal)
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
         await adminPrograms.expectUpdateStatusToast()
         // TODO(#3020): Assert that the selected status has been updated.
       })
+
+      it('when no email is configured for the status, a warning is shown', async () => {
+        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+          noEmailStatusName,
+        )
+        expect(await modal.innerText()).toContain(
+          'will not receive an email because there is no email content set for this status.',
+        )
+        await dismissModal(adminPrograms.applicationFrame())
+      })
+
+      it('when no email is configured for the applicant, a warning is shown', async () => {
+        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+          emailStatusName,
+        )
+        expect(await modal.innerText()).toContain(
+          'will not receive an email for this change since they have not provided an email address.',
+        )
+        await dismissModal(adminPrograms.applicationFrame())
+      })
+
+      // TODO(#3297): Add a test that the send email checkbox is shown when an applicant has logged
+      // in and an email is configured for the status.
+    })
+
+    it('allows editing a note', async () => {
+      await adminPrograms.editNote('Some note content')
+      await adminPrograms.expectNoteUpdatedToast()
+      // TODO(#3020): Assert that the note has been updated.
     })
   })
 })

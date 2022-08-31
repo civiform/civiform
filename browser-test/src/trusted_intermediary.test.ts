@@ -24,6 +24,31 @@ describe('Trusted intermediaries', () => {
     await endSession(browser)
   })
 
+  it('expect Client Date Of Birth to be Updated', async () => {
+    await loginAsTrustedIntermediary(page)
+    const tiDashboard = new TIDashboard(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
+    const updatedClient: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-12-12',
+    }
+    await tiDashboard.expectDashboardContainClient(updatedClient)
+  })
+
   it('expect Dashboard Contain New Client', async () => {
     await loginAsTrustedIntermediary(page)
 
@@ -39,6 +64,44 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
+  })
+
+  it('search For Client In TI Dashboard', async () => {
+    await loginAsTrustedIntermediary(page)
+
+    const tiDashboard = new TIDashboard(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client1: ClientInformation = {
+      emailAddress: 'fake@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '2021-07-10',
+    }
+    await tiDashboard.createClient(client1)
+    const client2: ClientInformation = {
+      emailAddress: 'fake2@sample.com',
+      firstName: 'first2',
+      middleName: 'middle',
+      lastName: 'last2',
+      dobDate: '2021-11-10',
+    }
+    await tiDashboard.createClient(client2)
+    const client3: ClientInformation = {
+      emailAddress: 'fake3@sample.com',
+      firstName: 'first3',
+      middleName: 'middle',
+      lastName: 'last3',
+      dobDate: '2021-12-10',
+    }
+    await tiDashboard.createClient(client3)
+
+    await tiDashboard.searchByDateOfBirth(client3.dobDate)
+    await waitForPageJsLoad(page)
+    await tiDashboard.expectDashboardContainClient(client3)
+    await tiDashboard.expectDashboardNotContainClient(client1)
+    await tiDashboard.expectDashboardNotContainClient(client2)
   })
 
   it('managing trusted intermediary ', async () => {

@@ -1,4 +1,4 @@
-import {ElementHandle, Page} from 'playwright'
+import {ElementHandle, Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
@@ -213,6 +213,13 @@ export class AdminPrograms {
     )
   }
 
+  async expectSuccessToast(successToastMessage: string) {
+    const toastContainer = await this.page.innerHTML('#toast-container')
+
+    expect(toastContainer).toContain('bg-green-200')
+    expect(toastContainer).toContain(successToastMessage)
+  }
+
   async expectProgramBlockEditPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
@@ -424,6 +431,10 @@ export class AdminPrograms {
 
   private static APPLICATION_DISPLAY_FRAME_NAME = 'application-display-frame'
 
+  applicationFrame(): Frame {
+    return this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)!
+  }
+
   applicationFrameLocator() {
     return this.page.frameLocator(
       `iframe[name="${AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME}"]`,
@@ -478,33 +489,9 @@ export class AdminPrograms {
   }
 
   /**
-   * Selects the provided status option and then clicks the confirm button on the resulting
-   * confirmation dialog.
+   * Selects the provided status option and then awaits the confirmation dialog.
    */
-  async setStatusOptionAndConfirmModal(status: string) {
-    const confirmationModal = await this.setStatusOptionAndAwaitModal(status)
-
-    // TODO(#2912): Add support for confirming that the email checkbox appears when an email is
-    // configured.
-
-    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
-    // to taking the action that would trigger navigation.
-    const confirmButton = (await confirmationModal.$('text=Confirm'))!
-    await Promise.all([this.waitForApplicationFrame(), confirmButton.click()])
-  }
-
-  /**
-   * Selects the provided status option and then clicks the cancel button on the resulting
-   * dialog.
-   */
-  async setStatusOptionAndDismissModal(status: string) {
-    await this.setStatusOptionAndAwaitModal(status)
-    return dismissModal(
-      this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)!,
-    )
-  }
-
-  private async setStatusOptionAndAwaitModal(
+  async setStatusOptionAndAwaitModal(
     status: string,
   ): Promise<ElementHandle<HTMLElement>> {
     await this.applicationFrameLocator()
@@ -519,6 +506,17 @@ export class AdminPrograms {
     return waitForAnyModal(frame)
   }
 
+  /**
+   * Clicks the confirm button in the status update confirmation dialog and waits until the IFrame
+   * containing the modal has been refreshed.
+   */
+  async confirmStatusUpdateModal(modal: ElementHandle<HTMLElement>) {
+    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
+    // to taking the action that would trigger navigation.
+    const confirmButton = (await modal.$('text=Confirm'))!
+    await Promise.all([this.waitForApplicationFrame(), confirmButton.click()])
+  }
+
   async expectUpdateStatusToast() {
     const toastMessages = await this.applicationFrameLocator()
       .locator('#toast-container')
@@ -528,6 +526,46 @@ export class AdminPrograms {
 
   private statusSelector() {
     return '.cf-program-admin-status-selector label:has-text("Status:")'
+  }
+
+  async isEditNoteVisible(): Promise<boolean> {
+    return this.applicationFrameLocator()
+      .locator(this.editNoteSelector())
+      .isVisible()
+  }
+
+  /**
+   * Edit note clicks the edit button, sets the note content to the provided
+   * text, and confirms the dialog.
+   */
+  async editNote(noteContent: string) {
+    await this.applicationFrameLocator()
+      .locator(this.editNoteSelector())
+      .click()
+
+    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    if (!frame) {
+      throw new Error('Expected an application frame')
+    }
+    const editModal = await waitForAnyModal(frame)
+    const noteContentArea = (await editModal.$('textarea'))!
+    await noteContentArea.fill(noteContent)
+
+    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
+    // to taking the action that would trigger navigation.
+    const saveButton = (await editModal.$('text=Save'))!
+    await Promise.all([this.waitForApplicationFrame(), saveButton.click()])
+  }
+
+  private editNoteSelector() {
+    return 'button:has-text("Edit note")'
+  }
+
+  async expectNoteUpdatedToast() {
+    const toastMessages = await this.applicationFrameLocator()
+      .locator('#toast-container')
+      .innerText()
+    expect(toastMessages).toContain('Application note updated')
   }
 
   async getJson(applyFilters: boolean) {

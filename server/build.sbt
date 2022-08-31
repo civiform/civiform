@@ -31,8 +31,8 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.17.259",
-      "software.amazon.awssdk" % "ses" % "2.17.259",
+      "software.amazon.awssdk" % "s3" % "2.17.263",
+      "software.amazon.awssdk" % "ses" % "2.17.263",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.4",
@@ -41,6 +41,9 @@ lazy val root = (project in file("."))
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.5.0",
       "com.h2database" % "h2" % "2.1.214" % Test,
+
+      // Metrics collection and export for Prometheus
+      "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
 
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,

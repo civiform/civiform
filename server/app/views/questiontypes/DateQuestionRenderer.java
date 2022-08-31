@@ -16,7 +16,7 @@ import views.style.ReferenceClasses;
 public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public DateQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.SINGLE);
   }
 
   @Override

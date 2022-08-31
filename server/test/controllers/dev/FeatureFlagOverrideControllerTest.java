@@ -2,7 +2,7 @@ package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.NOT_FOUND;
-import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.fakeRequest;
 
 import java.util.Optional;
@@ -14,6 +14,8 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.test.Helpers;
 
 public class FeatureFlagOverrideControllerTest {
+
+  private static final String FLAG_NAME = "flag";
   private Optional<Application> maybeApp = Optional.empty();
   private FeatureFlagOverrideController controller;
 
@@ -27,30 +29,52 @@ public class FeatureFlagOverrideControllerTest {
 
   @Test
   public void disable_nonDevMode_fails() {
+    // Setup
     setupControllerInMode(Mode.TEST);
-    var result = controller.disable(fakeRequest().build(), "flag");
+
+    // Execute
+    var result = controller.disable(fakeRequest().build(), FLAG_NAME);
+
+    // Verify
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void disable() {
+    // Setup
     setupControllerInMode(Mode.DEV);
-    var result = controller.disable(fakeRequest().build(), "flag");
-    assertThat(result.status()).isEqualTo(OK);
+
+    // Execute
+    var result = controller.disable(fakeRequest().build(), FLAG_NAME);
+
+    // Verify
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.session().get(FLAG_NAME)).hasValue("false");
   }
 
   @Test
   public void enable_nonDevMode_fails() {
+    // Setup
     setupControllerInMode(Mode.TEST);
-    var result = controller.enable(fakeRequest().build(), "flag");
+
+    // Execute
+    var result = controller.enable(fakeRequest().build(), FLAG_NAME);
+
+    // Verify
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void enable() {
+    // Setup
     setupControllerInMode(Mode.DEV);
-    var result = controller.enable(fakeRequest().build(), "flag");
-    assertThat(result.status()).isEqualTo(OK);
+
+    // Execute
+    var result = controller.enable(fakeRequest().build(), FLAG_NAME);
+
+    // Verify
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.session().get(FLAG_NAME)).hasValue("true");
   }
 
   private void setupControllerInMode(Mode mode) {
