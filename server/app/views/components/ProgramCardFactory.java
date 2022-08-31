@@ -255,7 +255,11 @@ public final class ProgramCardFactory {
     abstract ImmutableList<ButtonTag> draftRowExtraActions();
 
     public static Builder builder() {
-      return new AutoValue_ProgramCardFactory_ProgramCardParams.Builder();
+      return new AutoValue_ProgramCardFactory_ProgramCardParams.Builder()
+          .setActiveRowActions(ImmutableList.of())
+          .setActiveRowExtraActions(ImmutableList.of())
+          .setDraftRowActions(ImmutableList.of())
+          .setDraftRowExtraActions(ImmutableList.of());
     }
 
     @AutoValue.Builder
