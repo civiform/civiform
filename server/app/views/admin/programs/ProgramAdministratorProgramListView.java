@@ -102,7 +102,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return asRedirectButton(button, viewApplicationsLink);
+    return asRedirectElement(button, viewApplicationsLink);
   }
 
   private ButtonTag renderShareLink(ProgramDefinition program) {
