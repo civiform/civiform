@@ -22,7 +22,7 @@ module "aws_cw_logs" {
 module "aws_scraper_logs" {
   source    = "cn-terraform/cloudwatch-logs/aws"
   version   = "1.0.12"
-  logs_path = "${var.app_prefix}-scraper-logs/"
+  logs_path = "${var.app_prefix}-civiform-scraper-logs/"
   tags = {
     Name = "${var.app_prefix} Scraper Logs"
     Type = "Scraper Logs"
@@ -156,7 +156,7 @@ module "civiform_metrics_scraper_container_def" {
     options = {
       "awslogs-region"        = var.aws_region
       "awslogs-stream-prefix" = "ecs"
-      "awslogs-group"         = module.aws_cw_logs.logs_path
+      "awslogs-group"         = module.aws_scraper_logs.logs_path
       "awslogs-create-group"  = "true"
       # Use https://docs.docker.com/config/containers/logging/awslogs/#awslogs-multiline-pattern
       # Logs are streamed via container's stdout. Each line is considered a
