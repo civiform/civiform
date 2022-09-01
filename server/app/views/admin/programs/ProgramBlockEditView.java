@@ -105,25 +105,32 @@ public final class ProgramBlockEditView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(title)
-            .addMainStyles(Styles.FLEX, Styles.FLEX_COL)
             .addMainContent(
-                addFormEndpoints(csrfTag, programDefinition.id(), blockId),
-                layout.renderProgramInfo(programDefinition),
                 div()
-                    .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
-                    .with(blockOrderPanel(request, programDefinition, blockId))
+                    .withClasses(
+                        Styles.FLEX,
+                        Styles.FLEX_COL,
+                        Styles.PX_2,
+                        StyleUtils.responsive2XLarge(Styles.PX_16))
                     .with(
-                        blockEditPanel(
-                            programDefinition,
-                            blockDefinition,
-                            blockForm,
-                            blockQuestions,
-                            questions,
-                            blockDefinition.isEnumerator(),
-                            csrfTag,
-                            blockDescriptionEditModal.getButton()))
-                    .with(
-                        questionBankPanel(questions, programDefinition, blockDefinition, csrfTag)))
+                        addFormEndpoints(csrfTag, programDefinition.id(), blockId),
+                        layout.renderProgramInfo(programDefinition),
+                        div()
+                            .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
+                            .with(blockOrderPanel(request, programDefinition, blockId))
+                            .with(
+                                blockEditPanel(
+                                    programDefinition,
+                                    blockDefinition,
+                                    blockForm,
+                                    blockQuestions,
+                                    questions,
+                                    blockDefinition.isEnumerator(),
+                                    csrfTag,
+                                    blockDescriptionEditModal.getButton()))
+                            .with(
+                                questionBankPanel(
+                                    questions, programDefinition, blockDefinition, csrfTag))))
             .addModals(blockDescriptionEditModal);
 
     // Add toast messages
@@ -135,7 +142,7 @@ public final class ProgramBlockEditView extends BaseHtmlView {
         .ifPresent(htmlBundle::addToastMessages);
     message.ifPresent(htmlBundle::addToastMessages);
 
-    return layout.renderCentered(htmlBundle);
+    return layout.render(htmlBundle);
   }
 
   private DivTag addFormEndpoints(InputTag csrfTag, long programId, long blockId) {
