@@ -7,7 +7,27 @@ class AdminPrograms {
   private static LAST_UPDATED_MILLIS = 'data-last-updated-millis'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
 
-  constructor() {
+  static attachCopyProgramLinkListeners() {
+    const withCopyableProgramLink = Array.from(
+      document.querySelectorAll(
+        `${AdminPrograms.PROGRAM_CARDS_SELECTOR} [${AdminPrograms.PROGRAM_LINK_ATTRIBUTE}]`,
+      ),
+    )
+    withCopyableProgramLink.forEach((el) => {
+      const programLink = el.getAttribute(AdminPrograms.PROGRAM_LINK_ATTRIBUTE)
+      if (!programLink) {
+        console.warn(
+          `Empty ${AdminPrograms.PROGRAM_LINK_ATTRIBUTE} for element`,
+        )
+        return
+      }
+      el.addEventListener('click', () => {
+        AdminPrograms.copyProgramLinkToClipboard(programLink)
+      })
+    })
+  }
+
+  static sortCardsOnLoad() {
     const cardsParent = document.querySelector(
       AdminPrograms.PROGRAM_ADIN_LIST_SELECTOR,
     )
@@ -27,31 +47,15 @@ class AdminPrograms {
         cardsPlaceholder.classList.add('hidden')
       }
     }
-
-    const withCopyableProgramLink = Array.from(
-      cardsParent.querySelectorAll(`[${AdminPrograms.PROGRAM_LINK_ATTRIBUTE}]`),
-    )
-    withCopyableProgramLink.forEach((el) => {
-      const programLink = el.getAttribute(AdminPrograms.PROGRAM_LINK_ATTRIBUTE)
-      if (!programLink) {
-        console.warn(
-          `Empty ${AdminPrograms.PROGRAM_LINK_ATTRIBUTE} for element`,
-        )
-        return
-      }
-      el.addEventListener('click', () => {
-        AdminPrograms.copyProgramLinkToClipboard(programLink)
-      })
-    })
   }
 
-  sortCards(cardsParent: HTMLElement) {
+  static sortCards(cardsParent: HTMLElement) {
     const cards = Array.from(
       cardsParent.querySelectorAll(AdminPrograms.PROGRAM_CARDS_SELECTOR),
     )
     cards.sort((first, second) => {
-      const firstComparator = this.comparatorObject(first)
-      const secondComparator = this.comparatorObject(second)
+      const firstComparator = AdminPrograms.comparatorObject(first)
+      const secondComparator = AdminPrograms.comparatorObject(second)
 
       return (
         secondComparator.lastUpdatedMillis -
@@ -67,7 +71,7 @@ class AdminPrograms {
     })
   }
 
-  comparatorObject(el: Element) {
+  static comparatorObject(el: Element) {
     const lastUpdatedMillisString =
       el.getAttribute(AdminPrograms.LAST_UPDATED_MILLIS) || ''
     const lastUpdatedMillis = Number(lastUpdatedMillisString)
@@ -120,4 +124,7 @@ class AdminPrograms {
   }
 }
 
-window.addEventListener('load', () => new AdminPrograms())
+window.addEventListener('load', () => {
+  AdminPrograms.sortCardsOnLoad()
+  AdminPrograms.attachCopyProgramLinkListeners()
+})

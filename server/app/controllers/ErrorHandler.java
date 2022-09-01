@@ -23,6 +23,7 @@ import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
 import services.apikey.ApiKeyNotFoundException;
+import services.applicant.exception.ApplicantNotFoundException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
 import views.errors.NotFound;
@@ -48,7 +49,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
           BadApiRequestException.class,
           NotChangeableException.class,
           ProgramNotFoundException.class,
-          InvalidQuestionPositionException.class);
+          InvalidQuestionPositionException.class,
+          ApplicantNotFoundException.class);
 
   private static final ImmutableSet<Class<? extends Exception>>
       UNAUTHORIZED_REQUEST_EXCEPTION_TYPES = ImmutableSet.of(UnauthorizedApiRequestException.class);
