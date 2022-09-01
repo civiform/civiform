@@ -10,6 +10,7 @@ import models.ApplicationEvent;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import services.application.ApplicationEventDetails;
+import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramDefinition;
 
@@ -47,15 +48,33 @@ public final class ProgramAdminApplicationService {
     return Optional.of(application);
   }
 
+  /**
+   * Sets the status on the {@code Application}.
+   *
+   * @param admin The Account that instigated the change.
+   */
   public void setStatus(Application application, StatusEvent newStatus, Account admin) {
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(newStatus)
             .build();
-    ApplicationEvent event =
-        new ApplicationEvent(
-            application, admin, ApplicationEventDetails.Type.STATUS_CHANGE, details);
+    ApplicationEvent event = new ApplicationEvent(application, admin, details);
+    eventRepository.insertSync(event);
+  }
+
+  /**
+   * Sets the note on the {@code Application}.
+   *
+   * @param admin The Account that instigated the change.
+   */
+  public void setNote(Application application, NoteEvent note, Account admin) {
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
+            .setNoteEvent(note)
+            .build();
+    ApplicationEvent event = new ApplicationEvent(application, admin, details);
     eventRepository.insertSync(event);
   }
 }

@@ -61,6 +61,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   public static final String SEND_EMAIL = "sendEmail";
   public static final String NEW_STATUS = "newStatus";
+  public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
 
@@ -270,17 +271,23 @@ public final class ProgramApplicationView extends BaseHtmlView {
       long programId, Application application, Http.Request request) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+    String formId = Modal.randomModalId();
     FormTag modalContent =
         form()
             .withAction(
                 controllers.admin.routes.AdminApplicationController.updateNote(
                         programId, application.id)
                     .url())
+            .withId(formId)
             .withMethod("POST")
             .withClasses(Styles.PX_6, Styles.PY_2)
             .with(makeCsrfTokenInputTag(request));
     modalContent.with(
-        FieldWithLabel.textArea().setRows(OptionalLong.of(8)).getTextareaTag(),
+        FieldWithLabel.textArea()
+            .setFormId(formId)
+            .setFieldName(NOTE)
+            .setRows(OptionalLong.of(8))
+            .getTextareaTag(),
         div()
             .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
             .with(
