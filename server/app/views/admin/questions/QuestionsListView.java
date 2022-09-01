@@ -391,7 +391,7 @@ public final class QuestionsListView extends BaseHtmlView {
     extraActions.add(archiveOptionsAndModal.getLeft());
 
     // Build extra actions button and menu.
-    String extraActionsButtonId = "extra-actions-" + questionForArchive;
+    String extraActionsButtonId = "extra-actions-" + Modal.randomModalId();
     ButtonTag extraActionsButton =
         makeSvgTextButton("", Icons.MORE_VERT)
             .withId(extraActionsButtonId)
