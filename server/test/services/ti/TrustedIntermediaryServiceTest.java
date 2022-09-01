@@ -1,6 +1,7 @@
 package services.ti;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.test.Helpers.fakeRequest;
 
@@ -8,6 +9,7 @@ import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import forms.UpdateApplicantDobForm;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
@@ -20,6 +22,7 @@ import play.mvc.Http;
 import repository.SearchParameters;
 import repository.UserRepository;
 import services.applicant.ApplicantData;
+import services.applicant.exception.ApplicantNotFoundException;
 
 public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
@@ -29,6 +32,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   private FormFactory formFactory;
   private ProfileFactory profileFactory;
   private TrustedIntermediaryGroup tiGroup;
+  private TrustedIntermediaryGroup tiGroup2;
 
   @Before
   public void setup() {
@@ -38,9 +42,12 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     profileFactory = instanceOf(ProfileFactory.class);
     Applicant managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
+    Applicant managedApplicant2 = createApplicant();
+    createTIWithMockedProfile(managedApplicant2);
     repo = instanceOf(UserRepository.class);
     profileFactory.createFakeTrustedIntermediary();
     tiGroup = repo.listTrustedIntermediaryGroups().get(0);
+    tiGroup2 = repo.listTrustedIntermediaryGroups().get(1);
   }
 
   @Test
@@ -70,7 +77,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void addClient_withUnformmatedDob() {
+  public void addClient_withUnformattedDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -222,7 +229,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
                         "lastName",
                         "Last",
                         "emailAddress",
-                        "sample1@fake.com",
+                        "add1@fake.com",
                         "dob",
                         "2022-07-07")));
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
@@ -232,7 +239,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
         service.addNewClient(form, tiGroup);
     assertThat(returnedForm).isEqualTo(form);
-    Account account = repo.lookupAccountByEmail("sample1@fake.com").get();
+    Account account = repo.lookupAccountByEmail("add1@fake.com").get();
 
     assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
         .isEqualTo("2022-07-07");
@@ -299,5 +306,56 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     applicantData.setUserName(firstName, "", "Last");
     applicantData.setDateOfBirth(dob);
     applicant.save();
+  }
+
+  @Test
+  public void updateApplicantDateOfBirth_throwsApplicantNotFoundException() {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
+    Form<UpdateApplicantDobForm> form =
+        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+    assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup, (long) 0, form))
+        .isInstanceOf(ApplicantNotFoundException.class)
+        .hasMessage("Applicant not found for ID 0");
+  }
+
+  @Test
+  public void updateApplicantDateOfBirth_throwsApplicantNotFoundExceptionDueToIncorrectTIGroup() {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
+    Form<UpdateApplicantDobForm> form =
+        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+    Account account = tiGroup.getManagedAccounts().stream().findAny().get();
+    assertThatThrownBy(() -> service.updateApplicantDateOfBirth(tiGroup2, account.id, form))
+        .isInstanceOf(ApplicantNotFoundException.class)
+        .hasMessage("Applicant not found for ID " + account.id);
+  }
+
+  @Test
+  public void updateApplicantDateOfBirth_unformattedDate() throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-20-20")));
+    Form<UpdateApplicantDobForm> form =
+        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+    Account account = repo.lookupAccountByEmail("email30").get();
+    Form<UpdateApplicantDobForm> returnedForm =
+        service.updateApplicantDateOfBirth(tiGroup, account.id, form);
+    assertThat(returnedForm.hasErrors()).isTrue();
+    assertThat(returnedForm.error("dob").get().message())
+        .isEqualTo("Date of Birth must be in MM/dd/yyyy format");
+  }
+
+  @Test
+  public void updateApplicantDateOfBirth_ApplicantDobUpdated() throws ApplicantNotFoundException {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
+    Form<UpdateApplicantDobForm> form =
+        formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
+    Account account = repo.lookupAccountByEmail("email30").get();
+    Form<UpdateApplicantDobForm> returnedForm =
+        service.updateApplicantDateOfBirth(tiGroup, account.id, form);
+    assertThat(returnedForm.hasErrors()).isFalse();
+    assertThat(account.newestApplicant().get().getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2021-09-09");
   }
 }

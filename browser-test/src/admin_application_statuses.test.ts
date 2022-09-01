@@ -128,19 +128,16 @@ describe('view program statuses', () => {
         const modal = await adminPrograms.setStatusOptionAndAwaitModal(
           noEmailStatusName,
         )
+        expect(await modal.innerText()).toContain(
+          `Status Change: Unset -> ${noEmailStatusName}`,
+        )
         await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+        expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
         await adminPrograms.expectUpdateStatusToast()
-        // TODO(#3020): Assert that the selected status has been updated.
       })
 
       it('when no email is configured for the status, a warning is shown', async () => {
-        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-          noEmailStatusName,
-        )
-        expect(await modal.innerText()).toContain(
-          'will not receive an email because there is no email content set for this status.',
-        )
+        await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
         await dismissModal(adminPrograms.applicationFrame())
       })
 
@@ -154,6 +151,17 @@ describe('view program statuses', () => {
         await dismissModal(adminPrograms.applicationFrame())
       })
 
+      it('when changing status, the previous status is shown', async () => {
+        expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
+        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+          emailStatusName,
+        )
+        expect(await modal.innerText()).toContain(
+          `Status Change: ${noEmailStatusName} -> ${emailStatusName}`,
+        )
+        await dismissModal(adminPrograms.applicationFrame())
+      })
+
       // TODO(#3297): Add a test that the send email checkbox is shown when an applicant has logged
       // in and an email is configured for the status.
     })
@@ -161,7 +169,7 @@ describe('view program statuses', () => {
     it('allows editing a note', async () => {
       await adminPrograms.editNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
-      // TODO(#3020): Assert that the note has been updated.
+      // TODO(#3264): Assert that the note has been updated.
     })
   })
 })
