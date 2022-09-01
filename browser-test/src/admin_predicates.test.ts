@@ -10,7 +10,7 @@ import {
   logout,
   selectApplicantLanguage,
   startSession,
-  userDisplayName,
+  testUserDisplayName,
 } from './support'
 
 describe('create and edit predicates', () => {
@@ -90,7 +90,7 @@ describe('create and edit predicates', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
 
     const applicationText = await adminPrograms
       .applicationFrameLocator()
@@ -182,7 +182,7 @@ describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     expect(
       await adminPrograms
         .applicationFrameLocator()

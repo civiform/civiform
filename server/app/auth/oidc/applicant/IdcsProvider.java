@@ -72,7 +72,7 @@ public final class IdcsProvider extends OidcProvider {
     // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#responsetypes
     // TODO: turn this into it's own fake provider or make the local provider allow
     // 'token'.
-    if (baseUrl.contains("localhost:")) {
+    if (baseUrl.contains("localhost:") || baseUrl.startsWith("http://civiform:")) {
       return "id_token";
     }
     return "id_token token";
