@@ -56,12 +56,7 @@ export class AdminQuestions {
 
   async goToViewQuestionPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    await this.page.click(
-      this.selectWithinQuestionTableRow(
-        questionName,
-        'button:has-text("View")',
-      ),
-    )
+    await this.page.click(this.selectQuestionTableRow(questionName))
     await waitForPageJsLoad(this.page)
   }
 
