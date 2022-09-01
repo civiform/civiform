@@ -59,6 +59,7 @@ public class SimpleEmail {
 
   public void send(ImmutableList<String> toAddresses, String subject, String bodyText) {
     if (toAddresses.isEmpty()) {
+      logger.warn("Attempting to send email to no recipients");
       return;
     }
 
@@ -73,6 +74,9 @@ public class SimpleEmail {
 
       SendEmailRequest emailRequest =
           SendEmailRequest.builder().destination(destination).message(msg).source(sender).build();
+      if (logger.isDebugEnabled()) {
+        logger.debug("Sending email:\n{}", emailRequest);
+      }
       client.get().sendEmail(emailRequest);
     } catch (SesException e) {
       logger.error(e.toString());
