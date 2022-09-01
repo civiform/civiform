@@ -37,6 +37,7 @@
   <logger name="org.pac4j" level="INFO" />
 
   <!-- These may be useful to enable in local dev. -->
+  <!-- In particular logs the send email content, should not be enbaled for real user data environments. -->
   <!-- logger name="services.cloud.aws.SimpleEmail" level="DEBUG" /-->
 
 
