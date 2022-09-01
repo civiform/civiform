@@ -400,8 +400,19 @@ export class AdminPrograms {
     return this.selectQuestionWithinBlock(question) + ' ' + selector
   }
 
-  async filterProgramApplications(filterFragment: string) {
-    await this.page.fill('input[name="search"]', filterFragment)
+  async filterProgramApplications({
+    searchFragment = '',
+    applicationStatusOption = '',
+  }: {
+    searchFragment?: string
+    applicationStatusOption?: string
+  }) {
+    await this.page.fill('input[name="search"]', searchFragment)
+    if (applicationStatusOption) {
+      await this.page.selectOption('label:has-text("Application status")', {
+        label: applicationStatusOption,
+      })
+    }
     await this.page.click('button:has-text("Filter")')
     await waitForPageJsLoad(this.page)
   }
