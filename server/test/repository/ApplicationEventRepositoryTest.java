@@ -37,9 +37,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .setStatusEvent(
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
-    ApplicationEvent event =
-        new ApplicationEvent(
-            application, actor, ApplicationEventDetails.Type.STATUS_CHANGE, details);
+    ApplicationEvent event = new ApplicationEvent(application, actor, details);
     ApplicationEvent insertedEvent = repo.insertSync(event);
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
@@ -66,14 +64,10 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
 
-    ApplicationEvent event1 =
-        new ApplicationEvent(
-            application, actor, ApplicationEventDetails.Type.STATUS_CHANGE, details);
+    ApplicationEvent event1 = new ApplicationEvent(application, actor, details);
     ApplicationEvent insertedEvent1 = repo.insertSync(event1);
 
-    ApplicationEvent event2 =
-        new ApplicationEvent(
-            application, actor, ApplicationEventDetails.Type.STATUS_CHANGE, details);
+    ApplicationEvent event2 = new ApplicationEvent(application, actor, details);
 
     ApplicationEvent insertedEvent2 = repo.insertSync(event2);
 
@@ -104,9 +98,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .setStatusEvent(
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
-    ApplicationEvent event =
-        new ApplicationEvent(
-            application, actor, ApplicationEventDetails.Type.STATUS_CHANGE, details);
+    ApplicationEvent event = new ApplicationEvent(application, actor, details);
     repo.insertSync(event);
 
     // Execute
