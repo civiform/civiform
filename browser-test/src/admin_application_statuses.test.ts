@@ -8,7 +8,6 @@ import {
   selectApplicantLanguage,
   ApplicantQuestions,
   AdminPrograms,
-  userDisplayName,
   AdminProgramStatuses,
   enableFeatureFlag,
 } from './support'
@@ -53,7 +52,7 @@ describe('view program statuses', () => {
       // Navigate to the submitted application as the program admin.
       await loginAsProgramAdmin(pageObject)
       await adminPrograms.viewApplications(programWithoutStatusesName)
-      await adminPrograms.viewApplicationForApplicant(userDisplayName())
+      await adminPrograms.viewApplicationForApplicant('Guest')
     })
 
     afterAll(async () => {
@@ -102,7 +101,7 @@ describe('view program statuses', () => {
       await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
 
       await adminPrograms.viewApplications(programWithStatusesName)
-      await adminPrograms.viewApplicationForApplicant(userDisplayName())
+      await adminPrograms.viewApplicationForApplicant('Guest')
     })
 
     afterAll(async () => {
