@@ -32,7 +32,6 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.UUID;
 import models.Application;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -272,8 +271,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       long programId, Application application, Http.Request request) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
-    // Give each form a unique id based on the application.
-    String formId = UUID.randomUUID().toString();
+    String formId = Modal.randomModalId();
     FormTag modalContent =
         form()
             .withAction(
