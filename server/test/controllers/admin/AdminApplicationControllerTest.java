@@ -415,7 +415,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateNote_emptyNote_succeeds() throws Exception {
     // Setup.
-    Instant start = Instant.now();
     String noteText = "";
     Account adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
