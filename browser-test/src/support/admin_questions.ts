@@ -181,9 +181,6 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionText)
     expect(
       await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('View')
-    expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
     ).toContain('New Version')
   }
 
