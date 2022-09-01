@@ -330,10 +330,16 @@ validation.numberNonInteger=El número debe ser positivo y entero y solo puede c
 validation.textTooLong=Debe tener menos de {0} caracteres.
 validation.textTooShort=Debe tener más de {0} caracteres.
 
-
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
+error.notFoundDescription='Por favor revise la URL o regrese a la '
+error.notFoundDescriptionLink=página de inicio
