@@ -32,7 +32,6 @@ import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -49,7 +48,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page for an admin to edit the configuration for a single block of a program. */
-public final class ProgramBlockEditView extends BaseHtmlView {
+public final class ProgramBlockEditView extends ProgramBlockView {
 
   private final AdminLayout layout;
   private final boolean featureFlagOptionalQuestions;
@@ -114,7 +113,7 @@ public final class ProgramBlockEditView extends BaseHtmlView {
                         StyleUtils.responsive2XLarge(Styles.PX_16))
                     .with(
                         addFormEndpoints(csrfTag, programDefinition.id(), blockId),
-                        layout.renderProgramInfo(programDefinition),
+                        renderProgramInfo(programDefinition),
                         div()
                             .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
                             .with(blockOrderPanel(request, programDefinition, blockId))
