@@ -6,6 +6,7 @@ import {
   waitForAnyModal,
   waitForPageJsLoad,
 } from './wait'
+import {BASE_URL} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 
 export class AdminPrograms {
@@ -372,6 +373,10 @@ export class AdminPrograms {
   }
 
   async viewApplications(programName: string) {
+    // Navigate back to the main page for the program admin.
+    await this.page.goto(BASE_URL)
+    await waitForPageJsLoad(this.page)
+
     await this.page.click(
       this.withinProgramCardSelector(
         programName,
@@ -380,6 +385,11 @@ export class AdminPrograms {
       ),
     )
     await waitForPageJsLoad(this.page)
+  }
+
+  async expectApplicationCount(expectedCount: number) {
+    const cardElements = await this.page.$$('.cf-admin-application-card')
+    expect(cardElements.length).toBe(expectedCount)
   }
 
   selectApplicationCardForApplicant(applicantName: string) {
@@ -400,6 +410,11 @@ export class AdminPrograms {
     return this.selectQuestionWithinBlock(question) + ' ' + selector
   }
 
+  public static readonly ANY_STATUS_APPLICATION_FILTER_OPTION =
+    'Any application status'
+  public static readonly NO_STATUS_APPLICATION_FILTER_OPTION =
+    'Only applications without a status'
+
   async filterProgramApplications({
     searchFragment = '',
     applicationStatusOption = '',
@@ -413,7 +428,10 @@ export class AdminPrograms {
         label: applicationStatusOption,
       })
     }
-    await this.page.click('button:has-text("Filter")')
+    await Promise.all([
+      this.page.waitForNavigation(),
+      await this.page.click('button:has-text("Filter")'),
+    ])
     await waitForPageJsLoad(this.page)
   }
 

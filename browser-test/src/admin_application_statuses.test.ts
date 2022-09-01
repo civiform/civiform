@@ -8,7 +8,6 @@ import {
   selectApplicantLanguage,
   ApplicantQuestions,
   AdminPrograms,
-  userDisplayName,
   AdminProgramStatuses,
   enableFeatureFlag,
 } from './support'
@@ -53,7 +52,7 @@ describe('view program statuses', () => {
       // Navigate to the submitted application as the program admin.
       await loginAsProgramAdmin(pageObject)
       await adminPrograms.viewApplications(programWithoutStatusesName)
-      await adminPrograms.viewApplicationForApplicant(userDisplayName())
+      await adminPrograms.viewApplicationForApplicant('Guest')
     })
 
     afterAll(async () => {
@@ -102,7 +101,7 @@ describe('view program statuses', () => {
       await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
 
       await adminPrograms.viewApplications(programWithStatusesName)
-      await adminPrograms.viewApplicationForApplicant(userDisplayName())
+      await adminPrograms.viewApplicationForApplicant('Guest')
     })
 
     afterAll(async () => {
@@ -170,6 +169,109 @@ describe('view program statuses', () => {
       await adminPrograms.editNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
       // TODO(#3264): Assert that the note has been updated.
+    })
+  })
+
+  describe('filtering list with program statuses', () => {
+    const programForFilteringName = 'test program for filtering statuses'
+    const approvedStatusName = 'Approved'
+    const rejectedStatusName = 'Rejected'
+
+    beforeAll(async () => {
+      await loginAsAdmin(pageObject)
+      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+
+      // Add a program, no questions are needed.
+      await adminPrograms.addProgram(programForFilteringName)
+      await adminPrograms.gotoDraftProgramManageStatusesPage(
+        programForFilteringName,
+      )
+      await adminProgramStatuses.createStatus(approvedStatusName)
+      await adminProgramStatuses.createStatus(rejectedStatusName)
+      await adminPrograms.publishProgram(programForFilteringName)
+      await adminPrograms.expectActiveProgram(programForFilteringName)
+
+      await logout(pageObject)
+
+      // Submit an application as a guest.
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+      await applicantQuestions.clickApplyProgramButton(programForFilteringName)
+      await applicantQuestions.submitFromPreviewPage()
+      await logout(pageObject)
+
+      await loginAsProgramAdmin(pageObject)
+      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+    })
+
+    afterAll(async () => {
+      await logout(pageObject)
+    })
+
+    it('application without status appears in default filter and without statuses filter', async () => {
+      await adminPrograms.viewApplications(programForFilteringName)
+      // Default page shows all applications.
+      await adminPrograms.expectApplicationCount(1)
+
+      // Included when filtering to applications without statuses.
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption:
+          AdminPrograms.NO_STATUS_APPLICATION_FILTER_OPTION,
+      })
+      await adminPrograms.expectApplicationCount(1)
+
+      // Excluded when selecting specific statuses.
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption: approvedStatusName,
+      })
+      await adminPrograms.expectApplicationCount(0)
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption: rejectedStatusName,
+      })
+      await adminPrograms.expectApplicationCount(0)
+
+      // Included when explicitly selecting the default option to show all applications.
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption:
+          AdminPrograms.ANY_STATUS_APPLICATION_FILTER_OPTION,
+      })
+      await adminPrograms.expectApplicationCount(1)
+    })
+
+    it('application with status shows in default filter and status-specific filter', async () => {
+      // Explicitly set a status for the application.
+      await adminPrograms.viewApplications(programForFilteringName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
+      const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+        approvedStatusName,
+      )
+      await adminPrograms.confirmStatusUpdateModal(modal)
+
+      // Excluded when filtering to applications without statuses.
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption:
+          AdminPrograms.NO_STATUS_APPLICATION_FILTER_OPTION,
+      })
+      await adminPrograms.expectApplicationCount(0)
+
+      // Included when selecting the "approved" status.
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption: approvedStatusName,
+      })
+      await adminPrograms.expectApplicationCount(1)
+
+      // Excluded when selecting the "rejected" status.
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption: rejectedStatusName,
+      })
+      await adminPrograms.expectApplicationCount(0)
+
+      // Included when explicitly selecting the default option to show all applications.
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption:
+          AdminPrograms.ANY_STATUS_APPLICATION_FILTER_OPTION,
+      })
+      await adminPrograms.expectApplicationCount(1)
     })
   })
 })
