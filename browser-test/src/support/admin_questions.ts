@@ -197,7 +197,7 @@ export class AdminQuestions {
     const programReferencesText = await this.page.innerText(
       this.selectProgramReferencesFromRow(questionName),
     )
-    expect(programReferencesText).toEqual(expectedProgramReferencesText)
+    expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
 
   async expectProgramReferencesModalContains({
