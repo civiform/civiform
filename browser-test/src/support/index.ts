@@ -9,6 +9,15 @@ import {
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
+import {
+  BASE_URL,
+  DISABLE_SCREENSHOTS,
+  TEST_USER_LOGIN,
+  TEST_USER_PASSWORD,
+} from './config'
+import {AdminQuestions} from './admin_questions'
+import {AdminPrograms} from './admin_programs'
+
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
@@ -20,12 +29,6 @@ export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {ApplicantQuestions} from './applicant_questions'
 export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
-import {
-  BASE_URL,
-  TEST_USER_LOGIN,
-  TEST_USER_PASSWORD,
-  DISABLE_SCREENSHOTS,
-} from './config'
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -67,19 +70,114 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   }
 }
 
-export const startSession = async (): Promise<{
+export const startSession = async (
+  browser: Browser | null = null,
+): Promise<{
   browser: Browser
   context: BrowserContext
   page: Page
 }> => {
-  const browser = await chromium.launch()
+  if (browser == null) {
+    browser = await chromium.launch()
+  }
   const context = await makeBrowserContext(browser)
   const page = await context.newPage()
 
+  await dropTables(page)
   await page.goto(BASE_URL)
   await closeWarningMessage(page)
 
   return {browser, context, page}
+}
+
+/**
+ * Object containing properties and methods for interacting with browser and
+ * app. See docs for createBrowserContext() method for more info.
+ */
+export interface TestContext {
+  /**
+   * Playwright Page object. Provides functionality to directly interact with
+   * the browser .
+   * Methods: https://playwright.dev/docs/api/class-page
+   */
+  page: Page
+
+  adminQuestions: AdminQuestions
+  adminPrograms: AdminPrograms
+}
+
+/**
+ * Launches a browser and returns context that contains objects needed to
+ * interact with the browser. Example usage:
+ *
+ * describe('some test', () => {
+ *   const ctx = createBrowserContext()
+ *
+ *   it('should do foo', async () => {
+ *     await ctx.page.click('#some-button')
+ *   })
+ * })
+ *
+ * Browser session is reset between tests and database is cleared by default.
+ * Each test starts on the login page.
+ *
+ * Context object should be accessed only from within it(), before/afterEach(),
+ * before/afterAll() functions.
+ *
+ * @param clearDb Whether database is cleared between tests. True by default.
+ *     It's recommended that database is cleared between tests to keep tests
+ *     hermetic.
+ * @return object containing browser page. Context object is reset between tests
+ *     so none of its properties should be cached and reused between tests.
+ */
+export const createTestContext = (clearDb = true): TestContext => {
+  let browser: Browser
+  let browserContext: BrowserContext
+
+  // TestContext properties are set in resetContext() later. For now we just
+  // need an object that we can return to caller. Caller is expected to access
+  // it only from before/afterX functions or tests.
+  const ctx: TestContext = {} as unknown as TestContext
+
+  // We create new browser context and session before each test. It's
+  // important to get fresh browser context so that each test gets its own
+  // videos. If we reuse same browser context - we'll get one huge video for
+  // all tests.
+  async function resetContext() {
+    if (browserContext != null) {
+      await browserContext.close()
+    }
+    browserContext = await makeBrowserContext(browser)
+    ctx.page = await browserContext.newPage()
+    ctx.adminQuestions = new AdminQuestions(ctx.page)
+    ctx.adminPrograms = new AdminPrograms(ctx.page)
+    await ctx.page.goto(BASE_URL)
+  }
+
+  beforeAll(async () => {
+    browser = await chromium.launch()
+    await resetContext()
+  })
+
+  beforeEach(async () => {
+    await resetContext()
+  })
+
+  afterEach(async () => {
+    if (clearDb) {
+      await dropTables(ctx.page)
+    }
+    // resetting context here so that afterAll() functions of current describe()
+    // block and beforeAll() functions of the next describe() block have fresh
+    // result.page object.
+    await resetContext()
+  })
+
+  afterAll(async () => {
+    await endSession(browser)
+  })
+
+  return ctx
 }
 
 export const endSession = async (browser: Browser) => {
