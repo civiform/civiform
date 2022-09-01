@@ -110,7 +110,6 @@ public final class ProgramBlockEditView extends BaseHtmlView {
                 addFormEndpoints(csrfTag, programDefinition.id(), blockId),
                 layout.renderProgramInfo(programDefinition),
                 div()
-                    .withId("program-block-info")
                     .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
                     .with(blockOrderPanel(request, programDefinition, blockId))
                     .with(
@@ -178,7 +177,7 @@ public final class ProgramBlockEditView extends BaseHtmlView {
             .withClasses(
                 Styles.SHADOW_LG,
                 Styles.PT_6,
-                Styles.W_1_5,
+                Styles.W_2_12,
                 Styles.BORDER_R,
                 Styles.BORDER_GRAY_200);
     ret.with(
@@ -366,7 +365,7 @@ public final class ProgramBlockEditView extends BaseHtmlView {
             });
 
     return div()
-        .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
+        .withClasses(Styles.W_7_12, Styles.PY_6)
         .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions);
   }
 
@@ -593,7 +592,7 @@ public final class ProgramBlockEditView extends BaseHtmlView {
         .with(removeButton);
   }
 
-  private FormTag questionBankPanel(
+  private DivTag questionBankPanel(
       ImmutableList<QuestionDefinition> questionDefinitions,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
@@ -616,7 +615,7 @@ public final class ProgramBlockEditView extends BaseHtmlView {
                             program.id(), blockDefinition.id())
                         .url())
                 .build());
-    return qb.getContainer();
+    return div().withClasses(Styles.W_3_12).with(qb.getContainer());
   }
 
   private Modal blockDescriptionModal(
