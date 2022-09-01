@@ -14,7 +14,10 @@ function attachDropdown(elementId: string) {
   const dropdown = document.getElementById(dropdownId)
   if (dropdown && element) {
     // Attach onclick event to element to toggle dropdown visibility.
-    element.addEventListener('click', () => toggleElementVisibility(dropdownId))
+    element.addEventListener('click', (e) => {
+      e.stopPropagation()
+      toggleElementVisibility(dropdownId)
+    })
 
     // Attach onblur event to page to hide dropdown if it wasn't the clicked element.
     document.addEventListener('click', (e) =>
