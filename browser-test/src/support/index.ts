@@ -91,7 +91,7 @@ export const startSession = async (
 
 /**
  * Object containing properties and methods for interacting with browser and
- * app. See docs for createBrowserContext() method for more info.
+ * app. See docs for createTestContext() method for more info.
  */
 export interface TestContext {
   /**
@@ -107,15 +107,19 @@ export interface TestContext {
 
 /**
  * Launches a browser and returns context that contains objects needed to
- * interact with the browser. Example usage:
+ * interact with the browser. It should be called at the very beginning of the
+ * top-most describe() and reused across all other describe/it functions.
+ * Example usage:
  *
+ * ```
  * describe('some test', () => {
- *   const ctx = createBrowserContext()
+ *   const ctx = createTestContext()
  *
  *   it('should do foo', async () => {
  *     await ctx.page.click('#some-button')
  *   })
  * })
+ * ```
  *
  * Browser session is reset between tests and database is cleared by default.
  * Each test starts on the login page.
@@ -140,8 +144,8 @@ export const createTestContext = (clearDb = true): TestContext => {
 
   // We create new browser context and session before each test. It's
   // important to get fresh browser context so that each test gets its own
-  // videos. If we reuse same browser context - we'll get one huge video for
-  // all tests.
+  // video file. If we reuse same browser context across multiple test cases -
+  // we'll get one huge video for all tests.
   async function resetContext() {
     if (browserContext != null) {
       await browserContext.close()
