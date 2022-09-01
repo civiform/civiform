@@ -83,7 +83,6 @@ export const startSession = async (
   const context = await makeBrowserContext(browser)
   const page = await context.newPage()
 
-  await dropTables(page)
   await page.goto(BASE_URL)
   await closeWarningMessage(page)
 
