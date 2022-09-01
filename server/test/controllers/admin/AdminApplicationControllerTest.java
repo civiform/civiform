@@ -412,6 +412,33 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
 
+  @Test
+  public void updateNote_emptyNote_succeeds() throws Exception {
+    // Setup.
+    Instant start = Instant.now();
+    String noteText = "";
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("note", noteText))).build();
+
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getDetails().noteEvent()).isPresent();
+    assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
+  }
+
   // Returns a controller with a faked ProfileUtils to bypass acl checks.
   AdminApplicationController makeNoOpProfileController(Optional<Account> adminAccount) {
     ProfileTester profileTester =

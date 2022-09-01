@@ -49,7 +49,7 @@ public final class ProgramAdminApplicationService {
   }
 
   /**
-   * Saves a new {@link ApplicationEventDetails.Type.STATUS_CHANGE} event.
+   * Sets the status on the {@code Application}.
    *
    * @param admin The Account that instigated the change.
    */
@@ -66,7 +66,7 @@ public final class ProgramAdminApplicationService {
   }
 
   /**
-   * Saves a new {@link ApplicationEventDetails.Type.NOTE_CHANGE} event.
+   * Sets the note on the {@code Application}.
    *
    * @param admin The Account that instigated the change.
    */
