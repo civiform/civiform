@@ -59,9 +59,7 @@ public final class ProgramAdminApplicationService {
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(newStatus)
             .build();
-    ApplicationEvent event =
-        new ApplicationEvent(
-            application, admin, ApplicationEventDetails.Type.STATUS_CHANGE, details);
+    ApplicationEvent event = new ApplicationEvent(application, admin, details);
     eventRepository.insertSync(event);
   }
 
@@ -76,8 +74,7 @@ public final class ProgramAdminApplicationService {
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
             .setNoteEvent(note)
             .build();
-    ApplicationEvent event =
-        new ApplicationEvent(application, admin, ApplicationEventDetails.Type.NOTE_CHANGE, details);
+    ApplicationEvent event = new ApplicationEvent(application, admin, details);
     eventRepository.insertSync(event);
   }
 }
