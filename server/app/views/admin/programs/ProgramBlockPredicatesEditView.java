@@ -38,7 +38,6 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -55,7 +54,7 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Renders a page for editing predicates of a block in a program. */
-public class ProgramBlockPredicatesEditView extends BaseHtmlView {
+public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
   private static final String H2_NEW_VISIBILITY_CONDITION = "New visibility condition";
   private static final String TEXT_NO_VISIBILITY_CONDITIONS = "This screen is always shown.";
@@ -151,7 +150,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(layout.renderProgramInfo(programDefinition), content);
+            .addMainContent(renderProgramInfo(programDefinition), content);
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
