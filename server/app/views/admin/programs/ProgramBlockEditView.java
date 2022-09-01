@@ -108,6 +108,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 div()
                     .withClasses(
                         Styles.FLEX,
+                        Styles.FLEX_GROW,
                         Styles.FLEX_COL,
                         Styles.PX_2,
                         StyleUtils.responsive2XLarge(Styles.PX_16))
