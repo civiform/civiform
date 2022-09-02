@@ -476,7 +476,7 @@ public final class AdminApplicationController extends CiviFormController {
         applicationListView.render(
             request,
             program,
-            getAllApplicationStatusesForProgram(program),
+            getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
             RenderFilterParams.builder()
@@ -487,8 +487,8 @@ public final class AdminApplicationController extends CiviFormController {
                 .build()));
   }
 
-  private ImmutableList<String> getAllApplicationStatusesForProgram(ProgramDefinition program) {
-    return programService.getAllProgramDefinitionVersions(program.id()).stream()
+  private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
+    return programService.getAllProgramDefinitionVersions(programId).stream()
         .map(pdef -> pdef.statusDefinitions().getStatuses())
         .flatMap(ImmutableList::stream)
         .map(StatusDefinitions.Status::statusText)

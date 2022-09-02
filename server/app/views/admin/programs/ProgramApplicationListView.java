@@ -78,7 +78,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       ProgramDefinition program,
-      ImmutableList<String> allApplicationStatuses,
+      ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       RenderFilterParams filterParams) {
@@ -102,7 +102,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     .withClasses(Styles.MB_2),
                 br(),
                 renderSearchForm(
-                    program, allApplicationStatuses, downloadModal.getButton(), filterParams),
+                    program,
+                    allPossibleProgramApplicationStatuses,
+                    downloadModal.getButton(),
+                    filterParams),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
             .withClasses(
                 Styles.MT_6,
@@ -134,7 +137,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private FormTag renderSearchForm(
       ProgramDefinition program,
-      ImmutableList<String> allApplicationStatuses,
+      ImmutableList<String> allPossibleProgramApplicationStatuses,
       ButtonTag downloadButton,
       RenderFilterParams filterParams) {
     return form()
@@ -176,11 +179,16 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .getInputTag()
                 .withClasses(Styles.W_FULL, Styles.MT_4))
         .condWith(
-            allApplicationStatuses.size() > 0,
+            allPossibleProgramApplicationStatuses.size() > 0,
             new SelectWithLabel()
                 .setFieldName(APPLICATION_STATUS_PARAM)
                 .setLabelText("Application status")
                 .setValue(filterParams.selectedApplicationStatus().orElse(""))
+                // TODO(#3269): Consider adding support for passing <optgroups> and divide the
+                // static options from the application statuses with a "-----" section. Also
+                // update options to take an ordered collection rather than an unordered
+                // collection in order to create more determinism in the order that options are
+                // rendered.
                 .setOptions(
                     ImmutableMap.<String, String>builder()
                         .put("Any application status", "")
@@ -188,7 +196,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             "Only applications without a status",
                             SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID)
                         .putAll(
-                            allApplicationStatuses.stream()
+                            allPossibleProgramApplicationStatuses.stream()
                                 .collect(
                                     ImmutableMap.toImmutableMap(
                                         Function.identity(), Function.identity())))

@@ -25,9 +25,8 @@ public abstract class SubmittedApplicationFilter {
   public abstract TimeFilter submitTimeFilter();
 
   /**
-   * If specified and non-empty, returns applications that match the provided status. If
-   * NO_STATUS_FILTERS_OPTION_UUID is provided, it indicates a desire to match only applications
-   * that have no status explicitly set.
+   * If specified and non-empty, returns applications that match the provided status. A value of
+   * NO_STATUS_FILTERS_OPTION_UUID will match only applications with no status explicitly set.
    */
   public abstract Optional<String> applicationStatus();
 
