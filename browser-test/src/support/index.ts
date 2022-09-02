@@ -118,7 +118,6 @@ export interface TestContext {
  *   const ctx = createTestContext()
  *
  *   it('should do foo', async () => {
-  const {page, applicantQuestions} = ctx
  *     await ctx.page.click('#some-button')
  *   })
  * })
