@@ -24,7 +24,6 @@ public class ApplicationEventTest extends ResetPostgres {
         new ApplicationEvent(
             application,
             adminAccount,
-            ApplicationEventDetails.Type.NOTE_CHANGE,
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
                 .setNoteEvent(NoteEvent.create("some note"))
@@ -47,7 +46,6 @@ public class ApplicationEventTest extends ResetPostgres {
     new ApplicationEvent(
             application,
             adminAccount,
-            ApplicationEventDetails.Type.STATUS_CHANGE,
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
                 .setStatusEvent(
@@ -62,7 +60,6 @@ public class ApplicationEventTest extends ResetPostgres {
     new ApplicationEvent(
             application,
             adminAccount,
-            ApplicationEventDetails.Type.STATUS_CHANGE,
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
                 .setStatusEvent(StatusEvent.builder().setStatusText("").setEmailSent(false).build())
@@ -86,7 +83,6 @@ public class ApplicationEventTest extends ResetPostgres {
         new ApplicationEvent(
             application,
             adminAccount,
-            ApplicationEventDetails.Type.STATUS_CHANGE,
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
                 .setStatusEvent(
@@ -105,7 +101,6 @@ public class ApplicationEventTest extends ResetPostgres {
         new ApplicationEvent(
             application,
             adminAccount,
-            ApplicationEventDetails.Type.STATUS_CHANGE,
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
                 .setStatusEvent(

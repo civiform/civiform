@@ -34,14 +34,11 @@ public final class ApplicationEvent extends BaseModel {
    * @param creator the Account that created the event.
    */
   public ApplicationEvent(
-      Application application,
-      Account creator,
-      ApplicationEventDetails.Type eventType,
-      ApplicationEventDetails details) {
+      Application application, Account creator, ApplicationEventDetails details) {
     this.application = checkNotNull(application);
     this.creator = checkNotNull(creator);
-    this.eventType = checkNotNull(eventType);
     this.details = checkNotNull(details);
+    this.eventType = details.eventType();
   }
 
   public Application getApplication() {

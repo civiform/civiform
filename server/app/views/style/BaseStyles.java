@@ -148,7 +148,8 @@ public final class BaseStyles {
           Styles.FONT_BOLD,
           Styles.CURSOR_POINTER,
           Styles.OPACITY_60,
-          Styles.PX_2,
+          Styles.W_7,
+          Styles.H_7,
           StyleUtils.hover(Styles.OPACITY_100));
   /**
    * Simple styling for the div that holds the custom modal content. Should just have decent margins
