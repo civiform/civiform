@@ -14,6 +14,8 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.TagCreator;
@@ -23,11 +25,13 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
+import java.util.function.Function;
 import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import repository.SubmittedApplicationFilter;
 import services.DateConverter;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -42,6 +46,7 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
+import views.components.SelectWithLabel;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -52,6 +57,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private static final String FROM_DATE_PARAM = "fromDate";
   private static final String UNTIL_DATE_PARAM = "untilDate";
   private static final String SEARCH_PARAM = "search";
+  private static final String APPLICATION_STATUS_PARAM = "applicationStatus";
   private static final String IGNORE_FILTERS_PARAM = "ignoreFilters";
 
   private final AdminLayout layout;
@@ -72,6 +78,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       ProgramDefinition program,
+      ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       RenderFilterParams filterParams) {
@@ -90,10 +97,15 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 filterParams.search(),
                                 Optional.of(pageNumber),
                                 filterParams.fromDate(),
-                                filterParams.untilDate()))
+                                filterParams.untilDate(),
+                                filterParams.selectedApplicationStatus()))
                     .withClasses(Styles.MB_2),
                 br(),
-                renderSearchForm(program, downloadModal.getButton(), filterParams),
+                renderSearchForm(
+                    program,
+                    allPossibleProgramApplicationStatuses,
+                    downloadModal.getButton(),
+                    filterParams),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
             .withClasses(
                 Styles.MT_6,
@@ -124,17 +136,21 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private FormTag renderSearchForm(
-      ProgramDefinition program, ButtonTag downloadButton, RenderFilterParams filterParams) {
+      ProgramDefinition program,
+      ImmutableList<String> allPossibleProgramApplicationStatuses,
+      ButtonTag downloadButton,
+      RenderFilterParams filterParams) {
     return form()
         .withClasses(Styles.MT_6)
         .withMethod("GET")
         .withAction(
             routes.AdminApplicationController.index(
                     program.id(),
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty())
+                    /* search = */ Optional.empty(),
+                    /* page= */ Optional.empty(),
+                    /* fromDate= */ Optional.empty(),
+                    /* untilDate= */ Optional.empty(),
+                    /* applicationStatus= */ Optional.empty())
                 .url())
         .with(
             fieldset()
@@ -161,7 +177,32 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .setValue(filterParams.search().orElse(""))
                 .setLabelText("Search by name, email, or application ID")
                 .getInputTag()
-                .withClasses(Styles.W_FULL, Styles.MT_4),
+                .withClasses(Styles.W_FULL, Styles.MT_4))
+        .condWith(
+            allPossibleProgramApplicationStatuses.size() > 0,
+            new SelectWithLabel()
+                .setFieldName(APPLICATION_STATUS_PARAM)
+                .setLabelText("Application status")
+                .setValue(filterParams.selectedApplicationStatus().orElse(""))
+                // TODO(#3269): Consider adding support for passing <optgroups> and divide the
+                // static options from the application statuses with a "-----" section. Also
+                // update options to take an ordered collection rather than an unordered
+                // collection in order to create more determinism in the order that options are
+                // rendered.
+                .setOptions(
+                    ImmutableMap.<String, String>builder()
+                        .put("Any application status", "")
+                        .put(
+                            "Only applications without a status",
+                            SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID)
+                        .putAll(
+                            allPossibleProgramApplicationStatuses.stream()
+                                .collect(
+                                    ImmutableMap.toImmutableMap(
+                                        Function.identity(), Function.identity())))
+                        .build())
+                .getSelectTag())
+        .with(
             div()
                 .withClasses(Styles.MT_6, Styles.MB_8, Styles.FLEX, Styles.SPACE_X_2)
                 .with(
@@ -195,16 +236,20 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             .getRadioTag(),
                         input()
                             .withName(FROM_DATE_PARAM)
-                            .withValue(filterParams.fromDate().orElse(""))
-                            .withType("hidden"),
+                            .isHidden()
+                            .withValue(filterParams.fromDate().orElse("")),
                         input()
                             .withName(UNTIL_DATE_PARAM)
-                            .withValue(filterParams.untilDate().orElse(""))
-                            .withType("hidden"),
+                            .isHidden()
+                            .withValue(filterParams.untilDate().orElse("")),
                         input()
                             .withName(SEARCH_PARAM)
-                            .withValue(filterParams.search().orElse(""))
-                            .withType("hidden"),
+                            .isHidden()
+                            .withValue(filterParams.search().orElse("")),
+                        input()
+                            .withName(APPLICATION_STATUS_PARAM)
+                            .isHidden()
+                            .withValue(filterParams.selectedApplicationStatus().orElse("")),
                         div()
                             .withClasses(Styles.FLEX, Styles.MT_6, Styles.SPACE_X_2)
                             .with(
@@ -217,10 +262,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAll(
                                                 program.id(),
-                                                Optional.empty(),
-                                                Optional.empty(),
-                                                Optional.empty(),
-                                                Optional.empty())
+                                                /* search= */ Optional.empty(),
+                                                /* fromDate= */ Optional.empty(),
+                                                /* untilDate= */ Optional.empty(),
+                                                /* applicationStatus= */ Optional.empty(),
+                                                /* ignoreFilters= */ Optional.empty())
                                             .url())
                                     .withType("submit"),
                                 TagCreator.button("Download JSON")
@@ -232,10 +278,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAllJson(
                                                 program.id(),
-                                                Optional.empty(),
-                                                Optional.empty(),
-                                                Optional.empty(),
-                                                Optional.empty())
+                                                /* search= */ Optional.empty(),
+                                                /* fromDate= */ Optional.empty(),
+                                                /* untilDate= */ Optional.empty(),
+                                                /* applicationStatus= */ Optional.empty(),
+                                                /* ignoreFilters= */ Optional.empty())
                                             .url())
                                     .withType("submit"))));
     return Modal.builder(modalId, modalContent)
@@ -311,6 +358,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     public abstract Optional<String> untilDate();
 
+    public abstract Optional<String> selectedApplicationStatus();
+
     public static Builder builder() {
       return new AutoValue_ProgramApplicationListView_RenderFilterParams.Builder();
     }
@@ -322,6 +371,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       public abstract Builder setFromDate(Optional<String> fromDate);
 
       public abstract Builder setUntilDate(Optional<String> untilDate);
+
+      public abstract Builder setSelectedApplicationStatus(
+          Optional<String> selectedApplicationStatus);
 
       public abstract RenderFilterParams build();
     }

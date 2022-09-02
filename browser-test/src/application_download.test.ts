@@ -153,7 +153,7 @@ describe('normal application flow', () => {
     )
 
     // Finds a partial text match on applicant name, case insensitive.
-    await adminPrograms.filterProgramApplications('SARA')
+    await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
     const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
     expect(filteredCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(filteredCsvContent).not.toContain(

@@ -1,14 +1,8 @@
-import {Page} from 'playwright'
 import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
+  createTestContext,
   loginAsAdmin,
   loginAsGuest,
-  logout,
   selectApplicantLanguage,
-  startSession,
-  resetSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -16,17 +10,12 @@ import {
 describe('Static text question for applicant flow', () => {
   const staticText = 'Hello, I am some static text!'
   const programName = 'test program for static text'
-  let pageObject: Page
-  let applicantQuestions: ApplicantQuestions
+  const ctx = createTestContext(/* clearDb= */ false)
 
   beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
+    const {page, adminQuestions, adminPrograms} = ctx
     // As admin, create program with static text question.
-    await loginAsAdmin(pageObject)
-    const adminQuestions = new AdminQuestions(pageObject)
-    const adminPrograms = new AdminPrograms(pageObject)
-    applicantQuestions = new ApplicantQuestions(pageObject)
+    await loginAsAdmin(page)
 
     await adminQuestions.addStaticQuestion({
       questionName: 'static-text-q',
@@ -38,26 +27,22 @@ describe('Static text question for applicant flow', () => {
       ['static-text-q', 'partner-email-q'],
       programName,
     )
-
-    await logout(pageObject)
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
   })
 
   it('validate screenshot', async () => {
-    await loginAsGuest(pageObject)
-    await selectApplicantLanguage(pageObject, 'English')
+    const {page, applicantQuestions} = ctx
+    await loginAsGuest(page)
+    await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.applyProgram(programName)
 
-    await validateScreenshot(pageObject, 'static-text')
+    await validateScreenshot(page, 'static-text')
   })
 
   it('displays static text', async () => {
-    await loginAsGuest(pageObject)
-    await selectApplicantLanguage(pageObject, 'English')
+    const {page, applicantQuestions} = ctx
+    await loginAsGuest(page)
+    await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.applyProgram(programName)
 
@@ -65,11 +50,12 @@ describe('Static text question for applicant flow', () => {
   })
 
   it('has no accessiblity violations', async () => {
-    await loginAsGuest(pageObject)
-    await selectApplicantLanguage(pageObject, 'English')
+    const {page, applicantQuestions} = ctx
+    await loginAsGuest(page)
+    await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.applyProgram(programName)
 
-    await validateAccessibility(pageObject)
+    await validateAccessibility(page)
   })
 })
