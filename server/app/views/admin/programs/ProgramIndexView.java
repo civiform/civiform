@@ -20,6 +20,7 @@ import controllers.admin.routes;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -29,6 +30,7 @@ import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
+import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -176,12 +178,21 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Optional<Modal> maybeRenderPublishModal(
       ActiveAndDraftPrograms programs, ActiveAndDraftQuestions questions, Http.Request request) {
-    // We should only render the publish modal / button if there is at least one draft.
-    if (!programs.anyDraft() && !questions.draftVersionHasAnyEdits()) {
+    // We should only render the publish modal / button if there is at least one draft program.
+    if (!programs.anyDraft()) {
       return Optional.empty();
     }
 
     String link = routes.AdminProgramController.publish().url();
+
+    ImmutableList<QuestionDefinition> sortedDraftQuestions =
+        questions.getDraftQuestions().stream()
+            .sorted(Comparator.comparing(QuestionDefinition::getName))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> sortedDraftPrograms =
+        programs.getDraftPrograms().stream()
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
 
     DivTag publishAllModalContent =
         div()
@@ -191,32 +202,30 @@ public final class ProgramIndexView extends BaseHtmlView {
                         + " all questions and programs will need to be published together.")
                     .withClass(Styles.TEXT_SM),
                 div()
+                    .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
                     .with(
-                        p(String.format(
-                                "Edited questions (%d):", questions.getDraftQuestions().size()))
+                        p(String.format("Edited questions (%d):", sortedDraftQuestions.size()))
                             .withClass(Styles.FONT_SEMIBOLD))
+                    .condWith(sortedDraftQuestions.isEmpty(), p("None").withClass(Styles.PL_5))
                     .condWith(
-                        questions.getDraftQuestions().isEmpty(), p("None").withClass(Styles.PL_5))
-                    .condWith(
-                        !questions.getDraftQuestions().isEmpty(),
+                        !sortedDraftQuestions.isEmpty(),
                         ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
                             .with(
                                 each(
-                                    questions.getDraftQuestions(),
+                                    sortedDraftQuestions,
                                     draftQuestion -> li(draftQuestion.getName())))),
                 div()
+                    .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
                     .with(
-                        p(String.format(
-                                "Edited programs (%d):", programs.getDraftPrograms().size()))
+                        p(String.format("Edited programs (%d):", sortedDraftPrograms.size()))
                             .withClass(Styles.FONT_SEMIBOLD))
+                    .condWith(sortedDraftPrograms.isEmpty(), p("None").withClass(Styles.PL_5))
                     .condWith(
-                        programs.getDraftPrograms().isEmpty(), p("None").withClass(Styles.PL_5))
-                    .condWith(
-                        !programs.getDraftPrograms().isEmpty(),
+                        !sortedDraftPrograms.isEmpty(),
                         ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
                             .with(
                                 each(
-                                    programs.getDraftPrograms(),
+                                    sortedDraftPrograms,
                                     draftProgram -> li(draftProgram.adminName())))),
                 p("Would you like to publish all edited questions and programs now?"),
                 div()
