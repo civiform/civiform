@@ -19,7 +19,7 @@ import {
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
-export {ApplicantQuestions} from './applicant_questions'
+import {ApplicantQuestions} from './applicant_questions'
 
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
