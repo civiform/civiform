@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import models.Program;
 import models.Question;
 import models.Version;
@@ -53,16 +54,16 @@ public final class ActiveAndDraftQuestions {
     ImmutableMap<String, QuestionDefinition> activeNames =
         active.getQuestions().stream()
             .map(Question::getQuestionDefinition)
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     ImmutableMap<String, QuestionDefinition> draftNames =
         draft.getQuestions().stream()
             .map(Question::getQuestionDefinition)
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     versionedByName =
         Sets.union(activeNames.keySet(), draftNames.keySet()).stream()
             .collect(
                 ImmutableMap.toImmutableMap(
-                    name -> name,
+                    Function.identity(),
                     name -> {
                       return Pair.create(
                           Optional.ofNullable(activeNames.get(name)),

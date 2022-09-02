@@ -44,16 +44,16 @@ public class ActiveAndDraftPrograms {
     draftPrograms = draftToName.values().asList();
     activeSize = activeToName.size();
     draftSize = draftToName.size();
-    ImmutableMap.Builder<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
-        versionedByNameBuilder = ImmutableMap.builder();
-    for (String name : Sets.union(activeToName.keySet(), draftToName.keySet())) {
-      versionedByNameBuilder.put(
-          name,
-          Pair.create(
-              Optional.ofNullable(activeToName.get(name)),
-              Optional.ofNullable(draftToName.get(name))));
-    }
-    versionedByName = versionedByNameBuilder.build();
+    versionedByName =
+        Sets.union(activeToName.keySet(), draftToName.keySet()).stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    Function.identity(),
+                    programName -> {
+                      return Pair.create(
+                          Optional.ofNullable(activeToName.get(programName)),
+                          Optional.ofNullable(draftToName.get(programName)));
+                    }));
   }
 
   public ImmutableList<ProgramDefinition> getActivePrograms() {
