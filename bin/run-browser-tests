@@ -17,8 +17,8 @@ docker run --rm -it \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   -e TEST_USER_AUTH_STRATEGY="fake-oidc" \
   -e TEST_USER_LOGIN="testuser" \
-  -e TEST_USER_PASSWORD="anotsecretpassword"
--e TEST_USER_DISPLAY_NAME="testuser@example.com" \
+  -e TEST_USER_PASSWORD="anotsecretpassword" \
+  -e TEST_USER_DISPLAY_NAME="testuser@example.com" \
   --network "${DOCKER_NETWORK_NAME}" \
   --init \
   civiform/civiform-browser-test:latest \
