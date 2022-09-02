@@ -340,7 +340,7 @@ export class AdminPrograms {
   private static PUBLISH_ALL_MODAL_TITLE =
     'All program and question drafts will be published'
 
-  publishAllLocator() {
+  publishAllProgramsModalLocator() {
     return this.page.locator(
       `.cf-modal:has-text("${AdminPrograms.PUBLISH_ALL_MODAL_TITLE}")`,
     )

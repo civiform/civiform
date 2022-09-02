@@ -59,7 +59,10 @@ describe('publishing all draft questions and programs', () => {
 
   it('validate screenshot', async () => {
     await adminPrograms.openPublishAllProgramsModal()
-    await validateScreenshot(adminPrograms.publishAllLocator(), 'publish-modal')
+    await validateScreenshot(
+      adminPrograms.publishAllProgramsModalLocator(),
+      'publish-modal',
+    )
     await dismissModal(pageObject)
   })
 })
