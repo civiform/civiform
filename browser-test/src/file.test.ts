@@ -9,7 +9,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from './support'
-import {BASE_URL} from './support/config';
+import {BASE_URL} from './support/config'
 
 describe('file upload applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
