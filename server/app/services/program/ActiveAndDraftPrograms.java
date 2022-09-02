@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.function.Function;
 import models.Version;
+import repository.VersionRepository;
 
 /**
  * A data class storing the current active and draft programs. For efficient querying of information
@@ -17,7 +18,7 @@ import models.Version;
  * the maximum - within one request serving path - because it does not have any mechanism for a
  * refresh.
  */
-public class ActiveAndDraftPrograms {
+public final class ActiveAndDraftPrograms {
 
   private final ImmutableList<ProgramDefinition> activePrograms;
   private final ImmutableList<ProgramDefinition> draftPrograms;
@@ -26,7 +27,17 @@ public class ActiveAndDraftPrograms {
   private final int activeSize;
   private final int draftSize;
 
-  public ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
+  /**
+   * Queries the existing active and draft versions and builds a snapshotted view of the program
+   * state.
+   */
+  public static ActiveAndDraftPrograms buildFromCurrentVersions(
+      ProgramService service, VersionRepository repository) {
+    return new ActiveAndDraftPrograms(
+        service, repository.getActiveVersion(), repository.getDraftVersion());
+  }
+
+  private ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
     // TODO(clouser): This has N+1 query behavior.
     ImmutableMap<String, ProgramDefinition> activeToName =
         checkNotNull(active).getPrograms().stream()
