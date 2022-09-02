@@ -8,13 +8,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
+import java.util.function.Function;
 import models.Version;
 
 /**
  * A data class storing the current active and draft programs. For efficient querying of information
- * about current active / draft programs which does not hit the database. Lifespan should be
- * measured in milliseconds - seconds at the maximum - within one request serving path - because it
- * does not have any mechanism for a refresh.
+ * about current active / draft programs. Lifespan should be measured in milliseconds - seconds at
+ * the maximum - within one request serving path - because it does not have any mechanism for a
+ * refresh.
  */
 public class ActiveAndDraftPrograms {
 
@@ -26,28 +27,31 @@ public class ActiveAndDraftPrograms {
   private final int draftSize;
 
   public ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
-    ImmutableMap.Builder<String, ProgramDefinition> activeToName = ImmutableMap.builder();
-    ImmutableMap.Builder<String, ProgramDefinition> draftToName = ImmutableMap.builder();
-    checkNotNull(draft).getPrograms().stream()
-        .map(program -> getProgramDefinition(checkNotNull(service), program.id))
-        .forEach(program -> draftToName.put(program.adminName(), program));
-    checkNotNull(active).getPrograms().stream()
-        .map(program -> getProgramDefinition(checkNotNull(service), program.id))
-        .forEach(program -> activeToName.put(program.adminName(), program));
-    ImmutableMap<String, ProgramDefinition> activeNames = activeToName.build();
-    ImmutableMap<String, ProgramDefinition> draftNames = draftToName.build();
-    activePrograms = activeNames.values().asList();
-    draftPrograms = draftNames.values().asList();
-    activeSize = activeNames.size();
-    draftSize = draftNames.size();
+    // TODO(clouser): This has N+1 query behavior.
+    ImmutableMap<String, ProgramDefinition> activeToName =
+        checkNotNull(active).getPrograms().stream()
+            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    ImmutableMap<String, ProgramDefinition> draftToName =
+        checkNotNull(draft).getPrograms().stream()
+            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    activePrograms = activeToName.values().asList();
+    draftPrograms = draftToName.values().asList();
+    activeSize = activeToName.size();
+    draftSize = draftToName.size();
     ImmutableMap.Builder<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
         versionedByNameBuilder = ImmutableMap.builder();
-    for (String name : Sets.union(activeNames.keySet(), draftNames.keySet())) {
+    for (String name : Sets.union(activeToName.keySet(), draftToName.keySet())) {
       versionedByNameBuilder.put(
           name,
           Pair.create(
-              Optional.ofNullable(activeNames.get(name)),
-              Optional.ofNullable(draftNames.get(name))));
+              Optional.ofNullable(activeToName.get(name)),
+              Optional.ofNullable(draftToName.get(name))));
     }
     versionedByName = versionedByNameBuilder.build();
   }
