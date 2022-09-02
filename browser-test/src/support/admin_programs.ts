@@ -337,13 +337,58 @@ export class AdminPrograms {
     await this.expectActiveProgram(programName)
   }
 
+  private static PUBLISH_ALL_MODAL_TITLE =
+    'All program and question drafts will be published'
+
+  publishAllLocator() {
+    return this.page.locator(
+      `.cf-modal:has-text("${AdminPrograms.PUBLISH_ALL_MODAL_TITLE}")`,
+    )
+  }
+
   async publishAllPrograms() {
-    await this.page.click('button:has-text("Publish all drafts")')
-    const modal = await waitForAnyModal(this.page)
+    const modal = await this.openPublishAllProgramsModal()
     const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
     await confirmHandle.click()
 
     await waitForPageJsLoad(this.page)
+  }
+
+  async openPublishAllProgramsModal() {
+    await this.page.click('button:has-text("Publish all drafts")')
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      AdminPrograms.PUBLISH_ALL_MODAL_TITLE,
+    )
+    return modal
+  }
+
+  async expectProgramReferencesModalContains({
+    expectedQuestionNames,
+    expectedProgramNames,
+  }: {
+    expectedQuestionNames: string[]
+    expectedProgramNames: string[]
+  }) {
+    const modal = await this.openPublishAllProgramsModal()
+
+    const editedQuestions = await modal.$$(
+      '.cf-admin-publish-references-question li',
+    )
+    const editedQuestionNames = await Promise.all(
+      editedQuestions.map((editedQuestion) => editedQuestion.innerText()),
+    )
+    expect(editedQuestionNames).toEqual(expectedQuestionNames)
+
+    const editedPrograms = await modal.$$(
+      '.cf-admin-publish-references-program li',
+    )
+    const editedProgramNames = await Promise.all(
+      editedPrograms.map((editedProgram) => editedProgram.innerText()),
+    )
+    expect(editedProgramNames).toEqual(expectedProgramNames)
+
+    await dismissModal(this.page)
   }
 
   async createNewVersion(programName: string) {
