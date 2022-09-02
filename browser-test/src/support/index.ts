@@ -11,9 +11,11 @@ import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
+  TEST_USER_AUTH_STRATEGY,
   DISABLE_SCREENSHOTS,
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
+  TEST_USER_DISPLAY_NAME,
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
@@ -29,14 +31,6 @@ export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {ApplicantQuestions} from './applicant_questions'
 export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
-import {
-  BASE_URL,
-  TEST_USER_AUTH_STRATEGY,
-  TEST_USER_LOGIN,
-  TEST_USER_PASSWORD,
-  TEST_USER_DISPLAY_NAME,
-  DISABLE_SCREENSHOTS,
-} from './config'
 
 export const isLocalDevEnvironment = () => {
   return (
