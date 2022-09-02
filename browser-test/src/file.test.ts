@@ -9,6 +9,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from './support'
+import {BASE_URL} from './support/config';
 
 describe('file upload applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -17,6 +18,7 @@ describe('file upload applicant flow', () => {
     const {page} = ctx
     await dropTables(page)
     await seedCanonicalQuestions(page)
+    await page.goto(BASE_URL)
   })
 
   describe('single file upload question', () => {
