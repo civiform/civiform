@@ -341,26 +341,33 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     Application firstStatusApplication =
         resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
-    createStatusEvents(adminAccount, firstStatusApplication, FIRST_STATUS);
+    createStatusEvents(
+        adminAccount, firstStatusApplication, ImmutableList.of(Optional.of(FIRST_STATUS)));
 
     Application secondStatusApplication =
         resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
-    createStatusEvents(adminAccount, secondStatusApplication, SECOND_STATUS);
+    createStatusEvents(
+        adminAccount, secondStatusApplication, ImmutableList.of(Optional.of(SECOND_STATUS)));
 
     Application thirdStatusApplication =
         resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
     // Create a few status events before-hand to ensure that the latest status is used.
     createStatusEvents(
-        adminAccount, thirdStatusApplication, FIRST_STATUS, SECOND_STATUS, THIRD_STATUS);
+        adminAccount,
+        thirdStatusApplication,
+        ImmutableList.of(
+            Optional.of(FIRST_STATUS), Optional.of(SECOND_STATUS), Optional.of(THIRD_STATUS)));
 
     Application noStatusApplication =
         resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
 
     Application backToNoStatusApplication =
         resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
-    // Application has transitioned through statuses and arrived back at an empty status (indicated
-    // by null).
-    createStatusEvents(adminAccount, backToNoStatusApplication, SECOND_STATUS, null);
+    // Application has transitioned through statuses and arrived back at an unset status.
+    createStatusEvents(
+        adminAccount,
+        backToNoStatusApplication,
+        ImmutableList.of(Optional.of(SECOND_STATUS), Optional.empty()));
 
     // Unspecified status returns all results.
     assertThat(applicationIdsForProgramAndFilter(program, SubmittedApplicationFilter.EMPTY))
@@ -434,19 +441,19 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   private void createStatusEvents(
-      Account actorAccount, Application application, StatusDefinitions.Status... statuses)
+      Account actorAccount,
+      Application application,
+      ImmutableList<Optional<StatusDefinitions.Status>> statuses)
       throws InterruptedException {
-    for (StatusDefinitions.Status status : statuses) {
-      String statusText = status != null ? status.statusText() : "";
+    for (Optional<StatusDefinitions.Status> status : statuses) {
+      String statusText = status.map(StatusDefinitions.Status::statusText).orElse("");
       ApplicationEventDetails details =
           ApplicationEventDetails.builder()
               .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
               .setStatusEvent(
                   StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build())
               .build();
-      ApplicationEvent event =
-          new ApplicationEvent(
-              application, actorAccount, ApplicationEventDetails.Type.STATUS_CHANGE, details);
+      ApplicationEvent event = new ApplicationEvent(application, actorAccount, details);
       event.save();
 
       // When persisting models with @WhenModified fields, EBean
