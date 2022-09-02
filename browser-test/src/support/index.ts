@@ -260,8 +260,13 @@ export const loginAsTestUser = async (page: Page) => {
       break
     default:
       // TODO(#3326): Throw an error for an unrecognized strategy rather than falling back on
-      // logging in as a guest. This is presently in place to support AWS staging prober runs.
-      await loginAsGuest(page)
+      // logging in as a guest. Handling this case is presently in place to support AWS staging
+      // and Seattle staging prober runs.
+      if (TEST_USER_DISPLAY_NAME) {
+        await loginAsTestUserSeattleStaging(page)
+      } else {
+        await loginAsGuest(page)
+      }
   }
   await waitForPageJsLoad(page)
 }
@@ -333,7 +338,13 @@ async function loginAsTestUserFakeOidc(page: Page) {
 export const testUserDisplayName = () => {
   if (!TEST_USER_DISPLAY_NAME) {
     // TODO(#3326): Throw an error if the environment variable isn't provided rather than falling
-    // back on Guest. This is presently in place to support AWS staging prober runs.
+    // back on Guest. This is presently in place to support AWS staging and Seattle staging prober
+    // runs.
+    if (TEST_USER_DISPLAY_NAME) {
+      // Seattle staging.
+      return 'TEST, UATAPP'
+    }
+    // AWS staging.
     return 'Guest'
   }
   return TEST_USER_DISPLAY_NAME
