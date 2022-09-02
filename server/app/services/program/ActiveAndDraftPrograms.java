@@ -24,8 +24,6 @@ public final class ActiveAndDraftPrograms {
   private final ImmutableList<ProgramDefinition> draftPrograms;
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       versionedByName;
-  private final int activeSize;
-  private final int draftSize;
 
   /**
    * Queries the existing active and draft versions and builds a snapshotted view of the program
@@ -39,31 +37,29 @@ public final class ActiveAndDraftPrograms {
 
   private ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
     // TODO(clouser): This has N+1 query behavior.
-    ImmutableMap<String, ProgramDefinition> activeToName =
+    ImmutableMap<String, ProgramDefinition> activeNameToProgram =
         checkNotNull(active).getPrograms().stream()
             .map(program -> getProgramDefinition(checkNotNull(service), program.id))
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
-    ImmutableMap<String, ProgramDefinition> draftToName =
+    ImmutableMap<String, ProgramDefinition> draftNameToProgram =
         checkNotNull(draft).getPrograms().stream()
             .map(program -> getProgramDefinition(checkNotNull(service), program.id))
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
-    activePrograms = activeToName.values().asList();
-    draftPrograms = draftToName.values().asList();
-    activeSize = activeToName.size();
-    draftSize = draftToName.size();
-    versionedByName =
-        Sets.union(activeToName.keySet(), draftToName.keySet()).stream()
+    this.activePrograms = activeNameToProgram.values().asList();
+    this.draftPrograms = draftNameToProgram.values().asList();
+    this.versionedByName =
+        Sets.union(activeNameToProgram.keySet(), draftNameToProgram.keySet()).stream()
             .collect(
                 ImmutableMap.toImmutableMap(
                     Function.identity(),
                     programName -> {
                       return Pair.create(
-                          Optional.ofNullable(activeToName.get(programName)),
-                          Optional.ofNullable(draftToName.get(programName)));
+                          Optional.ofNullable(activeNameToProgram.get(programName)),
+                          Optional.ofNullable(draftNameToProgram.get(programName)));
                     }));
   }
 
@@ -87,16 +83,8 @@ public final class ActiveAndDraftPrograms {
     return versionedByName.get(name).second();
   }
 
-  public int getActiveSize() {
-    return activeSize;
-  }
-
-  public int getDraftSize() {
-    return draftSize;
-  }
-
   public boolean anyDraft() {
-    return getDraftSize() > 0;
+    return draftPrograms.size() > 0;
   }
 
   private ProgramDefinition getProgramDefinition(ProgramService service, long id) {

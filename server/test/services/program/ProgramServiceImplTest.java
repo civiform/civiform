@@ -98,8 +98,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   @Test
   public void createProgram_setsId() {
-    assertThat(ps.getActiveAndDraftPrograms().getActiveSize()).isEqualTo(0);
-    assertThat(ps.getActiveAndDraftPrograms().getDraftSize()).isEqualTo(0);
+    assertThat(ps.getActiveAndDraftPrograms().getActivePrograms()).isEmpty();
+    assertThat(ps.getActiveAndDraftPrograms().getDraftPrograms()).isEmpty();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
