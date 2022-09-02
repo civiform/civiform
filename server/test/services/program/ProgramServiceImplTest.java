@@ -248,7 +248,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     ProgramDefinition found = ps.getProgramDefinition(updatedProgram.id());
 
-    assertThat(ps.getActiveAndDraftPrograms().getDraftSize()).isEqualTo(1);
+    assertThat(ps.getActiveAndDraftPrograms().getDraftPrograms()).hasSize(1);
     assertThat(found.adminName()).isEqualTo(updatedProgram.adminName());
     assertThat(found.lastModifiedTime().isPresent()).isTrue();
     assertThat(originalProgram.lastModifiedTime().isPresent()).isTrue();
