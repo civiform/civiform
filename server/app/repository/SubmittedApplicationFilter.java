@@ -24,6 +24,12 @@ public abstract class SubmittedApplicationFilter {
   /** Filters to applications that were submitted within the provided date range. */
   public abstract TimeFilter submitTimeFilter();
 
+  /**
+   * If specified and non-empty, returns applications that match the provided status. A value of
+   * NO_STATUS_FILTERS_OPTION_UUID will match only applications with no status explicitly set.
+   */
+  public abstract Optional<String> applicationStatus();
+
   public static Builder builder() {
     return new AutoValue_SubmittedApplicationFilter.Builder();
   }
@@ -33,6 +39,8 @@ public abstract class SubmittedApplicationFilter {
     public abstract Builder setSearchNameFragment(Optional<String> v);
 
     public abstract Builder setSubmitTimeFilter(TimeFilter v);
+
+    public abstract Builder setApplicationStatus(Optional<String> v);
 
     public abstract SubmittedApplicationFilter build();
   }
