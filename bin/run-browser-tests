@@ -11,13 +11,13 @@ bin/pull-image
 # Additionally we map node_modules to a separate volume so that it doesn't
 # conflict with node_modules created locally.
 # --init enables https://github.com/krallin/tini
+# The display name returned by test_oidc_provider.js is <username>@example.com.
 docker run --rm -it \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   -e TEST_USER_AUTH_STRATEGY="fake-oidc" \
   -e TEST_USER_LOGIN="testuser" \
   -e TEST_USER_PASSWORD="anotsecretpassword"
-# The display name returned by test_oidc_provider.js is <username>@example.com.
 -e TEST_USER_DISPLAY_NAME="testuser@example.com" \
   --network "${DOCKER_NETWORK_NAME}" \
   --init \
