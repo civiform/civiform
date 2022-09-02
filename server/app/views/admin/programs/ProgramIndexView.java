@@ -7,7 +7,9 @@ import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.legend;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
@@ -26,6 +28,7 @@ import play.twirl.api.Content;
 import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.question.ActiveAndDraftQuestions;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -63,13 +66,16 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   public Content render(
-      ActiveAndDraftPrograms programs, Http.Request request, Optional<CiviFormProfile> profile) {
+      ActiveAndDraftPrograms programs,
+      ActiveAndDraftQuestions questions,
+      Http.Request request,
+      Optional<CiviFormProfile> profile) {
     if (profile.isPresent() && profile.get().isProgramAdmin() && !profile.get().isCiviFormAdmin()) {
       layout.setOnlyProgramAdminType();
     }
 
     String pageTitle = "All programs";
-    Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, request);
+    Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, questions, request);
 
     Modal demographicsCsvModal = renderDemographicsCsvModal();
     DivTag contentDiv =
@@ -168,16 +174,10 @@ public final class ProgramIndexView extends BaseHtmlView {
         .build();
   }
 
-  private ButtonTag makePublishButton() {
-    return makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
-        .withId("publish-programs-button")
-        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MY_2);
-  }
-
   private Optional<Modal> maybeRenderPublishModal(
-      ActiveAndDraftPrograms programs, Http.Request request) {
+      ActiveAndDraftPrograms programs, ActiveAndDraftQuestions questions, Http.Request request) {
     // We should only render the publish modal / button if there is at least one draft.
-    if (!programs.anyDraft()) {
+    if (!programs.anyDraft() && !questions.draftVersionHasAnyEdits()) {
       return Optional.empty();
     }
 
@@ -185,13 +185,58 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     DivTag publishAllModalContent =
         div()
-            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4, Styles.PX_2)
-            .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
-            .with(div().with(toLinkButtonForPost(makePublishButton(), link, request)));
+            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4, Styles.PX_4, Styles.PY_2)
+            .with(
+                p(
+                    "Please be aware that due to the nature of shared questions and versioning,"
+                        + " all questions and programs will need to be published together."),
+                div()
+                    .with(
+                        p(String.format(
+                                "Edited questions (%d):", questions.getDraftQuestions().size()))
+                            .withClass(Styles.FONT_SEMIBOLD))
+                    .condWith(
+                        questions.getDraftQuestions().isEmpty(), p("None").withClass(Styles.PL_5))
+                    .condWith(
+                        !questions.getDraftQuestions().isEmpty(),
+                        ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                            .with(
+                                each(
+                                    questions.getDraftQuestions(),
+                                    draftQuestion -> li(draftQuestion.getName())))),
+                div()
+                    .with(
+                        p(String.format(
+                                "Edited programs (%d):", programs.getDraftPrograms().size()))
+                            .withClass(Styles.FONT_SEMIBOLD))
+                    .condWith(
+                        programs.getDraftPrograms().isEmpty(), p("None").withClass(Styles.PL_5))
+                    .condWith(
+                        !programs.getDraftPrograms().isEmpty(),
+                        ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                            .with(
+                                each(
+                                    programs.getDraftPrograms(),
+                                    draftProgram -> li(draftProgram.adminName())))),
+                p("Would you like to publish all edited questions and programs now?"),
+                div()
+                    .withClasses(Styles.FLEX, Styles.FLEX_ROW)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        button("Cancel")
+                            .withClasses(
+                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                        toLinkButtonForPost(
+                            submitButton("Confirm").withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+                            link,
+                            request)));
+    ButtonTag publishAllButton =
+        makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
+            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MY_2);
     Modal publishAllModal =
         Modal.builder("publish-all-programs-modal", publishAllModalContent)
-            .setModalTitle("Confirmation")
-            .setTriggerButtonContent(makePublishButton())
+            .setModalTitle("All program and question drafts will be published")
+            .setTriggerButtonContent(publishAllButton)
             .build();
     return Optional.of(publishAllModal);
   }

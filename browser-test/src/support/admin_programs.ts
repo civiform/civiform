@@ -338,8 +338,11 @@ export class AdminPrograms {
   }
 
   async publishAllPrograms() {
-    await clickAndWaitForModal(this.page, 'publish-all-programs-modal')
-    await this.page.click(`#publish-programs-button`)
+    await this.page.click('button:has-text("Publish all drafts")')
+    const modal = await waitForAnyModal(this.page)
+    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+    await confirmHandle.click()
+
     await waitForPageJsLoad(this.page)
   }
 
