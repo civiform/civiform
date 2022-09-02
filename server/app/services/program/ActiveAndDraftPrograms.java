@@ -36,7 +36,9 @@ public final class ActiveAndDraftPrograms {
   }
 
   private ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
-    // TODO(clouser): This has N+1 query behavior.
+    // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
+    // an additional database lookup in order to sync the set of questions associated with the
+    // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
         checkNotNull(active).getPrograms().stream()
             .map(program -> getProgramDefinition(checkNotNull(service), program.id))
