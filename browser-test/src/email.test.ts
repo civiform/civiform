@@ -1,40 +1,23 @@
-import {Page} from 'playwright'
 import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
+  createTestContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
   selectApplicantLanguage,
-  startSession,
-  resetSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
 
 describe('Email question for applicant flow', () => {
-  let pageObject: Page
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
+  const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single email question', () => {
-    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single email'
 
     beforeAll(async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with single email question.
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(page)
 
       await adminQuestions.addEmailQuestion({questionName: 'general-email-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
@@ -42,31 +25,34 @@ describe('Email question for applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
+      await logout(page)
     })
 
     it('validate screenshot', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, 'email')
+      await validateScreenshot(page, 'email')
     })
 
     it('validate screenshot with errors', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject, 'email-errors')
+      await validateScreenshot(page, 'email-errors')
     })
 
     it('with email input submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
@@ -76,29 +62,27 @@ describe('Email question for applicant flow', () => {
     })
 
     it('with no email input does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       // Click next without inputting anything.
       await applicantQuestions.clickNext()
 
       const emailId = '.cf-question-email'
-      expect(await pageObject.innerText(emailId)).toContain(
+      expect(await page.innerText(emailId)).toContain(
         'This question is required.',
       )
     })
   })
 
   describe('multiple email questions', () => {
-    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple emails'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      const {page, adminQuestions, adminPrograms} = ctx
+      await loginAsAdmin(page)
 
       await adminQuestions.addEmailQuestion({questionName: 'my-email-q'})
       await adminQuestions.addEmailQuestion({questionName: 'your-email-q'})
@@ -113,12 +97,13 @@ describe('Email question for applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(page)
     })
 
     it('with email inputs submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('your_email@civiform.gov', 0)
@@ -129,8 +114,9 @@ describe('Email question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
@@ -141,12 +127,13 @@ describe('Email question for applicant flow', () => {
     })
 
     it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(page)
     })
   })
 })
