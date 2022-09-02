@@ -472,9 +472,9 @@ function attachFormDebouncers() {
 /**
  * Adds event listener to all elements on a page that match given selector.
  * This function doesn't handle elements added dynamically after the function was invoked.
- * @param selector CSS selector that will be used to retrieve list of elements.
- * @param event Browser event. For example 'click'
- * @param listener Listener that will be registered on all matching elements.
+ * @param {string} selector CSS selector that will be used to retrieve list of elements.
+ * @param {string} event Browser event. For example 'click'
+ * @param {Function} listener Listener that will be registered on all matching elements.
  */
 function addEventListenerToElements(
   selector: string,
