@@ -1,4 +1,5 @@
 import {
+  AdminPrograms,
   createTestContext,
   dismissModal,
   enableFeatureFlag,
@@ -172,8 +173,15 @@ describe('view program statuses', () => {
     const favoriteColorAnswer = 'orange'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
+      const {
+        page,
+        adminPrograms,
+        adminQuestions,
+        applicantQuestions,
+        adminProgramStatuses,
+      } = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
       // Add a program with a single question that is used for asserting downloaded content.
       await adminPrograms.addProgram(programForFilteringName)
@@ -192,26 +200,25 @@ describe('view program statuses', () => {
       )
       await adminPrograms.publishProgram(programForFilteringName)
       await adminPrograms.expectActiveProgram(programForFilteringName)
-      await logout(pageObject)
+      await logout(page)
 
       // Submit an application as a guest.
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(programForFilteringName)
       await applicantQuestions.answerTextQuestion(favoriteColorAnswer)
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
-      await logout(pageObject)
-
-      await loginAsProgramAdmin(pageObject)
-      await enableFeatureFlag(pageObject, 'application_status_tracking_enabled')
     })
 
-    afterAll(async () => {
-      await logout(pageObject)
+    beforeEach(async () => {
+      const {page} = ctx
+      await loginAsProgramAdmin(page)
+      await enableFeatureFlag(page, 'application_status_tracking_enabled')
     })
 
     it('application without status appears in default filter and without statuses filter', async () => {
+      const {adminPrograms} = ctx
       await adminPrograms.viewApplications(programForFilteringName)
       // Default page shows all applications.
       await adminPrograms.expectApplicationCount(1)
@@ -242,6 +249,7 @@ describe('view program statuses', () => {
     })
 
     it('applied application status filter is used when downloading', async () => {
+      const {adminPrograms} = ctx
       const applyFilters = true
       // Ensure that the application is included if the filter includes it.
       await adminPrograms.viewApplications(programForFilteringName)
@@ -279,6 +287,7 @@ describe('view program statuses', () => {
     })
 
     it('application with status shows in default filter and status-specific filter', async () => {
+      const {adminPrograms} = ctx
       // Explicitly set a status for the application.
       await adminPrograms.viewApplications(programForFilteringName)
       await adminPrograms.viewApplicationForApplicant('Guest')
