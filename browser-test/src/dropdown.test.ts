@@ -1,40 +1,23 @@
-import {Page} from 'playwright'
 import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
+  createTestContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
   selectApplicantLanguage,
-  startSession,
-  resetSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
 
 describe('Dropdown question for applicant flow', () => {
-  let pageObject: Page
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
+  const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single dropdown question', () => {
-    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single dropdown'
 
     beforeAll(async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with single dropdown question.
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(page)
 
       await adminQuestions.addDropdownQuestion({
         questionName: 'dropdown-color-q',
@@ -45,17 +28,12 @@ describe('Dropdown question for applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
-    })
-
-    afterEach(async () => {
-      await logout(pageObject)
+      await logout(page)
     })
 
     it('Updates options in preview', async () => {
-      await loginAsAdmin(pageObject)
-
-      const adminQuestions = new AdminQuestions(pageObject)
+      const {page, adminQuestions} = ctx
+      await loginAsAdmin(page)
 
       await adminQuestions.createDropdownQuestion(
         {
@@ -93,27 +71,30 @@ describe('Dropdown question for applicant flow', () => {
     })
 
     it('validate screenshot', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(pageObject, 'dropdown')
+      await validateScreenshot(page, 'dropdown')
     })
 
     it('validate screenshot with errors', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
-      await validateScreenshot(pageObject, 'dropdown-errors')
+      await validateScreenshot(page, 'dropdown-errors')
     })
 
     it('with selected option submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('green')
@@ -123,29 +104,27 @@ describe('Dropdown question for applicant flow', () => {
     })
 
     it('with no selection does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       // Click next without selecting anything.
       await applicantQuestions.clickNext()
 
       const dropdownId = '.cf-question-dropdown'
-      expect(await pageObject.innerText(dropdownId)).toContain(
+      expect(await page.innerText(dropdownId)).toContain(
         'This question is required.',
       )
     })
   })
 
   describe('multiple dropdown questions', () => {
-    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple dropdowns'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      const {page, adminQuestions, adminPrograms} = ctx
+      await loginAsAdmin(page)
 
       await adminQuestions.addDropdownQuestion({
         questionName: 'dropdown-fave-vacation-q',
@@ -166,12 +145,13 @@ describe('Dropdown question for applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(page)
     })
 
     it('with selected options submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('beach', 0)
@@ -182,8 +162,9 @@ describe('Dropdown question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
@@ -193,13 +174,14 @@ describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
-    it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+    it('has no accessibility violations', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(page)
     })
   })
 })
