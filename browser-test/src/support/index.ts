@@ -17,6 +17,11 @@ import {
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
+import {AdminApiKeys} from './admin_api_keys'
+import {AdminProgramStatuses} from './admin_program_statuses'
+import {ApplicantQuestions} from './applicant_questions'
+import {AdminPredicates} from './admin_predicates'
+import {AdminTranslations} from './admin_translations'
 
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -103,6 +108,11 @@ export interface TestContext {
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
+  adminApiKeys: AdminApiKeys
+  adminProgramStatuses: AdminProgramStatuses
+  applicantQuestions: ApplicantQuestions
+  adminPredicates: AdminPredicates
+  adminTranslations: AdminTranslations
 }
 
 /**
@@ -154,6 +164,11 @@ export const createTestContext = (clearDb = true): TestContext => {
     ctx.page = await browserContext.newPage()
     ctx.adminQuestions = new AdminQuestions(ctx.page)
     ctx.adminPrograms = new AdminPrograms(ctx.page)
+    ctx.adminApiKeys = new AdminApiKeys(ctx.page)
+    ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
+    ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
+    ctx.adminPredicates = new AdminPredicates(ctx.page)
+    ctx.adminTranslations = new AdminTranslations(ctx.page)
     await ctx.page.goto(BASE_URL)
   }
 

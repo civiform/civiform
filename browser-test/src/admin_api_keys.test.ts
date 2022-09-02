@@ -1,31 +1,11 @@
-import {Browser, Page} from 'playwright'
-import {
-  startSession,
-  loginAsAdmin,
-  AdminApiKeys,
-  AdminPrograms,
-  endSession,
-} from './support'
+import {createTestContext, loginAsAdmin} from './support'
 
 describe('Managing API keys', () => {
-  let browser: Browser
-  let page: Page
-
-  beforeEach(async () => {
-    const session = await startSession()
-
-    browser = session.browser
-    page = session.page
-  })
-
-  afterEach(async () => {
-    await endSession(browser)
-  })
+  const ctx = createTestContext()
 
   it('Creates, views and retires new API key', async () => {
+    const {page, adminApiKeys, adminPrograms} = ctx
     await loginAsAdmin(page)
-    const adminApiKeys = new AdminApiKeys(page)
-    const adminPrograms = new AdminPrograms(page)
 
     const programName = 'API using program'
     const programDescription = 'This program uses the API.'
