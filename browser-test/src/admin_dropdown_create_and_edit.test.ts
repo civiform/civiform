@@ -1,18 +1,13 @@
-import {
-  startSession,
-  loginAsAdmin,
-  waitForPageJsLoad,
-  AdminQuestions,
-  endSession,
-} from './support'
+import {createTestContext, loginAsAdmin, waitForPageJsLoad} from './support'
 
 describe('create dropdown question with options', () => {
+  const ctx = createTestContext()
+
   it('add remove buttons work correctly', async () => {
-    const {browser, page} = await startSession()
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
 
-    const adminQuestions = new AdminQuestions(page)
     await page.click('text=Questions')
     await waitForPageJsLoad(page)
 
@@ -79,7 +74,5 @@ describe('create dropdown question with options', () => {
     await adminQuestions.gotoQuestionEditPage(questionName)
     questionSettingsDiv = await page.innerHTML('#question-settings')
     expect(questionSettingsDiv.match(/<input/g)).toHaveLength(4)
-
-    await endSession(browser)
   })
 })
