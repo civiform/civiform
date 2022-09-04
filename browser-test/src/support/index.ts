@@ -59,7 +59,10 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
       // Some test initialize context in beforeAll at which point test name is
       // not set.
       if (expect.getState().currentTestName) {
-        dirs.push(expect.getState().currentTestName)
+        // remove special characters
+        dirs.push(
+          expect.getState().currentTestName.replaceAll(/[:"<>|*?]/g, ''),
+        )
       }
     }
     return browser.newContext({
