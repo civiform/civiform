@@ -59,7 +59,10 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
       // Some test initialize context in beforeAll at which point test name is
       // not set.
       if (expect.getState().currentTestName) {
-        dirs.push(expect.getState().currentTestName)
+        // remove special characters
+        dirs.push(
+          expect.getState().currentTestName.replaceAll(/[:"<>|*?]/g, ''),
+        )
       }
     }
     return browser.newContext({
@@ -175,6 +178,11 @@ export const createTestContext = (clearDb = true): TestContext => {
   beforeAll(async () => {
     browser = await chromium.launch()
     await resetContext()
+    // clear DB at beginning of each test suite. While data can leak/share
+    // between test cases within a test file, data should not be shared
+    // between test files.
+    await dropTables(ctx.page)
+    await ctx.page.goto(BASE_URL)
   })
 
   beforeEach(async () => {

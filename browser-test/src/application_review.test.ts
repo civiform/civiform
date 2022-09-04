@@ -1,26 +1,22 @@
 import {
-  startSession,
+  createTestContext,
   loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
   loginAsTestUser,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
   logout,
   selectApplicantLanguage,
-  ApplicantQuestions,
   userDisplayName,
 } from './support'
 
 describe('Program admin review of submitted applications', () => {
+  const ctx = createTestContext()
+
   it('all major steps', async () => {
-    const {browser, page} = await startSession()
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     await adminQuestions.addDateQuestion({questionName: 'date-q'})
     await adminQuestions.addEmailQuestion({questionName: 'email-q'})
@@ -118,7 +114,6 @@ describe('Program admin review of submitted applications', () => {
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
 
-    const applicantQuestions = new ApplicantQuestions(page)
     await applicantQuestions.validateHeader('en-US')
 
     // fill 1st application block.
@@ -248,18 +243,14 @@ describe('Program admin review of submitted applications', () => {
       'favorite-trees-q',
       'pine cherry',
     )
-
-    await endSession(browser)
   })
 
   it('program applications listed most recent first', async () => {
-    const {browser, page} = await startSession()
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
     page.setDefaultTimeout(5000)
 
     // Create a simple one question program application.
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'})
     const programName = 'fruit program'
@@ -276,7 +267,6 @@ describe('Program admin review of submitted applications', () => {
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
-      const applicantQuestions = new ApplicantQuestions(page)
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(answer)
       await applicantQuestions.clickNext()
@@ -305,9 +295,5 @@ describe('Program admin review of submitted applications', () => {
         answers[answers.length - i - 1],
       )
     }
-
-    await logout(page)
-
-    await endSession(browser)
   })
 })
