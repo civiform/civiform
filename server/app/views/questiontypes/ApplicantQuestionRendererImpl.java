@@ -63,6 +63,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
                         TextFormatter.createLinksAndEscapeText(
+                          !question.isOptional() ?
+                          question.getQuestionHelpText() + "*" :
                             question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab)))
             .withClasses(Styles.MB_4);
 
