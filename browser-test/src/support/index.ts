@@ -22,6 +22,8 @@ import {AdminProgramStatuses} from './admin_program_statuses'
 import {ApplicantQuestions} from './applicant_questions'
 import {AdminPredicates} from './admin_predicates'
 import {AdminTranslations} from './admin_translations'
+import {TIDashboard} from './ti_dashboard'
+import {AdminTIGroups} from './admin_ti_groups'
 
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -116,6 +118,8 @@ export interface TestContext {
   applicantQuestions: ApplicantQuestions
   adminPredicates: AdminPredicates
   adminTranslations: AdminTranslations
+  tiDashboard: TIDashboard
+  adminTiGroups: AdminTIGroups
 }
 
 /**
@@ -172,6 +176,8 @@ export const createTestContext = (clearDb = true): TestContext => {
     ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
     ctx.adminPredicates = new AdminPredicates(ctx.page)
     ctx.adminTranslations = new AdminTranslations(ctx.page)
+    ctx.tiDashboard = new TIDashboard(ctx.page)
+    ctx.adminTiGroups = new AdminTIGroups(ctx.page)
     await ctx.page.goto(BASE_URL)
   }
 
