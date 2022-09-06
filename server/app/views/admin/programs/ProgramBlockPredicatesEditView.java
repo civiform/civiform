@@ -2,7 +2,6 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -14,7 +13,6 @@ import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.TagCreator;
@@ -269,9 +267,15 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   }
 
   private DivTag createActionDropdown(String blockName) {
-    ImmutableMap<String, String> actionOptions =
+    ImmutableList<SelectWithLabel.OptionValue> actionOptions =
         Arrays.stream(PredicateAction.values())
-            .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
+            .map(
+                action ->
+                    SelectWithLabel.OptionValue.builder()
+                        .setLabel(action.toDisplayString())
+                        .setValue(action.name())
+                        .build())
+            .collect(ImmutableList.toImmutableList());
     return new SelectWithLabel()
         .setFieldName("predicateAction")
         .setLabelText(String.format("%s should be", blockName))
