@@ -32,11 +32,10 @@ jobs:
           #  Grab the config from the staging deploy repo to confirm
           #  the changes work with actual data
           curl https://raw.githubusercontent.com/civiform/civiform-staging-deploy/main/azure_staging_civiform_config.sh > civiform_config.sh
+          echo '\nCIVIFORM_MODE="test"' >> civiform_config.sh
 
       - name: Source config, set CIVIFORM_MODE to be "test" and deploy with latest snapshot tag
         run: |
-          source civiform_config.sh
-          export CIVIFORM_MODE="test"
-          echo "${LATEST_SNAPSHOT_TAG}"
-          cloud/shared/bin/deploy "--tag=${LATEST_SNAPSHOT_TAG}"
+          export IMAGE_TAG="${LATEST_SNAPSHOT_TAG}"
+          cloud/shared/bin/deploy
           exit $?
