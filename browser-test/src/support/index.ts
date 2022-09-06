@@ -173,6 +173,7 @@ export const createTestContext = (clearDb = true): TestContext => {
     ctx.adminPredicates = new AdminPredicates(ctx.page)
     ctx.adminTranslations = new AdminTranslations(ctx.page)
     await ctx.page.goto(BASE_URL)
+    await closeWarningMessage(page)
   }
 
   beforeAll(async () => {
