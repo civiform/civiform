@@ -38,7 +38,7 @@ jobs:
           export IMAGE_TAG="${LATEST_SNAPSHOT_TAG}"
           cloud/shared/bin/deploy
           exit $?
-     
+
       - name: Source config, set CIVIFORM_MODE to be "test", Run setup with latest tag
         run: |
           echo 'APP_PREFIX="$(git rev-parse --short HEAD)"' >> civiform_config.sh

@@ -92,8 +92,6 @@ class ConfigLoader:
             configs[name] = os.environ.get(name, None)
         return configs
 
-    # TODO: we do not validate type of the variable as we only have
-    # strings currently. If we add non-strings, will need to validate
     def _validate_config(self, variable_definitions: dict, configs: dict):
         validation_errors = []
 

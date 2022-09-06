@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 
 import argparse
-import subprocess
-import shlex
 import os
 import sys
 import importlib
