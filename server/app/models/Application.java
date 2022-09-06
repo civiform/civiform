@@ -120,6 +120,12 @@ public class Application extends BaseModel {
     return this;
   }
 
+  @VisibleForTesting
+  public Application setCreateTimeForTest(Instant v) {
+    this.createTime = v;
+    return this;
+  }
+
   /**
    * Returns the latest application status text value associated with the application.
    *
