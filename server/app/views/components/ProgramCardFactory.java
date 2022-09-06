@@ -72,6 +72,7 @@ public final class ProgramCardFactory {
     return div()
         .withClasses(
             ReferenceClasses.ADMIN_PROGRAM_CARD,
+            ReferenceClasses.SORTABLE_ELEMENT,
             Styles.W_FULL,
             Styles.MY_4,
             Styles.PL_6,

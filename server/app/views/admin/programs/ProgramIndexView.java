@@ -94,8 +94,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
                     .with(
-                        p("Loading")
-                            .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER),
+                        p("Loading").withClasses(ReferenceClasses.SORTABLE_ELEMENT_PLACEHOLDER),
                         each(
                             programs.getProgramNames(),
                             name ->
@@ -111,7 +110,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
             .addModals(demographicsCsvModal)
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
+            .addFooterScripts(
+                layout.viewUtils.makeLocalJsTag("admin_programs"),
+                layout.viewUtils.makeLocalJsTag("sorting"));
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
     Http.Flash flash = request.flash();

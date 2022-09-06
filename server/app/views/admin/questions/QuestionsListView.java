@@ -26,6 +26,7 @@ import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -82,7 +83,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 renderHeader(title),
                 CreateQuestionButton.renderCreateQuestionButton(
                     controllers.admin.routes.AdminQuestionController.index().url()),
-                div(questionTableAndModals.getLeft()).withClasses(Styles.M_4),
+                div(questionTableAndModals.getLeft())
+                    .withClasses("cf-admin-question-card-list", Styles.INVISIBLE, Styles.M_4),
                 renderSummary(activeAndDraftQuestions));
 
     Http.Flash flash = request.flash();
@@ -165,6 +167,7 @@ public final class QuestionsListView extends BaseHtmlView {
     TrTag rowTag =
         tr().withClasses(
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
+                ReferenceClasses.SORTABLE_ELEMENT,
                 Styles.BORDER_B,
                 Styles.BORDER_GRAY_300,
                 StyleUtils.hover(Styles.BG_GRAY_100),
@@ -173,7 +176,12 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(renderQuestionTextCell(latestDefinition))
             .with(renderSupportedLanguages(latestDefinition))
             .with(referencingProgramAndModal.getLeft())
-            .with(actionsCellAndModal.getLeft());
+            .with(actionsCellAndModal.getLeft())
+            // Add data attributes used for client-side sorting.
+            .withData(
+                "last-updated-millis",
+                Long.toString(extractLastUpdated(draftDefinition, activeDefinition).toEpochMilli()))
+            .withData("name", latestDefinition.getName());
     String viewUrl =
         controllers.admin.routes.AdminQuestionController.show(latestDefinition.getId()).url();
     asRedirectElement(rowTag, viewUrl);
@@ -185,6 +193,22 @@ public final class QuestionsListView extends BaseHtmlView {
       modals.add(actionsCellAndModal.getRight().get());
     }
     return Pair.of(rowTag, modals.build());
+  }
+
+  // TODO(clouser): Need to expose the last updated time from QuestionDefinition, similar to
+  // ProgramDefinition.
+  private static Instant extractLastUpdated(
+      Optional<QuestionDefinition> draftQuestion, Optional<QuestionDefinition> activeQuestion) {
+    // Prefer when the draft was last updated, since active versions should be immutable after
+    // being published.
+    if (draftQuestion.isEmpty() && activeQuestion.isEmpty()) {
+      throw new IllegalArgumentException("Question neither active nor draft.");
+    }
+
+    //   QuestionDefinition question = draftQuestion.isPresent()
+    //     ? draftQuestion.get() : activeQuestion.get();
+    // return question.lastModifiedTime().orElse(Instant.EPOCH);
+    return Instant.EPOCH;
   }
 
   private TdTag renderInfoCell(QuestionDefinition definition) {

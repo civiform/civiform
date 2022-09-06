@@ -10,8 +10,6 @@ public final class ReferenceClasses {
   public static final String ADMIN_APPLICATION_CARD = "cf-admin-application-card";
   public static final String ADMIN_LANGUAGE_LINK = "cf-admin-language-link";
   public static final String ADMIN_PROGRAM_CARD_LIST = "cf-admin-program-card-list";
-  public static final String ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER =
-      "cf-admin-program-card-list-placeholder";
   public static final String ADMIN_PROGRAM_CARD = "cf-admin-program-card";
   public static final String ADMIN_PROGRAM_CARD_TITLE = "cf-program-title";
   public static final String ADMIN_PROGRAM_STATUS_LIST = "cf-admin-program-status-list";
@@ -122,4 +120,6 @@ public final class ReferenceClasses {
   public static final String MODAL = "cf-modal";
   public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
+  public static final String SORTABLE_ELEMENT = "cf-sortable-element";
+  public static final String SORTABLE_ELEMENT_PLACEHOLDER = "cf-sortable-element-placeholder";
 }
