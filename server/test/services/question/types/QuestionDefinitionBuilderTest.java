@@ -2,6 +2,7 @@ package services.question.types;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
@@ -92,5 +93,42 @@ public class QuestionDefinitionBuilderTest {
 
     assertThat(enumerator.getEntityType().isEmpty()).isFalse();
     assertThat(enumerator.getEntityType().getDefault()).isEqualTo("household member");
+  }
+
+  @Test
+  public void getLastModifiedTimeWhenExists() throws Exception {
+    Instant now = Instant.now();
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.TEXT)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setLastModifiedTime(Optional.of(now))
+            .build();
+    assertThat(questionDefinition.getLastModifiedTime()).isPresent();
+  }
+
+  @Test
+  public void getLastModifiedTimeWhenDoesNotExist() throws Exception {
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.TEXT)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    assertThat(questionDefinition.getLastModifiedTime()).isEmpty();
+  }
+
+  @Test
+  public void getLastModifiedTimeRoundTrippedThroughBuilder() throws Exception {
+    QuestionDefinition question = QUESTION_BANK.applicantName().getQuestionDefinition();
+    assertThat(question.getLastModifiedTime()).isPresent();
+
+    question = new QuestionDefinitionBuilder(question).build();
+    assertThat(question.getLastModifiedTime()).isPresent();
   }
 }
