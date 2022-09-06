@@ -2,9 +2,11 @@ import axe = require('axe-core')
 import {
   Browser,
   BrowserContext,
+  Locator,
   chromium,
   Page,
   PageScreenshotOptions,
+  LocatorScreenshotOptions,
 } from 'playwright'
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
@@ -358,9 +360,9 @@ export const validateAccessibility = async (page: Page) => {
  * @param screenshotFileName Must use dash-separated-case for consistency.
  */
 export const validateScreenshot = async (
-  page: Page,
+  element: Page | Locator,
   screenshotFileName: string,
-  pageScreenshotOptions?: PageScreenshotOptions,
+  screenshotOptions?: PageScreenshotOptions | LocatorScreenshotOptions,
   matchImageSnapshotOptions?: MatchImageSnapshotOptions,
 ) => {
   // Do not make image snapshots when running locally
@@ -369,8 +371,8 @@ export const validateScreenshot = async (
   }
   expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
   expect(
-    await page.screenshot({
-      ...pageScreenshotOptions,
+    await element.screenshot({
+      ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,
