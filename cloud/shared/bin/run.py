@@ -10,6 +10,7 @@ import importlib
 sys.path.append(os.getcwd())
 
 from cloud.shared.bin.lib.config_loader import ConfigLoader
+from cloud.shared.bin.lib.write_tfvars import TfVarWriter
 
 
 def main():
@@ -41,6 +42,14 @@ def main():
         exit(
             f'Found the following validation errors: {new_line}{f"{new_line}".join(validation_errors)}'
         )
+
+    print("Writing TF Vars file")
+    terraform_tfvars_path = os.path.join(
+        config.get_template_dir(), config.tfvars_filename)
+
+    # Write the passthrough vars to a temporary file
+    tf_var_writter = TfVarWriter(terraform_tfvars_path)
+    tf_var_writter.write_variables(config.get_terraform_variables())
 
     if args.command:
         if not os.path.exists(f'cloud/shared/bin/{args.command}.py'):

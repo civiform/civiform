@@ -3,7 +3,6 @@ import subprocess
 import sys
 
 from cloud.shared.bin.lib.config_loader import ConfigLoader
-from cloud.shared.bin.lib.write_tfvars import TfVarWriter
 from cloud.shared.bin.lib.setup_class_loader import get_config_specific_setup
 from cloud.shared.bin.lib import terraform
 """
@@ -21,7 +20,6 @@ def run(config):
     # Load Setup Class for the specific template directory
     ###############################################################################
 
-    terraform_template_dir = config.get_template_dir()
     template_setup = get_config_specific_setup(config)
 
     template_setup.setup_log_file()
@@ -29,15 +27,6 @@ def run(config):
 
     image_tag = config.get_config_var("IMAGE_TAG")
     log_args = f"\"{image_tag}\" {current_user}"
-
-    print("Writing TF Vars file")
-    terraform_tfvars_path = os.path.join(
-        terraform_template_dir, config.tfvars_filename)
-
-    # Write the passthrough vars to a temporary file
-    tf_var_writter = TfVarWriter(terraform_tfvars_path)
-    conf_variables = config.get_terraform_variables()
-    tf_var_writter.write_variables(conf_variables)
 
     try:
         print("Starting pre-terraform setup")

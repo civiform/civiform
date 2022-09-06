@@ -54,6 +54,8 @@ class ConfigLoader:
     def _load_config(self, config_file):
         cwd = os.getcwd()
         full_config_path = os.path.join(cwd, config_file)
+        if not os.path.exists(full_config_path):
+            exit(f'Cannot find file {full_config_path}')
         print(f'Getting config from {full_config_path}')
         command = shlex.split(
             f'env -i bash -c "source {full_config_path} && env"')
