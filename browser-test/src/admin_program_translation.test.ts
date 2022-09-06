@@ -371,7 +371,7 @@ describe('Admin can manage translations', () => {
     // Check that a toast appears warning the program is not fully translated
     const toastMessages = await page.innerText('#toast-container')
     expect(toastMessages).toContain(
-      'Lo sentimos, este programa no está totalmente traducido al idioma de su preferencia.',
+      'Lo sentimos, este programa no está traducido por completo al inglés.',
     )
 
     await validateScreenshot(page, 'applicant-toast-error')
