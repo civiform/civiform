@@ -30,7 +30,8 @@ public class TextQuestionRendererTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          TextValidationPredicates.create(2, 3));
+          TextValidationPredicates.create(2, 3),
+          /* lastModifiedTime= */ Optional.empty());
 
   private final ApplicantData applicantData = new ApplicantData();
 

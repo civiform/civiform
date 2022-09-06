@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,15 +32,17 @@ public abstract class QuestionDefinition {
   private final LocalizedStrings questionText;
   private final LocalizedStrings questionHelpText;
   private final ValidationPredicates validationPredicates;
+  private final Optional<Instant> lastModifiedTime;
 
-  public QuestionDefinition(
+  protected QuestionDefinition(
       OptionalLong id,
       String name,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      ValidationPredicates validationPredicates) {
+      ValidationPredicates validationPredicates,
+      Optional<Instant> lastModifiedTime) {
     this.id = checkNotNull(id);
     this.name = checkNotNull(name);
     this.enumeratorId = checkNotNull(enumeratorId);
@@ -47,9 +50,10 @@ public abstract class QuestionDefinition {
     this.questionText = checkNotNull(questionText);
     this.questionHelpText = checkNotNull(questionHelpText);
     this.validationPredicates = checkNotNull(validationPredicates);
+    this.lastModifiedTime = checkNotNull(lastModifiedTime);
   }
 
-  public QuestionDefinition(
+  protected QuestionDefinition(
       String name,
       Optional<Long> enumeratorId,
       String description,
@@ -63,7 +67,8 @@ public abstract class QuestionDefinition {
         description,
         questionText,
         questionHelpText,
-        validationPredicates);
+        validationPredicates,
+        /* lastModifiedTime= */ Optional.empty());
   }
 
   public abstract static class ValidationPredicates {
@@ -102,6 +107,10 @@ public abstract class QuestionDefinition {
    */
   public final String getName() {
     return this.name;
+  }
+
+  public final Optional<Instant> getLastModifiedTime() {
+    return this.lastModifiedTime;
   }
 
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */

@@ -2,12 +2,13 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 /** Defines a name question. */
-public class NameQuestionDefinition extends QuestionDefinition {
+public final class NameQuestionDefinition extends QuestionDefinition {
 
   public NameQuestionDefinition(
       OptionalLong id,
@@ -16,9 +17,17 @@ public class NameQuestionDefinition extends QuestionDefinition {
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      NameValidationPredicates validationPredicates) {
+      NameValidationPredicates validationPredicates,
+      Optional<Instant> lastModifiedTime) {
     super(
-        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+        id,
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        validationPredicates,
+        lastModifiedTime);
   }
 
   public NameQuestionDefinition(
