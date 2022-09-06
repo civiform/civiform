@@ -18,8 +18,8 @@ describe('publishing all draft questions and programs', () => {
   const questionName = 'publish-test-address-q'
 
   beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
+    const session = await startSession()
+    pageObject = session.page
     adminPrograms = new AdminPrograms(pageObject)
     adminQuestions = new AdminQuestions(pageObject)
 
