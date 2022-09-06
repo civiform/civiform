@@ -9,6 +9,22 @@ import {
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
+import {
+  BASE_URL,
+  DISABLE_SCREENSHOTS,
+  TEST_USER_LOGIN,
+  TEST_USER_PASSWORD,
+} from './config'
+import {AdminQuestions} from './admin_questions'
+import {AdminPrograms} from './admin_programs'
+import {AdminApiKeys} from './admin_api_keys'
+import {AdminProgramStatuses} from './admin_program_statuses'
+import {ApplicantQuestions} from './applicant_questions'
+import {AdminPredicates} from './admin_predicates'
+import {AdminTranslations} from './admin_translations'
+import {TIDashboard} from './ti_dashboard'
+import {AdminTIGroups} from './admin_ti_groups'
+
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
 export {AdminPredicates} from './admin_predicates'
@@ -20,12 +36,6 @@ export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {ApplicantQuestions} from './applicant_questions'
 export {NotFoundPage} from './error_pages'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
-import {
-  BASE_URL,
-  TEST_USER_LOGIN,
-  TEST_USER_PASSWORD,
-  DISABLE_SCREENSHOTS,
-} from './config'
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -51,7 +61,10 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
       // Some test initialize context in beforeAll at which point test name is
       // not set.
       if (expect.getState().currentTestName) {
-        dirs.push(expect.getState().currentTestName)
+        // remove special characters
+        dirs.push(
+          expect.getState().currentTestName.replaceAll(/[:"<>|*?]/g, ''),
+        )
       }
     }
     return browser.newContext({
@@ -67,12 +80,16 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   }
 }
 
-export const startSession = async (): Promise<{
+export const startSession = async (
+  browser: Browser | null = null,
+): Promise<{
   browser: Browser
   context: BrowserContext
   page: Page
 }> => {
-  const browser = await chromium.launch()
+  if (browser == null) {
+    browser = await chromium.launch()
+  }
   const context = await makeBrowserContext(browser)
   const page = await context.newPage()
 
@@ -82,25 +99,122 @@ export const startSession = async (): Promise<{
   return {browser, context, page}
 }
 
-export const endSession = async (browser: Browser) => {
-  await browser.close()
+/**
+ * Object containing properties and methods for interacting with browser and
+ * app. See docs for createTestContext() method for more info.
+ */
+export interface TestContext {
+  /**
+   * Playwright Page object. Provides functionality to directly interact with
+   * the browser .
+   * Methods: https://playwright.dev/docs/api/class-page
+   */
+  page: Page
+
+  adminQuestions: AdminQuestions
+  adminPrograms: AdminPrograms
+  adminApiKeys: AdminApiKeys
+  adminProgramStatuses: AdminProgramStatuses
+  applicantQuestions: ApplicantQuestions
+  adminPredicates: AdminPredicates
+  adminTranslations: AdminTranslations
+  tiDashboard: TIDashboard
+  adminTiGroups: AdminTIGroups
 }
 
 /**
- *  Logs out the user if they are logged in and goes to the site landing page.
- * @param clearDb When set to true clears all data from DB as part of starting
- *     session. Should be used in new tests to ensure that test cases are
- *     hermetic and order-independent.
+ * Launches a browser and returns context that contains objects needed to
+ * interact with the browser. It should be called at the very beginning of the
+ * top-most describe() and reused across all other describe/it functions.
+ * Example usage:
+ *
+ * ```
+ * describe('some test', () => {
+ *   const ctx = createTestContext()
+ *
+ *   it('should do foo', async () => {
+ *     await ctx.page.click('#some-button')
+ *   })
+ * })
+ * ```
+ *
+ * Browser session is reset between tests and database is cleared by default.
+ * Each test starts on the login page.
+ *
+ * Context object should be accessed only from within it(), before/afterEach(),
+ * before/afterAll() functions.
+ *
+ * @param clearDb Whether database is cleared between tests. True by default.
+ *     It's recommended that database is cleared between tests to keep tests
+ *     hermetic.
+ * @return object containing browser page. Context object is reset between tests
+ *     so none of its properties should be cached and reused between tests.
  */
-export const resetSession = async (page: Page, clearDb = false) => {
-  const logoutText = await page.$('text=Logout')
-  if (logoutText !== null) {
-    await logout(page)
+export const createTestContext = (clearDb = true): TestContext => {
+  let browser: Browser
+  let browserContext: BrowserContext
+
+  // TestContext properties are set in resetContext() later. For now we just
+  // need an object that we can return to caller. Caller is expected to access
+  // it only from before/afterX functions or tests.
+  const ctx: TestContext = {} as unknown as TestContext
+
+  // We create new browser context and session before each test. It's
+  // important to get fresh browser context so that each test gets its own
+  // video file. If we reuse same browser context across multiple test cases -
+  // we'll get one huge video for all tests.
+  async function resetContext() {
+    if (browserContext != null) {
+      await browserContext.close()
+    }
+    browserContext = await makeBrowserContext(browser)
+    ctx.page = await browserContext.newPage()
+    ctx.adminQuestions = new AdminQuestions(ctx.page)
+    ctx.adminPrograms = new AdminPrograms(ctx.page)
+    ctx.adminApiKeys = new AdminApiKeys(ctx.page)
+    ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
+    ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
+    ctx.adminPredicates = new AdminPredicates(ctx.page)
+    ctx.adminTranslations = new AdminTranslations(ctx.page)
+    ctx.tiDashboard = new TIDashboard(ctx.page)
+    ctx.adminTiGroups = new AdminTIGroups(ctx.page)
+    await ctx.page.goto(BASE_URL)
+    await closeWarningMessage(ctx.page)
   }
-  if (clearDb) {
-    await dropTables(page)
-  }
-  await page.goto(BASE_URL)
+
+  beforeAll(async () => {
+    browser = await chromium.launch()
+    await resetContext()
+    // clear DB at beginning of each test suite. While data can leak/share
+    // between test cases within a test file, data should not be shared
+    // between test files.
+    await dropTables(ctx.page)
+    await ctx.page.goto(BASE_URL)
+  })
+
+  beforeEach(async () => {
+    await resetContext()
+  })
+
+  afterEach(async () => {
+    if (clearDb) {
+      await dropTables(ctx.page)
+    }
+    // resetting context here so that afterAll() functions of current describe()
+    // block and beforeAll() functions of the next describe() block have fresh
+    // result.page object.
+    await resetContext()
+  })
+
+  afterAll(async () => {
+    await endSession(browser)
+  })
+
+  return ctx
+}
+
+export const endSession = async (browser: Browser) => {
+  await browser.close()
 }
 
 export const gotoEndpoint = async (page: Page, endpoint: string) => {

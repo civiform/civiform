@@ -3,10 +3,12 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
+import static play.test.Helpers.contentAsString;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -111,7 +113,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
             /* fromDate= */ Optional.empty(),
-            /* untilDate= */ Optional.empty());
+            /* untilDate= */ Optional.empty(),
+            /* applicationStatus= */ Optional.empty());
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -133,7 +136,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
             /* fromDate= */ Optional.empty(),
-            /* untilDate= */ Optional.empty());
+            /* untilDate= */ Optional.empty(),
+            /* applicationStatus= */ Optional.empty());
     assertThat(result.status()).isEqualTo(OK);
   }
 
@@ -177,10 +181,82 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
-  // TODO(#3263): Add invalid data tests.
-  // TODO(#3263): Add email set tests.
   @Test
-  public void updateStatus() throws Exception {
+  public void updateStatus_invalidStatus_fails() throws Exception {
+    // Setup
+    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
+    Program program =
+        ProgramBuilder.newActiveProgram("test name", "test description")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("newStatus", "NOT A REAL STATUS")))
+            .build();
+
+    // Execute
+    Result result = controller.updateStatus(request, program.id, application.id);
+
+    // Evaluate
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(contentAsString(result)).contains("is not valid for program");
+  }
+
+  @Test
+  public void updateStatus_noStatus_fails() throws Exception {
+    // Setup
+    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
+    Program program =
+        ProgramBuilder.newActiveProgram("test name", "test description")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+
+    // Execute
+    Result result = controller.updateStatus(request, program.id, application.id);
+
+    // Evaluate
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(contentAsString(result)).contains("is not present");
+  }
+
+  @Test
+  public void updateStatus_invalidSendEmail_fails() throws Exception {
+    // Setup
+    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
+    Program program =
+        ProgramBuilder.newActiveProgram("test name", "test description")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .bodyForm(
+                        // Only "on" is a valid status.
+                        Map.of("newStatus", APPROVED_STATUS.statusText(), "sendEmail", "false")))
+            .build();
+
+    // Execute
+    Result result = controller.updateStatus(request, program.id, application.id);
+
+    // Evaluate
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(contentAsString(result)).contains("sendEmail value is invalid");
+  }
+
+  @Test
+  public void updateStatus_succeeds() throws Exception {
     // Setup
     Instant start = Instant.now();
     Account adminAccount = resourceCreator.insertAccount();
@@ -195,7 +271,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     Request request =
         addCSRFToken(
-                Helpers.fakeRequest().bodyForm(Map.of("newStatus", APPROVED_STATUS.statusText())))
+                Helpers.fakeRequest()
+                    .bodyForm(Map.of("newStatus", APPROVED_STATUS.statusText(), "sendEmail", "on")))
             .build();
 
     // Execute
@@ -210,8 +287,42 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().statusText())
         .isEqualTo(APPROVED_STATUS.statusText());
+    assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isTrue();
     assertThat(gotEvent.getCreator()).isEqualTo(adminAccount);
     assertThat(gotEvent.getCreateTime()).isAfter(start);
+  }
+
+  @Test
+  public void updateStatus_noSendEmail_succeeds() throws Exception {
+    // Setup
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program =
+        ProgramBuilder.newActiveProgram("test name", "test description")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .bodyForm(
+                        // Only "on" is a valid status.
+                        Map.of("newStatus", APPROVED_STATUS.statusText())))
+            .build();
+
+    // Execute
+    Result result = controller.updateStatus(request, program.id, application.id);
+
+    // Evaluate
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getDetails().statusEvent()).isPresent();
+    assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isFalse();
   }
 
   @Test
@@ -252,6 +363,81 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.updateNote(request, program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void updateNote_noNote_fails() throws Exception {
+    // Setup.
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(contentAsString(result)).contains("A note is not present");
+  }
+
+  @Test
+  public void updateNote_succeeds() throws Exception {
+    // Setup.
+    Instant start = Instant.now();
+    String noteText = "Test note content.";
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("note", noteText))).build();
+
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.NOTE_CHANGE);
+    assertThat(gotEvent.getDetails().noteEvent()).isPresent();
+    assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
+    assertThat(gotEvent.getCreator()).isEqualTo(adminAccount);
+    assertThat(gotEvent.getCreateTime()).isAfter(start);
+  }
+
+  @Test
+  public void updateNote_emptyNote_succeeds() throws Exception {
+    // Setup.
+    String noteText = "";
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("note", noteText))).build();
+
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getDetails().noteEvent()).isPresent();
+    assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
   }
 
   // Returns a controller with a faked ProfileUtils to bypass acl checks.

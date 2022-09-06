@@ -1,33 +1,43 @@
-import {Browser, Page} from 'playwright'
 import {
-  startSession,
+  ClientInformation,
+  createTestContext,
   loginAsAdmin,
   loginAsTrustedIntermediary,
-  endSession,
-  AdminTIGroups,
-  TIDashboard,
-  ClientInformation,
   waitForPageJsLoad,
 } from './support'
 
 describe('Trusted intermediaries', () => {
-  let browser: Browser
-  let page: Page
+  const ctx = createTestContext()
 
-  beforeEach(async () => {
-    const session = await startSession()
-    browser = session.browser
-    page = session.page
-  })
-
-  afterEach(async () => {
-    await endSession(browser)
+  it('expect Client Date Of Birth to be Updated', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-06-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await tiDashboard.updateClientDateOfBirth(client, '2021-12-12')
+    const updatedClient: ClientInformation = {
+      emailAddress: 'test@sample.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2021-12-12',
+    }
+    await tiDashboard.expectDashboardContainClient(updatedClient)
   })
 
   it('expect Dashboard Contain New Client', async () => {
+    const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
 
-    const tiDashboard = new TIDashboard(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client: ClientInformation = {
@@ -42,9 +52,9 @@ describe('Trusted intermediaries', () => {
   })
 
   it('search For Client In TI Dashboard', async () => {
+    const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
 
-    const tiDashboard = new TIDashboard(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client1: ClientInformation = {
@@ -80,18 +90,19 @@ describe('Trusted intermediaries', () => {
   })
 
   it('managing trusted intermediary ', async () => {
+    const {page, adminTiGroups} = ctx
     await loginAsAdmin(page)
-    const adminGroups = new AdminTIGroups(page)
-    await adminGroups.gotoAdminTIPage()
-    await adminGroups.fillInGroupBasics('group name', 'group description')
-    await adminGroups.expectGroupExist('group name', 'group description')
+    await adminTiGroups.gotoAdminTIPage()
+    await adminTiGroups.fillInGroupBasics('group name', 'group description')
+    await adminTiGroups.expectGroupExist('group name', 'group description')
 
-    await adminGroups.editGroup('group name')
-    await adminGroups.addGroupMember('foo@bar.com')
-    await adminGroups.expectGroupMemberExist('<Unnamed User>', 'foo@bar.com')
+    await adminTiGroups.editGroup('group name')
+    await adminTiGroups.addGroupMember('foo@bar.com')
+    await adminTiGroups.expectGroupMemberExist('<Unnamed User>', 'foo@bar.com')
   })
 
   it('logging in as a trusted intermediary', async () => {
+    const {page} = ctx
     await loginAsTrustedIntermediary(page)
     expect(await page.innerText('#ti-dashboard-link')).toContain(
       'TRUSTED INTERMEDIARY DASHBOARD',

@@ -2,7 +2,6 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -14,7 +13,6 @@ import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.TagCreator;
@@ -38,7 +36,6 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -55,7 +52,7 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Renders a page for editing predicates of a block in a program. */
-public class ProgramBlockPredicatesEditView extends BaseHtmlView {
+public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
   private static final String H2_NEW_VISIBILITY_CONDITION = "New visibility condition";
   private static final String TEXT_NO_VISIBILITY_CONDITIONS = "This screen is always shown.";
@@ -151,7 +148,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(layout.renderProgramInfo(programDefinition), content);
+            .addMainContent(renderProgramInfo(programDefinition), content);
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
@@ -270,9 +267,15 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   }
 
   private DivTag createActionDropdown(String blockName) {
-    ImmutableMap<String, String> actionOptions =
+    ImmutableList<SelectWithLabel.OptionValue> actionOptions =
         Arrays.stream(PredicateAction.values())
-            .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
+            .map(
+                action ->
+                    SelectWithLabel.OptionValue.builder()
+                        .setLabel(action.toDisplayString())
+                        .setValue(action.name())
+                        .build())
+            .collect(ImmutableList.toImmutableList());
     return new SelectWithLabel()
         .setFieldName("predicateAction")
         .setLabelText(String.format("%s should be", blockName))

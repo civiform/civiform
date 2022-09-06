@@ -1,19 +1,14 @@
-import {
-  AdminPrograms,
-  AdminQuestions,
-  loginAsAdmin,
-  startSession,
-} from './support'
+import {createTestContext, loginAsAdmin} from './support'
 import {QuestionType} from './support/admin_questions'
 
 describe('deleting question lifecycle', () => {
+  const ctx = createTestContext()
+
   it('create, publish, delete unused questions', async () => {
-    const {page} = await startSession()
+    const {page, adminQuestions, adminPrograms} = ctx
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
     const programName = 'deleting program'
     const onlyUsedQuestion = 'delete-address'
     await adminQuestions.addQuestionForType(

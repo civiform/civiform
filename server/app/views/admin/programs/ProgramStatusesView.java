@@ -146,7 +146,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);
-    return Optional.of(asRedirectButton(button, linkDestination));
+    return Optional.of(asRedirectElement(button, linkDestination));
   }
 
   /**

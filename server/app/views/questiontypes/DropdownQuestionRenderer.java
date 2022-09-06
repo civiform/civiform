@@ -1,8 +1,8 @@
 package views.questiontypes;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -43,10 +43,14 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setOptions(
                 singleSelectQuestion.getOptions().stream()
                     .sorted(Comparator.comparing(LocalizedQuestionOption::order))
-                    .collect(
-                        toImmutableMap(
-                            LocalizedQuestionOption::optionText,
-                            option -> String.valueOf(option.id()))));
+                    .map(
+                        option ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(option.optionText())
+                                .setValue(String.valueOf(option.id()))
+                                .build())
+                    .collect(ImmutableList.toImmutableList()));
+
     select.setScreenReaderText(question.getQuestionText());
 
     if (singleSelectQuestion.getSelectedOptionId().isPresent()) {
