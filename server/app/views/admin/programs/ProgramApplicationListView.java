@@ -183,43 +183,37 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .setLabelText("Application status")
                 .setValue(filterParams.selectedApplicationStatus().orElse(""))
                 .setOptionGroups(
-                    ImmutableList.<SelectWithLabel.OptionGroup>builder()
-                        .add(
-                            SelectWithLabel.OptionGroup.builder()
-                                .setLabel("General")
-                                .setOptions(
-                                    ImmutableList.<SelectWithLabel.OptionValue>builder()
-                                        .add(
-                                            SelectWithLabel.OptionValue.builder()
-                                                .setLabel("Any application status")
-                                                .setValue("")
-                                                .build())
-                                        .add(
-                                            SelectWithLabel.OptionValue.builder()
-                                                .setLabel("Only applications without a status")
-                                                .setValue(
-                                                    SubmittedApplicationFilter
-                                                        .NO_STATUS_FILTERS_OPTION_UUID)
-                                                .build())
-                                        .build())
-                                .build())
-                        .add(
-                            SelectWithLabel.OptionGroup.builder()
-                                .setLabel("Application statuses")
-                                .setOptions(
-                                    ImmutableList.<SelectWithLabel.OptionValue>builder()
-                                        .addAll(
-                                            allPossibleProgramApplicationStatuses.stream()
-                                                .map(
-                                                    status ->
-                                                        SelectWithLabel.OptionValue.builder()
-                                                            .setLabel(status)
-                                                            .setValue(status)
-                                                            .build())
-                                                .collect(ImmutableList.toImmutableList()))
-                                        .build())
-                                .build())
-                        .build())
+                    ImmutableList.of(
+                        SelectWithLabel.OptionGroup.builder()
+                            .setLabel("General")
+                            .setOptions(
+                                ImmutableList.of(
+                                    SelectWithLabel.OptionValue.builder()
+                                        .setLabel("Any application status")
+                                        .setValue("")
+                                        .build(),
+                                    SelectWithLabel.OptionValue.builder()
+                                        .setLabel("Only applications without a status")
+                                        .setValue(
+                                            SubmittedApplicationFilter
+                                                .NO_STATUS_FILTERS_OPTION_UUID)
+                                        .build()))
+                            .build(),
+                        SelectWithLabel.OptionGroup.builder()
+                            .setLabel("Application statuses")
+                            .setOptions(
+                                ImmutableList.<SelectWithLabel.OptionValue>builder()
+                                    .addAll(
+                                        allPossibleProgramApplicationStatuses.stream()
+                                            .map(
+                                                status ->
+                                                    SelectWithLabel.OptionValue.builder()
+                                                        .setLabel(status)
+                                                        .setValue(status)
+                                                        .build())
+                                            .collect(ImmutableList.toImmutableList()))
+                                    .build())
+                            .build()))
                 .getSelectTag())
         .with(
             div()
