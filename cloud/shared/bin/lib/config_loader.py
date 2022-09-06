@@ -65,7 +65,7 @@ class ConfigLoader:
         proc.communicate()
 
     def _load_config(self, config_file):
-        _get_config_values_from_sh_file(config_file)
+        self._get_config_values_from_sh_file(config_file)
 
         # get the shared variable definitions
         variable_def_loader = VariableDefinitionLoader()
