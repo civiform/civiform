@@ -8,7 +8,8 @@ class ModalController {
     // Connect the modal to its button
     const modalButton = document.querySelector(`#${modal.id}-button`)
     if (modalButton) {
-      modalButton.addEventListener('click', function () {
+      modalButton.addEventListener('click', (e: Event) => {
+        e.stopPropagation()
         ModalController.toggleModal(modalContainer, modal)
       })
     }

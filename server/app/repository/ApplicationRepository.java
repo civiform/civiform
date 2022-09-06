@@ -64,23 +64,23 @@ public final class ApplicationRepository {
    * and create a new application in the active state.
    */
   public CompletionStage<Application> submitApplication(
-      Applicant applicant, Program program, Optional<String> submitterEmail) {
+      Applicant applicant, Program program, Optional<String> tiSubmitterEmail) {
     return supplyAsync(
-        () -> submitApplicationInternal(applicant, program, submitterEmail),
+        () -> submitApplicationInternal(applicant, program, tiSubmitterEmail),
         executionContext.current());
   }
 
   public CompletionStage<Optional<Application>> submitApplication(
-      long applicantId, long programId, Optional<String> submitterEmail) {
+      long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     return this.perform(
         applicantId,
         programId,
         (ApplicationArguments appArgs) ->
-            submitApplicationInternal(appArgs.applicant, appArgs.program, submitterEmail));
+            submitApplicationInternal(appArgs.applicant, appArgs.program, tiSubmitterEmail));
   }
 
   private Application submitApplicationInternal(
-      Applicant applicant, Program program, Optional<String> submitterEmail) {
+      Applicant applicant, Program program, Optional<String> tiSubmitterEmail) {
     database.beginTransaction();
     try {
       List<Application> oldApplications =
@@ -107,8 +107,8 @@ public final class ApplicationRepository {
               : drafts.get(0);
       application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();
-      if (submitterEmail.isPresent()) {
-        application.setSubmitterEmail(submitterEmail.get());
+      if (tiSubmitterEmail.isPresent()) {
+        application.setSubmitterEmail(tiSubmitterEmail.get());
       }
       application.save();
 

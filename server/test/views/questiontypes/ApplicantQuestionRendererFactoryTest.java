@@ -42,4 +42,38 @@ public class ApplicantQuestionRendererFactoryTest {
     assertThat(renderedContent).contains("Sample question text");
     assertThat(renderedContent).doesNotContain("help text");
   }
+
+  @Test
+  @Parameters(source = QuestionType.class)
+  public void compositeQuestionsUseFieldset(QuestionType type)
+      throws UnsupportedQuestionTypeException {
+    // Multi-input questions should be wrapped in fieldsets for screen reader users.
+    ApplicantQuestionRendererFactory factory =
+        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
+
+    ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
+
+    DivTag content = sampleRenderer.render(params);
+    String renderedContent = document(html(content));
+    switch (type) {
+      case ADDRESS:
+      case CHECKBOX:
+      case ENUMERATOR:
+      case NAME:
+      case RADIO_BUTTON:
+        assertThat(renderedContent).contains("fieldset");
+        break;
+      case CURRENCY:
+      case DATE:
+      case DROPDOWN:
+      case EMAIL:
+      case FILEUPLOAD:
+      case ID:
+      case NUMBER:
+      case STATIC:
+      case TEXT:
+        assertThat(renderedContent).doesNotContain("fieldset");
+        break;
+    }
+  }
 }
