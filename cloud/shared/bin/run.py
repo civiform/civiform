@@ -22,8 +22,7 @@ def main():
     parser.add_argument(
         '--config',
         default='civiform_config.sh',
-        help='Path to civiform config file.'
-    )
+        help='Path to civiform config file.')
 
     args = parser.parse_args()
     if args.tag:
@@ -31,9 +30,9 @@ def main():
     elif args.command is not None and args.command != 'destroy':
         exit('--tag is required')
 
-    os.environ['TF_VAR_FILENAME']="setup.auto.tfvars"
-    os.environ['BACKEND_VARS_FILENAME']='backend_vars'
-    os.environ['TERRAFORM_PLAN_OUT_FILE']='terraform_plan'
+    os.environ['TF_VAR_FILENAME'] = "setup.auto.tfvars"
+    os.environ['BACKEND_VARS_FILENAME'] = 'backend_vars'
+    os.environ['TERRAFORM_PLAN_OUT_FILE'] = 'terraform_plan'
 
     config = ConfigLoader()
     validation_errors = config.load_config(args.config)
@@ -51,6 +50,7 @@ def main():
         if not command_module:
             exit(f'Command {args.command} not found.')
         command_module.run(config)
+
 
 if __name__ == "__main__":
     main()

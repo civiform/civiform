@@ -2,4 +2,4 @@
 
 source cloud/deploys/dev_aws/bin/lib.sh
 
-cloud/shared/bin/deploy 
+cloud/shared/bin/deploy

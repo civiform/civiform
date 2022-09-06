@@ -55,8 +55,9 @@ class ConfigLoader:
         cwd = os.getcwd()
         full_config_path = os.path.join(cwd, config_file)
         print(f'Getting config from {full_config_path}')
-        command = shlex.split(f'env -i bash -c "source {full_config_path} && env"')
-        proc = subprocess.Popen(command, stdout = subprocess.PIPE)
+        command = shlex.split(
+            f'env -i bash -c "source {full_config_path} && env"')
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE)
         for line in proc.stdout:
             (key, _, value) = line.decode().partition("=")
             os.environ[key] = value.strip()
@@ -65,14 +66,17 @@ class ConfigLoader:
         # get the shared variable definitions
         variable_def_loader = VariableDefinitionLoader()
         cwd = os.getcwd()
-        definition_file_path = os.path.join(cwd, 'cloud', 'shared' ,'variable_definitions.json')
+        definition_file_path = os.path.join(
+            cwd, 'cloud', 'shared', 'variable_definitions.json')
         variable_def_loader.load_definition_file(definition_file_path)
         shared_definitions = variable_def_loader.get_variable_definitions()
         self.configs = self.get_env_variables(shared_definitions)
 
-        template_definitions_file_path = os.path.join(self.get_template_dir(), 'variable_definitions.json')
+        template_definitions_file_path = os.path.join(
+            self.get_template_dir(), 'variable_definitions.json')
         variable_def_loader.load_definition_file(template_definitions_file_path)
-        self.variable_definitions = variable_def_loader.get_variable_definitions()
+        self.variable_definitions = variable_def_loader.get_variable_definitions(
+        )
         self.configs = self.get_env_variables(self.variable_definitions)
 
     def get_shared_variable_definitions(self):
