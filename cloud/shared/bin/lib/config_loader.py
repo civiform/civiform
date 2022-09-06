@@ -51,19 +51,21 @@ class ConfigLoader:
         self._load_config(config_file)
         return self.validate_config()
 
-    def _load_config(self, config_file):
-        cwd = os.getcwd()
-        full_config_path = os.path.join(cwd, config_file)
-        if not os.path.exists(full_config_path):
-            exit(f'Cannot find file {full_config_path}')
-        print(f'Getting config from {full_config_path}')
-        command = shlex.split(
-            f'env -i bash -c "source {full_config_path} && env"')
+    def _get_config_values_from_sh_file(self, config_file):
+        ## 1. Export all variables from the config into clean environment
+        ## 2. Set values in current environment
+        if not os.path.exists(config_file):
+            exit(f'Cannot find file {config_file}')
+        print(f'Getting config from {config_file}')
+        command = shlex.split(f'env -i bash -c "source {config_file} && env"')
         proc = subprocess.Popen(command, stdout=subprocess.PIPE)
         for line in proc.stdout:
             (key, _, value) = line.decode().partition("=")
             os.environ[key] = value.strip()
         proc.communicate()
+
+    def _load_config(self, config_file):
+        _get_config_values_from_sh_file(config_file)
 
         # get the shared variable definitions
         variable_def_loader = VariableDefinitionLoader()
@@ -141,7 +143,7 @@ class ConfigLoader:
     def get_template_dir(self):
         template_dir = self.configs.get('TERRAFORM_TEMPLATE_DIR')
         if template_dir is None or not os.path.exists(template_dir):
-            exit(f'Cound not find template directory {template_dir}')
+            exit(f'Could not find template directory {template_dir}')
         return template_dir
 
     def is_test(self):

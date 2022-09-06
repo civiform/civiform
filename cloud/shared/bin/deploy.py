@@ -1,7 +1,6 @@
 import subprocess
 import importlib
 import os
-from cloud.shared.bin.lib.config_loader import ConfigLoader
 
 
 def run(config):

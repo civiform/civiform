@@ -21,7 +21,7 @@ def main():
     parser.add_argument(
         '--config',
         default='civiform_config.sh',
-        help='Path to civiform config file.')
+        help='Path to CiviForm deployment config file.')
 
     args = parser.parse_args()
     if args.tag:
