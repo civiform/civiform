@@ -22,6 +22,8 @@ import {AdminProgramStatuses} from './admin_program_statuses'
 import {ApplicantQuestions} from './applicant_questions'
 import {AdminPredicates} from './admin_predicates'
 import {AdminTranslations} from './admin_translations'
+import {TIDashboard} from './ti_dashboard'
+import {AdminTIGroups} from './admin_ti_groups'
 
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -116,6 +118,8 @@ export interface TestContext {
   applicantQuestions: ApplicantQuestions
   adminPredicates: AdminPredicates
   adminTranslations: AdminTranslations
+  tiDashboard: TIDashboard
+  adminTiGroups: AdminTIGroups
 }
 
 /**
@@ -172,6 +176,8 @@ export const createTestContext = (clearDb = true): TestContext => {
     ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
     ctx.adminPredicates = new AdminPredicates(ctx.page)
     ctx.adminTranslations = new AdminTranslations(ctx.page)
+    ctx.tiDashboard = new TIDashboard(ctx.page)
+    ctx.adminTiGroups = new AdminTIGroups(ctx.page)
     await ctx.page.goto(BASE_URL)
   }
 
@@ -208,23 +214,6 @@ export const createTestContext = (clearDb = true): TestContext => {
 
 export const endSession = async (browser: Browser) => {
   await browser.close()
-}
-
-/**
- *  Logs out the user if they are logged in and goes to the site landing page.
- * @param clearDb When set to true clears all data from DB as part of starting
- *     session. Should be used in new tests to ensure that test cases are
- *     hermetic and order-independent.
- */
-export const resetSession = async (page: Page, clearDb = false) => {
-  const logoutText = await page.$('text=Logout')
-  if (logoutText !== null) {
-    await logout(page)
-  }
-  if (clearDb) {
-    await dropTables(page)
-  }
-  await page.goto(BASE_URL)
 }
 
 export const gotoEndpoint = async (page: Page, endpoint: string) => {
