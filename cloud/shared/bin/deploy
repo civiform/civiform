@@ -13,4 +13,4 @@ fi
 
 export TF_VAR_image_tag="${IMAGE_TAG}"
 
-exec cloud/shared/bin/run.py --image="${IMAGE_TAG}" --command="deploy"
+exec cloud/shared/bin/run.py --tag="${IMAGE_TAG}" --command="deploy"

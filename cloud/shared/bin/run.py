@@ -15,7 +15,7 @@ from cloud.shared.bin.lib.config_loader import ConfigLoader
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--image', help='Civiform image tag. Required for Setup and Deploy.')
+        '--tag', help='Civiform image tag. Required for Setup and Deploy.')
     parser.add_argument(
         '--command',
         help='Command to run. If ommited will validate config and exit.')
@@ -26,10 +26,10 @@ def main():
     )
 
     args = parser.parse_args()
-    if args.image:
-        os.environ['TF_VAR_image_tag'] = args.image
+    if args.tag:
+        os.environ['TF_VAR_image_tag'] = args.tag
     elif args.command is not None and args.command != 'destroy':
-        exit('--image is required')
+        exit('--tag is required')
 
     os.environ['TF_VAR_FILENAME']="setup.auto.tfvars"
     os.environ['BACKEND_VARS_FILENAME']='backend_vars'
