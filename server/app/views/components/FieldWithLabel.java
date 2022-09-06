@@ -265,8 +265,8 @@ public class FieldWithLabel {
   }
 
   /**
-   * Force the aria-invalid attribute on this field to be set to true. This is useful for when there
-   * are question level errors that this field does not know about
+   * Set the aria-invalid attribute on this field to the given value. This is useful for when there
+   * are question level errors that this field does not know about.
    */
   public FieldWithLabel setAriaInvalid(boolean isAriaInvalid) {
     this.isAriaInvalid = isAriaInvalid;
