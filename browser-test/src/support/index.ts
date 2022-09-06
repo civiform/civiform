@@ -179,6 +179,7 @@ export const createTestContext = (clearDb = true): TestContext => {
     ctx.tiDashboard = new TIDashboard(ctx.page)
     ctx.adminTiGroups = new AdminTIGroups(ctx.page)
     await ctx.page.goto(BASE_URL)
+    await closeWarningMessage(ctx.page)
   }
 
   beforeAll(async () => {
