@@ -4,6 +4,5 @@ set -e
 
 source bin/lib/out.sh
 source cloud/shared/bin/lib.sh
-cloud/shared/bin/validate_cloud_provider
 
 exec "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/rollback" "$@"
