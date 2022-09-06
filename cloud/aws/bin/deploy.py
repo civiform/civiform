@@ -3,7 +3,6 @@ import sys
 from cloud.aws.templates.aws_oidc.bin import resources
 from cloud.aws.templates.aws_oidc.bin.aws_cli import AwsCli
 from cloud.shared.bin.lib import terraform
-from cloud.shared.bin.lib import tf_apply_setup
 from cloud.aws.bin.lib import backend_setup
 
 

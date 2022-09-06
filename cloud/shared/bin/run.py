@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
 import argparse
-from distutils.cmd import Command
+import subprocess
+import shlex
 import os
 import sys
 import importlib
@@ -18,14 +19,24 @@ def main():
     parser.add_argument(
         '--command',
         help='Command to run. If ommited will validate config and exit.')
+    parser.add_argument(
+        '--config',
+        default='civiform_config.sh',
+        help='Path to civiform config file.'
+    )
+
     args = parser.parse_args()
     if args.image:
         os.environ['TF_VAR_image_tag'] = args.image
-    elif args.command is not 'destroy':
+    elif args.command is not None and args.command != 'destroy':
         exit('--image is required')
 
+    os.environ['TF_VAR_FILENAME']="setup.auto.tfvars"
+    os.environ['BACKEND_VARS_FILENAME']='backend_vars'
+    os.environ['TERRAFORM_PLAN_OUT_FILE']='terraform_plan'
+
     config = ConfigLoader()
-    validation_errors = config.load_config()
+    validation_errors = config.load_config(args.config)
     if validation_errors:
         new_line = '\n\t'
         exit(
@@ -33,14 +44,13 @@ def main():
         )
 
     if args.command:
-        if not os.path.exists(f'cloud/shared/bin/lib/{args.command}.py'):
+        if not os.path.exists(f'cloud/shared/bin/{args.command}.py'):
             exit(f'Command {args.command} not found.')
         command_module = importlib.import_module(
             f'cloud.shared.bin.{args.command}')
         if not command_module:
             exit(f'Command {args.command} not found.')
         command_module.run(config)
-
 
 if __name__ == "__main__":
     main()
