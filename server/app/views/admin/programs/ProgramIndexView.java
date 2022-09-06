@@ -204,7 +204,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
                     .with(
-                        p(String.format("Edited questions (%d):", sortedDraftQuestions.size()))
+                        p(String.format("Draft questions (%d):", sortedDraftQuestions.size()))
                             .withClass(Styles.FONT_SEMIBOLD))
                     .condWith(sortedDraftQuestions.isEmpty(), p("None").withClass(Styles.PL_5))
                     .condWith(
@@ -217,7 +217,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
                     .with(
-                        p(String.format("Edited programs (%d):", sortedDraftPrograms.size()))
+                        p(String.format("Draft programs (%d):", sortedDraftPrograms.size()))
                             .withClass(Styles.FONT_SEMIBOLD))
                     .condWith(sortedDraftPrograms.isEmpty(), p("None").withClass(Styles.PL_5))
                     .condWith(
@@ -227,7 +227,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                 each(
                                     sortedDraftPrograms,
                                     draftProgram -> li(draftProgram.adminName())))),
-                p("Would you like to publish all edited questions and programs now?"),
+                p("Would you like to publish all draft questions and programs now?"),
                 div()
                     .withClasses(Styles.FLEX, Styles.FLEX_ROW)
                     .with(
@@ -244,7 +244,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MY_2);
     Modal publishAllModal =
         Modal.builder("publish-all-programs-modal", publishAllModalContent)
-            .setModalTitle("All program and question drafts will be published")
+            .setModalTitle("All draft programs will be published")
             .setTriggerButtonContent(publishAllButton)
             .build();
     return Optional.of(publishAllModal);

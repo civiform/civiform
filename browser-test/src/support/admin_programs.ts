@@ -339,7 +339,7 @@ export class AdminPrograms {
   }
 
   private static PUBLISH_ALL_MODAL_TITLE =
-    'All program and question drafts will be published'
+    'All draft programs will be published'
 
   publishAllProgramsModalLocator() {
     return this.page.locator(
