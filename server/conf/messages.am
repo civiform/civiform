@@ -6,9 +6,6 @@
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
 
-# The text on the button an applicant clicks to log out of their session.
-button.logout=ውጣ
-
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 label.selectLanguage=Please select your preferred language.
 
@@ -18,63 +15,65 @@ content.applicantInformation=Applicant Information
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
+# The text on the button an applicant clicks to log out of their session.
+button.logout=ውጣ
+
 # Message displayed before the support email address in the page footer for applicants.
-footer.supportLinkDescription=ለቴክኒካዊ ድጋፍ፣ ያግኙን
+footer.supportLinkDescription=ለቴክኒካዊ ድጋፍ፣ እውቂያ
 
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
-# TODO(#1918): Translate.
-guest=እንግዳ (መግቢያ ወይም ማስገቢያ ከሌሎት)
+guest=እንግዳ
 
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=ቋንቋ ይምረጡ
 
 # Message with user's name to show who you are logged in as.
-header.userName=የገባሁት እንደ {0}
+header.userName=እንደ {0} ሆነው ገብተዋል
 
 # Error message to answer a required question
 validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
 
 # Validation error that is shown when the user input couldn't be converted for any reason.
-validation.invalidInput=እባክዎ ትክክለኛ ግብአት ያስገቡ
+validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
 # Prompt for applicant to log in, input is the full civic entity name.
-content.loginPrompt=እባክዎ በሲያትል ከተማ የመለያ ሂሳብዎ ይግቡ {0}
+content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
 
 # The text on the button an applicant clicks to log in to their session.
 button.login=ግባ
 
 # Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=የመለያ ሂሳብ የለኝም?
+content.alternativeLoginPrompt=መለያ የለዎትም?
 
 # The text between creating a new account, and becoming a guest
 content.or=ወይም
 
 # The text on the button for applicants to create a new account.
-button.createAccount=የመለያ ሂሳብ ይፍጠሩ
+button.createAccount=መለያ ፍጠር
 
 # The text on the button for guests to log in to their session.
-button.guestLogin=እንደ እንግዳ ቀጥሉ
+button.guestLogin=እንደ እንግዳ ቀጥል
 
 # Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
-content.loginDisabledPrompt=Account login currently disabled
+content.loginDisabledPrompt=በመለያ መግባት በአሁኑ ጊዜ ተሰናክሏል
 
 # The words leading up to the admin login anchor
 content.adminLoginPrompt=ሌላ ነገር እየፈለጉ ነው?
 
 # The text on the anchor for admins to log in to their session.
-link.adminLogin=የአስተዳዳሪ/ የድህር ሰራተኛ መግቢያ
+link.adminLogin=የአስተዳዳሪ መግቢያ
 
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
 # The text displayed when a file has already been uploaded and the name is being displayed.
-input.fileAlreadyUploaded=ፋይል/ የሚያያዘው ሰንድ ተጭኗል: {0}
+input.fileAlreadyUploaded=የተሰቀለ ፋይል፦ {0}
 
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=ሰርዝ
@@ -83,13 +82,13 @@ button.deleteFile=ሰርዝ
 button.keepFile=ቀጥል
 
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
-button.nextScreen=ቀጥሎ/ ወደሚቀጥለው
+button.nextScreen=አስቀምጥ እና ቀጣይ
 
 # The button text for navigating to the previous screen in the form.
 button.previousScreen=ቀዳሚ
 
 # The text on the button an applicant clicks to jump to the review page.
-button.review=ግምገማ
+button.review=ገምግም
 
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=ዝለል
@@ -98,44 +97,44 @@ button.skipFileUpload=ዝለል
 button.upload=ስቀል
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=እናዝናለን፣ ይህ ፕሮግራም ሙሉ በሙሉ በመረጡት ቋንቋ አልተተረጎመም።
+toast.localeNotSupported=እናዝናለን፣ ይህ ፕሮግራም ሙሉ በሙሉ ወደ እንግሊዝኛ አልተተረጎመም።
 
 # A link that logs out a guest user after they submit an application.
-link.allDone=ጨርሻለው
+link.allDone=ሁሉንም ጨርሼያለሁ
 
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
-link.applyToAnotherProgram=ለሌላ ፕሮግራም ያመልክቱ
+link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
 
 # A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=መታወቂያ ይፍጠሩ ወይም ይግቡ
+link.createAccountOrSignIn=መለያ ይፍጠሩ ወይም ይግቡ
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
 #----------------------------------------------------------------------------#
 
 # The text on the button an applicant clicks to apply to a specific program.
-button.apply=ያመልክቱ
+button.apply=አመልክት
 # The text read for screen readers.
-button.applySr=ለ ያመልክቱ {0}
+button.applySr=ወደ {0} አመልክት
 # The text on the button an applicant clicks to edit the application for a specific program.
-button.edit=የአርትኦት ሥራ/ እርማት
+button.edit=አርትዕ
 
 # Text describing the date the application was last submitted.
-content.submittedDate=ገብቷል (ማመልከቻው) {0}
+content.submittedDate={0} ገብቷል
 
 # "Get benefits" floating text
 content.benefits=ጥቅማጥቅሞችን ያግኙ
 
 # Long form description of the CiviForm site shown to the applicant. Line 1.
-content.description1=መረጃን እንደገና በመጠቀም ሲቪፎርም (CiviForm) ለብዙ ጥቅማጥቅሞች በአንድ ጊዜ እንዲያመለክቱ ያስችልዎታል።
+content.description1=CiviForm መረጃን እንደገና በመጠቀም በአንድ ጊዜ ለበርካታ ጥቅማጥቅሞች እንዲያመለክቱ ያስችለዎታል።
 
 # Long form description of the CiviForm site shown to the applicant. Line 2.
-content.description2=ከዚህ በታች ማመልከቻ በመምረጥ ይጀምሩ።
+content.description2=ከታች ማመልከቻ በመምረጥ ይጀምሩ።
 
 # Link text to read more about a program.
 link.programDetails=የፕሮግራም ዝርዝሮች
 # The same text, read for screen readers.
-link.programDetailsSr=የፕሮግራም ዝርዝሮች ለ {0}
+link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
 
 # Link text to an external site to read more about a program.
 link.externalLink=ውጫዊ ጣቢያ
@@ -144,37 +143,35 @@ link.externalLink=ውጫዊ ጣቢያ
 title.programs=ፕሮግራሞች እና አገልግሎቶች
 
 # Subtitle for the list of programs with draft applications
-# TODO(#2573): Remove this once translations are available for inProgressProgramsUpdated
-title.inProgressPrograms=ቀጥል
+title.inProgressPrograms=ይቀጥሉ
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=በሂደት ላይ
 
 # Subtitle for the list of programs for which the applicant has no draft applications
-# TODO(#2573): Remove this once translations are available for activeProgramsUpdated
-title.activePrograms=አዳዲስ ፕሮግራሞች
+title.activePrograms=አዲስ ፕሮግራሞች
 
 # Subtitle for the list of programs for which the applicant has no draft applications
-title.activeProgramsUpdated=አልተጀመረም (ማመልከቻው)
+title.activeProgramsUpdated=ያልተጀመሩ
 
 # Subtitle for the list of programs for which the applicant has already submitted an application
-title.submittedPrograms=ገብቷል (ማመልከቻው)
+title.submittedPrograms=የገቡ
 
 # Screen reader format string for program cards
-title.programCard=ፕሮግራም {0} ከ {1} -- {2}
+title.programCard=ፕሮግራም {0} ከ{1} -- {2}
 
 # A toast message that displays when an applicant submits an application.
-toast.applicationSaved=ማመልከቻው በተሳካ ሁኔታ ተቀምጧል: የማመልከቻ መለያ/ መታወቂያ {0}
+toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
 
 # A toast message that displays when an applicant tries to apply to a previously completed program.
-toast.programCompleted=ማመልከቻው አስቀድሞ ተጠናቅቋል።
+toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
 #------------------------------------------------------------------------#
 
 # Submit application button
-button.submit=አስገባ (አስረክብ)
+button.submit=አስገባ
 
 # Continue application button
 button.continue=ቀጥል
@@ -183,14 +180,14 @@ button.continue=ቀጥል
 link.begin=እዚህ ይጀምሩ
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
-link.edit=የአርትኦት ሥራ/ እርማት
+link.edit=አርትዕ
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
-ariaLabel.edit=የአርትኦት ሥራ/ እርማት {0}
+ariaLabel.edit={0}ን አርትዕ
 
 # Program Preview Title
-title.programPreview=የፕሮግራም ማመልከቻ ቅድመ እይታ
+title.programPreview=የፕሮግራም ማመልክቻ ቅድመ-ዕይታ
 
 # Program Review Title
 title.programReview=የፕሮግራም ማመልከቻ ግምገማ
@@ -203,94 +200,88 @@ title.programReview=የፕሮግራም ማመልከቻ ግምገማ
 title.applicationConfirmation=የማመልከቻ ማረጋገጫ
 
 # A confirmation message that shows after an applicant has submitted their application.
-content.confirmed=ለ {0} ስላመለከቱ እናመሰግናለን። ማመልከቻዎን ተቀብለናል፣ እና የማመልከቻዎ መታወቂያ {1} ነው። 
+content.confirmed=ለ{0} በማመልከትዎ እናመሰግናለን። ማመልከቻዎ ደርሷል፣ እና የማመልከቻ መታወቂያዎ {1} ነው።
 
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
-title.createAnAccount=መታወቂያ ይፍጠሩ ወይም ይግቡ
+title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
 
 # A message urging users to create an account to save their data.
-content.pleaseCreateAccount=አሁን ወደ ከተማ መታወቂያ/ መለያ ከገቡ፣ መረጃዎ ይቀመጣል እና የወደፊት ማመልከቻዎችን ለማጠናቀቅ በማንኛውም ጊዜ መመለስ ይችላሉ። ከዚህ ቀደም መታወቂያ/ መለያ ከሌለዎት የመግቢያ ገጹ እንዲመዘገቡ ይፈቅድልዎታል። አስቀድመው ያስገቡትን ማንኛውንም ውሂብ አያጡም።
-
-
-
+content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ ከገቡ መረጃዎ ይቀመጥ እና በማንኛውም ጊዜ በመመለስ የወደፊት ማመልከቻዎችን ማጠናቀቅ ይችላሉ። አስቀድመው መለያ ከሌለዎት የመግቢያ ገጹ እንዲመዘገቡ ያስችልዎታል። አስቀድመው ያስገቡትን ማንኛውም ውሂብ አያጡም።
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=ክፍል/ አፓርታማ ቁጥር
+label.addressLine2=የክፍል/አፓርታማ ቁጥር
 label.city=ከተማ
-label.state=ግዛት (ስቴት)
-label.street=አድራሻ መስመር 1
-label.zipcode=አካባቢያዊ መለያ ቁጥር (ዚፕ ኮድ)
+label.state=ግዛት
+label.street=የአድራሻ መስመር 1
+label.zipcode=ዚፕ ኮድ
 
 # Question placeholders - these are shown in the text input boxes, before a user enters an answer.
 placeholder.city=ከተማ
-placeholder.line2=አፓርትመንት፣ ክፍሎች፣ ክፍል፣ ህንፃ፣ ወለል፣ ወዘተ።
-placeholder.state=ግዛት (ስቴት)
-placeholder.street=የአድራሻ ጎዳና
-placeholder.zipcode=አካባቢያዊ መለያ ቁጥር (ዚፕ ኮድ)
+placeholder.line2=አፓርታማ፣ ስዊት፣ ክፍል፣ ሕንፃ፣ ፎቅ፣ ወዘተ።
+placeholder.state=ክልል
+placeholder.street=የጎዳና አድራሻ
+placeholder.zipcode=ዚፕ ኮድ
 
 # Validation errors that are shown when a user enters an invalid address.
-validation.streetRequired=እባክዎን የሚሰራ የመንገድ ስም እና ቁጥር ያስገቡ።
-validation.cityRequired=እባክዎን ከተማ ያስገቡ።
-validation.currencyMisformatted=ምንዛሬ ከሚከተሉት ቅርጸቶች አንዱ መሆን አለበት፡ 1000 1,000 1000.30 1,000.30
-validation.stateRequired=እባክዎን ግዛት (ስቴት) ያስገቡ።
-validation.invalidZipcode=እባክዎን የሚሰራ ባለ 5 አሃዝ ዚፕ ኮድ ያስገቡ።
-validation.noPoBox=እባክዎን የሚሰራ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
+validation.streetRequired=እባክዎ ትክክለኛ የጎዳና ስም እና ቁጥር ያስገቡ።
+validation.cityRequired=እባክዎ ከተማ ያስገቡ።
+validation.currencyMisformatted=ምንዛሬ ከሚከተሉት ቅርጸቶች አንዱ መሆን አለበት፦ 1000 1,000 1000.30 1,000.30
+validation.stateRequired=እባክዎ ክልል ያስገቡ።
+validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
+validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
 #----------------------------------------------------------------------------------------------------------#
 
 # Placeholder text shown in a dropdown selector before the user has made a selection.
-placeholder.noDropdownSelection=አንድ አማራጭ ይምረጡ:
-
+placeholder.noDropdownSelection=አንድ አማራጭ ይምረጡ፡-
 
 #----------------------------------------------------------------------------------------------------------#
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
-validation.dateMisformatted=እባክዎን በዓዓዓዓ/ወወ/ቀን ቅርጽ ቀኑን (የልደት) አስገባ።
+validation.dateMisformatted=እባክዎ በዓዓዓዓ/ወወ/ቀቀ ቅርጸት ቀን ያስገቡ።
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
 #--------------------------------------------------------------------------------------------------------#
 
 # Text on a button an applicant would click to add another entity
-button.addEntity=አክል/ ጨምር {0}
+button.addEntity={0}ን አክል
 
 # Text on a button an applicant would click to delete an entity
-button.removeEntity=አስወግድ {0}
+button.removeEntity={0}ን አስወግድ
 
 # The confirmation dialog when an applicant deletes an enumerator entry.
-dialog.confirmDelete=እርግጠኛ ነዎት ይህንን ማስወገድ ይፈልጋሉ? {0}? ይህ ለውጥ "የሚቀጥለው" ("Next") የሚለውን ጠቅ ካደረጉ በኋላ ይቀመጣል እና ከዚህ ጋር የተያያዙ ሁሉም ውሂቦች ይጠፋሉ። {0}
+dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ለውጥ «ቀጣይ»ን ከተጫኑ በኋላ ይቀመጣል፣ እና ከዚህ {0} ጋር የተጎዳኘ ሁሉም ውሂብ ይጠፋል።
 
 # Validation error that shows when an applicant does not enter a value.
 validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
 
 # Validation error that shows when an applicant uses a duplicate entity name
-validation.duplicateEntityName=እባክዎን ለእያንዳንዱ መስመር ልዩ የሆነ እሴት ያስገቡ።
+validation.duplicateEntityName=እባክዎ ለእያንዳንዱ መስመር ልዩ እሴት ያስገቡ።
 
 # The placeholder text for enumerator fields
-placeholder.entityName= ቅጽል ስም ለ {0}
+placeholder.entityName={0} ስም
 
 #---------------------------------------------------------------------------------#
 # FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
 #---------------------------------------------------------------------------------#
 
 # Validation error that shows when an applicant does not select a file to upload
-validation.fileRequired=እባክዎን ፋይል ይምረጡ።
+validation.fileRequired=እባክዎ ፋይል ይምረጡ።
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if a user enters an answer that is too long or too short.
-validation.idTooLong=ቢበዛ {0} ቁምፊዎች መያዝ አለበት።
-
-validation.idTooShort=ቢያንስ {0} ቁምፊዎች መያዝ አለበት።
-.
+validation.idTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
+validation.idTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
 validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
 
 #----------------------------------------------------------------------------------------------------------#
@@ -299,27 +290,25 @@ validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
 
 # Validation errors that are shown if a user selects too many or too few answers.
 validation.tooFewSelections=እባክዎ ቢያንስ {0} ይምረጡ።
-
-validation.tooManySelections=እባክዎ ከ {0} ያነሱ ይምረጡ።
-
+validation.tooManySelections=እባክዎ ከ{0} ያነሰ ይምረጡ።
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
 #---------------------------------------------------#
 
 # Name question labels - these are shown as the field label before an input box.
-label.firstName=የመጀመሪያ ስም
-label.lastName=ያባት/ የመጨረሻ ስም
-label.middleName=የመሃል ስም
+label.firstName=መጠሪያ ስም
+label.lastName=የአያት ስም
+label.middleName=የአባት ስም
 
 # Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=የመጀመሪያ ስም
-placeholder.lastName=ያባት/ የመጨረሻ ስም
-placeholder.middleName=የመሃል ስም
+placeholder.firstName=መጠሪያ ስም
+placeholder.lastName=የአያት ስም
+placeholder.middleName=የአባት ስም
 
 # Validation errors - these are shown if a user enters an invalid name.
-validation.firstNameRequired=እባክዎን የመጀመሪያ ስምዎን ያስገቡ።
-validation.lastNameRequired=እባክዎን ያባት/ የመጨረሻ ስምዎን ያስገቡ
+validation.firstNameRequired=እባክዎ የመጠሪያ ስምዎን ያስገቡ።
+validation.lastNameRequired=እባክዎ የአያት ስምዎን ያስገቡ።
 
 #------------------------------------------------------------------------#
 # NUMBER QUESTION - text specific to answering a question with a number. #
@@ -328,21 +317,19 @@ validation.lastNameRequired=እባክዎን ያባት/ የመጨረሻ ስምዎ
 # Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
 validation.numberTooBig=ቢበዛ {0} መሆን አለበት።
 validation.numberTooSmall=ቢያንስ {0} መሆን አለበት።
-validation.numberNonInteger=ቁጥሩ አወንታዊ ሙሉ ቁጥር መሆን አለበት እና የቁጥር ቁምፊዎችን ከ0-9 ብቻ ሊይዝ ይችላል።
+validation.numberNonInteger=ቁጥር አዎንታዊ ሙሉ ቁጥር መሆን አለበት እና መያዝ የሚችለው ከ0-9 ቁጥራዊ ቁምፊዎችን ብቻ ነው።
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if a user enters an answer that is too long or too short.
-validation.textTooLong=ቢበዛ {0} ቁምፊዎች መያዝ አለበት።
-validation.textTooShort=ቢያንስ {0} ቁምፊዎች መያዝ አለበት።
-
+validation.textTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
+validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if an admin leaves a multi option question blank.
-adminValidation.multiOptionEmpty=ብዙ አማራጭ ያላቸው ጥያቄዎች ባዶ አማራጮች ሊኖራቸው አይችልም።
-
+adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።

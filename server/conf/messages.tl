@@ -5,8 +5,6 @@
 # To type an apostrophe in a message, please type two. Example: can't -> can''t
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
-# The text on the button an applicant clicks to log out of their session.
-button.logout=Mag-logout
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 label.selectLanguage=Please select your preferred language.
@@ -16,6 +14,9 @@ content.applicantInformation=Applicant Information
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
+
+# The text on the button an applicant clicks to log out of their session.
+button.logout=Mag-logout
 
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
