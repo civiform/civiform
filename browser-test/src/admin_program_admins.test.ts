@@ -1,17 +1,12 @@
-import {
-  startSession,
-  loginAsAdmin,
-  AdminPrograms,
-  endSession,
-  validateScreenshot,
-} from './support'
+import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
 
 describe('manage program admins', () => {
+  const ctx = createTestContext()
+
   it('does not add a program admin that does not exist', async () => {
-    const {browser, page} = await startSession()
+    const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    const adminPrograms = new AdminPrograms(page)
 
     const programName = 'add program admins'
     await adminPrograms.addProgram(programName)
@@ -30,7 +25,5 @@ describe('manage program admins', () => {
     await adminPrograms.expectAddProgramAdminErrorToast()
 
     await validateScreenshot(page, 'add-program-admin-error')
-
-    await endSession(browser)
   })
 })

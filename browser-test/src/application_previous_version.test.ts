@@ -1,25 +1,22 @@
 import {
-  startSession,
-  loginAsProgramAdmin,
-  loginAsAdmin,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
-  logout,
-  loginAsTestUser,
-  selectApplicantLanguage,
   ApplicantQuestions,
+  createTestContext,
+  loginAsAdmin,
+  loginAsProgramAdmin,
+  loginAsTestUser,
+  logout,
+  selectApplicantLanguage,
   testUserDisplayName,
 } from './support'
 
 describe('view an application in an older version', () => {
+  const ctx = createTestContext()
+
   it('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
-    const {browser, page} = await startSession()
+    const {page, adminQuestions, adminPrograms} = ctx
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     // Create a program with one question
     const questionName = 'text-to-be-obsolete-q'
@@ -72,7 +69,5 @@ describe('view an application in an older version', () => {
       questionName,
       'some text',
     )
-
-    await endSession(browser)
   })
 })

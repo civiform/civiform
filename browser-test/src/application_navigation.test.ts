@@ -1,41 +1,21 @@
-import {Page} from 'playwright'
 import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
+  createTestContext,
   loginAsAdmin,
   loginAsGuest,
-  logout,
   selectApplicantLanguage,
-  startSession,
-  resetSession,
   validateAccessibility,
   validateScreenshot,
 } from './support'
 
 describe('Applicant navigation flow', () => {
-  let pageObject: Page
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    // Clear db to prevent screenshot test failures.
-    await resetSession(page, /* clearDb= */ true)
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
+  const ctx = createTestContext(/* clearDb= */ false)
 
   describe('navigation with four blocks', () => {
-    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for navigation flows'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      const {page, adminQuestions, adminPrograms} = ctx
+      await loginAsAdmin(page)
 
       await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})
       await adminQuestions.addEmailQuestion({questionName: 'nav-email-q'})
@@ -65,26 +45,26 @@ describe('Applicant navigation flow', () => {
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
-
-      await logout(pageObject)
     })
 
     it('clicking previous on first block goes to summary page', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickPrevious()
 
       // Assert that we're on the preview page.
-      expect(await pageObject.innerText('h1')).toContain(
+      expect(await page.innerText('h1')).toContain(
         'Program application preview',
       )
     })
 
     it('clicking previous on later blocks goes to previous blocks', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
@@ -127,66 +107,72 @@ describe('Applicant navigation flow', () => {
 
       // Assert that we're on the preview page.
       await applicantQuestions.clickPrevious()
-      expect(await pageObject.innerText('h1')).toContain(
+      expect(await page.innerText('h1')).toContain(
         'Program application preview',
       )
     })
 
     it('verify login page', async () => {
+      const {page} = ctx
       // Verify we are on login page.
-      expect(await pageObject.innerText('head')).toContain('Login')
-      await validateAccessibility(pageObject)
-      await validateScreenshot(pageObject, 'landing-page')
+      expect(await page.innerText('head')).toContain('Login')
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'landing-page')
     })
 
     it('verify language selection page', async () => {
-      await loginAsGuest(pageObject)
+      const {page} = ctx
+      await loginAsGuest(page)
 
       // Verify we are on language selection page.
-      expect(await pageObject.innerText('main')).toContain(
+      expect(await page.innerText('main')).toContain(
         'Please select your preferred language.',
       )
-      await validateAccessibility(pageObject)
-      await validateScreenshot(pageObject, 'language-selection')
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'language-selection')
     })
 
     it('verify program list page', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       // Verify we are on program list page.
-      expect(await pageObject.innerText('h1')).toContain('Get benefits')
-      await validateAccessibility(pageObject)
-      await validateScreenshot(pageObject, 'program-list-page')
+      expect(await page.innerText('h1')).toContain('Get benefits')
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'program-list-page')
     })
 
     it('verify program details page', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickProgramDetails(programName)
 
       // Verify we are on program details page. Url should end in "/programs/{program ID}"
-      expect(pageObject.url()).toMatch(/\/programs\/[0-9]+$/)
-      await validateAccessibility(pageObject)
-      await validateScreenshot(pageObject, 'program-details-page')
+      expect(page.url()).toMatch(/\/programs\/[0-9]+$/)
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'program-details-page')
     })
 
     it('verify program preview page', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // Verify we are on program preview page.
-      expect(await pageObject.innerText('h1')).toContain(
+      expect(await page.innerText('h1')).toContain(
         'Program application preview',
       )
-      await validateAccessibility(pageObject)
-      await validateScreenshot(pageObject, 'program-preview')
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'program-preview')
     })
 
     it('verify program review page', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(programName)
 
       // Answer all program questions
@@ -206,16 +192,15 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
 
       // Verify we are on program review page.
-      expect(await pageObject.innerText('h1')).toContain(
-        'Program application review',
-      )
-      await validateAccessibility(pageObject)
-      await validateScreenshot(pageObject, 'program-review')
+      expect(await page.innerText('h1')).toContain('Program application review')
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'program-review')
     })
 
     it('verify program submission page', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(programName)
 
       // Fill out application and submit.
@@ -236,11 +221,9 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.submitFromReviewPage()
 
       // Verify we are on program submission page.
-      expect(await pageObject.innerText('h1')).toContain(
-        'Application confirmation',
-      )
-      await validateAccessibility(pageObject)
-      await validateScreenshot(pageObject, 'program-submission')
+      expect(await page.innerText('h1')).toContain('Application confirmation')
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'program-submission')
     })
   })
 
