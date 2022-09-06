@@ -49,6 +49,7 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.StatusDefinitions;
 import services.program.StatusDefinitions.Status;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
@@ -114,6 +115,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> untilDate,
+      Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     final ProgramDefinition program;
@@ -136,6 +138,7 @@ public final class AdminApplicationController extends CiviFormController {
                       .setFromTime(parseDateFromQuery(dateConverter, fromDate))
                       .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
                       .build())
+              .setApplicationStatus(applicationStatus)
               .build();
     }
 
@@ -158,6 +161,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> untilDate,
+      Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
@@ -172,6 +176,7 @@ public final class AdminApplicationController extends CiviFormController {
                         .setFromTime(parseDateFromQuery(dateConverter, fromDate))
                         .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
                         .build())
+                .setApplicationStatus(applicationStatus)
                 .build();
       }
       ProgramDefinition program = programService.getProgramDefinition(programId);
@@ -434,12 +439,13 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<Integer> page,
       Optional<String> fromDate,
-      Optional<String> untilDate)
+      Optional<String> untilDate,
+      Optional<String> applicationStatus)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(
           routes.AdminApplicationController.index(
-              programId, search, Optional.of(1), fromDate, untilDate));
+              programId, search, Optional.of(1), fromDate, untilDate, applicationStatus));
     }
 
     SubmittedApplicationFilter filters =
@@ -450,6 +456,7 @@ public final class AdminApplicationController extends CiviFormController {
                     .setFromTime(parseDateFromQuery(dateConverter, fromDate))
                     .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
                     .build())
+            .setApplicationStatus(applicationStatus)
             .build();
 
     final ProgramDefinition program;
@@ -469,12 +476,24 @@ public final class AdminApplicationController extends CiviFormController {
         applicationListView.render(
             request,
             program,
+            getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
             RenderFilterParams.builder()
                 .setSearch(search)
                 .setFromDate(fromDate)
                 .setUntilDate(untilDate)
+                .setSelectedApplicationStatus(applicationStatus)
                 .build()));
+  }
+
+  private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
+    return programService.getAllProgramDefinitionVersions(programId).stream()
+        .map(pdef -> pdef.statusDefinitions().getStatuses())
+        .flatMap(ImmutableList::stream)
+        .map(StatusDefinitions.Status::statusText)
+        .distinct()
+        .sorted()
+        .collect(ImmutableList.toImmutableList());
   }
 }

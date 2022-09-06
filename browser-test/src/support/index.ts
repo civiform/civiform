@@ -17,6 +17,11 @@ import {
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
+import {AdminApiKeys} from './admin_api_keys'
+import {AdminProgramStatuses} from './admin_program_statuses'
+import {ApplicantQuestions} from './applicant_questions'
+import {AdminPredicates} from './admin_predicates'
+import {AdminTranslations} from './admin_translations'
 
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -54,7 +59,10 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
       // Some test initialize context in beforeAll at which point test name is
       // not set.
       if (expect.getState().currentTestName) {
-        dirs.push(expect.getState().currentTestName)
+        // remove special characters
+        dirs.push(
+          expect.getState().currentTestName.replaceAll(/[:"<>|*?]/g, ''),
+        )
       }
     }
     return browser.newContext({
@@ -103,6 +111,11 @@ export interface TestContext {
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
+  adminApiKeys: AdminApiKeys
+  adminProgramStatuses: AdminProgramStatuses
+  applicantQuestions: ApplicantQuestions
+  adminPredicates: AdminPredicates
+  adminTranslations: AdminTranslations
 }
 
 /**
@@ -154,12 +167,22 @@ export const createTestContext = (clearDb = true): TestContext => {
     ctx.page = await browserContext.newPage()
     ctx.adminQuestions = new AdminQuestions(ctx.page)
     ctx.adminPrograms = new AdminPrograms(ctx.page)
+    ctx.adminApiKeys = new AdminApiKeys(ctx.page)
+    ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
+    ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
+    ctx.adminPredicates = new AdminPredicates(ctx.page)
+    ctx.adminTranslations = new AdminTranslations(ctx.page)
     await ctx.page.goto(BASE_URL)
   }
 
   beforeAll(async () => {
     browser = await chromium.launch()
     await resetContext()
+    // clear DB at beginning of each test suite. While data can leak/share
+    // between test cases within a test file, data should not be shared
+    // between test files.
+    await dropTables(ctx.page)
+    await ctx.page.goto(BASE_URL)
   })
 
   beforeEach(async () => {
