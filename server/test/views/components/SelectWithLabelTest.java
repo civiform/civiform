@@ -45,5 +45,27 @@ public class SelectWithLabelTest {
     assertThat(selectWithLabel.getSelectTag().render()).contains("<select");
     assertThat(selectWithLabel.getSelectTag().render()).contains("value=\"b\" selected");
     assertThat(selectWithLabel.getSelectTag().render()).doesNotContain("hidden selected");
+    assertThat(selectWithLabel.getSelectTag().render()).doesNotContain("<optgroup>");
+  }
+
+  @Test
+  public void createSelect_withOptGroups() {
+    SelectWithLabel selectWithLabel =
+        new SelectWithLabel()
+            .setId("id")
+            .setOptionGroups(
+                ImmutableList.of(
+                    SelectWithLabel.OptionGroup.builder()
+                        .setLabel("A label")
+                        .setOptions(
+                            ImmutableList.of(
+                                SelectWithLabel.OptionValue.builder()
+                                    .setLabel("a")
+                                    .setValue("b")
+                                    .build()))
+                        .build()));
+    assertThat(selectWithLabel.getSelectTag().render()).contains("<select");
+    assertThat(selectWithLabel.getSelectTag().render()).contains("<optgroup label=\"A label\">");
+    assertThat(selectWithLabel.getSelectTag().render()).contains("<option");
   }
 }
