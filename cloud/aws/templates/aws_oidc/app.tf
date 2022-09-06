@@ -33,8 +33,10 @@ module "civiform_server_container_def" {
   source  = "cloudposse/ecs-container-definition/aws"
   version = "0.58.1"
 
-  container_name  = "${var.app_prefix}-civiform"
-  container_image = "${var.civiform_image_repo}:${var.image_tag}"
+  container_name               = "${var.app_prefix}-civiform"
+  container_image              = "${var.civiform_image_repo}:${var.image_tag}"
+  container_memory             = 4096
+  container_memory_reservation = 2048
 
   secrets = [
     {
@@ -149,8 +151,11 @@ module "civiform_metrics_scraper_container_def" {
   source  = "cloudposse/ecs-container-definition/aws"
   version = "0.58.1"
 
-  container_name  = "${var.app_prefix}-metrics-scraper"
-  container_image = "docker.io/civiform/aws-metrics-scraper:latest"
+  container_name               = "${var.app_prefix}-metrics-scraper"
+  container_image              = "docker.io/civiform/aws-metrics-scraper:latest"
+  container_memory             = 2048
+  container_memory_reservation = 1024
+
   log_configuration = {
     logDriver = "awslogs"
     options = {
@@ -177,7 +182,7 @@ locals {
     Type = "Civiform EC2 Task Definition"
   }
 
-  ecs_task_execution_role_custom_policies = [
+  civiform_ecs_task_execution_role_custom_policies = [
     jsonencode(
       {
         "Version" : "2012-10-17",
@@ -241,7 +246,7 @@ locals {
   ]
 }
 
-resource "aws_iam_role" "ecs_task_execution_role" {
+resource "aws_iam_role" "civiform_ecs_task_execution_role" {
   name               = "${local.name_prefix}-ecs-task-execution-role"
   assume_role_policy = <<JSON
 {
@@ -261,35 +266,38 @@ JSON
   tags               = local.tags
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attach" {
-  role       = aws_iam_role.ecs_task_execution_role.name
+resource "aws_iam_role_policy_attachment" "civiform_ecs_task_execution_role_policy_attach" {
+  role       = aws_iam_role.civiform_ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-resource "aws_iam_policy" "ecs_task_execution_role_custom_policy" {
-  count       = length(local.ecs_task_execution_role_custom_policies)
+resource "aws_iam_policy" "civiform_ecs_task_execution_role_custom_policy" {
+  count       = length(local.civiform_ecs_task_execution_role_custom_policies)
   name        = "${local.name_prefix}-ecs-task-execution-role-custom-policy-${count.index}"
   description = "A custom policy for ${local.name_prefix}-ecs-task-execution-role IAM Role"
-  policy      = local.ecs_task_execution_role_custom_policies[count.index]
+  policy      = local.civiform_ecs_task_execution_role_custom_policies[count.index]
   tags        = local.tags
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_custom_policy" {
-  count      = length(local.ecs_task_execution_role_custom_policies)
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = aws_iam_policy.ecs_task_execution_role_custom_policy[count.index].arn
+resource "aws_iam_role_policy_attachment" "civiform_ecs_task_execution_role_custom_policy" {
+  count      = length(local.civiform_ecs_task_execution_role_custom_policies)
+  role       = aws_iam_role.civiform_ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.civiform_ecs_task_execution_role_custom_policy[count.index].arn
 }
 
 resource "aws_ecs_task_definition" "td" {
   family = "${local.name_prefix}-td"
+
+  cpu    = 1024
+  memory = 6144
 
   container_definitions = jsonencode([
     module.civiform_server_container_def.json_map_object,
     module.civiform_metrics_scraper_container_def.json_map_object
   ])
 
-  task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.civiform_ecs_task_execution_role.arn
+  execution_role_arn       = aws_iam_role.civiform_ecs_task_execution_role.arn
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   tags                     = local.tags

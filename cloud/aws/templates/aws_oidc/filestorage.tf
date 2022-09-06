@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "civiform_files_policy" {
     "${aws_s3_bucket.civiform_files_s3.arn}/*"]
     principals {
       type        = "AWS"
-      identifiers = [aws_ecs_task_definition.td.arn]
+      identifiers = [aws_iam_role.civiform_ecs_task_execution_role.arn]
     }
   }
 }
