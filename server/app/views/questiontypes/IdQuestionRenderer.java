@@ -1,5 +1,6 @@
 package views.questiontypes;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -24,7 +25,9 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors) {
     IdQuestion idQuestion = question.createIdQuestion();
 
     DivTag questionFormContent =
@@ -34,6 +37,8 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
+            .setAriaInvalid(hasErrors)
+            .setAriaDescribedByIds(ariaDescribedByIds)
             .setScreenReaderText(question.getQuestionText())
             .getInputTag();
 

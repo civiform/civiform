@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -36,10 +37,19 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
   protected final ApplicantQuestion question;
   private final InputFieldType inputFieldType;
+  // HTML id tags for various elements within this question.
+  private final String id;
+  private final String descriptionId;
+  private final String requiredErrorId;
+  private final String validationErrorId;
 
   ApplicantQuestionRendererImpl(ApplicantQuestion question, InputFieldType inputFieldType) {
     this.question = checkNotNull(question);
     this.inputFieldType = checkNotNull(inputFieldType);
+    id = question.getContextualizedPath().toString();
+    descriptionId = String.format("%s-description", id);
+    requiredErrorId = String.format("%s-required-error", id);
+    validationErrorId = String.format("%s-validation-error", id);
   }
 
   private String getRequiredClass() {
@@ -48,16 +58,22 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
   protected abstract DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors);
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors);
 
   @Override
   public final DivTag render(ApplicantQuestionRendererParams params) {
+    boolean hasErrors = false;
+    ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
+    ariaDescribedByBuilder.add(descriptionId);
     Messages messages = params.messages();
     DivTag questionSecondaryTextDiv =
         div()
             .with(
                 div()
                     // Question help text
+                    .withId(descriptionId)
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
@@ -82,29 +98,38 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ImmutableSet<ValidationErrorMessage> questionErrors =
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
+      hasErrors = true;
       // Question error text
       questionSecondaryTextDiv.with(
           BaseHtmlView.fieldErrors(
-              messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS));
+                  messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS)
+              .withId(validationErrorId));
+      ariaDescribedByBuilder.add(validationErrorId);
     }
 
     if (question.isRequiredButWasSkippedInCurrentProgram()) {
+      hasErrors = true;
       String requiredQuestionMessage = messages.at(MessageKey.VALIDATION_REQUIRED.getKeyName());
       questionSecondaryTextDiv.with(
           div()
               .withClasses(Styles.P_1, Styles.TEXT_RED_600)
-              .withText("*" + requiredQuestionMessage));
+              .withText("*" + requiredQuestionMessage)
+              .withId(requiredErrorId));
+      ariaDescribedByBuilder.add(requiredErrorId);
     }
 
     ContainerTag questionTag;
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
             question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab);
+    // Reverse the list to have errors appear first.
+    ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
     switch (inputFieldType) {
       case COMPOSITE:
-        // Composite fields should be rendered with fieldset and legend for screen reader users.
+        // Composite questions should be rendered with fieldset and legend for screen reader users.
         questionTag =
             fieldset()
+                .attr("aria-describedBy", StringUtils.join(ariaDescribedByIds, " "))
                 .with(
                     // Legend must be a direct child of fieldset for screen readers to work
                     // properly.
@@ -114,7 +139,14 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                             ReferenceClasses.APPLICANT_QUESTION_TEXT,
                             ApplicantStyles.QUESTION_TEXT))
                 .with(questionSecondaryTextDiv)
-                .with(renderTag(params, validationErrors));
+                // Question level ariaDescribedByIds are attached to fieldset for composite
+                // questions.
+                .with(
+                    renderTag(
+                        params,
+                        validationErrors,
+                        /* ariaDescribedByIds= */ ImmutableList.of(),
+                        hasErrors));
         break;
       case SINGLE:
         questionTag =
@@ -126,7 +158,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                             ReferenceClasses.APPLICANT_QUESTION_TEXT,
                             ApplicantStyles.QUESTION_TEXT))
                 .with(questionSecondaryTextDiv)
-                .with(renderTag(params, validationErrors));
+                .with(renderTag(params, validationErrors, ariaDescribedByIds, hasErrors));
         break;
       default:
         throw new IllegalArgumentException(
@@ -134,7 +166,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     return div()
-        .withId(question.getContextualizedPath().toString())
+        .withId(id)
         .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
         .with(questionTag);
   }

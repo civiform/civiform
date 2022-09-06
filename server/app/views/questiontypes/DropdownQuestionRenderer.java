@@ -31,7 +31,9 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors) {
     Messages messages = params.messages();
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
@@ -49,8 +51,9 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 .setLabel(option.optionText())
                                 .setValue(String.valueOf(option.id()))
                                 .build())
-                    .collect(ImmutableList.toImmutableList()));
-
+                    .collect(ImmutableList.toImmutableList()))
+            .setAriaInvalid(hasErrors)
+            .setAriaDescribedByIds(ariaDescribedByIds);
     select.setScreenReaderText(question.getQuestionText());
 
     if (singleSelectQuestion.getSelectedOptionId().isPresent()) {

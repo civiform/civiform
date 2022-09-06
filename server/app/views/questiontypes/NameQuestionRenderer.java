@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -29,12 +30,15 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
     DivTag nameQuestionFormContent =
         div()
+            // First name
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getFirstNamePath().toString())
@@ -44,8 +48,10 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                         messages,
                         validationErrors.getOrDefault(
                             nameQuestion.getFirstNamePath(), ImmutableSet.of()))
+                    .setAriaInvalid(hasErrors)
                     .addReferenceClass(ReferenceClasses.NAME_FIRST)
                     .getInputTag())
+            // Middle name
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getMiddleNamePath().toString())
@@ -57,6 +63,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                         validationErrors.getOrDefault(
                             nameQuestion.getMiddleNamePath(), ImmutableSet.of()))
                     .getInputTag())
+            // Last name
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getLastNamePath().toString())
@@ -66,6 +73,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                         messages,
                         validationErrors.getOrDefault(
                             nameQuestion.getLastNamePath(), ImmutableSet.of()))
+                    .setAriaInvalid(hasErrors)
                     .addReferenceClass(ReferenceClasses.NAME_LAST)
                     .getInputTag());
 

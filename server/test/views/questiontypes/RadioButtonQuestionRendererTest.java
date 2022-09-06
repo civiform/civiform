@@ -85,4 +85,13 @@ public class RadioButtonQuestionRendererTest {
                 + " name=\"applicant.favorite_ice_cream.selection\""
                 + " value=\"2\" checked");
   }
+
+  @Test
+  public void render_withAriaLabels() {
+    DivTag result = renderer.render(params);
+
+    String id = question.getContextualizedPath().toString();
+    assertThat(result.render())
+        .contains("fieldset aria-describedBy=" + String.format("\"%s-description\"", id));
+  }
 }

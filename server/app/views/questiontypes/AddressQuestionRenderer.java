@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -30,7 +31,9 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
@@ -48,6 +51,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                         messages,
                         validationErrors.getOrDefault(
                             addressQuestion.getStreetPath(), ImmutableSet.of()))
+                    .setAriaInvalid(hasErrors)
                     .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1)
                     .getInputTag(),
                 /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
@@ -71,11 +75,12 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                             .setFieldName(addressQuestion.getCityPath().toString())
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_CITY.getKeyName()))
                             .setValue(addressQuestion.getCityValue().orElse(""))
-                            .addReferenceClass(ReferenceClasses.ADDRESS_CITY)
                             .setFieldErrors(
                                 messages,
                                 validationErrors.getOrDefault(
                                     addressQuestion.getCityPath(), ImmutableSet.of()))
+                            .setAriaInvalid(hasErrors)
+                            .addReferenceClass(ReferenceClasses.ADDRESS_CITY)
                             .getInputTag(),
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getStatePath().toString())
@@ -85,6 +90,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 messages,
                                 validationErrors.getOrDefault(
                                     addressQuestion.getStatePath(), ImmutableSet.of()))
+                            .setAriaInvalid(hasErrors)
                             .addReferenceClass(ReferenceClasses.ADDRESS_STATE)
                             .getInputTag(),
                         FieldWithLabel.input()
@@ -96,6 +102,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 messages,
                                 validationErrors.getOrDefault(
                                     addressQuestion.getZipPath(), ImmutableSet.of()))
+                            .setAriaInvalid(hasErrors)
                             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP)
                             .getInputTag()));
 

@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -27,7 +28,9 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
     FieldWithLabel numberField =
@@ -39,6 +42,8 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))
+            .setAriaInvalid(hasErrors)
+            .setAriaDescribedByIds(ariaDescribedByIds)
             .addReferenceClass(getReferenceClass());
     if (numberQuestion.getNumberValue().isPresent()) {
       // Note: If the provided input was invalid, there's no use rendering

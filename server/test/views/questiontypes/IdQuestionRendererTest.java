@@ -89,4 +89,15 @@ public class IdQuestionRendererTest extends ResetPostgres {
 
     assertThat(result.render()).contains("Must contain only numbers.");
   }
+
+  @Test
+  public void render_withAriaLabels() {
+    DivTag result = renderer.render(params);
+
+    String id = question.getContextualizedPath().toString();
+    assertThat(result.render())
+        .contains(
+            "input type=\"text\" value=\"\" aria-describedBy="
+                + String.format("\"%s-description\"", id));
+  }
 }
