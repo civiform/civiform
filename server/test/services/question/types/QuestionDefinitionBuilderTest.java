@@ -122,13 +122,4 @@ public class QuestionDefinitionBuilderTest {
             .build();
     assertThat(questionDefinition.getLastModifiedTime()).isEmpty();
   }
-
-  @Test
-  public void getLastModifiedTimeRoundTrippedThroughBuilder() throws Exception {
-    QuestionDefinition question = QUESTION_BANK.applicantName().getQuestionDefinition();
-    assertThat(question.getLastModifiedTime()).isPresent();
-
-    question = new QuestionDefinitionBuilder(question).build();
-    assertThat(question.getLastModifiedTime()).isPresent();
-  }
 }
