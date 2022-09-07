@@ -32,9 +32,11 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     userRepository = app.injector().instanceOf(UserRepository.class);
   }
 
-  protected void loginWithSimulatedIdcs() {
+  private void loginWithSimulatedIdcs() {
     goTo(routes.LoginController.applicantLogin(Optional.empty()));
     // If we are not cookied, enter a username and password.
+    // Otherwise, since the fake provider uses the "web" flow, we're automatically sent to the
+    // redirect URI to merge logins.
     if (browser.pageSource().contains("Enter any login")) {
       browser.$("[name='login']").click();
       browser.keyboard().sendKeys("username");
@@ -43,8 +45,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
       // Log in.
       browser.$(".login-submit").click();
       // Bypass consent screen.
-      browser.$(".login-submit").click();
-    } else {
       browser.$(".login-submit").click();
     }
   }
