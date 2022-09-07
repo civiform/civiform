@@ -90,10 +90,12 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
 
-    String id = question.getContextualizedPath().toString();
-    assertThat(result.render())
-        .contains(
-            "fieldset aria-describedBy="
-                + String.format("\"%s-validation-error %s-description\"", id, id));
+    assertThat(
+            result
+                .render()
+                .matches(
+                    ".*fieldset aria-describedBy=\"[A-Za-z]{8}-validation-error"
+                        + " [A-Za-z]{8}-description\".*"))
+        .isTrue();
   }
 }
