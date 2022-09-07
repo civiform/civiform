@@ -161,7 +161,30 @@ describe('view program statuses', () => {
       const {adminPrograms} = ctx
       await adminPrograms.editNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
-      // TODO(#3264): Assert that the note has been updated.
+    })
+
+    it('shows the current note content', async () => {
+      const {adminPrograms} = ctx
+      const noteText = 'Some note content'
+      await adminPrograms.editNote(noteText)
+      await adminPrograms.expectNoteUpdatedToast()
+
+      // Reload the note editor.
+      await adminPrograms.viewApplications(programWithStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
+
+      expect(await adminPrograms.getNoteContent()).toBe(noteText)
+    })
+
+    it('allows updating a note', async () => {
+      const {adminPrograms} = ctx
+      const noteText = 'Some note content'
+      await adminPrograms.editNote('first note content')
+      await adminPrograms.expectNoteUpdatedToast()
+      await adminPrograms.editNote(noteText)
+      await adminPrograms.expectNoteUpdatedToast()
+
+      expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
   })
 
