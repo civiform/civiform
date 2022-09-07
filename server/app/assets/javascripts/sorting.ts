@@ -79,7 +79,7 @@ window.addEventListener('load', () => {
   }
 
   const questionListParent = document.querySelector(
-    '.cf-admin-question-card-list',
+    '.cf-admin-question-list',
   ) as HTMLElement | null
   if (questionListParent) {
     ElementSorter.sortElementsOnLoad({

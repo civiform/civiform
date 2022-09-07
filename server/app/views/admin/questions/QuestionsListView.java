@@ -83,8 +83,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 renderHeader(title),
                 CreateQuestionButton.renderCreateQuestionButton(
                     controllers.admin.routes.AdminQuestionController.index().url()),
-                div(questionTableAndModals.getLeft())
-                    .withClasses("cf-admin-question-card-list", Styles.INVISIBLE, Styles.M_4),
+                div(questionTableAndModals.getLeft()).withClasses(Styles.M_4),
                 renderSummary(activeAndDraftQuestions))
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("sorting"));
 
@@ -121,7 +120,11 @@ public final class QuestionsListView extends BaseHtmlView {
         table()
             .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
             .with(renderQuestionTableHeaderRow())
-            .with(tbody(each(tableRowAndModals, (tableRowAndModal) -> tableRowAndModal.getLeft())));
+            .with(
+                tbody()
+                    .withClasses(ReferenceClasses.ADMIN_QUESTION_LIST, Styles.INVISIBLE)
+                    .with(
+                        each(tableRowAndModals, (tableRowAndModal) -> tableRowAndModal.getLeft())));
     ImmutableList<Modal> modals =
         tableRowAndModals.stream()
             .map(Pair::getRight)
@@ -210,8 +213,10 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private TdTag renderInfoCell(QuestionDefinition definition) {
-    return td().with(div(definition.getName()).withClasses(Styles.FONT_SEMIBOLD))
-        .with(div(definition.getDescription()).withClasses(Styles.TEXT_XS))
+    return td().with(
+            div(definition.getName())
+                .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, Styles.FONT_SEMIBOLD),
+            div(definition.getDescription()).withClasses(Styles.TEXT_XS))
         .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 
