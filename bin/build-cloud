@@ -1,5 +1,7 @@
  #! /usr/bin/env bash
 
+ # DOC: Build civiform/cloud.
+
 IMAGE="cloud"
 LOCATION="."
 DOCKERFILE="cloud/cloud.Dockerfile"
