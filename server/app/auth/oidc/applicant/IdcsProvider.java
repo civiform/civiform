@@ -68,9 +68,11 @@ public final class IdcsProvider extends OidcProvider {
 
   @Override
   protected String getResponseType() {
-    // Our local fake IDCS doesn't support 'token' auth.
+    // Our fake IDCS doesn't support 'token' auth.
     // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#responsetypes
-    // TODO: turn this into it's own fake provider or make the local provider allow
+    // We disable this auth for scenarios where the server is being run locally on a dev machine
+    // and for browser test scenarios, where the server is accessible at the "civiform" host.
+    // TODO: turn this into it's own fake provider or make the fake provider allow
     // 'token'.
     if (baseUrl.contains("localhost:") || baseUrl.startsWith("http://civiform:")) {
       return "id_token";

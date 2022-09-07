@@ -9,11 +9,16 @@ const configuration = {
       grant_types: ['implicit'],
       application_type: 'web',
       scopes: ['openid', 'profile'],
+      // Note: The invalidate function is overridden on the server in order to allow redirect URLs
+      // on the localhost domain as well as an insecure domain.
       redirect_uris: [
+        // Redirects for localhost are used when the server is being run locally on a dev machine.
         'http://localhost:9000/callback/OidcClient',
         'http://localhost:9000/callback/AdClient',
         'http://localhost:19001/callback/OidcClient',
         'http://localhost:19001/callback/AdClient',
+        // Redirects for the "civiform" host are used when the server is being run within browser
+        // tests.
         'http://civiform:9000/callback/OidcClient',
         'http://civiform:9000/callback/AdClient',
       ],
@@ -32,6 +37,10 @@ const configuration = {
           user_emailid: email,
           // lie about verification for tests.
           email_verified: true,
+          // The display name is what appears in the UI when logged in. The CiviForm server
+          // supports display name with multiple components (e.g. "first middle last") as well as a
+          // single component (e.g. foo@example.com). For simplicity, the email address is used
+          // since there's only a single "id" field available at this point.
           user_displayname: email,
         }
       },
