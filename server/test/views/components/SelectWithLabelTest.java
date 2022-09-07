@@ -56,16 +56,28 @@ public class SelectWithLabelTest {
             .setOptionGroups(
                 ImmutableList.of(
                     SelectWithLabel.OptionGroup.builder()
-                        .setLabel("A label")
+                        .setLabel("First group label")
                         .setOptions(
                             ImmutableList.of(
                                 SelectWithLabel.OptionValue.builder()
                                     .setLabel("a")
                                     .setValue("b")
                                     .build()))
+                        .build(),
+                    SelectWithLabel.OptionGroup.builder()
+                        .setLabel("First group label")
+                        .setOptions(
+                            ImmutableList.of(
+                                SelectWithLabel.OptionValue.builder()
+                                    .setLabel("c")
+                                    .setValue("d")
+                                    .build()))
                         .build()));
     assertThat(selectWithLabel.getSelectTag().render()).contains("<select");
-    assertThat(selectWithLabel.getSelectTag().render()).contains("<optgroup label=\"A label\">");
+    assertThat(selectWithLabel.getSelectTag().render())
+        .contains("<optgroup label=\"First group label\">");
+    assertThat(selectWithLabel.getSelectTag().render())
+        .contains("<optgroup label=\"Second group label\">");
     assertThat(selectWithLabel.getSelectTag().render()).contains("<option");
   }
 }
