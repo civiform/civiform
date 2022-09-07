@@ -39,7 +39,8 @@ public class MultiSelectQuestionTest {
           MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
               .setMinChoicesRequired(2)
               .setMaxChoicesAllowed(3)
-              .build());
+              .build(),
+          /* lastModifiedTime= */ Optional.empty());
 
   private ApplicantData applicantData;
 
