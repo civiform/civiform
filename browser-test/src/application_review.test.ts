@@ -14,7 +14,6 @@ describe('Program admin review of submitted applications', () => {
 
   it('all major steps', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-    page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
 
@@ -247,7 +246,6 @@ describe('Program admin review of submitted applications', () => {
 
   it('program applications listed most recent first', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-    page.setDefaultTimeout(5000)
 
     // Create a simple one question program application.
     await loginAsAdmin(page)

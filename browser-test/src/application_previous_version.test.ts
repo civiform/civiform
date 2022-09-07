@@ -14,8 +14,6 @@ describe('view an application in an older version', () => {
 
   it('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
-    page.setDefaultTimeout(5000)
-
     await loginAsAdmin(page)
 
     // Create a program with one question
