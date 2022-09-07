@@ -7,7 +7,9 @@ import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.legend;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
@@ -18,6 +20,7 @@ import controllers.admin.routes;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -26,6 +29,8 @@ import play.twirl.api.Content;
 import services.TranslationLocales;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.question.ActiveAndDraftQuestions;
+import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -63,13 +68,16 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   public Content render(
-      ActiveAndDraftPrograms programs, Http.Request request, Optional<CiviFormProfile> profile) {
+      ActiveAndDraftPrograms programs,
+      ActiveAndDraftQuestions questions,
+      Http.Request request,
+      Optional<CiviFormProfile> profile) {
     if (profile.isPresent() && profile.get().isProgramAdmin() && !profile.get().isCiviFormAdmin()) {
       layout.setOnlyProgramAdminType();
     }
 
     String pageTitle = "All programs";
-    Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, request);
+    Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, questions, request);
 
     Modal demographicsCsvModal = renderDemographicsCsvModal();
     DivTag contentDiv =
@@ -168,30 +176,76 @@ public final class ProgramIndexView extends BaseHtmlView {
         .build();
   }
 
-  private ButtonTag makePublishButton() {
-    return makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
-        .withId("publish-programs-button")
-        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MY_2);
-  }
-
   private Optional<Modal> maybeRenderPublishModal(
-      ActiveAndDraftPrograms programs, Http.Request request) {
-    // We should only render the publish modal / button if there is at least one draft.
+      ActiveAndDraftPrograms programs, ActiveAndDraftQuestions questions, Http.Request request) {
+    // We should only render the publish modal / button if there is at least one draft program.
     if (!programs.anyDraft()) {
       return Optional.empty();
     }
 
     String link = routes.AdminProgramController.publish().url();
 
+    ImmutableList<QuestionDefinition> sortedDraftQuestions =
+        questions.getDraftQuestions().stream()
+            .sorted(Comparator.comparing(QuestionDefinition::getName))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> sortedDraftPrograms =
+        programs.getDraftPrograms().stream()
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+
     DivTag publishAllModalContent =
         div()
-            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4, Styles.PX_2)
-            .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
-            .with(div().with(toLinkButtonForPost(makePublishButton(), link, request)));
+            .withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6)
+            .with(
+                p("Please be aware that due to the nature of shared questions and versioning,"
+                        + " all questions and programs will need to be published together.")
+                    .withClass(Styles.TEXT_SM),
+                div()
+                    .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
+                    .with(
+                        p(String.format("Draft questions (%d):", sortedDraftQuestions.size()))
+                            .withClass(Styles.FONT_SEMIBOLD))
+                    .condWith(sortedDraftQuestions.isEmpty(), p("None").withClass(Styles.PL_5))
+                    .condWith(
+                        !sortedDraftQuestions.isEmpty(),
+                        ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                            .with(
+                                each(
+                                    sortedDraftQuestions,
+                                    draftQuestion -> li(draftQuestion.getName())))),
+                div()
+                    .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
+                    .with(
+                        p(String.format("Draft programs (%d):", sortedDraftPrograms.size()))
+                            .withClass(Styles.FONT_SEMIBOLD))
+                    .condWith(sortedDraftPrograms.isEmpty(), p("None").withClass(Styles.PL_5))
+                    .condWith(
+                        !sortedDraftPrograms.isEmpty(),
+                        ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                            .with(
+                                each(
+                                    sortedDraftPrograms,
+                                    draftProgram -> li(draftProgram.adminName())))),
+                p("Would you like to publish all draft questions and programs now?"),
+                div()
+                    .withClasses(Styles.FLEX, Styles.FLEX_ROW)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        button("Cancel")
+                            .withClasses(
+                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                        toLinkButtonForPost(
+                            submitButton("Confirm").withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+                            link,
+                            request)));
+    ButtonTag publishAllButton =
+        makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
+            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MY_2);
     Modal publishAllModal =
         Modal.builder("publish-all-programs-modal", publishAllModalContent)
-            .setModalTitle("Confirmation")
-            .setTriggerButtonContent(makePublishButton())
+            .setModalTitle("All draft programs will be published")
+            .setTriggerButtonContent(publishAllButton)
             .build();
     return Optional.of(publishAllModal);
   }
