@@ -3,12 +3,14 @@ package services.applications;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
+import models.Account;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import services.application.ApplicationEventDetails.NoteEvent;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
@@ -65,5 +67,39 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setSubmitTimeToNow();
 
     assertThat(service.getApplication(application.id, program)).isEmpty();
+  }
+
+  @Test
+  public void getNote_noNotes_empty() {
+    String note = "Application note";
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+
+    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    // Execute
+    assertThat(service.getNote(application)).isEmpty();
+  }
+
+  @Test
+  public void getNote_multipleNotes_findsLatest() {
+    String note = "Application note";
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+
+    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    service.setNote(application, NoteEvent.create("first note"), account);
+    service.setNote(application, NoteEvent.create(note), account);
+    application.refresh();
+
+    // Execute
+    assertThat(service.getNote(application)).contains(note);
   }
 }
