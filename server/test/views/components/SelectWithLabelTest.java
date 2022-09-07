@@ -65,7 +65,7 @@ public class SelectWithLabelTest {
                                     .build()))
                         .build(),
                     SelectWithLabel.OptionGroup.builder()
-                        .setLabel("First group label")
+                        .setLabel("Second group label")
                         .setOptions(
                             ImmutableList.of(
                                 SelectWithLabel.OptionValue.builder()
