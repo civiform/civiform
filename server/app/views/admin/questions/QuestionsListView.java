@@ -85,7 +85,8 @@ public final class QuestionsListView extends BaseHtmlView {
                     controllers.admin.routes.AdminQuestionController.index().url()),
                 div(questionTableAndModals.getLeft())
                     .withClasses("cf-admin-question-card-list", Styles.INVISIBLE, Styles.M_4),
-                renderSummary(activeAndDraftQuestions));
+                renderSummary(activeAndDraftQuestions))
+            .addFooterScripts(layout.viewUtils.makeLocalJsTag("sorting"));
 
     Http.Flash flash = request.flash();
     if (flash.get("success").isPresent()) {
@@ -195,8 +196,6 @@ public final class QuestionsListView extends BaseHtmlView {
     return Pair.of(rowTag, modals.build());
   }
 
-  // TODO(clouser): Need to expose the last updated time from QuestionDefinition, similar to
-  // ProgramDefinition.
   private static Instant extractLastUpdated(
       Optional<QuestionDefinition> draftQuestion, Optional<QuestionDefinition> activeQuestion) {
     // Prefer when the draft was last updated, since active versions should be immutable after
@@ -205,10 +204,9 @@ public final class QuestionsListView extends BaseHtmlView {
       throw new IllegalArgumentException("Question neither active nor draft.");
     }
 
-    //   QuestionDefinition question = draftQuestion.isPresent()
-    //     ? draftQuestion.get() : activeQuestion.get();
-    // return question.lastModifiedTime().orElse(Instant.EPOCH);
-    return Instant.EPOCH;
+    QuestionDefinition question = draftQuestion.isPresent()
+      ? draftQuestion.get() : activeQuestion.get();
+    return question.getLastModifiedTime().orElse(Instant.EPOCH);
   }
 
   private TdTag renderInfoCell(QuestionDefinition definition) {
