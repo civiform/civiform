@@ -59,32 +59,17 @@ const lastUpdatedAndNameComparator = (first: Element, second: Element) => {
 }
 
 window.addEventListener('load', () => {
-  const programListParent = document.querySelector(
+  for (const parentSelector of [
     '.cf-admin-program-card-list',
-  ) as HTMLElement | null
-  if (programListParent) {
-    ElementSorter.sortElementsOnLoad({
-      parent: programListParent,
-      compareFunc: lastUpdatedAndNameComparator,
-    })
-  }
-
-  const questionListParent = document.querySelector(
     '.cf-admin-question-list',
-  ) as HTMLElement | null
-  if (questionListParent) {
-    ElementSorter.sortElementsOnLoad({
-      parent: questionListParent,
-      compareFunc: lastUpdatedAndNameComparator,
-    })
-  }
-
-  // Question bank.
-  const questionBankParent = document.getElementById('question-bank-questions')
-  if (questionBankParent) {
-    ElementSorter.sortElementsOnLoad({
-      parent: questionBankParent,
-      compareFunc: lastUpdatedAndNameComparator,
-    })
+    '#question-bank-questions',
+  ]) {
+    const parent = document.querySelector(parentSelector) as HTMLElement | null
+    if (parent) {
+      ElementSorter.sortElementsOnLoad({
+        parent,
+        compareFunc: lastUpdatedAndNameComparator,
+      })
+    }
   }
 })

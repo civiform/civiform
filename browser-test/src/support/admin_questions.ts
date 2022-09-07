@@ -244,7 +244,7 @@ export class AdminQuestions {
     )
   }
 
-  async questionNames() {
+  async questionNames(): Promise<string[]> {
     await this.gotoAdminQuestionsPage()
     const titles = this.page.locator(
       '.cf-admin-question-table-row .cf-question-title',

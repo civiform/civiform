@@ -20,6 +20,8 @@ describe('Most recently updated question is at top of list.', () => {
     // Note: CI tests already have test questions
     // available. As such, we only assert the order
     // of the questions added in this test.
+    // TODO(#3029): Consider asserting on the whole list if it can be considered stable even in
+    // prober environments and with canonical question creation.
 
     // A question cannot be published in isolation. In order to allow making created questions
     // active, create a fake program.
