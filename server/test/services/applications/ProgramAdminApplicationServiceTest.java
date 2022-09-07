@@ -71,7 +71,6 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
   @Test
   public void getNote_noNotes_empty() {
-    String note = "Application note";
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
