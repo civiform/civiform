@@ -261,9 +261,7 @@ describe('view program statuses', () => {
         applyFilters,
       )
       expect(noStatusFilteredCsvContent).toContain(favoriteColorAnswer)
-      const noStatusFilteredJsonContent = JSON.parse(
-        await adminPrograms.getJson(applyFilters),
-      )
+      const noStatusFilteredJsonContent = await adminPrograms.getJson(applyFilters)
       expect(noStatusFilteredJsonContent.length).toEqual(1)
       expect(
         noStatusFilteredJsonContent[0].application.statusesfavecolorq.text,
@@ -280,9 +278,7 @@ describe('view program statuses', () => {
       expect(approvedStatusFilteredCsvContent).not.toContain(
         favoriteColorAnswer,
       )
-      const approvedStatusFilteredJsonContent = JSON.parse(
-        await adminPrograms.getJson(applyFilters),
-      )
+      const approvedStatusFilteredJsonContent = await adminPrograms.getJson(applyFilters)
       expect(approvedStatusFilteredJsonContent.length).toEqual(0)
     })
 

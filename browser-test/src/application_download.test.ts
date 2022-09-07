@@ -125,9 +125,7 @@ describe('normal application flow', () => {
       postEditCsvContent.split('Gus,,Guest,op2,01/01/1990,2000.00').length - 1
     expect(numberOfGusEntries).toEqual(2)
 
-    const postEditJsonContent = JSON.parse(
-      await adminPrograms.getJson(noApplyFilters),
-    )
+    const postEditJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(postEditJsonContent.length).toEqual(3)
     expect(postEditJsonContent[0].program_name).toEqual(programName)
     expect(postEditJsonContent[0].language).toEqual('en-US')
@@ -154,9 +152,7 @@ describe('normal application flow', () => {
     expect(filteredCsvContent).not.toContain(
       'Gus,,Guest,op2,01/01/1990,2000.00',
     )
-    const filteredJsonContent = JSON.parse(
-      await adminPrograms.getJson(applyFilters),
-    )
+    const filteredJsonContent = await adminPrograms.getJson(applyFilters)
     expect(filteredJsonContent.length).toEqual(1)
     expect(filteredJsonContent[0].application.name.first_name).toEqual('sarah')
     // Ensures that choosing not to apply filters continues to return all
@@ -164,9 +160,7 @@ describe('normal application flow', () => {
     const allCsvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(allCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(allCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00')
-    const allJsonContent = JSON.parse(
-      await adminPrograms.getJson(noApplyFilters),
-    )
+    const allJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(allJsonContent.length).toEqual(3)
     expect(allJsonContent[0].application.name.first_name).toEqual('Gus')
     expect(allJsonContent[1].application.name.first_name).toEqual('Gus')
