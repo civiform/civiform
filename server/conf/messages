@@ -349,6 +349,6 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
 #-------------------------------------------------------#
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
-error.not_found_title=We were unable to find the page you tried to visit
-error.not_found_description='Please go back or return to the '
-error.not_found_description_link=homepage
+error.notFoundTitle=We were unable to find the page you tried to visit
+error.notFoundDescription='Please go back or return to the '
+error.notFoundDescriptionLink=homepage

@@ -15,7 +15,6 @@ import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.TagCreator;
@@ -25,7 +24,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
-import java.util.function.Function;
 import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,21 +183,28 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .setLabelText("Application status")
                 .setValue(filterParams.selectedApplicationStatus().orElse(""))
                 // TODO(#3269): Consider adding support for passing <optgroups> and divide the
-                // static options from the application statuses with a "-----" section. Also
-                // update options to take an ordered collection rather than an unordered
-                // collection in order to create more determinism in the order that options are
-                // rendered.
+                // static options from the application statuses with a "-----" section.
                 .setOptions(
-                    ImmutableMap.<String, String>builder()
-                        .put("Any application status", "")
-                        .put(
-                            "Only applications without a status",
-                            SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID)
-                        .putAll(
+                    ImmutableList.<SelectWithLabel.OptionValue>builder()
+                        .add(
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel("Any application status")
+                                .setValue("")
+                                .build())
+                        .add(
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel("Only applications without a status")
+                                .setValue(SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID)
+                                .build())
+                        .addAll(
                             allPossibleProgramApplicationStatuses.stream()
-                                .collect(
-                                    ImmutableMap.toImmutableMap(
-                                        Function.identity(), Function.identity())))
+                                .map(
+                                    status ->
+                                        SelectWithLabel.OptionValue.builder()
+                                            .setLabel(status)
+                                            .setValue(status)
+                                            .build())
+                                .collect(ImmutableList.toImmutableList()))
                         .build())
                 .getSelectTag())
         .with(

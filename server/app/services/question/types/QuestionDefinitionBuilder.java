@@ -1,6 +1,7 @@
 package services.question.types;
 
 import com.google.common.collect.ImmutableList;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -26,6 +27,7 @@ public final class QuestionDefinitionBuilder {
   private QuestionType questionType = QuestionType.TEXT;
   private String validationPredicatesString = "";
   private LocalizedStrings entityType;
+  private Optional<Instant> lastModifiedTime = Optional.empty();
 
   // Multi-option question types only.
   private ImmutableList<QuestionOption> questionOptions = ImmutableList.of();
@@ -44,6 +46,7 @@ public final class QuestionDefinitionBuilder {
     questionHelpText = definition.getQuestionHelpText();
     questionType = definition.getQuestionType();
     validationPredicatesString = definition.getValidationPredicatesAsString();
+    lastModifiedTime = definition.getLastModifiedTime();
 
     if (definition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
@@ -134,6 +137,11 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setLastModifiedTime(Optional<Instant> lastModifiedTime) {
+    this.lastModifiedTime = lastModifiedTime;
+    return this;
+  }
+
   /**
    * Calls {@code build} and throws a {@link RuntimeException} if the {@link QuestionType} is
    * invalid.
@@ -162,7 +170,8 @@ public final class QuestionDefinitionBuilder {
             description,
             questionText,
             questionHelpText,
-            addressValidationPredicates);
+            addressValidationPredicates,
+            lastModifiedTime);
 
       case CHECKBOX:
         MultiOptionValidationPredicates multiOptionValidationPredicates =
@@ -179,27 +188,35 @@ public final class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             questionOptions,
-            multiOptionValidationPredicates);
+            multiOptionValidationPredicates,
+            lastModifiedTime);
 
       case CURRENCY:
         return new CurrencyQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
 
       case DATE:
         return new DateQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
 
       case DROPDOWN:
         return new DropdownQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
+            id,
+            name,
+            enumeratorId,
+            description,
+            questionText,
+            questionHelpText,
+            questionOptions,
+            lastModifiedTime);
 
       case EMAIL:
         return new EmailQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
 
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
 
       case ID:
         IdValidationPredicates idValidationPredicates = IdValidationPredicates.create();
@@ -213,7 +230,8 @@ public final class QuestionDefinitionBuilder {
             description,
             questionText,
             questionHelpText,
-            idValidationPredicates);
+            idValidationPredicates,
+            lastModifiedTime);
 
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
@@ -227,7 +245,8 @@ public final class QuestionDefinitionBuilder {
             description,
             questionText,
             questionHelpText,
-            nameValidationPredicates);
+            nameValidationPredicates,
+            lastModifiedTime);
 
       case NUMBER:
         NumberQuestionDefinition.NumberValidationPredicates numberValidationPredicates =
@@ -243,11 +262,19 @@ public final class QuestionDefinitionBuilder {
             description,
             questionText,
             questionHelpText,
-            numberValidationPredicates);
+            numberValidationPredicates,
+            lastModifiedTime);
 
       case RADIO_BUTTON:
         return new RadioButtonQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
+            id,
+            name,
+            enumeratorId,
+            description,
+            questionText,
+            questionHelpText,
+            questionOptions,
+            lastModifiedTime);
 
       case ENUMERATOR:
         // This shouldn't happen, but protects us in case there are enumerator questions in the prod
@@ -257,11 +284,18 @@ public final class QuestionDefinitionBuilder {
               LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
         }
         return new EnumeratorQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, entityType);
+            id,
+            name,
+            enumeratorId,
+            description,
+            questionText,
+            questionHelpText,
+            entityType,
+            lastModifiedTime);
 
       case STATIC:
         return new StaticContentQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText);
+            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
 
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
@@ -275,7 +309,8 @@ public final class QuestionDefinitionBuilder {
             description,
             questionText,
             questionHelpText,
-            textValidationPredicates);
+            textValidationPredicates,
+            lastModifiedTime);
 
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);

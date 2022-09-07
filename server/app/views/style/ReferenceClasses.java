@@ -14,6 +14,10 @@ public final class ReferenceClasses {
   public static final String ADMIN_PROGRAM_CARD_TITLE = "cf-program-title";
   public static final String ADMIN_PROGRAM_STATUS_LIST = "cf-admin-program-status-list";
   public static final String ADMIN_PROGRAM_STATUS_ITEM = "cf-admin-program-status-item";
+  public static final String ADMIN_PUBLISH_REFERENCES_PROGRAM =
+      "cf-admin-publish-references-program";
+  public static final String ADMIN_PUBLISH_REFERENCES_QUESTION =
+      "cf-admin-publish-references-question";
   public static final String ADMIN_QUESTION_TABLE_ROW = "cf-admin-question-table-row";
   public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS =
       "cf-admin-question-program-reference-counts";
