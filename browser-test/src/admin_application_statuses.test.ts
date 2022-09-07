@@ -184,6 +184,10 @@ describe('view program statuses', () => {
       await adminPrograms.editNote(noteText)
       await adminPrograms.expectNoteUpdatedToast()
 
+      // Reload the note editor.
+      await adminPrograms.viewApplications(programWithStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
+
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
   })
