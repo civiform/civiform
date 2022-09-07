@@ -90,8 +90,7 @@ public class RadioButtonQuestionRendererTest {
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
 
-    String id = question.getContextualizedPath().toString();
-    assertThat(result.render())
-        .contains("fieldset aria-describedBy=" + String.format("\"%s-description\"", id));
+    assertThat(result.render().matches(".*fieldset aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
   }
 }

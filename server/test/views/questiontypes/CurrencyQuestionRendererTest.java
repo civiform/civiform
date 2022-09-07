@@ -72,10 +72,12 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
 
-    String id = question.getContextualizedPath().toString();
-    assertThat(result.render())
-        .contains(
-            "input type=\"text\" currency value=\"\" aria-describedBy="
-                + String.format("\"%s-description\"", id));
+    assertThat(
+            result
+                .render()
+                .matches(
+                    ".*input type=\"text\" currency value=\"\""
+                        + " aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
   }
 }

@@ -86,8 +86,7 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
 
-    String id = question.getContextualizedPath().toString();
-    assertThat(result.render())
-        .contains("select aria-describedBy=" + String.format("\"%s-description\"", id));
+    assertThat(result.render().matches(".*select aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
   }
 }
