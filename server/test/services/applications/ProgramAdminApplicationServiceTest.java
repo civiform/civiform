@@ -74,13 +74,12 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     String note = "Application note";
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
-    Account account = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
 
-    // Execute
+    // Execute, verify.
     assertThat(service.getNote(application)).isEmpty();
   }
 
@@ -99,7 +98,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service.setNote(application, NoteEvent.create(note), account);
     application.refresh();
 
-    // Execute
+    // Execute, verify.
     assertThat(service.getNote(application)).contains(note);
   }
 }
