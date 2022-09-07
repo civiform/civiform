@@ -11,6 +11,8 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
 import services.MessageKey;
@@ -46,10 +48,10 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   ApplicantQuestionRendererImpl(ApplicantQuestion question, InputFieldType inputFieldType) {
     this.question = checkNotNull(question);
     this.inputFieldType = checkNotNull(inputFieldType);
-    id = question.getContextualizedPath().toString();
-    descriptionId = String.format("%s-description", id);
-    requiredErrorId = String.format("%s-required-error", id);
-    validationErrorId = String.format("%s-validation-error", id);
+    this.id = RandomStringUtils.randomAlphabetic(8);
+    this.descriptionId = String.format("%s-description", id);
+    this.requiredErrorId = String.format("%s-required-error", id);
+    this.validationErrorId = String.format("%s-validation-error", id);
   }
 
   private String getRequiredClass() {
