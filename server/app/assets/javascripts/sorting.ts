@@ -4,8 +4,6 @@
  */
 class ElementSorter {
   private static sortableElementSelector = '.cf-sortable-element'
-  private static sortableElementsPlaceholderSelector =
-    '.cf-sortable-element-placeholder'
 
   static sortElementsOnLoad({
     parent,
@@ -17,18 +15,12 @@ class ElementSorter {
     const elements = Array.from(
       parent.querySelectorAll(ElementSorter.sortableElementSelector),
     )
-    const placeholder = parent.querySelector(
-      ElementSorter.sortableElementsPlaceholderSelector,
-    )
     try {
       ElementSorter.sortCards(parent, elements, compareFunc)
     } finally {
       // Make sure to always show the element, even
       // if there was an error while sorting.
       parent.classList.remove('invisible')
-      if (placeholder) {
-        placeholder.classList.add('hidden')
-      }
     }
   }
 

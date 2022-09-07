@@ -127,5 +127,4 @@ public final class ReferenceClasses {
   public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
   public static final String SORTABLE_ELEMENT = "cf-sortable-element";
-  public static final String SORTABLE_ELEMENT_PLACEHOLDER = "cf-sortable-element-placeholder";
 }
