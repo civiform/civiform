@@ -107,7 +107,7 @@ public class QuestionDefinitionBuilderTest {
             .setQuestionHelpText(LocalizedStrings.empty())
             .setLastModifiedTime(Optional.of(now))
             .build();
-    assertThat(questionDefinition.getLastModifiedTime()).isPresent();
+    assertThat(questionDefinition.getLastModifiedTime()).isEqualTo(Optional.of(now));
   }
 
   @Test
