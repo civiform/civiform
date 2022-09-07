@@ -80,11 +80,25 @@ public final class QuestionsListView extends BaseHtmlView {
             .setTitle(title)
             .addModals(questionTableAndModals.getRight())
             .addMainContent(
-                renderHeader(title),
-                CreateQuestionButton.renderCreateQuestionButton(
-                    controllers.admin.routes.AdminQuestionController.index().url()),
-                div(questionTableAndModals.getLeft()).withClasses(Styles.M_4),
-                renderSummary(activeAndDraftQuestions))
+                div()
+                    .withClass(Styles.PX_4)
+                    .with(
+                        div()
+                            .withClasses(
+                                Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)
+                            .with(
+                                renderHeader(title),
+                                div().withClass(Styles.FLEX_GROW),
+                                CreateQuestionButton.renderCreateQuestionButton(
+                                    controllers.admin.routes.AdminQuestionController.index()
+                                        .url())),
+                        div()
+                            .withClasses(Styles.MT_10, Styles.FLEX)
+                            .with(
+                                div().withClass(Styles.FLEX_GROW),
+                                p("Sorting by most recently updated").withClass(Styles.TEXT_SM)),
+                        div(questionTableAndModals.getLeft()).withClass(Styles.MT_6),
+                        renderSummary(activeAndDraftQuestions)))
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("sorting"));
 
     Http.Flash flash = request.flash();
