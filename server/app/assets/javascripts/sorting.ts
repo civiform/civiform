@@ -89,7 +89,7 @@ window.addEventListener('load', () => {
   }
 
   // Question bank.
-  const questionBankParent = document.getElementById('question-bank-filter')
+  const questionBankParent = document.getElementById('question-bank-questions')
   if (questionBankParent) {
     ElementSorter.sortElementsOnLoad({
       parent: questionBankParent,

@@ -204,8 +204,8 @@ public final class QuestionsListView extends BaseHtmlView {
       throw new IllegalArgumentException("Question neither active nor draft.");
     }
 
-    QuestionDefinition question = draftQuestion.isPresent()
-      ? draftQuestion.get() : activeQuestion.get();
+    QuestionDefinition question =
+        draftQuestion.isPresent() ? draftQuestion.get() : activeQuestion.get();
     return question.getLastModifiedTime().orElse(Instant.EPOCH);
   }
 
