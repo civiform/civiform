@@ -160,7 +160,7 @@ public final class QuestionBank {
         div()
             .withClasses(Styles.ML_4)
             .with(
-                p(definition.getName()),
+                p(definition.getName()).withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE),
                 p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
                 addButton);
     return questionDiv.with(PLUS_ICON, icon, content);

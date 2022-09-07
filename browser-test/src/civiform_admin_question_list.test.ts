@@ -1,6 +1,6 @@
 import {createTestContext, loginAsAdmin} from './support'
 
-describe('Most recently updated program is at top of list.', () => {
+describe('Most recently updated question is at top of list.', () => {
   const ctx = createTestContext()
   it('sorts by last updated, preferring draft over active', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
@@ -16,34 +16,54 @@ describe('Most recently updated program is at top of list.', () => {
     // available. As such, we only assert the order
     // of the questions added in this test.
 
+    // A question cannot be published in isolation. In order to allow making created questions
+    // active, create a fake program.
+    const programName = 'question list test program'
+    await adminPrograms.addProgram(programName)
+
     // Most recently added question is on top.
-    let questionNames = await adminQuestions.questionNames()
-    expect(questionNames.length).toBeGreaterThanOrEqual(2)
-    expect(questionNames.slice(0, 2)).toEqual([questionTwo, questionOne])
+    let questionListNames = await adminQuestions.questionNames()
+    expect(questionListNames.length).toBeGreaterThanOrEqual(2)
+    expect(questionListNames.slice(0, 2)).toEqual([questionTwo, questionOne])
+    // Question bank.
+    let questionBankNames = await adminPrograms.questionBankNames(programName)
+    expect(questionBankNames.length).toBeGreaterThanOrEqual(2)
+    expect(questionBankNames.slice(0, 2)).toEqual([questionTwo, questionOne])
 
-    // A question cannot be published in isolation. In order to make the previous questions active,
-    // create a fake program and publish it.
-    await adminPrograms.addProgram('question list test program')
-    await adminPrograms.publishAllPrograms()
-
-    // Previous relative order should be maintained.
-    questionNames = await adminQuestions.questionNames()
-    expect(questionNames.length).toBeGreaterThanOrEqual(2)
-    expect(questionNames.slice(0, 2)).toEqual([questionTwo, questionOne])
+    // Publish all programs and questions, order should be maintained.
+    await adminPrograms.publishProgram(programName)
+    // Create a draft version of the program so that the question bank can be accessed.
+    await adminPrograms.createNewVersion(programName)
+    questionListNames = await adminQuestions.questionNames()
+    expect(questionListNames.length).toBeGreaterThanOrEqual(2)
+    expect(questionListNames.slice(0, 2)).toEqual([questionTwo, questionOne])
+    questionBankNames = await adminPrograms.questionBankNames(programName)
+    expect(questionBankNames.length).toBeGreaterThanOrEqual(2)
+    expect(questionBankNames.slice(0, 2)).toEqual([questionTwo, questionOne])
 
     // Now create a draft version of the previously last question. After,
     // it should be on top.
     await adminQuestions.createNewVersion(questionOne)
-    questionNames = await adminQuestions.questionNames()
-    expect(questionNames.length).toBeGreaterThanOrEqual(2)
-    expect(questionNames.slice(0, 2)).toEqual([questionOne, questionTwo])
+    questionListNames = await adminQuestions.questionNames()
+    expect(questionListNames.length).toBeGreaterThanOrEqual(2)
+    expect(questionListNames.slice(0, 2)).toEqual([questionOne, questionTwo])
+    questionBankNames = await adminPrograms.questionBankNames(programName)
+    expect(questionBankNames.length).toBeGreaterThanOrEqual(2)
+    expect(questionBankNames.slice(0, 2)).toEqual([questionOne, questionTwo])
 
     // Now create a new question, which should be on top.
     const questionThree = 'question list test question three'
     await adminQuestions.addNameQuestion({questionName: questionThree})
-    questionNames = await adminQuestions.questionNames()
-    expect(questionNames.length).toBeGreaterThanOrEqual(3)
-    expect(questionNames.slice(0, 3)).toEqual([
+    questionListNames = await adminQuestions.questionNames()
+    expect(questionListNames.length).toBeGreaterThanOrEqual(3)
+    expect(questionListNames.slice(0, 3)).toEqual([
+      questionThree,
+      questionOne,
+      questionTwo,
+    ])
+    questionBankNames = await adminPrograms.questionBankNames(programName)
+    expect(questionBankNames.length).toBeGreaterThanOrEqual(3)
+    expect(questionBankNames.slice(0, 3)).toEqual([
       questionThree,
       questionOne,
       questionTwo,
