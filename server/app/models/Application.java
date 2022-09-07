@@ -34,6 +34,8 @@ public class Application extends BaseModel {
 
   @ManyToOne private Program program;
 
+  // Note: there is not an index on createTime currently as we don't filter on
+  // it and expect the number of results to be small.
   @OneToMany(mappedBy = "application")
   @OrderBy("createTime desc")
   private List<ApplicationEvent> applicationEvents;
