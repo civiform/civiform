@@ -30,7 +30,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+      boolean hasQuestionErrors) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
     FieldWithLabel currencyField =
@@ -42,8 +42,10 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
                 params.messages(),
                 validationErrors.getOrDefault(
                     currencyQuestion.getCurrencyPath(), ImmutableSet.of()))
-            .setAriaInvalid(hasErrors)
             .setAriaDescribedByIds(ariaDescribedByIds);
+    if (hasQuestionErrors) {
+      currencyField.forceAriaInvalid();
+    }
     if (currencyQuestion.getCurrencyValue().isPresent()) {
       currencyField.setValue(currencyQuestion.getCurrencyValue().get().prettyPrint());
     } else {

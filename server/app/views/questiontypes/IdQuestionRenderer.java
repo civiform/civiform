@@ -27,21 +27,23 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+      boolean hasQuestionErrors) {
     IdQuestion idQuestion = question.createIdQuestion();
 
-    DivTag questionFormContent =
+    FieldWithLabel idField =
         FieldWithLabel.input()
             .setFieldName(idQuestion.getIdPath().toString())
             .setValue(idQuestion.getIdValue().orElse(""))
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
-            .setAriaInvalid(hasErrors)
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionText())
-            .getInputTag();
+            .setScreenReaderText(question.getQuestionText());
 
-    return questionFormContent;
+    if (hasQuestionErrors) {
+      idField.forceAriaInvalid();
+    }
+
+    return idField.getInputTag();
   }
 }

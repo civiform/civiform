@@ -27,21 +27,23 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+      boolean hasQuestionErrors) {
     TextQuestion textQuestion = question.createTextQuestion();
 
-    DivTag questionFormContent =
+    FieldWithLabel textField =
         FieldWithLabel.input()
             .setFieldName(textQuestion.getTextPath().toString())
             .setValue(textQuestion.getTextValue().orElse(""))
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of()))
-            .setAriaInvalid(hasErrors)
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionText())
-            .getInputTag();
+            .setScreenReaderText(question.getQuestionText());
 
-    return questionFormContent;
+    if (hasQuestionErrors) {
+      textField.forceAriaInvalid();
+    }
+
+    return textField.getInputTag();
   }
 }

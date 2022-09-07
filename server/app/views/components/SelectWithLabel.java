@@ -86,8 +86,8 @@ public final class SelectWithLabel extends FieldWithLabel {
   }
 
   @Override
-  public SelectWithLabel setAriaInvalid(boolean isAriaInvalid) {
-    super.setAriaInvalid(isAriaInvalid);
+  public SelectWithLabel forceAriaInvalid() {
+    super.forceAriaInvalid();
     return this;
   }
 

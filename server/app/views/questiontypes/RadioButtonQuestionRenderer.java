@@ -40,7 +40,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+      boolean hasQuestionErrors) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
     DivTag radioQuestionFormContent =
@@ -54,13 +54,16 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 singleOptionQuestion.getSelectionPath().toString(),
                                 option,
                                 singleOptionQuestion.optionIsSelected(option),
-                                hasErrors)));
+                                hasQuestionErrors)));
 
     return radioQuestionFormContent;
   }
 
   private DivTag renderRadioOption(
-      String selectionPath, LocalizedQuestionOption option, boolean checked, boolean hasErrors) {
+      String selectionPath,
+      LocalizedQuestionOption option,
+      boolean checked,
+      boolean hasQuestionErrors) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
     LabelTag labelTag =
@@ -74,7 +77,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
-            .condAttr(hasErrors, "aria-invalid", "true")
+            .condAttr(hasQuestionErrors, "aria-invalid", "true")
             .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 
     return div()

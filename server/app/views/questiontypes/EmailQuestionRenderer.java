@@ -28,21 +28,23 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+      boolean hasQuestionErrors) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
-    DivTag questionFormContent =
+    FieldWithLabel emailField =
         FieldWithLabel.email()
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setValue(emailQuestion.getEmailValue().orElse(""))
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
-            .setAriaInvalid(hasErrors)
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionText())
-            .getEmailTag();
+            .setScreenReaderText(question.getQuestionText());
 
-    return questionFormContent;
+    if (hasQuestionErrors) {
+      emailField.forceAriaInvalid();
+    }
+
+    return emailField.getEmailTag();
   }
 }

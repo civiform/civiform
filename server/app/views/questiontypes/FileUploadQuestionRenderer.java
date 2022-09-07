@@ -55,7 +55,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+      boolean hasQuestionErrors) {
     return div()
         .with(
             label()
@@ -64,7 +64,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
                 .withText(question.getQuestionText()))
         .with(
             fileUploadViewStrategy.signedFileUploadFields(
-                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors));
+                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasQuestionErrors));
   }
 
   @Override

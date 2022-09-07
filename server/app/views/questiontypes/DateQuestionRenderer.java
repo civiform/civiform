@@ -30,7 +30,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+      boolean hasQuestionErrors) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =
@@ -40,8 +40,10 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()))
-            .setAriaInvalid(hasErrors)
             .setAriaDescribedByIds(ariaDescribedByIds);
+    if (hasQuestionErrors) {
+      dateField.forceAriaInvalid();
+    }
     if (dateQuestion.getDateValue().isPresent()) {
       // Note: If the provided input was invalid, there's no use rendering
       // the value on roundtrip since inputs with type="date" won't allow

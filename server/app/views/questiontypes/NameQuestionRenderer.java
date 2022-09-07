@@ -32,50 +32,50 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors) {
+      boolean hasQuestionErrors) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
+    FieldWithLabel firstNameField =
+        FieldWithLabel.input()
+            .setFieldName(nameQuestion.getFirstNamePath().toString())
+            .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
+            .setValue(nameQuestion.getFirstNameValue().orElse(""))
+            .setFieldErrors(
+                messages,
+                validationErrors.getOrDefault(nameQuestion.getFirstNamePath(), ImmutableSet.of()))
+            .addReferenceClass(ReferenceClasses.NAME_FIRST);
+
+    FieldWithLabel middleNameField =
+        FieldWithLabel.input()
+            .setFieldName(nameQuestion.getMiddleNamePath().toString())
+            .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
+            .setValue(nameQuestion.getMiddleNameValue().orElse(""))
+            .setFieldErrors(
+                messages,
+                validationErrors.getOrDefault(nameQuestion.getMiddleNamePath(), ImmutableSet.of()))
+            .addReferenceClass(ReferenceClasses.NAME_MIDDLE);
+
+    FieldWithLabel lastNameField =
+        FieldWithLabel.input()
+            .setFieldName(nameQuestion.getLastNamePath().toString())
+            .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
+            .setValue(nameQuestion.getLastNameValue().orElse(""))
+            .setFieldErrors(
+                messages,
+                validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()))
+            .addReferenceClass(ReferenceClasses.NAME_LAST);
+
+    if (hasQuestionErrors) {
+      firstNameField.forceAriaInvalid();
+      lastNameField.forceAriaInvalid();
+    }
+
     DivTag nameQuestionFormContent =
         div()
-            // First name
-            .with(
-                FieldWithLabel.input()
-                    .setFieldName(nameQuestion.getFirstNamePath().toString())
-                    .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
-                    .setValue(nameQuestion.getFirstNameValue().orElse(""))
-                    .setFieldErrors(
-                        messages,
-                        validationErrors.getOrDefault(
-                            nameQuestion.getFirstNamePath(), ImmutableSet.of()))
-                    .setAriaInvalid(hasErrors)
-                    .addReferenceClass(ReferenceClasses.NAME_FIRST)
-                    .getInputTag())
-            // Middle name
-            .with(
-                FieldWithLabel.input()
-                    .setFieldName(nameQuestion.getMiddleNamePath().toString())
-                    .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
-                    .setValue(nameQuestion.getMiddleNameValue().orElse(""))
-                    .addReferenceClass(ReferenceClasses.NAME_MIDDLE)
-                    .setFieldErrors(
-                        messages,
-                        validationErrors.getOrDefault(
-                            nameQuestion.getMiddleNamePath(), ImmutableSet.of()))
-                    .getInputTag())
-            // Last name
-            .with(
-                FieldWithLabel.input()
-                    .setFieldName(nameQuestion.getLastNamePath().toString())
-                    .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
-                    .setValue(nameQuestion.getLastNameValue().orElse(""))
-                    .setFieldErrors(
-                        messages,
-                        validationErrors.getOrDefault(
-                            nameQuestion.getLastNamePath(), ImmutableSet.of()))
-                    .setAriaInvalid(hasErrors)
-                    .addReferenceClass(ReferenceClasses.NAME_LAST)
-                    .getInputTag());
+            .with(firstNameField.getInputTag())
+            .with(middleNameField.getInputTag())
+            .with(lastNameField.getInputTag());
 
     return nameQuestionFormContent;
   }

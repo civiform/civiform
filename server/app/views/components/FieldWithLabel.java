@@ -63,7 +63,7 @@ public class FieldWithLabel {
   private Messages messages;
   private ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   private boolean showFieldErrors = true;
-  private boolean isAriaInvalid = false;
+  private boolean shouldForceAriaInvalid = false;
   private boolean checked = false;
   private boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
@@ -265,11 +265,11 @@ public class FieldWithLabel {
   }
 
   /**
-   * Set the aria-invalid attribute on this field to the given value. This is useful for when there
-   * are question level errors that this field does not know about.
+   * Forceset the aria-invalid attribute on this field to true. This is useful for when there are
+   * question level errors that this field does not know about.
    */
-  public FieldWithLabel setAriaInvalid(boolean isAriaInvalid) {
-    this.isAriaInvalid = isAriaInvalid;
+  public FieldWithLabel forceAriaInvalid() {
+    this.shouldForceAriaInvalid = true;
     return this;
   }
 
@@ -496,7 +496,8 @@ public class FieldWithLabel {
     ImmutableList<String> ariaIds = ariaDescribedByBuilder.build();
 
     fieldTag.condAttr(!ariaIds.isEmpty(), "aria-describedBy", StringUtils.join(ariaIds, " "));
-    fieldTag.condAttr(isAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
+    fieldTag.condAttr(
+        shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
 
     generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
 

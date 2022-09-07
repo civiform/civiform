@@ -39,7 +39,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   protected final ApplicantQuestion question;
   private final InputFieldType inputFieldType;
   // HTML id tags for various elements within this question.
-  private final String id;
+  private final String questionId;
   private final String descriptionId;
   private final String requiredErrorId;
   private final String validationErrorId;
@@ -47,10 +47,10 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   ApplicantQuestionRendererImpl(ApplicantQuestion question, InputFieldType inputFieldType) {
     this.question = checkNotNull(question);
     this.inputFieldType = checkNotNull(inputFieldType);
-    this.id = RandomStringUtils.randomAlphabetic(8);
-    this.descriptionId = String.format("%s-description", id);
-    this.requiredErrorId = String.format("%s-required-error", id);
-    this.validationErrorId = String.format("%s-validation-error", id);
+    this.questionId = RandomStringUtils.randomAlphabetic(8);
+    this.descriptionId = String.format("%s-description", questionId);
+    this.requiredErrorId = String.format("%s-required-error", questionId);
+    this.validationErrorId = String.format("%s-validation-error", questionId);
   }
 
   private String getRequiredClass() {
@@ -61,11 +61,11 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
-      boolean hasErrors);
+      boolean hasQuestionErrors);
 
   @Override
   public final DivTag render(ApplicantQuestionRendererParams params) {
-    boolean hasErrors = false;
+    boolean hasQuestionErrors = false;
     ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
     ariaDescribedByBuilder.add(descriptionId);
     Messages messages = params.messages();
@@ -99,7 +99,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ImmutableSet<ValidationErrorMessage> questionErrors =
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
-      hasErrors = true;
+      hasQuestionErrors = true;
       // Question error text
       questionSecondaryTextDiv.with(
           BaseHtmlView.fieldErrors(
@@ -109,7 +109,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     if (question.isRequiredButWasSkippedInCurrentProgram()) {
-      hasErrors = true;
+      hasQuestionErrors = true;
       String requiredQuestionMessage = messages.at(MessageKey.VALIDATION_REQUIRED.getKeyName());
       questionSecondaryTextDiv.with(
           div()
@@ -147,7 +147,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         params,
                         validationErrors,
                         /* ariaDescribedByIds= */ ImmutableList.of(),
-                        hasErrors));
+                        hasQuestionErrors));
         break;
       case SINGLE:
         questionTag =
@@ -159,7 +159,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                             ReferenceClasses.APPLICANT_QUESTION_TEXT,
                             ApplicantStyles.QUESTION_TEXT))
                 .with(questionSecondaryTextDiv)
-                .with(renderTag(params, validationErrors, ariaDescribedByIds, hasErrors));
+                .with(renderTag(params, validationErrors, ariaDescribedByIds, hasQuestionErrors));
         break;
       default:
         throw new IllegalArgumentException(
@@ -167,7 +167,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     return div()
-        .withId(id)
+        .withId(questionId)
         .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
         .with(questionTag);
   }
