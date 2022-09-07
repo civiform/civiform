@@ -6,4 +6,4 @@ source cloud/shared/bin/lib.sh
 
 export TF_VAR_image_tag="${IMAGE_TAG}"
 
-exec cloud/shared/bin/lib/destroy.py
+exec cloud/shared/bin/run.py --tag="${IMAGE_TAG}" --command="destroy"
