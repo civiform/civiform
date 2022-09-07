@@ -42,7 +42,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
           Styles.MB_4);
 
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.COMPOSITE);
   }
 
   @Override

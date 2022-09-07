@@ -1,7 +1,6 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
@@ -13,7 +12,6 @@ import static j2html.TagCreator.span;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
@@ -272,7 +270,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.MT_3)
                 .with(
                     div().withClasses(Styles.FLEX_GROW),
-                    asRedirectButton(button("Cancel"), questionForm.getRedirectUrl())
+                    asRedirectElement(button("Cancel"), questionForm.getRedirectUrl())
                         .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
                     submitButton("Create")
                         .withClass(Styles.M_4)
@@ -438,13 +436,25 @@ public final class QuestionEditView extends BaseHtmlView {
   private SelectWithLabel enumeratorOptionsFromEnumerationQuestionDefinitions(
       QuestionForm questionForm,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
-    ImmutableMap.Builder<String, String> optionsBuilder = ImmutableMap.builder();
-    optionsBuilder.put(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING);
-    optionsBuilder.putAll(
-        enumeratorQuestionDefinitions.stream()
-            .collect(toImmutableMap(QuestionDefinition::getName, q -> String.valueOf(q.getId()))));
+    ImmutableList<SelectWithLabel.OptionValue> options =
+        ImmutableList.<SelectWithLabel.OptionValue>builder()
+            .add(
+                SelectWithLabel.OptionValue.builder()
+                    .setLabel(NO_ENUMERATOR_DISPLAY_STRING)
+                    .setValue(NO_ENUMERATOR_ID_STRING)
+                    .build())
+            .addAll(
+                enumeratorQuestionDefinitions.stream()
+                    .map(
+                        q ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(q.getName())
+                                .setValue(String.valueOf(q.getId()))
+                                .build())
+                    .collect(ImmutableList.toImmutableList()))
+            .build();
     return enumeratorOptions(
-        optionsBuilder.build(),
+        options,
         questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING));
   }
 
@@ -462,10 +472,17 @@ public final class QuestionEditView extends BaseHtmlView {
         maybeEnumerationQuestionDefinition
             .map(q -> String.valueOf(q.getId()))
             .orElse(NO_ENUMERATOR_ID_STRING);
-    return enumeratorOptions(ImmutableMap.of(enumeratorName, enumeratorId), enumeratorId);
+    return enumeratorOptions(
+        ImmutableList.of(
+            SelectWithLabel.OptionValue.builder()
+                .setLabel(enumeratorName)
+                .setValue(enumeratorId)
+                .build()),
+        enumeratorId);
   }
 
-  private SelectWithLabel enumeratorOptions(ImmutableMap<String, String> options, String selected) {
+  private SelectWithLabel enumeratorOptions(
+      ImmutableList<SelectWithLabel.OptionValue> options, String selected) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)

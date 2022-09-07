@@ -33,7 +33,8 @@ public class AddressQuestionTest {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          AddressQuestionDefinition.AddressValidationPredicates.create());
+          AddressQuestionDefinition.AddressValidationPredicates.create(),
+          /* lastModifiedTime= */ Optional.empty());
 
   private static final AddressQuestionDefinition noPoBoxAddressQuestionDefinition =
       new AddressQuestionDefinition(
@@ -43,7 +44,8 @@ public class AddressQuestionTest {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          AddressQuestionDefinition.AddressValidationPredicates.create(true));
+          AddressQuestionDefinition.AddressValidationPredicates.create(true),
+          /* lastModifiedTime= */ Optional.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;

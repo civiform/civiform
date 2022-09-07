@@ -23,7 +23,6 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -59,6 +58,10 @@ import views.style.Styles;
 
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
+
+  public static final String SEND_EMAIL = "sendEmail";
+  public static final String NEW_STATUS = "newStatus";
+  public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
 
@@ -123,7 +126,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         div()
                             .withClasses(Styles.FLEX, Styles.MR_4, Styles.SPACE_X_2)
                             .with(
-                                renderStatusOptionsSelector(statusDefinitions),
+                                renderStatusOptionsSelector(application, statusDefinitions),
                                 updateNoteModal.getButton()))
                     .with(renderDownloadButton(programId, application.id)))
             .with(
@@ -219,7 +222,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private DivTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+  private DivTag renderStatusOptionsSelector(
+      Application application, StatusDefinitions statusDefinitions) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     DivTag container =
         div()
@@ -248,16 +252,17 @@ public final class ProgramApplicationView extends BaseHtmlView {
     dropdownTag.with(
         option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .isDisabled()
-            .isSelected());
+            .withCondSelected(!application.getLatestStatus().isPresent()));
 
     // Add statuses in the order they're provided.
-    statusDefinitions
-        .getStatuses()
+    String latestStatusText = application.getLatestStatus().orElse("");
+    statusDefinitions.getStatuses().stream()
+        .map(StatusDefinitions.Status::statusText)
         .forEach(
-            status -> {
-              String value = status.statusText();
-              OptionTag optionTag = option(value).withValue(value);
-              dropdownTag.with(optionTag);
+            statusText -> {
+              boolean isCurrentStatus = statusText.equals(latestStatusText);
+              dropdownTag.with(
+                  option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
             });
     return container.with(dropdownTag);
   }
@@ -266,17 +271,23 @@ public final class ProgramApplicationView extends BaseHtmlView {
       long programId, Application application, Http.Request request) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+    String formId = Modal.randomModalId();
     FormTag modalContent =
         form()
             .withAction(
                 controllers.admin.routes.AdminApplicationController.updateNote(
                         programId, application.id)
                     .url())
+            .withId(formId)
             .withMethod("POST")
             .withClasses(Styles.PX_6, Styles.PY_2)
             .with(makeCsrfTokenInputTag(request));
     modalContent.with(
-        FieldWithLabel.textArea().setRows(OptionalLong.of(8)).getTextareaTag(),
+        FieldWithLabel.textArea()
+            .setFormId(formId)
+            .setFieldName(NOTE)
+            .setRows(OptionalLong.of(8))
+            .getTextareaTag(),
         div()
             .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
             .with(
@@ -298,8 +309,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantNameWithApplicationId,
       StatusDefinitions.Status status,
       Http.Request request) {
-    // TODO(#3020): Populate the modal content with the previous configured status.
-    String previousStatus = "Unset";
+    String previousStatus = application.getLatestStatus().orElse("Unset");
     FormTag modalContent =
         form()
             .withAction(
@@ -322,6 +332,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)),
                 div()
                     .withClasses(Styles.MT_4)
+                    // Add the new status to the form hidden.
+                    .with(
+                        input()
+                            .isHidden()
+                            .withType("text")
+                            .withName(NEW_STATUS)
+                            .withValue(status.statusText()))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
                             applicantNameWithApplicationId, application, status)),
@@ -369,7 +386,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             input()
                 .withType("checkbox")
                 .isChecked()
-                .withName("sendEmail")
+                .withName(SEND_EMAIL)
                 .withClasses(BaseStyles.CHECKBOX),
             span("Notify "),
             span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),

@@ -19,6 +19,7 @@ import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
@@ -78,10 +79,15 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
           }
         });
 
-    TimeFilter submitTimeFilter =
-        TimeFilter.builder()
-            .setFromTime(resolveDateParam(paginationToken, FROM_DATE_PARAM_NAME, fromDateParam))
-            .setUntilTime(resolveDateParam(paginationToken, UNTIL_DATE_PARAM_NAME, toDateParam))
+    SubmittedApplicationFilter filters =
+        SubmittedApplicationFilter.builder()
+            .setSubmitTimeFilter(
+                TimeFilter.builder()
+                    .setFromTime(
+                        resolveDateParam(paginationToken, FROM_DATE_PARAM_NAME, fromDateParam))
+                    .setUntilTime(
+                        resolveDateParam(paginationToken, UNTIL_DATE_PARAM_NAME, toDateParam))
+                    .build())
             .build();
     int pageSize = resolvePageSize(paginationToken, pageSizeParam);
 
@@ -102,10 +108,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
               try {
                 paginationResult =
                     programService.getSubmittedProgramApplicationsAllVersions(
-                        programDefinition.id(),
-                        F.Either.Left(paginationSpec),
-                        /* searchNameFragment= */ Optional.empty(),
-                        submitTimeFilter);
+                        programDefinition.id(), F.Either.Left(paginationSpec), filters);
               } catch (ProgramNotFoundException e) {
                 throw new RuntimeException(e);
               }
@@ -116,7 +119,8 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
               String responseJson =
                   getResponseJson(
                       applicationsJson,
-                      getNextPageToken(paginationResult, programSlug, pageSize, submitTimeFilter));
+                      getNextPageToken(
+                          paginationResult, programSlug, pageSize, filters.submitTimeFilter()));
 
               return ok(responseJson).as("application/json");
             },

@@ -1,15 +1,20 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.script;
+import static j2html.TagCreator.span;
 
 import controllers.AssetsFinder;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.ScriptTag;
 import javax.inject.Inject;
+import views.components.Icons;
+import views.style.Styles;
 
 /** Utility class for accessing stateful view dependencies. */
 public final class ViewUtils {
@@ -61,5 +66,15 @@ public final class ViewUtils {
 
   public ImgTag makeLocalImageTag(String filename) {
     return img().withSrc(assetsFinder.path("Images/" + filename + ".png"));
+  }
+
+  public static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
+    return button()
+        .with(
+            Icons.svg(icon)
+                .withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0)
+                // Can't set 18px using Tailwind CSS classes.
+                .withStyle("width: 18px; height: 18px;"),
+            span(buttonText).withClass(Styles.TEXT_LEFT));
   }
 }

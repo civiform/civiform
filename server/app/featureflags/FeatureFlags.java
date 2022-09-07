@@ -27,7 +27,7 @@ public final class FeatureFlags {
     this.config = checkNotNull(config);
   }
 
-  private boolean areOverridesEnabled() {
+  public boolean areOverridesEnabled() {
     return config.hasPath(FEATURE_FLAG_OVERRIDES_ENABLED)
         && config.getBoolean(FEATURE_FLAG_OVERRIDES_ENABLED);
   }

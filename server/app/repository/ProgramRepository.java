@@ -40,7 +40,7 @@ import services.program.ProgramNotFoundException;
  * ProgramRepository performs complicated operations on {@link Program} that often involve other
  * EBean models or asynchronous handling.
  */
-public class ProgramRepository {
+public final class ProgramRepository {
   private static final Logger logger = LoggerFactory.getLogger(ProgramRepository.class);
 
   private final Database database;
@@ -209,16 +209,8 @@ public class ProgramRepository {
 
   /**
    * Get all submitted applications for this program and all other previous and future versions of
-   * it where the applicant's name, email, or application ID contains the search query. Does not
-   * include drafts or deleted applications. Results returned in reverse order that the applications
-   * were created. Results are optionally limited to applications submitted after {@code
-   * submitTimeFrom} and/or before {@code submitTimeTo}, inclusive of both values.
-   *
-   * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
-   * email, first name, or last name that contain it.
-   *
-   * <p>If searchNameFragment is an unsigned integer, the query will filter to applications with an
-   * application ID matching it.
+   * it where the application matches the specified filters. Does not include drafts or deleted
+   * applications. Results returned in reverse order that the applications were created.
    *
    * <p>Both offset-based and page number-based pagination are supported. For paginationSpecEither
    * the caller may pass either a {@link IdentifierBasedPaginationSpec <Long>} or {@link
@@ -228,8 +220,7 @@ public class ProgramRepository {
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      Optional<String> searchNameFragment,
-      TimeFilter submitTimeFilter) {
+      SubmittedApplicationFilter filters) {
     ExpressionList<Application> query =
         database
             .find(Application.class)
@@ -241,16 +232,16 @@ public class ProgramRepository {
                 "lifecycle_stage",
                 ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
 
-    if (submitTimeFilter.fromTime().isPresent()) {
-      query = query.where().ge("submit_time", submitTimeFilter.fromTime().get());
+    if (filters.submitTimeFilter().fromTime().isPresent()) {
+      query = query.where().ge("submit_time", filters.submitTimeFilter().fromTime().get());
     }
 
-    if (submitTimeFilter.untilTime().isPresent()) {
-      query = query.where().lt("submit_time", submitTimeFilter.untilTime().get());
+    if (filters.submitTimeFilter().untilTime().isPresent()) {
+      query = query.where().lt("submit_time", filters.submitTimeFilter().untilTime().get());
     }
 
-    if (searchNameFragment.isPresent() && !searchNameFragment.get().isBlank()) {
-      String search = searchNameFragment.get().trim();
+    if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
+      String search = filters.searchNameFragment().get().trim();
 
       if (search.matches("^\\d+$")) {
         query = query.eq("id", Integer.parseInt(search));
@@ -265,6 +256,15 @@ public class ProgramRepository {
                 .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
                 .raw(lastNamePath + " || ', ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
                 .endOr();
+      }
+    }
+
+    String toMatchStatus = filters.applicationStatus().orElse("");
+    if (!toMatchStatus.isBlank()) {
+      if (toMatchStatus.equals(SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID)) {
+        query = query.where().isNull("latest_status");
+      } else {
+        query = query.where().eq("latest_status", toMatchStatus);
       }
     }
 
