@@ -1,24 +1,21 @@
 import {
+  createTestContext,
   gotoEndpoint,
-  startSession,
   loginAsAdmin,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
-  logout,
-  selectApplicantLanguage,
   loginAsGuest,
   loginAsTestUser,
+  logout,
+  selectApplicantLanguage,
 } from './support'
 
 describe('navigating to a deep link', () => {
+  const ctx = createTestContext()
+
   it('as a guest user or registered user', async () => {
-    const {browser, page} = await startSession()
+    const {page, adminQuestions, adminPrograms} = ctx
 
     // Arrange
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     const questionText = 'What is your address?'
 
@@ -65,7 +62,5 @@ describe('navigating to a deep link', () => {
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
       questionText,
     )
-
-    await endSession(browser)
   })
 })

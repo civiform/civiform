@@ -67,9 +67,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void loadLegacy() {
     DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, export_definitions,"
+            "insert into programs (name, description, block_definitions,"
                 + " legacy_localized_name, legacy_localized_description) values ('Old Schema"
-                + " Entry', 'Description', '[]', '[]', '{\"en_us\": \"name\"}', '{\"en_us\":"
+                + " Entry', 'Description', '[]', '{\"en_us\": \"name\"}', '{\"en_us\":"
                 + " \"description\"}');")
         .execute();
     DB.sqlUpdate(
@@ -97,9 +97,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void loadStatusDefinitionsEvolution() {
     DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, export_definitions,"
+            "insert into programs (name, description, block_definitions,"
                 + " legacy_localized_name, legacy_localized_description, status_definitions)"
-                + " values ('Status Default', 'Description', '[]', '[]', '{\"en_us\": \"name\"}',"
+                + " values ('Status Default', 'Description', '[]', '{\"en_us\": \"name\"}',"
                 + "'{\"en_us\": \"description\"}', '{\"statuses\": []}');")
         .execute();
     DB.sqlUpdate(
@@ -121,9 +121,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getForSlug_withOldSchema() {
     DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, export_definitions,"
+            "insert into programs (name, description, block_definitions,"
                 + " legacy_localized_name, legacy_localized_description) values ('Old Schema"
-                + " Entry', 'Description', '[]', '[]', '{\"en_us\": \"a\"}', '{\"en_us\":"
+                + " Entry', 'Description', '[]', '{\"en_us\": \"a\"}', '{\"en_us\":"
                 + " \"b\"}');")
         .execute();
     DB.sqlUpdate(
