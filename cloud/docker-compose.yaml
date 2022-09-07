@@ -15,4 +15,4 @@ services:
       - COMMAND
     volumes:
       - ${PWD}/${CONFIG}:/${CONFIG}:ro
-    command: cloud/deploys/dev_aws/bin/${COMMAND} --tag=${IMAGE_TAG} --config=${CONFIG}
+    command: cloud/shared/bin/run.py --tag=${IMAGE_TAG} --command=${COMMAND} --config=${CONFIG}

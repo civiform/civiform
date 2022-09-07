@@ -16,7 +16,7 @@ COPY --from=amazon/aws-cli:2.7.27 /aws /aws
 
 RUN /bin/sh -c set -o pipefail && apk update && \
     apk add --upgrade apk-tools && apk upgrade --available && \
-    apk add --no-cache --update bash python3 git
+    apk add --no-cache --update bash python3 git less groff
 
 COPY ./cloud/ cloud/
 
