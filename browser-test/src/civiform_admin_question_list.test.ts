@@ -1,4 +1,9 @@
-import {createTestContext, loginAsAdmin} from './support'
+import {
+  AdminPrograms,
+  AdminQuestions,
+  createTestContext,
+  loginAsAdmin,
+} from './support'
 
 describe('Most recently updated question is at top of list.', () => {
   const ctx = createTestContext()
@@ -22,51 +27,85 @@ describe('Most recently updated question is at top of list.', () => {
     await adminPrograms.addProgram(programName)
 
     // Most recently added question is on top.
-    let questionListNames = await adminQuestions.questionNames()
-    expect(questionListNames.length).toBeGreaterThanOrEqual(2)
-    expect(questionListNames.slice(0, 2)).toEqual([questionTwo, questionOne])
-    // Question bank.
-    let questionBankNames = await adminPrograms.questionBankNames(programName)
-    expect(questionBankNames.length).toBeGreaterThanOrEqual(2)
-    expect(questionBankNames.slice(0, 2)).toEqual([questionTwo, questionOne])
+    await expectQuestionListTopElements(adminQuestions, [
+      questionTwo,
+      questionOne,
+    ])
+    await expectQuestionBankTopElements(programName, adminPrograms, [
+      questionTwo,
+      questionOne,
+    ])
 
     // Publish all programs and questions, order should be maintained.
     await adminPrograms.publishProgram(programName)
     // Create a draft version of the program so that the question bank can be accessed.
     await adminPrograms.createNewVersion(programName)
-    questionListNames = await adminQuestions.questionNames()
-    expect(questionListNames.length).toBeGreaterThanOrEqual(2)
-    expect(questionListNames.slice(0, 2)).toEqual([questionTwo, questionOne])
-    questionBankNames = await adminPrograms.questionBankNames(programName)
-    expect(questionBankNames.length).toBeGreaterThanOrEqual(2)
-    expect(questionBankNames.slice(0, 2)).toEqual([questionTwo, questionOne])
+    await expectQuestionListTopElements(adminQuestions, [
+      questionTwo,
+      questionOne,
+    ])
+    await expectQuestionBankTopElements(programName, adminPrograms, [
+      questionTwo,
+      questionOne,
+    ])
 
     // Now create a draft version of the previously last question. After,
     // it should be on top.
     await adminQuestions.createNewVersion(questionOne)
-    questionListNames = await adminQuestions.questionNames()
-    expect(questionListNames.length).toBeGreaterThanOrEqual(2)
-    expect(questionListNames.slice(0, 2)).toEqual([questionOne, questionTwo])
-    questionBankNames = await adminPrograms.questionBankNames(programName)
-    expect(questionBankNames.length).toBeGreaterThanOrEqual(2)
-    expect(questionBankNames.slice(0, 2)).toEqual([questionOne, questionTwo])
+    await expectQuestionListTopElements(adminQuestions, [
+      questionOne,
+      questionTwo,
+    ])
+    await expectQuestionBankTopElements(programName, adminPrograms, [
+      questionOne,
+      questionTwo,
+    ])
 
     // Now create a new question, which should be on top.
     const questionThree = 'question list test question three'
     await adminQuestions.addNameQuestion({questionName: questionThree})
-    questionListNames = await adminQuestions.questionNames()
-    expect(questionListNames.length).toBeGreaterThanOrEqual(3)
-    expect(questionListNames.slice(0, 3)).toEqual([
+    await expectQuestionListTopElements(adminQuestions, [
       questionThree,
       questionOne,
       questionTwo,
     ])
-    questionBankNames = await adminPrograms.questionBankNames(programName)
-    expect(questionBankNames.length).toBeGreaterThanOrEqual(3)
-    expect(questionBankNames.slice(0, 3)).toEqual([
+    await expectQuestionBankTopElements(programName, adminPrograms, [
       questionThree,
       questionOne,
       questionTwo,
     ])
   })
+
+  async function expectQuestionListTopElements(
+    adminQuestions: AdminQuestions,
+    expectedQuestions: string[],
+  ) {
+    if (!expectedQuestions) {
+      throw new Error('expected at least one question')
+    }
+    const questionListNames = await adminQuestions.questionNames()
+    expect(questionListNames.length).toBeGreaterThanOrEqual(
+      expectedQuestions.length,
+    )
+    expect(questionListNames.slice(0, expectedQuestions.length)).toEqual(
+      expectedQuestions,
+    )
+  }
+
+  async function expectQuestionBankTopElements(
+    programName: string,
+    adminPrograms: AdminPrograms,
+    expectedQuestions: string[],
+  ) {
+    if (!expectedQuestions) {
+      throw new Error('expected at least one question')
+    }
+    const questionBankNames = await adminPrograms.questionBankNames(programName)
+    expect(questionBankNames.length).toBeGreaterThanOrEqual(
+      expectedQuestions.length,
+    )
+    expect(questionBankNames.slice(0, expectedQuestions.length)).toEqual(
+      expectedQuestions,
+    )
+  }
 })
