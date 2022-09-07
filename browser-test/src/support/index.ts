@@ -13,9 +13,11 @@ import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
+  TEST_USER_AUTH_STRATEGY,
   DISABLE_SCREENSHOTS,
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
+  TEST_USER_DISPLAY_NAME,
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
@@ -258,34 +260,106 @@ export const setLangEsUS = async (page: Page) => {
 }
 
 export const loginAsTestUser = async (page: Page) => {
-  if (isTestUser()) {
-    await page.click('#idcs')
-    // Wait for the IDCS login page to make sure we've followed all redirects.
-    // If running this against a site with a real IDCS (i.e. staging) and this
-    // test fails with a timeout try re-running the tests. Sometimes there are
-    // just transient network hiccups that will pass on a second run.
-    // In short: If using a real IDCS retry test if this has a timeout failure.
-    await page.waitForURL('**/#/login*')
-    await page.fill('input[name=userName]', TEST_USER_LOGIN)
-    await page.fill('input[name=password]', TEST_USER_PASSWORD)
-    await page.click('button:has-text("Login"):not([disabled])')
-    await page.waitForNavigation({waitUntil: 'networkidle'})
-  } else {
-    await page.click('#guest')
+  switch (TEST_USER_AUTH_STRATEGY) {
+    case 'fake-oidc':
+      await loginAsTestUserFakeOidc(page)
+      break
+    case 'aws-staging':
+      await loginAsTestUserAwsStaging(page)
+      break
+    case 'seattle-staging':
+      await loginAsTestUserSeattleStaging(page)
+      break
+    default:
+      // TODO(#3326): Throw an error for an unrecognized strategy rather than falling back on
+      // logging in as a guest. Handling this case is presently in place to support AWS staging
+      // and Seattle staging prober runs.
+      if (TEST_USER_LOGIN) {
+        await loginAsTestUserSeattleStaging(page)
+      } else {
+        await loginAsGuest(page)
+      }
   }
   await waitForPageJsLoad(page)
 }
 
-function isTestUser() {
-  return TEST_USER_LOGIN !== '' && TEST_USER_PASSWORD !== ''
+async function loginAsTestUserSeattleStaging(page: Page) {
+  await page.click('#idcs')
+  // Wait for the IDCS login page to make sure we've followed all redirects.
+  // If running this against a site with a real IDCS (i.e. staging) and this
+  // test fails with a timeout try re-running the tests. Sometimes there are
+  // just transient network hiccups that will pass on a second run.
+  // In short: If using a real IDCS retry test if this has a timeout failure.
+  await page.waitForURL('**/#/login*')
+  await page.fill('input[name=userName]', TEST_USER_LOGIN)
+  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await page.click('button:has-text("Login"):not([disabled])')
+  await page.waitForNavigation({waitUntil: 'networkidle'})
 }
 
-export const userDisplayName = () => {
-  if (isTestUser()) {
-    return 'TEST, UATAPP'
-  } else {
+async function loginAsTestUserAwsStaging(page: Page) {
+  await Promise.all([
+    page.waitForURL('**/u/login/*', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Log in")'),
+  ])
+
+  await page.fill('input[name=username]', TEST_USER_LOGIN)
+  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await Promise.all([
+    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Continue")'),
+  ])
+}
+
+async function loginAsTestUserFakeOidc(page: Page) {
+  await Promise.all([
+    page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Log in")'),
+  ])
+
+  // If the user has previously signed in to the provider, a prompt is shown
+  // to reauthorize rather than sign-in. In this case, click "Continue" instead
+  // and skip filling out any login information. If we want to support logging
+  // in as multiple users, this will need to be adjusted.
+  const pageText = await page.innerText('html')
+  if (
+    pageText.includes(
+      'the client is asking you to confirm previously given authorization',
+    )
+  ) {
+    return Promise.all([
+      page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+      page.click('button:has-text("Continue")'),
+    ])
+  }
+
+  await page.fill('input[name=login]', TEST_USER_LOGIN)
+  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await Promise.all([
+    page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Sign-in"):not([disabled])'),
+  ])
+  // A screen is shown prompting the user to authorize a set of scopes.
+  // This screen is skipped if the user has already logged in once.
+  await Promise.all([
+    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Continue")'),
+  ])
+}
+
+export const testUserDisplayName = () => {
+  if (!TEST_USER_DISPLAY_NAME) {
+    // TODO(#3326): Throw an error if the environment variable isn't provided rather than falling
+    // back on Guest. This is presently in place to support AWS staging and Seattle staging prober
+    // runs.
+    if (TEST_USER_LOGIN) {
+      // Seattle staging.
+      return 'TEST, UATAPP'
+    }
+    // AWS staging.
     return 'Guest'
   }
+  return TEST_USER_DISPLAY_NAME
 }
 
 /**
