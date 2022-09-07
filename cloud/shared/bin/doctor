@@ -9,8 +9,6 @@ if [ ! -f "${DOCTOR_IMPL_PATH}" ]; then
   exit 1
 fi
 
-"${PROJECT_BASE_DIR}/cloud/shared/bin/validate_cloud_provider"
-
 source "${PROJECT_BASE_DIR}/bin/lib.sh"
 
 if ! which python3 >/dev/null; then
