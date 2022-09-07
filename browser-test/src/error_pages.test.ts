@@ -10,7 +10,6 @@ describe('error pages', () => {
   const ctx = createTestContext()
   it('test 404 page', async () => {
     const {page} = ctx
-    page.setDefaultTimeout(4000)
 
     const notFound = new NotFoundPage(page)
 
