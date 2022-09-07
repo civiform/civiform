@@ -1,11 +1,13 @@
 package views.components;
 
+import static j2html.TagCreator.optgroup;
 import static j2html.TagCreator.option;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.OptgroupTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import views.style.ReferenceClasses;
@@ -13,7 +15,7 @@ import views.style.ReferenceClasses;
 /** Utility class for rendering a select input field with an optional label. */
 public final class SelectWithLabel extends FieldWithLabel {
 
-  private ImmutableList<OptionValue> options = ImmutableList.of();
+  private ImmutableList<OptionGroup> optionGroups = ImmutableList.of();
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();
 
   @Override
@@ -22,9 +24,16 @@ public final class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
+  /** Sets the option groups associated with the select element. */
+  public SelectWithLabel setOptionGroups(ImmutableList<OptionGroup> optionGroups) {
+    this.optionGroups = optionGroups;
+    return this;
+  }
+
   /** Sets the options associated with the select element. */
   public SelectWithLabel setOptions(ImmutableList<OptionValue> options) {
-    this.options = options;
+    this.optionGroups =
+        ImmutableList.of(OptionGroup.builder().setLabel("").setOptions(options).build());
     return this;
   }
 
@@ -92,20 +101,45 @@ public final class SelectWithLabel extends FieldWithLabel {
     if (!customOptions.isEmpty()) {
       customOptions.forEach(option -> fieldTag.with(option));
     } else {
-      fieldTag.with(
-          options.stream()
-              .map(
-                  optionData -> {
-                    return option(optionData.label())
-                        .withClasses(
-                            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-                            ReferenceClasses.MULTI_OPTION_VALUE)
-                        .withValue(optionData.value())
-                        .withCondSelected(optionData.value().equals(fieldValue));
-                  }));
+      fieldTag.with(optionGroups.stream().map(this::renderOptionGroup));
     }
 
     return applyAttrsAndGenLabel(fieldTag);
+  }
+
+  private OptgroupTag renderOptionGroup(OptionGroup optionGroup) {
+    return optgroup()
+        .withLabel(optionGroup.label())
+        .with(optionGroup.options().stream().map(this::renderOption));
+  }
+
+  private OptionTag renderOption(OptionValue optionData) {
+    return option(optionData.label())
+        .withClasses(
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, ReferenceClasses.MULTI_OPTION_VALUE)
+        .withValue(optionData.value())
+        .withCondSelected(optionData.value().equals(fieldValue));
+  }
+
+  @AutoValue
+  public abstract static class OptionGroup {
+    /** The user-visible option group text. */
+    public abstract String label();
+
+    public abstract ImmutableList<OptionValue> options();
+
+    public static Builder builder() {
+      return new AutoValue_SelectWithLabel_OptionGroup.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setLabel(String v);
+
+      public abstract Builder setOptions(ImmutableList<OptionValue> v);
+
+      public abstract OptionGroup build();
+    }
   }
 
   @AutoValue
