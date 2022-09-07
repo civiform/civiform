@@ -1,6 +1,5 @@
 /**
- * ElementSorter provides utilities for sorting a group of objects. If a placeholder element is
- * provided, it will be hidden after the elements have been sorted.
+ * ElementSorter provides utilities for sorting a group of objects.
  */
 class ElementSorter {
   private static sortableElementSelector = '.cf-sortable-element'
