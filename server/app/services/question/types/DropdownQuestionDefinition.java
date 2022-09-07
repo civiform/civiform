@@ -1,6 +1,7 @@
 package services.question.types;
 
 import com.google.common.collect.ImmutableList;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
@@ -10,7 +11,7 @@ import services.question.QuestionOption;
  * Defines a dropdown question, which has a list of options, of which at most one and at least one
  * must be selected.
  */
-public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
+public final class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public DropdownQuestionDefinition(
       OptionalLong id,
@@ -19,7 +20,8 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      ImmutableList<QuestionOption> options) {
+      ImmutableList<QuestionOption> options,
+      Optional<Instant> lastModifiedTime) {
     super(
         id,
         name,
@@ -28,7 +30,8 @@ public class DropdownQuestionDefinition extends MultiOptionQuestionDefinition {
         questionText,
         questionHelpText,
         options,
-        SINGLE_SELECT_PREDICATE);
+        SINGLE_SELECT_PREDICATE,
+        lastModifiedTime);
   }
 
   public DropdownQuestionDefinition(

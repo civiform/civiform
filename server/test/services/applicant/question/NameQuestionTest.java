@@ -27,7 +27,8 @@ public class NameQuestionTest {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          NameQuestionDefinition.NameValidationPredicates.create());
+          NameQuestionDefinition.NameValidationPredicates.create(),
+          /* lastModifiedTime= */ Optional.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;

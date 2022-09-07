@@ -36,7 +36,8 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
               QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "hello")),
               QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "happy")),
               QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "world"))),
-          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 2));
+          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 2),
+          /* lastModifiedTime= */ Optional.empty());
 
   private final ApplicantData applicantData = new ApplicantData();
 
