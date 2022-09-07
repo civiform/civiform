@@ -19,4 +19,3 @@ RUN /bin/sh -c set -o pipefail && apk update && \
     apk add --no-cache --update bash python3 git less groff
 
 COPY ./cloud/ cloud/
-
