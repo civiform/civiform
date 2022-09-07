@@ -2,8 +2,10 @@ import subprocess
 import importlib
 import os
 
+from cloud.shared.bin.lib.config_loader import ConfigLoader
 
-def run(config):
+
+def run(config: ConfigLoader):
     deploy_file_py = os.path.join(
         'cloud', config.get_cloud_provider(), 'bin', 'deploy.py')
     # TODO(#2741): remove the fork after Azure scripts are in python

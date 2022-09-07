@@ -15,7 +15,7 @@ The script generates a .tfvars file that is used to deploy via terraform.
 """
 
 
-def run(config):
+def run(config: ConfigLoader):
     ###############################################################################
     # Load Setup Class for the specific template directory
     ###############################################################################

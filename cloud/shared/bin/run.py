@@ -5,6 +5,7 @@ import os
 import sys
 import importlib
 
+# Need to add current directory to PYTHONPATH if this script is run directly.
 sys.path.append(os.getcwd())
 
 from cloud.shared.bin.lib.config_loader import ConfigLoader
