@@ -35,7 +35,7 @@ public final class CreateQuestionButton {
                 Styles.BG_WHITE,
                 Styles.TEXT_GRAY_600,
                 Styles.SHADOW_LG,
-                Styles.OVERFLOW_AUTO,
+                Styles.ABSOLUTE,
                 Styles.ML_3,
                 Styles.MT_1,
                 Styles.HIDDEN);
