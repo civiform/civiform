@@ -101,7 +101,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     Optional<String> applicantName =
         applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
     assertThat(applicantName).isPresent();
-    assertThat(applicantName.get()).isEqualTo("first");
+    assertThat(applicantName.get()).isEqualTo("username@example.com");
 
     applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
     assertThat(applicantName).isPresent();
