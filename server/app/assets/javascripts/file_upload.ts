@@ -26,11 +26,22 @@ function validateFileUploadQuestions(formEl: Element): boolean {
     )
     const isValid = fileInput.value != ''
 
-    // Toggle the error div if invalid.
     const errorDiv = question.querySelector('.cf-fileupload-error')
     if (errorDiv) {
-      // TODO(#1878): Update button aria attributes on error.
+      // Toggle the error div if invalid.
       errorDiv.classList.toggle('hidden', isValid)
+    }
+    if (errorDiv && !isValid) {
+      // Add extra aria attributes to input if there is an error
+      const errorId = errorDiv.getAttribute('id')
+      const fileInputId = errorId.replace('-required-error', '')
+      const fileInput = document.getElementById(fileInputId)
+      fileInput.setAttribute('aria-invalid', 'true')
+      const ariaDescribedBy = fileInput.getAttribute('aria-describedBy')
+      fileInput.setAttribute(
+        'aria-describedBy',
+        errorId + ' ' + ariaDescribedBy,
+      )
     }
     isAllValid = isAllValid && isValid
   }

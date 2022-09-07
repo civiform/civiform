@@ -70,6 +70,8 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             params.signedFileUploadRequest(), fileInputId, ariaDescribedByIds, hasErrors));
     result.with(
         div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
+            // Client side logic is hardcoded to this id format.
+            .withId(fileInputId + "-required-error")
             .withClasses(
                 ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN));
     return result;
