@@ -1,3 +1,5 @@
+ #! /usr/bin/env bash
+
 # Usage: 
 # bin/build-cloud
 # bin/run-cloud <command> <tag> <config_file>
