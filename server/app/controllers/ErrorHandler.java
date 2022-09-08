@@ -26,6 +26,7 @@ import services.apikey.ApiKeyNotFoundException;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
+import services.program.StatusNotFoundException;
 import views.errors.NotFound;
 
 /**
@@ -45,12 +46,14 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
       ImmutableSet.of(
           ApiKeyNotFoundException.class,
-          BadRequestException.class,
+        ApplicantNotFoundException.class,
+        BadRequestException.class,
           BadApiRequestException.class,
-          NotChangeableException.class,
+        InvalidQuestionPositionException.class,
+        NotChangeableException.class,
           ProgramNotFoundException.class,
-          InvalidQuestionPositionException.class,
-          ApplicantNotFoundException.class);
+        StatusNotFoundException.class
+      );
 
   private static final ImmutableSet<Class<? extends Exception>>
       UNAUTHORIZED_REQUEST_EXCEPTION_TYPES = ImmutableSet.of(UnauthorizedApiRequestException.class);
