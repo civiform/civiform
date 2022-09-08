@@ -8,6 +8,14 @@ class AdminApplicationView {
   private static APPLICATION_EDIT_NOTE_FORM_SELECTOR =
     '.cf-program-admin-edit-note-form'
 
+  // These values should be kept in sync with those in admin_applications.ts and
+  // ProgramApplicationView.java.
+  private static PROGRAM_ID_INPUT_NAME = 'programId'
+  private static APPLICATION_ID_INPUT_NAME = 'applicationId'
+  private static NEW_STATUS_INPUT_NAME = 'newStatus'
+  private static SEND_EMAIL_INPUT_NAME = 'sendEmail'
+  private static NOTE_INPUT_NAME = 'note'
+
   constructor() {
     this.registerStatusSelectorEventListener()
     this.registerStatusUpdateFormSubmitListeners()
@@ -31,16 +39,28 @@ class AdminApplicationView {
           {
             messageType: 'UPDATE_STATUS',
             programId: parseInt(
-              this.extractInputValueFromForm(formEl, 'programId'),
+              this.extractInputValueFromForm(
+                formEl,
+                AdminApplicationView.PROGRAM_ID_INPUT_NAME,
+              ),
               10,
             ),
             applicationId: parseInt(
-              this.extractInputValueFromForm(formEl, 'applicationId'),
+              this.extractInputValueFromForm(
+                formEl,
+                AdminApplicationView.APPLICATION_ID_INPUT_NAME,
+              ),
               10,
             ),
             data: {
-              newStatus: this.extractInputValueFromForm(formEl, 'newStatus'),
-              sendEmail: this.extractInputValueFromForm(formEl, 'sendEmail'),
+              newStatus: this.extractInputValueFromForm(
+                formEl,
+                AdminApplicationView.NEW_STATUS_INPUT_NAME,
+              ),
+              sendEmail: this.extractInputValueFromForm(
+                formEl,
+                AdminApplicationView.SEND_EMAIL_INPUT_NAME,
+              ),
             },
           },
           window.location.origin,
@@ -66,15 +86,24 @@ class AdminApplicationView {
         {
           messageType: 'EDIT_NOTE',
           programId: parseInt(
-            this.extractInputValueFromForm(formEl, 'programId'),
+            this.extractInputValueFromForm(
+              formEl,
+              AdminApplicationView.PROGRAM_ID_INPUT_NAME,
+            ),
             10,
           ),
           applicationId: parseInt(
-            this.extractInputValueFromForm(formEl, 'applicationId'),
+            this.extractInputValueFromForm(
+              formEl,
+              AdminApplicationView.APPLICATION_ID_INPUT_NAME,
+            ),
             10,
           ),
           data: {
-            note: this.extractInputValueFromForm(formEl, 'note'),
+            note: this.extractInputValueFromForm(
+              formEl,
+              AdminApplicationView.NOTE_INPUT_NAME,
+            ),
           },
         },
         window.location.origin,

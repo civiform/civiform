@@ -60,6 +60,8 @@ import views.style.Styles;
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
 
+  private static final String PROGRAM_ID = "programId";
+  private static final String APPLICATION_ID = "applicationId";
   public static final String SEND_EMAIL = "sendEmail";
   public static final String NEW_STATUS = "newStatus";
   public static final String NOTE = "note";
@@ -278,8 +280,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withId(formId)
             .withClasses(Styles.PX_6, Styles.PY_2, "cf-program-admin-edit-note-form");
     modalContent.with(
-        input().withName("programId").withValue(Long.toString(programId)).isHidden(),
-        input().withName("applicationId").withValue(Long.toString(application.id)).isHidden(),
+        input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
+        input().withName(APPLICATION_ID).withValue(Long.toString(application.id)).isHidden(),
         FieldWithLabel.textArea()
             .setValue(noteMaybe)
             .setFormId(formId)
@@ -311,9 +313,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
         form()
             .withClasses(Styles.PX_6, Styles.PY_2, "cf-program-admin-status-update-form")
             .with(
-                input().withName("programId").withValue(Long.toString(programId)).isHidden(),
+                input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
                 input()
-                    .withName("applicationId")
+                    .withName(APPLICATION_ID)
                     .withValue(Long.toString(application.id))
                     .isHidden(),
                 p().with(
