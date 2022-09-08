@@ -39,7 +39,6 @@ public class ApplicationTest extends ResetPostgres {
         new ApplicationEvent(
             application,
             adminAccount,
-            ApplicationEventDetails.Type.STATUS_CHANGE,
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
                 .setStatusEvent(

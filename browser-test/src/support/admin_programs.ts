@@ -6,6 +6,7 @@ import {
   waitForAnyModal,
   waitForPageJsLoad,
 } from './wait'
+import {BASE_URL} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 
 export class AdminPrograms {
@@ -337,10 +338,58 @@ export class AdminPrograms {
     await this.expectActiveProgram(programName)
   }
 
+  private static PUBLISH_ALL_MODAL_TITLE =
+    'All draft programs will be published'
+
+  publishAllProgramsModalLocator() {
+    return this.page.locator(
+      `.cf-modal:has-text("${AdminPrograms.PUBLISH_ALL_MODAL_TITLE}")`,
+    )
+  }
+
   async publishAllPrograms() {
-    await clickAndWaitForModal(this.page, 'publish-all-programs-modal')
-    await this.page.click(`#publish-programs-button`)
+    const modal = await this.openPublishAllProgramsModal()
+    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+    await confirmHandle.click()
+
     await waitForPageJsLoad(this.page)
+  }
+
+  async openPublishAllProgramsModal() {
+    await this.page.click('button:has-text("Publish all drafts")')
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      AdminPrograms.PUBLISH_ALL_MODAL_TITLE,
+    )
+    return modal
+  }
+
+  async expectProgramReferencesModalContains({
+    expectedQuestionNames,
+    expectedProgramNames,
+  }: {
+    expectedQuestionNames: string[]
+    expectedProgramNames: string[]
+  }) {
+    const modal = await this.openPublishAllProgramsModal()
+
+    const editedQuestions = await modal.$$(
+      '.cf-admin-publish-references-question li',
+    )
+    const editedQuestionNames = await Promise.all(
+      editedQuestions.map((editedQuestion) => editedQuestion.innerText()),
+    )
+    expect(editedQuestionNames).toEqual(expectedQuestionNames)
+
+    const editedPrograms = await modal.$$(
+      '.cf-admin-publish-references-program li',
+    )
+    const editedProgramNames = await Promise.all(
+      editedPrograms.map((editedProgram) => editedProgram.innerText()),
+    )
+    expect(editedProgramNames).toEqual(expectedProgramNames)
+
+    await dismissModal(this.page)
   }
 
   async createNewVersion(programName: string) {
@@ -372,6 +421,10 @@ export class AdminPrograms {
   }
 
   async viewApplications(programName: string) {
+    // Navigate back to the main page for the program admin.
+    await this.page.goto(BASE_URL)
+    await waitForPageJsLoad(this.page)
+
     await this.page.click(
       this.withinProgramCardSelector(
         programName,
@@ -380,6 +433,11 @@ export class AdminPrograms {
       ),
     )
     await waitForPageJsLoad(this.page)
+  }
+
+  async expectApplicationCount(expectedCount: number) {
+    const cardElements = await this.page.$$('.cf-admin-application-card')
+    expect(cardElements.length).toBe(expectedCount)
   }
 
   selectApplicationCardForApplicant(applicantName: string) {
@@ -400,9 +458,28 @@ export class AdminPrograms {
     return this.selectQuestionWithinBlock(question) + ' ' + selector
   }
 
-  async filterProgramApplications(filterFragment: string) {
-    await this.page.fill('input[name="search"]', filterFragment)
-    await this.page.click('button:has-text("Filter")')
+  public static readonly ANY_STATUS_APPLICATION_FILTER_OPTION =
+    'Any application status'
+  public static readonly NO_STATUS_APPLICATION_FILTER_OPTION =
+    'Only applications without a status'
+
+  async filterProgramApplications({
+    searchFragment = '',
+    applicationStatusOption = '',
+  }: {
+    searchFragment?: string
+    applicationStatusOption?: string
+  }) {
+    await this.page.fill('input[name="search"]', searchFragment)
+    if (applicationStatusOption) {
+      await this.page.selectOption('label:has-text("Application status")', {
+        label: applicationStatusOption,
+      })
+    }
+    await Promise.all([
+      this.page.waitForNavigation(),
+      await this.page.click('button:has-text("Filter")'),
+    ])
     await waitForPageJsLoad(this.page)
   }
 
@@ -529,6 +606,23 @@ export class AdminPrograms {
     return this.applicationFrameLocator()
       .locator(this.editNoteSelector())
       .isVisible()
+  }
+
+  /**
+   * Returns the content of the note modal when viewing an application.
+   */
+  async getNoteContent() {
+    await this.applicationFrameLocator()
+      .locator(this.editNoteSelector())
+      .click()
+
+    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    if (!frame) {
+      throw new Error('Expected an application frame')
+    }
+    const editModal = await waitForAnyModal(frame)
+    const noteContentArea = (await editModal.$('textarea'))!
+    return noteContentArea.inputValue()
   }
 
   /**

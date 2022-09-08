@@ -1,26 +1,11 @@
-import {
-  startSession,
-  loginAsAdmin,
-  AdminPrograms,
-  AdminQuestions,
-} from './support'
-import {Page} from 'playwright'
+import {createTestContext, loginAsAdmin} from './support'
 
 describe('view program references from question view', () => {
-  let pageObject: Page
-  let adminPrograms: AdminPrograms
-  let adminQuestions: AdminQuestions
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-    adminPrograms = new AdminPrograms(pageObject)
-    adminQuestions = new AdminQuestions(pageObject)
-
-    await loginAsAdmin(pageObject)
-  })
+  const ctx = createTestContext()
 
   it('shows no results for an unreferenced question', async () => {
+    const {page, adminQuestions} = ctx
+    await loginAsAdmin(page)
     const questionName = 'unreferenced-q'
     await adminQuestions.addAddressQuestion({questionName})
     await adminQuestions.expectQuestionProgramReferencesText({
@@ -30,7 +15,9 @@ describe('view program references from question view', () => {
   })
 
   it('shows results for referencing programs', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
     const questionName = 'question-references-q'
+    await loginAsAdmin(page)
     await adminQuestions.addAddressQuestion({questionName})
 
     // Add a reference to the question in the second block. We'll later assert

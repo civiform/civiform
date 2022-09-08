@@ -4,7 +4,6 @@ set -e
 
 source bin/lib/out.sh
 source cloud/shared/bin/lib.sh
-cloud/shared/bin/validate_cloud_provider
 
 if [[ "${IMAGE_TAG}" == "latest" ]]; then
   out::error "--tag must reference a specific image, not 'latest'. Check available versions on https://hub.docker.com/r/civiform/civiform"
@@ -12,11 +11,5 @@ if [[ "${IMAGE_TAG}" == "latest" ]]; then
 fi
 
 export TF_VAR_image_tag="${IMAGE_TAG}"
-# TODO(#2741): remove the fork after Azure scripts are in python
-if [[ -f "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/deploy.py" ]]; then
-  echo "Running python deploy script."
-  python3 "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/deploy.py"
-else
-  echo "Running bash deploy script."
-  exec "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/deploy" "$@"
-fi
+
+exec cloud/shared/bin/run.py --tag="${IMAGE_TAG}" --command="deploy"

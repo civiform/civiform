@@ -197,14 +197,14 @@ public class QuestionTest extends ResetPostgres {
     initialQuestion.save();
 
     assertThat(initialQuestion.getCreateTime()).isNotEmpty();
-    assertThat(initialQuestion.getLastModifiedTime()).isNotEmpty();
+    assertThat(initialQuestion.getQuestionDefinition().getLastModifiedTime()).isNotEmpty();
 
     // Ensure a freshly loaded copy has the same timestamps.
     Question freshlyLoaded =
         repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
     assertThat(freshlyLoaded.getCreateTime()).isEqualTo(initialQuestion.getCreateTime());
-    assertThat(freshlyLoaded.getLastModifiedTime())
-        .isEqualTo(initialQuestion.getLastModifiedTime());
+    assertThat(freshlyLoaded.getQuestionDefinition().getLastModifiedTime())
+        .isEqualTo(initialQuestion.getQuestionDefinition().getLastModifiedTime());
 
     // Update the copy.
     // When persisting models with @WhenModified fields, EBean
@@ -219,8 +219,8 @@ public class QuestionTest extends ResetPostgres {
     Question afterUpdate =
         repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
     assertThat(afterUpdate.getCreateTime()).isEqualTo(initialQuestion.getCreateTime());
-    assertThat(afterUpdate.getLastModifiedTime()).isPresent();
-    assertThat(afterUpdate.getLastModifiedTime().get())
-        .isAfter(initialQuestion.getLastModifiedTime().get());
+    assertThat(afterUpdate.getQuestionDefinition().getLastModifiedTime()).isPresent();
+    assertThat(afterUpdate.getQuestionDefinition().getLastModifiedTime().get())
+        .isAfter(initialQuestion.getQuestionDefinition().getLastModifiedTime().get());
   }
 }

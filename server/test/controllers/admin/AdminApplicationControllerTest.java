@@ -113,7 +113,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
             /* fromDate= */ Optional.empty(),
-            /* untilDate= */ Optional.empty());
+            /* untilDate= */ Optional.empty(),
+            /* applicationStatus= */ Optional.empty());
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -135,7 +136,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
             /* fromDate= */ Optional.empty(),
-            /* untilDate= */ Optional.empty());
+            /* untilDate= */ Optional.empty(),
+            /* applicationStatus= */ Optional.empty());
     assertThat(result.status()).isEqualTo(OK);
   }
 
@@ -361,6 +363,81 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.updateNote(request, program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void updateNote_noNote_fails() throws Exception {
+    // Setup.
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(contentAsString(result)).contains("A note is not present");
+  }
+
+  @Test
+  public void updateNote_succeeds() throws Exception {
+    // Setup.
+    Instant start = Instant.now();
+    String noteText = "Test note content.";
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("note", noteText))).build();
+
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.NOTE_CHANGE);
+    assertThat(gotEvent.getDetails().noteEvent()).isPresent();
+    assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
+    assertThat(gotEvent.getCreator()).isEqualTo(adminAccount);
+    assertThat(gotEvent.getCreateTime()).isAfter(start);
+  }
+
+  @Test
+  public void updateNote_emptyNote_succeeds() throws Exception {
+    // Setup.
+    String noteText = "";
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("note", noteText))).build();
+
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getDetails().noteEvent()).isPresent();
+    assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
   }
 
   // Returns a controller with a faked ProfileUtils to bypass acl checks.

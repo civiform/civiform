@@ -56,12 +56,7 @@ export class AdminQuestions {
 
   async goToViewQuestionPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    await this.page.click(
-      this.selectWithinQuestionTableRow(
-        questionName,
-        'button:has-text("View")',
-      ),
-    )
+    await this.page.click(this.selectQuestionTableRow(questionName))
     await waitForPageJsLoad(this.page)
   }
 
@@ -181,9 +176,6 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionText)
     expect(
       await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('View')
-    expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
     ).toContain('New Version')
   }
 
@@ -205,7 +197,7 @@ export class AdminQuestions {
     const programReferencesText = await this.page.innerText(
       this.selectProgramReferencesFromRow(questionName),
     )
-    expect(programReferencesText).toEqual(expectedProgramReferencesText)
+    expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
 
   async expectProgramReferencesModalContains({
@@ -283,6 +275,7 @@ export class AdminQuestions {
 
   async undeleteQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
+    await this.openDropdownMenu(questionName)
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
@@ -295,6 +288,7 @@ export class AdminQuestions {
 
   async discardDraft(questionName: string) {
     await this.gotoAdminQuestionsPage()
+    await this.openDropdownMenu(questionName)
     await this.page.click(
       this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'),
     )
@@ -310,6 +304,7 @@ export class AdminQuestions {
     expectModal: boolean
   }) {
     await this.gotoAdminQuestionsPage()
+    await this.openDropdownMenu(questionName)
     await this.page.click(
       this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
@@ -322,6 +317,7 @@ export class AdminQuestions {
     } else {
       await waitForPageJsLoad(this.page)
       await this.expectAdminQuestionsPage()
+      await this.openDropdownMenu(questionName)
       // Ensure that the page has been reloaded and the "Restore archive" link
       // appears.
       const restoreArchiveIsVisible = await this.page.isVisible(
@@ -336,6 +332,7 @@ export class AdminQuestions {
 
   async goToQuestionTranslationPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
+    await this.openDropdownMenu(questionName)
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
@@ -344,6 +341,12 @@ export class AdminQuestions {
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionTranslationPage(questionName)
+  }
+
+  private async openDropdownMenu(questionName: string) {
+    await this.page.click(
+      this.selectWithinQuestionTableRow(questionName, '.cf-with-dropdown'),
+    )
   }
 
   async expectQuestionEditPage(questionName: string) {

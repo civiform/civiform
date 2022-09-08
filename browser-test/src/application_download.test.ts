@@ -1,43 +1,32 @@
 import {
-  startSession,
-  seedCanonicalQuestions,
+  createTestContext,
   dropTables,
-  logout,
-  loginAsTestUser,
+  isLocalDevEnvironment,
+  loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
-  loginAsAdmin,
+  loginAsTestUser,
+  logout,
+  seedCanonicalQuestions,
   selectApplicantLanguage,
-  ApplicantQuestions,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
-  isLocalDevEnvironment,
 } from './support'
 
 describe('normal application flow', () => {
+  const ctx = createTestContext()
+
   beforeAll(async () => {
-    const {page} = await startSession()
+    const {page} = ctx
     await dropTables(page)
     await seedCanonicalQuestions(page)
   })
 
   it('all major steps', async () => {
-    const {browser, page} = await startSession()
-    // Timeout for clicks and element fills. If your selector fails to locate
-    // the HTML element, the test hangs. If you find the tests time out, you
-    // want to verify that your selectors are working as expected first.
-    // Because all tests are run concurrently, it could be that your selector
-    // selects a different entity from another test.
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false
     const applyFilters = true
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
-    const applicantQuestions = new ApplicantQuestions(page)
 
     const programName = 'test program for export'
     await adminQuestions.addDropdownQuestion({
@@ -153,7 +142,7 @@ describe('normal application flow', () => {
     )
 
     // Finds a partial text match on applicant name, case insensitive.
-    await adminPrograms.filterProgramApplications('SARA')
+    await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
     const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
     expect(filteredCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(filteredCsvContent).not.toContain(
@@ -213,7 +202,5 @@ describe('normal application flow', () => {
         '5009769596aa83552389143189cec81abfc8f56abc1bb966715c47ce4078c403,057ba03d6c44104863dc7361fe4578965d1887360f90a0895882e58a6248fc86,6eecddf47b5f7a90d41ccc978c4c785265242ce75fe50be10c824b73a25167ba',
       )
     }
-
-    await endSession(browser)
   })
 })

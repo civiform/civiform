@@ -35,7 +35,8 @@ public class IdQuestionTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          IdQuestionDefinition.IdValidationPredicates.create());
+          IdQuestionDefinition.IdValidationPredicates.create(),
+          /* lastModifiedTime= */ Optional.empty());
 
   private static final IdQuestionDefinition minAndMaxLengthIdQuestionDefinition =
       new IdQuestionDefinition(
@@ -45,7 +46,8 @@ public class IdQuestionTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          IdQuestionDefinition.IdValidationPredicates.create(3, 4));
+          IdQuestionDefinition.IdValidationPredicates.create(3, 4),
+          /* lastModifiedTime= */ Optional.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;

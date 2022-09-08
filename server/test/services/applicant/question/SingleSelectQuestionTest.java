@@ -30,7 +30,8 @@ public class SingleSelectQuestionTest {
               QuestionOption.create(
                   1L, LocalizedStrings.of(Locale.US, "option 1", Locale.FRANCE, "un")),
               QuestionOption.create(
-                  2L, LocalizedStrings.of(Locale.US, "option 2", Locale.FRANCE, "deux"))));
+                  2L, LocalizedStrings.of(Locale.US, "option 2", Locale.FRANCE, "deux"))),
+          /* lastModifiedTime= */ Optional.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;

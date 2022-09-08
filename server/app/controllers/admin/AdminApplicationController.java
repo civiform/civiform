@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static views.admin.programs.ProgramApplicationView.NEW_STATUS;
+import static views.admin.programs.ProgramApplicationView.NOTE;
 import static views.admin.programs.ProgramApplicationView.SEND_EMAIL;
 
 import annotations.BindingAnnotations.Now;
@@ -49,6 +50,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusNotFoundException;
+import services.program.StatusDefinitions.Status;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
@@ -113,6 +115,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> untilDate,
+      Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     final ProgramDefinition program;
@@ -135,6 +138,7 @@ public final class AdminApplicationController extends CiviFormController {
                       .setFromTime(parseDateFromQuery(dateConverter, fromDate))
                       .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
                       .build())
+              .setApplicationStatus(applicationStatus)
               .build();
     }
 
@@ -157,6 +161,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> untilDate,
+      Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
@@ -171,6 +176,7 @@ public final class AdminApplicationController extends CiviFormController {
                         .setFromTime(parseDateFromQuery(dateConverter, fromDate))
                         .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
                         .build())
+                .setApplicationStatus(applicationStatus)
                 .build();
       }
       ProgramDefinition program = programService.getProgramDefinition(programId);
@@ -310,6 +316,7 @@ public final class AdminApplicationController extends CiviFormController {
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
     return ok(
         applicationView.render(
@@ -320,6 +327,7 @@ public final class AdminApplicationController extends CiviFormController {
             blocks,
             answers,
             program.statusDefinitions(),
+            noteMaybe,
             request));
   }
 
@@ -402,10 +410,21 @@ public final class AdminApplicationController extends CiviFormController {
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
+    Application application = applicationMaybe.get();
 
-    // TODO(#3264): Actually edit the note rather than unconditionally returning success.
-    return redirect(
-            routes.AdminApplicationController.show(programId, applicationMaybe.get().id).url())
+    Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+    Optional<String> maybeNote = Optional.ofNullable(formData.get(NOTE));
+    if (maybeNote.isEmpty()) {
+      return badRequest("A note is not present.");
+    }
+    String note = maybeNote.get();
+
+    programAdminApplicationService.setNote(
+        application,
+        ApplicationEventDetails.NoteEvent.create(note),
+        profileUtils.currentUserProfile(request).get().getAccount().join());
+
+    return redirect(routes.AdminApplicationController.show(programId, application.id).url())
         .flashing("success", "Application note updated");
   }
 
@@ -417,12 +436,13 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<Integer> page,
       Optional<String> fromDate,
-      Optional<String> untilDate)
+      Optional<String> untilDate,
+      Optional<String> applicationStatus)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(
           routes.AdminApplicationController.index(
-              programId, search, Optional.of(1), fromDate, untilDate));
+              programId, search, Optional.of(1), fromDate, untilDate, applicationStatus));
     }
 
     SubmittedApplicationFilter filters =
@@ -433,6 +453,7 @@ public final class AdminApplicationController extends CiviFormController {
                     .setFromTime(parseDateFromQuery(dateConverter, fromDate))
                     .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
                     .build())
+            .setApplicationStatus(applicationStatus)
             .build();
 
     final ProgramDefinition program;
@@ -452,12 +473,24 @@ public final class AdminApplicationController extends CiviFormController {
         applicationListView.render(
             request,
             program,
+            getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
             RenderFilterParams.builder()
                 .setSearch(search)
                 .setFromDate(fromDate)
                 .setUntilDate(untilDate)
+                .setSelectedApplicationStatus(applicationStatus)
                 .build()));
+  }
+
+  private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
+    return programService.getAllProgramDefinitionVersions(programId).stream()
+        .map(pdef -> pdef.statusDefinitions().getStatuses())
+        .flatMap(ImmutableList::stream)
+        .map(StatusDefinitions.Status::statusText)
+        .distinct()
+        .sorted()
+        .collect(ImmutableList.toImmutableList());
   }
 }
