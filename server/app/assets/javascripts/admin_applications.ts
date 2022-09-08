@@ -68,7 +68,11 @@ class AdminApplications {
     })
   }
 
-  updateStatus({
+  private currentRelativeUrl(): string {
+    return `${window.location.pathname}${window.location.search}`
+  }
+
+  private updateStatus({
     programId,
     applicationId,
     data,
@@ -77,35 +81,20 @@ class AdminApplications {
     applicationId: number
     data: UpdateStatusData
   }) {
-    // Retrieve the CSRF token from the page.
-    const csrfToken = this._assertNotNull(
-      document.querySelector('input[name=csrfToken]'),
-      'csrf token',
-    )
-
-    const newStatusEl = document.createElement('input')
-    newStatusEl.name = 'newStatus'
-    newStatusEl.value = data.newStatus
-    const sendEmailEl = document.createElement('input')
-    sendEmailEl.name = 'sendEmail'
-    sendEmailEl.value = data.sendEmail
-    const successRedirectUriEl = document.createElement('input')
-    successRedirectUriEl.name = 'successRedirectUri'
-    successRedirectUriEl.value = `${window.location.pathname}${window.location.search}`
-
-    const formEl = document.createElement('form')
-    formEl.method = 'POST'
-    formEl.action = `/admin/programs/${programId}/applications/${applicationId}/updateStatus`
-    formEl.appendChild(csrfToken)
-    formEl.appendChild(successRedirectUriEl)
-    formEl.appendChild(newStatusEl)
-    formEl.appendChild(sendEmailEl)
-
-    document.body.appendChild(formEl)
-    formEl.submit()
+    this.submitFormWithInputs({
+      action: `/admin/programs/${programId}/applications/${applicationId}/updateStatus`,
+      inputs: [
+        {
+          inputName: 'successRedirectUri',
+          inputValue: this.currentRelativeUrl(),
+        },
+        {inputName: 'newStatus', inputValue: data.newStatus},
+        {inputName: 'sendEmail', inputValue: data.sendEmail},
+      ],
+    })
   }
 
-  editNote({
+  private editNote({
     programId,
     applicationId,
     data,
@@ -114,26 +103,44 @@ class AdminApplications {
     applicationId: number
     data: EditNoteData
   }) {
-    // Retrieve the CSRF token from the page.
-    const csrfToken = this._assertNotNull(
-      document.querySelector('input[name=csrfToken]'),
-      'csrf token',
-    )
-    const successRedirectUriEl = document.createElement('input')
-    successRedirectUriEl.name = 'successRedirectUri'
-    successRedirectUriEl.value = `${window.location.pathname}${window.location.search}`
+    this.submitFormWithInputs({
+      action: `/admin/programs/${programId}/applications/${applicationId}/updateNote`,
+      inputs: [
+        {
+          inputName: 'successRedirectUri',
+          inputValue: this.currentRelativeUrl(),
+        },
+        {inputName: 'note', inputValue: data.note},
+      ],
+    })
+  }
 
-    const noteEl = document.createElement('input')
-    noteEl.name = 'note'
-    noteEl.value = data.note
-
+  private submitFormWithInputs({
+    action,
+    inputs,
+  }: {
+    action: string
+    inputs: {inputName: string; inputValue: string}[]
+  }) {
     const formEl = document.createElement('form')
+    formEl.hidden = true
     formEl.method = 'POST'
-    formEl.action = `/admin/programs/${programId}/applications/${applicationId}/updateNote`
-    formEl.appendChild(csrfToken)
-    formEl.appendChild(noteEl)
-    formEl.appendChild(successRedirectUriEl)
-
+    formEl.action = action
+    // Retrieve the CSRF token from the page.
+    formEl.appendChild(
+      this._assertNotNull(
+        document.querySelector('input[name=csrfToken]'),
+        'csrf token',
+      ),
+    )
+    inputs.forEach(({inputName, inputValue}) => {
+      const elementType = inputValue.includes('\n') ? 'textarea' : 'input'
+      const inputEl = document.createElement(elementType)
+      inputEl.hidden = true
+      inputEl.name = inputName
+      inputEl.value = inputValue
+      formEl.appendChild(inputEl)
+    })
     document.body.appendChild(formEl)
     formEl.submit()
   }

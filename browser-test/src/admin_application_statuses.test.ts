@@ -204,6 +204,19 @@ describe('view program statuses', () => {
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
+
+    it('preserves newlines in notes', async () => {
+      const {adminPrograms} = ctx
+      const noteText = 'Some note content\nwithseparatelines'
+      await adminPrograms.editNote(noteText)
+      await adminPrograms.expectNoteUpdatedToast()
+
+      // Reload the note editor.
+      await adminPrograms.viewApplications(programWithStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
+
+      expect(await adminPrograms.getNoteContent()).toBe(noteText)
+    })
   })
 
   describe('filtering list with program statuses', () => {
