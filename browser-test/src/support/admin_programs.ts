@@ -609,6 +609,23 @@ export class AdminPrograms {
   }
 
   /**
+   * Returns the content of the note modal when viewing an application.
+   */
+  async getNoteContent() {
+    await this.applicationFrameLocator()
+      .locator(this.editNoteSelector())
+      .click()
+
+    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    if (!frame) {
+      throw new Error('Expected an application frame')
+    }
+    const editModal = await waitForAnyModal(frame)
+    const noteContentArea = (await editModal.$('textarea'))!
+    return noteContentArea.inputValue()
+  }
+
+  /**
    * Edit note clicks the edit button, sets the note content to the provided
    * text, and confirms the dialog.
    */
