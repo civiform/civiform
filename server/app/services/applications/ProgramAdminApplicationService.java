@@ -114,46 +114,57 @@ public final class ProgramAdminApplicationService {
       // Notify an Admin/TI if they applied.
       Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
       if (adminSubmitterEmail.isPresent()) {
-        String tiDashLink =
-            baseUrl
-                + controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                        /* nameQuery= */ Optional.empty(),
-                        /* dateQuery= */ Optional.empty(),
-                        /* page= */ Optional.of(1))
-                    .url();
-        String subject =
-            String.format(
-                "An update on the application for program %s on behalf of applicant %d",
-                programName, applicant.id);
-        String body =
-            String.format(
-                "The status for applicant %d on program %s has changed to %s.\n\n"
-                    + "Manage your clients at %s.",
-                applicant.id, programName, newStatusText, tiDashLink);
-
-        emailClient.send(
-            isStaging ? stagingTiNotificationMailingList : adminSubmitterEmail.get(),
-            subject,
-            body);
+        sendAdminSubmitterEmail(programName, applicant, newStatusText, adminSubmitterEmail);
       }
       // Notify the applicant.
       Optional<String> applicantEmail =
           applicantService.getEmail(application.getApplicant().id).toCompletableFuture().join();
       if (applicantEmail.isPresent()) {
-        String civiformLink = baseUrl;
-        Locale locale = applicant.getApplicantData().preferredLocale();
-        String emailBody =
-            String.format(
-                "%s\n\nLog in to CiviForm at %s.",
-                statusDef.localizedEmailBodyText().get().getOrDefault(locale), civiformLink);
-        emailClient.send(
-            isStaging ? stagingApplicantNotificationMailingList : applicantEmail.get(),
-            String.format(STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programName),
-            emailBody);
+        sendApplicantEmail(programName, applicant, statusDef, applicantEmail);
       }
     }
 
     eventRepository.insertSync(event);
+  }
+
+  private void sendApplicantEmail(
+      String programName, Applicant applicant, Status statusDef, Optional<String> applicantEmail) {
+    String civiformLink = baseUrl;
+    Locale locale = applicant.getApplicantData().preferredLocale();
+    String emailBody =
+        String.format(
+            "%s\n\nLog in to CiviForm at %s.",
+            statusDef.localizedEmailBodyText().get().getOrDefault(locale), civiformLink);
+    emailClient.send(
+        isStaging ? stagingApplicantNotificationMailingList : applicantEmail.get(),
+        String.format(STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programName),
+        emailBody);
+  }
+
+  private void sendAdminSubmitterEmail(
+      String programName,
+      Applicant applicant,
+      String newStatusText,
+      Optional<String> adminSubmitterEmail) {
+    String tiDashLink =
+        baseUrl
+            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                    /* nameQuery= */ Optional.empty(),
+                    /* dateQuery= */ Optional.empty(),
+                    /* page= */ Optional.of(1))
+                .url();
+    String subject =
+        String.format(
+            "An update on the application for program %s on behalf of applicant %d",
+            programName, applicant.id);
+    String body =
+        String.format(
+            "The status for applicant %d on program %s has changed to %s.\n\n"
+                + "Manage your clients at %s.",
+            applicant.id, programName, newStatusText, tiDashLink);
+
+    emailClient.send(
+        isStaging ? stagingTiNotificationMailingList : adminSubmitterEmail.get(), subject, body);
   }
 
   /**
