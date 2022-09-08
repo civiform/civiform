@@ -45,19 +45,7 @@ def run(config: ConfigLoader):
             print("Starting port-terraform setup")
             template_setup.post_terraform_setup()
 
-        subprocess.run(
-            [
-                "/bin/bash", "-c",
-                f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_succeeded {log_args}"
-            ],
-            check=True)
     except BaseException as err:
-        subprocess.run(
-            [
-                "/bin/bash", "-c",
-                f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_failed {log_args}"
-            ],
-            check=True)
         print(
             "\nDeployment Failed. Check Troubleshooting page for known issues:\n"
             +
