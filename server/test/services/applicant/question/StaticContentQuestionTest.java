@@ -25,7 +25,8 @@ public class StaticContentQuestionTest extends ResetPostgres {
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "Some text. Not an actual question."),
-          LocalizedStrings.empty());
+          LocalizedStrings.empty(),
+          /* lastModifiedTime= */ Optional.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;

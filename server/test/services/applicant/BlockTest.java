@@ -40,7 +40,8 @@ public class BlockTest {
           Optional.empty(),
           "Shows more info to the applicant",
           LocalizedStrings.of(Locale.US, "This is more info"),
-          LocalizedStrings.of(Locale.US, ""));
+          LocalizedStrings.of(Locale.US, ""),
+          /* lastModifiedTime= */ Optional.empty());
 
   @Test
   public void createNewBlock() {

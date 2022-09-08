@@ -2,18 +2,22 @@ import axe = require('axe-core')
 import {
   Browser,
   BrowserContext,
+  Locator,
   chromium,
   Page,
   PageScreenshotOptions,
+  LocatorScreenshotOptions,
 } from 'playwright'
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
+  TEST_USER_AUTH_STRATEGY,
   DISABLE_SCREENSHOTS,
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
+  TEST_USER_DISPLAY_NAME,
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
@@ -22,6 +26,8 @@ import {AdminProgramStatuses} from './admin_program_statuses'
 import {ApplicantQuestions} from './applicant_questions'
 import {AdminPredicates} from './admin_predicates'
 import {AdminTranslations} from './admin_translations'
+import {TIDashboard} from './ti_dashboard'
+import {AdminTIGroups} from './admin_ti_groups'
 
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -116,6 +122,8 @@ export interface TestContext {
   applicantQuestions: ApplicantQuestions
   adminPredicates: AdminPredicates
   adminTranslations: AdminTranslations
+  tiDashboard: TIDashboard
+  adminTiGroups: AdminTIGroups
 }
 
 /**
@@ -165,6 +173,10 @@ export const createTestContext = (clearDb = true): TestContext => {
     }
     browserContext = await makeBrowserContext(browser)
     ctx.page = await browserContext.newPage()
+    // Default timeout is 30s. It's too long given that civiform is not JS
+    // heavy and all elements render quite quickly. Setting it to 5 sec so that
+    // tests fail fast.
+    ctx.page.setDefaultTimeout(5000)
     ctx.adminQuestions = new AdminQuestions(ctx.page)
     ctx.adminPrograms = new AdminPrograms(ctx.page)
     ctx.adminApiKeys = new AdminApiKeys(ctx.page)
@@ -172,7 +184,10 @@ export const createTestContext = (clearDb = true): TestContext => {
     ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
     ctx.adminPredicates = new AdminPredicates(ctx.page)
     ctx.adminTranslations = new AdminTranslations(ctx.page)
+    ctx.tiDashboard = new TIDashboard(ctx.page)
+    ctx.adminTiGroups = new AdminTIGroups(ctx.page)
     await ctx.page.goto(BASE_URL)
+    await closeWarningMessage(ctx.page)
   }
 
   beforeAll(async () => {
@@ -208,23 +223,6 @@ export const createTestContext = (clearDb = true): TestContext => {
 
 export const endSession = async (browser: Browser) => {
   await browser.close()
-}
-
-/**
- *  Logs out the user if they are logged in and goes to the site landing page.
- * @param clearDb When set to true clears all data from DB as part of starting
- *     session. Should be used in new tests to ensure that test cases are
- *     hermetic and order-independent.
- */
-export const resetSession = async (page: Page, clearDb = false) => {
-  const logoutText = await page.$('text=Logout')
-  if (logoutText !== null) {
-    await logout(page)
-  }
-  if (clearDb) {
-    await dropTables(page)
-  }
-  await page.goto(BASE_URL)
 }
 
 export const gotoEndpoint = async (page: Page, endpoint: string) => {
@@ -266,34 +264,106 @@ export const setLangEsUS = async (page: Page) => {
 }
 
 export const loginAsTestUser = async (page: Page) => {
-  if (isTestUser()) {
-    await page.click('#idcs')
-    // Wait for the IDCS login page to make sure we've followed all redirects.
-    // If running this against a site with a real IDCS (i.e. staging) and this
-    // test fails with a timeout try re-running the tests. Sometimes there are
-    // just transient network hiccups that will pass on a second run.
-    // In short: If using a real IDCS retry test if this has a timeout failure.
-    await page.waitForURL('**/#/login*')
-    await page.fill('input[name=userName]', TEST_USER_LOGIN)
-    await page.fill('input[name=password]', TEST_USER_PASSWORD)
-    await page.click('button:has-text("Login"):not([disabled])')
-    await page.waitForNavigation({waitUntil: 'networkidle'})
-  } else {
-    await page.click('#guest')
+  switch (TEST_USER_AUTH_STRATEGY) {
+    case 'fake-oidc':
+      await loginAsTestUserFakeOidc(page)
+      break
+    case 'aws-staging':
+      await loginAsTestUserAwsStaging(page)
+      break
+    case 'seattle-staging':
+      await loginAsTestUserSeattleStaging(page)
+      break
+    default:
+      // TODO(#3326): Throw an error for an unrecognized strategy rather than falling back on
+      // logging in as a guest. Handling this case is presently in place to support AWS staging
+      // and Seattle staging prober runs.
+      if (TEST_USER_LOGIN) {
+        await loginAsTestUserSeattleStaging(page)
+      } else {
+        await loginAsGuest(page)
+      }
   }
   await waitForPageJsLoad(page)
 }
 
-function isTestUser() {
-  return TEST_USER_LOGIN !== '' && TEST_USER_PASSWORD !== ''
+async function loginAsTestUserSeattleStaging(page: Page) {
+  await page.click('#idcs')
+  // Wait for the IDCS login page to make sure we've followed all redirects.
+  // If running this against a site with a real IDCS (i.e. staging) and this
+  // test fails with a timeout try re-running the tests. Sometimes there are
+  // just transient network hiccups that will pass on a second run.
+  // In short: If using a real IDCS retry test if this has a timeout failure.
+  await page.waitForURL('**/#/login*')
+  await page.fill('input[name=userName]', TEST_USER_LOGIN)
+  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await page.click('button:has-text("Login"):not([disabled])')
+  await page.waitForNavigation({waitUntil: 'networkidle'})
 }
 
-export const userDisplayName = () => {
-  if (isTestUser()) {
-    return 'TEST, UATAPP'
-  } else {
+async function loginAsTestUserAwsStaging(page: Page) {
+  await Promise.all([
+    page.waitForURL('**/u/login/*', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Log in")'),
+  ])
+
+  await page.fill('input[name=username]', TEST_USER_LOGIN)
+  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await Promise.all([
+    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Continue")'),
+  ])
+}
+
+async function loginAsTestUserFakeOidc(page: Page) {
+  await Promise.all([
+    page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Log in")'),
+  ])
+
+  // If the user has previously signed in to the provider, a prompt is shown
+  // to reauthorize rather than sign-in. In this case, click "Continue" instead
+  // and skip filling out any login information. If we want to support logging
+  // in as multiple users, this will need to be adjusted.
+  const pageText = await page.innerText('html')
+  if (
+    pageText.includes(
+      'the client is asking you to confirm previously given authorization',
+    )
+  ) {
+    return Promise.all([
+      page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+      page.click('button:has-text("Continue")'),
+    ])
+  }
+
+  await page.fill('input[name=login]', TEST_USER_LOGIN)
+  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await Promise.all([
+    page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Sign-in"):not([disabled])'),
+  ])
+  // A screen is shown prompting the user to authorize a set of scopes.
+  // This screen is skipped if the user has already logged in once.
+  await Promise.all([
+    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.click('button:has-text("Continue")'),
+  ])
+}
+
+export const testUserDisplayName = () => {
+  if (!TEST_USER_DISPLAY_NAME) {
+    // TODO(#3326): Throw an error if the environment variable isn't provided rather than falling
+    // back on Guest. This is presently in place to support AWS staging and Seattle staging prober
+    // runs.
+    if (TEST_USER_LOGIN) {
+      // Seattle staging.
+      return 'TEST, UATAPP'
+    }
+    // AWS staging.
     return 'Guest'
   }
+  return TEST_USER_DISPLAY_NAME
 }
 
 /**
@@ -368,9 +438,9 @@ export const validateAccessibility = async (page: Page) => {
  * @param screenshotFileName Must use dash-separated-case for consistency.
  */
 export const validateScreenshot = async (
-  page: Page,
+  element: Page | Locator,
   screenshotFileName: string,
-  pageScreenshotOptions?: PageScreenshotOptions,
+  screenshotOptions?: PageScreenshotOptions | LocatorScreenshotOptions,
   matchImageSnapshotOptions?: MatchImageSnapshotOptions,
 ) => {
   // Do not make image snapshots when running locally
@@ -379,8 +449,8 @@ export const validateScreenshot = async (
   }
   expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
   expect(
-    await page.screenshot({
-      ...pageScreenshotOptions,
+    await element.screenshot({
+      ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,

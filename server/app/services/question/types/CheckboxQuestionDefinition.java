@@ -1,13 +1,14 @@
 package services.question.types;
 
 import com.google.common.collect.ImmutableList;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 
 /** Defines a checkbox question. */
-public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
+public final class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public CheckboxQuestionDefinition(
       OptionalLong id,
@@ -17,7 +18,8 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options,
-      MultiOptionValidationPredicates validationPredicates) {
+      MultiOptionValidationPredicates validationPredicates,
+      Optional<Instant> lastModifiedTime) {
     super(
         id,
         name,
@@ -26,7 +28,8 @@ public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
         questionText,
         questionHelpText,
         options,
-        validationPredicates);
+        validationPredicates,
+        lastModifiedTime);
   }
 
   public CheckboxQuestionDefinition(

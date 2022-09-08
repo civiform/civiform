@@ -144,7 +144,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addMainContent(contentDiv)
             // The body and main styles are necessary for modals to appear since they use fixed
             // sizing.
-            .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
+            .addBodyStyles(Styles.FLEX)
             .addMainStyles(Styles.W_SCREEN)
             .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)

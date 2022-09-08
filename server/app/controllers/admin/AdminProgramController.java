@@ -23,15 +23,17 @@ import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionService;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramNewOneView;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing program definitions. */
-public class AdminProgramController extends CiviFormController {
+public final class AdminProgramController extends CiviFormController {
 
-  private final ProgramService service;
+  private final ProgramService programService;
+  private final QuestionService questionService;
   private final ProgramIndexView listView;
   private final ProgramNewOneView newOneView;
   private final ProgramEditView editView;
@@ -42,7 +44,8 @@ public class AdminProgramController extends CiviFormController {
 
   @Inject
   public AdminProgramController(
-      ProgramService service,
+      ProgramService programService,
+      QuestionService questionService,
       ProgramIndexView listView,
       ProgramNewOneView newOneView,
       ProgramEditView editView,
@@ -50,7 +53,8 @@ public class AdminProgramController extends CiviFormController {
       ProfileUtils profileUtils,
       FormFactory formFactory,
       RequestChecker requestChecker) {
-    this.service = checkNotNull(service);
+    this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
@@ -67,7 +71,12 @@ public class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
-    return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
+    return ok(
+        listView.render(
+            programService.getActiveAndDraftPrograms(),
+            questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions(),
+            request,
+            profileMaybe));
   }
 
   /** Return a HTML page containing a form to create a new program in the draft version. */
@@ -82,7 +91,7 @@ public class AdminProgramController extends CiviFormController {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        service.createProgramDefinition(
+        programService.createProgramDefinition(
             program.getAdminName(),
             program.getAdminDescription(),
             program.getLocalizedDisplayName(),
@@ -100,7 +109,7 @@ public class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id) {
     try {
-      ProgramDefinition program = service.getProgramDefinition(id);
+      ProgramDefinition program = programService.getProgramDefinition(id);
       return ok(editView.render(request, program));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
@@ -128,13 +137,13 @@ public class AdminProgramController extends CiviFormController {
       Optional<Program> existingDraft =
           versionRepository
               .getDraftVersion()
-              .getProgramByName(service.getProgramDefinition(id).adminName());
+              .getProgramByName(programService.getProgramDefinition(id).adminName());
       final Long idToEdit;
       if (existingDraft.isPresent()) {
         idToEdit = existingDraft.get().id;
       } else {
         // Make a new draft from the provided id.
-        idToEdit = service.newDraftOf(id).id();
+        idToEdit = programService.newDraftOf(id).id();
       }
 
       return redirect(routes.AdminProgramController.edit(idToEdit));
@@ -154,7 +163,7 @@ public class AdminProgramController extends CiviFormController {
     ProgramForm program = programForm.bindFromRequest(request).get();
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
-          service.updateProgramDefinition(
+          programService.updateProgramDefinition(
               programId,
               LocalizedStrings.DEFAULT_LOCALE,
               program.getAdminDescription(),
