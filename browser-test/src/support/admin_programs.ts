@@ -15,14 +15,14 @@ import {AdminProgramStatuses} from './admin_program_statuses'
  * JsonExporter.java.
  */
 export interface DownloadedApplication {
-  program_name: string,
-  program_version_id: number,
-  applicant_id: number,
-  application_id: number,
-  language: string,
-  create_time: string,
-  submitter_email: string,
-  submit_time: string,
+  program_name: string
+  program_version_id: number
+  applicant_id: number
+  application_id: number
+  language: string
+  create_time: string
+  submitter_email: string
+  submit_time: string
   // Applicant answers as a map of question name to answer data.
   application: {
     [questionName: string]: {
