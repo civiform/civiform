@@ -128,7 +128,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
             .addModals(downloadModal)
             .addMainStyles(Styles.FLEX)
-            .addMainContent(applicationListDiv, applicationShowDiv);
+            .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv, applicationShowDiv);
 
     return layout.renderCentered(htmlBundle);
   }

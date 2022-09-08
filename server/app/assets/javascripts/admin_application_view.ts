@@ -57,7 +57,7 @@ class AdminApplicationView {
             programId,
             applicationId,
             data: {
-              status: newStatusValue,
+              newStatus: newStatusValue,
               sendEmail: sendEmailValue,
             },
           },

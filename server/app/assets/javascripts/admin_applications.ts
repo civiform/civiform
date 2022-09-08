@@ -39,18 +39,89 @@ class AdminApplications {
       )
       switch (message.messageType) {
         case 'UPDATE_STATUS': {
-          const updateStatusData = message.data as UpdateStatusData
-          alert(`${updateStatusData.status}`)
+          this.updateStatus({
+            programId: message.programId,
+            applicationId: message.applicationId,
+            data: message.data as UpdateStatusData,
+          })
           break
         }
         case 'EDIT_NOTE': {
-          alert('Edit note')
+          this.editNote({
+            programId: message.programId,
+            applicationId: message.applicationId,
+            data: message.data as EditNoteData,
+          })
           break
         }
         default:
           throw new Error(`unrecognized message type ${message.messageType}`)
       }
     })
+  }
+
+  updateStatus({
+    programId,
+    applicationId,
+    data,
+  }: {
+    programId: number
+    applicationId: number
+    data: UpdateStatusData
+  }) {
+    // Retrieve the CSRF token from the page.
+    const csrfToken = this._assertNotNull(
+      document.querySelector('input[name=csrfToken]'),
+      'csrf token',
+    )
+
+    const newStatusEl = document.createElement('input')
+    newStatusEl.name = 'newStatus'
+    newStatusEl.value = data.newStatus
+    const sendEmailEl = document.createElement('input')
+    sendEmailEl.name = 'sendEmail'
+    sendEmailEl.value = data.sendEmail
+
+    const formEl = document.createElement('form')
+    formEl.method = 'POST'
+    formEl.action = `/admin/programs/${programId}/applications/${applicationId}/updateStatus`
+    formEl.appendChild(csrfToken)
+    formEl.appendChild(newStatusEl)
+    formEl.appendChild(sendEmailEl)
+
+    alert(`about to submit to ${formEl.action}`)
+    document.body.appendChild(formEl)
+    formEl.submit()
+  }
+
+  editNote({
+    programId,
+    applicationId,
+    data,
+  }: {
+    programId: number
+    applicationId: number
+    data: EditNoteData
+  }) {
+    // Retrieve the CSRF token from the page.
+    const csrfToken = this._assertNotNull(
+      document.querySelector('input[name=csrfToken]'),
+      'csrf token',
+    )
+
+    const noteEl = document.createElement('input')
+    noteEl.name = 'note'
+    noteEl.value = data.note
+
+    const formEl = document.createElement('form')
+    formEl.method = 'POST'
+    formEl.action = `/admin/programs/${programId}/applications/${applicationId}/updateNote`
+    formEl.appendChild(csrfToken)
+    formEl.appendChild(noteEl)
+
+    alert(`about to submit to ${formEl.action}`)
+    document.body.appendChild(formEl)
+    formEl.submit()
   }
 
   registerApplicationCardEventListeners() {
@@ -118,7 +189,7 @@ interface ApplicationViewMessage {
 }
 
 interface UpdateStatusData {
-  status: string
+  newStatus: string
   sendEmail: string
 }
 
