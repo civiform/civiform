@@ -45,6 +45,7 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
+import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -129,7 +130,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .addModals(downloadModal)
             .addMainStyles(Styles.FLEX)
             .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv, applicationShowDiv);
-
+    Optional<String> maybeSuccessMessage = request.flash().get("success");
+    if (maybeSuccessMessage.isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
+    }
     return layout.renderCentered(htmlBundle);
   }
 
