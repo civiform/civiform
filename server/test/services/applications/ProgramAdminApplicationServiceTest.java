@@ -248,6 +248,52 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void setStatus_tiApplicant_sendsEmail() throws Exception {
+    String userEmail = "user@email.com";
+    String tiEmail = "ti@email.com";
+    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    String programName = "some-program";
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationEventRepository.class),
+            instanceOf(Config.class),
+            simpleEmail);
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram("some-program")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .buildDefinition();
+    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow()
+            .setSubmitterEmail(tiEmail);
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    service.setStatus(application, event, account);
+
+    verify(simpleEmail, times(1))
+        .send(
+            eq(tiEmail),
+            Mockito.contains("An update on the application for program"),
+            Mockito.contains("has changed to " + STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText()));
+    verify(simpleEmail, times(1))
+        .send(
+            eq(userEmail),
+            eq(String.format(service.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programName)),
+            Mockito.contains(
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
+  }
+
+  @Test
   public void setStatus_invalidStatus_throws() throws Exception {
     String userEmail = "user@email.com";
 
