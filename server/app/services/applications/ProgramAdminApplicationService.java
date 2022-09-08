@@ -23,6 +23,7 @@ import services.program.StatusNotFoundException;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
 public final class ProgramAdminApplicationService {
+  static final String STATUS_UPDATE_EMAIL_SUBJECT = "An update on your application";
 
   private final ApplicantService applicantService;
   private final ApplicationRepository applicationRepository;
@@ -99,7 +100,7 @@ public final class ProgramAdminApplicationService {
       if (applicantEmail.isPresent()) {
         Locale locale = applicant.getApplicantData().preferredLocale();
         String emailBody = statusDef.localizedEmailBodyText().get().getOrDefault(locale);
-        emailClient.send(applicantEmail.get(), "An update on your Application", emailBody);
+        emailClient.send(applicantEmail.get(), STATUS_UPDATE_EMAIL_SUBJECT, emailBody);
       }
     }
 
