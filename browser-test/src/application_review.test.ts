@@ -108,7 +108,6 @@ describe('Program admin review of submitted applications', () => {
     await adminQuestions.expectActiveQuestionExist('monthly-income-q')
 
     await adminQuestions.goToViewQuestionPage('date-q')
-    await adminQuestions.expectViewOnlyQuestion('date-q')
 
     await logout(page)
     await loginAsTestUser(page)

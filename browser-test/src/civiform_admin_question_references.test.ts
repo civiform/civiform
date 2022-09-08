@@ -10,7 +10,7 @@ describe('view program references from question view', () => {
     await adminQuestions.addAddressQuestion({questionName})
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
-      expectedProgramReferencesText: 'Used across 0 active & 0 draft programs',
+      expectedProgramReferencesText: 'Used across 0 programs',
     })
   })
 
@@ -32,7 +32,7 @@ describe('view program references from question view', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
-      expectedProgramReferencesText: 'Used across 0 active & 1 draft programs',
+      expectedProgramReferencesText: 'Used across 1 draft programs',
     })
 
     // Publish and add a reference from a new program in the draft version.
