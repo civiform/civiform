@@ -61,6 +61,8 @@ import views.admin.programs.ProgramApplicationView;
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
 
+  private static final String SUCCESS_REDIRECT_URI = "successRedirectUri";
+
   private final ApplicantService applicantService;
   private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationListView applicationListView;
@@ -362,14 +364,17 @@ public final class AdminApplicationController extends CiviFormController {
     Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
     Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
     Optional<String> maybeSuccessRedirectUri =
-        Optional.ofNullable(formData.get("successRedirectUri"));
+        Optional.ofNullable(formData.get(SUCCESS_REDIRECT_URI));
     // TODO(#3263): check that the previous status is the current previous status for
     // consistency.
     if (maybeNewStatus.isEmpty()) {
-      return badRequest("A selected status is not present");
+      return badRequest(String.format("The %s field is not present", NEW_STATUS));
+    }
+    if (maybeSendEmail.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", SEND_EMAIL));
     }
     if (maybeSuccessRedirectUri.isEmpty()) {
-      return badRequest("A redirect URI is not present");
+      return badRequest(String.format("The %s field is not present", SUCCESS_REDIRECT_URI));
     }
     String newStatus = maybeNewStatus.get();
     if (!application.getProgram().getStatusDefinitions().getStatuses().stream()
@@ -377,14 +382,7 @@ public final class AdminApplicationController extends CiviFormController {
         .anyMatch(newStatus::equals)) {
       return badRequest(String.format("New status (%s) is not valid for program", newStatus));
     }
-    final boolean sendEmail;
-    if (maybeSendEmail.isEmpty()) {
-      sendEmail = false;
-    } else if (maybeSendEmail.get().equalsIgnoreCase("on")) {
-      sendEmail = true;
-    } else {
-      return badRequest(String.format("%s value is invalid: %s", SEND_EMAIL, maybeSendEmail.get()));
-    }
+    boolean sendEmail = maybeSendEmail.get().equalsIgnoreCase("on");
 
     programAdminApplicationService.setStatus(
         application,
