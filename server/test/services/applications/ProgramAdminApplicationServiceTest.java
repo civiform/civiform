@@ -1,6 +1,7 @@
 package services.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -28,6 +29,7 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
+import services.program.StatusNotFoundException;
 import support.ProgramBuilder;
 
 public class ProgramAdminApplicationServiceTest extends ResetPostgres {
@@ -228,6 +230,27 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             userEmail,
             service.STATUS_UPDATE_EMAIL_SUBJECT,
             STATUS_WITH_MULTI_LANGUAGE_EMAIL.localizedEmailBodyText().get().get(userLocale));
+  }
+
+  @Test
+  public void setStatus_invalidStatus_throws() throws Exception {
+    String userEmail = "user@email.com";
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram("some-program")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .buildDefinition();
+    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    StatusEvent event =
+        StatusEvent.builder().setEmailSent(true).setStatusText("Not an actual status").build();
+
+    assertThrows(
+        StatusNotFoundException.class, () -> service.setStatus(application, event, account));
   }
 
   @Test
