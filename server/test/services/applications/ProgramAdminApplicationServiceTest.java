@@ -2,6 +2,7 @@ package services.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -167,11 +169,13 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void setStatus_sendsEmail() throws Exception {
     String userEmail = "user@email.com";
     SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    String programName = "some-program";
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
+            instanceOf(Config.class),
             simpleEmail);
 
     ProgramDefinition program =
@@ -194,25 +198,28 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     verify(simpleEmail, times(1))
         .send(
-            userEmail,
-            service.STATUS_UPDATE_EMAIL_SUBJECT,
-            STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault());
+            eq(userEmail),
+            eq(String.format(service.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programName)),
+            Mockito.contains(
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
   }
 
   @Test
   public void setStatus_sendsEmail_nonDefaultLocale() throws Exception {
     Locale userLocale = Locale.FRENCH;
     String userEmail = "user@email.com";
+    String programName = "some-program";
     SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
+            instanceOf(Config.class),
             simpleEmail);
 
     ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program")
+        ProgramBuilder.newActiveProgram(programName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     Account account = resourceCreator.insertAccount();
@@ -234,9 +241,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     verify(simpleEmail, times(1))
         .send(
-            userEmail,
-            service.STATUS_UPDATE_EMAIL_SUBJECT,
-            STATUS_WITH_MULTI_LANGUAGE_EMAIL.localizedEmailBodyText().get().get(userLocale));
+            eq(userEmail),
+            eq(String.format(service.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programName)),
+            Mockito.contains(
+                STATUS_WITH_MULTI_LANGUAGE_EMAIL.localizedEmailBodyText().get().getDefault()));
   }
 
   @Test
@@ -277,6 +285,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
+            instanceOf(Config.class),
             simpleEmail);
 
     ProgramDefinition program =

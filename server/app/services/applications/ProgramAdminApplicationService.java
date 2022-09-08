@@ -3,6 +3,8 @@ package services.applications;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import java.net.URI;
 import java.util.Locale;
 import java.util.Optional;
 import models.Account;
@@ -23,23 +25,36 @@ import services.program.StatusNotFoundException;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
 public final class ProgramAdminApplicationService {
-  static final String STATUS_UPDATE_EMAIL_SUBJECT = "An update on your application";
+  static final String STATUS_UPDATE_EMAIL_SUBJECT_FORMAT = "An update on your application for: %s";
 
   private final ApplicantService applicantService;
   private final ApplicationRepository applicationRepository;
   private final ApplicationEventRepository eventRepository;
   private final SimpleEmail emailClient;
+  private final String baseUrl;
+  private final boolean isStaging;
+  private final String stagingApplicantNotificationMailingList;
+  private final String stagingTiNotificationMailingList;
 
   @Inject
   ProgramAdminApplicationService(
       ApplicantService applicantService,
       ApplicationRepository applicationRepository,
       ApplicationEventRepository eventRepository,
+      Config configuration,
       SimpleEmail emailClient) {
     this.applicantService = applicantService;
     this.applicationRepository = checkNotNull(applicationRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = emailClient;
+
+    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
+    this.stagingApplicantNotificationMailingList =
+        checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
+    this.stagingTiNotificationMailingList =
+        checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
   }
 
   /**
@@ -72,6 +87,7 @@ public final class ProgramAdminApplicationService {
   public void setStatus(Application application, StatusEvent newStatusEvent, Account admin)
       throws StatusNotFoundException {
     Program program = application.getProgram();
+    String programName = program.getProgramDefinition().adminName();
     Applicant applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
     // Phrasing is a little as the service layer is converting between intent and reality.
@@ -95,12 +111,45 @@ public final class ProgramAdminApplicationService {
 
     // Send email if requested and present.
     if (sendEmail && statusDef.localizedEmailBodyText().isPresent()) {
+      // Notify an Admin/TI if they applied.
+      Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
+      if (adminSubmitterEmail.isPresent()) {
+        String tiDashLink =
+            baseUrl
+                + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                        /* nameQuery= */ Optional.empty(),
+                        /* dateQuery= */ Optional.empty(),
+                        /* page= */ Optional.of(1))
+                    .url();
+        String subject =
+            String.format(
+                "An update on the application for program %s on behalf of applicant %d",
+                programName, applicant.id);
+        String body =
+            String.format(
+                "The status for applicant %d on program %s has changed to %s.\n\n"
+                    + "Manage your clients at %s.",
+                applicant.id, programName, newStatusText, tiDashLink);
+
+        emailClient.send(
+            isStaging ? stagingTiNotificationMailingList : adminSubmitterEmail.get(),
+            subject,
+            body);
+      }
+      // Notify the applicant.
       Optional<String> applicantEmail =
           applicantService.getEmail(application.getApplicant().id).toCompletableFuture().join();
       if (applicantEmail.isPresent()) {
+        String civiformLink = baseUrl;
         Locale locale = applicant.getApplicantData().preferredLocale();
-        String emailBody = statusDef.localizedEmailBodyText().get().getOrDefault(locale);
-        emailClient.send(applicantEmail.get(), STATUS_UPDATE_EMAIL_SUBJECT, emailBody);
+        String emailBody =
+            String.format(
+                "%s\n\nLog in to CiviForm at %s.",
+                statusDef.localizedEmailBodyText().get().getOrDefault(locale), civiformLink);
+        emailClient.send(
+            isStaging ? stagingApplicantNotificationMailingList : applicantEmail.get(),
+            String.format(STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programName),
+            emailBody);
       }
     }
 
