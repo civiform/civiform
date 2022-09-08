@@ -52,13 +52,7 @@ class AdminApplications {
       if (ev.origin !== window.location.origin) {
         return
       }
-      alert(`got message from iframe! data: ${JSON.stringify(ev.data)}`)
       const message = ev.data as ApplicationViewMessage
-      alert(
-        `parsed: ${message.messageType} program id: ${this._assertIsNumber(
-          message.programId,
-        )} app id: ${this._assertIsNumber(message.applicationId)}`,
-      )
       switch (message.messageType) {
         case 'UPDATE_STATUS': {
           this.updateStatus({
@@ -115,7 +109,6 @@ class AdminApplications {
     formEl.appendChild(newStatusEl)
     formEl.appendChild(sendEmailEl)
 
-    alert(`about to submit to ${formEl.action}`)
     document.body.appendChild(formEl)
     formEl.submit()
   }
@@ -149,7 +142,6 @@ class AdminApplications {
     formEl.appendChild(noteEl)
     formEl.appendChild(successRedirectUriEl)
 
-    alert(`about to submit to ${formEl.action}`)
     document.body.appendChild(formEl)
     formEl.submit()
   }

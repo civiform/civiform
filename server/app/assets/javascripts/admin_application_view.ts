@@ -48,9 +48,6 @@ class AdminApplicationView {
 
         const newStatusValue = newStatusEl.value
         const sendEmailValue = maybeSendEmailEl ? maybeSendEmailEl.value : ''
-        alert(
-          `status update form submission attempted: new status: ${newStatusValue} send email: ${sendEmailValue}`,
-        )
         window.parent.postMessage(
           {
             messageType: 'UPDATE_STATUS',
@@ -97,9 +94,6 @@ class AdminApplicationView {
       )
 
       const newNoteValue = noteEl.value
-      alert(
-        `edit note form submission attempted: new note: ${newNoteValue} ${ev.target}`,
-      )
       window.parent.postMessage(
         {
           messageType: 'EDIT_NOTE',
