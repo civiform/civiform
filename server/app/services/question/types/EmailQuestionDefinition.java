@@ -2,12 +2,13 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 /** Defines an email question. */
-public class EmailQuestionDefinition extends QuestionDefinition {
+public final class EmailQuestionDefinition extends QuestionDefinition {
 
   public EmailQuestionDefinition(
       String name,
@@ -30,7 +31,8 @@ public class EmailQuestionDefinition extends QuestionDefinition {
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
+      LocalizedStrings questionHelpText,
+      Optional<Instant> lastModifiedTime) {
     super(
         id,
         name,
@@ -38,7 +40,8 @@ public class EmailQuestionDefinition extends QuestionDefinition {
         description,
         questionText,
         questionHelpText,
-        EmailQuestionDefinition.EmailValidationPredicates.create());
+        EmailQuestionDefinition.EmailValidationPredicates.create(),
+        lastModifiedTime);
   }
 
   @AutoValue

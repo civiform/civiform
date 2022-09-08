@@ -31,7 +31,6 @@ describe('normal question lifecycle', () => {
   for (const type of Object.values(QuestionType)) {
     it(`${type} question: create, update, publish, create a new version, and update`, async () => {
       const {page, adminQuestions, adminPrograms} = ctx
-      page.setDefaultTimeout(4000)
 
       await loginAsAdmin(page)
 
@@ -103,7 +102,6 @@ describe('normal question lifecycle', () => {
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -126,7 +124,6 @@ describe('normal question lifecycle', () => {
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -149,7 +146,6 @@ describe('normal question lifecycle', () => {
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -177,7 +173,6 @@ describe('normal question lifecycle', () => {
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -207,7 +202,6 @@ describe('normal question lifecycle', () => {
 
   it('persists export state', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 

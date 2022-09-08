@@ -316,6 +316,7 @@ public final class AdminApplicationController extends CiviFormController {
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
     return ok(
         applicationView.render(
@@ -326,6 +327,7 @@ public final class AdminApplicationController extends CiviFormController {
             blocks,
             answers,
             program.statusDefinitions(),
+            noteMaybe,
             request));
   }
 

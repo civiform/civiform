@@ -195,8 +195,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .map(Program::getProgramDefinition)
             .collect(
                 ImmutableMap.toImmutableMap(
-                    v -> String.format("%d %s", v.id(), v.adminName()),
-                    v -> v.lastModifiedTime().orElseThrow()));
+                    program -> String.format("%d %s", program.id(), program.adminName()),
+                    program -> program.lastModifiedTime().orElseThrow()));
 
     ImmutableList<Question> questions =
         ImmutableList.of(
@@ -209,8 +209,11 @@ public class VersionRepositoryTest extends ResetPostgres {
         questions.stream()
             .collect(
                 ImmutableMap.toImmutableMap(
-                    v -> String.format("%d %s", v.id, v.getQuestionDefinition().getName()),
-                    v -> v.getLastModifiedTime().orElseThrow()));
+                    question ->
+                        String.format(
+                            "%d %s", question.id, question.getQuestionDefinition().getName()),
+                    question ->
+                        question.getQuestionDefinition().getLastModifiedTime().orElseThrow()));
 
     // When persisting models with @WhenModified fields, EBean
     // truncates the persisted timestamp to milliseconds:
@@ -235,8 +238,8 @@ public class VersionRepositoryTest extends ResetPostgres {
                         .getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(
-                    v -> String.format("%d %s", v.id(), v.adminName()),
-                    v -> v.lastModifiedTime().orElseThrow()));
+                    program -> String.format("%d %s", program.id(), program.adminName()),
+                    program -> program.lastModifiedTime().orElseThrow()));
     ImmutableMap<String, Instant> afterQuestionTimestamps =
         questions.stream()
             .map(
@@ -249,8 +252,11 @@ public class VersionRepositoryTest extends ResetPostgres {
                         .orElseThrow())
             .collect(
                 ImmutableMap.toImmutableMap(
-                    v -> String.format("%d %s", v.id, v.getQuestionDefinition().getName()),
-                    v -> v.getLastModifiedTime().orElseThrow()));
+                    question ->
+                        String.format(
+                            "%d %s", question.id, question.getQuestionDefinition().getName()),
+                    question ->
+                        question.getQuestionDefinition().getLastModifiedTime().orElseThrow()));
 
     assertThat(beforeProgramTimestamps).isEqualTo(afterProgramTimestamps);
     assertThat(beforeQuestionTimestamps).isEqualTo(afterQuestionTimestamps);

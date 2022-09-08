@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import models.Program;
 import models.Question;
 import models.Version;
@@ -29,6 +30,9 @@ import services.question.types.QuestionDefinition;
  */
 public final class ActiveAndDraftQuestions {
 
+  private final ImmutableList<QuestionDefinition> activeQuestions;
+  private final ImmutableList<QuestionDefinition> draftQuestions;
+  ;
   private final ImmutableMap<
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
@@ -51,23 +55,27 @@ public final class ActiveAndDraftQuestions {
   }
 
   private ActiveAndDraftQuestions(Version active, Version draft, Version withDraftEdits) {
-    ImmutableMap<String, QuestionDefinition> activeNames =
+    ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
         active.getQuestions().stream()
             .map(Question::getQuestionDefinition)
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
-    ImmutableMap<String, QuestionDefinition> draftNames =
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
+    this.activeQuestions = activeNameToQuestion.values().asList();
+
+    ImmutableMap<String, QuestionDefinition> draftNameToQuestion =
         draft.getQuestions().stream()
             .map(Question::getQuestionDefinition)
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
+    this.draftQuestions = draftNameToQuestion.values().asList();
+
     versionedByName =
-        Sets.union(activeNames.keySet(), draftNames.keySet()).stream()
+        Sets.union(activeNameToQuestion.keySet(), draftNameToQuestion.keySet()).stream()
             .collect(
                 ImmutableMap.toImmutableMap(
-                    name -> name,
+                    Function.identity(),
                     name -> {
                       return Pair.create(
-                          Optional.ofNullable(activeNames.get(name)),
-                          Optional.ofNullable(draftNames.get(name)));
+                          Optional.ofNullable(activeNameToQuestion.get(name)),
+                          Optional.ofNullable(draftNameToQuestion.get(name)));
                     }));
 
     draftVersionHasAnyEdits = draft.hasAnyChanges();
@@ -130,8 +138,16 @@ public final class ActiveAndDraftQuestions {
             ImmutableMap.toImmutableMap(Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
   }
 
+  public ImmutableList<QuestionDefinition> getActiveQuestions() {
+    return activeQuestions;
+  }
+
+  public ImmutableList<QuestionDefinition> getDraftQuestions() {
+    return draftQuestions;
+  }
+
   public DeletionStatus getDeletionStatus(String questionName) {
-    return this.deletionStatusByName.getOrDefault(questionName, DeletionStatus.NOT_ACTIVE);
+    return deletionStatusByName.getOrDefault(questionName, DeletionStatus.NOT_ACTIVE);
   }
 
   public ImmutableSet<String> getQuestionNames() {

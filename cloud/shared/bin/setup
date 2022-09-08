@@ -12,4 +12,4 @@ export TF_VAR_image_tag="${IMAGE_TAG}"
 
 # In order to properly run this first source your config file
 # then run ./cloud/shared/bin/setup from the civiform repo
-exec cloud/shared/bin/lib/setup.py
+exec cloud/shared/bin/run.py --tag="${IMAGE_TAG}" --command="setup"

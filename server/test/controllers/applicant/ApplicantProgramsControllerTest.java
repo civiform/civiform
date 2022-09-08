@@ -131,7 +131,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Obtener beneficios");
+    assertThat(contentAsString(result)).contains("Obtén beneficios");
   }
 
   @Test
