@@ -81,11 +81,15 @@ class AdminApplications {
     const sendEmailEl = document.createElement('input')
     sendEmailEl.name = 'sendEmail'
     sendEmailEl.value = data.sendEmail
+    const successRedirectUriEl = document.createElement('input')
+    successRedirectUriEl.name = 'successRedirectUri'
+    successRedirectUriEl.value = `${window.location.pathname}${window.location.search}`
 
     const formEl = document.createElement('form')
     formEl.method = 'POST'
     formEl.action = `/admin/programs/${programId}/applications/${applicationId}/updateStatus`
     formEl.appendChild(csrfToken)
+    formEl.appendChild(successRedirectUriEl)
     formEl.appendChild(newStatusEl)
     formEl.appendChild(sendEmailEl)
 
@@ -108,6 +112,9 @@ class AdminApplications {
       document.querySelector('input[name=csrfToken]'),
       'csrf token',
     )
+    const successRedirectUriEl = document.createElement('input')
+    successRedirectUriEl.name = 'successRedirectUri'
+    successRedirectUriEl.value = `${window.location.pathname}${window.location.search}`
 
     const noteEl = document.createElement('input')
     noteEl.name = 'note'
@@ -118,6 +125,7 @@ class AdminApplications {
     formEl.action = `/admin/programs/${programId}/applications/${applicationId}/updateNote`
     formEl.appendChild(csrfToken)
     formEl.appendChild(noteEl)
+    formEl.appendChild(successRedirectUriEl)
 
     alert(`about to submit to ${formEl.action}`)
     document.body.appendChild(formEl)
