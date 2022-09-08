@@ -3,27 +3,42 @@ package services.applications;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
+import java.util.Locale;
 import java.util.Optional;
 import models.Account;
+import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
+import models.Program;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions.Status;
+import services.program.StatusNotFoundException;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
 public final class ProgramAdminApplicationService {
+
+  private final ApplicantService applicantService;
   private final ApplicationRepository applicationRepository;
   private final ApplicationEventRepository eventRepository;
+  private final SimpleEmail emailClient;
 
   @Inject
   ProgramAdminApplicationService(
-      ApplicationRepository applicationRepository, ApplicationEventRepository eventRepository) {
+      ApplicantService applicantService,
+      ApplicationRepository applicationRepository,
+      ApplicationEventRepository eventRepository,
+      SimpleEmail emailClient) {
+    this.applicantService = applicantService;
     this.applicationRepository = checkNotNull(applicationRepository);
     this.eventRepository = checkNotNull(eventRepository);
+    this.emailClient = emailClient;
   }
 
   /**
@@ -53,13 +68,41 @@ public final class ProgramAdminApplicationService {
    *
    * @param admin The Account that instigated the change.
    */
-  public void setStatus(Application application, StatusEvent newStatus, Account admin) {
+  public void setStatus(Application application, StatusEvent newStatusEvent, Account admin)
+      throws StatusNotFoundException {
+    Program program = application.getProgram();
+    Applicant applicant = application.getApplicant();
+    String newStatusText = newStatusEvent.statusText();
+    // Phrasing is a little as the service layer is converting between intent and reality.
+    boolean sendEmail = newStatusEvent.emailSent();
+
+    Optional<Status> statusDefMaybe =
+        program.getStatusDefinitions().getStatuses().stream()
+            .filter(s -> s.statusText().equals(newStatusText))
+            .findFirst();
+    if (statusDefMaybe.isEmpty()) {
+      throw new StatusNotFoundException(newStatusText, program.id);
+    }
+    Status statusDef = statusDefMaybe.get();
+
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(newStatus)
+            .setStatusEvent(newStatusEvent)
             .build();
     ApplicationEvent event = new ApplicationEvent(application, admin, details);
+
+    // Send email if requested and present.
+    if (sendEmail && statusDef.localizedEmailBodyText().isPresent()) {
+      Optional<String> applicantEmail =
+          applicantService.getEmail(application.getApplicant().id).toCompletableFuture().join();
+      if (applicantEmail.isPresent()) {
+        Locale locale = applicant.getApplicantData().preferredLocale();
+        String emailBody = statusDef.localizedEmailBodyText().get().getOrDefault(locale);
+        emailClient.send(applicantEmail.get(), "An update on your Application", emailBody);
+      }
+    }
+
     eventRepository.insertSync(event);
   }
 
