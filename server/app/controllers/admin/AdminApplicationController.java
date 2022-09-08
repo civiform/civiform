@@ -15,6 +15,7 @@ import controllers.BadRequestException;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
 import java.io.IOException;
+import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -392,9 +393,12 @@ public final class AdminApplicationController extends CiviFormController {
             .setEmailSent(sendEmail)
             .build(),
         profileUtils.currentUserProfile(request).get().getAccount().join());
-    // TODO(clouser): Confirm that the redirect is for the correct origin.
-    return redirect(maybeSuccessRedirectUri.orElse(""))
-        .flashing("success", "Application status updated");
+    String redirectUrl = maybeSuccessRedirectUri.orElse("");
+    if (!redirectUrl.isBlank() && URI.create(redirectUrl).isAbsolute()) {
+      // Only allow relative URLs to ensure that we redirect to the same domain.
+      throw new RuntimeException("Invalid absolute redirect URL. Only relative URLs are allowed.");
+    }
+    return redirect(redirectUrl).flashing("success", "Application status updated");
   }
 
   /**
@@ -440,9 +444,12 @@ public final class AdminApplicationController extends CiviFormController {
         ApplicationEventDetails.NoteEvent.create(note),
         profileUtils.currentUserProfile(request).get().getAccount().join());
 
-    // TODO(clouser): Confirm that the redirect is for the correct origin.
-    return redirect(maybeSuccessRedirectUri.orElse(""))
-        .flashing("success", "Application note updated");
+    String redirectUrl = maybeSuccessRedirectUri.orElse("");
+    if (!redirectUrl.isBlank() && URI.create(redirectUrl).isAbsolute()) {
+      // Only allow relative URLs to ensure that we redirect to the same domain.
+      throw new RuntimeException("Invalid absolute redirect URL. Only relative URLs are allowed.");
+    }
+    return redirect(redirectUrl).flashing("success", "Application note updated");
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
