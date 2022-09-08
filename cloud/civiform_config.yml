@@ -1,0 +1,48 @@
+# Configuration values for cloud provider and template.
+cloud:
+  - version: v1.0.0
+  - civiform_cloud_provider: aws
+  - terraform_template_dir: cloud/aws/templates/aws_oidc
+
+# Configuration values for runtime.
+runtime:
+  - app_prefix: staging-aws
+  - civiform_mode: test
+  - ssl_certificate_arn: "arn:aws:acm:us-east-1:664198874744:certificate/1f04bb7f-aab7-444a-8fea-398a3ec34e39"
+  - fargate_desired_task_count: 1 
+  - custom_hostname: "staging-aws.civiform.dev" 
+
+# All values from this list will be passed to civiform image as an env variable with the same name.
+# You can add any value from https://github.com/civiform/civiform/blob/main/server/conf/application.conf here to be passed verbatim.
+# Lowercase variables only.
+civiform_env:
+  - civic_entity_short_name: "civiteam"
+  - civic_entity_full_name: "team of civiform"
+  - civic_entity_support_email_address: "civiform-azure-staging-email@googlegroups.com" 
+  - civic_entity_logo_with_name_url: "https://raw.githubusercontent.com/civiform/staging-aws-deploy/main/logos/civiform-staging-long.png" 
+  - civic_entity_small_logo_url: "https://raw.githubusercontent.com/civiform/staging-aws-deploy/main/logos/civiform-staging.png"  
+  - favicon_url: "" 
+  - sender_email_address: "civiform-azure-staging-email@googlegroups.com"
+  - base_url: "https://staging-aws.civiform.dev"
+  - civiform_time_zone_id: "america/los_angeles"
+  - adfs_discovery_uri: "https://civiform-staging.us.auth0.com/.well-known/openid-configuration"  
+  - civiform_applicant_auth_protocol: "oidc"
+  - civiform_applicant_idp: "generic-oidc"  
+  - applicant_oidc_provider_name: "oidcclient"  
+  - applicant_oidc_discovery_uri: "https://civiform-staging.us.auth0.com/.well-known/openid-configuration"
+  - applicant_oidc_response_mode: "form_post"
+  - applicant_oidc_response_type: "id_token token"  
+  - applicant_oidc_additional_scopes: ""  
+  - applicant_oidc_locale_attribute: "" 
+  - applicant_oidc_email_attribute: "email" 
+  - applicant_oidc_first_name_attribute: ""
+  - applicant_oidc_middle_name_attribute: ""
+  - applicant_oidc_last_name_attribute: ""
+  - feature_flag_status_tracking_enabled: true
+
+# These values will not be set if civiform mode is 'prod'.
+staging_env_only:
+  - staging_hostname: "staging-aws.civiform.dev" 
+  - staging_program_admin_notification_mailing_list: "civiform-azure-staging-email@googlegroups.com"  
+  - staging_ti_notification_mailing_list: "civiform-azure-staging-email@googlegroups.com" 
+  - staging_applicant_notification_mailing_list: "civiform-azure-staging-email@googlegroups.com"  
