@@ -10,7 +10,6 @@ describe('program creation', () => {
   const ctx = createTestContext()
   it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -74,7 +73,6 @@ describe('program creation', () => {
 
   it('change questions order within block', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
