@@ -31,7 +31,7 @@ module "app" {
 
   application_name = var.application_name
 
-  ses_sender_email = var.sender_email_address
+  sender_email_address = var.sender_email_address
 
   staging_program_admin_notification_mailing_list = var.staging_program_admin_notification_mailing_list
   staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list

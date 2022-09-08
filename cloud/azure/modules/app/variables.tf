@@ -158,7 +158,7 @@ variable "log_retention" {
   default     = 30
 }
 
-variable "ses_sender_email" {
+variable "sender_email_address" {
   type        = string
   description = "Email address of who is sending the email, passed to the app"
 }
