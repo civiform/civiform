@@ -1,7 +1,13 @@
 package services.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import models.Account;
@@ -10,12 +16,53 @@ import models.Application;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import repository.ApplicationEventRepository;
+import repository.ApplicationRepository;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
+import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails.NoteEvent;
+import services.application.ApplicationEventDetails.StatusEvent;
+import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import support.ProgramBuilder;
 
 public class ProgramAdminApplicationServiceTest extends ResetPostgres {
+  private static final StatusDefinitions.Status STATUS_WITH_ONLY_ENGLISH_EMAIL =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Approved")
+          .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.withDefaultValue("Approved email body")))
+          .build();
+
+  private static final StatusDefinitions.Status STATUS_WITH_NO_EMAIL =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Rejected")
+          .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Rejected"))
+          .build();
+
+  private static final StatusDefinitions.Status STATUS_WITH_MULTI_LANGUAGE_EMAIL =
+      StatusDefinitions.Status.builder()
+          .setStatusText("With translations")
+          .setLocalizedStatusText(
+              LocalizedStrings.create(
+                  ImmutableMap.of(
+                      Locale.US, "With translations",
+                      Locale.FRENCH, "With translations (French)")))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.create(
+                      ImmutableMap.of(
+                          Locale.US, "A translatable email body",
+                          Locale.FRENCH, "A translatable email body (French)"))))
+          .build();
+
+  private static final ImmutableList<StatusDefinitions.Status> ORIGINAL_STATUSES =
+      ImmutableList.of(
+          STATUS_WITH_ONLY_ENGLISH_EMAIL, STATUS_WITH_NO_EMAIL, STATUS_WITH_MULTI_LANGUAGE_EMAIL);
   private ProgramAdminApplicationService service;
 
   @Before
@@ -104,5 +151,36 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     // Execute, verify.
     assertThat(service.getNote(application)).contains(note);
+  }
+
+  @Test
+  public void setStatus_sentEmailFalse_doesNotSendEmail() throws Exception {
+    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationEventRepository.class),
+            simpleEmail);
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram("some-program")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .buildDefinition();
+    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(false)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    service.setStatus(application, event, account);
+
+    verify(simpleEmail, never()).send(anyString(), anyString(), anyString());
   }
 }
