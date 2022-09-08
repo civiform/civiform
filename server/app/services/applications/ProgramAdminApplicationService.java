@@ -77,4 +77,13 @@ public final class ProgramAdminApplicationService {
     ApplicationEvent event = new ApplicationEvent(application, admin, details);
     eventRepository.insertSync(event);
   }
+
+  /** Returns the note content for {@code application}. */
+  public Optional<String> getNote(Application application) {
+    // The most recent note event is the current value for the note.
+    return application.getApplicationEvents().stream()
+        .filter(app -> app.getEventType().equals(ApplicationEventDetails.Type.NOTE_CHANGE))
+        .findFirst()
+        .map(app -> app.getDetails().noteEvent().get().note());
+  }
 }

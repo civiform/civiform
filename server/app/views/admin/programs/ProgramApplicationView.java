@@ -79,6 +79,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers,
       StatusDefinitions statusDefinitions,
+      Optional<String> noteMaybe,
       Http.Request request) {
     String title = "Program Application View";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
@@ -103,7 +104,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         status,
                         request))
             .collect(ImmutableList.toImmutableList());
-    Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, request);
+    Modal updateNoteModal =
+        renderUpdateNoteConfirmationModal(programId, application, noteMaybe, request);
 
     DivTag contentDiv =
         div()
@@ -268,7 +270,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private Modal renderUpdateNoteConfirmationModal(
-      long programId, Application application, Http.Request request) {
+      long programId, Application application, Optional<String> noteMaybe, Http.Request request) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     String formId = Modal.randomModalId();
@@ -284,6 +286,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(makeCsrfTokenInputTag(request));
     modalContent.with(
         FieldWithLabel.textArea()
+            .setValue(noteMaybe)
             .setFormId(formId)
             .setFieldName(NOTE)
             .setRows(OptionalLong.of(8))
