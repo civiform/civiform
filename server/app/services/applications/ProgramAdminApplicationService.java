@@ -90,7 +90,8 @@ public final class ProgramAdminApplicationService {
     String programName = program.getProgramDefinition().adminName();
     Applicant applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
-    // Phrasing is a little as the service layer is converting between intent and reality.
+    // The send/sent phrasing is a little weird as the service layer is converting between intent
+    // and reality.
     boolean sendEmail = newStatusEvent.emailSent();
 
     Optional<Status> statusDefMaybe =
