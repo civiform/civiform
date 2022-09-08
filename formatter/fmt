@@ -38,12 +38,12 @@ else
 fi
 
 echo 'Start formatting with prettier'
-#npx prettier \
-#  --write \
-#  --config .prettierrc.js \
-#  --ignore-path .prettierignore \
-#  --ignore-unknown \
-#  .
+npx prettier \
+  --write \
+  --config .prettierrc.js \
+  --ignore-path .prettierignore \
+  --ignore-unknown \
+  .
 echo 'Done formatting with prettier'
 
 echo 'Start formatting with eslint'
