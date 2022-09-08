@@ -46,14 +46,13 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
       ImmutableSet.of(
           ApiKeyNotFoundException.class,
-        ApplicantNotFoundException.class,
-        BadRequestException.class,
+          ApplicantNotFoundException.class,
+          BadRequestException.class,
           BadApiRequestException.class,
-        InvalidQuestionPositionException.class,
-        NotChangeableException.class,
+          InvalidQuestionPositionException.class,
+          NotChangeableException.class,
           ProgramNotFoundException.class,
-        StatusNotFoundException.class
-      );
+          StatusNotFoundException.class);
 
   private static final ImmutableSet<Class<? extends Exception>>
       UNAUTHORIZED_REQUEST_EXCEPTION_TYPES = ImmutableSet.of(UnauthorizedApiRequestException.class);
