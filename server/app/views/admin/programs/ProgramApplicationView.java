@@ -23,6 +23,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -360,29 +361,37 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantNameWithApplicationId,
       Application application,
       StatusDefinitions.Status status) {
+    InputTag sendEmailInput =
+        input()
+            .withType("checkbox")
+            .isChecked()
+            .withName(SEND_EMAIL)
+            .withClasses(BaseStyles.CHECKBOX);
     Optional<String> maybeApplicantEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
     if (!status.localizedEmailBodyText().isPresent()) {
-      return p().with(
-              span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
-              span(
-                  " will not receive an email because there is no email content set for this"
-                      + " status. Connect with your CiviForm Admin to add an email to this"
-                      + " status."));
+      return div()
+          .with(
+              sendEmailInput.isHidden(),
+              p().with(
+                      span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+                      span(
+                          " will not receive an email because there is no email content set for"
+                              + " this status. Connect with your CiviForm Admin to add an email to"
+                              + " this status.")));
     } else if (maybeApplicantEmail.isEmpty()) {
-      return p().with(
-              span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
-              span(
-                  " will not receive an email for this change since they have not provided an"
-                      + " email address."));
+      return div()
+          .with(
+              sendEmailInput.isHidden(),
+              p().with(
+                      span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+                      span(
+                          " will not receive an email for this change since they have not provided"
+                              + " an email address.")));
     }
     return label()
         .with(
-            input()
-                .withType("checkbox")
-                .isChecked()
-                .withName(SEND_EMAIL)
-                .withClasses(BaseStyles.CHECKBOX),
+            sendEmailInput,
             span("Notify "),
             span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
             span(" of this change at "),

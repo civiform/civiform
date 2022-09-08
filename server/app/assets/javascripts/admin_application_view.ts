@@ -23,39 +23,24 @@ class AdminApplicationView {
     for (const statusUpdateForm of statusUpdateForms) {
       statusUpdateForm.addEventListener('submit', (ev) => {
         ev.preventDefault()
-        const formEl = this._assertNotNull(ev.target as Element, 'form element')
-        const programId = parseInt(
-          this._assertNotNull(
-            formEl.querySelector('[name=programId]') as HTMLInputElement,
-            'program id',
-          ).value,
-          10,
+        const formEl = this._assertNotNull(
+          ev.target as HTMLFormElement,
+          'form element',
         )
-        const applicationId = parseInt(
-          this._assertNotNull(
-            formEl.querySelector('[name=applicationId]') as HTMLInputElement,
-            'application id',
-          ).value,
-          10,
-        )
-        const newStatusEl = this._assertNotNull(
-          formEl.querySelector('[name=newStatus]') as HTMLInputElement,
-          'new status input',
-        )
-        const maybeSendEmailEl = formEl.querySelector(
-          '[name=sendEmail]',
-        ) as HTMLInputElement | null
-
-        const newStatusValue = newStatusEl.value
-        const sendEmailValue = maybeSendEmailEl ? maybeSendEmailEl.value : ''
         window.parent.postMessage(
           {
             messageType: 'UPDATE_STATUS',
-            programId,
-            applicationId,
+            programId: parseInt(
+              this.extractInputValueFromForm(formEl, 'programId'),
+              10,
+            ),
+            applicationId: parseInt(
+              this.extractInputValueFromForm(formEl, 'applicationId'),
+              10,
+            ),
             data: {
-              newStatus: newStatusValue,
-              sendEmail: sendEmailValue,
+              newStatus: this.extractInputValueFromForm(formEl, 'newStatus'),
+              sendEmail: this.extractInputValueFromForm(formEl, 'sendEmail'),
             },
           },
           window.location.origin,
@@ -73,39 +58,38 @@ class AdminApplicationView {
     }
     editNoteForm.addEventListener('submit', (ev) => {
       ev.preventDefault()
-      const formEl = this._assertNotNull(ev.target as Element, 'form element')
-      const programId = parseInt(
-        this._assertNotNull(
-          formEl.querySelector('[name=programId]') as HTMLInputElement,
-          'program id',
-        ).value,
-        10,
+      const formEl = this._assertNotNull(
+        ev.target as HTMLFormElement,
+        'form element',
       )
-      const applicationId = parseInt(
-        this._assertNotNull(
-          formEl.querySelector('[name=applicationId]') as HTMLInputElement,
-          'application id',
-        ).value,
-        10,
-      )
-      const noteEl = this._assertNotNull(
-        formEl.querySelector('[name=note]') as HTMLInputElement,
-        'new status input',
-      )
-
-      const newNoteValue = noteEl.value
       window.parent.postMessage(
         {
           messageType: 'EDIT_NOTE',
-          programId,
-          applicationId,
+          programId: parseInt(
+            this.extractInputValueFromForm(formEl, 'programId'),
+            10,
+          ),
+          applicationId: parseInt(
+            this.extractInputValueFromForm(formEl, 'applicationId'),
+            10,
+          ),
           data: {
-            note: newNoteValue,
+            note: this.extractInputValueFromForm(formEl, 'note'),
           },
         },
         window.location.origin,
       )
     })
+  }
+
+  private extractInputValueFromForm(
+    formEl: HTMLFormElement,
+    inputName: string,
+  ): string {
+    return this._assertNotNull(
+      formEl.querySelector(`[name=${inputName}]`) as HTMLInputElement,
+      inputName,
+    ).value
   }
 
   private registerStatusSelectorEventListener() {
