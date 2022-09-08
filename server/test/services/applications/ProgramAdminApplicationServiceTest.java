@@ -3,6 +3,7 @@ package services.applications;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableList;
@@ -154,6 +155,82 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void setStatus_sendsEmail() throws Exception {
+    String userEmail = "user@email.com";
+    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationEventRepository.class),
+            simpleEmail);
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram("some-program")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .buildDefinition();
+    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    service.setStatus(application, event, account);
+
+    verify(simpleEmail, times(1))
+        .send(
+            userEmail,
+            service.STATUS_UPDATE_EMAIL_SUBJECT,
+            STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault());
+  }
+
+  @Test
+  public void setStatus_sendsEmail_nonDefaultLocale() throws Exception {
+    Locale userLocale = Locale.FRENCH;
+    String userEmail = "user@email.com";
+    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationEventRepository.class),
+            simpleEmail);
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram("some-program")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .buildDefinition();
+    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    // Set the user to French.
+    applicant.getApplicantData().setPreferredLocale(userLocale);
+    applicant.save();
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_MULTI_LANGUAGE_EMAIL.statusText())
+            .build();
+
+    service.setStatus(application, event, account);
+
+    verify(simpleEmail, times(1))
+        .send(
+            userEmail,
+            service.STATUS_UPDATE_EMAIL_SUBJECT,
+            STATUS_WITH_MULTI_LANGUAGE_EMAIL.localizedEmailBodyText().get().get(userLocale));
+  }
+
+  @Test
   public void setStatus_sentEmailFalse_doesNotSendEmail() throws Exception {
     SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
     service =
@@ -168,7 +245,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     Account account = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of("user@email.com"));
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -177,6 +254,69 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         StatusEvent.builder()
             .setEmailSent(false)
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    service.setStatus(application, event, account);
+
+    verify(simpleEmail, never()).send(anyString(), anyString(), anyString());
+  }
+
+  @Test
+  public void setStatus_noUserEmail_doesNotSendEmail() throws Exception {
+    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationEventRepository.class),
+            simpleEmail);
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram("some-program")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .buildDefinition();
+    Account account = resourceCreator.insertAccount();
+    // Applicant has no email.
+    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.empty());
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    service.setStatus(application, event, account);
+
+    verify(simpleEmail, never()).send(anyString(), anyString(), anyString());
+  }
+
+  @Test
+  public void setStatus_noEmailContent_doesNotSendEmail() throws Exception {
+    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationEventRepository.class),
+            simpleEmail);
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram("some-program")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .buildDefinition();
+    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of("user@email.com"));
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
             .build();
 
     service.setStatus(application, event, account);
