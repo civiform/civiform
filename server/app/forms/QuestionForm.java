@@ -2,7 +2,6 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -10,6 +9,7 @@ import models.Question;
 import models.QuestionTag;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
+import services.UrlUtils;
 import services.export.ExporterService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -109,11 +109,8 @@ public abstract class QuestionForm {
     if (redirectUrl == null) {
       return "";
     }
-    if (!redirectUrl.isBlank() && URI.create(redirectUrl).isAbsolute()) {
-      // Only allow relative URLs to ensure that we redirect to the same domain.
-      throw new RuntimeException("Invalid absolute redirect URL. Only relative URLs are allowed.");
-    }
-    return redirectUrl;
+    // Only allow relative URLs to ensure that we redirect to the same domain.
+    return UrlUtils.ensureRelativeUrlOrThrow(redirectUrl);
   }
 
   public final void setRedirectUrl(String redirectUrl) {

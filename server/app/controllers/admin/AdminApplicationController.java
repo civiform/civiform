@@ -15,7 +15,6 @@ import controllers.BadRequestException;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
 import java.io.IOException;
-import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -38,6 +37,7 @@ import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.UrlUtils;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -391,11 +391,8 @@ public final class AdminApplicationController extends CiviFormController {
             .setEmailSent(sendEmail)
             .build(),
         profileUtils.currentUserProfile(request).get().getAccount().join());
-    String redirectUrl = maybeSuccessRedirectUri.orElse("");
-    if (!redirectUrl.isBlank() && URI.create(redirectUrl).isAbsolute()) {
-      // Only allow relative URLs to ensure that we redirect to the same domain.
-      throw new RuntimeException("Invalid absolute redirect URL. Only relative URLs are allowed.");
-    }
+    // Only allow relative URLs to ensure that we redirect to the same domain.
+    String redirectUrl = UrlUtils.ensureRelativeUrlOrThrow(maybeSuccessRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application status updated");
   }
 
@@ -442,11 +439,8 @@ public final class AdminApplicationController extends CiviFormController {
         ApplicationEventDetails.NoteEvent.create(note),
         profileUtils.currentUserProfile(request).get().getAccount().join());
 
-    String redirectUrl = maybeSuccessRedirectUri.orElse("");
-    if (!redirectUrl.isBlank() && URI.create(redirectUrl).isAbsolute()) {
-      // Only allow relative URLs to ensure that we redirect to the same domain.
-      throw new RuntimeException("Invalid absolute redirect URL. Only relative URLs are allowed.");
-    }
+    // Only allow relative URLs to ensure that we redirect to the same domain.
+    String redirectUrl = UrlUtils.ensureRelativeUrlOrThrow(maybeSuccessRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application note updated");
   }
 

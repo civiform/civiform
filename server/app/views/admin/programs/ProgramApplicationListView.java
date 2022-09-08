@@ -33,6 +33,7 @@ import repository.SubmittedApplicationFilter;
 import services.DateConverter;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.UrlUtils;
 import services.program.ProgramDefinition;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
@@ -122,9 +123,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .with(
                 iframe()
                     .withName("application-display-frame")
-                    // TODO(clouser): Relative URL validation.
                     .withCondSrc(
-                        selectedApplicationUrl.isPresent(), selectedApplicationUrl.orElse(""))
+                        selectedApplicationUrl.isPresent(),
+                        // Only allow relative URLs to ensure that we redirect to the same domain.
+                        UrlUtils.ensureRelativeUrlOrThrow(selectedApplicationUrl.orElse("")))
                     .withClasses(Styles.W_FULL, Styles.H_FULL));
 
     HtmlBundle htmlBundle =
