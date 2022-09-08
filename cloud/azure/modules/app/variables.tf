@@ -44,20 +44,6 @@ variable "favicon_url" {
   description = "Browser Favicon (16x16 or 32x32 pixels, .ico, .png, or .gif) used on all pages"
   default     = "https://civiform.us/favicon.png"
 }
-
-
-variable "docker_username" {
-  type        = string
-  description = "Docker username"
-  default     = "civiform"
-}
-
-variable "docker_repository_name" {
-  type        = string
-  description = "Name of container image"
-  default     = "civiform"
-}
-
 variable "image_tag" {
   type        = string
   description = "Tag for container image"
