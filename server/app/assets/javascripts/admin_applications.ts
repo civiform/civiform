@@ -23,14 +23,6 @@ class AdminApplications {
 
     this.registerApplicationCardEventListeners()
     this.registerApplicationViewPostMessageListener()
-
-    const selectedAppUrl =
-      new URL(window.location.toString()).searchParams.get(
-        'selectedApplication',
-      ) || ''
-    if (selectedAppUrl) {
-      this.displayApplication(selectedAppUrl)
-    }
   }
 
   private static extractSelectedApplicationUrl(): URL | null {
@@ -187,16 +179,8 @@ class AdminApplications {
     url.searchParams.set('selectedApplication', applicationUrlPath)
     window.history.pushState({}, '', url.toString())
 
-    this.displayApplication(applicationUrlPath)
-  }
-
-  displayApplication(applicationUrlPath: string) {
-    const applicationUrl = new URL(applicationUrlPath, window.location.origin)
-    if (applicationUrl.origin !== window.location.origin) {
-      throw new Error(`Invalid application origin: ${applicationUrl.origin}`)
-    }
     // Set iframe to display selected application.
-    this.displayFrame.setAttribute('src', applicationUrl.toString())
+    this.displayFrame.setAttribute('src', applicationUrlPath)
   }
 
   _assertNotNull<T>(value: T | null | undefined, description: string): T {

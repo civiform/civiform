@@ -80,7 +80,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
-      RenderFilterParams filterParams) {
+      RenderFilterParams filterParams,
+      Optional<String> selectedApplicationUrl) {
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     DivTag applicationListDiv =
@@ -97,7 +98,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 Optional.of(pageNumber),
                                 filterParams.fromDate(),
                                 filterParams.untilDate(),
-                                filterParams.selectedApplicationStatus()))
+                                filterParams.selectedApplicationStatus(),
+                                /* selectedApplication= */ Optional.empty()))
                     .withClasses(Styles.MB_2),
                 br(),
                 renderSearchForm(
@@ -120,6 +122,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .with(
                 iframe()
                     .withName("application-display-frame")
+                    // TODO(clouser): Relative URL validation.
+                    .withCondSrc(
+                        selectedApplicationUrl.isPresent(), selectedApplicationUrl.orElse(""))
                     .withClasses(Styles.W_FULL, Styles.H_FULL));
 
     HtmlBundle htmlBundle =
@@ -152,7 +157,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     /* page= */ Optional.empty(),
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),
-                    /* applicationStatus= */ Optional.empty())
+                    /* applicationStatus= */ Optional.empty(),
+                    /* selectedApplication=*/ Optional.empty())
                 .url())
         .with(
             fieldset()

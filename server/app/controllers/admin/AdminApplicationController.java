@@ -459,12 +459,19 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<Integer> page,
       Optional<String> fromDate,
       Optional<String> untilDate,
-      Optional<String> applicationStatus)
+      Optional<String> applicationStatus,
+      Optional<String> selectedApplication)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(
           routes.AdminApplicationController.index(
-              programId, search, Optional.of(1), fromDate, untilDate, applicationStatus));
+              programId,
+              search,
+              Optional.of(1),
+              fromDate,
+              untilDate,
+              applicationStatus,
+              selectedApplication));
     }
 
     SubmittedApplicationFilter filters =
@@ -503,7 +510,8 @@ public final class AdminApplicationController extends CiviFormController {
                 .setFromDate(fromDate)
                 .setUntilDate(untilDate)
                 .setSelectedApplicationStatus(applicationStatus)
-                .build()));
+                .build(),
+            selectedApplication));
   }
 
   private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
