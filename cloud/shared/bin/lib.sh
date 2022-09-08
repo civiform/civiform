@@ -11,7 +11,6 @@ if [[ "${SOURCED_CLOUD_LIB}" != "true" ]]; then
   readonly CLOUD_LIB_DIR="${BASH_SOURCE%/*}/lib"
   source "bin/lib/out.sh"
   source "${CLOUD_LIB_DIR}/health.sh"
-  source "${CLOUD_LIB_DIR}/log.sh"
   source "${CLOUD_LIB_DIR}/terraform.sh"
   source "${CLOUD_LIB_DIR}/civiform_mode.sh"
 

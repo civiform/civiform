@@ -18,7 +18,6 @@ and post_terraform_setup.
 class Setup(SetupTemplate):
     resource_group = None
     key_vault_name = None
-    log_file_path = None
 
     def requires_post_terraform_setup(self):
         return True
@@ -48,12 +47,6 @@ class Setup(SetupTemplate):
             raise RuntimeError("Could not find the logged in user")
         return current_user
 
-    def setup_log_file(self):
-        self._setup_resource_group()
-        _, self.log_file_path = tempfile.mkstemp()
-        subprocess.run(
-            ["cloud/azure/bin/init-azure-log", self.log_file_path], check=True)
-
     def post_terraform_setup(self):
         self._get_adfs_user_inputs()
         self._configure_slot_settings()
@@ -61,16 +54,11 @@ class Setup(SetupTemplate):
         terraform.perform_apply(self.config_loader)
 
     def cleanup(self):
-        self._upload_log_file()
         subprocess.run(
             ["/bin/bash", "-c", "rm -f $HOME/.ssh/bastion*"], check=True)
 
     def _configure_slot_settings(self):
         subprocess.run(["cloud/azure/bin/configure-slot-settings"], check=True)
-
-    def _upload_log_file(self):
-        subprocess.run(
-            ["cloud/azure/bin/upload-log-file", self.log_file_path], check=True)
 
     def _get_adfs_user_inputs(self):
         print(
