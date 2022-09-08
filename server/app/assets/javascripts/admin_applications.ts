@@ -23,6 +23,28 @@ class AdminApplications {
 
     this.registerApplicationCardEventListeners()
     this.registerApplicationViewPostMessageListener()
+
+    const selectedAppUrl =
+      new URL(window.location.toString()).searchParams.get(
+        'selectedApplication',
+      ) || ''
+    if (selectedAppUrl) {
+      this.displayApplication(selectedAppUrl)
+    }
+  }
+
+  private static extractSelectedApplicationUrl(): URL | null {
+    const currentUrl = new URL(window.location.toString())
+    const selectedAppValue =
+      currentUrl.searchParams.get('selectedApplication') || ''
+    if (!selectedAppValue) {
+      return null
+    }
+    const selectedAppUrl = new URL(selectedAppValue)
+    if (selectedAppUrl.origin !== window.location.origin) {
+      return null
+    }
+    return selectedAppUrl
   }
 
   registerApplicationViewPostMessageListener() {
@@ -169,8 +191,20 @@ class AdminApplications {
       'card inner div',
     ).classList.add(AdminApplications.BACKGROUND_GRAY_CLASS)
 
+    const url = new URL(window.location.toString())
+    url.searchParams.set('selectedApplication', applicationUrlPath)
+    window.history.pushState({}, '', url.toString())
+
+    this.displayApplication(applicationUrlPath)
+  }
+
+  displayApplication(applicationUrlPath: string) {
+    const applicationUrl = new URL(applicationUrlPath, window.location.origin)
+    if (applicationUrl.origin !== window.location.origin) {
+      throw new Error(`Invalid application origin: ${applicationUrl.origin}`)
+    }
     // Set iframe to display selected application.
-    this.displayFrame.setAttribute('src', applicationUrlPath)
+    this.displayFrame.setAttribute('src', applicationUrl.toString())
   }
 
   _assertNotNull<T>(value: T | null | undefined, description: string): T {
