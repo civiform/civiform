@@ -101,11 +101,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         programName,
                         application,
                         applicantNameWithApplicationId,
-                        status,
-                        request))
+                        status))
             .collect(ImmutableList.toImmutableList());
-    Modal updateNoteModal =
-        renderUpdateNoteConfirmationModal(programId, application, noteMaybe, request);
+    Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, noteMaybe);
 
     DivTag contentDiv =
         div()
@@ -270,21 +268,17 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private Modal renderUpdateNoteConfirmationModal(
-      long programId, Application application, Optional<String> noteMaybe, Http.Request request) {
+      long programId, Application application, Optional<String> noteMaybe) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     String formId = Modal.randomModalId();
     FormTag modalContent =
         form()
-            .withAction(
-                controllers.admin.routes.AdminApplicationController.updateNote(
-                        programId, application.id)
-                    .url())
             .withId(formId)
-            .withMethod("POST")
-            .withClasses(Styles.PX_6, Styles.PY_2)
-            .with(makeCsrfTokenInputTag(request));
+            .withClasses(Styles.PX_6, Styles.PY_2, "cf-program-admin-edit-note-form");
     modalContent.with(
+        input().withName("programId").withValue(Long.toString(programId)).isHidden(),
+        input().withName("applicationId").withValue(Long.toString(application.id)).isHidden(),
         FieldWithLabel.textArea()
             .setValue(noteMaybe)
             .setFormId(formId)
@@ -310,19 +304,17 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String programName,
       Application application,
       String applicantNameWithApplicationId,
-      StatusDefinitions.Status status,
-      Http.Request request) {
+      StatusDefinitions.Status status) {
     String previousStatus = application.getLatestStatus().orElse("Unset");
     FormTag modalContent =
         form()
-            .withAction(
-                controllers.admin.routes.AdminApplicationController.updateStatus(
-                        programId, application.id)
-                    .url())
-            .withMethod("POST")
-            .withClasses(Styles.PX_6, Styles.PY_2)
+            .withClasses(Styles.PX_6, Styles.PY_2, "cf-program-admin-status-update-form")
             .with(
-                makeCsrfTokenInputTag(request),
+                input().withName("programId").withValue(Long.toString(programId)).isHidden(),
+                input()
+                    .withName("applicationId")
+                    .withValue(Long.toString(application.id))
+                    .isHidden(),
                 p().with(
                         span("Status Change: "),
                         span(previousStatus).withClass(Styles.FONT_SEMIBOLD),

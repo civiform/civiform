@@ -22,6 +22,35 @@ class AdminApplications {
     )
 
     this.registerApplicationCardEventListeners()
+    this.registerApplicationViewPostMessageListener()
+  }
+
+  registerApplicationViewPostMessageListener() {
+    window.addEventListener('message', (ev) => {
+      if (ev.origin !== window.location.origin) {
+        return
+      }
+      alert(`got message from iframe! data: ${JSON.stringify(ev.data)}`)
+      const message = ev.data as ApplicationViewMessage
+      alert(
+        `parsed: ${message.messageType} program id: ${this._assertIsNumber(
+          message.programId,
+        )} app id: ${this._assertIsNumber(message.applicationId)}`,
+      )
+      switch (message.messageType) {
+        case 'UPDATE_STATUS': {
+          const updateStatusData = message.data as UpdateStatusData
+          alert(`${updateStatusData.status}`)
+          break
+        }
+        case 'EDIT_NOTE': {
+          alert('Edit note')
+          break
+        }
+        default:
+          throw new Error(`unrecognized message type ${message.messageType}`)
+      }
+    })
   }
 
   registerApplicationCardEventListeners() {
@@ -72,6 +101,29 @@ class AdminApplications {
 
     return value
   }
+
+  _assertIsNumber(value: any): number {
+    if (typeof value !== 'number') {
+      throw new Error(`Expected ${value} to be a number, got: ${typeof value}`)
+    }
+    return value
+  }
+}
+
+interface ApplicationViewMessage {
+  messageType: string
+  programId: number
+  applicationId: number
+  data: UpdateStatusData | EditNoteData
+}
+
+interface UpdateStatusData {
+  status: string
+  sendEmail: string
+}
+
+interface EditNoteData {
+  note: string
 }
 
 window.addEventListener('load', () => new AdminApplications())
