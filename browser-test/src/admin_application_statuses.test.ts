@@ -190,10 +190,6 @@ describe('view program statuses', () => {
           emailStatusName,
         )
         await adminPrograms.confirmStatusUpdateModal(modal)
-        // TODO(#3268): Once PR #3375 is merged, the content on the main page should be updated and the
-        // below call to viewApplications should be removed in order to ensure that the state is
-        // properly updated.
-        await adminPrograms.viewApplications(programWithStatusesName)
         expect(
           await page.innerText(
             adminPrograms.selectApplicationCardForApplicant('Guest'),
