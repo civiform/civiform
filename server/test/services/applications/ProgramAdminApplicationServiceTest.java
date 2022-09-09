@@ -181,7 +181,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             simpleEmail);
 
     ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program", programDisplayName)
+        ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     Account account = resourceCreator.insertAccount();
@@ -232,7 +232,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             simpleEmail);
 
     ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program", programDisplayName)
+        ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     Account account = resourceCreator.insertAccount();
@@ -275,7 +275,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             simpleEmail);
 
     ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program", programDisplayName)
+        ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     Account account = resourceCreator.insertAccount();
@@ -333,7 +333,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   @Test
   public void setStatus_sendEmailWithNoStatusEmail_throws() throws Exception {
     ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program", "Some Program")
+        ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     Account account = resourceCreator.insertAccount();
@@ -360,7 +360,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   @Test
   public void setStatus_sendEmailWithNoUserEmail_throws() throws Exception {
     ProgramDefinition program =
-        ProgramBuilder.newActiveProgram("some-program", "Some Program")
+        ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
     Account account = resourceCreator.insertAccount();

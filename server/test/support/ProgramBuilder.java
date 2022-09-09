@@ -99,11 +99,17 @@ public class ProgramBuilder {
     return newActiveProgram(/* adminName= */ name, /* displayName= */ name, /* description= */ "");
   }
 
+  /** Creates a {@link ProgramBuilder} with a new {@link Program} in the active state. */
+  public static ProgramBuilder newActiveProgram(String name, String description) {
+    return newActiveProgram(/* adminName= */ name, /* displayName= */ name, description);
+  }
+
   /**
    * Creates a {@link ProgramBuilder} with a new {@link Program} in the active state, with a blank
    * description.
    */
-  public static ProgramBuilder newActiveProgram(String adminName, String displayName) {
+  public static ProgramBuilder newActiveProgramWithDisplayName(
+      String adminName, String displayName) {
     return newActiveProgram(adminName, displayName, /* description= */ "");
   }
 
