@@ -27,7 +27,7 @@ import services.program.StatusNotFoundException;
 /** The service responsible for mediating a program admin's access to the Application resource. */
 public final class ProgramAdminApplicationService {
   @VisibleForTesting
-  static final String STATUS_UPDATE_EMAIL_SUBJECT_FORMAT = "An update on your application for: %s";
+  static final String STATUS_UPDATE_EMAIL_SUBJECT_FORMAT = "An update on your application %s";
 
   private final ApplicantService applicantService;
   private final ApplicationRepository applicationRepository;
