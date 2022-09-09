@@ -5,7 +5,7 @@ class AdminApplications {
     'iframe[name="application-display-frame"]'
 
   // This value should be kept in sync with that in AdminApplicationController.java.
-  private static SELECTED_APPLICATION_PARAM_NAME = 'selectedApplication'
+  private static SELECTED_APPLICATION_URI_PARAM_NAME = 'selectedApplicationUri'
 
   // These values should be kept in sync with those in admin_application_view.ts and
   // and ProgramApplicationView.java.
@@ -76,7 +76,7 @@ class AdminApplications {
     // maintain the selected application.
     const url = new URL(window.location.toString())
     url.searchParams.set(
-      AdminApplications.SELECTED_APPLICATION_PARAM_NAME,
+      AdminApplications.SELECTED_APPLICATION_URI_PARAM_NAME,
       applicationUrlPath,
     )
     window.history.pushState({}, '', url.toString())

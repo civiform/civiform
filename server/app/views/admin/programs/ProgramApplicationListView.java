@@ -82,7 +82,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       RenderFilterParams filterParams,
-      Optional<String> selectedApplicationUrl) {
+      Optional<String> selectedApplicationUri) {
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     DivTag applicationListDiv =
@@ -100,7 +100,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 filterParams.fromDate(),
                                 filterParams.untilDate(),
                                 filterParams.selectedApplicationStatus(),
-                                /* selectedApplication= */ Optional.empty()))
+                                /* selectedApplicationUri= */ Optional.empty()))
                     .withClasses(Styles.MB_2),
                 br(),
                 renderSearchForm(
@@ -124,7 +124,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 iframe()
                     .withName("application-display-frame")
                     // Only allow relative URLs to ensure that we redirect to the same domain.
-                    .withSrc(UrlUtils.checkIsRelativeUrl(selectedApplicationUrl.orElse("")))
+                    .withSrc(UrlUtils.checkIsRelativeUrl(selectedApplicationUri.orElse("")))
                     .withClasses(Styles.W_FULL, Styles.H_FULL));
 
     HtmlBundle htmlBundle =
@@ -158,7 +158,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
-                    /* selectedApplication=*/ Optional.empty())
+                    /* selectedApplicationUri=*/ Optional.empty())
                 .url())
         .with(
             fieldset()

@@ -387,7 +387,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                   /* fromDate= */ Optional.empty(),
                   /* untilDate= */ Optional.empty(),
                   /* applicationStatus= */ Optional.empty(),
-                  /* selectedApplication= */ Optional.empty())
+                  /* selectedApplicationUri= */ Optional.empty())
               .url();
 
       ButtonTag button =

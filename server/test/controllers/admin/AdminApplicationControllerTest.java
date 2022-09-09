@@ -115,7 +115,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* fromDate= */ Optional.empty(),
             /* untilDate= */ Optional.empty(),
             /* applicationStatus= */ Optional.empty(),
-            /* selectedApplication= */ Optional.empty());
+            /* selectedApplicationUri= */ Optional.empty());
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -139,7 +139,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* fromDate= */ Optional.empty(),
             /* untilDate= */ Optional.empty(),
             /* applicationStatus= */ Optional.empty(),
-            /* selectedApplication= */ Optional.empty());
+            /* selectedApplicationUri= */ Optional.empty());
     assertThat(result.status()).isEqualTo(OK);
   }
 
