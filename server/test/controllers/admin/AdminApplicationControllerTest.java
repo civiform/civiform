@@ -196,7 +196,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("newStatus", "NOT A REAL STATUS")))
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .bodyForm(
+                        Map.of(
+                            "successRedirectUri", "/",
+                            "sendEmail", "",
+                            "newStatus", "NOT A REAL STATUS")))
             .build();
 
     // Execute
@@ -245,8 +251,11 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         addCSRFToken(
                 Helpers.fakeRequest()
                     .bodyForm(
-                        // Only "on" is a valid status.
-                        Map.of("newStatus", APPROVED_STATUS.statusText(), "sendEmail", "false")))
+                        Map.of(
+                            "successRedirectUri", "/",
+                            "newStatus", APPROVED_STATUS.statusText(),
+                            // Only "on" is a valid status.
+                            "sendEmail", "false")))
             .build();
 
     // Execute
@@ -274,7 +283,14 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Request request =
         addCSRFToken(
                 Helpers.fakeRequest()
-                    .bodyForm(Map.of("newStatus", APPROVED_STATUS.statusText(), "sendEmail", "on")))
+                    .bodyForm(
+                        Map.of(
+                            "successRedirectUri",
+                            "/",
+                            "newStatus",
+                            APPROVED_STATUS.statusText(),
+                            "sendEmail",
+                            "on")))
             .build();
 
     // Execute
@@ -295,7 +311,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateStatus_noSendEmail_succeeds() throws Exception {
+  public void updateStatus_emptySendEmail_succeeds() throws Exception {
     // Setup
     Account adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
@@ -311,8 +327,14 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         addCSRFToken(
                 Helpers.fakeRequest()
                     .bodyForm(
-                        // Only "on" is a valid status.
-                        Map.of("newStatus", APPROVED_STATUS.statusText())))
+                        Map.of(
+                            "successRedirectUri",
+                            "/",
+                            // Only "on" is a valid status.
+                            "sendEmail",
+                            "",
+                            "newStatus",
+                            APPROVED_STATUS.statusText())))
             .build();
 
     // Execute
@@ -399,7 +421,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("note", noteText))).build();
+        addCSRFToken(
+                Helpers.fakeRequest().bodyForm(Map.of("successRedirectUri", "/", "note", noteText)))
+            .build();
 
     // Execute.
     Result result = controller.updateNote(request, program.id, application.id);
@@ -428,7 +452,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("note", noteText))).build();
+        addCSRFToken(
+                Helpers.fakeRequest().bodyForm(Map.of("successRedirectUri", "/", "note", noteText)))
+            .build();
 
     // Execute.
     Result result = controller.updateNote(request, program.id, application.id);
