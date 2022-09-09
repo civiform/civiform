@@ -41,9 +41,8 @@ public class DisableCachingFilter extends EssentialFilter {
                       final Integer status = result.status();
                       final String path = request.uri().toLowerCase();
 
-
                       if ((!environment.isDev() // Must revalidate assets in dev mode
-                         || this.enableCacheForBrowserTests)
+                              || this.enableCacheForBrowserTests)
                           && ASSET_PATH_PREFIXES.stream().anyMatch(path::startsWith)
                           && OK_STATUS_CODES.contains(status)) {
                         // In prod/staging, static assets are fingerprinted,
