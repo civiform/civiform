@@ -63,9 +63,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
                         TextFormatter.createLinksAndEscapeText(
-                          !question.isOptional() ?
-                            question.getQuestionHelpText() + "*" :
-                            question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab)))
+                          question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab)))
             .withClasses(Styles.MB_4);
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
@@ -101,6 +99,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ContainerTag questionTag;
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
+          !question.isOptional() ? question.getQuestionText()+ " *" :
             question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab);
     switch (inputFieldType) {
       case COMPOSITE:
