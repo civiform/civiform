@@ -121,7 +121,9 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
-        .with(requiredFieldsExplanationContent().withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600, Styles.MB_2))
+        .with(
+            requiredFieldsExplanationContent()
+                .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600, Styles.MB_2))
         .with(
             each(
                 params.block().getQuestions(),

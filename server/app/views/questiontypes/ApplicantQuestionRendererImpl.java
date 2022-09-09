@@ -99,8 +99,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ContainerTag questionTag;
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
-          !question.isOptional() ? question.getQuestionText()+ " *" :
-            question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab);
+            !question.isOptional() ? question.getQuestionText()+ " *" : question.getQuestionText(), 
+            TextFormatter.UrlOpenAction.NewTab);
     switch (inputFieldType) {
       case COMPOSITE:
         // Composite fields should be rendered with fieldset and legend for screen reader users.
