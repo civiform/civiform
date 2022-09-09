@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Splitter;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.PdfArray;
+import com.itextpdf.text.pdf.PdfDictionary;
+import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import java.io.IOException;
@@ -27,10 +30,25 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
-    int pages = pdfReader.getNumberOfPages();
+    int pages = pdfReader.getNumberOfPages();System.out.println("Pages - "+pages);
     for (int i = 1; i < pages; i++) {
       textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, i));
+      PdfDictionary pdfDictionary= pdfReader.getPageN(i);
+      System.out.println("Annots dictionary " + pdfDictionary.getAsArray(PdfName.ANNOTS));
+      if(i==1) {
+        PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
+
+        assertThat(annots).isNotNull();
+        assertThat(annots.size()).isEqualTo(1);
+        PdfDictionary annotationDictionary = (PdfDictionary) PdfReader.getPdfObject(annots.getPdfObject(0));
+//AnnotationDictionary.Get(PdfName.SUBTYPE).Equals(PdfName.LINK))
+        assertThat(annotationDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
+        assertThat(annotationDictionary.get(PdfName.LINK).toString()).isEqualTo("something");
+      }
     }
+
+
+
 
     pdfReader.close();
 

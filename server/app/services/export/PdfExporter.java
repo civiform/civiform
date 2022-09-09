@@ -5,11 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import annotations.BindingAnnotations.Now;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
-import com.itextpdf.text.Chunk;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,9 +15,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import javax.inject.Inject;
 import models.Application;
+import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.question.Scalar;
+import services.question.types.QuestionType;
 
 /** PdfExporter is meant to generate PDF files. The functionality is not fully implemented yet. */
 public class PdfExporter {
@@ -81,17 +80,27 @@ public class PdfExporter {
       document.add(Chunk.NEWLINE);
       for (AnswerData answerData : answers) {
         Paragraph question =
-            new Paragraph(
-                answerData.questionDefinition().getName(),
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
-        Paragraph answer =
+          new Paragraph(
+            answerData.questionDefinition().getName(),
+            FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        Paragraph answer = null;
+        if (QuestionType.FILEUPLOAD == answerData.questionDefinition().getQuestionType()) {
+          Path contextPath = answerData.contextualizedPath().join(Scalar.FILE_KEY);
+          String fileUrl = answerData.scalarAnswersInDefaultLocale().get(contextPath);
+          Anchor anchor = new Anchor(answerData.answerText());
+          anchor.setReference(fileUrl);
+          answer = new Paragraph();
+          answer.add(anchor);
+        } else {
+          answer =
             new Paragraph(answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+        }
         LocalDate date =
-            Instant.ofEpochMilli(answerData.timestamp())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
+          Instant.ofEpochMilli(answerData.timestamp())
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate();
         Paragraph time =
-            new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
+          new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
         time.setAlignment(Paragraph.ALIGN_RIGHT);
         document.add(question);
         document.add(answer);
