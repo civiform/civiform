@@ -6,7 +6,6 @@ describe('deleting question lifecycle', () => {
 
   it('create, publish, delete unused questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
     const programName = 'deleting program'

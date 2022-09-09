@@ -59,7 +59,7 @@ public final class QuestionBank {
             .withAction(params.questionAction())
             .with(params.csrfTag());
 
-    DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
+    DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.H_FULL);
     questionForm.with(innerDiv);
     DivTag contentDiv =
         div().withClasses(Styles.RELATIVE, Styles.GRID, Styles.GAP_6, Styles.PX_5, Styles.PY_6);

@@ -9,6 +9,28 @@ import {
 import {BASE_URL} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 
+/**
+ * JSON object representing downloaded application. It can be retrieved by
+ * program admins. To see all fields check buildJsonApplication() method in
+ * JsonExporter.java.
+ */
+export interface DownloadedApplication {
+  program_name: string
+  program_version_id: number
+  applicant_id: number
+  application_id: number
+  language: string
+  create_time: string
+  submitter_email: string
+  submit_time: string
+  // Applicant answers as a map of question name to answer data.
+  application: {
+    [questionName: string]: {
+      [questionField: string]: unknown
+    }
+  }
+}
+
 export class AdminPrograms {
   public page!: Page
 
@@ -617,6 +639,23 @@ export class AdminPrograms {
   }
 
   /**
+   * Returns the content of the note modal when viewing an application.
+   */
+  async getNoteContent() {
+    await this.applicationFrameLocator()
+      .locator(this.editNoteSelector())
+      .click()
+
+    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    if (!frame) {
+      throw new Error('Expected an application frame')
+    }
+    const editModal = await waitForAnyModal(frame)
+    const noteContentArea = (await editModal.$('textarea'))!
+    return noteContentArea.inputValue()
+  }
+
+  /**
    * Edit note clicks the edit button, sets the note content to the provided
    * text, and confirms the dialog.
    */
@@ -650,7 +689,7 @@ export class AdminPrograms {
     expect(toastMessages).toContain('Application note updated')
   }
 
-  async getJson(applyFilters: boolean) {
+  async getJson(applyFilters: boolean): Promise<DownloadedApplication[]> {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
       await this.page.check('text="Current results"')
@@ -666,7 +705,7 @@ export class AdminPrograms {
       throw new Error('download failed')
     }
 
-    return readFileSync(path, 'utf8')
+    return JSON.parse(readFileSync(path, 'utf8'))
   }
 
   async getCsv(applyFilters: boolean) {

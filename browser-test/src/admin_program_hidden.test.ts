@@ -11,7 +11,6 @@ describe('Hide a program that should not be public yet', () => {
   const ctx = createTestContext()
   it('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
     const {page, adminPrograms} = ctx
-    page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
 
@@ -36,8 +35,6 @@ describe('Hide a program that should not be public yet', () => {
 
   it('create a public program, verify applicants can see it on the home page', async () => {
     const {page, adminPrograms} = ctx
-
-    page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
 
