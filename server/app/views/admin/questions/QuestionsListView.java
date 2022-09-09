@@ -63,7 +63,7 @@ public final class QuestionsListView extends BaseHtmlView {
   public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     String title = "All Questions";
 
-    Pair<ImmutableList<DomContent>, ImmutableList<Modal>> questionRowsAndModals =
+    Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
         renderAllQuestionRows(activeAndDraftQuestions, request);
 
     DivTag contentDiv =
@@ -111,12 +111,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .withClasses(Styles.FLOAT_RIGHT, Styles.TEXT_BASE, Styles.PX_4, Styles.MY_2);
   }
 
-  /**
-   * @return a pair. First element is list of DOM elements, each representing a row for a particular
-   *     question. Second element is collection of all modals that can be invoked from question
-   *     rows.
-   */
-  private Pair<ImmutableList<DomContent>, ImmutableList<Modal>> renderAllQuestionRows(
+  private Pair<DivTag, ImmutableList<Modal>> renderAllQuestionRows(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     ImmutableList.Builder<DomContent> rows = ImmutableList.builder();
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
@@ -126,7 +121,7 @@ public final class QuestionsListView extends BaseHtmlView {
       rows.add(rowAndModals.getLeft());
       modals.addAll(rowAndModals.getRight());
     }
-    return Pair.of(rows.build(), modals.build());
+    return Pair.of(div().with(rows.build()), modals.build());
   }
 
   /**

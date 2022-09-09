@@ -178,13 +178,18 @@ export class AdminQuestions {
   async expectQuestionProgramReferencesText({
     questionName,
     expectedProgramReferencesText,
+    version,
   }: {
     questionName: string
     expectedProgramReferencesText: string
+    version: 'draft' | 'active'
   }) {
     await this.gotoAdminQuestionsPage()
     const programReferencesText = await this.page.innerText(
-      this.selectProgramReferencesFromRow(questionName),
+      this.selectWithinQuestionTableRow(
+        questionName,
+        `:has-text("${version}")`,
+      ),
     )
     expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
