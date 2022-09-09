@@ -259,13 +259,15 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getReferencingPrograms_unreferencedQuestion() {
+    Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository
         .getActiveVersion()
-        .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
+        .addQuestion(question)
         .save();
 
+
     ActiveAndDraftQuestions.ReferencingPrograms result =
-        newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
+        newActiveAndDraftQuestions().getReferencingPrograms(question.id);
     assertThat(result)
         .isEqualTo(
             ActiveAndDraftQuestions.ReferencingPrograms.builder()
@@ -274,11 +276,12 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
                 .build());
 
     // Make an edit of the question in the draft version and leave it unreferenced.
+    Question draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository
         .getDraftVersion()
-        .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
+        .addQuestion(draftQuestion)
         .save();
-    result = newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
+    result = newActiveAndDraftQuestions().getReferencingPrograms(draftQuestion.id);
     assertThat(result)
         .isEqualTo(
             ActiveAndDraftQuestions.ReferencingPrograms.builder()
@@ -326,7 +329,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     versionRepository.getDraftVersion().addQuestion(question).save();
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
-        newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
+        newActiveAndDraftQuestions().getReferencingPrograms(question.id);
     assertThat(
             result.activeReferences().stream()
                 .map(ProgramDefinition::id)
@@ -378,24 +381,29 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
             .withRequiredQuestion(draftQuestion)
             .build();
 
-    ActiveAndDraftQuestions.ReferencingPrograms result =
-        newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
+    // Check references to the ACTIVE question.
+    ActiveAndDraftQuestions.ReferencingPrograms resultActiveQuestion =
+        newActiveAndDraftQuestions().getReferencingPrograms(activeQuestion.id);
     assertThat(
-            result.activeReferences().stream()
-                .map(ProgramDefinition::id)
-                .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
+      resultActiveQuestion.activeReferences().stream()
+                .map(ProgramDefinition::id))
+      .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
+    assertThat(resultActiveQuestion.draftReferences()).isEmpty();
+
+    // Check references to the DRAFT question.
+    ActiveAndDraftQuestions.ReferencingPrograms resultDraftQuestion =
+      newActiveAndDraftQuestions().getReferencingPrograms(draftQuestion.id);
+    assertThat(resultDraftQuestion.activeReferences()).isEmpty();
     assertThat(
-            result.draftReferences().stream()
-                .map(ProgramDefinition::id)
-                .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
+        resultDraftQuestion.draftReferences().stream()
+                .map(ProgramDefinition::id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
   }
 
   @Test
   public void getReferencingPrograms_unrecognizedQuestion() {
     ActiveAndDraftQuestions.ReferencingPrograms result =
-        newActiveAndDraftQuestions().getReferencingPrograms("random-question-name");
+        newActiveAndDraftQuestions().getReferencingPrograms(12345);
     assertThat(result)
         .isEqualTo(
             ActiveAndDraftQuestions.ReferencingPrograms.builder()
