@@ -15,6 +15,24 @@ export const waitForPageJsLoad = async (page: Page | Frame | null) => {
   // Wait for main.ts and modal.ts to signal that they're done initializing
   await page.waitForSelector('body[data-load-main="true"]')
   await page.waitForSelector('body[data-load-modal="true"]')
+
+  const hasWaitFor = await page.isVisible('[data-wait-for-scripts]')
+  if (hasWaitFor) {
+    const waitForScriptsRaw = await page.getAttribute(
+      '[data-wait-for-scripts]',
+      'data-wait-for-scripts',
+    )
+    if (!waitForScriptsRaw) {
+      throw new Error('Found element but could not retrieve attribute')
+    }
+
+    const waitForScriptPromises = Array.from(waitForScriptsRaw.split(',')).map(
+      (script) => {
+        return page.waitForSelector(`[data-${script}="true"]`)
+      },
+    )
+    await Promise.all(waitForScriptPromises)
+  }
 }
 
 /**
