@@ -29,9 +29,9 @@ class AdminApplicationView {
       ),
     )
     for (const statusUpdateForm of statusUpdateForms) {
-      // Use postMessage to send a request to the main frame to update the status rather than
-      // submitting the form directly within the IFrame. This allows the main frame to update the
-      // list of applications to reflect the status change.
+      // The application list needs to reflect the updated status, so we use postMessage to send a
+      // request to the main frame to update the status rather than submitting the form directly
+      // within the IFrame.
       statusUpdateForm.addEventListener('submit', (ev) => {
         ev.preventDefault()
         const formEl = this._assertNotNull(

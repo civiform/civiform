@@ -197,6 +197,8 @@ class AdminApplications {
       ),
     )
     inputs.forEach(({inputName, inputValue}) => {
+      // For multiline text, a "textarea" is required since "input" elements are single-line:
+      //  https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/text
       const elementType = inputValue.includes('\n') ? 'textarea' : 'input'
       const inputEl = document.createElement(elementType)
       inputEl.hidden = true

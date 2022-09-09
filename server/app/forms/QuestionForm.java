@@ -110,7 +110,7 @@ public abstract class QuestionForm {
       return "";
     }
     // Only allow relative URLs to ensure that we redirect to the same domain.
-    return UrlUtils.ensureRelativeUrlOrThrow(redirectUrl);
+    return UrlUtils.checkIsRelativeUrl(redirectUrl);
   }
 
   public final void setRedirectUrl(String redirectUrl) {

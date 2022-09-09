@@ -6,7 +6,7 @@ import java.net.URI;
 public final class UrlUtils {
   private UrlUtils() {}
 
-  public static String ensureRelativeUrlOrThrow(String value) {
+  public static String checkIsRelativeUrl(String value) {
     if (!value.isBlank() && URI.create(value).isAbsolute()) {
       throw new RuntimeException("Invalid absolute URL. Only relative URLs are allowed.");
     }

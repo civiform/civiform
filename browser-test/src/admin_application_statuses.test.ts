@@ -377,7 +377,7 @@ describe('view program statuses', () => {
       await adminPrograms.expectApplicationCount(1)
     })
 
-    it('updating status to something no longer in the filter still displays the application on reload', async () => {
+    it('shows the application on reload after the status is updated to something no longer in the filter', async () => {
       const {adminPrograms} = ctx
 
       await adminPrograms.viewApplications(programForFilteringName)
@@ -390,9 +390,9 @@ describe('view program statuses', () => {
       )
       await adminPrograms.confirmStatusUpdateModal(modal)
 
-      // The application should no longer be in the list, since it's status is no longer
-      // "approved". However, it should still be displayed in the viewer since admins may want to
-      // easily revert the status update.
+      // The application should no longer be in the list, since its status is no longer "approved".
+      // However, it should still be displayed in the viewer since admins may want to easily revert
+      // the status update.
       await adminPrograms.expectApplicationCount(0)
       const applicationText = await adminPrograms
         .applicationFrameLocator()

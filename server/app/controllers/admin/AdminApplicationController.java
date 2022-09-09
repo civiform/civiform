@@ -382,10 +382,12 @@ public final class AdminApplicationController extends CiviFormController {
         .anyMatch(newStatus::equals)) {
       return badRequest(String.format("New status (%s) is not valid for program", newStatus));
     }
-    boolean sendEmail = false;
-    if (maybeSendEmail.get().equals("on")) {
+    final boolean sendEmail;
+    if (maybeSendEmail.get().isBlank()) {
+      sendEmail = false;
+    } else if (maybeSendEmail.get().equals("on")) {
       sendEmail = true;
-    } else if (!maybeSendEmail.get().isBlank()) {
+    } else {
       return badRequest(String.format("%s value is invalid: %s", SEND_EMAIL, maybeSendEmail.get()));
     }
 
@@ -397,7 +399,7 @@ public final class AdminApplicationController extends CiviFormController {
             .build(),
         profileUtils.currentUserProfile(request).get().getAccount().join());
     // Only allow relative URLs to ensure that we redirect to the same domain.
-    String redirectUrl = UrlUtils.ensureRelativeUrlOrThrow(maybeSuccessRedirectUri.orElse(""));
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application status updated");
   }
 
@@ -445,7 +447,7 @@ public final class AdminApplicationController extends CiviFormController {
         profileUtils.currentUserProfile(request).get().getAccount().join());
 
     // Only allow relative URLs to ensure that we redirect to the same domain.
-    String redirectUrl = UrlUtils.ensureRelativeUrlOrThrow(maybeSuccessRedirectUri.orElse(""));
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application note updated");
   }
 

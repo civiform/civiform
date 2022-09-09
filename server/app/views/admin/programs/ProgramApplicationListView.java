@@ -123,10 +123,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .with(
                 iframe()
                     .withName("application-display-frame")
-                    .withCondSrc(
-                        selectedApplicationUrl.isPresent(),
-                        // Only allow relative URLs to ensure that we redirect to the same domain.
-                        UrlUtils.ensureRelativeUrlOrThrow(selectedApplicationUrl.orElse("")))
+                    // Only allow relative URLs to ensure that we redirect to the same domain.
+                    .withSrc(UrlUtils.checkIsRelativeUrl(selectedApplicationUrl.orElse("")))
                     .withClasses(Styles.W_FULL, Styles.H_FULL));
 
     HtmlBundle htmlBundle =
