@@ -37,10 +37,8 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final ImmutableMap<Long, ImmutableSet<ProgramDefinition>>
-    referencingDraftProgramsById;
-  private final ImmutableMap<Long, ImmutableSet<ProgramDefinition>>
-    referencingActiveProgramsById;
+  private final ImmutableMap<Long, ImmutableSet<ProgramDefinition>> referencingDraftProgramsById;
+  private final ImmutableMap<Long, ImmutableSet<ProgramDefinition>> referencingActiveProgramsById;
   private final boolean draftVersionHasAnyEdits;
 
   /**
@@ -78,9 +76,9 @@ public final class ActiveAndDraftQuestions {
                           Optional.ofNullable(draftNameToQuestion.get(name)));
                     }));
 
-    draftVersionHasAnyEdits = draft.hasAnyChanges();
-    referencingActiveProgramsById = buildReferencingProgramsMap(active);
-    referencingDraftProgramsById =
+    this.draftVersionHasAnyEdits = draft.hasAnyChanges();
+    this.referencingActiveProgramsById = buildReferencingProgramsMap(active);
+    this.referencingDraftProgramsById =
         draftVersionHasAnyEdits ? buildReferencingProgramsMap(withDraftEdits) : ImmutableMap.of();
 
     ImmutableSet<String> tombstonedQuestionNames =
@@ -88,7 +86,7 @@ public final class ActiveAndDraftQuestions {
             Sets.union(
                 ImmutableSet.copyOf(draft.getTombstonedQuestionNames()),
                 ImmutableSet.copyOf(active.getTombstonedQuestionNames())));
-    deletionStatusByName =
+    this.deletionStatusByName =
         versionedByName.entrySet().stream()
             .collect(
                 ImmutableMap.toImmutableMap(
@@ -99,8 +97,11 @@ public final class ActiveAndDraftQuestions {
                           draftVersionHasAnyEdits
                               ? referencingDraftProgramsById
                               : referencingActiveProgramsById;
-                      Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>> questions = entry.getValue();
-                      long questionId = questions.second().orElseGet(() -> questions.first().get()).getId();
+                      Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>> questions =
+                          entry.getValue();
+                      Optional<QuestionDefinition> draftQ = questions.second();
+                      Optional<QuestionDefinition> activeQ = questions.first();
+                      long questionId = draftQ.orElseGet(activeQ::get).getId();
                       if (!referencesToExamine
                           .getOrDefault(questionId, ImmutableSet.of())
                           .isEmpty()) {
@@ -167,9 +168,9 @@ public final class ActiveAndDraftQuestions {
   public ReferencingPrograms getReferencingPrograms(long questionId) {
     return ReferencingPrograms.builder()
         .setActiveReferences(
-          referencingActiveProgramsById.getOrDefault(questionId, ImmutableSet.of()))
+            referencingActiveProgramsById.getOrDefault(questionId, ImmutableSet.of()))
         .setDraftReferences(
-          referencingDraftProgramsById.getOrDefault(questionId, ImmutableSet.of()))
+            referencingDraftProgramsById.getOrDefault(questionId, ImmutableSet.of()))
         .build();
   }
 

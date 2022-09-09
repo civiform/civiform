@@ -150,22 +150,29 @@ export class AdminQuestions {
 
   async expectDraftQuestionExist(questionName: string, questionText = '') {
     await this.gotoAdminQuestionsPage()
-    const questionRowText = await this.page.innerText(this.selectQuestionTableRow(questionName))
+    const questionRowText = await this.page.innerText(
+      this.selectQuestionTableRow(questionName),
+    )
     expect(questionRowText).toContain(questionText)
-    expect(
-      questionRowText).toContain('Draft')
+    expect(questionRowText).toContain('Draft')
   }
 
   async expectActiveQuestionExist(questionName: string, questionText = '') {
     await this.gotoAdminQuestionsPage()
-    const questionRowText = await this.page.innerText(this.selectQuestionTableRow(questionName))
+    const questionRowText = await this.page.innerText(
+      this.selectQuestionTableRow(questionName),
+    )
     expect(questionRowText).toContain(questionText)
     expect(questionRowText).toContain('Active')
   }
 
   async expectQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    expect(await this.page.locator(this.selectQuestionTableRow(questionName)).count()).toEqual(0)
+    expect(
+      await this.page
+        .locator(this.selectQuestionTableRow(questionName))
+        .count(),
+    ).toEqual(0)
   }
 
   async expectQuestionProgramReferencesText({
