@@ -366,7 +366,7 @@ public final class QuestionsListView extends BaseHtmlView {
     if (active.isPresent()) {
       if (draft.isEmpty()) {
         // Active without a draft.
-        td.with(renderQuestionEditLink(active.get(), "Edit →")).with(br());
+        editButton = renderQuestionEditLink(active.get(), "Edit");
       } else if (draft.isPresent()) {
         // Active with a draft.
         editButton = renderQuestionEditLink(draft.get(), "Edit Draft");

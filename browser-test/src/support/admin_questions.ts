@@ -165,7 +165,7 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionText)
     expect(
       await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('Edit Draft →')
+    ).toContain('Edit Draft')
   }
 
   async expectActiveQuestionExist(questionName: string, questionText = '') {
@@ -176,7 +176,7 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionText)
     expect(
       await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('Edit →')
+    ).toContain('Edit')
   }
 
   async expectQuestionNotExist(questionName: string) {
