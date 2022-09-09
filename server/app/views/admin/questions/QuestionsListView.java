@@ -204,7 +204,7 @@ public final class QuestionsListView extends BaseHtmlView {
             && activeAndDraftQuestions.getDraftQuestionDefinition(question.getName()).isPresent();
 
     ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
-        activeAndDraftQuestions.getReferencingPrograms(question.getId());
+        activeAndDraftQuestions.getReferencingPrograms(question.getName());
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
         renderPublishedDateAndReferencingPrograms(
             question.getName(),
@@ -543,7 +543,7 @@ public final class QuestionsListView extends BaseHtmlView {
                             + " programs before attempting to archive."));
 
         ActiveAndDraftQuestions.ReferencingPrograms programs =
-            activeAndDraftQuestions.getReferencingPrograms(definition.getId());
+            activeAndDraftQuestions.getReferencingPrograms(definition.getName());
         Optional<Modal> maybeModal =
             makeReferencingProgramsModal(
                 definition.getName(),

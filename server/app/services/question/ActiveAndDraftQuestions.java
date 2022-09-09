@@ -2,14 +2,12 @@ package services.question;
 
 import akka.japi.Pair;
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -38,8 +36,10 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final ImmutableMap<Long, ImmutableSet<ProgramDefinition>> referencingDraftProgramsById;
-  private final ImmutableMap<Long, ImmutableSet<ProgramDefinition>> referencingActiveProgramsById;
+  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
+      referencingDraftProgramsByName;
+  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
+      referencingActiveProgramsByName;
   private final boolean draftVersionHasAnyEdits;
 
   /**
@@ -68,6 +68,7 @@ public final class ActiveAndDraftQuestions {
 
     versionedByName =
         Sets.union(activeNameToQuestion.keySet(), draftNameToQuestion.keySet()).stream()
+            .sorted()
             .collect(
                 ImmutableMap.toImmutableMap(
                     Function.identity(),
@@ -78,8 +79,8 @@ public final class ActiveAndDraftQuestions {
                     }));
 
     this.draftVersionHasAnyEdits = draft.hasAnyChanges();
-    this.referencingActiveProgramsById = buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsById =
+    this.referencingActiveProgramsByName = buildReferencingProgramsMap(active);
+    this.referencingDraftProgramsByName =
         draftVersionHasAnyEdits ? buildReferencingProgramsMap(withDraftEdits) : ImmutableMap.of();
 
     ImmutableSet<String> tombstonedQuestionNames =
@@ -87,29 +88,18 @@ public final class ActiveAndDraftQuestions {
             Sets.union(
                 ImmutableSet.copyOf(draft.getTombstonedQuestionNames()),
                 ImmutableSet.copyOf(active.getTombstonedQuestionNames())));
-    ImmutableMap<String, Long> latestDefinitionId =
-        versionedByName.entrySet().stream()
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    Map.Entry::getKey,
-                    entry -> {
-                      Optional<QuestionDefinition> draftQ = entry.getValue().second();
-                      Optional<QuestionDefinition> activeQ = entry.getValue().first();
-                      return draftQ.orElseGet(activeQ::get).getId();
-                    }));
     this.deletionStatusByName =
         versionedByName.keySet().stream()
             .collect(
                 ImmutableMap.toImmutableMap(
-                    Functions.identity(),
+                    questionName -> questionName,
                     questionName -> {
-                      ImmutableMap<Long, ImmutableSet<ProgramDefinition>> referencesToExamine =
+                      ImmutableMap<String, ImmutableSet<ProgramDefinition>> referencesToExamine =
                           draftVersionHasAnyEdits
-                              ? referencingDraftProgramsById
-                              : referencingActiveProgramsById;
-                      long questionId = latestDefinitionId.get(questionName);
+                              ? referencingDraftProgramsByName
+                              : referencingActiveProgramsByName;
                       if (!referencesToExamine
-                          .getOrDefault(questionId, ImmutableSet.of())
+                          .getOrDefault(questionName, ImmutableSet.of())
                           .isEmpty()) {
                         return DeletionStatus.NOT_DELETABLE;
                       }
@@ -123,26 +113,38 @@ public final class ActiveAndDraftQuestions {
    * Inspects the provided version and returns a map who's key is the question name and value is a
    * set of programs that reference the given question in this version.
    */
-  private static ImmutableMap<Long, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
+  private static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
       Version version) {
-    Map<Long, Set<ProgramDefinition>> result = Maps.newHashMap();
+    // Different versions of a question can have distinct IDs while still
+    // retaining the same "name". A given program has a reference only to a specific
+    // question ID. This map allows us to easily cache the mapping from a question ID
+    // to a logical question "name".
+    ImmutableMap<Long, String> questionIdToNameLookup =
+        version.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    QuestionDefinition::getId, QuestionDefinition::getName));
+    Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
     for (Program program : version.getPrograms()) {
-      ImmutableList<Long> programQuestionIds =
+      ImmutableList<String> programQuestionNames =
           program.getProgramDefinition().blockDefinitions().stream()
               .map(BlockDefinition::programQuestionDefinitions)
               .flatMap(ImmutableList::stream)
               .map(ProgramQuestionDefinition::id)
+              .filter(questionIdToNameLookup::containsKey)
+              .map(questionIdToNameLookup::get)
               .collect(ImmutableList.toImmutableList());
-      for (Long questionId : programQuestionIds) {
-        if (!result.containsKey(questionId)) {
-          result.put(questionId, Sets.newHashSet());
+      for (String questionName : programQuestionNames) {
+        if (!result.containsKey(questionName)) {
+          result.put(questionName, Sets.newHashSet());
         }
-        result.get(questionId).add(program.getProgramDefinition());
+        result.get(questionName).add(program.getProgramDefinition());
       }
     }
     return result.entrySet().stream()
         .collect(
-            ImmutableMap.toImmutableMap(Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+            ImmutableMap.toImmutableMap(e -> e.getKey(), e -> ImmutableSet.copyOf(e.getValue())));
   }
 
   public ImmutableList<QuestionDefinition> getActiveQuestions() {
@@ -171,12 +173,10 @@ public final class ActiveAndDraftQuestions {
         : Optional.empty();
   }
 
-  public ReferencingPrograms getReferencingPrograms(long questionId) {
+  public ReferencingPrograms getReferencingPrograms(String name) {
     return ReferencingPrograms.builder()
-        .setActiveReferences(
-            referencingActiveProgramsById.getOrDefault(questionId, ImmutableSet.of()))
-        .setDraftReferences(
-            referencingDraftProgramsById.getOrDefault(questionId, ImmutableSet.of()))
+        .setActiveReferences(referencingActiveProgramsByName.getOrDefault(name, ImmutableSet.of()))
+        .setDraftReferences(referencingDraftProgramsByName.getOrDefault(name, ImmutableSet.of()))
         .build();
   }
 

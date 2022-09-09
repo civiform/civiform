@@ -259,11 +259,13 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getReferencingPrograms_unreferencedQuestion() {
-    Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
-    versionRepository.getActiveVersion().addQuestion(question).save();
+    versionRepository
+        .getActiveVersion()
+        .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
+        .save();
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
-        newActiveAndDraftQuestions().getReferencingPrograms(question.id);
+        newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result)
         .isEqualTo(
             ActiveAndDraftQuestions.ReferencingPrograms.builder()
@@ -272,9 +274,11 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
                 .build());
 
     // Make an edit of the question in the draft version and leave it unreferenced.
-    Question draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
-    versionRepository.getDraftVersion().addQuestion(draftQuestion).save();
-    result = newActiveAndDraftQuestions().getReferencingPrograms(draftQuestion.id);
+    versionRepository
+        .getDraftVersion()
+        .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
+        .save();
+    result = newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result)
         .isEqualTo(
             ActiveAndDraftQuestions.ReferencingPrograms.builder()
@@ -322,7 +326,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     versionRepository.getDraftVersion().addQuestion(question).save();
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
-        newActiveAndDraftQuestions().getReferencingPrograms(question.id);
+        newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(
             result.activeReferences().stream()
                 .map(ProgramDefinition::id)
@@ -374,25 +378,24 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
             .withRequiredQuestion(draftQuestion)
             .build();
 
-    // Check references to the ACTIVE question.
-    ActiveAndDraftQuestions.ReferencingPrograms resultActiveQuestion =
-        newActiveAndDraftQuestions().getReferencingPrograms(activeQuestion.id);
-    assertThat(resultActiveQuestion.activeReferences().stream().map(ProgramDefinition::id))
-        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
-    assertThat(resultActiveQuestion.draftReferences()).isEmpty();
-
-    // Check references to the DRAFT question.
-    ActiveAndDraftQuestions.ReferencingPrograms resultDraftQuestion =
-        newActiveAndDraftQuestions().getReferencingPrograms(draftQuestion.id);
-    assertThat(resultDraftQuestion.activeReferences()).isEmpty();
-    assertThat(resultDraftQuestion.draftReferences().stream().map(ProgramDefinition::id))
-        .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
+    ActiveAndDraftQuestions.ReferencingPrograms result =
+        newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
+    assertThat(
+            result.activeReferences().stream()
+                .map(ProgramDefinition::id)
+                .collect(ImmutableSet.toImmutableSet()))
+        .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
+    assertThat(
+            result.draftReferences().stream()
+                .map(ProgramDefinition::id)
+                .collect(ImmutableSet.toImmutableSet()))
+        .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
   }
 
   @Test
   public void getReferencingPrograms_unrecognizedQuestion() {
     ActiveAndDraftQuestions.ReferencingPrograms result =
-        newActiveAndDraftQuestions().getReferencingPrograms(12345);
+        newActiveAndDraftQuestions().getReferencingPrograms("random-question-name");
     assertThat(result)
         .isEqualTo(
             ActiveAndDraftQuestions.ReferencingPrograms.builder()
