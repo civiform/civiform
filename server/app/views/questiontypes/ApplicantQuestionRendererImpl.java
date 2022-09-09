@@ -99,7 +99,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ContainerTag questionTag;
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
-            !question.isOptional() ? question.getQuestionText()+ " *" : question.getQuestionText(), 
+            !question.isOptional() ? question.getQuestionText() + " *" : question.getQuestionText(), 
             TextFormatter.UrlOpenAction.NewTab);
     switch (inputFieldType) {
       case COMPOSITE:
