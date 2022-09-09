@@ -42,7 +42,9 @@ import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.application.ApplicationEventDetails;
+import services.applications.AccountHasNoEmailException;
 import services.applications.ProgramAdminApplicationService;
+import services.applications.StatusEmailNotFoundException;
 import services.export.ExporterService;
 import services.export.JsonExporter;
 import services.export.PdfExporter;
@@ -337,7 +339,8 @@ public final class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatus(Http.Request request, long programId, long applicationId)
-      throws ProgramNotFoundException, StatusNotFoundException {
+      throws ProgramNotFoundException, StatusEmailNotFoundException, StatusNotFoundException,
+          AccountHasNoEmailException {
     if (!featureFlags.isStatusTrackingEnabled(request)) {
       return notFound("status tracking is not enabled");
     }

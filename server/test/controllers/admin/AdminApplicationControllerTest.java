@@ -266,7 +266,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 

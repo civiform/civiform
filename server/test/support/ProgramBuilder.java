@@ -92,21 +92,30 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link Program} in active state, with blank
+   * Creates a {@link ProgramBuilder} with a new {@link Program} in the active state, with a blank
    * description.
    */
   public static ProgramBuilder newActiveProgram(String name) {
-    return newActiveProgram(name, "");
+    return newActiveProgram(/* adminName= */ name, /* displayName= */ name, /* description= */ "");
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link Program} in the active state, with a blank
+   * description.
+   */
+  public static ProgramBuilder newActiveProgram(String adminName, String displayName) {
+    return newActiveProgram(adminName, displayName, /* description= */ "");
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
-  public static ProgramBuilder newActiveProgram(String name, String description) {
+  public static ProgramBuilder newActiveProgram(
+      String adminName, String displayName, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     Program program =
         new Program(
-            name,
+            adminName,
             description,
-            name,
+            displayName,
             description,
             "",
             DisplayMode.PUBLIC.getValue(),

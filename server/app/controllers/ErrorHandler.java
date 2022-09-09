@@ -24,6 +24,8 @@ import play.mvc.Result;
 import play.mvc.Results;
 import services.apikey.ApiKeyNotFoundException;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applications.AccountHasNoEmailException;
+import services.applications.StatusEmailNotFoundException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
 import services.program.StatusNotFoundException;
@@ -45,13 +47,15 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
       ImmutableSet.of(
+          AccountHasNoEmailException.class,
           ApiKeyNotFoundException.class,
           ApplicantNotFoundException.class,
-          BadRequestException.class,
           BadApiRequestException.class,
+          BadRequestException.class,
           InvalidQuestionPositionException.class,
           NotChangeableException.class,
           ProgramNotFoundException.class,
+          StatusEmailNotFoundException.class,
           StatusNotFoundException.class);
 
   private static final ImmutableSet<Class<? extends Exception>>

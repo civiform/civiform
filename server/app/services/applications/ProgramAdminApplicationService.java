@@ -2,6 +2,7 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.net.URI;
@@ -25,6 +26,7 @@ import services.program.StatusNotFoundException;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
 public final class ProgramAdminApplicationService {
+  @VisibleForTesting
   static final String STATUS_UPDATE_EMAIL_SUBJECT_FORMAT = "An update on your application for: %s";
 
   private final ApplicantService applicantService;
@@ -43,11 +45,13 @@ public final class ProgramAdminApplicationService {
       ApplicationEventRepository eventRepository,
       Config configuration,
       SimpleEmail emailClient) {
-    this.applicantService = applicantService;
+    this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.eventRepository = checkNotNull(eventRepository);
-    this.emailClient = emailClient;
+    this.emailClient = checkNotNull(emailClient);
 
+    // TODO(#3386): Inject these values and their downstream uses rather than calculating each time
+    // they're needed.
     String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
@@ -85,9 +89,8 @@ public final class ProgramAdminApplicationService {
    * @param admin The Account that instigated the change.
    */
   public void setStatus(Application application, StatusEvent newStatusEvent, Account admin)
-      throws StatusNotFoundException {
+      throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
     Program program = application.getProgram();
-    String programName = program.getProgramDefinition().adminName();
     Applicant applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
@@ -111,17 +114,24 @@ public final class ProgramAdminApplicationService {
     ApplicationEvent event = new ApplicationEvent(application, admin, details);
 
     // Send email if requested and present.
-    if (sendEmail && statusDef.localizedEmailBodyText().isPresent()) {
+    if (sendEmail) {
+      if (statusDef.localizedEmailBodyText().isEmpty()) {
+        throw new StatusEmailNotFoundException(newStatusText, program.id);
+      }
       // Notify an Admin/TI if they applied.
       Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
       if (adminSubmitterEmail.isPresent()) {
-        sendAdminSubmitterEmail(programName, applicant, newStatusText, adminSubmitterEmail);
+        sendAdminSubmitterEmail(
+            program.getProgramDefinition(), applicant, newStatusText, adminSubmitterEmail);
       }
       // Notify the applicant.
       Optional<String> applicantEmail =
           applicantService.getEmail(application.getApplicant().id).toCompletableFuture().join();
       if (applicantEmail.isPresent()) {
-        sendApplicantEmail(programName, applicant, statusDef, applicantEmail);
+        sendApplicantEmail(program.getProgramDefinition(), applicant, statusDef, applicantEmail);
+      } else {
+        // An email was requested to be sent but the applicant doesn't have one.
+        throw new AccountHasNoEmailException(applicant.getAccount().id);
       }
     }
 
@@ -129,9 +139,17 @@ public final class ProgramAdminApplicationService {
   }
 
   private void sendApplicantEmail(
-      String programName, Applicant applicant, Status statusDef, Optional<String> applicantEmail) {
+      ProgramDefinition programDef,
+      Applicant applicant,
+      Status statusDef,
+      Optional<String> applicantEmail) {
     String civiformLink = baseUrl;
     Locale locale = applicant.getApplicantData().preferredLocale();
+    // TODO(#3377): Review email content in particular localizing the subject and program name.
+    String programName = programDef.localizedName().getDefault();
+    // TODO(#3377): Review email content in particular mentioning CiviForm here, and translations.
+    // Note: We knowingly mix the english boilerplate with potentially translated body content
+    // believing something is better than nothing.
     String emailBody =
         String.format(
             "%s\n\nLog in to CiviForm at %s.",
@@ -143,10 +161,11 @@ public final class ProgramAdminApplicationService {
   }
 
   private void sendAdminSubmitterEmail(
-      String programName,
+      ProgramDefinition programDef,
       Applicant applicant,
       String newStatusText,
       Optional<String> adminSubmitterEmail) {
+    String programName = programDef.localizedName().getDefault();
     String tiDashLink =
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
