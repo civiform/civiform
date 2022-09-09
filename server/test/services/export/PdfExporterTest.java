@@ -4,10 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Splitter;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.PdfArray;
-import com.itextpdf.text.pdf.PdfDictionary;
-import com.itextpdf.text.pdf.PdfName;
-import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import java.io.IOException;
 import java.util.List;
@@ -30,28 +27,22 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
-    int pages = pdfReader.getNumberOfPages();System.out.println("Pages - "+pages);
+    int pages = pdfReader.getNumberOfPages();
     for (int i = 1; i < pages; i++) {
       textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, i));
-      PdfDictionary pdfDictionary= pdfReader.getPageN(i);
-      System.out.println("Annots dictionary " + pdfDictionary.getAsArray(PdfName.ANNOTS));
-      if(i==1) {
-        PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
-
-        assertThat(annots).isNotNull();
-        assertThat(annots.size()).isEqualTo(1);
-        PdfDictionary annotationDictionary = (PdfDictionary) PdfReader.getPdfObject(annots.getPdfObject(0));
-//AnnotationDictionary.Get(PdfName.SUBTYPE).Equals(PdfName.LINK))
-        assertThat(annotationDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
-        assertThat(annotationDictionary.get(PdfName.LINK).toString()).isEqualTo("something");
-      }
+      //Assertions to check if the URL is embedded for the FileUpload
+      PdfDictionary pdfDictionary = pdfReader.getPageN(i);
+      PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
+      PdfObject current = annots.getPdfObject(0);
+      PdfDictionary currentPdfDictionary = (PdfDictionary) pdfReader.getPdfObject(current);
+      assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
+      PdfDictionary AnnotationAction = (PdfDictionary) currentPdfDictionary.getAsDict(PdfName.A);
+      assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
+      PdfString link = AnnotationAction.getAsString(PdfName.URI);
+      assertThat(link.toString()).isEqualTo("http://localhost:9000/admin/programs/" + applicationOne.getProgram().id + "/files/my-file-key");
     }
 
-
-
-
     pdfReader.close();
-
     assertThat(textFromPDF).isNotNull();
     List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
     assertThat(textFromPDF).isNotNull();
