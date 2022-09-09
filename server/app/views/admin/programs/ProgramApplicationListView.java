@@ -158,7 +158,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
-                    /* selectedApplicationUri=*/ Optional.empty())
+                    /* selectedApplicationUri= */ Optional.empty())
                 .url())
         .with(
             fieldset()
