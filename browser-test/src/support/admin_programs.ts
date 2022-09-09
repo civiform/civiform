@@ -610,13 +610,12 @@ export class AdminPrograms {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const confirmButton = (await modal.$('text=Confirm'))!
-    await Promise.all([this.waitForApplicationFrame(), confirmButton.click()])
+    await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
+    await waitForPageJsLoad(this.page)
   }
 
   async expectUpdateStatusToast() {
-    const toastMessages = await this.applicationFrameLocator()
-      .locator('#toast-container')
-      .innerText()
+    const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain('Application status updated')
   }
 
@@ -664,10 +663,11 @@ export class AdminPrograms {
     const noteContentArea = (await editModal.$('textarea'))!
     await noteContentArea.fill(noteContent)
 
-    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
+    // Confirming should cause the page to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const saveButton = (await editModal.$('text=Save'))!
-    await Promise.all([this.waitForApplicationFrame(), saveButton.click()])
+    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await waitForPageJsLoad(this.page)
   }
 
   private editNoteSelector() {
@@ -675,9 +675,7 @@ export class AdminPrograms {
   }
 
   async expectNoteUpdatedToast() {
-    const toastMessages = await this.applicationFrameLocator()
-      .locator('#toast-container')
-      .innerText()
+    const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain('Application note updated')
   }
 

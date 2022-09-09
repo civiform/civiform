@@ -130,7 +130,7 @@ describe('view program statuses', () => {
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
 
-      it('when confirmed, the page is redirected with a success toast', async () => {
+      it('when confirmed, the page is redirected with a success toast and preserves the selected application', async () => {
         const {adminPrograms} = ctx
         const modal = await adminPrograms.setStatusOptionAndAwaitModal(
           noEmailStatusName,
@@ -141,6 +141,13 @@ describe('view program statuses', () => {
         await adminPrograms.confirmStatusUpdateModal(modal)
         expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
         await adminPrograms.expectUpdateStatusToast()
+
+        // Confirm that the application is shown after reloading the page.
+        const applicationText = await adminPrograms
+          .applicationFrameLocator()
+          .locator('#application-view')
+          .innerText()
+        expect(applicationText).toContain('Guest')
       })
 
       it('when no email is configured for the status, a warning is shown', async () => {
@@ -198,10 +205,17 @@ describe('view program statuses', () => {
       // in and an email is configured for the status.
     })
 
-    it('allows editing a note', async () => {
+    it('allows editing a note and preserves the selected application', async () => {
       const {adminPrograms} = ctx
       await adminPrograms.editNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
+
+      // Confirm that the application is shown after reloading the page.
+      const applicationText = await adminPrograms
+        .applicationFrameLocator()
+        .locator('#application-view')
+        .innerText()
+      expect(applicationText).toContain('Guest')
     })
 
     it('shows the current note content', async () => {
@@ -222,6 +236,19 @@ describe('view program statuses', () => {
       const noteText = 'Some note content'
       await adminPrograms.editNote('first note content')
       await adminPrograms.expectNoteUpdatedToast()
+      await adminPrograms.editNote(noteText)
+      await adminPrograms.expectNoteUpdatedToast()
+
+      // Reload the note editor.
+      await adminPrograms.viewApplications(programWithStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
+
+      expect(await adminPrograms.getNoteContent()).toBe(noteText)
+    })
+
+    it('preserves newlines in notes', async () => {
+      const {adminPrograms} = ctx
+      const noteText = 'Some note content\nwithseparatelines'
       await adminPrograms.editNote(noteText)
       await adminPrograms.expectNoteUpdatedToast()
 
@@ -389,6 +416,31 @@ describe('view program statuses', () => {
           AdminPrograms.ANY_STATUS_APPLICATION_FILTER_OPTION,
       })
       await adminPrograms.expectApplicationCount(1)
+    })
+
+    it('shows the application on reload after the status is updated to something no longer in the filter', async () => {
+      const {adminPrograms} = ctx
+
+      await adminPrograms.viewApplications(programForFilteringName)
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption: approvedStatusName,
+      })
+      await adminPrograms.viewApplicationForApplicant('Guest')
+      const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+        rejectedStatusName,
+      )
+      await adminPrograms.confirmStatusUpdateModal(modal)
+
+      // The application should no longer be in the list, since its status is no longer "approved".
+      // However, it should still be displayed in the viewer since admins may want to easily revert
+      // the status update.
+      await adminPrograms.expectApplicationCount(0)
+      const applicationText = await adminPrograms
+        .applicationFrameLocator()
+        .locator('#application-view')
+        .innerText()
+      expect(applicationText).toContain('Guest')
+      expect(applicationText).toContain(favoriteColorAnswer)
     })
   })
 })
