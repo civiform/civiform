@@ -260,11 +260,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   @Test
   public void getReferencingPrograms_unreferencedQuestion() {
     Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
-    versionRepository
-        .getActiveVersion()
-        .addQuestion(question)
-        .save();
-
+    versionRepository.getActiveVersion().addQuestion(question).save();
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(question.id);
@@ -277,10 +273,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     // Make an edit of the question in the draft version and leave it unreferenced.
     Question draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
-    versionRepository
-        .getDraftVersion()
-        .addQuestion(draftQuestion)
-        .save();
+    versionRepository.getDraftVersion().addQuestion(draftQuestion).save();
     result = newActiveAndDraftQuestions().getReferencingPrograms(draftQuestion.id);
     assertThat(result)
         .isEqualTo(
@@ -384,19 +377,15 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     // Check references to the ACTIVE question.
     ActiveAndDraftQuestions.ReferencingPrograms resultActiveQuestion =
         newActiveAndDraftQuestions().getReferencingPrograms(activeQuestion.id);
-    assertThat(
-      resultActiveQuestion.activeReferences().stream()
-                .map(ProgramDefinition::id))
-      .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
+    assertThat(resultActiveQuestion.activeReferences().stream().map(ProgramDefinition::id))
+        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
     assertThat(resultActiveQuestion.draftReferences()).isEmpty();
 
     // Check references to the DRAFT question.
     ActiveAndDraftQuestions.ReferencingPrograms resultDraftQuestion =
-      newActiveAndDraftQuestions().getReferencingPrograms(draftQuestion.id);
+        newActiveAndDraftQuestions().getReferencingPrograms(draftQuestion.id);
     assertThat(resultDraftQuestion.activeReferences()).isEmpty();
-    assertThat(
-        resultDraftQuestion.draftReferences().stream()
-                .map(ProgramDefinition::id))
+    assertThat(resultDraftQuestion.draftReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
   }
 
