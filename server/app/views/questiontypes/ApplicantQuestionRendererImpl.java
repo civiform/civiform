@@ -63,7 +63,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
                         TextFormatter.createLinksAndEscapeText(
-                          question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab)))
+                        question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab)))
             .withClasses(Styles.MB_4);
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
