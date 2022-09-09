@@ -275,6 +275,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     String formId = Modal.randomModalId();
+    // No form action or content is rendered since admin_application_view.ts extracts the values
+    // and calls postMessage rather than attempting a submission. The main frame is responsible for
+    // constructing a form to update the note.
     FormTag modalContent =
         form()
             .withId(formId)
@@ -309,6 +312,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantNameWithApplicationId,
       StatusDefinitions.Status status) {
     String previousStatus = application.getLatestStatus().orElse("Unset");
+    // No form action or content is rendered since admin_application_view.ts extracts the values
+    // and calls postMessage rather than attempting a submission. The main frame is responsible for
+    // constructing a form to update the status.
     FormTag modalContent =
         form()
             .withClasses(Styles.PX_6, Styles.PY_2, "cf-program-admin-status-update-form")

@@ -29,6 +29,9 @@ class AdminApplicationView {
       ),
     )
     for (const statusUpdateForm of statusUpdateForms) {
+      // Use postMessage to send a request to the main frame to update the status rather than
+      // submitting the form directly within the IFrame. This allows the main frame to update the
+      // list of applications to reflect the status change.
       statusUpdateForm.addEventListener('submit', (ev) => {
         ev.preventDefault()
         const formEl = this._assertNotNull(
@@ -76,6 +79,9 @@ class AdminApplicationView {
     if (!editNoteForm) {
       return
     }
+    // Use postMessage to send a request to the main frame to update the note rather than
+    // submitting the form directly within the IFrame. This allows the main frame to update the
+    // list of applications to reflect the note change.
     editNoteForm.addEventListener('submit', (ev) => {
       ev.preventDefault()
       const formEl = this._assertNotNull(
