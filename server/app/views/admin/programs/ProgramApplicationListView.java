@@ -336,8 +336,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 supportsStatuses,
                 p().withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700)
                     .with(
-                        span("Status: ").withClasses(Styles.FONT_MEDIUM),
-                        span(application.getLatestStatus().orElse("None"))))
+                        span("Status: "),
+                        span(application.getLatestStatus().orElse("None"))
+                            .withClass(Styles.FONT_SEMIBOLD)))
             .with(
                 div()
                     .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL)
