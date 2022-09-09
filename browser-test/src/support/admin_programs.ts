@@ -269,9 +269,11 @@ export class AdminPrograms {
     await this.page.fill('textarea', blockDescription)
     // Make sure input validation enables the button before clicking.
     await this.page.click('#update-block-button:not([disabled])')
+    await waitForPageJsLoad(this.page)
 
     for (const questionName of questionNames) {
       await this.page.click(`button >> text="${questionName}"`)
+      await waitForPageJsLoad(this.page)
     }
   }
 
@@ -294,6 +296,7 @@ export class AdminPrograms {
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
     await this.page.click('#update-block-button:not([disabled])')
+    await waitForPageJsLoad(this.page)
 
     // Add the optional question
     await this.page.click(`button:text("${optionalQuestionName}")`)
@@ -301,6 +304,7 @@ export class AdminPrograms {
     // Only allow one optional question per block; this selector will always toggle the first optional button.  It
     // cannot tell the difference between multiple option buttons
     await this.page.click(`:is(button:has-text("optional"))`)
+    await waitForPageJsLoad(this.page)
 
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`)
@@ -355,9 +359,11 @@ export class AdminPrograms {
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('#block-description-textarea', blockDescription)
     await this.page.click('#update-block-button:not([disabled])')
+    await waitForPageJsLoad(this.page)
 
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`)
+      await waitForPageJsLoad(this.page)
     }
   }
 
