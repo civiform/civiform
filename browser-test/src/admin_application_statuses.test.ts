@@ -47,6 +47,15 @@ describe('view program statuses', () => {
       expect(await ctx.adminPrograms.isStatusSelectorVisible()).toBe(false)
     })
 
+    it('does not show application status in list', async () => {
+      const {page, adminPrograms} = ctx
+      expect(
+        await page.innerText(
+          adminPrograms.selectApplicationCardForApplicant('Guest'),
+        ),
+      ).not.toContain('Status: ')
+    })
+
     it('does not show edit note', async () => {
       expect(await ctx.adminPrograms.isEditNoteVisible()).toBe(false)
     })
@@ -103,6 +112,16 @@ describe('view program statuses', () => {
       )
     })
 
+    it('shows default status value in application list if no status is set', async () => {
+      const {page, adminPrograms} = ctx
+      await adminPrograms.viewApplications(programWithStatusesName)
+      expect(
+        await page.innerText(
+          adminPrograms.selectApplicationCardForApplicant('Guest'),
+        ),
+      ).toContain('Status: None')
+    })
+
     describe('when a status is changed, a confirmation dialog is shown', () => {
       it('when rejecting, the selected status is not changed', async () => {
         const {adminPrograms} = ctx
@@ -151,6 +170,28 @@ describe('view program statuses', () => {
           `Status Change: ${noEmailStatusName} -> ${emailStatusName}`,
         )
         await dismissModal(adminPrograms.applicationFrame())
+      })
+
+      it('when changing status, the updated application status is reflected in the application list', async () => {
+        const {page, adminPrograms} = ctx
+        expect(
+          await page.innerText(
+            adminPrograms.selectApplicationCardForApplicant('Guest'),
+          ),
+        ).toContain(`Status: ${noEmailStatusName}`)
+        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+          emailStatusName,
+        )
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        // TODO(#3268): Once PR #3375 is merged, the content on the main page should be updated and the
+        // below call to viewApplications should be removed in order to ensure that the state is
+        // properly updated.
+        await adminPrograms.viewApplications(programWithStatusesName)
+        expect(
+          await page.innerText(
+            adminPrograms.selectApplicationCardForApplicant('Guest'),
+          ),
+        ).toContain(`Status: ${emailStatusName}`)
       })
 
       // TODO(#3297): Add a test that the send email checkbox is shown when an applicant has logged
