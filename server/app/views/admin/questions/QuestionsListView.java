@@ -127,8 +127,6 @@ public final class QuestionsListView extends BaseHtmlView {
   /**
    * Renders a row in the question list. The row contains question text, help text, active and draft
    * versions, list of programs questions is used in and buttons to edit the question.
-   *
-   * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.
    */
   private Pair<DivTag, ImmutableList<Modal>> renderQuestionRow(
       String questionName, ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
