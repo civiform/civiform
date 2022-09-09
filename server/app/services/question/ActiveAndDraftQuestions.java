@@ -2,6 +2,7 @@ package services.question;
 
 import akka.japi.Pair;
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -86,22 +87,27 @@ public final class ActiveAndDraftQuestions {
             Sets.union(
                 ImmutableSet.copyOf(draft.getTombstonedQuestionNames()),
                 ImmutableSet.copyOf(active.getTombstonedQuestionNames())));
-    this.deletionStatusByName =
+    ImmutableMap<String, Long> latestDefinitionId =
         versionedByName.entrySet().stream()
             .collect(
                 ImmutableMap.toImmutableMap(
                     Map.Entry::getKey,
                     entry -> {
-                      String questionName = entry.getKey();
+                      Optional<QuestionDefinition> draftQ = entry.getValue().second();
+                      Optional<QuestionDefinition> activeQ = entry.getValue().first();
+                      return draftQ.orElseGet(activeQ::get).getId();
+                    }));
+    this.deletionStatusByName =
+        versionedByName.keySet().stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    Functions.identity(),
+                    questionName -> {
                       ImmutableMap<Long, ImmutableSet<ProgramDefinition>> referencesToExamine =
                           draftVersionHasAnyEdits
                               ? referencingDraftProgramsById
                               : referencingActiveProgramsById;
-                      Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>> questions =
-                          entry.getValue();
-                      Optional<QuestionDefinition> draftQ = questions.second();
-                      Optional<QuestionDefinition> activeQ = questions.first();
-                      long questionId = draftQ.orElseGet(activeQ::get).getId();
+                      long questionId = latestDefinitionId.get(questionName);
                       if (!referencesToExamine
                           .getOrDefault(questionId, ImmutableSet.of())
                           .isEmpty()) {
