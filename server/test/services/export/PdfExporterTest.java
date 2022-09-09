@@ -4,7 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Splitter;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.pdf.PdfArray;
+import com.itextpdf.text.pdf.PdfDictionary;
+import com.itextpdf.text.pdf.PdfName;
+import com.itextpdf.text.pdf.PdfObject;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfString;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import java.io.IOException;
 import java.util.List;
