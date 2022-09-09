@@ -3,6 +3,7 @@ package filters;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.Config;
 import java.util.concurrent.Executor;
 import javax.inject.Inject;
 import play.mvc.EssentialAction;
@@ -20,12 +21,14 @@ public class DisableCachingFilter extends EssentialFilter {
   private static final ImmutableSet<Integer> OK_STATUS_CODES = ImmutableSet.of(200, 203, 206);
 
   private final play.Environment environment;
+  private final boolean enableCacheForBrowserTests;
 
   @Inject
-  public DisableCachingFilter(Executor exec, play.Environment environment) {
+  public DisableCachingFilter(Executor exec, play.Environment environment, Config config) {
     super();
     this.exec = checkNotNull(exec);
     this.environment = checkNotNull(environment);
+    this.enableCacheForBrowserTests = config.getBoolean("enable_asset_caching_for_browser_tests");
   }
 
   @Override
@@ -38,7 +41,9 @@ public class DisableCachingFilter extends EssentialFilter {
                       final Integer status = result.status();
                       final String path = request.uri().toLowerCase();
 
-                      if (!environment.isDev() // Must revalidate assets in dev mode
+
+                      if ((!environment.isDev() // Must revalidate assets in dev mode
+                         || this.enableCacheForBrowserTests)
                           && ASSET_PATH_PREFIXES.stream().anyMatch(path::startsWith)
                           && OK_STATUS_CODES.contains(status)) {
                         // In prod/staging, static assets are fingerprinted,
