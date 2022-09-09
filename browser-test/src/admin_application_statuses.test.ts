@@ -399,6 +399,7 @@ describe('view program statuses', () => {
         .locator('#application-view')
         .innerText()
       expect(applicationText).toContain('Guest')
+      expect(applicationText).toContain(favoriteColorAnswer)
     })
   })
 })
