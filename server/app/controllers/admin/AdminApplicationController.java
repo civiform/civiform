@@ -37,6 +37,7 @@ import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.UrlUtils;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -61,6 +62,8 @@ import views.admin.programs.ProgramApplicationView;
 /** Controller for admins viewing applications to programs. */
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
+
+  private static final String SUCCESS_REDIRECT_URI = "successRedirectUri";
 
   private final ApplicantService applicantService;
   private final ProgramAdminApplicationService programAdminApplicationService;
@@ -363,16 +366,24 @@ public final class AdminApplicationController extends CiviFormController {
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
     Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
+    Optional<String> maybeSuccessRedirectUri =
+        Optional.ofNullable(formData.get(SUCCESS_REDIRECT_URI));
     // TODO(#3263): check that the previous status is the current previous status for
     // consistency.
     if (maybeNewStatus.isEmpty()) {
-      return badRequest("A selected status is not present");
+      return badRequest(String.format("The %s field is not present", NEW_STATUS));
+    }
+    if (maybeSendEmail.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", SEND_EMAIL));
+    }
+    if (maybeSuccessRedirectUri.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", SUCCESS_REDIRECT_URI));
     }
     String newStatus = maybeNewStatus.get();
     final boolean sendEmail;
-    if (maybeSendEmail.isEmpty()) {
+    if (maybeSendEmail.get().isBlank()) {
       sendEmail = false;
-    } else if (maybeSendEmail.get().equalsIgnoreCase("on")) {
+    } else if (maybeSendEmail.get().equals("on")) {
       sendEmail = true;
     } else {
       return badRequest(String.format("%s value is invalid: %s", SEND_EMAIL, maybeSendEmail.get()));
@@ -385,8 +396,9 @@ public final class AdminApplicationController extends CiviFormController {
             .setEmailSent(sendEmail)
             .build(),
         profileUtils.currentUserProfile(request).get().getAccount().join());
-    return redirect(routes.AdminApplicationController.show(programId, application.id).url())
-        .flashing("success", "Application status updated");
+    // Only allow relative URLs to ensure that we redirect to the same domain.
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
+    return redirect(redirectUrl).flashing("success", "Application status updated");
   }
 
   /**
@@ -417,18 +429,24 @@ public final class AdminApplicationController extends CiviFormController {
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeNote = Optional.ofNullable(formData.get(NOTE));
+    Optional<String> maybeSuccessRedirectUri =
+        Optional.ofNullable(formData.get("successRedirectUri"));
     if (maybeNote.isEmpty()) {
       return badRequest("A note is not present.");
     }
     String note = maybeNote.get();
+    if (maybeSuccessRedirectUri.isEmpty()) {
+      return badRequest("A redirect URI is not present");
+    }
 
     programAdminApplicationService.setNote(
         application,
         ApplicationEventDetails.NoteEvent.create(note),
         profileUtils.currentUserProfile(request).get().getAccount().join());
 
-    return redirect(routes.AdminApplicationController.show(programId, application.id).url())
-        .flashing("success", "Application note updated");
+    // Only allow relative URLs to ensure that we redirect to the same domain.
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
+    return redirect(redirectUrl).flashing("success", "Application note updated");
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
@@ -440,12 +458,19 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<Integer> page,
       Optional<String> fromDate,
       Optional<String> untilDate,
-      Optional<String> applicationStatus)
+      Optional<String> applicationStatus,
+      Optional<String> selectedApplicationUri)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(
           routes.AdminApplicationController.index(
-              programId, search, Optional.of(1), fromDate, untilDate, applicationStatus));
+              programId,
+              search,
+              Optional.of(1),
+              fromDate,
+              untilDate,
+              applicationStatus,
+              selectedApplicationUri));
     }
 
     SubmittedApplicationFilter filters =
@@ -484,7 +509,8 @@ public final class AdminApplicationController extends CiviFormController {
                 .setFromDate(fromDate)
                 .setUntilDate(untilDate)
                 .setSelectedApplicationStatus(applicationStatus)
-                .build()));
+                .build(),
+            selectedApplicationUri));
   }
 
   private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
