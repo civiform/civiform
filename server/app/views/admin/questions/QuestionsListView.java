@@ -82,6 +82,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .addMainContent(
                 div()
                     .withClass(Styles.PX_4)
+                    .withData("wait-for-scripts", "load-sorting")
                     .with(
                         div()
                             .withClasses(

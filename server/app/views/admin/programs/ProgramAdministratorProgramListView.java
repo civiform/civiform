@@ -57,6 +57,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
     DivTag contentDiv =
         div()
             .withClasses(Styles.PX_20)
+            .withData("wait-for-scripts", "load-sorting")
             .with(
                 h1(title).withClasses(Styles.MY_4),
                 each(

@@ -72,4 +72,7 @@ window.addEventListener('load', () => {
       })
     }
   }
+
+  // Advertise (e.g., for browser tests) that sorting.ts initialization is done
+  document.body.dataset.loadSorting = 'true'
 })

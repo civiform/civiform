@@ -83,6 +83,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     DivTag contentDiv =
         div()
             .withClasses(Styles.PX_4)
+            .withData("wait-for-scripts", "load-sorting")
             .with(
                 div()
                     .withClasses(Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)

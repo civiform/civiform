@@ -50,6 +50,7 @@ describe('program creation', () => {
 
     // Add a non-enumerator question and the enumerator option should go away
     await page.click('button:text("apc-name")')
+    await waitForPageJsLoad(page)
     expect(await page.innerText('id=question-bank-questions')).not.toContain(
       'apc-enumerator',
     )
@@ -61,11 +62,14 @@ describe('program creation', () => {
     await page.click(
       '.cf-program-question:has-text("apc-name") >> .cf-remove-question-button',
     )
+    await waitForPageJsLoad(page)
     await page.click('button:text("apc-enumerator")')
+    await waitForPageJsLoad(page)
     expect(await page.innerText('id=question-bank-questions')).toBe('')
 
     // Create a repeated block. The repeated question should be the only option.
     await page.click('#create-repeated-block-button')
+    await waitForPageJsLoad(page)
     expect(await page.innerText('id=question-bank-questions')).toContain(
       'apc-repeated',
     )
@@ -89,6 +93,7 @@ describe('program creation', () => {
 
     for (const question of [movie, color, song]) {
       await page.click(`button:text("${question}")`)
+      await waitForPageJsLoad(page)
     }
     // verify original order
     await expectQuestionsOrderWithinBlock(page, [movie, color, song])
@@ -100,6 +105,7 @@ describe('program creation', () => {
         '[aria-label="move down"]',
       ),
     )
+    await waitForPageJsLoad(page)
     await expectQuestionsOrderWithinBlock(page, [color, movie, song])
 
     // move song question up
@@ -109,6 +115,7 @@ describe('program creation', () => {
         '[aria-label="move up"]',
       ),
     )
+    await waitForPageJsLoad(page)
     await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
     // Questions in the question bank use animation. And it causes flakiness

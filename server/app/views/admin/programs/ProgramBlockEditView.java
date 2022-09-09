@@ -112,6 +112,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                         Styles.FLEX_COL,
                         Styles.PX_2,
                         StyleUtils.responsive2XLarge(Styles.PX_16))
+                    .withData("wait-for-scripts", "load-sorting")
                     .with(
                         addFormEndpoints(csrfTag, programDefinition.id(), blockId),
                         renderProgramInfo(programDefinition),
