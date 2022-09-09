@@ -80,9 +80,9 @@ public class PdfExporter {
       document.add(Chunk.NEWLINE);
       for (AnswerData answerData : answers) {
         Paragraph question =
-          new Paragraph(
-            answerData.questionDefinition().getName(),
-            FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+            new Paragraph(
+                answerData.questionDefinition().getName(),
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
         Paragraph answer = null;
         if (QuestionType.FILEUPLOAD == answerData.questionDefinition().getQuestionType()) {
           Path contextPath = answerData.contextualizedPath().join(Scalar.FILE_KEY);
@@ -93,14 +93,15 @@ public class PdfExporter {
           answer.add(anchor);
         } else {
           answer =
-            new Paragraph(answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+              new Paragraph(
+                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
         }
         LocalDate date =
-          Instant.ofEpochMilli(answerData.timestamp())
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
+            Instant.ofEpochMilli(answerData.timestamp())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
         Paragraph time =
-          new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
+            new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
         time.setAlignment(Paragraph.ALIGN_RIGHT);
         document.add(question);
         document.add(answer);

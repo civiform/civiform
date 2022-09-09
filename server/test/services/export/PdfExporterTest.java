@@ -30,7 +30,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     int pages = pdfReader.getNumberOfPages();
     for (int i = 1; i < pages; i++) {
       textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, i));
-      //Assertions to check if the URL is embedded for the FileUpload
+      // Assertions to check if the URL is embedded for the FileUpload
       PdfDictionary pdfDictionary = pdfReader.getPageN(i);
       PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
       PdfObject current = annots.getPdfObject(0);
@@ -39,7 +39,11 @@ public class PdfExporterTest extends AbstractExporterTest {
       PdfDictionary AnnotationAction = (PdfDictionary) currentPdfDictionary.getAsDict(PdfName.A);
       assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
       PdfString link = AnnotationAction.getAsString(PdfName.URI);
-      assertThat(link.toString()).isEqualTo("http://localhost:9000/admin/programs/" + applicationOne.getProgram().id + "/files/my-file-key");
+      assertThat(link.toString())
+          .isEqualTo(
+              "http://localhost:9000/admin/programs/"
+                  + applicationOne.getProgram().id
+                  + "/files/my-file-key");
     }
 
     pdfReader.close();
