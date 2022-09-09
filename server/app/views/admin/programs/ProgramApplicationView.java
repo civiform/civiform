@@ -18,11 +18,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.OptionalLong;
 import models.Application;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -43,6 +44,8 @@ import services.program.StatusDefinitions;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
@@ -55,6 +58,10 @@ import views.style.Styles;
 
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
+
+  public static final String SEND_EMAIL = "sendEmail";
+  public static final String NEW_STATUS = "newStatus";
+  public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
 
@@ -72,6 +79,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers,
       StatusDefinitions statusDefinitions,
+      Optional<String> noteMaybe,
       Http.Request request) {
     String title = "Program Application View";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
@@ -96,6 +104,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         status,
                         request))
             .collect(ImmutableList.toImmutableList());
+    Modal updateNoteModal =
+        renderUpdateNoteConfirmationModal(programId, application, noteMaybe, request);
 
     DivTag contentDiv =
         div()
@@ -115,7 +125,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        renderStatusOptionsSelector(statusDefinitions))
+                        div()
+                            .withClasses(Styles.FLEX, Styles.MR_4, Styles.SPACE_X_2)
+                            .with(
+                                renderStatusOptionsSelector(application, statusDefinitions),
+                                updateNoteModal.getButton()))
                     .with(renderDownloadButton(programId, application.id)))
             .with(
                 each(
@@ -130,8 +144,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addMainContent(contentDiv)
             // The body and main styles are necessary for modals to appear since they use fixed
             // sizing.
-            .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
+            .addBodyStyles(Styles.FLEX)
             .addMainStyles(Styles.W_SCREEN)
+            .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
     Optional<String> maybeSuccessMessage = request.flash().get("success");
@@ -145,11 +160,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
-    return new LinkElement()
-        .setId("download-button")
-        .setHref(link)
-        .setText("Export to PDF")
-        .asRightAlignedButton();
+    return new LinkElement().setHref(link).setText("Export to PDF").asRightAlignedButton();
   }
 
   private DivTag renderApplicationBlock(
@@ -213,7 +224,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
   }
 
-  private DivTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+  private DivTag renderStatusOptionsSelector(
+      Application application, StatusDefinitions statusDefinitions) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     DivTag container =
         div()
@@ -227,7 +239,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 Styles.OUTLINE_NONE,
                 Styles.PX_3,
                 Styles.PY_1,
-                Styles.MX_3,
+                Styles.ML_3,
                 Styles.MY_4,
                 Styles.BORDER,
                 Styles.BORDER_GRAY_500,
@@ -242,18 +254,55 @@ public final class ProgramApplicationView extends BaseHtmlView {
     dropdownTag.with(
         option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .isDisabled()
-            .isSelected());
+            .withCondSelected(!application.getLatestStatus().isPresent()));
 
     // Add statuses in the order they're provided.
-    statusDefinitions
-        .getStatuses()
+    String latestStatusText = application.getLatestStatus().orElse("");
+    statusDefinitions.getStatuses().stream()
+        .map(StatusDefinitions.Status::statusText)
         .forEach(
-            status -> {
-              String value = status.statusText();
-              OptionTag optionTag = option(value).withValue(value);
-              dropdownTag.with(optionTag);
+            statusText -> {
+              boolean isCurrentStatus = statusText.equals(latestStatusText);
+              dropdownTag.with(
+                  option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
             });
     return container.with(dropdownTag);
+  }
+
+  private Modal renderUpdateNoteConfirmationModal(
+      long programId, Application application, Optional<String> noteMaybe, Http.Request request) {
+    ButtonTag triggerButton =
+        makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+    String formId = Modal.randomModalId();
+    FormTag modalContent =
+        form()
+            .withAction(
+                controllers.admin.routes.AdminApplicationController.updateNote(
+                        programId, application.id)
+                    .url())
+            .withId(formId)
+            .withMethod("POST")
+            .withClasses(Styles.PX_6, Styles.PY_2)
+            .with(makeCsrfTokenInputTag(request));
+    modalContent.with(
+        FieldWithLabel.textArea()
+            .setValue(noteMaybe)
+            .setFormId(formId)
+            .setFieldName(NOTE)
+            .setRows(OptionalLong.of(8))
+            .getTextareaTag(),
+        div()
+            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+            .with(
+                div().withClass(Styles.FLEX_GROW),
+                button("Cancel")
+                    .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                submitButton("Save").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+    return Modal.builder(Modal.randomModalId(), modalContent)
+        .setModalTitle("Edit note")
+        .setTriggerButtonContent(triggerButton)
+        .setWidth(Width.THREE_FOURTHS)
+        .build();
   }
 
   private Modal renderStatusUpdateConfirmationModal(
@@ -263,13 +312,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantNameWithApplicationId,
       StatusDefinitions.Status status,
       Http.Request request) {
-    Optional<String> maybeApplicantEmail =
-        Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
-    boolean showEmailSelection =
-        status.localizedEmailBodyText().isPresent() && maybeApplicantEmail.isPresent();
-
-    // TODO(#3020): Populate the modal content with the previous configured status.
-    String previousStatus = "Unset";
+    String previousStatus = application.getLatestStatus().orElse("Unset");
     FormTag modalContent =
         form()
             .withAction(
@@ -289,34 +332,27 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 p().with(
                         span("Applicant: "),
                         span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
-                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)));
-    if (showEmailSelection) {
-      // TODO(#2912): Add warnings when either no email is configured or the applicant hasn't
-      // provided an email.
-      modalContent.with(
-          div()
-              .withClasses(Styles.MT_4)
-              .with(
-                  label()
-                      .with(
-                          input()
-                              .withType("checkbox")
-                              .withName("sendEmail")
-                              .withCondChecked(showEmailSelection)
-                              .withClasses(BaseStyles.CHECKBOX),
-                          span("Notify "),
-                          span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
-                          span(" of this change at "),
-                          span(maybeApplicantEmail.orElse("")).withClass(Styles.FONT_SEMIBOLD))));
-    }
-    modalContent.with(
-        div()
-            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
-            .with(
-                div().withClass(Styles.FLEX_GROW),
-                button("Cancel")
-                    .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
-                submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)),
+                div()
+                    .withClasses(Styles.MT_4)
+                    // Add the new status to the form hidden.
+                    .with(
+                        input()
+                            .isHidden()
+                            .withType("text")
+                            .withName(NEW_STATUS)
+                            .withValue(status.statusText()))
+                    .with(
+                        renderStatusUpdateConfirmationModalEmailSection(
+                            applicantNameWithApplicationId, application, status)),
+                div()
+                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        button("Cancel")
+                            .withClasses(
+                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     ButtonTag triggerButton =
         button("")
             .withClasses(Styles.HIDDEN)
@@ -326,5 +362,38 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setWidth(Width.THREE_FOURTHS)
         .setTriggerButtonContent(triggerButton)
         .build();
+  }
+
+  private DomContent renderStatusUpdateConfirmationModalEmailSection(
+      String applicantNameWithApplicationId,
+      Application application,
+      StatusDefinitions.Status status) {
+    Optional<String> maybeApplicantEmail =
+        Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
+    if (!status.localizedEmailBodyText().isPresent()) {
+      return p().with(
+              span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+              span(
+                  " will not receive an email because there is no email content set for this"
+                      + " status. Connect with your CiviForm Admin to add an email to this"
+                      + " status."));
+    } else if (maybeApplicantEmail.isEmpty()) {
+      return p().with(
+              span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+              span(
+                  " will not receive an email for this change since they have not provided an"
+                      + " email address."));
+    }
+    return label()
+        .with(
+            input()
+                .withType("checkbox")
+                .isChecked()
+                .withName(SEND_EMAIL)
+                .withClasses(BaseStyles.CHECKBOX),
+            span("Notify "),
+            span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+            span(" of this change at "),
+            span(maybeApplicantEmail.orElse("")).withClass(Styles.FONT_SEMIBOLD));
   }
 }

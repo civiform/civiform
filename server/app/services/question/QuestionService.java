@@ -83,6 +83,14 @@ public final class QuestionService {
    * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
    * questions in current active and draft versions.
    */
+  public ReadOnlyQuestionService getReadOnlyQuestionServiceSync() {
+    return readOnlyQuestionService();
+  }
+
+  /**
+   * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
+   * questions in current active and draft versions.
+   */
   public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
     return CompletableFuture.completedStage(readOnlyQuestionService());
   }

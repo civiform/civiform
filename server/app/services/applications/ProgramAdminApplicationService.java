@@ -4,17 +4,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
 import java.util.Optional;
+import models.Account;
 import models.Application;
+import models.ApplicationEvent;
+import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import services.application.ApplicationEventDetails;
+import services.application.ApplicationEventDetails.NoteEvent;
+import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramDefinition;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
 public final class ProgramAdminApplicationService {
   private final ApplicationRepository applicationRepository;
+  private final ApplicationEventRepository eventRepository;
 
   @Inject
-  ProgramAdminApplicationService(ApplicationRepository applicationRepository) {
+  ProgramAdminApplicationService(
+      ApplicationRepository applicationRepository, ApplicationEventRepository eventRepository) {
     this.applicationRepository = checkNotNull(applicationRepository);
+    this.eventRepository = checkNotNull(eventRepository);
   }
 
   /**
@@ -37,5 +46,44 @@ public final class ProgramAdminApplicationService {
       return Optional.empty();
     }
     return Optional.of(application);
+  }
+
+  /**
+   * Sets the status on the {@code Application}.
+   *
+   * @param admin The Account that instigated the change.
+   */
+  public void setStatus(Application application, StatusEvent newStatus, Account admin) {
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(newStatus)
+            .build();
+    ApplicationEvent event = new ApplicationEvent(application, admin, details);
+    eventRepository.insertSync(event);
+  }
+
+  /**
+   * Sets the note on the {@code Application}.
+   *
+   * @param admin The Account that instigated the change.
+   */
+  public void setNote(Application application, NoteEvent note, Account admin) {
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
+            .setNoteEvent(note)
+            .build();
+    ApplicationEvent event = new ApplicationEvent(application, admin, details);
+    eventRepository.insertSync(event);
+  }
+
+  /** Returns the note content for {@code application}. */
+  public Optional<String> getNote(Application application) {
+    // The most recent note event is the current value for the note.
+    return application.getApplicationEvents().stream()
+        .filter(app -> app.getEventType().equals(ApplicationEventDetails.Type.NOTE_CHANGE))
+        .findFirst()
+        .map(app -> app.getDetails().noteEvent().get().note());
   }
 }

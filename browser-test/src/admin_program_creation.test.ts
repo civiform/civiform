@@ -1,21 +1,17 @@
 import {
-  startSession,
+  createTestContext,
   loginAsAdmin,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
   validateScreenshot,
+  waitForPageJsLoad,
 } from './support'
 import {Page} from 'playwright'
 
 describe('program creation', () => {
+  const ctx = createTestContext()
   it('create program with enumerator and repeated questions', async () => {
-    const {browser, page} = await startSession()
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     await adminQuestions.addAddressQuestion({questionName: 'apc-address'})
     await adminQuestions.addNameQuestion({questionName: 'apc-name'})
@@ -66,26 +62,19 @@ describe('program creation', () => {
       '.cf-program-question:has-text("apc-name") >> .cf-remove-question-button',
     )
     await page.click('button:text("apc-enumerator")')
-    expect(await page.innerText('id=question-bank-questions')).toBe(
-      'Add Question',
-    )
+    expect(await page.innerText('id=question-bank-questions')).toBe('')
 
     // Create a repeated block. The repeated question should be the only option.
     await page.click('#create-repeated-block-button')
     expect(await page.innerText('id=question-bank-questions')).toContain(
       'apc-repeated',
     )
-
-    await endSession(browser)
   })
 
   it('change questions order within block', async () => {
-    const {browser, page} = await startSession()
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     const color = 'favorite-color'
     const movie = 'favorite-movie'
@@ -122,8 +111,42 @@ describe('program creation', () => {
     )
     await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
-    await validateScreenshot(page)
-    await endSession(browser)
+    // Questions in the question bank use animation. And it causes flakiness
+    // as buttons have very brief animation upon initial rendering and it can
+    // capturef by screenshot. So delay taking screenshot.
+    await page.waitForTimeout(2000)
+    await validateScreenshot(page, 'program-creation')
+  })
+
+  it('create question from question bank', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    const programName = 'apc program 3'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToManageQuestionsPage(programName)
+    await page.click('#create-question-button')
+    await page.click('#create-text-question')
+    await waitForPageJsLoad(page)
+
+    const questionName = 'new-from-question-bank'
+    const questionText = 'Question text'
+    await adminQuestions.fillInQuestionBasics({
+      questionName: questionName,
+      description: '',
+      questionText: questionText,
+      helpText: 'Question help text',
+    })
+    await adminQuestions.clickSubmitButtonAndNavigate('Create')
+
+    await adminPrograms.expectSuccessToast(`question ${questionName} created`)
+    await adminPrograms.expectProgramBlockEditPage(programName)
+
+    await adminQuestions.expectDraftQuestionExist(questionName, questionText)
+    // Ensure the question can be added from the question bank.
+    await adminPrograms.editProgramBlock(programName, 'dummy description', [
+      questionName,
+    ])
   })
 
   async function expectQuestionsOrderWithinBlock(

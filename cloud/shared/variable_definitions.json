@@ -121,5 +121,11 @@
     "secret": false,
     "tfvar": true,
     "type": "bool"
+  },
+  "CIVIFORM_SERVER_METRICS_ENABLED": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "bool"
   }
 }

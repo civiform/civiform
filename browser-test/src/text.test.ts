@@ -1,39 +1,23 @@
-import {Page} from 'playwright'
 import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
+  createTestContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
   selectApplicantLanguage,
-  startSession,
-  resetSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('Text question for applicant flow', () => {
-  let pageObject: Page
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
+  const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single text question', () => {
-    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single text q'
 
     beforeAll(async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
       // As admin, create program with a free form text question.
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      await loginAsAdmin(page)
 
       await adminQuestions.addTextQuestion({
         questionName: 'text-q',
@@ -45,12 +29,34 @@ describe('Text question for applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
+      await logout(page)
+    })
+
+    it('validate screenshot', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(page, 'text')
+    })
+
+    it('validate screenshot with errors', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+
+      await validateScreenshot(page, 'text-errors')
     })
 
     it('with text submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!')
@@ -60,8 +66,9 @@ describe('Text question for applicant flow', () => {
     })
 
     it('with empty text does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
@@ -69,28 +76,30 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
-      expect(await pageObject.innerText(textId)).toContain(
+      expect(await page.innerText(textId)).toContain(
         'This question is required.',
       )
     })
 
     it('with too short text does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('hi')
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
-      expect(await pageObject.innerText(textId)).toContain(
+      expect(await page.innerText(textId)).toContain(
         'Must contain at least 5 characters.',
       )
     })
 
     it('with too long text does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
@@ -99,21 +108,18 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
-      expect(await pageObject.innerText(textId)).toContain(
+      expect(await page.innerText(textId)).toContain(
         'Must contain at most 20 characters.',
       )
     })
   })
 
   describe('multiple text questions', () => {
-    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple text qs'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      const {page, adminQuestions, adminPrograms} = ctx
+      await loginAsAdmin(page)
 
       await adminQuestions.addTextQuestion({
         questionName: 'first-text-q',
@@ -136,12 +142,13 @@ describe('Text question for applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(page)
     })
 
     it('with both selections submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
@@ -152,8 +159,9 @@ describe('Text question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
@@ -164,8 +172,9 @@ describe('Text question for applicant flow', () => {
     })
 
     it('with first invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
@@ -176,14 +185,15 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-text'
-      expect(await pageObject.innerText(textId)).toContain(
+      expect(await page.innerText(textId)).toContain(
         'Must contain at most 20 characters.',
       )
     })
 
     it('with second invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
@@ -194,18 +204,19 @@ describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = `.cf-question-text >> nth=1`
-      expect(await pageObject.innerText(textId)).toContain(
+      expect(await page.innerText(textId)).toContain(
         'Must contain at most 20 characters.',
       )
     })
 
     it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(page)
     })
   })
 })

@@ -21,6 +21,10 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
+      - name: Build dev-oidc
+        env:
+          DOCKER_BUILDKIT: 1
+        run: bin/build-dev-oidc
       - name: Run tests
         run: bin/run-test-ci
       - name: Upload coverage to Codecov
@@ -72,6 +76,13 @@ jobs:
         with:
           name: image diff output directory
           path: browser-test/diff_output
+        if: failure()
+      - name: Upload test videos on failure
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests videos
+          path: browser-test/tmp
+        if: failure()
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
@@ -118,6 +129,13 @@ jobs:
         with:
           name: image diff output directory
           path: browser-test/diff_output
+        if: failure()
+      - name: Upload test videos on failure
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests videos
+          path: browser-test/tmp
+        if: failure()
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs

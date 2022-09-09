@@ -1,43 +1,32 @@
 import {
-  startSession,
-  seedCanonicalQuestions,
+  createTestContext,
   dropTables,
-  logout,
-  loginAsTestUser,
+  isLocalDevEnvironment,
+  loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
-  loginAsAdmin,
+  loginAsTestUser,
+  logout,
+  seedCanonicalQuestions,
   selectApplicantLanguage,
-  ApplicantQuestions,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
-  isLocalDevEnvironment,
 } from './support'
 
 describe('normal application flow', () => {
+  const ctx = createTestContext()
+
   beforeAll(async () => {
-    const {page} = await startSession()
+    const {page} = ctx
     await dropTables(page)
     await seedCanonicalQuestions(page)
   })
 
   it('all major steps', async () => {
-    const {browser, page} = await startSession()
-    // Timeout for clicks and element fills. If your selector fails to locate
-    // the HTML element, the test hangs. If you find the tests time out, you
-    // want to verify that your selectors are working as expected first.
-    // Because all tests are run concurrently, it could be that your selector
-    // selects a different entity from another test.
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false
     const applyFilters = true
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
-    const applicantQuestions = new ApplicantQuestions(page)
 
     const programName = 'test program for export'
     await adminQuestions.addDropdownQuestion({
@@ -130,9 +119,7 @@ describe('normal application flow', () => {
       postEditCsvContent.split('Gus,,Guest,op2,01/01/1990,2000.00').length - 1
     expect(numberOfGusEntries).toEqual(2)
 
-    const postEditJsonContent = JSON.parse(
-      await adminPrograms.getJson(noApplyFilters),
-    )
+    const postEditJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(postEditJsonContent.length).toEqual(3)
     expect(postEditJsonContent[0].program_name).toEqual(programName)
     expect(postEditJsonContent[0].language).toEqual('en-US')
@@ -153,15 +140,13 @@ describe('normal application flow', () => {
     )
 
     // Finds a partial text match on applicant name, case insensitive.
-    await adminPrograms.filterProgramApplications('SARA')
+    await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
     const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
     expect(filteredCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(filteredCsvContent).not.toContain(
       'Gus,,Guest,op2,01/01/1990,2000.00',
     )
-    const filteredJsonContent = JSON.parse(
-      await adminPrograms.getJson(applyFilters),
-    )
+    const filteredJsonContent = await adminPrograms.getJson(applyFilters)
     expect(filteredJsonContent.length).toEqual(1)
     expect(filteredJsonContent[0].application.name.first_name).toEqual('sarah')
     // Ensures that choosing not to apply filters continues to return all
@@ -169,9 +154,7 @@ describe('normal application flow', () => {
     const allCsvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(allCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(allCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00')
-    const allJsonContent = JSON.parse(
-      await adminPrograms.getJson(noApplyFilters),
-    )
+    const allJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(allJsonContent.length).toEqual(3)
     expect(allJsonContent[0].application.name.first_name).toEqual('Gus')
     expect(allJsonContent[1].application.name.first_name).toEqual('Gus')
@@ -213,7 +196,5 @@ describe('normal application flow', () => {
         '5009769596aa83552389143189cec81abfc8f56abc1bb966715c47ce4078c403,057ba03d6c44104863dc7361fe4578965d1887360f90a0895882e58a6248fc86,6eecddf47b5f7a90d41ccc978c4c785265242ce75fe50be10c824b73a25167ba',
       )
     }
-
-    await endSession(browser)
   })
 })

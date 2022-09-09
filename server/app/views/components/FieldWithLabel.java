@@ -330,10 +330,10 @@ public class FieldWithLabel {
       applyAttributesFromSet(textareaFieldTag);
       textareaFieldTag.withText(this.fieldValue);
       if (this.rows.isPresent()) {
-        textareaFieldTag.withRows(this.rows.toString());
+        textareaFieldTag.withRows(String.valueOf(this.rows.getAsLong()));
       }
       if (this.cols.isPresent()) {
-        textareaFieldTag.withCols(this.cols.toString());
+        textareaFieldTag.withCols(String.valueOf(this.cols.getAsLong()));
       }
       return applyAttrsAndGenLabel(textareaFieldTag);
     }

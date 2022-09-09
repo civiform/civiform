@@ -12,12 +12,14 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
+import j2html.tags.Tag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.PTag;
+import j2html.tags.specialized.SpanTag;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -66,19 +68,33 @@ public abstract class BaseHtmlView {
   }
 
   protected static ButtonTag redirectButton(String id, String text, String redirectUrl) {
-    return asRedirectButton(
+    return asRedirectElement(
         TagCreator.button(text).withId(id).withClasses(Styles.M_2), redirectUrl);
   }
 
-  protected static ButtonTag asRedirectButton(ButtonTag buttonEl, String redirectUrl) {
-    return buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
+  /**
+   * Turns provided element into a clickable element. Upon click the user will be redirected to the
+   * provided url. It's up to caller of this method to style element appropriately to make it clear
+   * that the element is clickable. For example add hover effect and change cursor style.
+   *
+   * @return The element itself.
+   */
+  protected static <T extends Tag> T asRedirectElement(T element, String redirectUrl) {
+    // Attribute `data-redirect-to` is handled in JS by main.ts file.
+    element.attr("data-redirect-to", redirectUrl);
+    return element;
   }
 
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
-    return TagCreator.button()
-        .with(
-            Icons.svg(icon, 18).withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0),
-            span(buttonText).withClass(Styles.TEXT_LEFT));
+    return ViewUtils.makeSvgTextButton(buttonText, icon);
+  }
+
+  protected static SpanTag spanNowrap(String tag) {
+    return span(tag).withClasses(Styles.WHITESPACE_NOWRAP);
+  }
+
+  protected static SpanTag spanNowrap(Tag... tags) {
+    return span().with(tags).withClasses(Styles.WHITESPACE_NOWRAP);
   }
 
   /**
@@ -133,6 +149,6 @@ public abstract class BaseHtmlView {
 
   protected static final PTag requiredFieldsExplanationContent() {
     return p("Note: Fields marked with a * are required.")
-        .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600, Styles.MB_2);
+        .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600);
   }
 }

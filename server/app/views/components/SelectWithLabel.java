@@ -1,23 +1,22 @@
 package views.components;
 
+import static j2html.TagCreator.optgroup;
 import static j2html.TagCreator.option;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.OptgroupTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
+import views.style.ReferenceClasses;
 
 /** Utility class for rendering a select input field with an optional label. */
-public class SelectWithLabel extends FieldWithLabel {
+public final class SelectWithLabel extends FieldWithLabel {
 
-  private ImmutableMap<String, String> options = ImmutableMap.of();
+  private ImmutableList<OptionGroup> optionGroups = ImmutableList.of();
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();
-
-  public SelectWithLabel() {
-    super();
-  }
 
   @Override
   public SelectWithLabel addReferenceClass(String referenceClass) {
@@ -25,12 +24,16 @@ public class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
-  /**
-   * Keys are the user-visible text; values are the html {@code value} that is submitted in the
-   * form.
-   */
-  public SelectWithLabel setOptions(ImmutableMap<String, String> options) {
-    this.options = options;
+  /** Sets the option groups associated with the select element. */
+  public SelectWithLabel setOptionGroups(ImmutableList<OptionGroup> optionGroups) {
+    this.optionGroups = optionGroups;
+    return this;
+  }
+
+  /** Sets the options associated with the select element. */
+  public SelectWithLabel setOptions(ImmutableList<OptionValue> options) {
+    this.optionGroups =
+        ImmutableList.of(OptionGroup.builder().setLabel("").setOptions(options).build());
     return this;
   }
 
@@ -38,8 +41,8 @@ public class SelectWithLabel extends FieldWithLabel {
    * If you want more flexibility over your options (for example, if you want to add individual
    * classes or other attributes), set custom options here.
    */
-  public SelectWithLabel setCustomOptions(ImmutableList<OptionTag> options) {
-    this.customOptions = options;
+  public SelectWithLabel setCustomOptions(ImmutableList<OptionTag> customOptions) {
+    this.customOptions = customOptions;
     return this;
   }
 
@@ -95,19 +98,69 @@ public class SelectWithLabel extends FieldWithLabel {
     fieldTag.with(placeholder);
 
     // Either set the options to be custom options or create options from the (text, value) pairs.
-    if (!this.customOptions.isEmpty()) {
-      this.customOptions.forEach(option -> fieldTag.with(option));
+    if (!customOptions.isEmpty()) {
+      customOptions.forEach(option -> fieldTag.with(option));
     } else {
-      this.options.forEach(
-          (text, value) -> {
-            OptionTag optionTag = option(text).withValue(value);
-            if (value.equals(this.fieldValue)) {
-              optionTag.isSelected();
-            }
-            fieldTag.with(optionTag);
-          });
+      fieldTag.with(optionGroups.stream().map(this::renderOptionGroup));
     }
 
     return applyAttrsAndGenLabel(fieldTag);
+  }
+
+  private OptgroupTag renderOptionGroup(OptionGroup optionGroup) {
+    return optgroup()
+        .withLabel(optionGroup.label())
+        .with(optionGroup.options().stream().map(this::renderOption));
+  }
+
+  private OptionTag renderOption(OptionValue optionData) {
+    return option(optionData.label())
+        .withClasses(
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, ReferenceClasses.MULTI_OPTION_VALUE)
+        .withValue(optionData.value())
+        .withCondSelected(optionData.value().equals(fieldValue));
+  }
+
+  @AutoValue
+  public abstract static class OptionGroup {
+    /** The user-visible option group text. */
+    public abstract String label();
+
+    public abstract ImmutableList<OptionValue> options();
+
+    public static Builder builder() {
+      return new AutoValue_SelectWithLabel_OptionGroup.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setLabel(String v);
+
+      public abstract Builder setOptions(ImmutableList<OptionValue> v);
+
+      public abstract OptionGroup build();
+    }
+  }
+
+  @AutoValue
+  public abstract static class OptionValue {
+    /** The user-visible option text. */
+    public abstract String label();
+
+    /** The HTML value that is submitted in the form. */
+    public abstract String value();
+
+    public static Builder builder() {
+      return new AutoValue_SelectWithLabel_OptionValue.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setLabel(String v);
+
+      public abstract Builder setValue(String v);
+
+      public abstract OptionValue build();
+    }
   }
 }
