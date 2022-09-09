@@ -66,8 +66,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   @Override
   public final DivTag render(ApplicantQuestionRendererParams params) {
     boolean hasQuestionErrors = false;
-    ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
-    ariaDescribedByBuilder.add(descriptionId);
+    ImmutableList.Builder<String> ariaDescribedByBuilder =
+        ImmutableList.<String>builder().add(descriptionId);
     Messages messages = params.messages();
     DivTag questionSecondaryTextDiv =
         div()
