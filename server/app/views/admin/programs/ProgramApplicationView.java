@@ -372,7 +372,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
     InputTag sendEmailInput =
         input()
             .withType("checkbox")
-            .isChecked()
             .withName(SEND_EMAIL)
             .withClasses(BaseStyles.CHECKBOX);
     Optional<String> maybeApplicantEmail =
@@ -399,7 +398,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
     }
     return label()
         .with(
-            sendEmailInput,
+            // Check by default when visible.
+            sendEmailInput.isChecked(),
             span("Notify "),
             span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
             span(" of this change at "),
