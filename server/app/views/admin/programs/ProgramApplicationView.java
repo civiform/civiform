@@ -370,10 +370,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Application application,
       StatusDefinitions.Status status) {
     InputTag sendEmailInput =
-        input()
-            .withType("checkbox")
-            .withName(SEND_EMAIL)
-            .withClasses(BaseStyles.CHECKBOX);
+        input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
     Optional<String> maybeApplicantEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
     if (!status.localizedEmailBodyText().isPresent()) {
