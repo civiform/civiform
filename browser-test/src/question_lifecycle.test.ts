@@ -259,7 +259,7 @@ describe('normal question lifecycle', () => {
     await adminPrograms.publishProgram(programName)
 
     // Update the question to create new draft version.
-    await adminQuestions.gotoQuestionNewVersionPage('name-q')
+    await adminQuestions.gotoQuestionEditPage('name-q')
     // The ID in the URL after clicking new version corresponds to the active question form (e.g. ID=15).
     // After a draft is created, the ID will reflect the newly created draft version (e.g. ID=16).
     const editUrl = page.url()
