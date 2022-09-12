@@ -125,6 +125,12 @@ public class Application extends BaseModel {
   }
 
   @VisibleForTesting
+  public Application setSubmitTimeForTest(Instant v) {
+    this.submitTime = v;
+    return this;
+  }
+
+  @VisibleForTesting
   public Application setCreateTimeForTest(Instant v) {
     this.createTime = v;
     return this;
