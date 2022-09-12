@@ -19,13 +19,10 @@ public class DisableCachingFilter extends EssentialFilter {
   // Only cache when Status is OK. https://web.dev/uses-long-cache-ttl/
   private static final ImmutableSet<Integer> OK_STATUS_CODES = ImmutableSet.of(200, 203, 206);
 
-  private final play.Environment environment;
-
   @Inject
-  public DisableCachingFilter(Executor exec, play.Environment environment) {
+  public DisableCachingFilter(Executor exec) {
     super();
     this.exec = checkNotNull(exec);
-    this.environment = checkNotNull(environment);
   }
 
   @Override
@@ -38,12 +35,12 @@ public class DisableCachingFilter extends EssentialFilter {
                       final Integer status = result.status();
                       final String path = request.uri().toLowerCase();
 
-                      if (!environment.isDev() // Must revalidate assets in dev mode
-                          && ASSET_PATH_PREFIXES.stream().anyMatch(path::startsWith)
+                      if (ASSET_PATH_PREFIXES.stream().anyMatch(path::startsWith)
                           && OK_STATUS_CODES.contains(status)) {
-                        // In prod/staging, static assets are fingerprinted,
-                        // so we can cache for a longer time.
-                        // Cache for 2 weeks.
+                        // Static assets are fingerprinted so we can cache them for 2 weeks.
+                        // Even in dev mode where static files also don't change that often
+                        // it can add some performance improvement. Improves speed of
+                        // browser tests significantly.
                         return result.withHeader(
                             "Cache-Control", "public, max-age=1209600, immutable");
                       }
