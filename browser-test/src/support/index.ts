@@ -303,7 +303,7 @@ async function loginAsTestUserSeattleStaging(page: Page) {
 
 async function loginAsTestUserAwsStaging(page: Page) {
   await Promise.all([
-    page.waitForURL('**/u/login/*', {waitUntil: 'networkidle'}),
+    page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
     page.click('button:has-text("Log in")'),
   ])
 
