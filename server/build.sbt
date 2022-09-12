@@ -120,8 +120,9 @@ lazy val root = (project in file("."))
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
     pipelineStages := Seq(digest, gzip), // plugins to use for assets
-    // Uncomment to test the sbt-web asset pipeline locally.
-    // Assets / pipelineStages  := Seq(digest, gzip), // Test the sbt-web pipeline locally.
+    // Enable digest for local dev so that files can be served çached improving
+    // page speed and also browser tests speed.
+    Assets / pipelineStages  := Seq(digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(
