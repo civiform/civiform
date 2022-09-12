@@ -3,14 +3,19 @@ cloud:
   - version: v1.0.0
   - civiform_cloud_provider: aws
   - terraform_template_dir: cloud/aws/templates/aws_oidc
-
-# Configuration values for runtime.
-runtime:
   - app_prefix: staging-aws
+  - custom_hostname: 'staging-aws.civiform.dev'
   - civiform_mode: test
+
+# Configuration values if cloud provider is AWS.
+aws:
   - ssl_certificate_arn: ''
   - fargate_desired_task_count: 1
-  - custom_hostname: 'staging-aws.civiform.dev'
+
+# Configuration values if cloud provider is Azure.
+azure:
+  - saml_keystore_filename: ''
+  - saml_keystore_password: ''
 
 # All values from this list will be passed to civiform image as an env variable with the same name.
 # You can add any value from https://github.com/civiform/civiform/blob/main/server/conf/application.conf here to be passed verbatim.
