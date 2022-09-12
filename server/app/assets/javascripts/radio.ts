@@ -16,18 +16,20 @@ class RadioController {
    * is shown so that the BF cache doesn't put us in a bad state.
    */
   public static initializeRadios() {
-    const radios = Array.from(
-      document.querySelectorAll(RadioController.radioInputClass),
+    const radioContainers = Array.from(
+      document.querySelectorAll(RadioController.radioOptionClass),
     )
-    radios.forEach((radio) => {
+    radioContainers.forEach((radioContainer) => {
       // Apply appropriate styles in case the user clicked the back button or something.
-      const container = radio.closest(RadioController.radioOptionClass)
-      const radioChecked = (radio as HTMLInputElement).checked
-      if (container) {
-        RadioController.selectedRadioClasses.forEach((selectedClass) =>
-          container.classList.toggle(selectedClass, radioChecked),
-        )
-      }
+      const radioEl = radioContainer.querySelector(
+        RadioController.radioInputClass,
+      )
+      const radioChecked = radioEl
+        ? (radioEl as HTMLInputElement).checked
+        : false
+      RadioController.selectedRadioClasses.forEach((selectedClass) =>
+        radioContainer.classList.toggle(selectedClass, radioChecked),
+      )
     })
   }
 
