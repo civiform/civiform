@@ -73,9 +73,9 @@ export class AdminPrograms {
     await this.page.fill('#program-external-link-input', externalLink)
 
     if (hidden) {
-      await this.page.check(`label:has-text("Hidden in Index")`)
+      await this.page.check(`label:has-text("Hide from applicants.")`)
     } else {
-      await this.page.check(`label:has-text("Public")`)
+      await this.page.check(`label:has-text("Publicly visible")`)
     }
 
     await this.page.click('#program-update-button')
