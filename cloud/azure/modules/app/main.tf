@@ -97,7 +97,7 @@ resource "azurerm_app_service" "civiform_app" {
   app_settings = local.app_settings
 
   site_config {
-    linux_fx_version       = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag}"
+    linux_fx_version       = "DOCKER|civiform/civiform:${var.image_tag}"
     always_on              = true
     vnet_route_all_enabled = true
   }
@@ -148,7 +148,7 @@ resource "azurerm_app_service_slot" "canary" {
   app_settings = local.app_settings
 
   site_config {
-    linux_fx_version       = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag}"
+    linux_fx_version       = "DOCKER|civiform/civiform:${var.image_tag}"
     always_on              = true
     vnet_route_all_enabled = true
   }
