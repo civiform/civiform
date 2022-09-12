@@ -36,7 +36,8 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
               QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
               QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "peanut butter")),
               QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
-              QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry"))));
+              QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry"))),
+          /* lastModifiedTime= */ Optional.empty());
 
   private final ApplicantData applicantData = new ApplicantData();
 

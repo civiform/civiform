@@ -147,7 +147,8 @@ public class Question extends BaseModel {
             .setEnumeratorId(Optional.ofNullable(enumeratorId))
             .setDescription(description)
             .setQuestionType(QuestionType.valueOf(questionType))
-            .setValidationPredicatesString(validationPredicates);
+            .setValidationPredicatesString(validationPredicates)
+            .setLastModifiedTime(Optional.ofNullable(lastModifiedTime));
 
     setEnumeratorEntityType(builder);
 
@@ -302,9 +303,5 @@ public class Question extends BaseModel {
 
   public Optional<Instant> getCreateTime() {
     return Optional.ofNullable(createTime);
-  }
-
-  public Optional<Instant> getLastModifiedTime() {
-    return Optional.ofNullable(lastModifiedTime);
   }
 }

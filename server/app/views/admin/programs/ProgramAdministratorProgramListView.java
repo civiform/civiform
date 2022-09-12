@@ -98,7 +98,8 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 /* page= */ Optional.empty(),
                 /* fromDate= */ Optional.empty(),
                 /* untilDate= */ Optional.empty(),
-                /* applicationStatus= */ Optional.empty())
+                /* applicationStatus= */ Optional.empty(),
+                /* selectedApplicationUri= */ Optional.empty())
             .url();
     ButtonTag button =
         makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)

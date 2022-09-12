@@ -6,7 +6,7 @@ import {
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
-  userDisplayName,
+  testUserDisplayName,
 } from './support'
 
 describe('view an application in an older version', () => {
@@ -14,8 +14,6 @@ describe('view an application in an older version', () => {
 
   it('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
-    page.setDefaultTimeout(5000)
-
     await loginAsAdmin(page)
 
     // Create a program with one question
@@ -44,7 +42,7 @@ describe('view an application in an older version', () => {
 
     // See the application in admin page
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       questionName,
@@ -63,7 +61,7 @@ describe('view an application in an older version', () => {
 
     // See the application in admin page in the old version
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       questionName,

@@ -69,15 +69,6 @@ export class AdminQuestions {
     expect(await this.page.innerText('h1')).toEqual('All Questions')
   }
 
-  async expectViewOnlyQuestion(questionName: string) {
-    expect(
-      await this.page.isDisabled(`text=${AdminQuestions.NO_EXPORT_OPTION}`),
-    ).toEqual(true)
-    expect(
-      await this.page.isDisabled(`input[value="${questionName}"]`),
-    ).toEqual(true)
-  }
-
   selectorForExportOption(exportOption: string) {
     return `label:has-text("${exportOption}") input`
   }
@@ -159,43 +150,46 @@ export class AdminQuestions {
 
   async expectDraftQuestionExist(questionName: string, questionText = '') {
     await this.gotoAdminQuestionsPage()
-    const tableInnerText = await this.page.innerText('table')
-
-    expect(tableInnerText).toContain(questionName)
-    expect(tableInnerText).toContain(questionText)
-    expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('Edit Draft')
+    const questionRowText = await this.page.innerText(
+      this.selectQuestionTableRow(questionName),
+    )
+    expect(questionRowText).toContain(questionText)
+    expect(questionRowText).toContain('Draft')
   }
 
   async expectActiveQuestionExist(questionName: string, questionText = '') {
     await this.gotoAdminQuestionsPage()
-    const tableInnerText = await this.page.innerText('table')
-
-    expect(tableInnerText).toContain(questionName)
-    expect(tableInnerText).toContain(questionText)
-    expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('New Version')
+    const questionRowText = await this.page.innerText(
+      this.selectQuestionTableRow(questionName),
+    )
+    expect(questionRowText).toContain(questionText)
+    expect(questionRowText).toContain('Active')
   }
 
   async expectQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    await waitForPageJsLoad(this.page)
-    const tableInnerText = await this.page.innerText('table')
-    expect(tableInnerText).not.toContain(questionName)
+    expect(
+      await this.page
+        .locator(this.selectQuestionTableRow(questionName))
+        .count(),
+    ).toEqual(0)
   }
 
   async expectQuestionProgramReferencesText({
     questionName,
     expectedProgramReferencesText,
+    version,
   }: {
     questionName: string
     expectedProgramReferencesText: string
+    version: 'draft' | 'active'
   }) {
     await this.gotoAdminQuestionsPage()
     const programReferencesText = await this.page.innerText(
-      this.selectProgramReferencesFromRow(questionName),
+      this.selectWithinQuestionTableRow(
+        questionName,
+        `:has-text("${version}")`,
+      ),
     )
     expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
@@ -269,7 +263,7 @@ export class AdminQuestions {
   async gotoQuestionNewVersionPage(questionName: string) {
     await this.gotoQuestionEditOrNewVersionPage({
       questionName,
-      buttonText: 'New Version',
+      buttonText: 'Edit',
     })
   }
 

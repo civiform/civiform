@@ -306,7 +306,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     assertThatThrownBy(() -> controller.newOne(request, "text", "https://www.example.com"))
         .isInstanceOf(RuntimeException.class)
-        .hasMessageContainingAll("Invalid absolute redirect URL.");
+        .hasMessageContainingAll("Invalid absolute URL.");
   }
 
   @Test

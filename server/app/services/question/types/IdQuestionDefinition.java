@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 /** Defines an id question. */
-public class IdQuestionDefinition extends QuestionDefinition {
+public final class IdQuestionDefinition extends QuestionDefinition {
 
   public IdQuestionDefinition(
       OptionalLong id,
@@ -19,9 +20,17 @@ public class IdQuestionDefinition extends QuestionDefinition {
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      IdValidationPredicates validationPredicates) {
+      IdValidationPredicates validationPredicates,
+      Optional<Instant> lastModifiedTime) {
     super(
-        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+        id,
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        validationPredicates,
+        lastModifiedTime);
   }
 
   public IdQuestionDefinition(
