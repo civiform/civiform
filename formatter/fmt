@@ -38,18 +38,25 @@ else
 fi
 
 echo 'Start formatting with prettier'
+# prettier is installed as node module in `formatter` directory
+cd formatter
 npx prettier \
   --write \
-  --config .prettierrc.js \
-  --ignore-path .prettierignore \
+  --config ../.prettierrc.js \
+  --ignore-path ../.prettierignore \
   --ignore-unknown \
-  .
+  ../
+cd ..
 echo 'Done formatting with prettier'
 
 echo 'Start formatting with eslint'
-npx eslint \
-  --fix \
-  {server/app/assets/javascripts,server/tailwind.config.js,test-support,browser-test}
+cd server
+npm install --silent
+npx eslint --fix "app/assets/javascripts/**/*.ts"
+cd ../browser-test
+yarn install --silent
+npx eslint --fix "src/**/*.ts"
+cd ..
 echo 'Done formatting with eslint'
 
 echo 'Start format shell'
