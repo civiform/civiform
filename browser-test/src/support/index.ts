@@ -285,6 +285,9 @@ export const loginAsTestUser = async (page: Page) => {
       }
   }
   await waitForPageJsLoad(page)
+  await page.waitForSelector(
+    `:has-text("Logged in as ${testUserDisplayName()}")`,
+  )
 }
 
 async function loginAsTestUserSeattleStaging(page: Page) {
