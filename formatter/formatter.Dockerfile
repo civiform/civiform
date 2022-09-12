@@ -15,6 +15,7 @@ RUN apk update && apk add --no-cache --update \
   openjdk11 bash wget npm shfmt git py3-pip
 
 RUN pip install yapf
+RUN npm install --global yarn
 
 COPY .prettier* /
 COPY .editorconfig* /
@@ -39,7 +40,6 @@ RUN mkdir -p $BROWSER_TEST_DIR
 COPY browser-test/package.json $BROWSER_TEST_DIR
 COPY browser-test/yarn.lock $BROWSER_TEST_DIR
 WORKDIR $BROWSER_TEST_DIR
-RUN npm install --global yarn
 RUN yarn install
 
 # Fetch node js dependencies for `server` directory.
