@@ -49,8 +49,13 @@ jobs:
           # prettier CLI arguments.
           args: --check .
 
-      - name: Run ESLint
-        run: npx eslint . --ext .js,.jsx,.ts,.tsx
+      - name: Run ESLint on browser tests
+        working-directory: browser-test
+        run: yarn install && npx eslint . --ext .js,.jsx,.ts,.tsx
+
+      - name: Run ESLint on server
+        working-directory: server
+        run: npm install && npx eslint . --ext .js,.jsx,.ts,.tsx
 
       - name: show diff
         run: git add .; git diff --exit-code HEAD

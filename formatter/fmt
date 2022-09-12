@@ -38,12 +38,15 @@ else
 fi
 
 echo 'Start formatting with prettier'
+# prettier is installed as node module in `formatter` directory
+cd formatter
 npx prettier \
   --write \
-  --config .prettierrc.js \
-  --ignore-path .prettierignore \
+  --config ../.prettierrc.js \
+  --ignore-path ../.prettierignore \
   --ignore-unknown \
-  .
+  ../
+cd ..
 echo 'Done formatting with prettier'
 
 echo 'Start formatting with eslint'
