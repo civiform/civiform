@@ -47,6 +47,15 @@ describe('view program statuses', () => {
       expect(await ctx.adminPrograms.isStatusSelectorVisible()).toBe(false)
     })
 
+    it('does not show application status in list', async () => {
+      const {page, adminPrograms} = ctx
+      expect(
+        await page.innerText(
+          adminPrograms.selectApplicationCardForApplicant('Guest'),
+        ),
+      ).not.toContain('Status: ')
+    })
+
     it('does not show edit note', async () => {
       expect(await ctx.adminPrograms.isEditNoteVisible()).toBe(false)
     })
@@ -103,6 +112,16 @@ describe('view program statuses', () => {
       )
     })
 
+    it('shows default status value in application list if no status is set', async () => {
+      const {page, adminPrograms} = ctx
+      await adminPrograms.viewApplications(programWithStatusesName)
+      expect(
+        await page.innerText(
+          adminPrograms.selectApplicationCardForApplicant('Guest'),
+        ),
+      ).toContain('Status: None')
+    })
+
     describe('when a status is changed, a confirmation dialog is shown', () => {
       it('when rejecting, the selected status is not changed', async () => {
         const {adminPrograms} = ctx
@@ -111,7 +130,7 @@ describe('view program statuses', () => {
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
 
-      it('when confirmed, the page is redirected with a success toast', async () => {
+      it('when confirmed, the page is redirected with a success toast and preserves the selected application', async () => {
         const {adminPrograms} = ctx
         const modal = await adminPrograms.setStatusOptionAndAwaitModal(
           noEmailStatusName,
@@ -122,6 +141,13 @@ describe('view program statuses', () => {
         await adminPrograms.confirmStatusUpdateModal(modal)
         expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
         await adminPrograms.expectUpdateStatusToast()
+
+        // Confirm that the application is shown after reloading the page.
+        const applicationText = await adminPrograms
+          .applicationFrameLocator()
+          .locator('#application-view')
+          .innerText()
+        expect(applicationText).toContain('Guest')
       })
 
       it('when no email is configured for the status, a warning is shown', async () => {
@@ -153,14 +179,39 @@ describe('view program statuses', () => {
         await dismissModal(adminPrograms.applicationFrame())
       })
 
+      it('when changing status, the updated application status is reflected in the application list', async () => {
+        const {page, adminPrograms} = ctx
+        expect(
+          await page.innerText(
+            adminPrograms.selectApplicationCardForApplicant('Guest'),
+          ),
+        ).toContain(`Status: ${noEmailStatusName}`)
+        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+          emailStatusName,
+        )
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        expect(
+          await page.innerText(
+            adminPrograms.selectApplicationCardForApplicant('Guest'),
+          ),
+        ).toContain(`Status: ${emailStatusName}`)
+      })
+
       // TODO(#3297): Add a test that the send email checkbox is shown when an applicant has logged
       // in and an email is configured for the status.
     })
 
-    it('allows editing a note', async () => {
+    it('allows editing a note and preserves the selected application', async () => {
       const {adminPrograms} = ctx
       await adminPrograms.editNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
+
+      // Confirm that the application is shown after reloading the page.
+      const applicationText = await adminPrograms
+        .applicationFrameLocator()
+        .locator('#application-view')
+        .innerText()
+      expect(applicationText).toContain('Guest')
     })
 
     it('shows the current note content', async () => {
@@ -181,6 +232,19 @@ describe('view program statuses', () => {
       const noteText = 'Some note content'
       await adminPrograms.editNote('first note content')
       await adminPrograms.expectNoteUpdatedToast()
+      await adminPrograms.editNote(noteText)
+      await adminPrograms.expectNoteUpdatedToast()
+
+      // Reload the note editor.
+      await adminPrograms.viewApplications(programWithStatusesName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
+
+      expect(await adminPrograms.getNoteContent()).toBe(noteText)
+    })
+
+    it('preserves newlines in notes', async () => {
+      const {adminPrograms} = ctx
+      const noteText = 'Some note content\nwithseparatelines'
       await adminPrograms.editNote(noteText)
       await adminPrograms.expectNoteUpdatedToast()
 
@@ -348,6 +412,31 @@ describe('view program statuses', () => {
           AdminPrograms.ANY_STATUS_APPLICATION_FILTER_OPTION,
       })
       await adminPrograms.expectApplicationCount(1)
+    })
+
+    it('shows the application on reload after the status is updated to something no longer in the filter', async () => {
+      const {adminPrograms} = ctx
+
+      await adminPrograms.viewApplications(programForFilteringName)
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption: approvedStatusName,
+      })
+      await adminPrograms.viewApplicationForApplicant('Guest')
+      const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+        rejectedStatusName,
+      )
+      await adminPrograms.confirmStatusUpdateModal(modal)
+
+      // The application should no longer be in the list, since its status is no longer "approved".
+      // However, it should still be displayed in the viewer since admins may want to easily revert
+      // the status update.
+      await adminPrograms.expectApplicationCount(0)
+      const applicationText = await adminPrograms
+        .applicationFrameLocator()
+        .locator('#application-view')
+        .innerText()
+      expect(applicationText).toContain('Guest')
+      expect(applicationText).toContain(favoriteColorAnswer)
     })
   })
 })
