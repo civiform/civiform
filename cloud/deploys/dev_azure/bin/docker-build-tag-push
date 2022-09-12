@@ -10,6 +10,6 @@ docker build \
 
 docker tag \
   "${IMAGE_TAG}" \
-  "${DOCKER_USERNAME}/${DOCKER_REPOSITORY_NAME}:${IMAGE_TAG}"
+  "civiform/civiform:${IMAGE_TAG}"
 
-docker push "${DOCKER_USERNAME}/${DOCKER_REPOSITORY_NAME}:${IMAGE_TAG}"
+docker push "civiform/civiform:${IMAGE_TAG}"

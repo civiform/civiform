@@ -37,7 +37,8 @@ public class NumberQuestionTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          NumberQuestionDefinition.NumberValidationPredicates.create());
+          NumberQuestionDefinition.NumberValidationPredicates.create(),
+          /* lastModifiedTime= */ Optional.empty());
 
   private static final NumberQuestionDefinition minAndMaxNumberQuestionDefinition =
       new NumberQuestionDefinition(
@@ -47,7 +48,8 @@ public class NumberQuestionTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          NumberQuestionDefinition.NumberValidationPredicates.create(50, 100));
+          NumberQuestionDefinition.NumberValidationPredicates.create(50, 100),
+          /* lastModifiedTime= */ Optional.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;
