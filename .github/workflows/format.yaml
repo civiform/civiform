@@ -51,11 +51,11 @@ jobs:
 
       - name: Run ESLint on browser tests
         working-directory: browser-test
-        run: yarn install && npx eslint . --ext .js,.jsx,.ts,.tsx
+        run: yarn install && npx eslint . --ext .ts
 
       - name: Run ESLint on server
         working-directory: server
-        run: npm install && npx eslint . --ext .js,.jsx,.ts,.tsx
+        run: npm install && npx eslint . --ext .ts
 
       - name: show diff
         run: git add .; git diff --exit-code HEAD
