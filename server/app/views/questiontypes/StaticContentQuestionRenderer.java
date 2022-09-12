@@ -28,9 +28,11 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
         div()
             .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, Styles.MB_2, Styles.FONT_NORMAL)
             .with(TextFormatter.formatText(question.getQuestionText(), false));
+    DivTag questionHelpTextDiv =
+        div().withClasses(ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT, Styles.INVISIBLE);
     return div()
         .withId(question.getContextualizedPath().toString())
         .withClasses(Styles.MX_AUTO, Styles.MB_8, this.getReferenceClass())
-        .with(questionTextDiv);
+        .with(questionTextDiv, questionHelpTextDiv);
   }
 }

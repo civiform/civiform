@@ -33,7 +33,9 @@ public class ViewUtilsTest {
     ScriptTag result = viewUtils.makeLocalJsTag("hello");
 
     assertThat(result.render())
-        .isEqualTo("<script src=\"/full/asset/path.js\" data-has-loaded=\"false\" type=\"text/javascript\"></script>");
+        .isEqualTo(
+            "<script src=\"/full/asset/path.js\" data-has-loaded=\"false\""
+                + " type=\"text/javascript\"></script>");
   }
 
   @Test
