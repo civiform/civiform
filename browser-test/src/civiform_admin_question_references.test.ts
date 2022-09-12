@@ -10,7 +10,8 @@ describe('view program references from question view', () => {
     await adminQuestions.addAddressQuestion({questionName})
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
-      expectedProgramReferencesText: 'Used across 0 active & 0 draft programs',
+      expectedProgramReferencesText: 'Used across 0 programs',
+      version: 'draft',
     })
   })
 
@@ -32,7 +33,8 @@ describe('view program references from question view', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
-      expectedProgramReferencesText: 'Used across 0 active & 1 draft programs',
+      expectedProgramReferencesText: 'Used across 1 draft programs',
+      version: 'draft',
     })
 
     // Publish and add a reference from a new program in the draft version.
@@ -48,6 +50,7 @@ describe('view program references from question view', () => {
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
       expectedProgramReferencesText: 'Used across 1 active & 2 draft programs',
+      version: 'active',
     })
 
     await adminQuestions.expectProgramReferencesModalContains({
