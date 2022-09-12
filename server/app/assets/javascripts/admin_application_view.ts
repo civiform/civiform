@@ -60,7 +60,7 @@ class AdminApplicationView {
                 formEl,
                 AdminApplicationView.NEW_STATUS_INPUT_NAME,
               ),
-              sendEmail: this.extractInputValueFromForm(
+              sendEmail: this.extractCheckboxInputValueFromForm(
                 formEl,
                 AdminApplicationView.SEND_EMAIL_INPUT_NAME,
               ),
@@ -125,6 +125,17 @@ class AdminApplicationView {
       formEl.querySelector(`[name=${inputName}]`) as HTMLInputElement,
       inputName,
     ).value
+  }
+
+  private extractCheckboxInputValueFromForm(
+    formEl: HTMLFormElement,
+    inputName: string,
+  ): string {
+    const checkbox = this._assertNotNull(
+      formEl.querySelector(`[name=${inputName}]`) as HTMLInputElement,
+      inputName,
+    )
+    return checkbox.checked ? checkbox.value : ''
   }
 
   private registerStatusSelectorEventListener() {

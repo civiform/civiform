@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -56,6 +57,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.program.StatusDefinitions.Status;
+import services.program.StatusNotFoundException;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
@@ -186,7 +188,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_invalidStatus_fails() throws Exception {
     // Setup
-    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
@@ -206,11 +209,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .build();
 
     // Execute
-    Result result = controller.updateStatus(request, program.id, application.id);
-
-    // Evaluate
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
-    assertThat(contentAsString(result)).contains("is not valid for program");
+    assertThrows(
+        StatusNotFoundException.class,
+        () -> controller.updateStatus(request, program.id, application.id));
   }
 
   @Test
@@ -276,7 +277,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 

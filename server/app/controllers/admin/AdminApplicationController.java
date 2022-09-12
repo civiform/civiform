@@ -43,7 +43,9 @@ import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.application.ApplicationEventDetails;
+import services.applications.AccountHasNoEmailException;
 import services.applications.ProgramAdminApplicationService;
+import services.applications.StatusEmailNotFoundException;
 import services.export.ExporterService;
 import services.export.JsonExporter;
 import services.export.PdfExporter;
@@ -51,7 +53,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
-import services.program.StatusDefinitions.Status;
+import services.program.StatusNotFoundException;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
@@ -340,7 +342,8 @@ public final class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatus(Http.Request request, long programId, long applicationId)
-      throws ProgramNotFoundException {
+      throws ProgramNotFoundException, StatusEmailNotFoundException, StatusNotFoundException,
+          AccountHasNoEmailException {
     if (!featureFlags.isStatusTrackingEnabled(request)) {
       return notFound("status tracking is not enabled");
     }
@@ -377,11 +380,6 @@ public final class AdminApplicationController extends CiviFormController {
       return badRequest(String.format("The %s field is not present", SUCCESS_REDIRECT_URI));
     }
     String newStatus = maybeNewStatus.get();
-    if (!application.getProgram().getStatusDefinitions().getStatuses().stream()
-        .map(Status::statusText)
-        .anyMatch(newStatus::equals)) {
-      return badRequest(String.format("New status (%s) is not valid for program", newStatus));
-    }
     final boolean sendEmail;
     if (maybeSendEmail.get().isBlank()) {
       sendEmail = false;
