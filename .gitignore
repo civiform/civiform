@@ -28,6 +28,7 @@ terraform.tfstate**
 .terraform.tfstate**
 *.pyc
 terraform_plan
+*.iml
 
 sbt_cache/*
 !sbt_cache/.keep
