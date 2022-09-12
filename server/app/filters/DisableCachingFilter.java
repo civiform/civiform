@@ -37,9 +37,10 @@ public class DisableCachingFilter extends EssentialFilter {
 
                       if (ASSET_PATH_PREFIXES.stream().anyMatch(path::startsWith)
                           && OK_STATUS_CODES.contains(status)) {
-                        // In prod/staging, static assets are fingerprinted,
-                        // so we can cache for a longer time.
-                        // Cache for 2 weeks.
+                        // Static assets are fingerprinted so we can cache them for 2 weeks.
+                        // Even in dev mode where static files also don't change that often
+                        // it can add some performance improvement. Improves speed of
+                        // browser tests significantly.
                         return result.withHeader(
                             "Cache-Control", "public, max-age=1209600, immutable");
                       }
