@@ -15,16 +15,46 @@ RUN apk update && apk add --no-cache --update \
   openjdk11 bash wget npm shfmt git py3-pip
 
 RUN pip install yapf
+RUN npm install --global yarn
 
-COPY formatter/package.json /package.json
-COPY formatter/package-lock.json /package-lock.json
 COPY .prettier* /
-COPY .estlint* /
 COPY .editorconfig* /
 
+# Below we pre-install nodejs depdendencies for various
+# TS codebases we have. We need all dependencies in order to
+# run type-based checks with eslint. For each directory that
+# contains package.json we run npm install or yarn install and
+# save resulted `node_modules` directory as volume.
+
+# Fetch node js dependencies for `formatter` directory.
+ENV FORMATTER_DIR /code/formatter
+RUN mkdir -p $FORMATTER_DIR
+COPY formatter/package.json $FORMATTER_DIR
+COPY formatter/package-lock.json $FORMATTER_DIR
+WORKDIR $FORMATTER_DIR
 RUN npm install
 
-COPY formatter/fmt /fmt
-VOLUME /code
+# Fetch node js dependencies for `browser-test` directory.
+ENV BROWSER_TEST_DIR /code/browser-test
+RUN mkdir -p $BROWSER_TEST_DIR
+COPY browser-test/package.json $BROWSER_TEST_DIR
+COPY browser-test/yarn.lock $BROWSER_TEST_DIR
+WORKDIR $BROWSER_TEST_DIR
+RUN yarn install
 
-ENTRYPOINT ["/fmt"]
+# Fetch node js dependencies for `server` directory.
+ENV SERVER_DIR /code/server
+RUN mkdir -p $SERVER_DIR
+COPY server/package.json $SERVER_DIR
+COPY server/package-lock.json $SERVER_DIR
+WORKDIR $SERVER_DIR
+RUN npm install
+
+
+ENTRYPOINT ["/bin/bash"]
+CMD ["/code/formatter/fmt"]
+
+VOLUME ["/code/browser-test/node_modules"]
+VOLUME ["/code/server/node_modules"]
+VOLUME ["/code/formatter/node_modules"]
+VOLUME ["/code"]
