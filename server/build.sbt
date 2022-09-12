@@ -122,7 +122,7 @@ lazy val root = (project in file("."))
     pipelineStages := Seq(digest, gzip), // plugins to use for assets
     // Enable digest for local dev so that files can be served çached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages  := Seq(digest, gzip),
+    Assets / pipelineStages := Seq(digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(
