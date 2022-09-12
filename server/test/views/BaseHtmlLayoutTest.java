@@ -26,15 +26,15 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
 
     assertThat(content.body())
-        .contains("<link href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
+        .containsPattern("<link href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
     assertThat(content.body())
-        .contains(
-            "<script src=\"/assets/javascripts/main.js\" data-has-loaded=\"false\""
-                + " type=\"text/javascript\"></script>");
+        .containsPattern(
+            "<script src=\"/assets/javascripts/[a-z0-9]+-main.js\""
+                + " data-has-loaded=\"false\" type=\"text/javascript\"></script>");
     assertThat(content.body())
-        .contains(
-            "<script src=\"/assets/javascripts/radio.js\" data-has-loaded=\"false\""
-                + " type=\"text/javascript\"></script>");
+        .containsPattern(
+            "<script src=\"/assets/javascripts/[a-z0-9]+-radio.js\""
+                + " data-has-loaded=\"false\" type=\"text/javascript\"></script>");
 
     assertThat(content.body()).contains("<main></main>");
   }
