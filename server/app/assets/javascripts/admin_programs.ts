@@ -124,7 +124,12 @@ class AdminPrograms {
   }
 }
 
+const adminProgramsScriptEl = document.currentScript
 window.addEventListener('load', () => {
   AdminPrograms.sortCardsOnLoad()
   AdminPrograms.attachCopyProgramLinkListeners()
+  // Advertise for browser tests that initialization is done.
+  if (adminProgramsScriptEl) {
+    adminProgramsScriptEl.setAttribute('data-has-loaded', 'true')
+  }
 })

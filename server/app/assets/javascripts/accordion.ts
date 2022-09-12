@@ -32,4 +32,12 @@ class AccordionController {
   }
 }
 
-new AccordionController()
+const accordionScriptEl = document.currentScript
+
+window.addEventListener('load', () => {
+  new AccordionController()
+  // Advertise for browser tests that initialization is done.
+  if (accordionScriptEl) {
+    accordionScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

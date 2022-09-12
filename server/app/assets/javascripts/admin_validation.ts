@@ -102,5 +102,11 @@ class AdminValidationController {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-const adminValidationController = new AdminValidationController()
+const adminValidationScriptEl = document.currentScript
+window.addEventListener('load', () => {
+  new AdminValidationController()
+  // Advertise for browser tests that initialization is done.
+  if (adminValidationScriptEl) {
+    adminValidationScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

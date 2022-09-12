@@ -497,6 +497,7 @@ function attachRedirectToPageListeners() {
   })
 }
 
+const mainScriptEl = document.currentScript
 window.addEventListener('load', () => {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
@@ -583,6 +584,9 @@ window.addEventListener('load', () => {
 
   attachRedirectToPageListeners()
 
-  // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
+  if (mainScriptEl) {
+    // Advertise for browser tests that initialization is done.
+    mainScriptEl.setAttribute('data-has-loaded', 'true')
+  }
 })

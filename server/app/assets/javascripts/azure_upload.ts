@@ -97,4 +97,12 @@ class AzureUploadController {
 }
 /* eslint-enable  @typescript-eslint/no-explicit-any */
 
-window.addEventListener('load', () => new AzureUploadController())
+const azureUploadScriptEl = document.currentScript
+
+window.addEventListener('load', () => {
+  new AzureUploadController()
+  // Advertise for browser tests that initialization is done.
+  if (azureUploadScriptEl) {
+    azureUploadScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

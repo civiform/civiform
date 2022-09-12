@@ -75,5 +75,14 @@ class RadioController {
   }
 }
 
-window.addEventListener('pageshow', () => RadioController.initializeRadios())
-new RadioController()
+const radioScriptEl = document.currentScript
+
+window.addEventListener('load', () => {
+  window.addEventListener('pageshow', () => RadioController.initializeRadios())
+  RadioController.initializeRadios()
+  new RadioController()
+  // Advertise for browser tests that initialization is done.
+  if (radioScriptEl) {
+    radioScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

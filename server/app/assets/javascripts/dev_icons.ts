@@ -1,3 +1,5 @@
+const devIconsScriptEl = document.currentScript
+
 /** This handler is responsible for annotating each rendered SVG icon
  * with its size as calculated by the browser.  */
 window.addEventListener('load', () => {
@@ -19,4 +21,9 @@ window.addEventListener('load', () => {
       iconHeightEl.textContent = `${2 * bbox.y + bbox.height}`
     }
   })
+
+  // Advertise for browser tests that initialization is done.
+  if (devIconsScriptEl) {
+    devIconsScriptEl.setAttribute('data-has-loaded', 'true')
+  }
 })

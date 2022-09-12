@@ -231,4 +231,11 @@ interface EditNoteData {
   note: string
 }
 
-window.addEventListener('load', () => new AdminApplications())
+const applicationsScriptEl = document.currentScript
+window.addEventListener('load', () => {
+  new AdminApplications()
+  // Advertise for browser tests that initialization is done.
+  if (applicationsScriptEl) {
+    applicationsScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

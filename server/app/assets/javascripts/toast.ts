@@ -237,5 +237,16 @@ type ToastMessage = {
   type: string
 }
 
+const toastScriptEl = document.currentScript
+
+// The toast controller is initialized here and used in callbacks from other scripts
+// (e.g. admin_programs).
 // eslint-disable-next-line no-unused-vars
 const toastController = new ToastController()
+
+window.addEventListener('load', () => {
+  // Advertise for browser tests that initialization is done.
+  if (toastScriptEl) {
+    toastScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

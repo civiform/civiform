@@ -193,4 +193,11 @@ class AdminApplicationView {
   }
 }
 
-window.addEventListener('load', () => new AdminApplicationView())
+const applicationViewScriptEl = document.currentScript
+window.addEventListener('load', () => {
+  new AdminApplicationView()
+  // Advertise for browser tests that initialization is done.
+  if (applicationViewScriptEl) {
+    applicationViewScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

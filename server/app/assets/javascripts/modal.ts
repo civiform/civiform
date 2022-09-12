@@ -56,5 +56,12 @@ class ModalController {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-const modalController = new ModalController()
+const modalScriptEl = document.currentScript
+
+window.addEventListener('load', () => {
+  new ModalController()
+  // Advertise for browser tests that initialization is done.
+  if (modalScriptEl) {
+    modalScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

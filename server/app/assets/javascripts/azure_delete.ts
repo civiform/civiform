@@ -38,4 +38,12 @@ class AzureDeleteController {
   }
 }
 
-window.addEventListener('load', () => new AzureDeleteController())
+const azureDeleteScriptEl = document.currentScript
+
+window.addEventListener('load', () => {
+  new AzureDeleteController()
+  // Advertise for browser tests that initialization is done.
+  if (azureDeleteScriptEl) {
+    azureDeleteScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

@@ -1,3 +1,5 @@
+const fileUploadScriptEl = document.currentScript
+
 window.addEventListener('load', () => {
   // Prevent attempting to submit a file upload form
   // if no file has been selected. Note: For optional
@@ -11,6 +13,11 @@ window.addEventListener('load', () => {
       }
       return true
     })
+  }
+
+  // Advertise for browser tests that initialization is done.
+  if (fileUploadScriptEl) {
+    fileUploadScriptEl.setAttribute('data-has-loaded', 'true')
   }
 })
 

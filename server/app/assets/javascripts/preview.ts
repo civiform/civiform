@@ -439,5 +439,12 @@ class PreviewController {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-const previewController = new PreviewController()
+const previewScriptEl = document.currentScript
+
+window.addEventListener('load', () => {
+  new PreviewController()
+  // Advertise for browser tests that initialization is done.
+  if (previewScriptEl) {
+    previewScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})

@@ -42,4 +42,13 @@ class QuestionBankController {
   }
 }
 
-new QuestionBankController()
+const questionBankScriptEl = document.currentScript
+
+window.addEventListener('load', () => {
+  new QuestionBankController()
+
+  // Advertise for browser tests that initialization is done.
+  if (questionBankScriptEl) {
+    questionBankScriptEl.setAttribute('data-has-loaded', 'true')
+  }
+})
