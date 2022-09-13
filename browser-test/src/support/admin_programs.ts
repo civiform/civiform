@@ -697,7 +697,19 @@ export class AdminPrograms {
 
     return JSON.parse(readFileSync(path, 'utf8'))
   }
-
+  async getPdf() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.applicationFrameLocator()
+        .locator('a:has-text("Export to PDF")')
+        .click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
   async getCsv(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {

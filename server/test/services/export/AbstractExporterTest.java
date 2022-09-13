@@ -22,14 +22,19 @@ import support.QuestionAnswerer;
  */
 public abstract class AbstractExporterTest extends ResetPostgres {
   protected Program fakeProgramWithEnumerator;
+  protected Program fakeProgramWithOptionalFileUpload;
   protected Program fakeProgram;
   protected ImmutableList<Question> fakeQuestions;
   protected Applicant applicantOne;
+  protected Applicant applicantFive;
+  protected Applicant applicantSix;
   protected Applicant applicantTwo;
   protected Application applicationOne;
   protected Application applicationTwo;
   protected Application applicationThree;
   protected Application applicationFour;
+  protected Application applicationFive;
+  protected Application applicationSix;
 
   protected void answerQuestion(
       QuestionType questionType,
@@ -149,6 +154,56 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     this.fakeProgram = fakeProgram.build();
   }
 
+  protected void createFakeProgramWithOptionalQuestion() {
+    Question fileQuestion = testQuestionBank.applicantFile();
+    Question nameQuestion = testQuestionBank.applicantName();
+
+    fakeProgramWithOptionalFileUpload =
+        ProgramBuilder.newActiveProgram()
+            .withName("Fake Optional Question Program")
+            .withBlock()
+            .withRequiredQuestion(nameQuestion)
+            .withBlock()
+            .withOptionalQuestion(fileQuestion)
+            .build();
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+    // Applicant five have file uploaded for the optional file upload question
+    applicantFive = resourceCreator.insertApplicantWithAccount();
+    QuestionAnswerer.answerNameQuestion(
+        applicantFive.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Example",
+        "",
+        "Five");
+    QuestionAnswerer.answerFileQuestion(
+        applicantFive.getApplicantData(), answerPath, "my-file-key");
+    applicationFive =
+        new Application(applicantFive, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
+    applicantFive.save();
+    CfTestHelpers.withMockedInstantNow(
+        "2022-01-01T00:00:00Z", () -> applicationFive.setSubmitTimeToNow());
+    applicationFive.save();
+    // Applicant six hasn't uploaded a file for the optional file upload question
+    applicantSix = resourceCreator.insertApplicantWithAccount();
+    QuestionAnswerer.answerNameQuestion(
+        applicantSix.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Example",
+        "",
+        "Six");
+    applicationSix =
+        new Application(applicantSix, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
+    applicantSix.save();
+    CfTestHelpers.withMockedInstantNow(
+        "2022-01-01T00:00:00Z", () -> applicationSix.setSubmitTimeToNow());
+    applicationSix.save();
+  }
   /**
    * Creates a program that has an enumerator question with children, three applicants, and three
    * applications. The applications have submission times one month apart starting on 2022-01-01.
