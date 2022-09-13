@@ -242,12 +242,12 @@ type ToastMessage = {
  * that want to call toast programmatically should import this interface as
  * type and access it as:
  *
- * const toast = (window as unknown as WindowWithToast).toastController ;
- * toast.showToastMessage(...);
+ * const toast = (window as unknown as WindowWithToast).toastControlleк
+ * toast.showToastMessage(...)
  */
 export interface WindowWithToast {
   toastController: ToastController
 }
 
 // Export controller as it might be used from other files on the same page.
-;(window as unknown as WindowWithToast).toastController = new ToastController()
+(window as unknown as WindowWithToast).toastController = new ToastController()
