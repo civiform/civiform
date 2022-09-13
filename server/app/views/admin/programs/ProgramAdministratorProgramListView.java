@@ -70,8 +70,8 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
             .setTitle(title)
             .addMainContent(contentDiv)
             .addFooterScripts(
-              layout.viewUtils.makeLocalJsTag("admin_programs"),
-              layout.viewUtils.makeLocalJsTag("sorting"));
+                layout.viewUtils.makeLocalJsTag("admin_programs"),
+                layout.viewUtils.makeLocalJsTag("sorting"));
 
     return layout.renderCentered(htmlBundle);
   }

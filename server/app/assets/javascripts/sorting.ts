@@ -1,7 +1,7 @@
 /**
  * ElementSorter provides utilities for sorting a group of objects.
  */
- class ElementSorter {
+class ElementSorter {
   private static sortableElementSelector = '.cf-sortable-element'
 
   static sortElementsOnLoad({

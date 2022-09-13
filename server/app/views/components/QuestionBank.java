@@ -16,7 +16,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
-
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;

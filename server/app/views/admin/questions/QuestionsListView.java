@@ -19,7 +19,6 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,11 +72,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(Styles.PX_4)
             .with(
                 div()
-                    .withClasses(
-                        Styles.FLEX,
-                        Styles.ITEMS_CENTER,
-                        Styles.SPACE_X_4,
-                        Styles.MT_12)
+                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)
                     .with(
                         h1(title),
                         div().withClass(Styles.FLEX_GROW),
@@ -128,7 +123,11 @@ public final class QuestionsListView extends BaseHtmlView {
       rows.add(rowAndModals.getLeft());
       modals.addAll(rowAndModals.getRight());
     }
-    return Pair.of(div().withClasses(ReferenceClasses.ADMIN_QUESTION_LIST, Styles.INVISIBLE).with(rows.build()), modals.build());
+    return Pair.of(
+        div()
+            .withClasses(ReferenceClasses.ADMIN_QUESTION_LIST, Styles.INVISIBLE)
+            .with(rows.build()),
+        modals.build());
   }
 
   /**
@@ -178,7 +177,10 @@ public final class QuestionsListView extends BaseHtmlView {
         div()
             .withClasses(Styles.PY_7)
             .with(span("Admin note: ").withClasses(Styles.FONT_BOLD))
-            .with(span(latestDefinition.getName()).withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE), br(), span(latestDefinition.getDescription()));
+            .with(
+                span(latestDefinition.getName()).withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE),
+                br(),
+                span(latestDefinition.getDescription()));
 
     DivTag rowWithAdminNote =
         div()
