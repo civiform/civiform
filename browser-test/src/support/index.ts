@@ -3,6 +3,7 @@ import {
   Browser,
   BrowserContext,
   Locator,
+  Request,
   chromium,
   Page,
   PageScreenshotOptions,
@@ -173,6 +174,30 @@ export const createTestContext = (clearDb = true): TestContext => {
     }
     browserContext = await makeBrowserContext(browser)
     ctx.page = await browserContext.newPage()
+    ctx.page.click = (function (originalClick) {
+      return async function () {
+        const requests = [] as Request[]
+        const captureRequest = function (req: Request) {
+          const baseUrl = 'http://civiform:9000/'
+          if (!req.url().startsWith(baseUrl)) {
+            return
+          }
+          if (req.url().startsWith(`${baseUrl}assets`)) {
+            return
+          }
+          requests.push(req)
+        }
+        ctx.page.on('request', captureRequest)
+        // @ts-ignore:next-line
+        const result = await originalClick.apply(ctx.page, arguments)
+        ctx.page.removeListener('request', captureRequest)
+        if (requests.length) {
+          // There was a new page load. Wait for JS load.
+          await waitForPageJsLoad(ctx.page)
+        }
+        return result
+      }
+    })(ctx.page.click)
     // Default timeout is 30s. It's too long given that civiform is not JS
     // heavy and all elements render quite quickly. Setting it to 5 sec so that
     // tests fail fast.
