@@ -223,8 +223,11 @@ export class ApplicantQuestions {
   }
 
   async clickUpload() {
-    await this.page.click('text="Upload"')
-    await waitForPageJsLoad(this.page)
+    await Promise.all([
+      this.page.waitForNavigation(),
+      this.page.click('text="Upload"'),
+      waitForPageJsLoad(this.page),
+    ])
   }
 
   async deleteEnumeratorEntity(entityName: string) {
