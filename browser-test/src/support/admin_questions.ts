@@ -90,7 +90,7 @@ export class AdminQuestions {
   }
 
   async expectMultiOptionBlankOptionError(options: string[]) {
-    const errors = await this.page.locator(
+    const errors = this.page.locator(
       '#question-settings .cf-multi-option-input-error',
     )
     // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.

@@ -379,7 +379,7 @@ export const selectApplicantLanguage = async (
   assertProgramIndexPage = false,
 ) => {
   const infoPageRegex = /applicants\/\d+\/edit/
-  const maybeSelectLanguagePage = await page.url()
+  const maybeSelectLanguagePage = page.url()
   if (maybeSelectLanguagePage.match(infoPageRegex)) {
     const languageOption = `.cf-radio-option:has-text("${language}")`
     await page.click(languageOption + ' input')
@@ -389,7 +389,7 @@ export const selectApplicantLanguage = async (
 
   if (assertProgramIndexPage) {
     const programIndexRegex = /applicants\/\d+\/programs/
-    const maybeProgramIndexPage = await page.url()
+    const maybeProgramIndexPage = page.url()
     expect(maybeProgramIndexPage).toMatch(programIndexRegex)
   }
 }

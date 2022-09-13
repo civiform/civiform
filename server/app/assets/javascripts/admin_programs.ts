@@ -22,7 +22,7 @@ class AdminPrograms {
         return
       }
       el.addEventListener('click', () => {
-        AdminPrograms.copyProgramLinkToClipboard(programLink)
+        void AdminPrograms.copyProgramLinkToClipboard(programLink)
       })
     })
   }
