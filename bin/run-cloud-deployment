@@ -2,7 +2,7 @@
 
 # DOC: Run deploy scripts from Docker.
 
-# Usage: 
+# Usage:
 # bin/build-cloud
 # bin/run-cloud <command> <tag> <config_file>
 
