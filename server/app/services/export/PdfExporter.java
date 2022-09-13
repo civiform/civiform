@@ -12,30 +12,35 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.typesafe.config.Config;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import javax.inject.Inject;
 import models.Application;
-import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
-import services.applicant.question.Scalar;
-import services.question.types.QuestionType;
 
-/** PdfExporter is meant to generate PDF files. The functionality is not fully implemented yet. */
-public class PdfExporter {
+/** PdfExporter is meant to generate PDF files. */
+public final class PdfExporter {
   private final ApplicantService applicantService;
   private final Provider<LocalDateTime> nowProvider;
+  private final String baseUrl;
 
   @Inject
-  PdfExporter(ApplicantService applicantService, @Now Provider<LocalDateTime> nowProvider) {
+  PdfExporter(
+      ApplicantService applicantService,
+      @Now Provider<LocalDateTime> nowProvider,
+      Config configuration) {
     this.applicantService = checkNotNull(applicantService);
     this.nowProvider = checkNotNull(nowProvider);
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
   /**
    * Generates a byte array containing all the values present in the List of AnswerData using
@@ -50,6 +55,7 @@ public class PdfExporter {
             .toCompletableFuture()
             .join();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
@@ -57,12 +63,16 @@ public class PdfExporter {
         buildPDF(
             answers,
             applicantNameWithApplicationId,
-            application.getProgram().getProgramDefinition().adminName());
+            application.getProgram().getProgramDefinition().adminName(),
+            application.getProgram().id);
     return new InMemoryPdf(bytes, filename);
   }
 
   private byte[] buildPDF(
-      ImmutableList<AnswerData> answers, String applicantNameWithApplicationId, String programName)
+      ImmutableList<AnswerData> answers,
+      String applicantNameWithApplicationId,
+      String programName,
+      Long programId)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -89,11 +99,13 @@ public class PdfExporter {
                 answerData.questionDefinition().getName(),
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
         Paragraph answer = null;
-        if (QuestionType.FILEUPLOAD == answerData.questionDefinition().getQuestionType()) {
-          Path contextPath = answerData.contextualizedPath().join(Scalar.FILE_KEY);
-          String fileUrl = answerData.scalarAnswersInDefaultLocale().get(contextPath);
+        if (answerData.fileKey().isPresent()) {
+          String encodedFileKey =
+              URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
+          String fileLink =
+              controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
           Anchor anchor = new Anchor(answerData.answerText());
-          anchor.setReference(fileUrl);
+          anchor.setReference(baseUrl + fileLink);
           answer = new Paragraph();
           answer.add(anchor);
         } else {

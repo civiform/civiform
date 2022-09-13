@@ -13,16 +13,19 @@ import com.itextpdf.text.pdf.PdfString;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import java.io.IOException;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 
 public class PdfExporterTest extends AbstractExporterTest {
-
-  @Test
-  public void validatePDFExport() throws IOException, DocumentException {
+  @Before
+  public void createTestData() {
     createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
+  }
 
+  @Test
+  public void validatePDFExport() throws IOException, DocumentException {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     String applicantNameWithApplicationId =
@@ -63,6 +66,102 @@ public class PdfExporterTest extends AbstractExporterTest {
       assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
     }
   }
+
+  @Test
+  public void validatePDFExport_OptionalFileUploadWithFile() throws IOException, DocumentException {
+    createFakeProgramWithOptionalQuestion();
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String applicantNameWithApplicationId =
+        String.format(
+            "%s (%d)", applicationFive.getApplicantData().getApplicantName(), applicationFive.id);
+    PdfExporter.InMemoryPdf result = exporter.export(applicationFive);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    // Assertions to check if the URL is embedded for the FileUpload
+    PdfDictionary pdfDictionary = pdfReader.getPageN(1);
+    PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
+    PdfObject current = annots.getPdfObject(0);
+    PdfDictionary currentPdfDictionary = (PdfDictionary) pdfReader.getPdfObject(current);
+    assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
+    PdfDictionary AnnotationAction = (PdfDictionary) currentPdfDictionary.getAsDict(PdfName.A);
+    assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
+    PdfString link = AnnotationAction.getAsString(PdfName.URI);
+    assertThat(link.toString())
+        .isEqualTo(
+            "http://localhost:9000/admin/programs/"
+                + applicationFive.getProgram().id
+                + "/files/my-file-key");
+
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationFive.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    System.out.println(linesFromPDF);
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING);
+
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
+    }
+  }
+
+  @Test
+  public void validatePDFExport_OptionalFileUploadWithoutFile()
+      throws IOException, DocumentException {
+    createFakeProgramWithOptionalQuestion();
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String applicantNameWithApplicationId =
+        String.format(
+            "%s (%d)", applicationSix.getApplicantData().getApplicantName(), applicationSix.id);
+    PdfExporter.InMemoryPdf result = exporter.export(applicationSix);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    PdfDictionary pdfDictionary = pdfReader.getPageN(1);
+    // Annots would be empty for no file cases
+    PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
+    assertThat(annots).isNull();
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationSix.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_SIX_STRING);
+
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
+    }
+  }
+
+  public static final String APPLICATION_SIX_STRING =
+      "Optional.empty (653)\n"
+          + "Program Name : Fake Optional Question Program\n"
+          + " \n"
+          + "applicant name\n"
+          + "Example Six\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant file\n"
+          + "-- NO FILE SELECTED --\n"
+          + "Answered on : 1969-12-31\n";
+  public static final String APPLICATION_FIVE_STRING =
+      "Optional.empty (558)\n"
+          + "Program Name : Fake Optional Question Program\n"
+          + " \n"
+          + "applicant name\n"
+          + "Example Five\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant file\n"
+          + "-- my-file-key UPLOADED (click to download) --\n"
+          + "Answered on : 1969-12-31\n";
 
   public static final String APPLICATION_ONE_STRING =
       "Optional.empty (48)\n"
