@@ -6,7 +6,7 @@
  *  - dismiss a toast messages based on a user action or after a specified timeout.
  *  - permanently dismiss toast messags (using localStorage)
  */
-class ToastController {
+export class ToastController {
   static containerId = 'toast-container'
   static messageClass = 'cf-toast'
   static messageDataClass = 'cf-toast-data'
@@ -237,5 +237,17 @@ type ToastMessage = {
   type: string
 }
 
-// eslint-disable-next-line no-unused-vars
-const toastController = new ToastController()
+/**
+ * Window object that contains toastController as one of fields. Other files
+ * that want to call toast programmatically should import this interface as
+ * type and access it as:
+ *
+ * const toast = (window as unknown as WindowWithToast).toastController ;
+ * toast.showToastMessage(...);
+ */
+export interface WindowWithToast {
+  toastController: ToastController
+}
+
+// Export controller as it might be used from other files on the same page.
+;(window as unknown as WindowWithToast).toastController = new ToastController()

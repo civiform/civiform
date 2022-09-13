@@ -44,7 +44,11 @@ public final class ViewUtils {
   public ScriptTag makeLocalJsTag(String filename) {
     return script()
         .withSrc(assetsFinder.path("javascripts/" + filename + ".js"))
-        .withType("text/javascript");
+        // Render JS files as modules. Some TS files use import/export for using each other types.
+        // That adds export {} statements in the transpiled JS files even though no actual code
+        // being imported. Presence of export {} requires JS file being included as 'module'.
+        // All modern browsers support loading JS files as modules.
+        .withType("module");
   }
 
   /**

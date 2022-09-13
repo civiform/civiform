@@ -5,17 +5,13 @@ class RadioController {
   static radioOptionClass = '.cf-radio-option'
   static selectedRadioClasses = ['border-seattle-blue', 'bg-blue-200']
 
-  constructor() {
-    this.addRadioListeners()
-  }
-
   /**
    * Initialize styling on radio buttons.
    *
    * Since the styling is toggled via javascript, we need to run this whenever the page
    * is shown so that the BF cache doesn't put us in a bad state.
    */
-  public static initializeRadios() {
+  static initializeRadios() {
     const radios = Array.from(
       document.querySelectorAll(RadioController.radioInputClass),
     )
@@ -32,7 +28,7 @@ class RadioController {
   }
 
   /** Add listeners to radio buttons to change style on selection. */
-  addRadioListeners() {
+  static addRadioListeners() {
     const radios = Array.from(
       document.querySelectorAll(RadioController.radioInputClass),
     )
@@ -76,4 +72,4 @@ class RadioController {
 }
 
 window.addEventListener('pageshow', () => RadioController.initializeRadios())
-new RadioController()
+RadioController.addRadioListeners()

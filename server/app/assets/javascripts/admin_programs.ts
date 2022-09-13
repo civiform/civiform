@@ -1,3 +1,7 @@
+// Imporating toast.ts only for types as we don't have proper bundling setup
+// for importing actual code.
+import type {WindowWithToast} from './toast'
+
 class AdminPrograms {
   private static PROGRAM_ADIN_LIST_SELECTOR = '.cf-admin-program-card-list'
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
@@ -100,8 +104,8 @@ class AdminPrograms {
 
   static async copyProgramLinkToClipboard(programLink: string) {
     const succeeded = await AdminPrograms.tryCopyToClipboard(programLink)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const toastController = window['toastController'] as any
+    const toastController = (window as unknown as WindowWithToast)
+      .toastController
     if (succeeded) {
       toastController.showToastMessage({
         id: `program-link-${Math.random()}`,
