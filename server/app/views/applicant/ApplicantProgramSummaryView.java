@@ -14,8 +14,6 @@ import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -144,7 +142,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (data.isAnswered()) {
       final ContainerTag answerContent;
       if (data.fileKey().isPresent()) {
-        String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
+        String encodedFileKey = data.encodedFileKey().get();
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
         answerContent = a().withHref(fileLink);
       } else {
