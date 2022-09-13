@@ -68,6 +68,8 @@ public final class ActiveAndDraftQuestions {
 
     versionedByName =
         Sets.union(activeNameToQuestion.keySet(), draftNameToQuestion.keySet()).stream()
+            // TODO(#3029): remove sorting once client-side sorting is implemented
+            .sorted()
             .collect(
                 ImmutableMap.toImmutableMap(
                     Function.identity(),

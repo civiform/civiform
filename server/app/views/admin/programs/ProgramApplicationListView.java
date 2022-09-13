@@ -33,6 +33,7 @@ import repository.SubmittedApplicationFilter;
 import services.DateConverter;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.UrlUtils;
 import services.program.ProgramDefinition;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
@@ -45,6 +46,7 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
+import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -79,7 +81,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
-      RenderFilterParams filterParams) {
+      RenderFilterParams filterParams,
+      Optional<String> selectedApplicationUri) {
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     DivTag applicationListDiv =
@@ -96,7 +99,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 Optional.of(pageNumber),
                                 filterParams.fromDate(),
                                 filterParams.untilDate(),
-                                filterParams.selectedApplicationStatus()))
+                                filterParams.selectedApplicationStatus(),
+                                /* selectedApplicationUri= */ Optional.empty()))
                     .withClasses(Styles.MB_2),
                 br(),
                 renderSearchForm(
@@ -104,7 +108,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     allPossibleProgramApplicationStatuses,
                     downloadModal.getButton(),
                     filterParams),
-                each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
+                each(
+                    paginatedApplications.getPageContents(),
+                    application ->
+                        renderApplicationListItem(
+                            application,
+                            /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0)))
             .withClasses(
                 Styles.MT_6,
                 StyleUtils.responsiveLarge(Styles.MT_12),
@@ -119,6 +128,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .with(
                 iframe()
                     .withName("application-display-frame")
+                    // Only allow relative URLs to ensure that we redirect to the same domain.
+                    .withSrc(UrlUtils.checkIsRelativeUrl(selectedApplicationUri.orElse("")))
                     .withClasses(Styles.W_FULL, Styles.H_FULL));
 
     HtmlBundle htmlBundle =
@@ -128,8 +139,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
             .addModals(downloadModal)
             .addMainStyles(Styles.FLEX)
-            .addMainContent(applicationListDiv, applicationShowDiv);
-
+            .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv, applicationShowDiv);
+    Optional<String> maybeSuccessMessage = request.flash().get("success");
+    if (maybeSuccessMessage.isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
+    }
     return layout.renderCentered(htmlBundle);
   }
 
@@ -148,7 +162,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     /* page= */ Optional.empty(),
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),
-                    /* applicationStatus= */ Optional.empty())
+                    /* applicationStatus= */ Optional.empty(),
+                    /* selectedApplicationUri= */ Optional.empty())
                 .url())
         .with(
             fieldset()
@@ -307,7 +322,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .build();
   }
 
-  private DivTag renderApplicationListItem(Application application) {
+  private DivTag renderApplicationListItem(Application application, boolean displayStatus) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -326,13 +341,20 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 application.getSubmitterEmail().isPresent(),
                 p(application.getSubmitterEmail().orElse(""))
                     .withClasses(Styles.TEXT_LG, Styles.TEXT_GRAY_800, Styles.MB_2))
+            .condWith(
+                displayStatus,
+                p().withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700)
+                    .with(
+                        span("Status: "),
+                        span(application.getLatestStatus().orElse("None"))
+                            .withClass(Styles.FONT_SEMIBOLD)))
             .with(
                 div()
                     .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL)
                     .with(
                         p(renderSubmitTime(application))
                             .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
-                        p().withClasses(Styles.FLEX_GROW),
+                        div().withClasses(Styles.FLEX_GROW),
                         renderViewLink(viewLinkText, application)));
 
     return div(cardContent)
