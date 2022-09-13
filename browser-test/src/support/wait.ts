@@ -12,13 +12,23 @@ export const waitForPageJsLoad = async (page: Page | Frame | null) => {
 
   await page.waitForLoadState('load')
 
+  await page.waitForFunction(() => {
+    const withAttributeSize = window.document.querySelectorAll(
+      'script[data-has-loaded]',
+    ).length
+    const withTrueAttributeSize = window.document.querySelectorAll(
+      'script[data-has-loaded="true"]',
+    ).length
+    return withAttributeSize === withTrueAttributeSize
+  })
+
   // Resolve scripts to await loading for.
   // const scriptsToWaitForLocator = await page.locator('script[data-has-loaded]')
-  const scriptSrcs = (await page
-    .locator('script[data-has-loaded]')
-    .evaluateAll((scriptEls: Array<HTMLScriptElement>) => {
-      return scriptEls.map((scriptEl) => scriptEl.getAttribute('src') || '')
-    })) as Array<string>
+  // const scriptSrcs = (await page
+  //   .locator('script[data-has-loaded]')
+  //   .evaluateAll((scriptEls: Array<HTMLScriptElement>) => {
+  //     return scriptEls.map((scriptEl) => scriptEl.getAttribute('src') || '')
+  //   })) as Array<string>
   // const scriptElements = await scriptsToWaitForLocator.elementHandles()
   // const scriptSrcs = await Promise.all(
   //   scriptElements.map((scriptEl: ElementHandle) => {
@@ -27,19 +37,19 @@ export const waitForPageJsLoad = async (page: Page | Frame | null) => {
   // )
 
   // Now wait until all of the matching scripts have a loaded state.
-  await Promise.all(
-    scriptSrcs.map(async (scriptSrc) => {
-      const scriptEl = await page.waitForSelector(
-        `script[src="${scriptSrc}"][data-has-loaded="true"]`,
-        {state: 'attached', strict: true, timeout: 2000},
-      )
-      if (!scriptEl) {
-        throw new Error(
-          `Loading not completed for script with src=${scriptSrc}`,
-        )
-      }
-    }),
-  )
+  // await Promise.all(
+  //   scriptSrcs.map(async (scriptSrc) => {
+  //     const scriptEl = await page.waitForSelector(
+  //       `script[src="${scriptSrc}"][data-has-loaded="true"]`,
+  //       {state: 'attached', strict: true, timeout: 2000},
+  //     )
+  //     if (!scriptEl) {
+  //       throw new Error(
+  //         `Loading not completed for script with src=${scriptSrc}`,
+  //       )
+  //     }
+  //   }),
+  // )
 
   // TODO(clouser): Remove these once testing is completed to determine if the above approach
   // causes significant performance regressions.
