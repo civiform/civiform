@@ -228,7 +228,7 @@ export class ApplicantQuestions {
   }
 
   async deleteEnumeratorEntity(entityName: string) {
-    this.page.once('dialog',  (dialog) => {
+    this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
     await this.page.click(
@@ -237,7 +237,7 @@ export class ApplicantQuestions {
   }
 
   async deleteEnumeratorEntityByIndex(entityIndex: number) {
-    this.page.once('dialog',  (dialog) => {
+    this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
     await this.page.click(`:nth-match(:text("Remove Entity"), ${entityIndex})`)
