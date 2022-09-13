@@ -13,13 +13,18 @@ export const waitForPageJsLoad = async (page: Page | Frame | null) => {
   await page.waitForLoadState('load')
 
   // Resolve scripts to await loading for.
-  const scriptsToWaitForLocator = await page.locator('script[data-has-loaded]')
-  const scriptElements = await scriptsToWaitForLocator.elementHandles()
-  const scriptSrcs = await Promise.all(
-    scriptElements.map((scriptEl: ElementHandle) => {
-      return scriptEl.getAttribute('src')
-    }),
-  )
+  // const scriptsToWaitForLocator = await page.locator('script[data-has-loaded]')
+  const scriptSrcs = (await page
+    .locator('script[data-has-loaded]')
+    .evaluateAll((scriptEls: Array<HTMLScriptElement>) => {
+      return scriptEls.map((scriptEl) => scriptEl.getAttribute('src') || '')
+    })) as Array<string>
+  // const scriptElements = await scriptsToWaitForLocator.elementHandles()
+  // const scriptSrcs = await Promise.all(
+  //   scriptElements.map((scriptEl: ElementHandle) => {
+  //     return scriptEl.getAttribute('src')
+  //   }),
+  // )
 
   // Now wait until all of the matching scripts have a loaded state.
   await Promise.all(
