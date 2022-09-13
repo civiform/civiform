@@ -141,8 +141,16 @@ public final class QuestionsListView extends BaseHtmlView {
     }
     QuestionDefinition latestDefinition = draftDefinition.orElseGet(activeDefinition::get);
 
-    DivTag row = div().withClasses(Styles.FLEX).with(renderInfoCell(latestDefinition));
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
+    Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
+        renderReferencingPrograms(questionName, activeAndDraftQuestions);
+    modals.addAll(referencingProgramAndModal.getRight());
+
+    DivTag row =
+        div()
+            .withClasses(Styles.FLEX)
+            .with(renderInfoCell(latestDefinition))
+            .with(referencingProgramAndModal.getLeft());
 
     DivTag draftAndActiveRows = div().withClasses(Styles.FLEX_GROW);
     if (draftDefinition.isPresent()) {
@@ -195,14 +203,6 @@ public final class QuestionsListView extends BaseHtmlView {
         isActive
             && activeAndDraftQuestions.getDraftQuestionDefinition(question.getName()).isPresent();
 
-    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
-        activeAndDraftQuestions.getReferencingPrograms(question.getName());
-    Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
-        renderPublishedDateAndReferencingPrograms(
-            question.getName(),
-            activeAndDraftQuestions,
-            referencingPrograms.activeReferences(),
-            referencingPrograms.draftReferences());
     Pair<DivTag, ImmutableList<Modal>> actionsCellAndModal =
         renderActionsCell(isActive, question, activeAndDraftQuestions, request);
 
@@ -223,19 +223,13 @@ public final class QuestionsListView extends BaseHtmlView {
                 Styles.CURSOR_POINTER,
                 isSecondRow ? Styles.BORDER_T : "")
             .with(badge)
-            .with(referencingProgramAndModal.getLeft())
             .with(div().withClasses(Styles.FLEX_GROW))
             .with(actionsCellAndModal.getLeft());
 
     asRedirectElement(
         row, controllers.admin.routes.AdminQuestionController.show(question.getId()).url());
 
-    return Pair.of(
-        row,
-        ImmutableList.<Modal>builder()
-            .addAll(referencingProgramAndModal.getRight())
-            .addAll(actionsCellAndModal.getRight())
-            .build());
+    return Pair.of(row, actionsCellAndModal.getRight());
   }
 
   private DivTag renderInfoCell(QuestionDefinition definition) {
@@ -269,12 +263,12 @@ public final class QuestionsListView extends BaseHtmlView {
    * Renders text describing how programs use specified question and provides a link to show dialog
    * listing all such programs.
    */
-  private Pair<DivTag, ImmutableList<Modal>> renderPublishedDateAndReferencingPrograms(
-      String questionName,
-      ActiveAndDraftQuestions activeAndDraftQuestions,
-      Collection<ProgramDefinition> activePrograms,
-      Collection<ProgramDefinition> draftPrograms) {
-
+  private Pair<DivTag, ImmutableList<Modal>> renderReferencingPrograms(
+      String questionName, ActiveAndDraftQuestions activeAndDraftQuestions) {
+    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
+        activeAndDraftQuestions.getReferencingPrograms(questionName);
+    Collection<ProgramDefinition> activePrograms = referencingPrograms.activeReferences();
+    Collection<ProgramDefinition> draftPrograms = referencingPrograms.draftReferences();
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
             questionName, activePrograms, draftPrograms, /* modalHeader= */ Optional.empty());
@@ -297,7 +291,9 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(
                 ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS,
                 Styles.ML_4,
-                StyleUtils.responsiveXLarge(Styles.ML_10))
+                StyleUtils.responsiveXLarge(Styles.ML_10),
+                Styles.PY_7,
+                Styles.W_1_3)
             .with(span("Used across "), referencingProgramsCount);
     if (maybeReferencingProgramsModal.isPresent()) {
       tag.with(
