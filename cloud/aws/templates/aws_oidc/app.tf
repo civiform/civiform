@@ -156,6 +156,10 @@ module "civiform_metrics_scraper_container_def" {
   container_memory             = 2048
   container_memory_reservation = 1024
 
+  map_environment = {
+    PROMETHEUS_WRITE_ENDPOINT = "${aws_prometheus_workspace.metrics.prometheus_endpoint}api/v1/remote_write"
+  }
+
   log_configuration = {
     logDriver = "awslogs"
     options = {
@@ -347,5 +351,26 @@ module "ecs_fargate_service" {
   tags = {
     Name = "${var.app_prefix} Civiform Fargate Service"
     Type = "Civiform Fargate Service"
+  }
+}
+
+resource "aws_lb_listener_rule" "block_external_traffic_to_metrics_rule" {
+  count        = length(module.ecs_fargate_service.lb_https_listeners_arns)
+  listener_arn = module.ecs_fargate_service.lb_https_listeners_arns[count.index]
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Forbidden"
+      status_code  = "403"
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["/metrics"]
+    }
   }
 }
