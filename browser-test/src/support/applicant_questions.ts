@@ -222,12 +222,20 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickUpload() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      this.page.click('text="Upload"'),
-      waitForPageJsLoad(this.page),
-    ])
+  async clickUpload({expectSuccess}: {expectSuccess: boolean}) {
+    // Successful uploads navigate to a new page while unsuccessful ones may
+    // stay on the same page. Additionally, uploading a file may happen
+    // asynchronously, which means that Playwright's click promise may return
+    // before the redirect has occurred.
+    const promises = []
+    if (expectSuccess) {
+      promises.push(this.page.waitForNavigation())
+    }
+    promises.push(this.page.click('text="Upload"'))
+    await Promise.all(promises)
+    if (expectSuccess) {
+      await waitForPageJsLoad(this.page)
+    }
   }
 
   async deleteEnumeratorEntity(entityName: string) {
@@ -282,8 +290,7 @@ export class ApplicantQuestions {
     )
 
     // Click on submit button.
-    await this.page.click('text="Submit"')
-    await waitForPageJsLoad(this.page)
+    await this.page.click('text="Submit"'), await waitForPageJsLoad(this.page)
   }
 
   async submitFromPreviewPage() {

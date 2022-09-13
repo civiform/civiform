@@ -55,7 +55,7 @@ describe('file upload applicant flow', () => {
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickUpload()
+      await applicantQuestions.clickUpload({expectSuccess: false})
 
       await validateScreenshot(page, 'file-errors')
     })
@@ -88,7 +88,7 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
       await applicantQuestions.answerFileUploadQuestion(fileContent)
-      await applicantQuestions.clickUpload()
+      await applicantQuestions.clickUpload({expectSuccess: true})
 
       const downloadedFileContent =
         await applicantQuestions.downloadSingleQuestionFromReviewPage()
@@ -102,7 +102,7 @@ describe('file upload applicant flow', () => {
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickUpload()
+      await applicantQuestions.clickUpload({expectSuccess: false})
 
       const error = await page.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
@@ -152,7 +152,7 @@ describe('file upload applicant flow', () => {
       // Initially clicking upload with no file provided generates
       // an error. Then we click skip to ensure that the question
       // is optional.
-      await applicantQuestions.clickUpload()
+      await applicantQuestions.clickUpload({expectSuccess: false})
       const error = await page.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
       await applicantQuestions.clickSkip()
