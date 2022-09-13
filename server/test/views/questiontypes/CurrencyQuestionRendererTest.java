@@ -68,4 +68,17 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
     // Error message is hidden.
     assertThat(result.render()).contains("hidden");
   }
+
+  @Test
+  public void render_withAriaLabels() {
+    DivTag result = renderer.render(params);
+
+    assertThat(
+            result
+                .render()
+                .matches(
+                    ".*input type=\"text\" currency value=\"\""
+                        + " aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
+  }
 }
