@@ -584,7 +584,6 @@ window.addEventListener('load', () => {
 
   attachRedirectToPageListeners()
 
-  document.body.dataset.loadMain = 'true'
   if (mainScriptEl) {
     // Advertise for browser tests that initialization is done.
     mainScriptEl.setAttribute('data-has-loaded', 'true')

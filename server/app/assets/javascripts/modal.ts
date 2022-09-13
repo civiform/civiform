@@ -50,9 +50,6 @@ class ModalController {
         ModalController.toggleModal(modalContainer, modal)
       }
     })
-
-    // Advertise (e.g., for browser tests) that modal.ts initialization is done
-    document.body.dataset.loadModal = 'true'
   }
 }
 
