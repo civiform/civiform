@@ -89,8 +89,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         Styles.FLEX,
                         Styles.ITEMS_CENTER,
                         Styles.SPACE_X_4,
-                        Styles.MT_12,
-                        Styles.MB_10)
+                        Styles.MT_12)
                     .with(
                         h1(pageTitle),
                         div().withClass(Styles.FLEX_GROW),
@@ -100,10 +99,13 @@ public final class ProgramIndexView extends BaseHtmlView {
                         renderNewProgramButton(),
                         maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
                 div()
-                    .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
+                    .withClasses(Styles.MT_10, Styles.FLEX)
                     .with(
-                        p("Loading")
-                            .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER),
+                        div().withClasses(Styles.FLEX_GROW),
+                        p("Sorting by most recently updated").withClasses(Styles.TEXT_SM)),
+                div()
+                    .withClasses(Styles.MT_6, ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
+                    .with(
                         each(
                             programs.getProgramNames(),
                             name ->
@@ -119,7 +121,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
             .addModals(demographicsCsvModal)
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
+            .addFooterScripts(
+                layout.viewUtils.makeLocalJsTag("admin_programs"),
+                layout.viewUtils.makeLocalJsTag("sorting"));
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
     Http.Flash flash = request.flash();

@@ -131,7 +131,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                             .with(
                                 questionBankPanel(
                                     questions, programDefinition, blockDefinition, csrfTag))))
-            .addModals(blockDescriptionEditModal);
+            .addModals(blockDescriptionEditModal)
+            .addFooterScripts(layout.viewUtils.makeLocalJsTag("sorting"));
 
     // Add toast messages
     request

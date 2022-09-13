@@ -19,6 +19,8 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -75,21 +77,26 @@ public final class QuestionsListView extends BaseHtmlView {
                         Styles.FLEX,
                         Styles.ITEMS_CENTER,
                         Styles.SPACE_X_4,
-                        Styles.MT_12,
-                        Styles.MB_10)
+                        Styles.MT_12)
                     .with(
                         h1(title),
                         div().withClass(Styles.FLEX_GROW),
                         CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index().url())))
-            .with(questionRowsAndModals.getLeft())
+                            controllers.admin.routes.AdminQuestionController.index().url())),
+                div()
+                    .withClasses(Styles.MT_10, Styles.FLEX)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        p("Sorting by most recently updated").withClass(Styles.TEXT_SM)))
+            .with(div(questionRowsAndModals.getLeft()).withClasses(Styles.MT_6))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle(title)
             .addModals(questionRowsAndModals.getRight())
-            .addMainContent(contentDiv);
+            .addMainContent(contentDiv)
+            .addFooterScripts(layout.viewUtils.makeLocalJsTag("sorting"));
 
     Http.Flash flash = request.flash();
     if (flash.get("success").isPresent()) {
@@ -121,7 +128,7 @@ public final class QuestionsListView extends BaseHtmlView {
       rows.add(rowAndModals.getLeft());
       modals.addAll(rowAndModals.getRight());
     }
-    return Pair.of(div().with(rows.build()), modals.build());
+    return Pair.of(div().withClasses(ReferenceClasses.ADMIN_QUESTION_LIST, Styles.INVISIBLE).with(rows.build()), modals.build());
   }
 
   /**
@@ -171,7 +178,7 @@ public final class QuestionsListView extends BaseHtmlView {
         div()
             .withClasses(Styles.PY_7)
             .with(span("Admin note: ").withClasses(Styles.FONT_BOLD))
-            .with(span(latestDefinition.getName()), br(), span(latestDefinition.getDescription()));
+            .with(span(latestDefinition.getName()).withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE), br(), span(latestDefinition.getDescription()));
 
     DivTag rowWithAdminNote =
         div()
@@ -182,10 +189,29 @@ public final class QuestionsListView extends BaseHtmlView {
                 Styles.BORDER_GRAY_300,
                 Styles.ROUNDED_LG,
                 Styles.BORDER,
+                ReferenceClasses.SORTABLE_ELEMENT,
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .with(row)
-            .with(adminNote);
+            .with(adminNote)
+            // Add data attributes used for client-side sorting.
+            .withData(
+                "last-updated-millis",
+                Long.toString(extractLastUpdated(draftDefinition, activeDefinition).toEpochMilli()))
+            .withData("name", latestDefinition.getName());
     return Pair.of(rowWithAdminNote, modals.build());
+  }
+
+  private static Instant extractLastUpdated(
+      Optional<QuestionDefinition> draftQuestion, Optional<QuestionDefinition> activeQuestion) {
+    // Prefer when the draft was last updated, since active versions should be immutable after
+    // being published.
+    if (draftQuestion.isEmpty() && activeQuestion.isEmpty()) {
+      throw new IllegalArgumentException("Question neither active nor draft.");
+    }
+
+    QuestionDefinition question =
+        draftQuestion.isPresent() ? draftQuestion.get() : activeQuestion.get();
+    return question.getLastModifiedTime().orElse(Instant.EPOCH);
   }
 
   /**

@@ -16,6 +16,8 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
+
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -110,7 +112,7 @@ public final class QuestionBank {
         ImmutableList.sortedCopyOf(
             Comparator.comparing(QuestionDefinition::getName), filteredQuestions);
 
-    DivTag questionsDiv = div().withId("question-bank-questions");
+    DivTag questionsDiv = div().withId("question-bank-questions").withClass(Styles.INVISIBLE);
     sortedQuestions.forEach(
         questionDefinition -> questionsDiv.with(renderQuestionDefinition(questionDefinition)));
     contentDiv.with(questionsDiv);
@@ -124,6 +126,7 @@ public final class QuestionBank {
             .withId("add-question-" + definition.getId())
             .withClasses(
                 ReferenceClasses.QUESTION_BANK_ELEMENT,
+                ReferenceClasses.SORTABLE_ELEMENT,
                 Styles.RELATIVE,
                 Styles._M_3,
                 Styles.P_3,
@@ -135,7 +138,13 @@ public final class QuestionBank {
                 Styles.TRANSITION_ALL,
                 Styles.TRANSFORM,
                 StyleUtils.hover(
-                    Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
+                    Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100))
+            // Add data attributes used for client-side sorting.
+            .withData(
+                "last-updated-millis",
+                Long.toString(
+                    definition.getLastModifiedTime().orElse(Instant.EPOCH).toEpochMilli()))
+            .withData("name", definition.getName());
 
     ButtonTag addButton =
         TagCreator.button(text(definition.getName()))
@@ -152,7 +161,7 @@ public final class QuestionBank {
         div()
             .withClasses(Styles.ML_4)
             .with(
-                p(definition.getName()),
+                p(definition.getName()).withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE),
                 p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
                 addButton);
     return questionDiv.with(PLUS_ICON, icon, content);
