@@ -53,7 +53,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
@@ -69,7 +71,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
               /* existingEntity= */ Optional.of(entityNames.get(index)),
               /* existingIndex= */ Optional.of(index),
               /* extraStyle= */ Optional.empty(),
-              /* isDisabled= */ false));
+              /* isDisabled= */ false,
+              hasQuestionErrors));
     }
 
     DivTag enumeratorQuestionFormContent =
@@ -84,6 +87,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
                             messages.at(
                                 MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
                                 localizedEntityType)))
+                    .condAttr(hasQuestionErrors, "aria-invalid", "true")
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
                         StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)))
@@ -97,7 +101,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
                         /* existingIndex= */ Optional.empty(),
                         /* extraStyle= */ Optional.of(Styles.HIDDEN),
                         // Do not submit this with the form.
-                        /* isDisabled= */ true)
+                        /* isDisabled= */ true,
+                        hasQuestionErrors)
                     .withId(ENUMERATOR_FIELD_TEMPLATE_ID));
 
     return enumeratorQuestionFormContent;
@@ -114,8 +119,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
       Optional<String> existingEntity,
       Optional<Integer> existingIndex,
       Optional<String> extraStyle,
-      boolean isDisabled) {
-    DivTag entityNameInput =
+      boolean isDisabled,
+      boolean hasQuestionErrors) {
+    FieldWithLabel entityNameInputField =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
@@ -124,8 +130,10 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
                 messages.at(
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
-            .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
-            .getInputTag();
+            .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT);
+    if (hasQuestionErrors) {
+      entityNameInputField.forceAriaInvalid();
+    }
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
     ButtonTag removeEntityButton =
@@ -147,7 +155,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
 
     return div()
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, extraStyle.orElse("")))
-        .with(entityNameInput, removeEntityButton);
+        .with(entityNameInputField.getInputTag(), removeEntityButton);
   }
 
   /**
