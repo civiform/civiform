@@ -12,7 +12,7 @@ FROM ${TARGETARCH}
 COPY --from=hashicorp/terraform:1.2.8 /bin/terraform /usr/local/bin/
 COPY --from=amazon/aws-cli:2.7.27 /usr/local /usr/local
 COPY --from=amazon/aws-cli:2.7.27 /aws /aws
-# COPY --from=mcr.microsoft.com/azure-cli:2.39.0 /usr/local /usr/local
+# TODO(#3222): Add Azure CLI and make sure It works with arm64.
 
 RUN /bin/sh -c set -o pipefail && apk update && \
     apk add --upgrade apk-tools && apk upgrade --available && \

@@ -1,8 +1,8 @@
- #! /usr/bin/env bash
+#! /usr/bin/env bash
 
- # DOC: Build civiform/cloud.
+# DOC: Build civiform/civiform-cloud-deployment.
 
-IMAGE="cloud"
+IMAGE="civiform-cloud-deployment"
 LOCATION="."
 DOCKERFILE="cloud/cloud.Dockerfile"
 
