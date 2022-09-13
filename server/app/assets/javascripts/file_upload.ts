@@ -36,6 +36,7 @@ function validateFileUploadQuestions(formEl: Element): boolean {
     // Toggle the error div if invalid.
     const errorDiv = question.querySelector('.cf-fileupload-error')
     if (errorDiv) {
+      // TODO(#1878): Update button aria attributes on error.
       errorDiv.classList.toggle('hidden', isValid)
     }
     isAllValid = isAllValid && isValid

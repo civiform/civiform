@@ -169,20 +169,20 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             fieldset()
                 .withClasses(Styles.PT_1)
                 .with(
-                    legend("Application submitted").withClasses(Styles.ML_1, Styles.TEXT_GRAY_600),
+                    legend("Applications submitted").withClasses(Styles.ML_1, Styles.TEXT_GRAY_600),
                     div()
                         .withClasses(Styles.FLEX, Styles.SPACE_X_3)
                         .with(
                             FieldWithLabel.date()
                                 .setFieldName(FROM_DATE_PARAM)
                                 .setValue(filterParams.fromDate().orElse(""))
-                                .setLabelText("From:")
+                                .setLabelText("from:")
                                 .getDateTag()
                                 .withClasses(Styles.FLEX),
                             FieldWithLabel.date()
                                 .setFieldName(UNTIL_DATE_PARAM)
                                 .setValue(filterParams.untilDate().orElse(""))
-                                .setLabelText("Until:")
+                                .setLabelText("until:")
                                 .getDateTag()
                                 .withClasses(Styles.FLEX))),
             FieldWithLabel.input()

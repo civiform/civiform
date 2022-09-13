@@ -88,6 +88,18 @@ public final class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
+  @Override
+  public SelectWithLabel setAriaDescribedByIds(ImmutableList<String> ariaDescribedByIds) {
+    super.setAriaDescribedByIds(ariaDescribedByIds);
+    return this;
+  }
+
+  @Override
+  public SelectWithLabel forceAriaInvalid() {
+    super.forceAriaInvalid();
+    return this;
+  }
+
   public DivTag getSelectTag() {
     SelectTag fieldTag = TagCreator.select();
     OptionTag placeholder = option(placeholderText).withValue("").isHidden();
