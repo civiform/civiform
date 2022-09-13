@@ -168,10 +168,10 @@ describe('normal application flow', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
     await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
-    await adminPrograms.viewApplicationForApplicant('sara,smith')
+    await adminPrograms.viewApplicationForApplicant('smith, sarah')
 
     const pdfFile = await adminPrograms.getPdf()
-    expect(pdfFile).toHaveLength(1)
+    expect(pdfFile.length).toBeGreaterThan(1)
 
     await logout(page)
 
