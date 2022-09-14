@@ -100,13 +100,13 @@ public class AdminProgramControllerTest extends ResetPostgres {
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
-                        "New Program",
+                        "Internal program name",
                         "adminDescription",
-                        "This is a new program",
+                        "Internal program description",
                         "localizedDisplayName",
-                        "display name",
+                        "External program name",
                         "localizedDisplayDescription",
-                        "display description",
+                        "External program description",
                         "displayMode",
                         DisplayMode.PUBLIC.getValue())));
 
@@ -116,8 +116,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
     Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
-    assertThat(contentAsString(redirectResult)).contains("New Program");
-    assertThat(contentAsString(redirectResult)).contains("This is a new program");
+    assertThat(contentAsString(redirectResult)).contains("External program name");
+    assertThat(contentAsString(redirectResult)).contains("External program description");
   }
 
   @Test
@@ -129,13 +129,13 @@ public class AdminProgramControllerTest extends ResetPostgres {
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
-                        "New Program",
+                        "Internal program name",
                         "adminDescription",
-                        "This is a new program",
+                        "Internal program description",
                         "localizedDisplayName",
-                        "display name",
+                        "External program name",
                         "localizedDisplayDescription",
-                        "display description",
+                        "External program description",
                         "displayMode",
                         DisplayMode.PUBLIC.getValue())));
 
@@ -146,8 +146,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(contentAsString(redirectResult)).contains("Existing One");
-    assertThat(contentAsString(redirectResult)).contains("New Program");
-    assertThat(contentAsString(redirectResult)).contains("This is a new program");
+    assertThat(contentAsString(redirectResult)).contains("External program name");
+    assertThat(contentAsString(redirectResult)).contains("External program description");
   }
 
   @Test
@@ -251,11 +251,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "new description",
+                    "New internal program description",
                     "localizedDisplayName",
-                    "test",
+                    "New external program name",
                     "localizedDisplayDescription",
-                    "test",
+                    "New external program description",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue()));
 
@@ -266,7 +266,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(contentAsString(redirectResult))
-        .contains("Create new program", "Existing One", "new description");
+        .contains(
+            "Create new program",
+            "Existing One",
+            "New external program name",
+            "New external program description");
     assertThat(contentAsString(redirectResult)).doesNotContain("old description");
   }
 }
