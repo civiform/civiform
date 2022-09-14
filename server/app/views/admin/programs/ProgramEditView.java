@@ -20,7 +20,7 @@ import views.components.ToastMessage;
 import views.style.Styles;
 
 /** Renders a page for editing the name and description of a program. */
-public class ProgramEditView extends BaseHtmlView {
+public final class ProgramEditView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
