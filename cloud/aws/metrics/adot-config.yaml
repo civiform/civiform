@@ -1,3 +1,6 @@
+# This file configures the AWS Distro for OpenTelemetry, which implements metrics scraping in the
+# CiviForm monitoring stack. For more info see https://aws.amazon.com/otel and
+# https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-onboard-ingest-metrics-OpenTelemetry-ECS.html
 receivers:
   prometheus:
     config:
@@ -30,7 +33,7 @@ exporters:
   awsprometheusremotewrite:
     endpoint: '${PROMETHEUS_WRITE_ENDPOINT}'
     aws_auth:
-      region: us-east-1
+      region: '${AWS_REGION}'
       service: aps
   logging:
     loglevel: info

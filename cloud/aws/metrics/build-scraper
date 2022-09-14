@@ -6,4 +6,4 @@ docker build \
   -t docker.io/civiform/aws-metrics-scraper:latest \
   -f metrics_scraper.Dockerfile .
 
-docker pushdocker.io/civiform/aws-metrics-scraper:latest
+docker push docker.io/civiform/aws-metrics-scraper:latest

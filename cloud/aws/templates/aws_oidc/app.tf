@@ -152,12 +152,13 @@ module "civiform_metrics_scraper_container_def" {
   version = "0.58.1"
 
   container_name               = "${var.app_prefix}-metrics-scraper"
-  container_image              = "docker.io/civiform/aws-metrics-scraper:latest"
+  container_image              = var.scraper_image
   container_memory             = 2048
   container_memory_reservation = 1024
 
   map_environment = {
     PROMETHEUS_WRITE_ENDPOINT = "${aws_prometheus_workspace.metrics.prometheus_endpoint}api/v1/remote_write"
+    AWS_REGION                = var.aws_region
   }
 
   log_configuration = {
@@ -253,9 +254,9 @@ locals {
 resource "aws_iam_role" "civiform_ecs_task_execution_role" {
   name               = "${local.name_prefix}-ecs-task-execution-role"
   assume_role_policy = <<JSON
-{
-    "Version": "2012-10-17",
-    "Statement": [
+    {
+      "Version": "2012-10-17",
+      "Statement": [
         {
             "Effect": "Allow",
             "Principal": {
@@ -264,8 +265,8 @@ resource "aws_iam_role" "civiform_ecs_task_execution_role" {
             "Action": "sts:AssumeRole",
             "Sid": ""
         }
-    ]
-}
+      ]
+    }
 JSON
   tags               = local.tags
 }
