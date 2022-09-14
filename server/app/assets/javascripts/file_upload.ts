@@ -43,8 +43,7 @@ function validateFileUploadQuestions(formEl: Element): boolean {
         const ariaDescribedBy = fileInput.getAttribute('aria-describedBy')
         fileInput.setAttribute(
           'aria-describedBy',
-          errorId + ' ' + ariaDescribedBy,
-        )
+          `${errorId} ${ariaDescribedBy}`)
       }
     }
     isAllValid = isAllValid && isValid
