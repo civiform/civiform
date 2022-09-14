@@ -29,7 +29,11 @@ abstract class ProgramBlockView extends BaseHtmlView {
         editDetailsButton,
         controllers.admin.routes.AdminProgramController.edit(programDefinition.id()).url());
 
-    return div(ViewUtils.makeBadge(BadgeStatus.DRAFT), programTitle, programDescription, editDetailsButton)
+    return div(
+            ViewUtils.makeBadge(BadgeStatus.DRAFT),
+            programTitle,
+            programDescription,
+            editDetailsButton)
         .withClasses(
             Styles.BG_GRAY_100,
             Styles.TEXT_GRAY_800,
