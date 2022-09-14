@@ -12,6 +12,9 @@ on:
     paths-ignore:
       - 'cloud/**'
 
+permissions:
+  contents: read
+
 jobs:
   validate_deployment_variable_definitions:
     runs-on: ubuntu-latest
