@@ -3,7 +3,7 @@
 set -e
 
 readonly PROJECT_BASE_DIR="${PWD}"
-readonly DOCTOR_IMPL_PATH="${PWD}/cloud/shared/bin/doctor_impl"
+readonly DOCTOR_IMPL_PATH="${PWD}/cloud/shared/bin/doctor.py"
 if [ ! -f "${DOCTOR_IMPL_PATH}" ]; then
   echo "Could not find ${DOCTOR_IMPL_PATH}. Please run the doctor binary from the root of the Git repository."
   exit 1
@@ -16,4 +16,4 @@ if ! which python3 >/dev/null; then
   exit 1
 fi
 
-exec "${PROJECT_BASE_DIR}/cloud/shared/bin/doctor_impl"
+exec "${PROJECT_BASE_DIR}/cloud/shared/bin/doctor.py"
