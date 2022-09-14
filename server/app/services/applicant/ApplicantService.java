@@ -469,6 +469,16 @@ public final class ApplicantService {
     return applicationRepository.getApplications(submitTimeFilter);
   }
 
+  /**
+   * Return all programs that are appropriate to serve to an applicant. Appropriate programs are
+   * those where the applicant:
+   *
+   * <ul>
+   *   <li>Has a draft application
+   *   <li>Has previously applied
+   *   <li>Any other programs that are public
+   * </ul>
+   */
   public CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId) {
     // Note: The Program model associated with the application is eagerly loaded.
     CompletableFuture<ImmutableSet<Application>> applicationsFuture =
