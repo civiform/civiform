@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "civiform_files_policy" {
     condition {
       test     = "ArnNotEquals"
       variable = "aws:PrincipalArn"
-      values   = [module.td.aws_iam_role_ecs_task_execution_role_arn]
+      values   = [aws_ecs_task_definition.td.arn]
     }
   }
   statement {
@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "civiform_files_policy" {
     "${aws_s3_bucket.civiform_files_s3.arn}/*"]
     principals {
       type        = "AWS"
-      identifiers = [module.td.aws_iam_role_ecs_task_execution_role_arn]
+      identifiers = [aws_iam_role.civiform_ecs_task_execution_role.arn]
     }
   }
 }
