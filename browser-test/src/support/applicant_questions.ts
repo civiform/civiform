@@ -290,7 +290,8 @@ export class ApplicantQuestions {
     )
 
     // Click on submit button.
-    await this.page.click('text="Submit"'), await waitForPageJsLoad(this.page)
+    await this.page.click('text="Submit"')
+    await waitForPageJsLoad(this.page)
   }
 
   async submitFromPreviewPage() {
