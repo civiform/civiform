@@ -3,7 +3,7 @@
 # DOC: Run deploy scripts from Docker.
 
 # Usage:
-# bin/build-cloud-deployment
+# cloud/shared/bin/build-cloud-deployment
 # cloud/shared/bin/run-cloud-deployment <command> <tag> <config_file>
 
 export COMMAND="${1:-deploy}"
