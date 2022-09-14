@@ -277,10 +277,12 @@ describe('Program admin review of submitted applications', () => {
 
     await adminPrograms.viewApplications(programName)
     for (let i = 0; i < answers.length; i++) {
-      await page.click(
-        `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`,
-      )
-      await adminPrograms.waitForApplicationFrame()
+      await Promise.all([
+        adminPrograms.waitForApplicationFrame(),
+        page.click(
+          `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`,
+        ),
+      ])
 
       // TODO(https://github.com/seattle-uat/civiform/issues/2018):
       //   make this more robust so an explicit wait time is not needed.
