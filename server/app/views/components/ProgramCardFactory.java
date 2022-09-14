@@ -34,8 +34,8 @@ public final class ProgramCardFactory {
   public DivTag renderCard(ProgramCardData cardData) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
-    String programTitleText = displayProgram.adminName();
-    String programDescriptionText = displayProgram.adminDescription();
+    String programTitleText = displayProgram.localizedName().getDefault();
+    String programDescriptionText = displayProgram.localizedDescription().getDefault();
 
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
