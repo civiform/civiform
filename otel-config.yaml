@@ -1,0 +1,57 @@
+# This file configures the AWS Distro for OpenTelemetry, which implements metrics scraping in the
+# CiviForm monitoring stack. For more info see https://aws.amazon.com/otel and
+# https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-onboard-ingest-metrics-OpenTelemetry-ECS.html
+receivers:
+  prometheus:
+    config:
+      global:
+        scrape_interval: 15s
+        scrape_timeout: 10s
+      scrape_configs:
+        - job_name: 'civiform_scraper'
+          static_configs:
+            - targets: [0.0.0.0:9000]
+  awsecscontainermetrics:
+    collection_interval: 10s
+
+processors:
+  filter:
+    metrics:
+      include:
+        match_type: strict
+        metric_names:
+          - ecs.task.memory.utilized
+          - ecs.task.memory.reserved
+          - ecs.task.cpu.utilized
+          - ecs.task.cpu.reserved
+          - ecs.task.network.rate.rx
+          - ecs.task.network.rate.tx
+          - ecs.task.storage.read_bytes
+          - ecs.task.storage.write_bytes
+
+exporters:
+  awsprometheusremotewrite:
+    endpoint: '${PROMETHEUS_WRITE_ENDPOINT}'
+    aws_auth:
+      region: '${AWS_REGION}'
+      service: aps
+  logging:
+    loglevel: info
+
+extensions:
+  health_check:
+  pprof:
+    endpoint: :1888
+  zpages:
+    endpoint: :55679
+
+service:
+  extensions: [pprof, zpages, health_check]
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      exporters: [logging, awsprometheusremotewrite]
+    metrics/ecs:
+      receivers: [awsecscontainermetrics]
+      processors: [filter]
+      exporters: [logging, awsprometheusremotewrite]
