@@ -13,6 +13,8 @@ import static j2html.TagCreator.ul;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
@@ -23,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -335,61 +339,87 @@ public final class QuestionsListView extends BaseHtmlView {
       Collection<ProgramDefinition> activePrograms,
       Collection<ProgramDefinition> draftPrograms,
       Optional<DomContent> modalHeader) {
-    ImmutableList<ProgramDefinition> activeProgramReferences =
-        activePrograms.stream()
-            .sorted(Comparator.comparing(ProgramDefinition::adminName))
-            .collect(ImmutableList.toImmutableList());
-    ImmutableList<ProgramDefinition> draftProgramReferences =
-        draftPrograms.stream()
-            .sorted(Comparator.comparing(ProgramDefinition::adminName))
-            .collect(ImmutableList.toImmutableList());
-
-    if (activeProgramReferences.isEmpty() && draftProgramReferences.isEmpty()) {
+    if (activePrograms.isEmpty() && draftPrograms.isEmpty()) {
       return Optional.empty();
     }
+
+    ImmutableMap<String, ProgramDefinition> activeProgramsMap =
+        activePrograms.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+    ImmutableMap<String, ProgramDefinition> draftProgramsMap =
+        draftPrograms.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    // Use set operations to collect programs into 3 sets.
+    Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
+    Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
+    Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
+
+    ImmutableList<ProgramDefinition> usedPrograms =
+        usedSet.stream()
+            .map((adminName) -> draftProgramsMap.get(adminName))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> addedPrograms =
+        addedSet.stream()
+            .map((adminName) -> draftProgramsMap.get(adminName))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> removedPrograms =
+        removedSet.stream()
+            .map((adminName) -> activeProgramsMap.get(adminName))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
 
     DivTag referencingProgramModalContent =
         div().withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6);
     if (modalHeader.isPresent()) {
       referencingProgramModalContent.with(modalHeader.get());
     }
-    referencingProgramModalContent.with(
-        div()
-            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE)
-            .with(referencingProgramList("Active programs:", activePrograms)),
-        div()
-            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
-            .with(referencingProgramList("Draft programs:", draftPrograms)),
-        p("Note: This list does not automatically refresh. If edits are made to a program"
-                + " in a separate tab, they won't be reflected until the page has been"
-                + " refreshed.")
-            .withClass(Styles.TEXT_SM));
+    referencingProgramModalContent
+        .condWith(
+            !usedPrograms.isEmpty(),
+            div()
+                .with(referencingProgramList("This question is used in:", usedPrograms))
+                .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED))
+        .condWith(
+            !addedPrograms.isEmpty(),
+            div()
+                .with(referencingProgramList("This question is added to:", addedPrograms))
+                .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ADDED))
+        .condWith(
+            !removedPrograms.isEmpty(),
+            div()
+                .with(referencingProgramList("This question is removed from:", removedPrograms))
+                .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_REMOVED))
+        .with(
+            p("Note: This list does not automatically refresh. If edits are made to a program"
+                    + " in a separate tab, they won't be reflected until the page has been"
+                    + " refreshed.")
+                .withClass(Styles.TEXT_SM));
+
     return Optional.of(
         Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
-            .setModalTitle(String.format("Programs including %s", questionName))
+            .setModalTitle(String.format("Programs referencing %s", questionName))
             .setWidth(Width.HALF)
             .build());
   }
 
   private DivTag referencingProgramList(
-      String title, Collection<ProgramDefinition> referencingPrograms) {
+      String title, ImmutableList<ProgramDefinition> referencingPrograms) {
     // TODO(#3162): Add ability to view a published program. Then add
     // links to the specific block that references the question.
-    ImmutableList<ProgramDefinition> sortedReferencingPrograms =
-        referencingPrograms.stream()
-            .sorted(Comparator.comparing(ProgramDefinition::adminName))
-            .collect(ImmutableList.toImmutableList());
     return div()
         .with(p(title).withClass(Styles.FONT_SEMIBOLD))
-        .condWith(sortedReferencingPrograms.isEmpty(), p("None").withClass(Styles.PL_5))
-        .condWith(
-            !sortedReferencingPrograms.isEmpty(),
+        .with(
             div()
                 .with(
                     ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
                         .with(
                             each(
-                                sortedReferencingPrograms,
+                                referencingPrograms,
                                 programReference -> {
                                   return li(programReference.adminName());
                                 }))));
@@ -533,7 +563,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 .with(
                     span(
                         "This question cannot be archived since there are still programs"
-                            + " referencing  it. Please remove all references from the below"
+                            + " using it. Please remove all usages from the below"
                             + " programs before attempting to archive."));
 
         ActiveAndDraftQuestions.ReferencingPrograms programs =

@@ -81,8 +81,7 @@ public final class ActiveAndDraftQuestions {
 
     this.draftVersionHasAnyEdits = draft.hasAnyChanges();
     this.referencingActiveProgramsByName = buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName =
-        draftVersionHasAnyEdits ? buildReferencingProgramsMap(withDraftEdits) : ImmutableMap.of();
+    this.referencingDraftProgramsByName = buildReferencingProgramsMap(withDraftEdits);
 
     ImmutableSet<String> tombstonedQuestionNames =
         ImmutableSet.copyOf(
