@@ -27,6 +27,7 @@ import services.question.QuestionService;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramNewOneView;
+import views.admin.questions.NotifySharedQuestionView;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing program definitions. */
@@ -35,6 +36,7 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ProgramIndexView listView;
+  private final NotifySharedQuestionView notifyView;
   private final ProgramNewOneView newOneView;
   private final ProgramEditView editView;
   private final FormFactory formFactory;
@@ -47,6 +49,7 @@ public final class AdminProgramController extends CiviFormController {
       ProgramService programService,
       QuestionService questionService,
       ProgramIndexView listView,
+      NotifySharedQuestionView notifySharedQuestionsView,
       ProgramNewOneView newOneView,
       ProgramEditView editView,
       VersionRepository versionRepository,
@@ -56,6 +59,7 @@ public final class AdminProgramController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
+    this.notifyView = checkNotNull(notifySharedQuestionsView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
     this.versionRepository = checkNotNull(versionRepository);
@@ -110,6 +114,11 @@ public final class AdminProgramController extends CiviFormController {
   public Result edit(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
     return ok(editView.render(request, program));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result notifyQuestionShared(Request request, long id) {
+    return ok(notifyView.render());
   }
 
   /** POST endpoint for publishing all programs in the draft version. */
