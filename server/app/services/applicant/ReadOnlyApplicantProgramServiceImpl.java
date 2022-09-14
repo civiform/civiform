@@ -185,11 +185,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
         Optional<String> originalFileName = Optional.empty();
-        Optional<String> fileKey = Optional.empty();
+        Optional<String> encodedFileKey = Optional.empty();
         if (isAnswered && question.isFileUploadQuestion()) {
           FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
           originalFileName = fileUploadQuestion.getOriginalFileName();
-          fileKey = fileUploadQuestion.getFileKeyValue();
+          encodedFileKey =
+              fileUploadQuestion
+                  .getFileKeyValue()
+                  .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8));
         }
         boolean isPreviousResponse =
             updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
@@ -205,7 +208,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionText(questionText)
                 .setIsAnswered(isAnswered)
                 .setAnswerText(answerText)
-                .setFileKey(fileKey)
+                .setEncodedFileKey(encodedFileKey)
                 .setOriginalFileName(originalFileName)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
