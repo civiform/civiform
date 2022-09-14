@@ -26,8 +26,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
 
     assertThat(content.body())
-        .containsPattern(
-            "<link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
+        .containsPattern("<link href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
     assertThat(content.body())
         .containsPattern(
             "<script src=\"/assets/javascripts/[a-z0-9]+-main.js\""
@@ -53,8 +52,8 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
     assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
     assertThat(content.body())
-        .containsPattern(
+        .contains(
             "<link href=\"moose.css\" rel=\"stylesheet\"><link"
-                + " href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
+                + " href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
   }
 }
