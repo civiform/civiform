@@ -35,7 +35,8 @@ public class TextQuestionTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          TextQuestionDefinition.TextValidationPredicates.create());
+          TextQuestionDefinition.TextValidationPredicates.create(),
+          /* lastModifiedTime= */ Optional.empty());
 
   private static final TextQuestionDefinition minAndMaxLengthTextQuestionDefinition =
       new TextQuestionDefinition(
@@ -45,7 +46,8 @@ public class TextQuestionTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          TextQuestionDefinition.TextValidationPredicates.create(3, 4));
+          TextQuestionDefinition.TextValidationPredicates.create(3, 4),
+          /* lastModifiedTime= */ Optional.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;

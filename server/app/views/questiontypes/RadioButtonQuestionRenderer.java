@@ -5,6 +5,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.span;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -37,7 +38,9 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
     DivTag radioQuestionFormContent =
@@ -50,13 +53,17 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
                             renderRadioOption(
                                 singleOptionQuestion.getSelectionPath().toString(),
                                 option,
-                                singleOptionQuestion.optionIsSelected(option))));
+                                singleOptionQuestion.optionIsSelected(option),
+                                hasQuestionErrors)));
 
     return radioQuestionFormContent;
   }
 
   private DivTag renderRadioOption(
-      String selectionPath, LocalizedQuestionOption option, boolean checked) {
+      String selectionPath,
+      LocalizedQuestionOption option,
+      boolean checked,
+      boolean hasQuestionErrors) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
     LabelTag labelTag =
@@ -70,6 +77,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
+            .condAttr(hasQuestionErrors, "aria-invalid", "true")
             .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 
     return div()

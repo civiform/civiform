@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -27,7 +28,9 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
     FieldWithLabel currencyField =
@@ -38,7 +41,11 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(
-                    currencyQuestion.getCurrencyPath(), ImmutableSet.of()));
+                    currencyQuestion.getCurrencyPath(), ImmutableSet.of()))
+            .setAriaDescribedByIds(ariaDescribedByIds);
+    if (hasQuestionErrors) {
+      currencyField.forceAriaInvalid();
+    }
     if (currencyQuestion.getCurrencyValue().isPresent()) {
       currencyField.setValue(currencyQuestion.getCurrencyValue().get().prettyPrint());
     } else {

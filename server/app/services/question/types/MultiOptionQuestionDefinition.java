@@ -11,6 +11,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -37,9 +38,17 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       ImmutableList<QuestionOption> options,
-      MultiOptionValidationPredicates validationPredicates) {
+      MultiOptionValidationPredicates validationPredicates,
+      Optional<Instant> lastModifiedTime) {
     super(
-        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+        id,
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        validationPredicates,
+        lastModifiedTime);
     this.options = checkNotNull(options);
     this.supportedOptionLocales = getSupportedOptionLocales(options);
   }

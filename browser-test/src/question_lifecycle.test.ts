@@ -1,37 +1,25 @@
 import {
-  startSession,
   loginAsAdmin,
   AdminQuestions,
-  AdminPrograms,
   seedCanonicalQuestions,
   waitForPageJsLoad,
   validateScreenshot,
-  resetSession,
   dropTables,
+  createTestContext,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
-import {Page} from 'playwright'
 
 describe('normal question lifecycle', () => {
-  let page: Page
-
-  beforeAll(async () => {
-    const obj = await startSession()
-    page = obj.page
-  })
-
-  afterEach(async () => {
-    await resetSession(page, /* clearDb= */ true)
-  })
+  const ctx = createTestContext()
 
   it('canonical question seeding works', async () => {
+    const {page, adminQuestions} = ctx
     await dropTables(page)
     await seedCanonicalQuestions(page)
 
     await page.goto(BASE_URL)
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Name')
@@ -42,11 +30,9 @@ describe('normal question lifecycle', () => {
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
     it(`${type} question: create, update, publish, create a new version, and update`, async () => {
-      page.setDefaultTimeout(4000)
+      const {page, adminQuestions, adminPrograms} = ctx
 
       await loginAsAdmin(page)
-      const adminQuestions = new AdminQuestions(page)
-      const adminPrograms = new AdminPrograms(page)
 
       const questionName = `qlc-${type}`
       // for most question types there will be only 1 question. But for
@@ -115,10 +101,9 @@ describe('normal question lifecycle', () => {
   }
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2', '']
 
@@ -138,10 +123,9 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2', '']
 
@@ -161,10 +145,9 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2']
     const questionName = 'updateEmptyDropdown'
@@ -189,10 +172,9 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2']
     const questionName = 'updateEmptyRadio'
@@ -219,10 +201,9 @@ describe('normal question lifecycle', () => {
   })
 
   it('persists export state', async () => {
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     // Navigate to the new question page and ensure that "Don't allow answers to be exported"
     // is pre-selected.
@@ -267,10 +248,8 @@ describe('normal question lifecycle', () => {
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
-
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.addNameQuestion({questionName: 'name-q'})
@@ -280,7 +259,7 @@ describe('normal question lifecycle', () => {
     await adminPrograms.publishProgram(programName)
 
     // Update the question to create new draft version.
-    await adminQuestions.gotoQuestionNewVersionPage('name-q')
+    await adminQuestions.gotoQuestionEditPage('name-q')
     // The ID in the URL after clicking new version corresponds to the active question form (e.g. ID=15).
     // After a draft is created, the ID will reflect the newly created draft version (e.g. ID=16).
     const editUrl = page.url()

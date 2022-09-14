@@ -1,25 +1,20 @@
 import {
-  startSession,
-  loginAsProgramAdmin,
-  loginAsAdmin,
-  AdminQuestions,
-  AdminPrograms,
-  endSession,
-  logout,
-  loginAsTestUser,
-  selectApplicantLanguage,
   ApplicantQuestions,
-  userDisplayName,
+  createTestContext,
+  loginAsAdmin,
+  loginAsProgramAdmin,
+  loginAsTestUser,
+  logout,
+  selectApplicantLanguage,
+  testUserDisplayName,
 } from './support'
 
 describe('view an application in an older version', () => {
-  it('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
-    const {browser, page} = await startSession()
-    page.setDefaultTimeout(5000)
+  const ctx = createTestContext()
 
+  it('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     // Create a program with one question
     const questionName = 'text-to-be-obsolete-q'
@@ -47,7 +42,7 @@ describe('view an application in an older version', () => {
 
     // See the application in admin page
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       questionName,
@@ -66,13 +61,11 @@ describe('view an application in an older version', () => {
 
     // See the application in admin page in the old version
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       questionName,
       'some text',
     )
-
-    await endSession(browser)
   })
 })

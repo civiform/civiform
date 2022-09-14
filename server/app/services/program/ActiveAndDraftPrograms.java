@@ -8,48 +8,61 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Optional;
+import java.util.function.Function;
 import models.Version;
+import repository.VersionRepository;
 
 /**
  * A data class storing the current active and draft programs. For efficient querying of information
- * about current active / draft programs which does not hit the database. Lifespan should be
- * measured in milliseconds - seconds at the maximum - within one request serving path - because it
- * does not have any mechanism for a refresh.
+ * about current active / draft programs. Lifespan should be measured in milliseconds - seconds at
+ * the maximum - within one request serving path - because it does not have any mechanism for a
+ * refresh.
  */
-public class ActiveAndDraftPrograms {
+public final class ActiveAndDraftPrograms {
 
   private final ImmutableList<ProgramDefinition> activePrograms;
   private final ImmutableList<ProgramDefinition> draftPrograms;
   private final ImmutableMap<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
       versionedByName;
-  private final int activeSize;
-  private final int draftSize;
 
-  public ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
-    ImmutableMap.Builder<String, ProgramDefinition> activeToName = ImmutableMap.builder();
-    ImmutableMap.Builder<String, ProgramDefinition> draftToName = ImmutableMap.builder();
-    checkNotNull(draft).getPrograms().stream()
-        .map(program -> getProgramDefinition(checkNotNull(service), program.id))
-        .forEach(program -> draftToName.put(program.adminName(), program));
-    checkNotNull(active).getPrograms().stream()
-        .map(program -> getProgramDefinition(checkNotNull(service), program.id))
-        .forEach(program -> activeToName.put(program.adminName(), program));
-    ImmutableMap<String, ProgramDefinition> activeNames = activeToName.build();
-    ImmutableMap<String, ProgramDefinition> draftNames = draftToName.build();
-    activePrograms = activeNames.values().asList();
-    draftPrograms = draftNames.values().asList();
-    activeSize = activeNames.size();
-    draftSize = draftNames.size();
-    ImmutableMap.Builder<String, Pair<Optional<ProgramDefinition>, Optional<ProgramDefinition>>>
-        versionedByNameBuilder = ImmutableMap.builder();
-    for (String name : Sets.union(activeNames.keySet(), draftNames.keySet())) {
-      versionedByNameBuilder.put(
-          name,
-          Pair.create(
-              Optional.ofNullable(activeNames.get(name)),
-              Optional.ofNullable(draftNames.get(name))));
-    }
-    versionedByName = versionedByNameBuilder.build();
+  /**
+   * Queries the existing active and draft versions and builds a snapshotted view of the program
+   * state.
+   */
+  public static ActiveAndDraftPrograms buildFromCurrentVersions(
+      ProgramService service, VersionRepository repository) {
+    return new ActiveAndDraftPrograms(
+        service, repository.getActiveVersion(), repository.getDraftVersion());
+  }
+
+  private ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
+    // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
+    // an additional database lookup in order to sync the set of questions associated with the
+    // program.
+    ImmutableMap<String, ProgramDefinition> activeNameToProgram =
+        checkNotNull(active).getPrograms().stream()
+            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    ImmutableMap<String, ProgramDefinition> draftNameToProgram =
+        checkNotNull(draft).getPrograms().stream()
+            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    this.activePrograms = activeNameToProgram.values().asList();
+    this.draftPrograms = draftNameToProgram.values().asList();
+    this.versionedByName =
+        Sets.union(activeNameToProgram.keySet(), draftNameToProgram.keySet()).stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    Function.identity(),
+                    programName -> {
+                      return Pair.create(
+                          Optional.ofNullable(activeNameToProgram.get(programName)),
+                          Optional.ofNullable(draftNameToProgram.get(programName)));
+                    }));
   }
 
   public ImmutableList<ProgramDefinition> getActivePrograms() {
@@ -72,16 +85,8 @@ public class ActiveAndDraftPrograms {
     return versionedByName.get(name).second();
   }
 
-  public int getActiveSize() {
-    return activeSize;
-  }
-
-  public int getDraftSize() {
-    return draftSize;
-  }
-
   public boolean anyDraft() {
-    return getDraftSize() > 0;
+    return draftPrograms.size() > 0;
   }
 
   private ProgramDefinition getProgramDefinition(ProgramService service, long id) {

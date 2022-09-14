@@ -30,7 +30,8 @@ public class TextQuestionRendererTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          TextValidationPredicates.create(2, 3));
+          TextValidationPredicates.create(2, 3),
+          /* lastModifiedTime= */ Optional.empty());
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -79,5 +80,18 @@ public class TextQuestionRendererTest extends ResetPostgres {
     DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at most 3 characters.");
+  }
+
+  @Test
+  public void render_withAriaLabels() {
+    DivTag result = renderer.render(params);
+
+    assertThat(
+            result
+                .render()
+                .matches(
+                    ".*input type=\"text\" value=\"\""
+                        + " aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
   }
 }

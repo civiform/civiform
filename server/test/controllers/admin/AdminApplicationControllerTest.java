@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -56,6 +57,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.program.StatusDefinitions.Status;
+import services.program.StatusNotFoundException;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
@@ -113,7 +115,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
             /* fromDate= */ Optional.empty(),
-            /* untilDate= */ Optional.empty());
+            /* untilDate= */ Optional.empty(),
+            /* applicationStatus= */ Optional.empty(),
+            /* selectedApplicationUri= */ Optional.empty());
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -135,7 +139,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
             /* fromDate= */ Optional.empty(),
-            /* untilDate= */ Optional.empty());
+            /* untilDate= */ Optional.empty(),
+            /* applicationStatus= */ Optional.empty(),
+            /* selectedApplicationUri= */ Optional.empty());
     assertThat(result.status()).isEqualTo(OK);
   }
 
@@ -182,7 +188,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_invalidStatus_fails() throws Exception {
     // Setup
-    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
@@ -192,15 +199,19 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("newStatus", "NOT A REAL STATUS")))
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .bodyForm(
+                        Map.of(
+                            "successRedirectUri", "/",
+                            "sendEmail", "",
+                            "newStatus", "NOT A REAL STATUS")))
             .build();
 
     // Execute
-    Result result = controller.updateStatus(request, program.id, application.id);
-
-    // Evaluate
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
-    assertThat(contentAsString(result)).contains("is not valid for program");
+    assertThrows(
+        StatusNotFoundException.class,
+        () -> controller.updateStatus(request, program.id, application.id));
   }
 
   @Test
@@ -241,8 +252,11 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         addCSRFToken(
                 Helpers.fakeRequest()
                     .bodyForm(
-                        // Only "on" is a valid status.
-                        Map.of("newStatus", APPROVED_STATUS.statusText(), "sendEmail", "false")))
+                        Map.of(
+                            "successRedirectUri", "/",
+                            "newStatus", APPROVED_STATUS.statusText(),
+                            // Only "on" is a valid checkbox state.
+                            "sendEmail", "false")))
             .build();
 
     // Execute
@@ -263,14 +277,22 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
         addCSRFToken(
                 Helpers.fakeRequest()
-                    .bodyForm(Map.of("newStatus", APPROVED_STATUS.statusText(), "sendEmail", "on")))
+                    .bodyForm(
+                        Map.of(
+                            "successRedirectUri",
+                            "/",
+                            "newStatus",
+                            APPROVED_STATUS.statusText(),
+                            "sendEmail",
+                            "on")))
             .build();
 
     // Execute
@@ -291,7 +313,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateStatus_noSendEmail_succeeds() throws Exception {
+  public void updateStatus_emptySendEmail_succeeds() throws Exception {
     // Setup
     Account adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
@@ -307,8 +329,14 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         addCSRFToken(
                 Helpers.fakeRequest()
                     .bodyForm(
-                        // Only "on" is a valid status.
-                        Map.of("newStatus", APPROVED_STATUS.statusText())))
+                        Map.of(
+                            "successRedirectUri",
+                            "/",
+                            // Only "on" is a valid checkbox state.
+                            "sendEmail",
+                            "",
+                            "newStatus",
+                            APPROVED_STATUS.statusText())))
             .build();
 
     // Execute
@@ -361,6 +389,85 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.updateNote(request, program.id, application.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void updateNote_noNote_fails() throws Exception {
+    // Setup.
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(contentAsString(result)).contains("A note is not present");
+  }
+
+  @Test
+  public void updateNote_succeeds() throws Exception {
+    // Setup.
+    Instant start = Instant.now();
+    String noteText = "Test note content.";
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest().bodyForm(Map.of("successRedirectUri", "/", "note", noteText)))
+            .build();
+
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.NOTE_CHANGE);
+    assertThat(gotEvent.getDetails().noteEvent()).isPresent();
+    assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
+    assertThat(gotEvent.getCreator()).isEqualTo(adminAccount);
+    assertThat(gotEvent.getCreateTime()).isAfter(start);
+  }
+
+  @Test
+  public void updateNote_emptyNote_succeeds() throws Exception {
+    // Setup.
+    String noteText = "";
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest().bodyForm(Map.of("successRedirectUri", "/", "note", noteText)))
+            .build();
+
+    // Execute.
+    Result result = controller.updateNote(request, program.id, application.id);
+
+    // Verify.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEvent gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getDetails().noteEvent()).isPresent();
+    assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
   }
 
   // Returns a controller with a faked ProfileUtils to bypass acl checks.

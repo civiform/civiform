@@ -35,7 +35,7 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "ses" % "2.17.263",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.5.4",
+      "com.azure" % "azure-identity" % "1.5.5",
       "com.azure" % "azure-storage-blob" % "12.19.0",
 
       // Database and database testing libraries
@@ -64,13 +64,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.4.6",
+      "org.pac4j" % "pac4j-core" % "5.4.5",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.4.6",
+      "org.pac4j" % "pac4j-http" % "5.4.5",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.4.6",
+      "org.pac4j" % "pac4j-oidc" % "5.4.5",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.4.6",
+      "org.pac4j" % "pac4j-saml" % "5.4.5",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.9.1",
@@ -120,8 +120,9 @@ lazy val root = (project in file("."))
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
     pipelineStages := Seq(digest, gzip), // plugins to use for assets
-    // Uncomment to test the sbt-web asset pipeline locally.
-    // Assets / pipelineStages  := Seq(digest, gzip), // Test the sbt-web pipeline locally.
+    // Enable digest for local dev so that files can be served çached improving
+    // page speed and also browser tests speed.
+    Assets / pipelineStages := Seq(digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(

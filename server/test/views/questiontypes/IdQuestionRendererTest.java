@@ -30,7 +30,8 @@ public class IdQuestionRendererTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          IdValidationPredicates.create(2, 3));
+          IdValidationPredicates.create(2, 3),
+          /* lastModifiedTime= */ Optional.empty());
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -88,5 +89,18 @@ public class IdQuestionRendererTest extends ResetPostgres {
     DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain only numbers.");
+  }
+
+  @Test
+  public void render_withAriaLabels() {
+    DivTag result = renderer.render(params);
+
+    assertThat(
+            result
+                .render()
+                .matches(
+                    ".*input type=\"text\" value=\"\""
+                        + " aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
   }
 }
