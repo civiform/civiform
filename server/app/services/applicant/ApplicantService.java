@@ -460,6 +460,11 @@ public final class ApplicantService {
             httpExecutionContext.current());
   }
 
+  /**
+   * Return a filtered set of applications, including applications from previous versions, with
+   * program, applicant, and account associations eager loaded. Results are ordered by application
+   * ID in ascending order.
+   */
   public ImmutableList<Application> getApplications(TimeFilter submitTimeFilter) {
     return applicationRepository.getApplications(submitTimeFilter);
   }

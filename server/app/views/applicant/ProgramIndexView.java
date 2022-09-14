@@ -11,7 +11,6 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
-import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -335,7 +334,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 applicantId, program.id())
             .url();
     ATag actionButton =
-        a().attr(HREF, actionUrl)
+        a().withHref(actionUrl)
             .attr(
                 "aria-label",
                 messages.at(
