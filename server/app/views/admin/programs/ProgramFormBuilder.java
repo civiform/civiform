@@ -18,10 +18,10 @@ import views.style.Styles;
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
-public class ProgramFormBuilder extends BaseHtmlView {
+abstract class ProgramFormBuilder extends BaseHtmlView {
 
   /** Builds the form using program form data. */
-  public static FormTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
+  protected final FormTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
     return buildProgramForm(
         program.getAdminName(),
         program.getAdminDescription(),
@@ -33,7 +33,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   /** Builds the form using program definition data. */
-  public static FormTag buildProgramForm(ProgramDefinition program, boolean editExistingProgram) {
+  protected final FormTag buildProgramForm(ProgramDefinition program, boolean editExistingProgram) {
     return buildProgramForm(
         program.adminName(),
         program.adminDescription(),

@@ -10,7 +10,6 @@ import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -20,7 +19,7 @@ import views.components.ToastMessage;
 import views.style.Styles;
 
 /** Renders a page for editing the name and description of a program. */
-public final class ProgramEditView extends BaseHtmlView {
+public final class ProgramEditView extends ProgramFormBuilder {
   private final AdminLayout layout;
 
   @Inject
@@ -30,7 +29,7 @@ public final class ProgramEditView extends BaseHtmlView {
 
   public Content render(Request request, ProgramDefinition program) {
     FormTag formTag =
-        ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
+        buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
@@ -46,7 +45,7 @@ public final class ProgramEditView extends BaseHtmlView {
   public Content render(
       Request request, long id, ProgramForm program, Optional<ToastMessage> message) {
     FormTag formTag =
-        ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
+        buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(id))
             .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
