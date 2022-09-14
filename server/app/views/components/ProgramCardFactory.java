@@ -58,11 +58,14 @@ public final class ProgramCardFactory {
             .withClass(Styles.FLEX)
             .with(
                 div()
-                    .withClasses(
-                        ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE, Styles.W_1_3, Styles.PY_7)
+                    .withClasses(Styles.W_1_3, Styles.PY_7)
                     .with(
                         p(programTitleText)
-                            .withClasses(Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL),
+                            .withClasses(
+                                ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
+                                Styles.TEXT_BLACK,
+                                Styles.FONT_BOLD,
+                                Styles.TEXT_XL),
                         p(programDescriptionText)
                             .withClasses(
                                 Styles.LINE_CLAMP_2, Styles.TEXT_GRAY_700, Styles.TEXT_BASE)),
