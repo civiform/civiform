@@ -97,7 +97,7 @@ public final class PdfExporter {
                 answerData.questionDefinition().getName(),
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
         Paragraph answer = null;
-        if (answerData.fileKey().isPresent()) {
+        if (answerData.encodedFileKey().isPresent()) {
           String encodedFileKey = answerData.encodedFileKey().get();
           String fileLink =
               controllers.routes.FileController.adminShow(programId, encodedFileKey).url();

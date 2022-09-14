@@ -141,7 +141,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     // Add existing answer.
     if (data.isAnswered()) {
       final ContainerTag answerContent;
-      if (data.fileKey().isPresent()) {
+      if (data.encodedFileKey().isPresent()) {
         String encodedFileKey = data.encodedFileKey().get();
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
         answerContent = a().withHref(fileLink);

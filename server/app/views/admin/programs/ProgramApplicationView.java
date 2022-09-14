@@ -197,7 +197,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     LocalDate date =
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
     DivTag answerContent;
-    if (answerData.fileKey().isPresent()) {
+    if (answerData.encodedFileKey().isPresent()) {
       String encodedFileKey = answerData.encodedFileKey().get();
       String fileLink =
           controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
