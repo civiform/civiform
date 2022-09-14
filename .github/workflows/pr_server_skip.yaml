@@ -18,6 +18,9 @@ on:
       - 'prod.Dockerfile'
       - '.github/workflows/**'
 
+permissions:
+  contents: read
+
 jobs:
   run_all_tests:
     uses: ./.github/workflows/tests_skip.yaml
