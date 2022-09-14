@@ -25,8 +25,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.SelectTag;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -199,8 +197,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
     LocalDate date =
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
     DivTag answerContent;
-    if (answerData.fileKey().isPresent()) {
-      String encodedFileKey = URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
+    if (answerData.encodedFileKey().isPresent()) {
+      String encodedFileKey = answerData.encodedFileKey().get();
       String fileLink =
           controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
       answerContent = div(a(answerData.answerText()).withHref(fileLink));

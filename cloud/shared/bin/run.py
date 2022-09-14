@@ -27,7 +27,7 @@ def main():
     args = parser.parse_args()
     if args.tag:
         os.environ['TF_VAR_image_tag'] = args.tag
-    elif args.command is not None and args.command != 'destroy':
+    elif args.command is not None and args.command not in ['destroy', 'doctor']:
         exit('--tag is required')
 
     os.environ['TF_VAR_FILENAME'] = "setup.auto.tfvars"

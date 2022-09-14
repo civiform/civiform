@@ -15,8 +15,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.typesafe.config.Config;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -99,9 +97,8 @@ public final class PdfExporter {
                 answerData.questionDefinition().getName(),
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
         Paragraph answer = null;
-        if (answerData.fileKey().isPresent()) {
-          String encodedFileKey =
-              URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
+        if (answerData.encodedFileKey().isPresent()) {
+          String encodedFileKey = answerData.encodedFileKey().get();
           String fileLink =
               controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
           Anchor anchor = new Anchor(answerData.answerText());
