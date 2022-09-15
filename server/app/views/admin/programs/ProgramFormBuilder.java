@@ -130,9 +130,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       return div()
           .withClass(Styles.MB_2)
           .with(
-              input().isHidden()
-                .withName("adminName")
-                .withValue(adminName),
+              input().isHidden().withName("adminName").withValue(adminName),
               p("The URL for this program. This value can't be changed")
                   .withClasses(BaseStyles.INPUT_LABEL),
               a(programUrl).withClasses(BaseStyles.FORM_FIELD));
