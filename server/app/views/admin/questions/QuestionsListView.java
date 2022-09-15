@@ -32,6 +32,8 @@ import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
+import views.ViewUtils.BadgeStatus;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -197,14 +199,6 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition question,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
-    String badgeText = "Draft";
-    String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
-    String badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
-    if (isActive) {
-      badgeText = "Active";
-      badgeBGColor = BaseStyles.BG_CIVIFORM_GREEN_LIGHT;
-      badgeFillColor = BaseStyles.TEXT_CIVIFORM_GREEN;
-    }
     boolean isSecondRow =
         isActive
             && activeAndDraftQuestions.getDraftQuestionDefinition(question.getName()).isPresent();
@@ -213,23 +207,10 @@ public final class QuestionsListView extends BaseHtmlView {
         renderActionsCell(isActive, question, activeAndDraftQuestions, request);
 
     PTag badge =
-        p().withClasses(
-                badgeBGColor,
-                badgeFillColor,
-                Styles.ML_2,
-                StyleUtils.responsiveXLarge(Styles.ML_8),
-                Styles.FONT_MEDIUM,
-                Styles.ROUNDED_FULL,
-                Styles.FLEX,
-                Styles.FLEX_ROW,
-                Styles.GAP_X_2,
-                Styles.PLACE_ITEMS_CENTER,
-                Styles.JUSTIFY_CENTER,
-                Styles.H_12)
-            .withStyle("width: 100px")
-            .with(
-                Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
-                span(badgeText).withClass(Styles.MR_4));
+        ViewUtils.makeBadge(
+            isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
+            Styles.ML_2,
+            StyleUtils.responsiveXLarge(Styles.ML_8));
 
     DivTag row =
         div()
