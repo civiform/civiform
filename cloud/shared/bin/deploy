@@ -2,7 +2,6 @@
 
 set -e
 
-source bin/lib/out.sh
 source cloud/shared/bin/lib.sh
 
 if [[ "${IMAGE_TAG}" == "latest" ]]; then

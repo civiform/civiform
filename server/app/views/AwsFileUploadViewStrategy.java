@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 
@@ -13,7 +14,10 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   protected ImmutableList<InputTag> fileUploadFields(
-      Optional<StorageUploadRequest> request, String fileInputId) {
+      Optional<StorageUploadRequest> request,
+      String fileInputId,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors) {
     if (request.isEmpty()) {
       return ImmutableList.of();
     }
@@ -53,6 +57,11 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     builder.add(
         input()
             .withId(fileInputId)
+            .condAttr(hasErrors, "aria-invalid", "true")
+            .condAttr(
+                !ariaDescribedByIds.isEmpty(),
+                "aria-describedBy",
+                StringUtils.join(ariaDescribedByIds, " "))
             .withType("file")
             .withName("file")
             .withAccept(MIME_TYPES_IMAGES_AND_PDF));

@@ -76,14 +76,16 @@ public class ProgramFormBuilder extends BaseHtmlView {
                 FieldWithLabel.radio()
                     .setId("program-display-mode-public")
                     .setFieldName("displayMode")
-                    .setLabelText("Public")
+                    .setLabelText("Publicly visible")
                     .setValue(DisplayMode.PUBLIC.getValue())
                     .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
                     .getRadioTag(),
                 FieldWithLabel.radio()
                     .setId("program-display-mode-hidden")
                     .setFieldName("displayMode")
-                    .setLabelText("Hidden in Index")
+                    .setLabelText(
+                        "Hide from applicants. Only individuals with the unique program link can"
+                            + " access this program")
                     .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
                     .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
                     .getRadioTag()),

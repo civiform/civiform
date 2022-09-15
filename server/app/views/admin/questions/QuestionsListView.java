@@ -32,6 +32,8 @@ import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
+import views.ViewUtils.BadgeStatus;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -139,8 +141,16 @@ public final class QuestionsListView extends BaseHtmlView {
     }
     QuestionDefinition latestDefinition = draftDefinition.orElseGet(activeDefinition::get);
 
-    DivTag row = div().withClasses(Styles.FLEX).with(renderInfoCell(latestDefinition));
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
+    Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
+        renderReferencingPrograms(questionName, activeAndDraftQuestions);
+    modals.addAll(referencingProgramAndModal.getRight());
+
+    DivTag row =
+        div()
+            .withClasses(Styles.FLEX)
+            .with(renderInfoCell(latestDefinition))
+            .with(referencingProgramAndModal.getLeft());
 
     DivTag draftAndActiveRows = div().withClasses(Styles.FLEX_GROW);
     if (draftDefinition.isPresent()) {
@@ -189,47 +199,18 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition question,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
-    String badgeText = "Draft";
-    String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
-    String badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
-    if (isActive) {
-      badgeText = "Active";
-      badgeBGColor = BaseStyles.BG_CIVIFORM_GREEN_LIGHT;
-      badgeFillColor = BaseStyles.TEXT_CIVIFORM_GREEN;
-    }
     boolean isSecondRow =
         isActive
             && activeAndDraftQuestions.getDraftQuestionDefinition(question.getName()).isPresent();
 
-    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
-        activeAndDraftQuestions.getReferencingPrograms(question.getName());
-    Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
-        renderPublishedDateAndReferencingPrograms(
-            question.getName(),
-            activeAndDraftQuestions,
-            referencingPrograms.activeReferences(),
-            referencingPrograms.draftReferences());
     Pair<DivTag, ImmutableList<Modal>> actionsCellAndModal =
         renderActionsCell(isActive, question, activeAndDraftQuestions, request);
 
     PTag badge =
-        p().withClasses(
-                badgeBGColor,
-                badgeFillColor,
-                Styles.ML_2,
-                StyleUtils.responsiveXLarge(Styles.ML_8),
-                Styles.FONT_MEDIUM,
-                Styles.ROUNDED_FULL,
-                Styles.FLEX,
-                Styles.FLEX_ROW,
-                Styles.GAP_X_2,
-                Styles.PLACE_ITEMS_CENTER,
-                Styles.JUSTIFY_CENTER,
-                Styles.H_12)
-            .withStyle("width: 100px")
-            .with(
-                Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
-                span(badgeText).withClass(Styles.MR_4));
+        ViewUtils.makeBadge(
+            isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
+            Styles.ML_2,
+            StyleUtils.responsiveXLarge(Styles.ML_8));
 
     DivTag row =
         div()
@@ -242,19 +223,13 @@ public final class QuestionsListView extends BaseHtmlView {
                 Styles.CURSOR_POINTER,
                 isSecondRow ? Styles.BORDER_T : "")
             .with(badge)
-            .with(referencingProgramAndModal.getLeft())
             .with(div().withClasses(Styles.FLEX_GROW))
             .with(actionsCellAndModal.getLeft());
 
     asRedirectElement(
         row, controllers.admin.routes.AdminQuestionController.show(question.getId()).url());
 
-    return Pair.of(
-        row,
-        ImmutableList.<Modal>builder()
-            .addAll(referencingProgramAndModal.getRight())
-            .addAll(actionsCellAndModal.getRight())
-            .build());
+    return Pair.of(row, actionsCellAndModal.getRight());
   }
 
   private DivTag renderInfoCell(QuestionDefinition definition) {
@@ -288,12 +263,12 @@ public final class QuestionsListView extends BaseHtmlView {
    * Renders text describing how programs use specified question and provides a link to show dialog
    * listing all such programs.
    */
-  private Pair<DivTag, ImmutableList<Modal>> renderPublishedDateAndReferencingPrograms(
-      String questionName,
-      ActiveAndDraftQuestions activeAndDraftQuestions,
-      Collection<ProgramDefinition> activePrograms,
-      Collection<ProgramDefinition> draftPrograms) {
-
+  private Pair<DivTag, ImmutableList<Modal>> renderReferencingPrograms(
+      String questionName, ActiveAndDraftQuestions activeAndDraftQuestions) {
+    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
+        activeAndDraftQuestions.getReferencingPrograms(questionName);
+    Collection<ProgramDefinition> activePrograms = referencingPrograms.activeReferences();
+    Collection<ProgramDefinition> draftPrograms = referencingPrograms.draftReferences();
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
             questionName, activePrograms, draftPrograms, /* modalHeader= */ Optional.empty());
@@ -316,7 +291,9 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(
                 ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS,
                 Styles.ML_4,
-                StyleUtils.responsiveXLarge(Styles.ML_10))
+                StyleUtils.responsiveXLarge(Styles.ML_10),
+                Styles.PY_7,
+                Styles.W_1_3)
             .with(span("Used across "), referencingProgramsCount);
     if (maybeReferencingProgramsModal.isPresent()) {
       tag.with(

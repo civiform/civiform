@@ -9,14 +9,15 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
 import services.program.ProgramDefinition;
 import views.ViewUtils;
+import views.ViewUtils.BadgeStatus;
 import views.style.AdminStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -34,8 +35,9 @@ public final class ProgramCardFactory {
   public DivTag renderCard(ProgramCardData cardData) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
-    String programTitleText = displayProgram.adminName();
-    String programDescriptionText = displayProgram.adminDescription();
+    String programTitleText = displayProgram.localizedName().getDefault();
+    String programDescriptionText = displayProgram.localizedDescription().getDefault();
+    String adminNoteText = displayProgram.adminDescription();
 
     DivTag statusDiv = div();
     if (cardData.draftProgram().isPresent()) {
@@ -56,14 +58,18 @@ public final class ProgramCardFactory {
         div()
             .withClass(Styles.FLEX)
             .with(
-                p(programTitleText)
-                    .withClasses(
-                        ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
-                        Styles.W_1_4,
-                        Styles.PY_7,
-                        Styles.TEXT_BLACK,
-                        Styles.FONT_BOLD,
-                        Styles.TEXT_XL),
+                div()
+                    .withClasses(Styles.W_1_3, Styles.PY_7)
+                    .with(
+                        p(programTitleText)
+                            .withClasses(
+                                ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
+                                Styles.TEXT_BLACK,
+                                Styles.FONT_BOLD,
+                                Styles.TEXT_XL),
+                        p(programDescriptionText)
+                            .withClasses(
+                                Styles.LINE_CLAMP_2, Styles.TEXT_GRAY_700, Styles.TEXT_BASE)),
                 statusDiv.withClasses(
                     Styles.FLEX_GROW,
                     Styles.TEXT_SM,
@@ -78,16 +84,17 @@ public final class ProgramCardFactory {
             Styles.BORDER,
             Styles.BORDER_GRAY_300,
             Styles.ROUNDED_LG)
-        .with(
-            titleAndStatus,
-            p(programDescriptionText)
-                .withClasses(
+        .with(titleAndStatus)
+        .condWith(
+            !adminNoteText.isBlank(),
+            p().withClasses(
                     Styles.W_3_4,
                     Styles.MB_8,
                     Styles.PT_4,
                     Styles.LINE_CLAMP_3,
                     Styles.TEXT_GRAY_700,
-                    Styles.TEXT_BASE))
+                    Styles.TEXT_BASE)
+                .with(span("Admin note: ").withClasses(Styles.FONT_SEMIBOLD), span(adminNoteText)))
         // Add data attributes used for client-side sorting.
         .withData("last-updated-millis", Long.toString(extractLastUpdated(cardData).toEpochMilli()))
         .withData("name", programTitleText);
@@ -96,15 +103,9 @@ public final class ProgramCardFactory {
   private DivTag renderProgramRow(
       boolean isActive, ProgramCardData.ProgramRow programRow, String... extraStyles) {
     ProgramDefinition program = programRow.program();
-    String badgeText = "Draft";
-    String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
-    String badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
     String updatedPrefix = "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
     if (isActive) {
-      badgeText = "Active";
-      badgeBGColor = BaseStyles.BG_CIVIFORM_GREEN_LIGHT;
-      badgeFillColor = BaseStyles.TEXT_CIVIFORM_GREEN;
       updatedPrefix = "Published on ";
     }
 
@@ -126,6 +127,11 @@ public final class ProgramCardFactory {
                 Styles.H_12,
                 programRow.extraRowActions().size() == 0 ? Styles.INVISIBLE : "");
 
+    PTag badge =
+        ViewUtils.makeBadge(
+            isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
+            Styles.ML_2,
+            StyleUtils.responsiveXLarge(Styles.ML_8));
     return div()
         .withClasses(
             Styles.PY_7,
@@ -134,23 +140,7 @@ public final class ProgramCardFactory {
             StyleUtils.hover(Styles.BG_GRAY_100),
             StyleUtils.joinStyles(extraStyles))
         .with(
-            p().withClasses(
-                    badgeBGColor,
-                    badgeFillColor,
-                    Styles.ML_2,
-                    StyleUtils.responsiveXLarge(Styles.ML_8),
-                    Styles.FONT_MEDIUM,
-                    Styles.ROUNDED_FULL,
-                    Styles.FLEX,
-                    Styles.FLEX_ROW,
-                    Styles.GAP_X_2,
-                    Styles.PLACE_ITEMS_CENTER,
-                    Styles.JUSTIFY_CENTER)
-                .withStyle("min-width:90px")
-                .with(
-                    Icons.svg(Icons.NOISE_CONTROL_OFF)
-                        .withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
-                    span(badgeText).withClass(Styles.MR_4)),
+            badge,
             div()
                 .withClasses(Styles.ML_4, StyleUtils.responsiveXLarge(Styles.ML_10))
                 .with(
