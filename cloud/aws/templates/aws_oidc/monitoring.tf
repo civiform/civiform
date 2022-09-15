@@ -1,11 +1,10 @@
-data "aws_caller_identity" "current" {}
-
 resource "aws_prometheus_workspace" "metrics" {
-  alias = "CiviForm_metrics"
+  alias = "${var.app_prefix}-CiviForm_metrics"
 }
 
 resource "aws_grafana_workspace" "CiviForm_metrics" {
-  name                     = "CiviFormMetrics"
+  name                     = "${var.app_prefix}-civiform-metrics"
+  description              = "Grafana instance for ${var.app_prefix}-civiform-metrics"
   data_sources             = ["PROMETHEUS"]
   account_access_type      = "CURRENT_ACCOUNT"
   role_arn                 = aws_iam_role.grafana_assume_role.arn
@@ -14,7 +13,7 @@ resource "aws_grafana_workspace" "CiviForm_metrics" {
 }
 
 resource "aws_iam_role" "grafana_assume_role" {
-  name = "grafana-assume-role"
+  name = "${var.app_prefix}-grafana-assume-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -31,7 +30,7 @@ resource "aws_iam_role" "grafana_assume_role" {
 }
 
 resource "aws_iam_policy" "civiform_monitoring_role_policy" {
-  name = "monitoring-role-policy"
+  name = "${var.app_prefix}-civiform-monitoring-role-policy"
   policy = jsonencode(
     {
       "Version" : "2012-10-17",
