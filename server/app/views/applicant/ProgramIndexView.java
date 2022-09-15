@@ -8,16 +8,24 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.hr;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.ImgTag;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,9 +35,11 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
+import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.TranslationUtils;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.TextFormatter;
@@ -41,20 +51,22 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
-public class ProgramIndexView extends BaseHtmlView {
+public final class ProgramIndexView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
+  private final ZoneId zoneId;
 
   @Inject
-  public ProgramIndexView(ApplicantLayout layout, Config config) {
+  public ProgramIndexView(ApplicantLayout layout, Config config, ZoneId zoneId) {
     this.layout = checkNotNull(layout);
     this.maybeLogoUrl =
         checkNotNull(config).hasPath("whitelabel.logo_with_name_url")
             ? Optional.of(config.getString("whitelabel.logo_with_name_url"))
             : Optional.empty();
     this.civicEntityFullName = checkNotNull(config).getString("whitelabel.civic_entity_full_name");
+    this.zoneId = checkNotNull(zoneId);
   }
 
   /**
@@ -63,10 +75,8 @@ public class ProgramIndexView extends BaseHtmlView {
    *
    * @param messages the localized {@link Messages} for the current applicant
    * @param applicantId the ID of the current applicant
-   * @param draftPrograms an {@link ImmutableList} of {@link ProgramDefinition}s which the applicant
-   *     has draft applications of
-   * @param activePrograms an {@link ImmutableList} of {@link ProgramDefinition}s with the most
-   *     recent published versions
+   * @param applicationPrograms an {@link ImmutableList} of programs (with attached application)
+   *     information that should be displayed in the list
    * @return HTML content for rendering the list of available programs
    */
   public Content render(
@@ -74,8 +84,7 @@ public class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       long applicantId,
       Optional<String> userName,
-      ImmutableList<ProgramDefinition> draftPrograms,
-      ImmutableList<ProgramDefinition> activePrograms,
+      ApplicantService.ApplicationPrograms applicationPrograms,
       Optional<ToastMessage> bannerMessage) {
     HtmlBundle bundle = layout.getBundle();
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
@@ -85,8 +94,7 @@ public class ProgramIndexView extends BaseHtmlView {
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_1.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_2.getKeyName())),
-        mainContent(
-            messages, draftPrograms, activePrograms, applicantId, messages.lang().toLocale()));
+        mainContent(messages, applicationPrograms, applicantId, messages.lang().toLocale()));
 
     return layout.renderWithNav(request, userName, messages, bundle);
   }
@@ -140,8 +148,7 @@ public class ProgramIndexView extends BaseHtmlView {
 
   private DivTag mainContent(
       Messages messages,
-      ImmutableList<ProgramDefinition> draftPrograms,
-      ImmutableList<ProgramDefinition> activePrograms,
+      ApplicantService.ApplicationPrograms relevantPrograms,
       long applicantId,
       Locale preferredLocale) {
     DivTag content =
@@ -155,56 +162,43 @@ public class ProgramIndexView extends BaseHtmlView {
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
     String cardContainerStyles =
-        programCardsContainerStyles(Math.max(draftPrograms.size(), activePrograms.size()));
+        programCardsContainerStyles(
+            Math.max(
+                Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
+                relevantPrograms.inProgress().size()));
 
-    if (!draftPrograms.isEmpty()) {
-      content
-          .with(
-              h3().withText(messages.at(MessageKey.TITLE_PROGRAMS_IN_PROGRESS.getKeyName()))
-                  .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
-          .with(
-              div()
-                  .withClasses(cardContainerStyles)
-                  .with(
-                      each(
-                          IntStream.range(0, draftPrograms.size())
-                              .boxed()
-                              .collect(Collectors.toList()),
-                          index ->
-                              programCard(
-                                  messages,
-                                  draftPrograms.get(index),
-                                  index,
-                                  draftPrograms.size(),
-                                  applicantId,
-                                  preferredLocale,
-                                  true))));
+    if (!relevantPrograms.inProgress().isEmpty()) {
+      content.with(
+          programCardsSection(
+              messages,
+              MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED,
+              cardContainerStyles,
+              applicantId,
+              preferredLocale,
+              relevantPrograms.inProgress(),
+              MessageKey.BUTTON_CONTINUE));
     }
-    if (!draftPrograms.isEmpty() && !activePrograms.isEmpty()) {
-      content.with(hr().withClass(Styles.MY_16));
+    if (!relevantPrograms.submitted().isEmpty()) {
+      content.with(
+          programCardsSection(
+              messages,
+              MessageKey.TITLE_PROGRAMS_SUBMITTED,
+              cardContainerStyles,
+              applicantId,
+              preferredLocale,
+              relevantPrograms.submitted(),
+              MessageKey.BUTTON_EDIT));
     }
-    if (!activePrograms.isEmpty()) {
-      content
-          .with(
-              h3().withText(messages.at(MessageKey.TITLE_PROGRAMS_ACTIVE.getKeyName()))
-                  .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
-          .with(
-              div()
-                  .withClasses(cardContainerStyles)
-                  .with(
-                      each(
-                          IntStream.range(0, activePrograms.size())
-                              .boxed()
-                              .collect(Collectors.toList()),
-                          index ->
-                              programCard(
-                                  messages,
-                                  activePrograms.get(index),
-                                  index,
-                                  activePrograms.size(),
-                                  applicantId,
-                                  preferredLocale,
-                                  false))));
+    if (!relevantPrograms.unapplied().isEmpty()) {
+      content.with(
+          programCardsSection(
+              messages,
+              MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED,
+              cardContainerStyles,
+              applicantId,
+              preferredLocale,
+              relevantPrograms.unapplied(),
+              MessageKey.BUTTON_APPLY));
     }
 
     return div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.PLACE_ITEMS_CENTER).with(content);
@@ -224,14 +218,44 @@ public class ProgramIndexView extends BaseHtmlView {
         numPrograms >= 5 ? StyleUtils.responsive2XLarge(Styles.GRID_COLS_5) : "");
   }
 
+  private DivTag programCardsSection(
+      Messages messages,
+      MessageKey sectionTitle,
+      String cardContainerStyles,
+      long applicantId,
+      Locale preferredLocale,
+      ImmutableList<ApplicantService.ApplicantProgramData> cards,
+      MessageKey applyTitle) {
+    return div()
+        .with(
+            h3().withText(messages.at(sectionTitle.getKeyName()))
+                .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
+        .with(
+            div()
+                .withClasses(cardContainerStyles)
+                .with(
+                    each(
+                        IntStream.range(0, cards.size()).boxed().collect(Collectors.toList()),
+                        index ->
+                            programCard(
+                                messages,
+                                cards.get(index),
+                                index,
+                                cards.size(),
+                                applicantId,
+                                preferredLocale,
+                                applyTitle))));
+  }
+
   private DivTag programCard(
       Messages messages,
-      ProgramDefinition program,
+      ApplicantService.ApplicantProgramData cardData,
       int programIndex,
       int totalProgramCount,
       Long applicantId,
       Locale preferredLocale,
-      boolean isDraft) {
+      MessageKey applyTitle) {
+    ProgramDefinition program = cardData.program();
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     DivTag title =
@@ -300,26 +324,28 @@ public class ProgramIndexView extends BaseHtmlView {
       programData.with(externalLink);
     }
 
-    String applyUrl =
+    if (cardData.latestSubmittedApplicationTime().isPresent()) {
+      programData.with(
+          programCardSubmittedDate(messages, cardData.latestSubmittedApplicationTime().get()));
+    }
+
+    String actionUrl =
         controllers.applicant.routes.ApplicantProgramReviewController.preview(
                 applicantId, program.id())
             .url();
-    ATag applyButton =
-        a().withHref(applyUrl)
+    ATag actionButton =
+        a().withHref(actionUrl)
             .attr(
                 "aria-label",
                 messages.at(
                     MessageKey.BUTTON_APPLY_SR.getKeyName(),
                     program.localizedName().getOrDefault(preferredLocale)))
-            .withText(
-                isDraft
-                    ? messages.at(MessageKey.BUTTON_CONTINUE.getKeyName())
-                    : messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
+            .withText(messages.at(applyTitle.getKeyName()))
             .withId(baseId + "-apply")
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
-    DivTag applyDiv =
-        div(applyButton)
+    DivTag actionDiv =
+        div(actionButton)
             .withClasses(
                 Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);
     String srProgramCardTitle =
@@ -342,6 +368,32 @@ public class ProgramIndexView extends BaseHtmlView {
                     Styles.ROUNDED_T_XL,
                     Styles.H_3))
         .with(programData)
-        .with(applyDiv);
+        .with(actionDiv);
+  }
+
+  private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate) {
+    TranslationUtils.TranslatedStringSplitResult translateResult =
+        TranslationUtils.splitTranslatedSingleArgString(messages, MessageKey.SUBMITTED_DATE);
+    String beforeContent = translateResult.beforeInterpretedContent();
+    String afterContent = translateResult.afterInterpretedContent();
+
+    List<DomContent> submittedComponents = Lists.newArrayList();
+    if (!beforeContent.isEmpty()) {
+      submittedComponents.add(text(beforeContent));
+    }
+
+    ZonedDateTime dateTime = submittedDate.atZone(zoneId);
+    String formattedSubmitTime =
+        DateTimeFormatter.ofLocalizedDate(
+                // SHORT will print dates as 1/2/2022.
+                FormatStyle.SHORT)
+            .format(dateTime);
+    submittedComponents.add(span(formattedSubmitTime).withClass(Styles.FONT_SEMIBOLD));
+
+    if (!afterContent.isEmpty()) {
+      submittedComponents.add(text(afterContent));
+    }
+
+    return div().withClasses(Styles.TEXT_XS, Styles.TEXT_GRAY_700).with(submittedComponents);
   }
 }
