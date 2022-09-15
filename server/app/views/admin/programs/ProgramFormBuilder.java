@@ -1,11 +1,14 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.legend;
 
 import forms.ProgramForm;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import models.DisplayMode;
 import services.program.ProgramDefinition;
@@ -13,12 +16,19 @@ import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.BaseStyles;
 import views.style.Styles;
+import com.typesafe.config.Config;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
+
+  private final String baseUrl;
+
+  ProgramFormBuilder(Config configuration) {
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
+  }
 
   /** Builds the form using program form data. */
   protected final FormTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
@@ -44,7 +54,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         editExistingProgram);
   }
 
-  private static FormTag buildProgramForm(
+  private FormTag buildProgramForm(
       String adminName,
       String adminDescription,
       String displayName,
@@ -68,15 +78,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Describe this program for the public*")
             .setValue(displayDescription)
             .getTextareaTag(),
-        FieldWithLabel.input()
-            .setId("program-name-input")
-            .setFieldName("adminName")
-            .setLabelText(
-                "Enter the URL for this program. This value can't be changed later. Aim to keep it"
-                    + " short so it's easy to share. Use a dash between each word*")
-            .setValue(adminName)
-            .setDisabled(editExistingProgram)
-            .getInputTag(),
+        programUrlField(adminName, editExistingProgram),
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
@@ -112,5 +114,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getTextareaTag(),
         submitButton("Save").withId("program-update-button"));
     return formTag;
+  }
+
+  private DomContent programUrlField(String adminName, boolean editExistingProgram) {
+    if (editExistingProgram) {
+        // TODO(clouser): Modify this to be visually styled a bit better.
+        return p(String.format("%s/%s", baseUrl, adminName));
+    }
+    return FieldWithLabel.input()
+    .setId("program-name-input")
+    .setFieldName("adminName")
+    .setLabelText("Enter the URL for this program. This value can't be changed later. Aim to keep it"
+            + " short so it's easy to share. Use a dash between each word*")
+    .setValue(adminName)
+    .getInputTag();
   }
 }

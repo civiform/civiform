@@ -17,13 +17,15 @@ import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
+import com.typesafe.config.Config;
 
 /** Renders a page for editing the name and description of a program. */
 public final class ProgramEditView extends ProgramFormBuilder {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramEditView(AdminLayoutFactory layoutFactory) {
+  public ProgramEditView(AdminLayoutFactory layoutFactory, Config configuration) {
+    super(configuration);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
