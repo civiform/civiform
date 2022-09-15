@@ -75,18 +75,18 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(Styles.PX_4)
             .with(
                 div()
-                    .withClasses(
-                        Styles.FLEX,
-                        Styles.ITEMS_CENTER,
-                        Styles.SPACE_X_4,
-                        Styles.MT_12,
-                        Styles.MB_10)
+                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)
                     .with(
                         h1(title),
                         div().withClass(Styles.FLEX_GROW),
                         CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index().url())))
-            .with(questionRowsAndModals.getLeft())
+                            controllers.admin.routes.AdminQuestionController.index().url())),
+                div()
+                    .withClasses(Styles.MT_10, Styles.FLEX)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        p("Sorting my most recently updated").withClass(Styles.TEXT_SM)))
+            .with(div().withClass(Styles.MT_6).with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
         layout
