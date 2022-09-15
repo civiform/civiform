@@ -9,7 +9,7 @@ export TERRAFORM_PLAN_OUT_FILE="terraform_plan"
 
 if [[ "${SOURCED_CLOUD_LIB}" != "true" ]]; then
   readonly CLOUD_LIB_DIR="${BASH_SOURCE%/*}/lib"
-  source "bin/lib/out.sh"
+  source "${CLOUD_LIB_DIR}/out.sh"
   source "${CLOUD_LIB_DIR}/health.sh"
   source "${CLOUD_LIB_DIR}/log.sh"
   source "${CLOUD_LIB_DIR}/terraform.sh"
