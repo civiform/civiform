@@ -1,12 +1,9 @@
-import {endSession, startSession, validateScreenshot} from './support'
+import {createTestContext} from './support'
 
 describe('the landing page', () => {
+  const ctx = createTestContext()
+
   it('it has login options', async () => {
-    const {browser, page} = await startSession()
-
-    expect(await page.textContent('html')).toContain('Continue as guest')
-    await validateScreenshot(page, 'landing-page', {fullPage: true})
-
-    await endSession(browser)
+    expect(await ctx.page.textContent('html')).toContain('Continue as guest')
   })
 })

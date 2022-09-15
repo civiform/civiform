@@ -49,8 +49,13 @@ jobs:
           # prettier CLI arguments.
           args: --check .
 
-      - name: Run ESLint
-        run: npx eslint . --ext .js,.jsx,.ts,.tsx
+      - name: Run ESLint on browser tests
+        working-directory: browser-test
+        run: yarn install && npx eslint . --ext .ts
+
+      - name: Run ESLint on server
+        working-directory: server
+        run: npm install && npx eslint . --ext .ts
 
       - name: show diff
         run: git add .; git diff --exit-code HEAD
@@ -126,7 +131,7 @@ jobs:
         uses: luizm/action-sh-checker@master
         env:
           SHELLCHECK_OPTS: -s bash -S error
-          sh_checker_exclude: '*.md cloud/shared/bin/doctor_impl'
+          sh_checker_exclude: '*.md'
           SHFMT_OPTS:
             -bn -ci -i 2
             # -i 2   indent 2 spaces

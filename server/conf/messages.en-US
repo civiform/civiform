@@ -340,3 +340,10 @@ validation.textTooShort=Must contain at least {0} characters.
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=We were unable to find the page you tried to visit
+error.notFoundDescription='Please go back or return to the '
+error.notFoundDescriptionLink=homepage

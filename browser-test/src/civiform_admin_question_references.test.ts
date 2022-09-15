@@ -1,36 +1,24 @@
-import {
-  startSession,
-  loginAsAdmin,
-  AdminPrograms,
-  AdminQuestions,
-} from './support'
-import {Page} from 'playwright'
+import {createTestContext, loginAsAdmin} from './support'
 
 describe('view program references from question view', () => {
-  let pageObject: Page
-  let adminPrograms: AdminPrograms
-  let adminQuestions: AdminQuestions
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-    adminPrograms = new AdminPrograms(pageObject)
-    adminQuestions = new AdminQuestions(pageObject)
-
-    await loginAsAdmin(pageObject)
-  })
+  const ctx = createTestContext()
 
   it('shows no results for an unreferenced question', async () => {
+    const {page, adminQuestions} = ctx
+    await loginAsAdmin(page)
     const questionName = 'unreferenced-q'
     await adminQuestions.addAddressQuestion({questionName})
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
-      expectedProgramReferencesText: 'Used across 0 active & 0 draft programs',
+      expectedProgramReferencesText: 'Used across 0 programs',
+      version: 'draft',
     })
   })
 
   it('shows results for referencing programs', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
     const questionName = 'question-references-q'
+    await loginAsAdmin(page)
     await adminQuestions.addAddressQuestion({questionName})
 
     // Add a reference to the question in the second block. We'll later assert
@@ -45,7 +33,8 @@ describe('view program references from question view', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
-      expectedProgramReferencesText: 'Used across 0 active & 1 draft programs',
+      expectedProgramReferencesText: 'Used across 1 draft programs',
+      version: 'draft',
     })
 
     // Publish and add a reference from a new program in the draft version.
@@ -61,6 +50,7 @@ describe('view program references from question view', () => {
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
       expectedProgramReferencesText: 'Used across 1 active & 2 draft programs',
+      version: 'active',
     })
 
     await adminQuestions.expectProgramReferencesModalContains({

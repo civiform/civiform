@@ -1,5 +1,6 @@
 package views.questiontypes;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -16,7 +17,7 @@ import views.style.ReferenceClasses;
 public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public DateQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.SINGLE);
   }
 
   @Override
@@ -27,7 +28,9 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =
@@ -36,7 +39,11 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setScreenReaderText(question.getQuestionText())
             .setFieldErrors(
                 params.messages(),
-                validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()));
+                validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()))
+            .setAriaDescribedByIds(ariaDescribedByIds);
+    if (hasQuestionErrors) {
+      dateField.forceAriaInvalid();
+    }
     if (dateQuestion.getDateValue().isPresent()) {
       // Note: If the provided input was invalid, there's no use rendering
       // the value on roundtrip since inputs with type="date" won't allow

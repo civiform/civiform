@@ -12,8 +12,11 @@
   "devDependencies": {
     "@tailwindcss/line-clamp": "0.4.0",
     "@tsconfig/recommended": "1.0.1",
+    "@typescript-eslint/eslint-plugin": "5.36.1",
+    "@typescript-eslint/parser": "5.36.1",
     "autoprefixer": "10.4.8",
     "postcss": "8.4.16",
-    "tailwindcss": "2.2.19"
+    "tailwindcss": "2.2.19",
+    "eslint": "8.23.0"
   }
 }

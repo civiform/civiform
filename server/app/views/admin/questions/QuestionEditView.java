@@ -1,16 +1,17 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
@@ -38,8 +39,10 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -73,11 +76,13 @@ public final class QuestionEditView extends BaseHtmlView {
   public Content renderNewQuestionForm(
       Request request,
       QuestionType questionType,
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions)
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      String redirectUrl)
       throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
+    questionForm.setRedirectUrl(redirectUrl);
     return renderNewQuestionForm(
-        request, questionForm, enumeratorQuestionDefinitions, Optional.empty());
+        request, questionForm, enumeratorQuestionDefinitions, /* message= */ Optional.empty());
   }
 
   /** Render a New Question Form with a partially filled form and an error message. */
@@ -250,13 +255,26 @@ public final class QuestionEditView extends BaseHtmlView {
     SelectWithLabel enumeratorOptions =
         enumeratorOptionsFromEnumerationQuestionDefinitions(
             questionForm, enumeratorQuestionDefinitions);
+    String cancelUrl = questionForm.getRedirectUrl();
+    if (Strings.isNullOrEmpty(cancelUrl)) {
+      cancelUrl = controllers.admin.routes.AdminQuestionController.index().url();
+    }
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
                     questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Create").withClass(Styles.M_4));
+        .with(
+            div()
+                .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.MT_3)
+                .with(
+                    div().withClasses(Styles.FLEX_GROW),
+                    asRedirectElement(button("Cancel"), questionForm.getRedirectUrl())
+                        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
+                    submitButton("Create")
+                        .withClass(Styles.M_4)
+                        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)));
 
     return formTag;
   }
@@ -289,6 +307,10 @@ public final class QuestionEditView extends BaseHtmlView {
             .with(
                 // Hidden input indicating the type of question to be created.
                 input().isHidden().withName("questionType").withValue(questionType.name()),
+                input()
+                    .isHidden()
+                    .withName(QuestionForm.REDIRECT_URL_PARAM)
+                    .withValue(questionForm.getRedirectUrl()),
                 requiredFieldsExplanationContent());
 
     // The question name and enumerator fields should not be changed after the question is created.
@@ -322,7 +344,6 @@ public final class QuestionEditView extends BaseHtmlView {
 
     formTag.with(
         FieldWithLabel.textArea()
-            .setId("question-description-textarea")
             .setFieldName("questionDescription")
             .setLabelText("Description")
             .setPlaceholderText("The description displayed in the question builder")
@@ -375,27 +396,34 @@ public final class QuestionEditView extends BaseHtmlView {
     return fieldset()
         .with(
             legend("Data privacy settings*").withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses(Styles.PX_1, Styles.PB_2, Styles.TEXT_SM, Styles.TEXT_GRAY_600)
+                .with(
+                    span("Learn more about each of the data export settings in the "),
+                    new LinkElement()
+                        .setHref(
+                            "https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings")
+                        .setText("documentation")
+                        .opensInNewTab()
+                        .asAnchorText(),
+                    span(".")),
             FieldWithLabel.radio()
-                .setId("question-demographic-no-export")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
-                .setLabelText("No export")
+                .setLabelText("Don't allow answers to be exported")
                 .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
                 .getRadioTag(),
             FieldWithLabel.radio()
-                .setId("question-demographic-export-demographic")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
-                .setLabelText("Export Value")
+                .setLabelText("Export exact answers")
                 .setValue(QuestionTag.DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
                 .getRadioTag(),
             FieldWithLabel.radio()
-                .setId("question-demographic-export-pii")
                 .setDisabled(!submittable)
                 .setFieldName("questionExportState")
-                .setLabelText("Export Obfuscated")
+                .setLabelText("Export obfuscated answers")
                 .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
                 .getRadioTag());
@@ -408,13 +436,25 @@ public final class QuestionEditView extends BaseHtmlView {
   private SelectWithLabel enumeratorOptionsFromEnumerationQuestionDefinitions(
       QuestionForm questionForm,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
-    ImmutableMap.Builder<String, String> optionsBuilder = ImmutableMap.builder();
-    optionsBuilder.put(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING);
-    optionsBuilder.putAll(
-        enumeratorQuestionDefinitions.stream()
-            .collect(toImmutableMap(QuestionDefinition::getName, q -> String.valueOf(q.getId()))));
+    ImmutableList<SelectWithLabel.OptionValue> options =
+        ImmutableList.<SelectWithLabel.OptionValue>builder()
+            .add(
+                SelectWithLabel.OptionValue.builder()
+                    .setLabel(NO_ENUMERATOR_DISPLAY_STRING)
+                    .setValue(NO_ENUMERATOR_ID_STRING)
+                    .build())
+            .addAll(
+                enumeratorQuestionDefinitions.stream()
+                    .map(
+                        q ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(q.getName())
+                                .setValue(String.valueOf(q.getId()))
+                                .build())
+                    .collect(ImmutableList.toImmutableList()))
+            .build();
     return enumeratorOptions(
-        optionsBuilder.build(),
+        options,
         questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING));
   }
 
@@ -432,10 +472,17 @@ public final class QuestionEditView extends BaseHtmlView {
         maybeEnumerationQuestionDefinition
             .map(q -> String.valueOf(q.getId()))
             .orElse(NO_ENUMERATOR_ID_STRING);
-    return enumeratorOptions(ImmutableMap.of(enumeratorName, enumeratorId), enumeratorId);
+    return enumeratorOptions(
+        ImmutableList.of(
+            SelectWithLabel.OptionValue.builder()
+                .setLabel(enumeratorName)
+                .setValue(enumeratorId)
+                .build()),
+        enumeratorId);
   }
 
-  private SelectWithLabel enumeratorOptions(ImmutableMap<String, String> options, String selected) {
+  private SelectWithLabel enumeratorOptions(
+      ImmutableList<SelectWithLabel.OptionValue> options, String selected) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)

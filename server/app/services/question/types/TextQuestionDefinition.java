@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 /** Defines a text question. */
-public class TextQuestionDefinition extends QuestionDefinition {
+public final class TextQuestionDefinition extends QuestionDefinition {
 
   public TextQuestionDefinition(
       OptionalLong id,
@@ -19,9 +20,17 @@ public class TextQuestionDefinition extends QuestionDefinition {
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      TextValidationPredicates validationPredicates) {
+      TextValidationPredicates validationPredicates,
+      Optional<Instant> lastModifiedTime) {
     super(
-        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+        id,
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        validationPredicates,
+        lastModifiedTime);
   }
 
   public TextQuestionDefinition(

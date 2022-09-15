@@ -1,0 +1,35 @@
+#! /usr/bin/env bash
+
+# DOC: Build civiform/civiform-cloud-deployment.
+
+IMAGE="civiform-cloud-deployment"
+LOCATION="."
+DOCKERFILE="cloud/cloud.Dockerfile"
+
+BUILD_ARGS=(-f "${DOCKERFILE}"
+  -t "civiform/${IMAGE}:latest"
+  --cache-from "civiform/${IMAGE}"
+  --build-arg BUILDKIT_INLINE_CACHE=1
+  "${LOCATION}")
+
+PLATFORM_ARG=()
+if [[ "${PLATFORM}" ]]; then
+  PLATFORM_ARG=(--platform "${PLATFORM}")
+fi
+
+# Build the multi-platform image
+echo "start ${IMAGE} build"
+docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+
+# Load the image from the cache
+echo "load ${IMAGE} build"
+docker buildx build --load "${BUILD_ARGS[@]}"
+
+if [[ "${PUSH_IMAGE}" ]]; then
+  docker::do_dockerhub_login
+  # Push the image from the cache to dockerhub
+  echo "push ${IMAGE} build"
+  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+fi
+
+docker tag "civiform/${IMAGE}:latest" "${IMAGE}:latest"

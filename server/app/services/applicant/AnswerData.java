@@ -50,8 +50,8 @@ public abstract class AnswerData {
   /** The applicant's response to the question. */
   public abstract String answerText();
 
-  /** The identifier of the applicant's uploaded file if applicable. */
-  public abstract Optional<String> fileKey();
+  /** The identifier of the applicant's uploaded file after its UTF-8 encoded if applicable */
+  public abstract Optional<String> encodedFileKey();
 
   /**
    * The original file name of the applicant's uploaded file, if applicable. For example, this is
@@ -93,7 +93,7 @@ public abstract class AnswerData {
 
     public abstract Builder setAnswerText(String answerText);
 
-    public abstract Builder setFileKey(Optional<String> fileKey);
+    public abstract Builder setEncodedFileKey(Optional<String> encodedFileKey);
 
     public abstract Builder setOriginalFileName(Optional<String> originalFileName);
 

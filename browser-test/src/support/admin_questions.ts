@@ -1,4 +1,4 @@
-import {Page} from 'playwright'
+import {ElementHandle, Page} from 'playwright'
 import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
 import * as assert from 'assert'
 
@@ -40,9 +40,9 @@ export class AdminQuestions {
 
   static readonly DOES_NOT_REPEAT_OPTION = 'does not repeat'
 
-  public static readonly NO_EXPORT_OPTION = 'No export'
-  public static readonly EXPORT_VALUE_OPTION = 'Export Value'
-  public static readonly EXPORT_OBFUSCATED_OPTION = 'Export Obfuscated'
+  public static readonly NO_EXPORT_OPTION = "Don't allow answers to be exported"
+  public static readonly EXPORT_VALUE_OPTION = 'Export exact answers'
+  public static readonly EXPORT_OBFUSCATED_OPTION = 'Export obfuscated answers'
 
   constructor(page: Page) {
     this.page = page
@@ -56,9 +56,7 @@ export class AdminQuestions {
 
   async goToViewQuestionPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, 'a:has-text("View")'),
-    )
+    await this.page.click(this.selectQuestionTableRow(questionName))
     await waitForPageJsLoad(this.page)
   }
 
@@ -69,13 +67,6 @@ export class AdminQuestions {
 
   async expectAdminQuestionsPage() {
     expect(await this.page.innerText('h1')).toEqual('All Questions')
-  }
-
-  async expectViewOnlyQuestion(questionName: string) {
-    expect(await this.page.isDisabled('text=No Export')).toEqual(true)
-    expect(
-      await this.page.isDisabled(`input[value="${questionName}"]`),
-    ).toEqual(true)
   }
 
   selectorForExportOption(exportOption: string) {
@@ -159,48 +150,48 @@ export class AdminQuestions {
 
   async expectDraftQuestionExist(questionName: string, questionText = '') {
     await this.gotoAdminQuestionsPage()
-    const tableInnerText = await this.page.innerText('table')
-
-    expect(tableInnerText).toContain(questionName)
-    expect(tableInnerText).toContain(questionText)
-    expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('Edit Draft')
+    const questionRowText = await this.page.innerText(
+      this.selectQuestionTableRow(questionName),
+    )
+    expect(questionRowText).toContain(questionText)
+    expect(questionRowText).toContain('Draft')
   }
 
   async expectActiveQuestionExist(questionName: string, questionText = '') {
     await this.gotoAdminQuestionsPage()
-    const tableInnerText = await this.page.innerText('table')
-
-    expect(tableInnerText).toContain(questionName)
-    expect(tableInnerText).toContain(questionText)
-    expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('View')
-    expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName)),
-    ).toContain('New Version')
+    const questionRowText = await this.page.innerText(
+      this.selectQuestionTableRow(questionName),
+    )
+    expect(questionRowText).toContain(questionText)
+    expect(questionRowText).toContain('Active')
   }
 
   async expectQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    await waitForPageJsLoad(this.page)
-    const tableInnerText = await this.page.innerText('table')
-    expect(tableInnerText).not.toContain(questionName)
+    expect(
+      await this.page
+        .locator(this.selectQuestionTableRow(questionName))
+        .count(),
+    ).toEqual(0)
   }
 
   async expectQuestionProgramReferencesText({
     questionName,
     expectedProgramReferencesText,
+    version,
   }: {
     questionName: string
     expectedProgramReferencesText: string
+    version: 'draft' | 'active'
   }) {
     await this.gotoAdminQuestionsPage()
     const programReferencesText = await this.page.innerText(
-      this.selectProgramReferencesFromRow(questionName),
+      this.selectWithinQuestionTableRow(
+        questionName,
+        `:has-text("${version}")`,
+      ),
     )
-    expect(programReferencesText).toEqual(expectedProgramReferencesText)
+    expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
 
   async expectProgramReferencesModalContains({
@@ -272,12 +263,13 @@ export class AdminQuestions {
   async gotoQuestionNewVersionPage(questionName: string) {
     await this.gotoQuestionEditOrNewVersionPage({
       questionName,
-      buttonText: 'New Version',
+      buttonText: 'Edit',
     })
   }
 
   async undeleteQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
+    await this.openDropdownMenu(questionName)
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
@@ -290,6 +282,7 @@ export class AdminQuestions {
 
   async discardDraft(questionName: string) {
     await this.gotoAdminQuestionsPage()
+    await this.openDropdownMenu(questionName)
     await this.page.click(
       this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'),
     )
@@ -305,6 +298,7 @@ export class AdminQuestions {
     expectModal: boolean
   }) {
     await this.gotoAdminQuestionsPage()
+    await this.openDropdownMenu(questionName)
     await this.page.click(
       this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
@@ -317,6 +311,7 @@ export class AdminQuestions {
     } else {
       await waitForPageJsLoad(this.page)
       await this.expectAdminQuestionsPage()
+      await this.openDropdownMenu(questionName)
       // Ensure that the page has been reloaded and the "Restore archive" link
       // appears.
       const restoreArchiveIsVisible = await this.page.isVisible(
@@ -331,6 +326,7 @@ export class AdminQuestions {
 
   async goToQuestionTranslationPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
+    await this.openDropdownMenu(questionName)
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
@@ -339,6 +335,12 @@ export class AdminQuestions {
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionTranslationPage(questionName)
+  }
+
+  private async openDropdownMenu(questionName: string) {
+    await this.page.click(
+      this.selectWithinQuestionTableRow(questionName, '.cf-with-dropdown'),
+    )
   }
 
   async expectQuestionEditPage(questionName: string) {
@@ -373,7 +375,7 @@ export class AdminQuestions {
 
   async exportQuestion(questionName: string) {
     await this.gotoQuestionEditPage(questionName)
-    await this.page.click('text="Export Value"')
+    await this.page.click(`text="${AdminQuestions.EXPORT_VALUE_OPTION}"`)
     await this.clickSubmitButtonAndNavigate('Update')
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName)
@@ -381,7 +383,7 @@ export class AdminQuestions {
 
   async exportQuestionOpaque(questionName: string) {
     await this.gotoQuestionEditPage(questionName)
-    await this.page.click('text="Export Obfuscated"')
+    await this.page.click(`text="${AdminQuestions.EXPORT_OBFUSCATED_OPTION}"`)
     await this.clickSubmitButtonAndNavigate('Update')
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName)
@@ -539,6 +541,7 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText)
   }
 
+  /** Fills out the form for a checkbox question, clicks submit, and verifies the new question exists.  */
   async addCheckboxQuestion({
     questionName,
     options,
@@ -550,6 +553,37 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
+    await this.createCheckboxQuestion({
+      questionName,
+      options,
+      minNum,
+      maxNum,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+    })
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
+
+    await this.expectDraftQuestionExist(questionName, questionText)
+  }
+
+  /** Fills out the form for a checkbox question and optionally clicks submit.  */
+  async createCheckboxQuestion(
+    {
+      questionName,
+      options,
+      minNum = null,
+      maxNum = null,
+      description = 'checkbox description',
+      questionText = 'checkbox question text',
+      helpText = 'checkbox question help text',
+      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+      exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    }: QuestionParams,
+    clickSubmit = true,
+  ) {
     await this.gotoAdminQuestionsPage()
 
     await this.page.click('#create-question-button')
@@ -587,28 +621,28 @@ export class AdminQuestions {
       )
     }
 
-    await this.clickSubmitButtonAndNavigate('Create')
-
-    await this.expectAdminQuestionsPageWithCreateSuccessToast()
-
-    await this.expectDraftQuestionExist(questionName, questionText)
+    if (clickSubmit) {
+      await this.clickSubmitButtonAndNavigate('Create')
+    }
   }
 
-  /** Fills out the form for a dropdown question and clicks submit.  */
-  async createDropdownQuestion({
-    questionName,
-    options,
-    description = 'dropdown description',
-    questionText = 'dropdown question text',
-    helpText = 'dropdown question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
-    exportOption = AdminQuestions.NO_EXPORT_OPTION,
-  }: QuestionParams) {
+  /** Fills out the form for a dropdown question and optionally clicks submit.  */
+  async createDropdownQuestion(
+    {
+      questionName,
+      options,
+      description = 'dropdown description',
+      questionText = 'dropdown question text',
+      helpText = 'dropdown question help text',
+      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+      exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    }: QuestionParams,
+    clickSubmit = true,
+  ) {
     await this.gotoAdminQuestionsPage()
 
     await this.page.click('#create-question-button')
     await this.page.click('#create-dropdown-question')
-    await this.page.waitForURL('**/admin/questions/new?type=dropdown')
     await waitForPageJsLoad(this.page)
 
     await this.fillInQuestionBasics({
@@ -627,7 +661,9 @@ export class AdminQuestions {
       await this.changeMultiOptionAnswer(matchIndex, options[index])
     }
 
-    await this.clickSubmitButtonAndNavigate('Create')
+    if (clickSubmit) {
+      await this.clickSubmitButtonAndNavigate('Create')
+    }
   }
 
   /** Changes the input field of a multi option answer. */
@@ -828,15 +864,18 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText)
   }
 
-  async createRadioButtonQuestion({
-    questionName,
-    options,
-    description = 'radio button description',
-    questionText = 'radio button question text',
-    helpText = 'radio button question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
-    exportOption = AdminQuestions.NO_EXPORT_OPTION,
-  }: QuestionParams) {
+  async createRadioButtonQuestion(
+    {
+      questionName,
+      options,
+      description = 'radio button description',
+      questionText = 'radio button question text',
+      helpText = 'radio button question help text',
+      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+      exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    }: QuestionParams,
+    clickSubmit = true,
+  ) {
     await this.gotoAdminQuestionsPage()
 
     await this.page.click('#create-question-button')
@@ -861,7 +900,9 @@ export class AdminQuestions {
       )
     }
 
-    await this.clickSubmitButtonAndNavigate('Create')
+    if (clickSubmit) {
+      await this.clickSubmitButtonAndNavigate('Create')
+    }
   }
 
   async addTextQuestion({
@@ -973,24 +1014,14 @@ export class AdminQuestions {
   }
 
   async expectEnumeratorPreviewValues({
-    questionText,
-    questionHelpText,
     entityNameInputLabelText,
     deleteEntityButtonText,
     addEntityButtonText,
   }: {
-    questionText: string
-    questionHelpText: string
     entityNameInputLabelText: string
     deleteEntityButtonText: string
     addEntityButtonText: string
   }) {
-    expect(await this.page.innerText('.cf-applicant-question-text')).toBe(
-      questionText,
-    )
-    expect(await this.page.innerText('.cf-applicant-question-help-text')).toBe(
-      questionHelpText,
-    )
     expect(await this.page.innerText('.cf-entity-name-input label')).toBe(
       entityNameInputLabelText,
     )
@@ -1000,6 +1031,33 @@ export class AdminQuestions {
     expect(await this.page.innerText('#enumerator-field-add-button')).toBe(
       addEntityButtonText,
     )
+  }
+
+  async expectCommonPreviewValues({
+    questionText,
+    questionHelpText,
+  }: {
+    questionText: string
+    questionHelpText: string
+  }) {
+    expect(await this.page.innerText('.cf-applicant-question-text')).toBe(
+      questionText,
+    )
+    expect(await this.page.innerText('.cf-applicant-question-help-text')).toBe(
+      questionHelpText,
+    )
+  }
+
+  async expectPreviewOptions(options: string[]) {
+    const optionElements = Array.from(
+      await this.page.$$('#sample-question .cf-multi-option-question-option'),
+    )
+    const existingOptions = await Promise.all(
+      optionElements.map((el) => {
+        return (el as ElementHandle<HTMLElement>).innerText()
+      }),
+    )
+    expect(existingOptions).toEqual(options)
   }
 
   /**

@@ -32,9 +32,13 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     userRepository = app.injector().instanceOf(UserRepository.class);
   }
 
-  protected void loginWithSimulatedIdcs() {
+  private void loginWithSimulatedIdcs() {
     goTo(routes.LoginController.applicantLogin(Optional.empty()));
     // If we are not cookied, enter a username and password.
+    // Otherwise, since the fake provider uses the "web" flow, we're automatically sent to the
+    // redirect URI to merge logins.
+    // TODO(#1770): Consider removing the below conditional entirely once full logout from the
+    // fake OIDC provider is supported.
     if (browser.pageSource().contains("Enter any login")) {
       browser.$("[name='login']").click();
       browser.keyboard().sendKeys("username");
@@ -43,8 +47,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
       // Log in.
       browser.$(".login-submit").click();
       // Bypass consent screen.
-      browser.$(".login-submit").click();
-    } else {
       browser.$(".login-submit").click();
     }
   }
@@ -101,15 +103,12 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     Optional<String> applicantName =
         applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
     assertThat(applicantName).isPresent();
-    assertThat(applicantName.get()).isEqualTo("first");
+    assertThat(applicantName.get()).isEqualTo("username@example.com");
 
-    applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
-    assertThat(applicantName).isPresent();
-    assertThat(applicantName.get()).isEqualTo("middle");
-
-    applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME);
-    assertThat(applicantName).isPresent();
-    assertThat(applicantName.get()).isEqualTo("last");
+    assertThat(applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_MIDDLE_NAME))
+        .isEmpty();
+    assertThat(applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME))
+        .isEmpty();
   }
 
   @Test

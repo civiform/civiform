@@ -14,6 +14,8 @@ window.addEventListener('load', () => {
   }
 })
 
+let wasSetInvalid = false
+
 function validateFileUploadQuestions(formEl: Element): boolean {
   let isAllValid = true
   const questions = Array.from(
@@ -26,10 +28,24 @@ function validateFileUploadQuestions(formEl: Element): boolean {
     )
     const isValid = fileInput.value != ''
 
-    // Toggle the error div if invalid.
     const errorDiv = question.querySelector('.cf-fileupload-error')
     if (errorDiv) {
+      // Toggle the error div if invalid.
       errorDiv.classList.toggle('hidden', isValid)
+    }
+    if (errorDiv && !isValid && !wasSetInvalid) {
+      // Add extra aria attributes to input if there is an error.
+      const errorId = errorDiv.getAttribute('id')
+      if (errorId) {
+        // Only allow this to be done once so we don't repeatedly append the error id.
+        wasSetInvalid = true
+        fileInput.setAttribute('aria-invalid', 'true')
+        const ariaDescribedBy = fileInput.getAttribute('aria-describedBy')
+        fileInput.setAttribute(
+          'aria-describedBy',
+          `${errorId} ${ariaDescribedBy}`,
+        )
+      }
     }
     isAllValid = isAllValid && isValid
   }

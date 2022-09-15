@@ -3,6 +3,7 @@ package services.question.types;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
@@ -18,7 +19,7 @@ import services.LocalizedStrings;
  */
 public class EnumeratorQuestionDefinition extends QuestionDefinition {
 
-  protected static final String DEFAULT_ENTITY_TYPE = "Item";
+  static final String DEFAULT_ENTITY_TYPE = "Item";
 
   private final LocalizedStrings entityType;
 
@@ -29,7 +30,8 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      LocalizedStrings entityType) {
+      LocalizedStrings entityType,
+      Optional<Instant> lastModifiedTime) {
     super(
         id,
         name,
@@ -37,7 +39,8 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
         description,
         questionText,
         questionHelpText,
-        EnumeratorValidationPredicates.create());
+        EnumeratorValidationPredicates.create(),
+        lastModifiedTime);
     this.entityType = checkNotNull(entityType);
   }
 

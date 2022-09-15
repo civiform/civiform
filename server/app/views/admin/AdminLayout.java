@@ -11,7 +11,6 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
 import play.twirl.api.Content;
-import services.program.ProgramDefinition;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -21,7 +20,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Contains methods rendering common compoments used across admin pages. */
-public class AdminLayout extends BaseHtmlLayout {
+public final class AdminLayout extends BaseHtmlLayout {
 
   public enum AdminType {
     CIVI_FORM_ADMIN,
@@ -31,7 +30,6 @@ public class AdminLayout extends BaseHtmlLayout {
   public enum NavPage {
     PROGRAMS,
     QUESTIONS,
-    VERSIONS,
     INTERMEDIARIES,
     API_KEYS
   }
@@ -64,7 +62,7 @@ public class AdminLayout extends BaseHtmlLayout {
     return render(bundle, /* isCentered = */ false);
   }
 
-  protected Content render(HtmlBundle bundle, boolean isCentered) {
+  private Content render(HtmlBundle bundle, boolean isCentered) {
     bundle.addMainStyles(
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
@@ -112,7 +110,6 @@ public class AdminLayout extends BaseHtmlLayout {
 
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
-    String versionLink = routes.AdminVersionController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
 
@@ -134,9 +131,6 @@ public class AdminLayout extends BaseHtmlLayout {
                 activeNavPage == NavPage.QUESTIONS ? activeNavStyle : ""))
         .with(
             headerLink(
-                "Versions", versionLink, activeNavPage == NavPage.VERSIONS ? activeNavStyle : ""))
-        .with(
-            headerLink(
                 "Intermediaries",
                 intermediaryLink,
                 activeNavPage == NavPage.INTERMEDIARIES ? activeNavStyle : ""))
@@ -154,27 +148,5 @@ public class AdminLayout extends BaseHtmlLayout {
             Styles.OPACITY_75,
             StyleUtils.hover(Styles.OPACITY_100),
             StyleUtils.joinStyles(styles));
-  }
-
-  /** Renders a div with internal/admin program information. */
-  public DivTag renderProgramInfo(ProgramDefinition programDefinition) {
-    DivTag programStatus =
-        div("Draft").withId("program-status").withClasses(Styles.TEXT_XS, Styles.UPPERCASE);
-    DivTag programTitle =
-        div(programDefinition.adminName())
-            .withId("program-title")
-            .withClasses(Styles.TEXT_3XL, Styles.PB_3);
-    DivTag programDescription =
-        div(programDefinition.adminDescription()).withClasses(Styles.TEXT_SM);
-
-    return div(programStatus, programTitle, programDescription)
-        .withId("program-info")
-        .withClasses(
-            Styles.BG_GRAY_100,
-            Styles.TEXT_GRAY_800,
-            Styles.SHADOW_MD,
-            Styles.P_8,
-            Styles.PT_4,
-            Styles._MX_2);
   }
 }

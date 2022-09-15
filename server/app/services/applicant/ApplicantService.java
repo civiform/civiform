@@ -264,6 +264,8 @@ public final class ApplicantService {
    * <p>An application is a snapshot of all the answers the applicant has filled in so far, along
    * with association with the applicant and a program that the applicant is applying to.
    *
+   * @param submitterProfile the user that submitted the application, iff it is a TI the application
+   *     is associated with this profile too.
    * @return the saved {@link Application}. If the submission failed, a {@link
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
@@ -274,17 +276,20 @@ public final class ApplicantService {
           .getAccount()
           .thenComposeAsync(
               account ->
-                  submitApplication(applicantId, programId, Optional.of(account.getEmailAddress())),
+                  submitApplication(
+                      applicantId,
+                      programId,
+                      /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress())),
               httpExecutionContext.current());
     }
 
-    return submitApplication(applicantId, programId, Optional.empty());
+    return submitApplication(applicantId, programId, /* tiSubmitterEmail= */ Optional.empty());
   }
 
   private CompletionStage<Application> submitApplication(
-      long applicantId, long programId, Optional<String> submitterEmail) {
+      long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     return applicationRepository
-        .submitApplication(applicantId, programId, submitterEmail)
+        .submitApplication(applicantId, programId, tiSubmitterEmail)
         .thenComposeAsync(
             (Optional<Application> applicationMaybe) -> {
               if (applicationMaybe.isEmpty()) {
@@ -296,8 +301,8 @@ public final class ApplicantService {
               String programName = application.getProgram().getProgramDefinition().adminName();
               notifyProgramAdmins(applicantId, programId, application.id, programName);
 
-              if (submitterEmail.isPresent()) {
-                notifySubmitter(submitterEmail.get(), applicantId, application.id, programName);
+              if (tiSubmitterEmail.isPresent()) {
+                notifyTiSubmitter(tiSubmitterEmail.get(), applicantId, application.id, programName);
               }
 
               maybeNotifyApplicant(applicantId, application.id, programName);
@@ -373,12 +378,14 @@ public final class ApplicantService {
     }
   }
 
-  private void notifySubmitter(
-      String submitter, long applicantId, long applicationId, String programName) {
+  private void notifyTiSubmitter(
+      String tiEmail, long applicantId, long applicationId, String programName) {
     String tiDashLink =
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                    Optional.empty(), Optional.empty())
+                    /* nameQuery= */ Optional.empty(),
+                    /* dateQuery= */ Optional.empty(),
+                    /* page= */ Optional.of(1))
                 .url();
     String subject =
         String.format(
@@ -393,7 +400,7 @@ public final class ApplicantService {
     if (isStaging) {
       amazonSESClient.send(stagingTiNotificationMailingList, subject, message);
     } else {
-      amazonSESClient.send(submitter, subject, message);
+      amazonSESClient.send(tiEmail, subject, message);
     }
   }
 

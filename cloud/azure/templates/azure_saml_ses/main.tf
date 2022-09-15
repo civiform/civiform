@@ -2,11 +2,11 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.27.0"
+      version = "4.30.0"
     }
     azurerm = {
       source  = "azurerm"
-      version = "3.19.1"
+      version = "3.22.0"
     }
     random = {}
   }
@@ -62,6 +62,7 @@ module "app" {
 
   feature_flag_status_tracking_enabled = var.feature_flag_status_tracking_enabled
   civiform_api_keys_ban_global_subnet  = var.civiform_api_keys_ban_global_subnet
+  civiform_server_metrics_enabled      = var.civiform_server_metrics_enabled
 }
 
 module "custom_hostname" {

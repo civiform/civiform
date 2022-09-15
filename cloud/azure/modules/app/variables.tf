@@ -44,20 +44,6 @@ variable "favicon_url" {
   description = "Browser Favicon (16x16 or 32x32 pixels, .ico, .png, or .gif) used on all pages"
   default     = "https://civiform.us/favicon.png"
 }
-
-
-variable "docker_username" {
-  type        = string
-  description = "Docker username"
-  default     = "civiform"
-}
-
-variable "docker_repository_name" {
-  type        = string
-  description = "Name of container image"
-  default     = "civiform"
-}
-
 variable "image_tag" {
   type        = string
   description = "Tag for container image"
@@ -286,4 +272,10 @@ variable "civiform_api_keys_ban_global_subnet" {
   type        = bool
   description = "Whether to allow 0.0.0.0/0 subnet for API key access."
   default     = true
+}
+
+variable "civiform_server_metrics_enabled" {
+  type        = bool
+  description = "Whether to enable exporting server metrics on the /metrics route."
+  default     = false
 }

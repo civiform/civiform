@@ -1,5 +1,6 @@
 package views.questiontypes;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -13,7 +14,7 @@ import views.components.FieldWithLabel;
 public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public IdQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    super(question, InputFieldType.SINGLE);
   }
 
   @Override
@@ -24,19 +25,25 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     IdQuestion idQuestion = question.createIdQuestion();
 
-    DivTag questionFormContent =
+    FieldWithLabel idField =
         FieldWithLabel.input()
             .setFieldName(idQuestion.getIdPath().toString())
             .setValue(idQuestion.getIdValue().orElse(""))
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
-            .setScreenReaderText(question.getQuestionText())
-            .getInputTag();
+            .setAriaDescribedByIds(ariaDescribedByIds)
+            .setScreenReaderText(question.getQuestionText());
 
-    return questionFormContent;
+    if (hasQuestionErrors) {
+      idField.forceAriaInvalid();
+    }
+
+    return idField.getInputTag();
   }
 }

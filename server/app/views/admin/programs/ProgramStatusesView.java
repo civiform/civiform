@@ -146,7 +146,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);
-    return Optional.of(asRedirectButton(button, linkDestination));
+    return Optional.of(asRedirectElement(button, linkDestination));
   }
 
   /**
@@ -256,7 +256,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 div()
                     .withClass(Styles.W_1_4)
                     .with(
-                        // TODO(#2752): Optional SVG icon for status attribute.
+                        // TODO(#3272): Optional SVG icon for status attribute.
                         span(status.statusText()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
                 div()
                     .condWith(

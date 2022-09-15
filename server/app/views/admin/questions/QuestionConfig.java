@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
@@ -292,7 +291,9 @@ public final class QuestionConfig {
    * I don't feel like hard-coding a list of states here, so this will do until we can think up a
    * better approach.
    */
-  private static ImmutableMap<String, String> stateOptions() {
-    return ImmutableMap.of("-- Leave blank --", "-", "Washington", "WA");
+  private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
+    return ImmutableList.of(
+        SelectWithLabel.OptionValue.builder().setLabel("-- Leave blank --").setValue("-").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("Washington").setValue("WA").build());
   }
 }

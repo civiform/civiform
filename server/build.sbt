@@ -31,16 +31,19 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.17.259",
-      "software.amazon.awssdk" % "ses" % "2.17.259",
+      "software.amazon.awssdk" % "s3" % "2.17.263",
+      "software.amazon.awssdk" % "ses" % "2.17.263",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.5.4",
+      "com.azure" % "azure-identity" % "1.5.5",
       "com.azure" % "azure-storage-blob" % "12.19.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.5.0",
       "com.h2database" % "h2" % "2.1.214" % Test,
+
+      // Metrics collection and export for Prometheus
+      "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
 
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
@@ -117,8 +120,9 @@ lazy val root = (project in file("."))
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
     pipelineStages := Seq(digest, gzip), // plugins to use for assets
-    // Uncomment to test the sbt-web asset pipeline locally.
-    // Assets / pipelineStages  := Seq(digest, gzip), // Test the sbt-web pipeline locally.
+    // Enable digest for local dev so that files can be served çached improving
+    // page speed and also browser tests speed.
+    Assets / pipelineStages := Seq(digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(

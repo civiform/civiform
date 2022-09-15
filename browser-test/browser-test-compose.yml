@@ -11,7 +11,7 @@ services:
       - 10000:10000
 
   fake-idcs:
-    image: docker.io/civiform/oidc-provider:latest
+    image: civiform/oidc-provider
     restart: always
     ports:
       - 8033:3380
@@ -34,4 +34,4 @@ services:
       # The default value is true, we set it to false here because we do not know
       # the IP address that will be used to call the API in the browser tests.
       - CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET=false
-    command: ~run -Dconfig.file=conf/application.dev.conf
+    command: ~run -Dconfig.file=conf/application.dev-browser-tests.conf

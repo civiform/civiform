@@ -35,7 +35,8 @@ public class RadioButtonQuestionRendererTest {
               QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
               QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "peanut butter")),
               QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
-              QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry"))));
+              QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry"))),
+          /* lastModifiedTime= */ Optional.empty());
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
@@ -84,5 +85,13 @@ public class RadioButtonQuestionRendererTest {
             "type=\"radio\""
                 + " name=\"applicant.favorite_ice_cream.selection\""
                 + " value=\"2\" checked");
+  }
+
+  @Test
+  public void render_withAriaLabels() {
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render().matches(".*fieldset aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
   }
 }

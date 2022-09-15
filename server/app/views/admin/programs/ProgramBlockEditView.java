@@ -32,7 +32,6 @@ import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -49,7 +48,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page for an admin to edit the configuration for a single block of a program. */
-public class ProgramBlockEditView extends BaseHtmlView {
+public final class ProgramBlockEditView extends ProgramBlockView {
 
   private final AdminLayout layout;
   private final boolean featureFlagOptionalQuestions;
@@ -105,26 +104,33 @@ public class ProgramBlockEditView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(title)
-            .addMainStyles(Styles.FLEX, Styles.FLEX_COL)
             .addMainContent(
-                addFormEndpoints(csrfTag, programDefinition.id(), blockId),
-                layout.renderProgramInfo(programDefinition),
                 div()
-                    .withId("program-block-info")
-                    .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
-                    .with(blockOrderPanel(request, programDefinition, blockId))
+                    .withClasses(
+                        Styles.FLEX,
+                        Styles.FLEX_GROW,
+                        Styles.FLEX_COL,
+                        Styles.PX_2,
+                        StyleUtils.responsive2XLarge(Styles.PX_16))
                     .with(
-                        blockEditPanel(
-                            programDefinition,
-                            blockDefinition,
-                            blockForm,
-                            blockQuestions,
-                            questions,
-                            blockDefinition.isEnumerator(),
-                            csrfTag,
-                            blockDescriptionEditModal.getButton()))
-                    .with(
-                        questionBankPanel(questions, programDefinition, blockDefinition, csrfTag)))
+                        addFormEndpoints(csrfTag, programDefinition.id(), blockId),
+                        renderProgramInfo(programDefinition),
+                        div()
+                            .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
+                            .with(blockOrderPanel(request, programDefinition, blockId))
+                            .with(
+                                blockEditPanel(
+                                    programDefinition,
+                                    blockDefinition,
+                                    blockForm,
+                                    blockQuestions,
+                                    questions,
+                                    blockDefinition.isEnumerator(),
+                                    csrfTag,
+                                    blockDescriptionEditModal.getButton()))
+                            .with(
+                                questionBankPanel(
+                                    questions, programDefinition, blockDefinition, csrfTag))))
             .addModals(blockDescriptionEditModal);
 
     // Add toast messages
@@ -136,7 +142,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .ifPresent(htmlBundle::addToastMessages);
     message.ifPresent(htmlBundle::addToastMessages);
 
-    return layout.renderCentered(htmlBundle);
+    return layout.render(htmlBundle);
   }
 
   private DivTag addFormEndpoints(InputTag csrfTag, long programId, long blockId) {
@@ -178,7 +184,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withClasses(
                 Styles.SHADOW_LG,
                 Styles.PT_6,
-                Styles.W_1_5,
+                Styles.W_2_12,
                 Styles.BORDER_R,
                 Styles.BORDER_GRAY_200);
     ret.with(
@@ -366,7 +372,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             });
 
     return div()
-        .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
+        .withClasses(Styles.W_7_12, Styles.PY_6)
         .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions);
   }
 
@@ -593,7 +599,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .with(removeButton);
   }
 
-  private FormTag questionBankPanel(
+  private DivTag questionBankPanel(
       ImmutableList<QuestionDefinition> questionDefinitions,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
@@ -604,13 +610,19 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .url();
 
     QuestionBank qb =
-        new QuestionBank()
-            .setQuestionAction(addQuestionAction)
-            .setCsrfTag(csrfTag)
-            .setQuestions(questionDefinitions)
-            .setProgram(program)
-            .setBlockDefinition(blockDefinition);
-    return qb.getContainer();
+        new QuestionBank(
+            QuestionBank.QuestionBankParams.builder()
+                .setQuestionAction(addQuestionAction)
+                .setCsrfTag(csrfTag)
+                .setQuestions(questionDefinitions)
+                .setProgram(program)
+                .setBlockDefinition(blockDefinition)
+                .setQuestionCreateRedirectUrl(
+                    controllers.admin.routes.AdminProgramBlocksController.edit(
+                            program.id(), blockDefinition.id())
+                        .url())
+                .build());
+    return div().withClasses(Styles.W_3_12).with(qb.getContainer());
   }
 
   private Modal blockDescriptionModal(

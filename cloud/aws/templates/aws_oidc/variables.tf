@@ -16,6 +16,12 @@ variable "image_tag" {
   default     = "prod"
 }
 
+variable "scraper_image" {
+  type        = string
+  description = "Fully qualified image tag for the metrics scraper"
+  default     = "docker.io/civiform/aws-metrics-scraper:latest"
+}
+
 variable "civiform_time_zone_id" {
   type        = string
   description = "Time zone for Civiform server to use when displaying dates."
@@ -280,4 +286,10 @@ variable "civiform_api_keys_ban_global_subnet" {
   type        = bool
   description = "Whether to allow 0.0.0.0/0 subnet for API key access."
   default     = true
+}
+
+variable "civiform_server_metrics_enabled" {
+  type        = bool
+  description = "Whether to enable exporting server metrics on the /metrics route."
+  default     = false
 }
