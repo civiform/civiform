@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "civiform_files_policy" {
     condition {
       test     = "ArnNotEquals"
       variable = "aws:PrincipalArn"
-      values   = [aws_ecs_task_definition.td.arn]
+      values   = [aws_iam_role.civiform_ecs_task_execution_role.arn]
     }
   }
   statement {
