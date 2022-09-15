@@ -195,7 +195,8 @@ public final class ProgramCardFactory {
         Comparator.<ProgramCardData, Instant>comparing(
                 cardData -> getDisplayProgram(cardData).lastModifiedTime().orElse(Instant.EPOCH))
             .reversed();
-    return c.thenComparing(cardData -> getDisplayProgram(cardData).localizedName().getDefault());
+    return c.thenComparing(
+        cardData -> getDisplayProgram(cardData).localizedName().getDefault().toLowerCase());
   }
 
   @AutoValue
