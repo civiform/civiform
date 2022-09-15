@@ -36,8 +36,8 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
-  private Optional<String> postLogoutRedirectParam;
-  private ImmutableMap<String, String> extraParams;
+  private final Optional<String> postLogoutRedirectParam;
+  private final ImmutableMap<String, String> extraParams;
 
   public CiviformOidcLogoutActionBuilder(
       Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientID) {
@@ -56,7 +56,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   }
 
   /** Helper function for retriving values from the application.conf, */
-  static final Optional<String> getConfigurationValue(Config civiformConfiguration, String name) {
+  private static Optional<String> getConfigurationValue(Config civiformConfiguration, String name) {
     if (civiformConfiguration.hasPath(name)) {
       return Optional.ofNullable(civiformConfiguration.getString(name));
     }
