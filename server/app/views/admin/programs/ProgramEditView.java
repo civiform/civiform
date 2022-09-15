@@ -36,7 +36,7 @@ public final class ProgramEditView extends ProgramFormBuilder {
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
 
-    String title = String.format("Edit program: %s", program.adminName());
+    String title = String.format("Edit program: %s", program.localizedName().getDefault());
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
@@ -52,7 +52,7 @@ public final class ProgramEditView extends ProgramFormBuilder {
             .with(buildManageQuestionLink(id))
             .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
 
-    String title = String.format("Edit program: %s", program.getAdminName());
+    String title = String.format("Edit program: %s", program.getLocalizedDisplayName());
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
