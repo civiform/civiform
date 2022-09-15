@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 
@@ -129,6 +130,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       return div()
           .withClass(Styles.MB_2)
           .with(
+              input().isHidden()
+                .withName("adminName")
+                .withValue(adminName),
               p("The URL for this program. This value can't be changed")
                   .withClasses(BaseStyles.INPUT_LABEL),
               a(programUrl).withClasses(BaseStyles.FORM_FIELD));
