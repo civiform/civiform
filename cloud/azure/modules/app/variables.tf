@@ -180,7 +180,7 @@ variable "applicant_oidc_provider_logout" {
 }
 
 variable "applicant_oidc_logout_url" {
-  type        = bool
+  type        = string
   description = "The URL to use for the OIDC logout endpoint (when applicant_oidc_provider_logout is true)"
   default     = ""
 }
