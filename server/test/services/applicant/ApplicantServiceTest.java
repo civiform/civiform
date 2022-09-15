@@ -937,7 +937,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    ApplicantService.RelevantPrograms result =
+    ApplicantService.ApplicationPrograms result =
         subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
@@ -986,7 +986,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
     versionRepository.publishNewSynchronizedVersion();
 
-    ApplicantService.RelevantPrograms result =
+    ApplicantService.ApplicationPrograms result =
         subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     // Drafts always use the version of the program they were
@@ -1053,7 +1053,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .update();
     versionRepository.publishNewSynchronizedVersion();
 
-    ApplicantService.RelevantPrograms result =
+    ApplicantService.ApplicationPrograms result =
         subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
@@ -1103,7 +1103,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
     Instant secondAppSubmitTime = secondApp.orElseThrow().getSubmitTime();
 
-    ApplicantService.RelevantPrograms result =
+    ApplicantService.ApplicationPrograms result =
         subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
@@ -1179,7 +1179,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     firstDraft.refresh();
     firstDraft.setLifecycleStage(LifecycleStage.DRAFT).setCreateTimeForTest(draftLater).save();
 
-    ApplicantService.RelevantPrograms result =
+    ApplicantService.ApplicationPrograms result =
         subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     assertThat(result.submitted().stream().map(p -> p.program().id()))

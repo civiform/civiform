@@ -75,7 +75,7 @@ public final class ProgramIndexView extends BaseHtmlView {
    *
    * @param messages the localized {@link Messages} for the current applicant
    * @param applicantId the ID of the current applicant
-   * @param relevantPrograms an {@link ImmutableList} of programs (with attached application)
+   * @param applicationPrograms an {@link ImmutableList} of programs (with attached application)
    *     information that should be displayed in the list
    * @return HTML content for rendering the list of available programs
    */
@@ -84,7 +84,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       long applicantId,
       Optional<String> userName,
-      ApplicantService.RelevantPrograms relevantPrograms,
+      ApplicantService.ApplicationPrograms applicationPrograms,
       Optional<ToastMessage> bannerMessage) {
     HtmlBundle bundle = layout.getBundle();
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
@@ -94,7 +94,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_1.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_2.getKeyName())),
-        mainContent(messages, relevantPrograms, applicantId, messages.lang().toLocale()));
+        mainContent(messages, applicationPrograms, applicantId, messages.lang().toLocale()));
 
     return layout.renderWithNav(request, userName, messages, bundle);
   }
@@ -148,7 +148,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private DivTag mainContent(
       Messages messages,
-      ApplicantService.RelevantPrograms relevantPrograms,
+      ApplicantService.ApplicationPrograms relevantPrograms,
       long applicantId,
       Locale preferredLocale) {
     DivTag content =

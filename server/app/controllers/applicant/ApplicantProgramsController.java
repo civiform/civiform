@@ -66,14 +66,14 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             v -> applicantService.relevantProgramsForApplicant(applicantId), httpContext.current())
         .thenApplyAsync(
-            relevantPrograms -> {
+            applicationPrograms -> {
               return ok(
                   programIndexView.render(
                       messagesApi.preferred(request),
                       request,
                       applicantId,
                       applicantStage.toCompletableFuture().join(),
-                      relevantPrograms,
+                      applicationPrograms,
                       banner));
             },
             httpContext.current())

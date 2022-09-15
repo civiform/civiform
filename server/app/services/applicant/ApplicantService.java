@@ -479,7 +479,7 @@ public final class ApplicantService {
    *   <li>Any other programs that are public
    * </ul>
    */
-  public CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId) {
+  public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(long applicantId) {
     // Note: The Program model associated with the application is eagerly loaded.
     CompletableFuture<ImmutableSet<Application>> applicationsFuture =
         applicationRepository
@@ -494,13 +494,13 @@ public final class ApplicantService {
 
     return applicationsFuture.thenApplyAsync(
         applications -> {
-          checkForDuplicateDrafts(applications);
+          logDuplicateDrafts(applications);
           return relevantProgramsForApplicant(activePrograms, applications);
         },
         httpExecutionContext.current());
   }
 
-  private RelevantPrograms relevantProgramsForApplicant(
+  private ApplicationPrograms relevantProgramsForApplicant(
       ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
@@ -572,7 +572,7 @@ public final class ApplicantService {
         });
 
     // Ensure each list is ordered by database ID for consistent ordering.
-    return RelevantPrograms.builder()
+    return ApplicationPrograms.builder()
         .setInProgress(sortByProgramId(inProgressPrograms.build()))
         .setSubmitted(sortByProgramId(submittedPrograms.build()))
         .setUnapplied(sortByProgramId(unappliedPrograms.build()))
@@ -586,11 +586,12 @@ public final class ApplicantService {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private void checkForDuplicateDrafts(ImmutableSet<Application> applications) {
-    // Add logging to better understand a bug where some applicants were seeing
-    // duplicates of programs for which they had draft applications. We can remove
-    // this logging once we determine and resolve the root cause of the duplicate
-    // draft applications.
+  /**
+   * The logging is to better understand a bug where some applicants were seeing duplicates of
+   * programs for which they had draft applications. We can remove this logging once we determine
+   * and resolve the root cause of the duplicate draft applications.
+   */
+  private void logDuplicateDrafts(ImmutableSet<Application> applications) {
     Collection<Map<LifecycleStage, List<Application>>> groupedByStatus =
         applications.stream()
             .collect(
@@ -855,7 +856,7 @@ public final class ApplicantService {
    * A categorized list of relevant {@link ApplicantProgramData}s to be displayed to the applicant.
    */
   @AutoValue
-  public abstract static class RelevantPrograms {
+  public abstract static class ApplicationPrograms {
     public abstract ImmutableList<ApplicantProgramData> inProgress();
 
     public abstract ImmutableList<ApplicantProgramData> submitted();
@@ -863,7 +864,7 @@ public final class ApplicantService {
     public abstract ImmutableList<ApplicantProgramData> unapplied();
 
     static Builder builder() {
-      return new AutoValue_ApplicantService_RelevantPrograms.Builder();
+      return new AutoValue_ApplicantService_ApplicationPrograms.Builder();
     }
 
     @AutoValue.Builder
@@ -874,7 +875,7 @@ public final class ApplicantService {
 
       abstract Builder setUnapplied(ImmutableList<ApplicantProgramData> value);
 
-      abstract RelevantPrograms build();
+      abstract ApplicationPrograms build();
     }
   }
 }

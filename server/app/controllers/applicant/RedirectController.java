@@ -132,7 +132,7 @@ public final class RedirectController extends CiviFormController {
     return applicantService
         .relevantProgramsForApplicant(applicantId)
         .thenApplyAsync(
-            (ApplicantService.RelevantPrograms relevantPrograms) ->
+            (ApplicantService.ApplicationPrograms relevantPrograms) ->
                 relevantPrograms.inProgress().stream()
                     .map(ApplicantService.ApplicantProgramData::program)
                     .filter(program -> program.slug().equals(programSlug))
