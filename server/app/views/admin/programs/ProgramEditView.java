@@ -3,6 +3,7 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import forms.ProgramForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.FormTag;
@@ -17,7 +18,6 @@ import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
-import com.typesafe.config.Config;
 
 /** Renders a page for editing the name and description of a program. */
 public final class ProgramEditView extends ProgramFormBuilder {

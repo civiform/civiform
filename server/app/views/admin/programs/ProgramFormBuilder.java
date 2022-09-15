@@ -1,22 +1,25 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.p;
 import static j2html.TagCreator.legend;
+import static j2html.TagCreator.p;
 
+import com.typesafe.config.Config;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import models.DisplayMode;
+import modules.MainModule;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.BaseStyles;
 import views.style.Styles;
-import com.typesafe.config.Config;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
@@ -118,15 +121,25 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   private DomContent programUrlField(String adminName, boolean editExistingProgram) {
     if (editExistingProgram) {
-        // TODO(clouser): Modify this to be visually styled a bit better.
-        return p(String.format("%s/%s", baseUrl, adminName));
+      String programUrl =
+          baseUrl
+              + controllers.applicant.routes.RedirectController.programBySlug(
+                      MainModule.SLUGIFIER.slugify(adminName))
+                  .url();
+      return div()
+          .withClass(Styles.MB_2)
+          .with(
+              p("The URL for this program. This value can't be changed")
+                  .withClasses(BaseStyles.INPUT_LABEL),
+              a(programUrl).withClasses(BaseStyles.FORM_FIELD));
     }
     return FieldWithLabel.input()
-    .setId("program-name-input")
-    .setFieldName("adminName")
-    .setLabelText("Enter the URL for this program. This value can't be changed later. Aim to keep it"
-            + " short so it's easy to share. Use a dash between each word*")
-    .setValue(adminName)
-    .getInputTag();
+        .setId("program-name-input")
+        .setFieldName("adminName")
+        .setLabelText(
+            "Enter the URL for this program. This value can't be changed later. Aim to keep it"
+                + " short so it's easy to share. Use a dash between each word*")
+        .setValue(adminName)
+        .getInputTag();
   }
 }
