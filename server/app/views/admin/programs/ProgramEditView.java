@@ -52,7 +52,13 @@ public final class ProgramEditView extends ProgramFormBuilder {
             .with(buildManageQuestionLink(id))
             .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
 
-    String title = String.format("Edit program: %s", program.getLocalizedDisplayName());
+    String programDisplayName = program.getLocalizedDisplayName();
+    if (programDisplayName.isBlank()) {
+      // Rendering this form in response to an error where the external display name has been
+      // cleared. Fall back on the internal name.
+      programDisplayName = program.getAdminName();
+    }
+    String title = String.format("Edit program: %s", programDisplayName);
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
