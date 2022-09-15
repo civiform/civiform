@@ -382,6 +382,10 @@ export class AdminQuestions {
     )
   }
 
+  async expectQuestionNotifySharedPage() {
+    expect(await this.page.innerText('h1')).toContain('This question is shared')
+  }
+
   async expectQuestionTranslationPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain(
       `Manage Question Translations: ${questionName}`,

@@ -8,6 +8,46 @@ import {Page} from 'playwright'
 
 describe('program creation', () => {
   const ctx = createTestContext()
+
+  it('notifies when editing a shared question', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const questionName = 'shared-question-1'
+    const programName1 = 'apc program 1'
+    const programName2 = 'apc program 2'
+
+    await adminQuestions.addTextQuestion({questionName})
+    await adminQuestions.gotoAdminQuestionsPage()
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    await adminQuestions.expectQuestionEditPage(questionName)
+    await page.pause()
+
+    await adminPrograms.addProgram(programName1)
+    await adminPrograms.editProgramBlock(programName1, 'apc program description')
+    await page.click(`button:text("${questionName}")`)
+
+    await adminPrograms.gotoAdminProgramsPage()
+    await adminPrograms.publishAllPrograms()
+
+    await adminQuestions.gotoAdminQuestionsPage()
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    await adminQuestions.expectQuestionEditPage(questionName)
+
+    await adminPrograms.gotoAdminProgramsPage()
+    await adminPrograms.addProgram(programName2)
+    await adminPrograms.editProgramBlock(programName2, 'apc program description')
+    await page.click(`button:text("${questionName}")`)
+
+    await adminPrograms.gotoAdminProgramsPage()
+    await adminPrograms.publishAllPrograms()
+
+    await adminQuestions.gotoAdminQuestionsPage()
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    await adminQuestions.expectQuestionNotifySharedPage()
+  })
+
   it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
