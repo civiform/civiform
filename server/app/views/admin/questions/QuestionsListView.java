@@ -323,6 +323,21 @@ public final class QuestionsListView extends BaseHtmlView {
         .with(div().with(questionText).with(questionDescription));
   }
 
+  private ButtonTag getEditButton(
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      QuestionDefinition definition,
+      boolean isVisible) {
+    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
+        activeAndDraftQuestions.getReferencingPrograms(definition.getName());
+    Collection<ProgramDefinition> activePrograms = referencingPrograms.activeReferences();
+
+    if (activePrograms.size() > 1) {
+      return renderNotifySharedQuestionLink(definition, isVisible);
+    }
+
+    return renderQuestionEditLink(definition, isVisible);
+  }
+
   /**
    * Renders text describing how programs use specified question and provides a link to show dialog
    * listing all such programs.
@@ -511,12 +526,24 @@ public final class QuestionsListView extends BaseHtmlView {
                                 }))));
   }
 
-  private ButtonTag renderQuestionEditLink(QuestionDefinition definition, boolean isVisible) {
-    String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
+  private ButtonTag renderQuestionEditLink(String link, boolean isVisible) {
     return asRedirectElement(
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : Styles.INVISIBLE),
         link);
+  }
+
+  private ButtonTag renderNotifySharedQuestionLink(
+      QuestionDefinition definition, boolean isVisible) {
+    String link =
+        controllers.admin.routes.AdminProgramController.notifyQuestionShared(definition.getId())
+            .url();
+    return renderQuestionEditLink(link, isVisible);
+  }
+
+  private ButtonTag renderQuestionEditLink(QuestionDefinition definition, boolean isVisible) {
+    String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
+    return renderQuestionEditLink(link, isVisible);
   }
 
   private Optional<ButtonTag> renderQuestionTranslationLink(QuestionDefinition definition) {
@@ -576,10 +603,12 @@ public final class QuestionsListView extends BaseHtmlView {
                 ReferenceClasses.WITH_DROPDOWN,
                 Styles.H_12,
                 extraActions.build().isEmpty() ? Styles.INVISIBLE : "");
+
+    ButtonTag editButton = getEditButton(activeAndDraftQuestions, question, isEditable);
     DivTag result =
         div()
             .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.PR_6, Styles.FONT_MEDIUM)
-            .with(renderQuestionEditLink(question, isEditable))
+            .with(editButton)
             .with(
                 div()
                     .withClass(Styles.RELATIVE)
