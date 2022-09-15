@@ -1,0 +1,4 @@
+.dockerignore
+cloud.Dockerfile
+docker-compose.yaml
+civiform_config.sh
