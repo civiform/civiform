@@ -41,6 +41,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.CreateQuestionButton;
+import views.admin.questions.NotifySharedQuestionView;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
@@ -321,6 +322,33 @@ public final class QuestionsListView extends BaseHtmlView {
         .withClasses(
             Styles.PY_7, Styles.W_1_4, Styles.FLEX, Styles.FLEX_COL, Styles.JUSTIFY_BETWEEN)
         .with(div().with(questionText).with(questionDescription));
+  }
+
+  private Optinal<Modal> maybeRenderEditModal(
+      QuestionDefinition question,
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      Http.Request request) {
+
+    String link = controllers.admin.routes.AdminQuestionController.edit(question.getId()).url();
+    ButtonTag editButton =
+      renderQuestionEditLink(definition, activeAndDraftQuestions, request, link);
+
+    String title = "This question is shared by 2 programs";
+    DivTag notifyContent =
+        div()
+            .with(
+                h1(
+                    "This question is shared by 2 programs. If you edit it, it will be updated for"
+                        + " both programs."),
+                p(
+                    "Please be aware that this will effect the following programs by either"
+                        + " creating a new draft with this change or updating an existing draft:"),
+                div().with(span("Program name 1"), span("Program name 2")));
+
+    Modal editQuestionModal = Modal.builder("edit-question", notifyContent)
+      .setModalTitle("Editing a shared question")
+      .setTriggerButton(editButton)
+
   }
 
   private ButtonTag getEditButton(
