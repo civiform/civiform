@@ -18,6 +18,7 @@ public final class ReferenceClasses {
   public static final String ADMIN_PUBLISH_REFERENCES_QUESTION =
       "cf-admin-publish-references-question";
   public static final String ADMIN_QUESTION_TABLE_ROW = "cf-admin-question-table-row";
+  public static final String ADMIN_QUESTION_TITLE = "cf-question-title";
   public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS =
       "cf-admin-question-program-reference-counts";
   public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT =
