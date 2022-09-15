@@ -55,6 +55,12 @@
     "type": "bool",
     "values": [false, true]
   },
+  "APPLICANT_OIDC_LOGOUT_URL": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM": {
     "required": false,
     "secret": false,

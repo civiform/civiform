@@ -179,6 +179,12 @@ variable "applicant_oidc_provider_logout" {
   default     = true
 }
 
+variable "applicant_oidc_logout_url" {
+  type        = bool
+  description = "The URL to use for the OIDC logout endpoint (when applicant_oidc_provider_logout is true)"
+  default     = ""
+}
+
 variable "applicant_oidc_post_logout_redirect_param" {
   type        = string
   description = "What query parameter to use for sending the redirect uri to the central OIDC provider for logout (when applicant_oidc_provider_logout is true). Defaults to post_logout_redirect_uri"

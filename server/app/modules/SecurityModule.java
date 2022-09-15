@@ -81,8 +81,8 @@ public class SecurityModule extends AbstractModule {
     logoutController.setLocalLogout(true);
     logoutController.setDestroySession(true);
 
-    Boolean logoutProvider = configuration.getBoolean("auth.oidc_provider_logout");
-    logoutController.setCentralLogout(logoutProvider);
+    Boolean shouldPerformAuthProviderLogout = configuration.getBoolean("auth.oidc_provider_logout");
+    logoutController.setCentralLogout(shouldPerformAuthProviderLogout);
     bind(LogoutController.class).toInstance(logoutController);
 
     // This is a weird one.  :)  The cookie session store refuses to serialize any

@@ -131,6 +131,10 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     return baseUrl + "/callback";
   }
 
+  protected Optional<String> getLogoutURL() {
+    return getBaseConfigurationValue("auth.oidc_logout_url");
+  }
+
   /*
    * Helper function for combining the default and additional scopes,
    * and return them in the space-seperated string required bu OIDC.
@@ -179,7 +183,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     Optional<String> providerName = getProviderName();
     OidcConfiguration config = new OidcConfiguration();
 
-    config.setLogoutUrl("https://civiform-staging.us.auth0.com/v2/logout");
+    getLogoutURL().ifPresent(config::setLogoutUrl);
     config.setClientId(clientID);
 
     config.setSecret(clientSecret);
