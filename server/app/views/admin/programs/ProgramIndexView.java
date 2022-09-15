@@ -100,18 +100,18 @@ public final class ProgramIndexView extends BaseHtmlView {
                         renderNewProgramButton(),
                         maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
                 div()
-                    .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
                     .with(
-                        p("Loading")
-                            .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER),
                         each(
-                            programs.getProgramNames(),
-                            name ->
-                                this.renderProgramListItem(
-                                    programs.getActiveProgramDefinition(name),
-                                    programs.getDraftProgramDefinition(name),
-                                    request,
-                                    profile))));
+                            programs.getProgramNames().stream()
+                                .map(
+                                    name ->
+                                        this.buildProgramCardData(
+                                            programs.getActiveProgramDefinition(name),
+                                            programs.getDraftProgramDefinition(name),
+                                            request,
+                                            profile))
+                                .sorted(ProgramCardFactory.comparator())
+                                .map(programCardFactory::renderCard))));
 
     HtmlBundle htmlBundle =
         layout
@@ -259,7 +259,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectElement(button, link);
   }
 
-  private DivTag renderProgramListItem(
+  private ProgramCardFactory.ProgramCardData buildProgramCardData(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
@@ -309,11 +309,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .build());
     }
 
-    return programCardFactory.renderCard(
-        ProgramCardFactory.ProgramCardData.builder()
-            .setActiveProgram(activeRow)
-            .setDraftProgram(draftRow)
-            .build());
+    return ProgramCardFactory.ProgramCardData.builder()
+        .setActiveProgram(activeRow)
+        .setDraftProgram(draftRow)
+        .build();
   }
 
   ButtonTag renderShareLink(ProgramDefinition program) {
