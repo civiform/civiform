@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import forms.BlockForm;
 import io.ebean.DB;
 import java.util.Arrays;
@@ -24,6 +26,8 @@ import models.Program;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -42,6 +46,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
+@RunWith(JUnitParamsRunner.class)
 public class ProgramServiceImplTest extends ResetPostgres {
 
   private QuestionDefinition addressQuestion;
@@ -103,7 +108,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
-            "ProgramService",
+            "test-program",
             "description",
             "name",
             "description",
@@ -118,7 +123,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   public void createProgram_hasEmptyBlock() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
-            "ProgramService",
+            "test-program",
             "description",
             "name",
             "description",
@@ -151,7 +156,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   @Test
   public void createProgramWithoutDisplayMode_returnsError() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition("ProgramService", "description", "name", "description", "", "");
+        ps.createProgramDefinition("test-program", "description", "name", "description", "", "");
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -181,26 +186,15 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsExactly(CiviFormError.of("a program named name already exists"));
+        .containsExactly(CiviFormError.of("A program URL of name already exists"));
   }
 
   @Test
-  public void createProgram_protectsAgainstProgramSlugCollisions() {
-    // Two programs with names that are different but slugify to same value.
-    ps.createProgramDefinition(
-        "name one",
-        "description",
-        "display name",
-        "display description",
-        "",
-        DisplayMode.PUBLIC.getValue());
-
+  @Parameters({"name with spaces", "DiFfErEnT-cAsEs", "special-characters-$#@"})
+  public void createProgram_requiresSlug(String adminName) {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
-            // Program name here is missing the extra space
-            // so that the names are different but the resulting
-            // slug is the same.
-            "name  one",
+            adminName,
             "description",
             "display name",
             "display description",
@@ -210,7 +204,41 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsExactly(CiviFormError.of("a program named name  one already exists"));
+        .containsExactly(CiviFormError.of("A program URL may only contain lowercase letters, numbers, and dashes"));
+  }
+
+  @Test
+  public void createProgram_protectsAgainstProgramSlugCollisions() {
+    // Two programs with names that are different but slugify to same value.
+    // To simulate this state, we first create a program with a slugified name, then manually
+    // update the Program entity in order to add a name value that slugifies to the same value.
+    ProgramDefinition originalProgramDefinition = ps.createProgramDefinition(
+        "name-one",
+        "description",
+        "display name",
+        "display description",
+        "",
+        DisplayMode.PUBLIC.getValue()).getResult();
+    // Program name here is missing the extra space
+    // so that the names are different but the resulting
+    // slug is the same.
+    Program updatedProgram = originalProgramDefinition.toBuilder().setAdminName("name    one").build().toProgram();
+    updatedProgram.update();
+    assertThat(updatedProgram.getProgramDefinition().adminName()).isEqualTo("name    one");
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "name-one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            DisplayMode.PUBLIC.getValue());
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
   }
 
   @Test
