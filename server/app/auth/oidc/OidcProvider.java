@@ -132,7 +132,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
   }
 
   protected Optional<String> getLogoutURL() {
-    return getBaseConfigurationValue("auth.applicant_oidc_logout_url");
+    return getBaseConfigurationValue("auth.applicant_oidc_override_logout_url");
   }
 
   /*

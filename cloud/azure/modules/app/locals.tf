@@ -58,7 +58,7 @@ locals {
     ADFS_GLOBAL_ADMIN_GROUP                   = var.adfs_admin_group
     CIVIFORM_APPLICANT_IDP                    = var.civiform_applicant_idp
     APPLICANT_OIDC_PROVIDER_LOGOUT            = var.applicant_oidc_provider_logout
-    APPLICANT_OIDC_LOGOUT_URL                 = var.applicant_oidc_logout_url
+    APPLICANT_OIDC_OVERRIDE_LOGOUT_URL        = var.applicant_oidc_override_logout_url
     APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM = var.applicant_oidc_post_logout_redirect_param
     APPLICANT_OIDC_LOGOUT_CLIENT_PARAM        = var.applicant_oidc_logout_client_param
 

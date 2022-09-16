@@ -41,7 +41,7 @@ public class CfTestHelpers {
         .put("auth.oidc_post_logout_param", "returnToURL")
         .put("auth.oidc_logout_client_id_param", "clientId")
         .put(
-            "auth.applicant_oidc_logout_url",
+            "auth.applicant_oidc_override_logout_url",
             String.format("http://%s:%d/logout", host, port))
         .put("auth.oidc_provider_logout", true)
         .build();
