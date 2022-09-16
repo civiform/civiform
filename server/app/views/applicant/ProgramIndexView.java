@@ -37,6 +37,7 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.TranslationUtils;
@@ -324,6 +325,11 @@ public final class ProgramIndexView extends BaseHtmlView {
       programData.with(externalLink);
     }
 
+    if (cardData.latestSubmittedApplicationStatus().isPresent()) {
+      programData.with(
+          programCardApplicationStatus(
+              preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
+    }
     if (cardData.latestSubmittedApplicationTime().isPresent()) {
       programData.with(
           programCardSubmittedDate(messages, cardData.latestSubmittedApplicationTime().get()));
@@ -369,6 +375,15 @@ public final class ProgramIndexView extends BaseHtmlView {
                     Styles.H_3))
         .with(programData)
         .with(actionDiv);
+  }
+
+  private DivTag programCardApplicationStatus(
+      Locale preferredLocale, StatusDefinitions.Status status) {
+    return div()
+        .with(
+            span(status.localizedStatusText().getOrDefault(preferredLocale))
+                .withClasses(
+                    Styles.TEXT_XS, Styles.BORDER, Styles.ROUNDED_LG, Styles.PX_2, Styles.PY_1));
   }
 
   private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate) {
