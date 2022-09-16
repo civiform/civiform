@@ -60,6 +60,7 @@ describe('Most recently updated question is at top of list.', () => {
     // Now create a draft version of the previously last question. After,
     // it should be on top.
     await adminQuestions.createNewVersion(questionOnePublishedText)
+    // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
     const questionOneDraftText = `${questionOnePublishedText} new version`
     await expectQuestionListTopElements(adminQuestions, [
       questionOneDraftText,
