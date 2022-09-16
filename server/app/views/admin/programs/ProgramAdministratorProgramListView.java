@@ -63,7 +63,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                     programs.getActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
                         .map(this::buildCardData)
-                        .sorted(ProgramCardFactory.comparator())
+                        .sorted(ProgramCardFactory.lastModifiedTimeThenNameComparator())
                         .map(programCardFactory::renderCard)));
 
     HtmlBundle htmlBundle =

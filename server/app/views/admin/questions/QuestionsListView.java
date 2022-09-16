@@ -116,10 +116,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private static QuestionDefinition getDisplayQuestion(QuestionCardData cardData) {
-    if (cardData.draftQuestion().isPresent()) {
-      return cardData.draftQuestion().get();
-    }
-    return cardData.activeQuestion().get();
+    return cardData.draftQuestion().orElseGet(cardData.activeQuestion()::get);
   }
 
   private Pair<DivTag, ImmutableList<Modal>> renderAllQuestionRows(
@@ -186,7 +183,7 @@ public final class QuestionsListView extends BaseHtmlView {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
     QuestionDefinition latestDefinition =
-        cardData.draftQuestion().orElseGet(() -> cardData.activeQuestion().get());
+        cardData.draftQuestion().orElseGet(cardData.activeQuestion()::get);
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =

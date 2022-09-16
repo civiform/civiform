@@ -190,7 +190,7 @@ public final class ProgramCardFactory {
     return cardData.activeProgram().get().program();
   }
 
-  public static Comparator<ProgramCardData> comparator() {
+  public static Comparator<ProgramCardData> lastModifiedTimeThenNameComparator() {
     Comparator<ProgramCardData> c =
         Comparator.<ProgramCardData, Instant>comparing(
                 cardData -> getDisplayProgram(cardData).lastModifiedTime().orElse(Instant.EPOCH))
