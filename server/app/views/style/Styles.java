@@ -32,6 +32,7 @@ public final class Styles {
   public static final String BG_GRAY_500 = "bg-gray-500";
   public static final String BG_GRAY_600 = "bg-gray-600";
   public static final String BG_GRAY_700 = "bg-gray-700";
+  public static final String BG_GRAY_700S75 = "bg-gray-700/75";
   public static final String BG_GRAY_800 = "bg-gray-800";
   public static final String BG_GRAY_900 = "bg-gray-900";
   public static final String BG_RED_50 = "bg-red-50";
@@ -66,6 +67,7 @@ public final class Styles {
   public static final String BG_GREEN_900 = "bg-green-900";
   public static final String BG_BLUE_50 = "bg-blue-50";
   public static final String BG_BLUE_100 = "bg-blue-100";
+  public static final String BG_BLUE_100S90 = "bg-blue-100/90";
   public static final String BG_BLUE_200 = "bg-blue-200";
   public static final String BG_BLUE_300 = "bg-blue-300";
   public static final String BG_BLUE_400 = "bg-blue-400";

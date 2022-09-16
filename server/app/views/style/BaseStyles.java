@@ -205,7 +205,7 @@ public final class BaseStyles {
           Styles.TEXT_BLUE_800,
           Styles.TEXT_BASE,
           Styles.BG_WHITE,
-          StyleUtils.hover(Styles.BG_BLUE_100, Styles.OPACITY_90));
+          StyleUtils.hover(Styles.BG_BLUE_100S90));
 
   public static final String ADMIN_LOGIN =
       StyleUtils.joinStyles(
