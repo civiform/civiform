@@ -87,7 +87,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.create(request);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("program admin name cannot be blank");
+    assertThat(contentAsString(result)).contains("A program URL is required");
     assertThat(contentAsString(result)).contains("New program");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
@@ -100,7 +100,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
-                        "Internal program name",
+                        "internal-program-name",
                         "adminDescription",
                         "Internal program description",
                         "localizedDisplayName",
@@ -129,7 +129,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
-                        "Internal program name",
+                        "internal-program-name",
                         "adminDescription",
                         "Internal program description",
                         "localizedDisplayName",
@@ -239,7 +239,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit program");
-    assertThat(contentAsString(result)).contains("program admin description cannot be blank");
+    assertThat(contentAsString(result)).contains("A program note is required");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
