@@ -143,13 +143,7 @@ link.externalLink=Trang web bên ngoài
 title.programs=Chương trình và dịch vụ
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Tiếp tục
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=Đang diễn ra
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=Chương trình mới
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Chưa bắt đầu
