@@ -133,12 +133,6 @@ link.externalLink=Goobta dibadda
 # The title of the page for the list of programs.
 title.programs=Barnaamijyada iyo adeegyada
 
-# Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Sii wad
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=Barnaamijyo Cusub
-
 # Screen reader format string for program cards
 title.programCard=Barnaamijka {0} ee {1} -- {2}
 

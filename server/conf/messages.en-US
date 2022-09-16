@@ -148,13 +148,7 @@ link.externalLink=External site
 title.programs=Programs & services
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Continue
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=In progress
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=New Programs
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Not started
