@@ -145,13 +145,7 @@ link.externalLink=Sitio externo
 title.programs=Programas y servicios
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Continuar
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=En curso
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=Programas nuevos
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Sin comenzar
