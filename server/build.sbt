@@ -36,7 +36,7 @@ lazy val root = (project in file("."))
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.5",
-      "com.azure" % "azure-storage-blob" % "12.19.0",
+      "com.azure" % "azure-storage-blob" % "12.19.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.5.0",
@@ -205,7 +205,7 @@ resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.3",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.13.3",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.3"
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.4"
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
