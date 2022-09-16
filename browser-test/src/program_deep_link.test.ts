@@ -20,7 +20,7 @@ describe('navigating to a deep link', () => {
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
-    const questionText = 'What is your address?'
+    const questionText = 'What is your address? *'
 
     await adminQuestions.addAddressQuestion({
       questionName: 'Test address question',
