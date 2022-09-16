@@ -7,7 +7,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
-
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
@@ -25,10 +24,12 @@ public class RoleService {
   private final boolean allowGlobalAdminAccessPrograms;
 
   @Inject
-  public RoleService(ProgramService programRepository, UserRepository userRepository, Config config) {
+  public RoleService(
+      ProgramService programRepository, UserRepository userRepository, Config config) {
     this.programService = programRepository;
     this.userRepository = userRepository;
-    this.allowGlobalAdminAccessPrograms =  checkNotNull(config).getBoolean("allow_global_admin_acccess_programs");
+    this.allowGlobalAdminAccessPrograms =
+        checkNotNull(config).getBoolean("allow_global_admin_acccess_programs");
   }
 
   /**
@@ -42,12 +43,10 @@ public class RoleService {
 
   /**
    * Promotes the set of accounts (identified by email) to the role of {@link
-   * auth.Roles#ROLE_PROGRAM_ADMIN} for the given program. 
-   * When ALLOW_GLOBAL_ADMIN_ACCCESS_PROGRAMS = false: 
-   * If an account is currently a {@link
-   * auth.Roles#ROLE_CIVIFORM_ADMIN}, they will not be promoted, since CiviForm admins cannot be
-   * program admins. Instead, we return a {@link CiviFormError} listing the admin accounts that
-   * could not be promoted to program admins.
+   * auth.Roles#ROLE_PROGRAM_ADMIN} for the given program. When ALLOW_GLOBAL_ADMIN_ACCCESS_PROGRAMS
+   * = false: If an account is currently a {@link auth.Roles#ROLE_CIVIFORM_ADMIN}, they will not be
+   * promoted, since CiviForm admins cannot be program admins. Instead, we return a {@link
+   * CiviFormError} listing the admin accounts that could not be promoted to program admins.
    *
    * @param programId the ID of the {@link models.Program} these accounts administer
    * @param accountEmails a {@link ImmutableSet} of account emails to make program admins
@@ -64,11 +63,13 @@ public class RoleService {
     ProgramDefinition program = programService.getProgramDefinition(programId);
     // Filter out CiviForm admins from the list of emails - a CiviForm admin cannot be a program
     // admin.
-    ImmutableSet<String> globalAdminEmails = allowGlobalAdminAccessPrograms ? ImmutableSet.of() :
-        getGlobalAdmins().stream()
-            .map(Account::getEmailAddress)
-            .filter(address -> !Strings.isNullOrEmpty(address))
-            .collect(toImmutableSet());
+    ImmutableSet<String> globalAdminEmails =
+        allowGlobalAdminAccessPrograms
+            ? ImmutableSet.of()
+            : getGlobalAdmins().stream()
+                .map(Account::getEmailAddress)
+                .filter(address -> !Strings.isNullOrEmpty(address))
+                .collect(toImmutableSet());
     ImmutableSet.Builder<String> invalidEmailBuilder = ImmutableSet.builder();
     String errorMessageString = "";
 
