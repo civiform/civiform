@@ -215,7 +215,7 @@ variable "applicant_oidc_provider_logout" {
 
 variable "applicant_oidc_logout_url" {
   type        = string
-  description = "The URL to use for the OIDC logout endpoint (when applicant_oidc_provider_logout is true)"
+  description = "The URL to use for the OIDC logout endpoint (when applicant_oidc_provider_logout is true).  If not set, uses the `end_session_endpoint` value from the discovery metadata."
   default     = ""
 }
 

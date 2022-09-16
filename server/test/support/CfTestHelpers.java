@@ -40,7 +40,9 @@ public class CfTestHelpers {
         .put("base_url", String.format("http://localhost:%d", Helpers.testServerPort()))
         .put("auth.oidc_post_logout_param", "returnToURL")
         .put("auth.oidc_logout_client_id_param", "clientId")
-        .put("auth.applicant_oidc_logout_url", String.format("http://%s:%d/logout", host, port))
+        .put(
+            "auth.applicant_oidc_logout_url",
+            String.format("http://%s:%d/providerlogout", host, port))
         .put("auth.oidc_provider_logout", true)
         .build();
   }
