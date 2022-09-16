@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
@@ -26,7 +27,7 @@ import services.program.ProgramNotFoundException;
  * ApplicationRepository performs complicated operations on {@link Application} that often involve
  * other EBean models or asynchronous handling.
  */
-public class ApplicationRepository {
+public final class ApplicationRepository {
   private final ProgramRepository programRepository;
   private final UserRepository userRepository;
   private final Database database;
@@ -231,6 +232,29 @@ public class ApplicationRepository {
   public CompletionStage<Optional<Application>> getApplication(long applicationId) {
     return supplyAsync(
         () -> database.find(Application.class).setId(applicationId).findOneOrEmpty(),
+        executionContext.current());
+  }
+
+  /**
+   * Get all applications with the specified {@link LifecyleStage}s for an applicant.
+   *
+   * <p>The {@link Program} associated with the application is eagerly loaded.
+   */
+  public CompletionStage<ImmutableSet<Application>> getApplicationsForApplicant(
+      long applicantId, ImmutableSet<LifecycleStage> stages) {
+    return supplyAsync(
+        () -> {
+          return database
+              .find(Application.class)
+              .where()
+              .isIn("lifecycle_stage", stages)
+              .query()
+              // Eagerly fetch the program in a SQL join.
+              .fetch("program")
+              .findSet()
+              .stream()
+              .collect(ImmutableSet.toImmutableSet());
+        },
         executionContext.current());
   }
 }
