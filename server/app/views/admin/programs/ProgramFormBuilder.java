@@ -1,7 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
@@ -133,7 +132,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
               input().isHidden().withName("adminName").withValue(adminName),
               p("The URL for this program. This value can't be changed")
                   .withClasses(BaseStyles.INPUT_LABEL),
-              a(programUrl).withClasses(BaseStyles.FORM_FIELD));
+              p(programUrl).withClasses(BaseStyles.FORM_FIELD));
     }
     return FieldWithLabel.input()
         .setId("program-name-input")
