@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -54,6 +55,7 @@ public final class ExporterService {
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ApplicantService applicantService;
+  private final FeatureFlags featureFlags;
   private final Config config;
 
   private static final String HEADER_SPACER_ENUM = " - ";
@@ -70,10 +72,12 @@ public final class ExporterService {
       ProgramService programService,
       QuestionService questionService,
       ApplicantService applicantService,
+      FeatureFlags featureFlags,
       Config config) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.applicantService = checkNotNull(applicantService);
+    this.featureFlags = checkNotNull(featureFlags);
     this.config = checkNotNull(config);
   }
 
@@ -236,6 +240,11 @@ public final class ExporterService {
             .setHeader("Submitted by")
             .setColumnType(ColumnType.SUBMITTER_EMAIL)
             .build());
+
+    if (featureFlags.isStatusTrackingEnabled()) {
+      columnsBuilder.add(
+          Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
+    }
 
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
