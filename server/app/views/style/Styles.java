@@ -752,9 +752,9 @@ public final class Styles {
   public static final String FLEX_AUTO = "flex-auto";
   public static final String FLEX_INITIAL = "flex-initial";
   public static final String FLEX_NONE = "flex-none";
-  public static final String FLEX_GROW_0 = "flex-grow-0";
+  public static final String GROW_0 = "grow-0";
   public static final String FLEX_GROW = "flex-grow";
-  public static final String FLEX_SHRINK_0 = "flex-shrink-0";
+  public static final String SHRINK_0 = "shrink-0";
   public static final String FLEX_SHRINK = "flex-shrink";
   public static final String ORDER_1 = "order-1";
   public static final String ORDER_2 = "order-2";
@@ -2515,8 +2515,8 @@ public final class Styles {
   public static final String TEXT_OPACITY_95 = "text-opacity-95";
   public static final String TEXT_OPACITY_100 = "text-opacity-100";
   public static final String TRUNCATE = "truncate";
-  public static final String OVERFLOW_ELLIPSIS = "overflow-ellipsis";
-  public static final String OVERFLOW_CLIP = "overflow-clip";
+  public static final String TEXT_ELLIPSIS = "text-ellipsis";
+  public static final String TEXT_CLIP = "text-clip";
   public static final String ITALIC = "italic";
   public static final String NOT_ITALIC = "not-italic";
   public static final String UPPERCASE = "uppercase";

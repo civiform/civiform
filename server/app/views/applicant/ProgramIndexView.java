@@ -338,7 +338,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                           "aria-label",
                           messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()))
                       .withClasses(
-                          Styles.FLEX_SHRINK_0,
+                          Styles.SHRINK_0,
                           Styles.H_5,
                           Styles.W_AUTO,
                           Styles.INLINE,
@@ -379,7 +379,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             div()
                 .withClasses(
                     Styles.BLOCK,
-                    Styles.FLEX_SHRINK_0,
+                    Styles.SHRINK_0,
                     BaseStyles.BG_SEATTLE_BLUE,
                     Styles.ROUNDED_T_XL,
                     Styles.H_3))
