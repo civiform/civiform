@@ -230,7 +230,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(div().withClasses(Styles.FLEX_GROW))
             .with(
                 div()
-                    .withClasses(Styles.PX_2)
+                    .withClasses(Styles.ML_4, StyleUtils.responsiveXLarge(Styles.ML_10))
                     .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime())))
             .with(actionsCellAndModal.getLeft());
 
