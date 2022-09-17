@@ -53,12 +53,16 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
+  private final ViewUtils viewUtils;
 
   @Inject
   public QuestionsListView(
-      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
+      AdminLayoutFactory layoutFactory,
+      TranslationLocales translationLocales,
+      ViewUtils viewUtils) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
+    this.viewUtils = checkNotNull(viewUtils);
   }
 
   /** Renders a page with a list view of all questions. */
@@ -224,6 +228,10 @@ public final class QuestionsListView extends BaseHtmlView {
                 isSecondRow ? Styles.BORDER_T : "")
             .with(badge)
             .with(div().withClasses(Styles.FLEX_GROW))
+            .with(
+                div()
+                    .withClasses(Styles.PX_2)
+                    .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime())))
             .with(actionsCellAndModal.getLeft());
 
     asRedirectElement(
@@ -293,7 +301,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 Styles.ML_4,
                 StyleUtils.responsiveXLarge(Styles.ML_10),
                 Styles.PY_7,
-                Styles.W_1_3)
+                Styles.W_1_4)
             .with(span("Used across "), referencingProgramsCount);
     if (maybeReferencingProgramsModal.isPresent()) {
       tag.with(

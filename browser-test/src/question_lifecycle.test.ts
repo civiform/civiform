@@ -155,12 +155,7 @@ describe('normal question lifecycle', () => {
     // Add a new valid dropdown question
     await adminQuestions.addDropdownQuestion({questionName, options})
     // Edit the newly created question
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(
-        questionName,
-        ':text("Edit")',
-      ),
-    )
+    await adminQuestions.gotoQuestionEditPage(questionName)
 
     // Add an empty option
     await page.click('#add-new-option')
@@ -183,12 +178,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.addRadioButtonQuestion({questionName, options})
 
     // Edit the newly created question
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(
-        questionName,
-        ':text("Edit")',
-      ),
-    )
+    await adminQuestions.gotoQuestionEditPage(questionName)
 
     // Add an empty option
     await page.click('#add-new-option')

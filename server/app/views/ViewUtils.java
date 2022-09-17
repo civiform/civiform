@@ -15,18 +15,24 @@ import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.ScriptTag;
+import java.time.Instant;
+import java.util.Optional;
 import javax.inject.Inject;
+import services.DateConverter;
 import views.components.Icons;
 import views.style.BaseStyles;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Utility class for accessing stateful view dependencies. */
 public final class ViewUtils {
   private final AssetsFinder assetsFinder;
+  private final DateConverter dateConverter;
 
   @Inject
-  ViewUtils(AssetsFinder assetsFinder) {
+  ViewUtils(AssetsFinder assetsFinder, DateConverter dateConverter) {
     this.assetsFinder = checkNotNull(assetsFinder);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -123,5 +129,25 @@ public final class ViewUtils {
         .with(
             Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
             span(badgeText).withClass(Styles.MR_4));
+  }
+
+  /**
+   * Renders "Edited on YYYY/MM/DD" text for given instant. Provides responsive text that shows only
+   * date on narrow screens and both date and time on wider screens.
+   *
+   * @param prefix Text to use before the rendered date. Examples: "Edited on " or "Published on ".
+   * @param time Time to render. If time is missing then "unkown" will be rendered.
+   * @return Tag containing rendered time.
+   */
+  public PTag renderEditOnText(String prefix, Optional<Instant> time) {
+    String formattedUpdateTime = time.map(t -> dateConverter.renderDateTime(t)).orElse("unknown");
+    String formattedUpdateDate = time.map(t -> dateConverter.renderDate(t)).orElse("unknown");
+    return p().with(
+            span(prefix),
+            span(formattedUpdateTime)
+                .withClasses(
+                    Styles.FONT_SEMIBOLD, Styles.HIDDEN, StyleUtils.responsiveLarge(Styles.INLINE)),
+            span(formattedUpdateDate)
+                .withClasses(Styles.FONT_SEMIBOLD, StyleUtils.responsiveLarge(Styles.HIDDEN)));
   }
 }

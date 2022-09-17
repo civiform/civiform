@@ -247,7 +247,10 @@ export class AdminQuestions {
   }) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, `:text("${buttonText}")`),
+      this.selectWithinQuestionTableRow(
+        questionName,
+        `button:has-text("${buttonText}")`,
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
