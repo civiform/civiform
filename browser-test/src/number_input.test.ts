@@ -13,7 +13,7 @@ describe('Number question for applicant flow', () => {
   const numberInputError = 'div.cf-question-number-error'
 
   describe('single number question', () => {
-    const programName = 'test program for single number'
+    const programName = 'test-program-for-single-number'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -97,7 +97,7 @@ describe('Number question for applicant flow', () => {
   })
 
   describe('multiple number questions', () => {
-    const programName = 'test program for multiple numbers'
+    const programName = 'test-program-for-multiple-numbers'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
