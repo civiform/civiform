@@ -128,7 +128,6 @@ public final class RedirectController extends CiviFormController {
       long applicantId, String programSlug) {
     // Find all applicant's DRAFT applications for programs of the same slug
     // redirect to the newest program version with a DRAFT application.
-    // TODO(#2573): clean this up, don't compare on program ID
     return applicantService
         .relevantProgramsForApplicant(applicantId)
         .thenApplyAsync(
