@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
 import controllers.routes;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -128,7 +127,6 @@ public final class RedirectController extends CiviFormController {
       long applicantId, String programSlug) {
     // Find all applicant's DRAFT applications for programs of the same slug
     // redirect to the newest program version with a DRAFT application.
-    // TODO(#2573): clean this up, don't compare on program ID
     return applicantService
         .relevantProgramsForApplicant(applicantId)
         .thenApplyAsync(
@@ -136,7 +134,6 @@ public final class RedirectController extends CiviFormController {
                 relevantPrograms.inProgress().stream()
                     .map(ApplicantService.ApplicantProgramData::program)
                     .filter(program -> program.slug().equals(programSlug))
-                    .sorted(Comparator.comparingLong(ProgramDefinition::id).reversed())
                     .findFirst(),
             httpContext.current());
   }
