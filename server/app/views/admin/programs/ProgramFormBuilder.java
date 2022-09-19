@@ -136,8 +136,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .setId("program-name-input")
         .setFieldName("adminName")
         .setLabelText(
-            "Enter the URL for this program. This value can't be changed later. Aim to keep it"
-                + " short so it's easy to share. Use a dash between each word*")
+            "Enter an identifier that will be used in this program's applicant-facing URL. This"
+                + " value can't be changed later. Aim to keep it short so it's easy to share. Use"
+                + " a dash between each word*")
         .setValue(adminName)
         .getInputTag();
   }

@@ -3,7 +3,6 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -21,6 +20,7 @@ import play.test.Helpers;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 import views.html.helper.CSRF;
 
@@ -151,16 +151,15 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withInvalidProgram_returnsNotFound() {
+  public void edit_withInvalidProgram_throwsProgramNotFoundException() {
     Request request = Helpers.fakeRequest().build();
 
-    Result result = controller.edit(request, 1L);
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThatThrownBy(() -> controller.edit(request, 1L))
+        .isInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
-  public void edit_returnsExpectedForm() {
+  public void edit_returnsExpectedForm() throws Exception {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Program program = ProgramBuilder.newDraftProgram("test program").build();
 
@@ -228,7 +227,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_invalidInput_returnsFormWithErrors() {
+  public void update_invalidInput_returnsFormWithErrors() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("Existing One").build();
     Request request =
         addCSRFToken(Helpers.fakeRequest())
@@ -244,7 +243,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_overwritesExistingProgram() {
+  public void update_overwritesExistingProgram() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     RequestBuilder requestBuilder =
         Helpers.fakeRequest()
