@@ -334,23 +334,12 @@ public final class QuestionEditView extends BaseHtmlView {
             .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
 
     // The question name and enumerator fields should not be changed after the question is created.
-    // If this form is not for creation, the fields are disabled, and hidden fields to pass
-    // enumerator and name data are added.
-    formTag.with(h2("Visible to administrators only").withClasses(Styles.PY_2));
-    FieldWithLabel nameField =
-        FieldWithLabel.input()
-            .setId("question-name-input")
-            .setFieldName(QUESTION_NAME_FIELD)
-            .setLabelText("Administrative identifier. This value cannot be changed later*")
-            .setDisabled(!submittable)
-            .setValue(questionForm.getQuestionName());
-    formTag.with(nameField.setDisabled(!forCreate).getInputTag());
+    // If this form is not for creation, hidden fields to pass enumerator and name data are added.
+    formTag.with(
+        h2("Visible to administrators only").withClasses(Styles.PY_2),
+        administrativeNameField(questionForm.getQuestionName(), !forCreate));
     if (!forCreate) {
       formTag.with(
-          input()
-              .isHidden()
-              .withName(QUESTION_NAME_FIELD)
-              .withValue(questionForm.getQuestionName()),
           input()
               .isHidden()
               .withName(QUESTION_ENUMERATOR_FIELD)
@@ -506,5 +495,23 @@ public final class QuestionEditView extends BaseHtmlView {
             Styles.FONT_MONO,
             Styles.BORDER_4,
             Styles.BORDER_BLUE_400);
+  }
+
+  private DivTag administrativeNameField(String adminName, boolean editExistingQuestion) {
+    if (editExistingQuestion) {
+      return div()
+          .withClass(Styles.MB_2)
+          .with(
+              p("Administrative identifier. This value can't be changed")
+                  .withClasses(BaseStyles.INPUT_LABEL),
+              p(adminName).withClasses(BaseStyles.FORM_FIELD),
+              input().isHidden().withName(QUESTION_NAME_FIELD).withValue(adminName));
+    }
+    return FieldWithLabel.input()
+        .setId("question-name-input")
+        .setFieldName(QUESTION_NAME_FIELD)
+        .setLabelText("Administrative identifier. This value can't be changed later*")
+        .setValue(adminName)
+        .getInputTag();
   }
 }
