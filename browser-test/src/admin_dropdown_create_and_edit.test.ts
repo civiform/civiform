@@ -27,7 +27,7 @@ describe('create dropdown question with options', () => {
     const questionName = 'favorite ice cream'
     await page.fill('text=Question Text', 'questionText')
     await page.fill('text=Question help text', 'helpText')
-    await page.fill('text=Administrative identifier"', questionName)
+    await page.fill('text=Administrative identifier', questionName)
     await page.fill(
       'text=Question note for administrative use only',
       'description',
