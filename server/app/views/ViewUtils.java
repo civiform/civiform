@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import services.DateConverter;
 import views.components.Icons;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -140,14 +141,20 @@ public final class ViewUtils {
    * @return Tag containing rendered time.
    */
   public PTag renderEditOnText(String prefix, Optional<Instant> time) {
-    String formattedUpdateTime = time.map(t -> dateConverter.renderDateTime(t)).orElse("unknown");
-    String formattedUpdateDate = time.map(t -> dateConverter.renderDate(t)).orElse("unknown");
+    String formattedUpdateTime = time.map(dateConverter::renderDateTime).orElse("unknown");
+    String formattedUpdateDate = time.map(dateConverter::renderDate).orElse("unknown");
     return p().with(
             span(prefix),
             span(formattedUpdateTime)
                 .withClasses(
-                    Styles.FONT_SEMIBOLD, Styles.HIDDEN, StyleUtils.responsiveLarge(Styles.INLINE)),
+                    ReferenceClasses.DATE_FIELD_BROWSER_TEST,
+                    Styles.FONT_SEMIBOLD,
+                    Styles.HIDDEN,
+                    StyleUtils.responsiveLarge(Styles.INLINE)),
             span(formattedUpdateDate)
-                .withClasses(Styles.FONT_SEMIBOLD, StyleUtils.responsiveLarge(Styles.HIDDEN)));
+                .withClasses(
+                    ReferenceClasses.DATE_FIELD_BROWSER_TEST,
+                    Styles.FONT_SEMIBOLD,
+                    StyleUtils.responsiveLarge(Styles.HIDDEN)));
   }
 }

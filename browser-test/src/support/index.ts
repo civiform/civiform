@@ -2,7 +2,6 @@ import axe = require('axe-core')
 import {
   Browser,
   BrowserContext,
-  Locator,
   chromium,
   Page,
   PageScreenshotOptions,
@@ -430,7 +429,7 @@ export const validateAccessibility = async (page: Page) => {
  * @param screenshotFileName Must use dash-separated-case for consistency.
  */
 export const validateScreenshot = async (
-  element: Page | Locator,
+  element: Page,
   screenshotFileName: string,
   screenshotOptions?: PageScreenshotOptions | LocatorScreenshotOptions,
   matchImageSnapshotOptions?: MatchImageSnapshotOptions,
@@ -439,6 +438,15 @@ export const validateScreenshot = async (
   if (DISABLE_SCREENSHOTS) {
     return
   }
+  // To make screenshots stable go through all date fields (elements that have cf-bt-date class) and replace date/time with fixed text.
+  await element.evaluate(() => {
+    for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
+      console.log('found date ' + date.textContent)
+      date.textContent = date
+        .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
+        .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
+    }
+  })
   expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
   expect(
     await element.screenshot({

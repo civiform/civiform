@@ -124,4 +124,5 @@ public final class ReferenceClasses {
   public static final String MODAL = "cf-modal";
   public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
+  public static final String DATE_FIELD_BROWSER_TEST = "cf-bt-date";
 }
