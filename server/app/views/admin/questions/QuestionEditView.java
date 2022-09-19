@@ -312,6 +312,26 @@ public final class QuestionEditView extends BaseHtmlView {
                     .withName(QuestionForm.REDIRECT_URL_PARAM)
                     .withValue(questionForm.getRedirectUrl()),
                 requiredFieldsExplanationContent());
+    formTag.with(
+        h2("Visible to applicants").withClasses(Styles.PY_2),
+        repeatedQuestionInformation(),
+        FieldWithLabel.textArea()
+            .setId("question-text-textarea")
+            .setFieldName("questionText")
+            .setLabelText("Question text*")
+            .setPlaceholderText("The question text displayed to the applicant")
+            .setDisabled(!submittable)
+            .setValue(questionForm.getQuestionText())
+            .getTextareaTag(),
+        FieldWithLabel.textArea()
+            .setId("question-help-text-textarea")
+            .setFieldName("questionHelpText")
+            .setLabelText("Question help text")
+            .setPlaceholderText("The question help text displayed to the applicant")
+            .setDisabled(!submittable)
+            .setValue(questionForm.getQuestionHelpText())
+            .getTextareaTag()
+            .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
 
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, the fields are disabled, and hidden fields to pass
@@ -321,9 +341,8 @@ public final class QuestionEditView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("question-name-input")
             .setFieldName(QUESTION_NAME_FIELD)
-            .setLabelText("Administrative name*")
+            .setLabelText("Administrative identifier. This value cannot be changed later*")
             .setDisabled(!submittable)
-            .setPlaceholderText("The name displayed in the question builder")
             .setValue(questionForm.getQuestionName());
     formTag.with(nameField.setDisabled(!forCreate).getInputTag());
     if (!forCreate) {
@@ -345,32 +364,11 @@ public final class QuestionEditView extends BaseHtmlView {
     formTag.with(
         FieldWithLabel.textArea()
             .setFieldName("questionDescription")
-            .setLabelText("Description")
-            .setPlaceholderText("The description displayed in the question builder")
+            .setLabelText("Question note for administrative use only")
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionDescription())
             .getTextareaTag(),
-        enumeratorOptions.setDisabled(!forCreate).getSelectTag(),
-        repeatedQuestionInformation());
-    formTag.with(
-        h2("Visible to applicants").withClasses(Styles.PY_2),
-        FieldWithLabel.textArea()
-            .setId("question-text-textarea")
-            .setFieldName("questionText")
-            .setLabelText("Question text*")
-            .setPlaceholderText("The question text displayed to the applicant")
-            .setDisabled(!submittable)
-            .setValue(questionForm.getQuestionText())
-            .getTextareaTag(),
-        FieldWithLabel.textArea()
-            .setId("question-help-text-textarea")
-            .setFieldName("questionHelpText")
-            .setLabelText("Question help text")
-            .setPlaceholderText("The question help text displayed to the applicant")
-            .setDisabled(!submittable)
-            .setValue(questionForm.getQuestionHelpText())
-            .getTextareaTag()
-            .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
+        enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
