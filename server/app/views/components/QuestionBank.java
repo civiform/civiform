@@ -154,12 +154,17 @@ public final class QuestionBank {
     SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType())
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+    String questionHelpText =
+        definition.getQuestionHelpText().isEmpty()
+            ? ""
+            : definition.getQuestionHelpText().getDefault();
     DivTag content =
         div()
             .withClasses(Styles.ML_4)
             .with(
-                p(definition.getName()).withClass(ReferenceClasses.ADMIN_QUESTION_TITLE),
-                p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
+                p(definition.getQuestionText().getDefault())
+                    .withClass(ReferenceClasses.ADMIN_QUESTION_TITLE),
+                p(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM),
                 addButton);
     return questionDiv.with(PLUS_ICON, icon, content);
   }

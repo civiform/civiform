@@ -425,11 +425,15 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     SvgTag icon =
         Icons.questionTypeSvg(questionDefinition.getQuestionType())
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+    String questionHelpText =
+        questionDefinition.getQuestionHelpText().isEmpty()
+            ? ""
+            : questionDefinition.getQuestionHelpText().getDefault();
     DivTag content =
         div()
             .withClass(Styles.FLEX_GROW)
-            .with(p(questionDefinition.getName()))
-            .with(p(questionDefinition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM));
+            .with(p(questionDefinition.getQuestionText().getDefault()))
+            .with(p(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM));
 
     Optional<FormTag> maybeOptionalToggle =
         optionalToggle(
