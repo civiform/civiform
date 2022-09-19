@@ -34,6 +34,8 @@ import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
+import views.ViewUtils.BadgeStatus;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -73,18 +75,18 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(Styles.PX_4)
             .with(
                 div()
-                    .withClasses(
-                        Styles.FLEX,
-                        Styles.ITEMS_CENTER,
-                        Styles.SPACE_X_4,
-                        Styles.MT_12,
-                        Styles.MB_10)
+                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)
                     .with(
                         h1(title),
                         div().withClass(Styles.FLEX_GROW),
                         CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index().url())))
-            .with(questionRowsAndModals.getLeft())
+                            controllers.admin.routes.AdminQuestionController.index().url())),
+                div()
+                    .withClasses(Styles.MT_10, Styles.FLEX)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        p("Sorting my most recently updated").withClass(Styles.TEXT_SM)))
+            .with(div().withClass(Styles.MT_6).with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
         layout
@@ -113,37 +115,79 @@ public final class QuestionsListView extends BaseHtmlView {
         .withClasses(Styles.FLOAT_RIGHT, Styles.TEXT_BASE, Styles.PX_4, Styles.MY_2);
   }
 
+  private static QuestionDefinition getDisplayQuestion(QuestionCardData cardData) {
+    return cardData.draftQuestion().orElseGet(cardData.activeQuestion()::get);
+  }
+
   private Pair<DivTag, ImmutableList<Modal>> renderAllQuestionRows(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     ImmutableList.Builder<DomContent> rows = ImmutableList.builder();
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
-    for (String name : activeAndDraftQuestions.getQuestionNames()) {
+    ImmutableList<QuestionCardData> cards =
+        activeAndDraftQuestions.getQuestionNames().stream()
+            .map(
+                name ->
+                    QuestionCardData.builder()
+                        .setActiveQuestion(
+                            activeAndDraftQuestions.getActiveQuestionDefinition(name))
+                        .setDraftQuestion(activeAndDraftQuestions.getDraftQuestionDefinition(name))
+                        .build())
+            .sorted(
+                Comparator.<QuestionCardData, Instant>comparing(
+                        card ->
+                            getDisplayQuestion(card).getLastModifiedTime().orElse(Instant.EPOCH))
+                    .reversed()
+                    .thenComparing(
+                        card ->
+                            getDisplayQuestion(card).getQuestionText().getDefault().toLowerCase()))
+            .collect(ImmutableList.toImmutableList());
+
+    for (QuestionCardData card : cards) {
       Pair<DivTag, ImmutableList<Modal>> rowAndModals =
-          renderQuestionRow(name, activeAndDraftQuestions, request);
+          renderQuestionCard(card, activeAndDraftQuestions, request);
       rows.add(rowAndModals.getLeft());
       modals.addAll(rowAndModals.getRight());
     }
     return Pair.of(div().with(rows.build()), modals.build());
   }
 
+  @AutoValue
+  abstract static class QuestionCardData {
+    abstract Optional<QuestionDefinition> activeQuestion();
+
+    abstract Optional<QuestionDefinition> draftQuestion();
+
+    static Builder builder() {
+      return new AutoValue_QuestionsListView_QuestionCardData.Builder();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+      abstract Builder setActiveQuestion(Optional<QuestionDefinition> v);
+
+      abstract Builder setDraftQuestion(Optional<QuestionDefinition> v);
+
+      abstract QuestionCardData build();
+    }
+  }
+
   /**
-   * Renders a row in the question list. The row contains question text, help text, active and draft
-   * versions, list of programs questions is used in and buttons to edit the question.
+   * Renders a card in the question list. The card contains question text, help text, active and
+   * draft versions, list of programs questions is used in and buttons to edit the question.
    */
-  private Pair<DivTag, ImmutableList<Modal>> renderQuestionRow(
-      String questionName, ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
-    Optional<QuestionDefinition> activeDefinition =
-        activeAndDraftQuestions.getActiveQuestionDefinition(questionName);
-    Optional<QuestionDefinition> draftDefinition =
-        activeAndDraftQuestions.getDraftQuestionDefinition(questionName);
-    if (draftDefinition.isEmpty() && activeDefinition.isEmpty()) {
+  private Pair<DivTag, ImmutableList<Modal>> renderQuestionCard(
+      QuestionCardData cardData,
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      Http.Request request) {
+    if (cardData.draftQuestion().isEmpty() && cardData.activeQuestion().isEmpty()) {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
-    QuestionDefinition latestDefinition = draftDefinition.orElseGet(activeDefinition::get);
+    QuestionDefinition latestDefinition =
+        cardData.draftQuestion().orElseGet(cardData.activeQuestion()::get);
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
-        renderReferencingPrograms(questionName, activeAndDraftQuestions);
+        renderReferencingPrograms(latestDefinition.getName(), activeAndDraftQuestions);
     modals.addAll(referencingProgramAndModal.getRight());
 
     DivTag row =
@@ -153,17 +197,23 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(referencingProgramAndModal.getLeft());
 
     DivTag draftAndActiveRows = div().withClasses(Styles.FLEX_GROW);
-    if (draftDefinition.isPresent()) {
+    if (cardData.draftQuestion().isPresent()) {
       Pair<DivTag, ImmutableList<Modal>> draftRow =
           renderActiveOrDraftRow(
-              /* isActive= */ false, draftDefinition.get(), activeAndDraftQuestions, request);
+              /* isActive= */ false,
+              cardData.draftQuestion().get(),
+              activeAndDraftQuestions,
+              request);
       modals.addAll(draftRow.getRight());
       draftAndActiveRows.with(draftRow.getLeft());
     }
-    if (activeDefinition.isPresent()) {
+    if (cardData.activeQuestion().isPresent()) {
       Pair<DivTag, ImmutableList<Modal>> activeRow =
           renderActiveOrDraftRow(
-              /* isActive= */ true, activeDefinition.get(), activeAndDraftQuestions, request);
+              /* isActive= */ true,
+              cardData.activeQuestion().get(),
+              activeAndDraftQuestions,
+              request);
       modals.addAll(activeRow.getRight());
       draftAndActiveRows.with(activeRow.getLeft());
     }
@@ -199,14 +249,6 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition question,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
-    String badgeText = "Draft";
-    String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
-    String badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
-    if (isActive) {
-      badgeText = "Active";
-      badgeBGColor = BaseStyles.BG_CIVIFORM_GREEN_LIGHT;
-      badgeFillColor = BaseStyles.TEXT_CIVIFORM_GREEN;
-    }
     boolean isSecondRow =
         isActive
             && activeAndDraftQuestions.getDraftQuestionDefinition(question.getName()).isPresent();
@@ -215,23 +257,10 @@ public final class QuestionsListView extends BaseHtmlView {
         renderActionsCell(isActive, question, activeAndDraftQuestions, request);
 
     PTag badge =
-        p().withClasses(
-                badgeBGColor,
-                badgeFillColor,
-                Styles.ML_2,
-                StyleUtils.responsiveXLarge(Styles.ML_8),
-                Styles.FONT_MEDIUM,
-                Styles.ROUNDED_FULL,
-                Styles.FLEX,
-                Styles.FLEX_ROW,
-                Styles.GAP_X_2,
-                Styles.PLACE_ITEMS_CENTER,
-                Styles.JUSTIFY_CENTER,
-                Styles.H_12)
-            .withStyle("width: 100px")
-            .with(
-                Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
-                span(badgeText).withClass(Styles.MR_4));
+        ViewUtils.makeBadge(
+            isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
+            Styles.ML_2,
+            StyleUtils.responsiveXLarge(Styles.ML_8));
 
     DivTag row =
         div()
@@ -267,7 +296,8 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses(Styles.W_6, Styles.H_6, Styles.FLEX_SHRINK_0))
             .with(
                 div(definition.getQuestionText().getDefault())
-                    .withClasses(Styles.PL_4, Styles.TEXT_XL));
+                    .withClasses(
+                        ReferenceClasses.ADMIN_QUESTION_TITLE, Styles.PL_4, Styles.TEXT_XL));
     DivTag questionDescription =
         div(
             div(definition.getQuestionHelpText().isEmpty()

@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+# Builds the prometheus metrics scraper Docker image
+
+docker build \
+  -t docker.io/civiform/aws-metrics-scraper:latest \
+  -f metrics_scraper.Dockerfile .
+
+docker push docker.io/civiform/aws-metrics-scraper:latest

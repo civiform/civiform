@@ -91,7 +91,7 @@ public class RadioButtonQuestionRendererTest {
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
 
-    assertThat(result.render().matches(".*fieldset aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+    assertThat(result.render().matches(".*fieldset aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
   }
 }

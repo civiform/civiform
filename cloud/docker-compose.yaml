@@ -1,0 +1,19 @@
+services:
+  cloud:
+    image: civiform/civiform-cloud-deployment
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_REGION
+      - AZURE_CLIENT_ID
+      - AZURE_STORAGE_ACCOUNT_NAME
+      - AZURE_LOCAL_CONNECTION_STRING
+      - AZURE_STORAGE_ACCOUNT_CONTAINER
+      - CONFIG
+      - IMAGE_TAG
+      - COMMAND
+    volumes:
+      # Mounting civiform config to the image in read only mode.
+      - ${PWD}/${CONFIG}:/${CONFIG}:ro
+    command: cloud/shared/bin/run.py --tag=${IMAGE_TAG} --command=${COMMAND} --config=${CONFIG}
