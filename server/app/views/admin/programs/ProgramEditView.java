@@ -45,20 +45,18 @@ public final class ProgramEditView extends ProgramFormBuilder {
   }
 
   public Content render(
-      Request request, long id, ProgramForm program, Optional<ToastMessage> message) {
+      Request request,
+      ProgramDefinition existingProgram,
+      ProgramForm program,
+      Optional<ToastMessage> message) {
     FormTag formTag =
         buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
-            .with(buildManageQuestionLink(id))
-            .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
+            .with(buildManageQuestionLink(existingProgram.id()))
+            .withAction(
+                controllers.admin.routes.AdminProgramController.update(existingProgram.id()).url());
 
-    String programDisplayName = program.getLocalizedDisplayName();
-    if (programDisplayName.isBlank()) {
-      // Rendering this form in response to an error where the external display name has been
-      // cleared. Fall back on the internal name.
-      programDisplayName = program.getAdminName();
-    }
-    String title = String.format("Edit program: %s", programDisplayName);
+    String title = String.format("Edit program: %s", existingProgram.localizedName().getDefault());
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
