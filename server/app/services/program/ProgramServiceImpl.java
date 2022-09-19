@@ -153,11 +153,21 @@ public final class ProgramServiceImpl implements ProgramService {
       errorsBuilder.add(CiviFormError.of("a program named " + adminName + " already exists"));
     }
 
-    validateProgramText(errorsBuilder, "admin name", adminName);
-    validateProgramText(errorsBuilder, "admin description", adminDescription);
-    validateProgramText(errorsBuilder, "display name", defaultDisplayName);
-    validateProgramText(errorsBuilder, "display description", defaultDisplayDescription);
-    validateProgramText(errorsBuilder, "display mode", displayMode);
+    if (defaultDisplayName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A public display name for the program is required"));
+    }
+    if (defaultDisplayDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A public description for the program is required"));
+    }
+    if (adminName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program URL is required"));
+    }
+    if (displayMode.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program visibility option must be selected"));
+    }
+    if (adminDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program note is required"));
+    }
 
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
@@ -198,9 +208,18 @@ public final class ProgramServiceImpl implements ProgramService {
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    validateProgramText(errorsBuilder, "admin description", adminDescription);
-    validateProgramText(errorsBuilder, "display name", displayName);
-    validateProgramText(errorsBuilder, "display description", displayDescription);
+    if (displayName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A public display name for the program is required"));
+    }
+    if (displayDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A public description for the program is required"));
+    }
+    if (displayMode.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program visibility option must be selected"));
+    }
+    if (adminDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program note is required"));
+    }
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);

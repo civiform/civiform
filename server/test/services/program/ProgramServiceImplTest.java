@@ -142,10 +142,10 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsExactly(
-            CiviFormError.of("program admin name cannot be blank"),
-            CiviFormError.of("program admin description cannot be blank"),
-            CiviFormError.of("program display name cannot be blank"),
-            CiviFormError.of("program display description cannot be blank"));
+            CiviFormError.of("A public display name for the program is required"),
+            CiviFormError.of("A public description for the program is required"),
+            CiviFormError.of("A program URL is required"),
+            CiviFormError.of("A program note is required"));
   }
 
   @Test
@@ -156,7 +156,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsExactly(CiviFormError.of("program display mode cannot be blank"));
+        .containsExactly(CiviFormError.of("A program visibility option must be selected"));
   }
 
   @Test
@@ -290,9 +290,9 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsOnly(
-            CiviFormError.of("program admin description cannot be blank"),
-            CiviFormError.of("program display name cannot be blank"),
-            CiviFormError.of("program display description cannot be blank"));
+            CiviFormError.of("A public display name for the program is required"),
+            CiviFormError.of("A public description for the program is required"),
+            CiviFormError.of("A program note is required"));
   }
 
   @Test

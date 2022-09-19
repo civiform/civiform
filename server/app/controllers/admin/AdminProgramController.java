@@ -107,13 +107,9 @@ public final class AdminProgramController extends CiviFormController {
 
   /** Return a HTML page containing a form to edit a draft program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Request request, long id) {
-    try {
-      ProgramDefinition program = programService.getProgramDefinition(id);
-      return ok(editView.render(request, program));
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
-    }
+  public Result edit(Request request, long id) throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getProgramDefinition(id);
+    return ok(editView.render(request, program));
   }
 
   /** POST endpoint for publishing all programs in the draft version. */
@@ -156,28 +152,25 @@ public final class AdminProgramController extends CiviFormController {
 
   /** POST endpoint for updating the program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Request request, long programId) {
+  public Result update(Request request, long programId) throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
+    ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
 
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
-    ProgramForm program = programForm.bindFromRequest(request).get();
-    try {
-      ErrorAnd<ProgramDefinition, CiviFormError> result =
-          programService.updateProgramDefinition(
-              programId,
-              LocalizedStrings.DEFAULT_LOCALE,
-              program.getAdminDescription(),
-              program.getLocalizedDisplayName(),
-              program.getLocalizedDisplayDescription(),
-              program.getExternalLink(),
-              program.getDisplayMode());
-      if (result.isError()) {
-        ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
-        return ok(editView.render(request, programId, program, Optional.of(message)));
-      }
-      return redirect(routes.AdminProgramController.index().url());
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
+    ProgramForm programData = programForm.bindFromRequest(request).get();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        programService.updateProgramDefinition(
+            programDefinition.id(),
+            LocalizedStrings.DEFAULT_LOCALE,
+            programData.getAdminDescription(),
+            programData.getLocalizedDisplayName(),
+            programData.getLocalizedDisplayDescription(),
+            programData.getExternalLink(),
+            programData.getDisplayMode());
+    if (result.isError()) {
+      ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      return ok(editView.render(request, programDefinition, programData, Optional.of(message)));
     }
+    return redirect(routes.AdminProgramController.index().url());
   }
 }
