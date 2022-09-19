@@ -11,6 +11,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
@@ -94,10 +95,7 @@ public final class ProgramCardFactory {
                     Styles.LINE_CLAMP_3,
                     Styles.TEXT_GRAY_700,
                     Styles.TEXT_BASE)
-                .with(span("Admin note: ").withClasses(Styles.FONT_SEMIBOLD), span(adminNoteText)))
-        // Add data attributes used for client-side sorting.
-        .withData("last-updated-millis", Long.toString(extractLastUpdated(cardData).toEpochMilli()))
-        .withData("name", programTitleText);
+                .with(span("Admin note: ").withClasses(Styles.FONT_SEMIBOLD), span(adminNoteText)));
   }
 
   private DivTag renderProgramRow(
@@ -185,25 +183,20 @@ public final class ProgramCardFactory {
                                 .with(programRow.extraRowActions()))));
   }
 
-  private ProgramDefinition getDisplayProgram(ProgramCardData cardData) {
+  private static ProgramDefinition getDisplayProgram(ProgramCardData cardData) {
     if (cardData.draftProgram().isPresent()) {
       return cardData.draftProgram().get().program();
     }
     return cardData.activeProgram().get().program();
   }
 
-  private static Instant extractLastUpdated(ProgramCardData cardData) {
-    // Prefer when the draft was last updated, since active versions should be immutable after
-    // being published.
-    if (cardData.draftProgram().isEmpty() && cardData.activeProgram().isEmpty()) {
-      throw new IllegalArgumentException("Program neither active nor draft.");
-    }
-
-    ProgramDefinition program =
-        cardData.draftProgram().isPresent()
-            ? cardData.draftProgram().get().program()
-            : cardData.activeProgram().get().program();
-    return program.lastModifiedTime().orElse(Instant.EPOCH);
+  public static Comparator<ProgramCardData> lastModifiedTimeThenNameComparator() {
+    Comparator<ProgramCardData> c =
+        Comparator.<ProgramCardData, Instant>comparing(
+                cardData -> getDisplayProgram(cardData).lastModifiedTime().orElse(Instant.EPOCH))
+            .reversed();
+    return c.thenComparing(
+        cardData -> getDisplayProgram(cardData).localizedName().getDefault().toLowerCase());
   }
 
   @AutoValue
