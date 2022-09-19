@@ -495,7 +495,7 @@ public class FieldWithLabel {
     }
     ImmutableList<String> ariaIds = ariaDescribedByBuilder.build();
 
-    fieldTag.condAttr(!ariaIds.isEmpty(), "aria-describedBy", StringUtils.join(ariaIds, " "));
+    fieldTag.condAttr(!ariaIds.isEmpty(), "aria-describedby", StringUtils.join(ariaIds, " "));
     fieldTag.condAttr(
         shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
 
