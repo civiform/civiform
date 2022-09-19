@@ -12,7 +12,7 @@ import {
 } from './support'
 
 describe('End to end enumerator test', () => {
-  const programName = 'ete enumerator program'
+  const programName = 'ete-enumerator-program'
   const ctx = createTestContext(/* clearDb= */ false)
 
   it('Updates enumerator elements in preview', async () => {

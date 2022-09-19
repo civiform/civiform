@@ -24,7 +24,7 @@ describe('navigating to a deep link', () => {
       questionText,
     })
 
-    const programName = 'Test Deep Link'
+    const programName = 'test-deep-link'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'first description', [
       'Test address question',

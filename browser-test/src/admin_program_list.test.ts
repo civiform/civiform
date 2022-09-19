@@ -7,8 +7,8 @@ describe('Most recently updated program is at top of list.', () => {
 
     await loginAsAdmin(page)
 
-    const programOne = 'list test program one'
-    const programTwo = 'list test program two'
+    const programOne = 'list-test-program-one'
+    const programTwo = 'list-test-program-two'
     await adminPrograms.addProgram(programOne)
     await adminPrograms.addProgram(programTwo)
 
@@ -25,7 +25,7 @@ describe('Most recently updated program is at top of list.', () => {
     await expectProgramListElements(adminPrograms, [programOne, programTwo])
 
     // Now create a new program, which should be on top.
-    const programThree = 'list test program three'
+    const programThree = 'list-test-program-three'
     await adminPrograms.addProgram(programThree)
     await expectProgramListElements(adminPrograms, [
       programThree,
