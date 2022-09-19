@@ -7,8 +7,8 @@ describe('Most recently updated program is at top of list.', () => {
 
     await loginAsAdmin(page)
 
-    const programOne = 'list test program one'
-    const programTwo = 'list test program two'
+    const programOne = 'list-test-program-one'
+    const programTwo = 'list-test-program-two'
     await adminPrograms.addProgram(programOne)
     await adminPrograms.addProgram(programTwo)
 
