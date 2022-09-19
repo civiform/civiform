@@ -8,7 +8,7 @@ describe('deleting question lifecycle', () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    const programName = 'deleting program'
+    const programName = 'deleting-program'
     const onlyUsedQuestion = 'delete-address'
     await adminQuestions.addQuestionForType(
       QuestionType.ADDRESS,

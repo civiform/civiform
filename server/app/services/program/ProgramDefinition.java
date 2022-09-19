@@ -3,6 +3,7 @@ package services.program;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -337,6 +338,15 @@ public abstract class ProgramDefinition {
     return (0 <= index && index < getBlockCount())
         ? Optional.of(blockDefinitions().get(index))
         : Optional.empty();
+  }
+
+  /**
+   * Visible since the /dev/seed view uses Jackson's ObjectMapper to only have keys for explicit
+   * getters.
+   */
+  @VisibleForTesting
+  public String getAdminNameForTests() {
+    return adminName();
   }
 
   /**
