@@ -124,5 +124,7 @@ public final class ReferenceClasses {
   public static final String MODAL = "cf-modal";
   public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
+  // This class marks fields that contain dates. It is used by browser tests
+  // to replace content with static date when taking screenshot.
   public static final String DATE_FIELD_BROWSER_TEST = "cf-bt-date";
 }
