@@ -143,13 +143,7 @@ link.externalLink=외부 사이트
 title.programs=프로그램 및 서비스
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=계속
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=진행 중
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=새로운 프로그램
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=시작 안 함

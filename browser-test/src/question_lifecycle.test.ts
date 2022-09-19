@@ -59,7 +59,7 @@ describe('normal question lifecycle', () => {
 
       await adminQuestions.updateQuestion(questionName)
 
-      const programName = `program for ${type} question lifecycle`
+      const programName = `program-for-${type}-question-lifecycle`
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(
         programName,
@@ -244,7 +244,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.addNameQuestion({questionName: 'name-q'})
 
-    const programName = 'test program'
+    const programName = 'test-program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishProgram(programName)
 
