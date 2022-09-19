@@ -359,9 +359,9 @@ export class AdminQuestions {
 
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit')
-    expect(
-      await this.page.getAttribute('input#question-name-input', 'value'),
-    ).toEqual(questionName)
+    expect(await this.page.innerText('#question-name-input')).toEqual(
+      questionName,
+    )
   }
 
   async expectQuestionTranslationPage(questionName: string) {

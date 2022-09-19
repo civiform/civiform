@@ -504,7 +504,7 @@ public final class QuestionEditView extends BaseHtmlView {
           .with(
               p("Administrative identifier. This value can't be changed")
                   .withClasses(BaseStyles.INPUT_LABEL),
-              p(adminName).withClasses(BaseStyles.FORM_FIELD),
+              p(adminName).withId("question-name-input").withClasses(BaseStyles.FORM_FIELD),
               input().isHidden().withName(QUESTION_NAME_FIELD).withValue(adminName));
     }
     return FieldWithLabel.input()
