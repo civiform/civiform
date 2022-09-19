@@ -194,39 +194,54 @@ export class AdminQuestions {
     expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
 
-  async expectProgramReferencesModalContains({
-    questionName,
-    expectedDraftProgramReferences,
-    expectedActiveProgramReferences,
-  }: {
-    questionName: string
-    expectedDraftProgramReferences: string[]
-    expectedActiveProgramReferences: string[]
-  }) {
+  async clickOnProgramReferencesModal(questionName: string) {
     await this.page.click(
       this.selectProgramReferencesFromRow(questionName) + ' a',
     )
 
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain(
-      `Programs including ${questionName}`,
+      `Programs referencing ${questionName}`,
     )
+    return modal
+  }
 
-    const draftReferences = await modal.$$(
-      '.cf-admin-question-program-reference-counts-draft li',
-    )
-    const draftReferenceNames = await Promise.all(
-      draftReferences.map((reference) => reference.innerText()),
-    )
-    expect(draftReferenceNames).toEqual(expectedDraftProgramReferences)
+  async expectProgramReferencesModalContains({
+    questionName,
+    expectedUsedProgramReferences,
+    expectedAddedProgramReferences,
+    expectedRemovedProgramReferences,
+  }: {
+    questionName: string
+    expectedUsedProgramReferences: string[]
+    expectedAddedProgramReferences: string[]
+    expectedRemovedProgramReferences: string[]
+  }) {
+    const modal = await this.clickOnProgramReferencesModal(questionName)
 
-    const activeReferences = await modal.$$(
-      '.cf-admin-question-program-reference-counts-active li',
+    const usedReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-used li',
     )
-    const activeReferenceNames = await Promise.all(
-      activeReferences.map((reference) => reference.innerText()),
+    const usedReferenceNames = await Promise.all(
+      usedReferences.map((reference) => reference.innerText()),
     )
-    expect(activeReferenceNames).toEqual(expectedActiveProgramReferences)
+    expect(usedReferenceNames).toEqual(expectedUsedProgramReferences)
+
+    const addedReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-added li',
+    )
+    const addedReferenceNames = await Promise.all(
+      addedReferences.map((reference) => reference.innerText()),
+    )
+    expect(addedReferenceNames).toEqual(expectedAddedProgramReferences)
+
+    const removedReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-removed li',
+    )
+    const removedReferenceNames = await Promise.all(
+      removedReferences.map((reference) => reference.innerText()),
+    )
+    expect(removedReferenceNames).toEqual(expectedRemovedProgramReferences)
 
     await dismissModal(this.page)
   }
@@ -305,7 +320,7 @@ export class AdminQuestions {
     if (expectModal) {
       const modal = await waitForAnyModal(this.page)
       expect(await modal.innerText()).toContain(
-        'This question cannot be archived since there are still programs referencing it',
+        'This question cannot be archived since there are still programs using it',
       )
       await dismissModal(this.page)
     } else {
