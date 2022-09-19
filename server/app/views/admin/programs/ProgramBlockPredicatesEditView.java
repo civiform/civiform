@@ -181,6 +181,10 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
       InputTag csrfTag) {
+    String questionHelpText =
+        questionDefinition.getQuestionHelpText().isEmpty()
+            ? ""
+            : questionDefinition.getQuestionHelpText().getDefault();
     ButtonTag triggerButtonContent =
         TagCreator.button()
             .with(
@@ -193,9 +197,8 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                         div()
                             .withClasses()
                             .with(
-                                div(questionDefinition.getName()),
-                                div(questionDefinition.getDescription())
-                                    .withClasses(Styles.MT_1, Styles.TEXT_SM))));
+                                div(questionDefinition.getQuestionText().getDefault()),
+                                div(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM))));
 
     DivTag modalContent =
         div()
@@ -244,6 +247,10 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   }
 
   private DivTag renderQuestionDefinitionBox(QuestionDefinition questionDefinition) {
+    String questionHelpText =
+        questionDefinition.getQuestionHelpText().isEmpty()
+            ? ""
+            : questionDefinition.getQuestionHelpText().getDefault();
     return div()
         .withClasses(
             Styles.FLEX,
@@ -261,9 +268,8 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             div()
                 .withClasses()
                 .with(
-                    div(questionDefinition.getName()),
-                    div(questionDefinition.getDescription())
-                        .withClasses(Styles.MT_1, Styles.TEXT_SM)));
+                    div(questionDefinition.getQuestionText().getDefault()),
+                    div(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM)));
   }
 
   private DivTag createActionDropdown(String blockName) {
