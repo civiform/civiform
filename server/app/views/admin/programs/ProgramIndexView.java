@@ -85,12 +85,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.PX_4)
             .with(
                 div()
-                    .withClasses(
-                        Styles.FLEX,
-                        Styles.ITEMS_CENTER,
-                        Styles.SPACE_X_4,
-                        Styles.MT_12,
-                        Styles.MB_10)
+                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)
                     .with(
                         h1(pageTitle),
                         div().withClass(Styles.FLEX_GROW),
@@ -100,18 +95,24 @@ public final class ProgramIndexView extends BaseHtmlView {
                         renderNewProgramButton(),
                         maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
                 div()
-                    .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
+                    .withClasses(Styles.MT_10, Styles.FLEX)
                     .with(
-                        p("Loading")
-                            .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER),
+                        div().withClass(Styles.FLEX_GROW),
+                        p("Sorting my most recently updated").withClass(Styles.TEXT_SM)),
+                div()
+                    .withClass(Styles.MT_6)
+                    .with(
                         each(
-                            programs.getProgramNames(),
-                            name ->
-                                this.renderProgramListItem(
-                                    programs.getActiveProgramDefinition(name),
-                                    programs.getDraftProgramDefinition(name),
-                                    request,
-                                    profile))));
+                            programs.getProgramNames().stream()
+                                .map(
+                                    name ->
+                                        this.buildProgramCardData(
+                                            programs.getActiveProgramDefinition(name),
+                                            programs.getDraftProgramDefinition(name),
+                                            request,
+                                            profile))
+                                .sorted(ProgramCardFactory.lastModifiedTimeThenNameComparator())
+                                .map(programCardFactory::renderCard))));
 
     HtmlBundle htmlBundle =
         layout
@@ -259,7 +260,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectElement(button, link);
   }
 
-  private DivTag renderProgramListItem(
+  private ProgramCardFactory.ProgramCardData buildProgramCardData(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
@@ -309,11 +310,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .build());
     }
 
-    return programCardFactory.renderCard(
-        ProgramCardFactory.ProgramCardData.builder()
-            .setActiveProgram(activeRow)
-            .setDraftProgram(draftRow)
-            .build());
+    return ProgramCardFactory.ProgramCardData.builder()
+        .setActiveProgram(activeRow)
+        .setDraftProgram(draftRow)
+        .build();
   }
 
   ButtonTag renderShareLink(ProgramDefinition program) {
