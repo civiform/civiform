@@ -130,7 +130,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         // Composite questions should be rendered with fieldset and legend for screen reader users.
         questionTag =
             fieldset()
-                .attr("aria-describedBy", StringUtils.join(ariaDescribedByIds, " "))
+                .attr("aria-describedby", StringUtils.join(ariaDescribedByIds, " "))
                 .with(
                     // Legend must be a direct child of fieldset for screen readers to work
                     // properly.

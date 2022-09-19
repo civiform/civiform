@@ -91,7 +91,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
                 .render()
                 .matches(
                     ".*input type=\"text\" value=\"\""
-                        + " aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+                        + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
   }
 }
