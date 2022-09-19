@@ -60,7 +60,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
             .condAttr(hasErrors, "aria-invalid", "true")
             .condAttr(
                 !ariaDescribedByIds.isEmpty(),
-                "aria-describedBy",
+                "aria-describedby",
                 StringUtils.join(ariaDescribedByIds, " "))
             .withType("file")
             .withName("file")
