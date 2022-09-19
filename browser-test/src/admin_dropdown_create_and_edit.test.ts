@@ -25,10 +25,13 @@ describe('create dropdown question with options', () => {
 
     // Fill in basic info
     const questionName = 'favorite ice cream'
-    await page.fill('text="Administrative name*"', questionName)
-    await page.fill('text=Description', 'description')
     await page.fill('text=Question Text', 'questionText')
     await page.fill('text=Question help text', 'helpText')
+    await page.fill('text=Administrative identifier"', questionName)
+    await page.fill(
+      'text=Question note for administrative use only',
+      'description',
+    )
 
     // Add three options
     await page.click('#add-new-option')

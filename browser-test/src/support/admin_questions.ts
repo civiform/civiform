@@ -112,10 +112,16 @@ export class AdminQuestions {
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
-    await this.page.fill('label:has-text("Name")', questionName)
-    await this.page.fill('label:has-text("Description")', description ?? '')
     await this.page.fill('label:has-text("Question Text")', questionText ?? '')
     await this.page.fill('label:has-text("Question help text")', helpText ?? '')
+    await this.page.fill(
+      'label:has-text("Administrative identifier")',
+      questionName,
+    )
+    await this.page.fill(
+      'label:has-text("Question note for administrative use only")',
+      description ?? '',
+    )
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })
@@ -774,9 +780,15 @@ export class AdminQuestions {
     await this.page.click('#create-static-question')
     await waitForPageJsLoad(this.page)
 
-    await this.page.fill('label:has-text("Name")', questionName)
-    await this.page.fill('label:has-text("Description")', description)
     await this.page.fill('label:has-text("Question Text")', questionText)
+    await this.page.fill(
+      'label:has-text("Administrative identifier")',
+      questionName,
+    )
+    await this.page.fill(
+      'label:has-text("Question note for administrative use only")',
+      description,
+    )
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })
