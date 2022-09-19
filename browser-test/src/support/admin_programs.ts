@@ -92,12 +92,19 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
-  questionCardSelector(questionName: string) {
+  // Question card within a program edit page
+  questionCardSelectorInProgramEditor(questionName: string) {
     return `.cf-program-question:has(:text("${questionName}"))`
   }
 
-  withinQuestionCardSelector(questionName: string, selector: string) {
-    return this.questionCardSelector(questionName) + ' ' + selector
+  // Question card within a program edit page
+  withinQuestionCardSelectorInProgramEditor(
+    questionName: string,
+    selector: string,
+  ) {
+    return (
+      this.questionCardSelectorInProgramEditor(questionName) + ' ' + selector
+    )
   }
 
   programCardSelector(programName: string, lifecycle: string) {
@@ -280,7 +287,10 @@ export class AdminPrograms {
 
     for (const questionName of questionNames) {
       await this.page.click(
-        this.withinQuestionCardSelector(questionName, 'button:text("DELETE")'),
+        this.withinQuestionCardSelectorInProgramEditor(
+          questionName,
+          'button:text("DELETE")',
+        ),
       )
     }
   }

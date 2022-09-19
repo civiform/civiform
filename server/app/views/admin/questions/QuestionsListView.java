@@ -487,7 +487,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // TODO(#3162): Add ability to view a published program. Then add
     // links to the specific block that references the question.
     return div()
-        .with(p(title).withClass(Styles.FONT_MEDIUM))
+        .with(p(title).withClass(Styles.FONT_SEMIBOLD))
         .with(
             div()
                 .with(
