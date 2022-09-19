@@ -204,7 +204,7 @@ public class RoleServiceTest extends ResetPostgres {
     Program program = ProgramBuilder.newDraftProgram(programName).build();
 
     Config config =
-        ConfigFactory.parseMap(ImmutableMap.of("allow_global_admin_acccess_programs", "false"));
+        ConfigFactory.parseMap(ImmutableMap.of("allow_civiform_admin_acccess_programs", "false"));
 
     RoleService serviceWithGlobalAdminDisabled =
         new RoleService(instanceOf(ProgramService.class), instanceOf(UserRepository.class), config);
@@ -233,7 +233,7 @@ public class RoleServiceTest extends ResetPostgres {
     Program program = ProgramBuilder.newDraftProgram(programName).build();
 
     Config config =
-        ConfigFactory.parseMap(ImmutableMap.of("allow_global_admin_acccess_programs", "true"));
+        ConfigFactory.parseMap(ImmutableMap.of("allow_civiform_admin_acccess_programs", "true"));
 
     RoleService serviceWithGlobalAdminEnabled =
         new RoleService(instanceOf(ProgramService.class), instanceOf(UserRepository.class), config);
