@@ -82,7 +82,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(1, ".radio.selection", "winter");
 
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationFour, 0);
-    resultAsserter.assertNullValueAtPath(0,".status");
+    resultAsserter.assertNullValueAtPath(0, ".status");
     resultAsserter.assertValueAtPath(0, ".applicant_name.first_name", "Bob");
     resultAsserter.assertNullValueAtPath(0, ".applicant_name.middle_name");
     resultAsserter.assertValueAtPath(0, ".applicant_name.last_name", "Baker");
