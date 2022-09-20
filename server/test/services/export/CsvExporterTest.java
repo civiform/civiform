@@ -26,20 +26,9 @@ public class CsvExporterTest extends AbstractExporterTest {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
   }
 
-  @Override
-  protected void createFakeProgram() {
-    // ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
-
-    createFakeQuestions();
-    super.createFakeProgram();
-    // fakeQuestions.forEach(
-    //    question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
-
-    // this.fakeProgram = fakeProgram.build();
-  }
-
   @Test
-  public void programCsv_noRepeatedEnties() throws Exception {
+  public void programCsv_noRepeatedEntities() throws Exception {
+    createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
 
@@ -105,6 +94,7 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Test
   public void programCsv_noEntities() throws Exception {
+    createFakeQuestions();
     createFakeProgram();
 
     ExporterService exporterService = instanceOf(ExporterService.class);
@@ -126,6 +116,7 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Test
   public void demographicsCsv_withRepeatedEntities() throws Exception {
+    createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
     createFakeProgramWithEnumerator();
@@ -163,6 +154,7 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Test
   public void programCsv_withRepeatedEntities() throws Exception {
+    createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
     createFakeProgramWithEnumerator();
