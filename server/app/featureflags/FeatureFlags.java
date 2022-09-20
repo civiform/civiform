@@ -20,6 +20,8 @@ public final class FeatureFlags {
   private static final String FEATURE_FLAG_OVERRIDES_ENABLED = "feature_flag_overrides_enabled";
   public static final String APPLICATION_STATUS_TRACKING_ENABLED =
       "application_status_tracking_enabled";
+  public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
+      "allow_civiform_admin_access_programs";
   private final Config config;
 
   @Inject
@@ -35,6 +37,10 @@ public final class FeatureFlags {
   /** If the Status Tracking feature is enabled. */
   public boolean isStatusTrackingEnabled(Request request) {
     return getFlagEnabled(request, APPLICATION_STATUS_TRACKING_ENABLED);
+  }
+
+  public boolean allowCiviformAdminAccessPrograms(Request request) {
+    return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
 
   /**

@@ -20,6 +20,8 @@ public class FeatureFlagsTest {
               "feature_flag_overrides_enabled",
               "true",
               FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
+              "true",
+              FeatureFlags.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
               "true"));
   private static final Config featuresEnabledConfig =
       ConfigFactory.parseMap(
@@ -79,5 +81,11 @@ public class FeatureFlagsTest {
       isStatusTrackingEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideTrue_isTrue() {
     FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
     assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesEnabledRequest)).isTrue();
+  }
+
+  @Test
+  public void allowCiviformAdminAccessPrograms_isTrue() {
+    FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
+    assertThat(featureFlags.allowCiviformAdminAccessPrograms(fakeRequest().build())).isTrue();
   }
 }
