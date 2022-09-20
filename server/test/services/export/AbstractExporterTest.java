@@ -152,6 +152,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         applicationOne,
         StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
         admin);
+    applicationOne.refresh();
 
     applicationTwo =
         new Application(applicantOne, fakeProgram, LifecycleStage.OBSOLETE).setSubmitTimeToNow();
@@ -160,6 +161,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         applicationTwo,
         StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
         admin);
+    applicationTwo.refresh();
 
     applicationThree =
         new Application(applicantOne, fakeProgram, LifecycleStage.DRAFT).setSubmitTimeToNow();
@@ -168,6 +170,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         applicationThree,
         StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
         admin);
+    applicationThree.refresh();
 
     applicationFour =
         new Application(applicantTwo, fakeProgram, LifecycleStage.ACTIVE).setSubmitTimeToNow();
