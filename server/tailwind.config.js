@@ -8,11 +8,6 @@ module.exports = {
     // Override tailwind's default extractor in order to include style prefixes
     // since we generate those dynamically. See:
     //  https://tailwindcss.com/docs/content-configuration#customizing-extraction-logic
-    //
-    // However, this results in a very large 3.1MB CSS file so we'll need to convert to
-    // style literals to use the default extractor (as a separate PR) before this gets
-    // pushed to prod. See:
-    //  https://github.com/civiform/civiform/pull/2630
     extract: {
       java: (content) => {
         const output = []
