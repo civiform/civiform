@@ -348,6 +348,10 @@ public final class ExporterService {
         Column.builder().setHeader("Create time").setColumnType(ColumnType.CREATE_TIME).build());
     columnsBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+    if (featureFlags.isStatusTrackingEnabled()) {
+      columnsBuilder.add(
+          Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
+    }
 
     for (QuestionTag tagType :
         ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {

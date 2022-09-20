@@ -74,7 +74,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Bob");
     assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Appleton");
     assertThat(records.get(0).get("Status")).isEqualTo("");
-    assertThat(records.get(1).get("Status")).isEqualTo(STATUS_TEXT);
+    assertThat(records.get(1).get("Status")).isEqualTo(STATUS_VALUE);
     // Check list for multiselect in default locale
     Question checkboxQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
@@ -134,7 +134,8 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Submitter Email (Opaque)",
             "TI Organization",
             "Create time",
-            "Submit time");
+            "Submit time",
+            "Status");
   }
 
   @Test
@@ -150,7 +151,8 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Submitter Email (Opaque)",
             "TI Organization",
             "Create time",
-            "Submit time");
+            "Submit time",
+            "Status");
     assertThat(parser.getRecords()).hasSize(0);
   }
 
