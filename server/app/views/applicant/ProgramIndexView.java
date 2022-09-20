@@ -9,6 +9,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
@@ -20,6 +21,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.ImgTag;
+import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -281,8 +283,13 @@ public final class ProgramIndexView extends BaseHtmlView {
     DivTag programData =
         div()
             .withId(baseId + "-data")
-            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
-            .with(title, description);
+            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO);
+    if (cardData.latestSubmittedApplicationStatus().isPresent()) {
+      programData.with(
+          programCardApplicationStatus(
+              preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
+    }
+    programData.with(title, description);
 
     // Add info link.
     String infoUrl =
@@ -325,11 +332,6 @@ public final class ProgramIndexView extends BaseHtmlView {
       programData.with(externalLink);
     }
 
-    if (cardData.latestSubmittedApplicationStatus().isPresent()) {
-      programData.with(
-          programCardApplicationStatus(
-              preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
-    }
     if (cardData.latestSubmittedApplicationTime().isPresent()) {
       programData.with(
           programCardSubmittedDate(messages, cardData.latestSubmittedApplicationTime().get()));
@@ -377,13 +379,13 @@ public final class ProgramIndexView extends BaseHtmlView {
         .with(actionDiv);
   }
 
-  private DivTag programCardApplicationStatus(
+  private PTag programCardApplicationStatus(
       Locale preferredLocale, StatusDefinitions.Status status) {
-    return div()
+    return p().withClasses(
+            Styles.BORDER, Styles.ROUNDED_LG, Styles.P_2, Styles.MB_4, Styles.BG_BLUE_100)
         .with(
             span(status.localizedStatusText().getOrDefault(preferredLocale))
-                .withClasses(
-                    Styles.TEXT_XS, Styles.BORDER, Styles.ROUNDED_LG, Styles.PX_2, Styles.PY_1));
+                .withClasses(Styles.TEXT_XS, Styles.FONT_MEDIUM));
   }
 
   private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate) {
