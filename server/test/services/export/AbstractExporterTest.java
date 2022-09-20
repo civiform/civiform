@@ -30,7 +30,7 @@ import support.QuestionAnswerer;
  * applications.
  */
 public abstract class AbstractExporterTest extends ResetPostgres {
-  public static final String STATUS_TEXT = "approved";
+  public static final String STATUS_VALUE = "approved";
   private ProgramAdminApplicationService programAdminApplicationService;
 
   protected Program fakeProgramWithEnumerator;
@@ -127,8 +127,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   /**
    * Setup application 1-4.
    *
-   * 1-3 have the same user with each of the three possible states, each with
-   * Status approved. 4 is a different user in Active state.
+   * <p>1-3 have the same user with each of the three possible states, each with Status approved. 4
+   * is a different user in Active state.
    */
   protected void createFakeApplications() throws Exception {
     Account admin = resourceCreator.insertAccount();
@@ -150,7 +150,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationOne.save();
     programAdminApplicationService.setStatus(
         applicationOne,
-        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_TEXT).build(),
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
         admin);
 
     applicationTwo =
@@ -158,7 +158,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationTwo.save();
     programAdminApplicationService.setStatus(
         applicationTwo,
-        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_TEXT).build(),
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
         admin);
 
     applicationThree =
@@ -166,7 +166,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationThree.save();
     programAdminApplicationService.setStatus(
         applicationThree,
-        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_TEXT).build(),
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
         admin);
 
     applicationFour =
@@ -191,10 +191,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .setStatuses(
                 ImmutableList.of(
                     Status.builder()
-                        .setStatusText(STATUS_TEXT)
+                        .setStatusText(STATUS_VALUE)
                         .setLocalizedStatusText(
                             LocalizedStrings.builder()
-                                .setTranslations(ImmutableMap.of(Locale.ENGLISH, STATUS_TEXT))
+                                .setTranslations(ImmutableMap.of(Locale.ENGLISH, STATUS_VALUE))
                                 .build())
                         .build())));
 
