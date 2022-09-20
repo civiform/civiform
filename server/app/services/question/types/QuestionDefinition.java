@@ -223,14 +223,14 @@ public abstract class QuestionDefinition {
   /** Validate that all required fields are present and valid for the question. */
   public final ImmutableSet<CiviFormError> validate() {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
-    if (name.isBlank()) {
-      errors.add(CiviFormError.of("Name cannot be blank"));
-    }
     if (questionText.isEmpty()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
     if (questionText.hasEmptyTranslation()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
+    }
+    if (name.isBlank()) {
+      errors.add(CiviFormError.of("Administrative identifier cannot be blank"));
     }
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =

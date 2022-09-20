@@ -327,7 +327,7 @@ public class QuestionDefinitionTest {
             "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
     assertThat(question.validate())
         .containsOnly(
-            CiviFormError.of("Name cannot be blank"),
+            CiviFormError.of("Administrative identifier cannot be blank"),
             CiviFormError.of("Question text cannot be blank"));
   }
 
