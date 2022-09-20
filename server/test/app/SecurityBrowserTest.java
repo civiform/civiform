@@ -7,6 +7,7 @@ import auth.Roles;
 import com.google.common.collect.ImmutableMap;
 import controllers.routes;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,9 +15,18 @@ import play.Application;
 import repository.UserRepository;
 import services.WellKnownPaths;
 import support.CfTestHelpers;
+import org.fluentlenium.core.domain.FluentWebElement;
+import org.fluentlenium.core.wait.FluentWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.By;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SecurityBrowserTest extends BaseBrowserTest {
   private static UserRepository userRepository;
+  private static final Logger logger = LoggerFactory.getLogger(SecurityBrowserTest.class);
 
   @Override
   protected Application provideApplication() {
@@ -98,10 +108,8 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("OidcClient");
     assertThat(browser.pageSource()).contains("username@example.com");
 
-    Applicant applicant =
-        userRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
-    Optional<String> applicantName =
-        applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
+    Applicant applicant = userRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
+    Optional<String> applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
     assertThat(applicantName).isPresent();
     assertThat(applicantName.get()).isEqualTo("username@example.com");
 
@@ -118,16 +126,31 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("You are logged in.");
     logout();
     assertThat(browser.url())
-        .contains("logout?returnToURL=http%3A%2F%2Flocalhost%3A19001%2F&clientId=foo")
+        .contains("session/end?returnToURL=http%3A%2F%2Flocalhost%3A19001%2F&clientId=foo")
         .as("redirects to login provider");
+    assertThat(browser.pageSource().contains("Do you want to sign-out from")).as("Confirm logout from dev-oidc");
+    FluentWebElement continueButton = browser.$("button").first();
+    assertThat(continueButton.textContent()).contains("Yes");
+    continueButton.click();
+    // assertThat(browser.url())
+        // .contains("/session/end/success");
+    browser.waitUntil((WebDriver d) -> {
+      logger.warn("url " + d.getCurrentUrl());
+      logger.warn("d " + d.toString());
+      return d.getCurrentUrl().contains("/loginForm");
+      });
+    assertThat(browser.url())
+        .contains("/loginForm");
+
+    // Log in.
     goTo(routes.HomeController.index());
     assertThat(browser.pageSource()).contains("Don't have an account?");
     goTo(routes.LoginController.applicantLogin(Optional.empty()));
     // Verify we don't auto-login.
     assertThat(browser.pageSource())
-        .contains("the client is asking you to confirm previously given authorization");
-  }
+        .contains("Enter any login");
 
+  }
   @Test
   public void mergeLogins() {
     // First, log in as guest and get the applicant ID.
