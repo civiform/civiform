@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public class PdfExporterTest extends AbstractExporterTest {
   @Before
-  public void createTestData() {
+  public void createTestData() throws Exception {
     createFakeQuestions();
     createFakeProgram();
     createFakeApplications();

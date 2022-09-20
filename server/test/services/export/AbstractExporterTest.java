@@ -5,15 +5,19 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
+import models.Account;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
+import org.junit.Before;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.application.ApplicationEventDetails.StatusEvent;
+import services.applications.ProgramAdminApplicationService;
 import services.program.StatusDefinitions;
 import services.program.StatusDefinitions.Status;
 import services.question.types.QuestionType;
@@ -26,6 +30,9 @@ import support.QuestionAnswerer;
  * applications.
  */
 public abstract class AbstractExporterTest extends ResetPostgres {
+  public static final String STATUS_TEXT = "approved";
+  private ProgramAdminApplicationService programAdminApplicationService;
+
   protected Program fakeProgramWithEnumerator;
   protected Program fakeProgramWithOptionalFileUpload;
   protected Program fakeProgram;
@@ -40,6 +47,11 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected Application applicationFour;
   protected Application applicationFive;
   protected Application applicationSix;
+
+  @Before
+  public void setup() {
+    programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
+  }
 
   protected void answerQuestion(
       QuestionType questionType,
@@ -112,7 +124,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     }
   }
 
-  protected void createFakeApplications() {
+  /**
+   * Setup application 1-4.
+   *
+   * 1-3 have the same user with each of the three possible states, each with
+   * Status approved. 4 is a different user in Active state.
+   */
+  protected void createFakeApplications() throws Exception {
+    Account admin = resourceCreator.insertAccount();
     Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
     Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
@@ -129,14 +148,26 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationOne =
         new Application(applicantOne, fakeProgram, LifecycleStage.ACTIVE).setSubmitTimeToNow();
     applicationOne.save();
+    programAdminApplicationService.setStatus(
+        applicationOne,
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_TEXT).build(),
+        admin);
 
     applicationTwo =
         new Application(applicantOne, fakeProgram, LifecycleStage.OBSOLETE).setSubmitTimeToNow();
     applicationTwo.save();
+    programAdminApplicationService.setStatus(
+        applicationTwo,
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_TEXT).build(),
+        admin);
 
     applicationThree =
         new Application(applicantOne, fakeProgram, LifecycleStage.DRAFT).setSubmitTimeToNow();
     applicationThree.save();
+    programAdminApplicationService.setStatus(
+        applicationThree,
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_TEXT).build(),
+        admin);
 
     applicationFour =
         new Application(applicantTwo, fakeProgram, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -160,10 +191,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .setStatuses(
                 ImmutableList.of(
                     Status.builder()
-                        .setStatusText("approved")
+                        .setStatusText(STATUS_TEXT)
                         .setLocalizedStatusText(
                             LocalizedStrings.builder()
-                                .setTranslations(ImmutableMap.of(Locale.ENGLISH, "approved"))
+                                .setTranslations(ImmutableMap.of(Locale.ENGLISH, STATUS_TEXT))
                                 .build())
                         .build())));
 

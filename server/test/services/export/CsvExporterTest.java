@@ -73,6 +73,8 @@ public class CsvExporterTest extends AbstractExporterTest {
     // Applications should appear most recent first.
     assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Bob");
     assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Appleton");
+    assertThat(records.get(0).get("Status")).isEqualTo("");
+    assertThat(records.get(1).get("Status")).isEqualTo(STATUS_TEXT);
     // Check list for multiselect in default locale
     Question checkboxQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
