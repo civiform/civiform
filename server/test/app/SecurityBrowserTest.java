@@ -125,7 +125,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(continueButton.textContent()).contains("Yes");
     continueButton.click();
     assertThat(browser.url())
-        .contains("/loginForm");
+        .contains("loginForm");
 
     // Log in.
     goTo(routes.HomeController.index());
