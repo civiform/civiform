@@ -7,15 +7,14 @@ import auth.Roles;
 import com.google.common.collect.ImmutableMap;
 import controllers.routes;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import models.Applicant;
+import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
 import repository.UserRepository;
 import services.WellKnownPaths;
 import support.CfTestHelpers;
-import org.fluentlenium.core.domain.FluentWebElement;
 
 public class SecurityBrowserTest extends BaseBrowserTest {
   private static UserRepository userRepository;
@@ -100,8 +99,10 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("OidcClient");
     assertThat(browser.pageSource()).contains("username@example.com");
 
-    Applicant applicant = userRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
-    Optional<String> applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
+    Applicant applicant =
+        userRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
+    Optional<String> applicantName =
+        applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
     assertThat(applicantName).isPresent();
     assertThat(applicantName.get()).isEqualTo("username@example.com");
 
@@ -118,24 +119,24 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("You are logged in.");
     logout();
     assertThat(browser.url())
-        .contains("session/end?post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A19001%2F&client_id=foo")
+        .contains(
+            "session/end?post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A19001%2F&client_id=foo")
         .as("redirects to login provider");
-    assertThat(browser.pageSource().contains("Do you want to sign-out from")).as("Confirm logout from dev-oidc");
-    FluentWebElement continueButton = browser.$("button").first();
-    assertThat(continueButton.textContent()).contains("Yes");
+    assertThat(browser.pageSource().contains("Do you want to sign-out from"))
+        .as("Confirm logout from dev-oidc");
+    FluentWebElement continueButton = browser.$("button").last();
+    assertThat(continueButton.textContent()).contains("No");
     continueButton.click();
-    assertThat(browser.url())
-        .contains("loginForm");
+    assertThat(browser.url()).contains("loginForm");
 
     // Log in.
     goTo(routes.HomeController.index());
-    assertThat(browser.pageSource()).contains("Don't have an account?");
+    assertThat(browser.pageSource()).contains("Please log in");
     goTo(routes.LoginController.applicantLogin(Optional.empty()));
     // Verify we don't auto-login.
-    assertThat(browser.pageSource())
-        .contains("Enter any login");
-
+    assertThat(browser.pageSource()).contains("Authorize");
   }
+
   @Test
   public void mergeLogins() {
     // First, log in as guest and get the applicant ID.

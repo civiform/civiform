@@ -26,7 +26,7 @@ const configuration = {
         'http://localhost:9000/',
         'http://localhost:19001/',
         'http://civiform:9000/',
-      ]
+      ],
     },
   ],
 
@@ -58,8 +58,8 @@ const configuration = {
   features: {
     rpInitiatedLogout: {
       enabled: true,
-    }
-  }
+    },
+  },
 }
 
 const oidcPort = process.env.OIDC_PORT || 3380
