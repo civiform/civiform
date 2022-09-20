@@ -18,6 +18,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.question.QuestionService;
 import services.question.exceptions.InvalidUpdateException;
@@ -125,11 +126,11 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(Helpers.contentAsString(result))
-        .contains(appName.getQuestionDefinition().getDescription());
+        .contains(appName.getQuestionDefinition().getQuestionText().getDefault());
 
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(appName.getQuestionDefinition())
-            .setDescription("NEW DESCRIPTION")
+            .setQuestionText(LocalizedStrings.withDefaultValue("NEW QUESTION TEXT"))
             .build();
 
     questionService.update(questionDefinition);
@@ -138,8 +139,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(Helpers.contentAsString(result))
-        .doesNotContain(appName.getQuestionDefinition().getDescription());
-    assertThat(Helpers.contentAsString(result)).contains(questionDefinition.getDescription());
+        .doesNotContain(appName.getQuestionDefinition().getQuestionText().getDefault());
+    assertThat(Helpers.contentAsString(result))
+        .contains(questionDefinition.getQuestionText().getDefault());
   }
 
   @Test
