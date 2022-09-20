@@ -17,7 +17,6 @@ import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import support.ProgramBuilder;
 
 public class CsvExporterTest extends AbstractExporterTest {
 
@@ -29,13 +28,14 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Override
   protected void createFakeProgram() {
-    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
+    // ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
 
     createFakeQuestions();
-    fakeQuestions.forEach(
-        question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
+    super.createFakeProgram();
+    // fakeQuestions.forEach(
+    //    question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
 
-    this.fakeProgram = fakeProgram.build();
+    // this.fakeProgram = fakeProgram.build();
   }
 
   @Test
@@ -56,6 +56,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
+            "Status",
             "applicant email address (email)",
             "applicant name (first_name)",
             "applicant name (middle_name)",
@@ -113,10 +114,14 @@ public class CsvExporterTest extends AbstractExporterTest {
 
     assertThat(records).hasSize(0);
 
-    // No applications means there are no answers to add columns for.
     assertThat(parser.getHeaderNames())
         .containsExactly(
-            "Applicant ID", "Application ID", "Applicant language", "Submit time", "Submitted by");
+            "Applicant ID",
+            "Application ID",
+            "Applicant language",
+            "Submit time",
+            "Submitted by",
+            "Status");
   }
 
   @Test
@@ -175,6 +180,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
+            "Status",
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",

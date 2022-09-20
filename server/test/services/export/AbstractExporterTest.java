@@ -1,7 +1,9 @@
 package services.export;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
 import models.Application;
@@ -9,8 +11,11 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.program.StatusDefinitions;
+import services.program.StatusDefinitions.Status;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
@@ -150,6 +155,17 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     fakeProgram.withName("Fake Program");
     fakeQuestions.forEach(
         question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
+    fakeProgram.withStatusDefinitions(
+        new StatusDefinitions()
+            .setStatuses(
+                ImmutableList.of(
+                    Status.builder()
+                        .setStatusText("approved")
+                        .setLocalizedStatusText(
+                            LocalizedStrings.builder()
+                                .setTranslations(ImmutableMap.of(Locale.ENGLISH, "approved"))
+                                .build())
+                        .build())));
 
     this.fakeProgram = fakeProgram.build();
   }
