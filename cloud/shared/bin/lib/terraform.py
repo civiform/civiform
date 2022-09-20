@@ -58,7 +58,7 @@ def perform_apply(
 
 
 def copy_backend_override(config_loader: ConfigLoader):
-    ''' 
+    '''
     Copies the terraform backend_override to backend_override.tf (used to
     make backend local instead of a shared state for dev deploys)
     '''

@@ -51,12 +51,16 @@ locals {
 
     SECRET_KEY = data.azurerm_key_vault_secret.app_secret_key.value
 
-    AD_GROUPS_ATTRIBUTE_NAME = var.ad_groups_attribute_name
-    ADFS_SECRET              = data.azurerm_key_vault_secret.adfs_secret.value
-    ADFS_CLIENT_ID           = data.azurerm_key_vault_secret.adfs_client_id.value
-    ADFS_DISCOVERY_URI       = data.azurerm_key_vault_secret.adfs_discovery_uri.value
-    ADFS_GLOBAL_ADMIN_GROUP  = var.adfs_admin_group
-    CIVIFORM_APPLICANT_IDP   = var.civiform_applicant_idp
+    AD_GROUPS_ATTRIBUTE_NAME                  = var.ad_groups_attribute_name
+    ADFS_SECRET                               = data.azurerm_key_vault_secret.adfs_secret.value
+    ADFS_CLIENT_ID                            = data.azurerm_key_vault_secret.adfs_client_id.value
+    ADFS_DISCOVERY_URI                        = data.azurerm_key_vault_secret.adfs_discovery_uri.value
+    ADFS_GLOBAL_ADMIN_GROUP                   = var.adfs_admin_group
+    CIVIFORM_APPLICANT_IDP                    = var.civiform_applicant_idp
+    APPLICANT_OIDC_PROVIDER_LOGOUT            = var.applicant_oidc_provider_logout
+    APPLICANT_OIDC_OVERRIDE_LOGOUT_URL        = var.applicant_oidc_override_logout_url
+    APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM = var.applicant_oidc_post_logout_redirect_param
+    APPLICANT_OIDC_LOGOUT_CLIENT_PARAM        = var.applicant_oidc_logout_client_param
 
     # The values below are all defaulted to null. If SAML authentication is used, the values can be pulled from the
     # saml_keystore module
@@ -67,9 +71,9 @@ locals {
     LOGIN_RADIUS_KEYSTORE_PASS    = var.saml_keystore_password
     LOGIN_RADIUS_PRIVATE_KEY_PASS = var.saml_private_key_password
 
-    # In HOCON, env variables set to the empty string are 
+    # In HOCON, env variables set to the empty string are
     # kept as such (set to empty string, rather than undefined).
-    # This allows for the default to include atallclaims and for 
+    # This allows for the default to include atallclaims and for
     # azure AD to not include that claim.
     ADFS_ADDITIONAL_SCOPES = ""
 

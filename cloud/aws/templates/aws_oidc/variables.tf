@@ -207,6 +207,30 @@ variable "civiform_applicant_idp" {
   default     = ""
 }
 
+variable "applicant_oidc_provider_logout" {
+  type        = bool
+  description = "If the applicant OIDC logout should also perform a central logout from the auth provider"
+  default     = true
+}
+
+variable "applicant_oidc_override_logout_url" {
+  type        = string
+  description = "The URL to use for the OIDC logout endpoint (when applicant_oidc_provider_logout is true).  If not set, uses the `end_session_endpoint` value from the discovery metadata."
+  default     = ""
+}
+
+variable "applicant_oidc_post_logout_redirect_param" {
+  type        = string
+  description = "What query parameter to use for sending the redirect uri to the central OIDC provider for logout (when applicant_oidc_provider_logout is true). Defaults to post_logout_redirect_uri"
+  default     = "post_logout_redirect_uri"
+}
+
+variable "applicant_oidc_logout_client_param" {
+  type        = string
+  description = "What query parameter to use for sending the client id to the central OIDC provider for logout (when applicant_oidc_provider_logout is true).  If left blank, doesn't send the client id."
+  default     = ""
+}
+
 variable "applicant_oidc_discovery_uri" {
   type        = string
   description = "Discovery URI"
