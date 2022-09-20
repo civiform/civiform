@@ -12,19 +12,20 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.ul;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
-import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -328,22 +329,12 @@ public final class QuestionsListView extends BaseHtmlView {
         activeAndDraftQuestions.getReferencingPrograms(questionName);
     Collection<ProgramDefinition> activePrograms = referencingPrograms.activeReferences();
     Collection<ProgramDefinition> draftPrograms = referencingPrograms.draftReferences();
+    GroupedReferencingPrograms groupedReferencingPrograms =
+        createReferencingPrograms(activePrograms, draftPrograms);
+
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
-            questionName, activePrograms, draftPrograms, /* modalHeader= */ Optional.empty());
-
-    ArrayList<String> parts = new ArrayList<>();
-    if (!activePrograms.isEmpty()) {
-      parts.add(String.format("%d active", activePrograms.size()));
-    }
-    if (activeAndDraftQuestions.draftVersionHasAnyEdits() && !draftPrograms.isEmpty()) {
-      parts.add(String.format("%d draft", draftPrograms.size()));
-    }
-    if (parts.isEmpty()) {
-      parts.add("0");
-    }
-    SpanTag referencingProgramsCount =
-        span(Joiner.on(" & ").join(parts)).with(span(" programs")).withClass(Styles.FONT_SEMIBOLD);
+            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty());
 
     DivTag tag =
         div()
@@ -352,15 +343,29 @@ public final class QuestionsListView extends BaseHtmlView {
                 Styles.ML_4,
                 StyleUtils.responsiveXLarge(Styles.ML_10),
                 Styles.PY_7,
-                Styles.W_1_4)
-            .with(span("Used across "), referencingProgramsCount);
+                Styles.W_1_4);
+    if (groupedReferencingPrograms.isEmpty()) {
+      tag.with(p("Used in 0 programs."));
+    } else {
+      if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
+        int numPrograms = groupedReferencingPrograms.usedPrograms().size();
+        tag.with(p("Used in " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+      }
+      if (!groupedReferencingPrograms.addedPrograms().isEmpty()) {
+        int numPrograms = groupedReferencingPrograms.addedPrograms().size();
+        tag.with(p("Added to " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+      }
+      if (!groupedReferencingPrograms.removedPrograms().isEmpty()) {
+        int numPrograms = groupedReferencingPrograms.removedPrograms().size();
+        tag.with(p("Removed from " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+      }
+    }
     if (maybeReferencingProgramsModal.isPresent()) {
       tag.with(
-          span(" "),
           a().withId(maybeReferencingProgramsModal.get().getTriggerButtonId())
               .withClasses(
                   Styles.CURSOR_POINTER,
-                  Styles.FONT_SEMIBOLD,
+                  Styles.FONT_MEDIUM,
                   Styles.UNDERLINE,
                   BaseStyles.TEXT_SEATTLE_BLUE,
                   StyleUtils.hover(Styles.TEXT_BLACK))
@@ -370,21 +375,77 @@ public final class QuestionsListView extends BaseHtmlView {
         tag, maybeReferencingProgramsModal.map(ImmutableList::of).orElse(ImmutableList.of()));
   }
 
+  @AutoValue
+  abstract static class GroupedReferencingPrograms {
+    abstract ImmutableList<ProgramDefinition> usedPrograms();
+
+    abstract ImmutableList<ProgramDefinition> addedPrograms();
+
+    abstract ImmutableList<ProgramDefinition> removedPrograms();
+
+    static Builder builder() {
+      return new AutoValue_QuestionsListView_GroupedReferencingPrograms.Builder();
+    }
+
+    boolean isEmpty() {
+      return usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+      abstract Builder setUsedPrograms(ImmutableList<ProgramDefinition> usedPrograms);
+
+      abstract Builder setAddedPrograms(ImmutableList<ProgramDefinition> addedPrograms);
+
+      abstract Builder setRemovedPrograms(ImmutableList<ProgramDefinition> removedPrograms);
+
+      abstract GroupedReferencingPrograms build();
+    }
+  }
+
+  private GroupedReferencingPrograms createReferencingPrograms(
+      Collection<ProgramDefinition> activePrograms, Collection<ProgramDefinition> draftPrograms) {
+    ImmutableMap<String, ProgramDefinition> activeProgramsMap =
+        activePrograms.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+    ImmutableMap<String, ProgramDefinition> draftProgramsMap =
+        draftPrograms.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    // Use set operations to collect programs into 3 sets.
+    Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
+    Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
+    Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
+
+    ImmutableList<ProgramDefinition> usedPrograms =
+        usedSet.stream()
+            .map((adminName) -> draftProgramsMap.get(adminName))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> addedPrograms =
+        addedSet.stream()
+            .map((adminName) -> draftProgramsMap.get(adminName))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> removedPrograms =
+        removedSet.stream()
+            .map((adminName) -> activeProgramsMap.get(adminName))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    return GroupedReferencingPrograms.builder()
+        .setUsedPrograms(usedPrograms)
+        .setAddedPrograms(addedPrograms)
+        .setRemovedPrograms(removedPrograms)
+        .build();
+  }
+
   private Optional<Modal> makeReferencingProgramsModal(
       String questionName,
-      Collection<ProgramDefinition> activePrograms,
-      Collection<ProgramDefinition> draftPrograms,
+      GroupedReferencingPrograms referencingPrograms,
       Optional<DomContent> modalHeader) {
-    ImmutableList<ProgramDefinition> activeProgramReferences =
-        activePrograms.stream()
-            .sorted(Comparator.comparing(ProgramDefinition::adminName))
-            .collect(ImmutableList.toImmutableList());
-    ImmutableList<ProgramDefinition> draftProgramReferences =
-        draftPrograms.stream()
-            .sorted(Comparator.comparing(ProgramDefinition::adminName))
-            .collect(ImmutableList.toImmutableList());
-
-    if (activeProgramReferences.isEmpty() && draftProgramReferences.isEmpty()) {
+    if (referencingPrograms.isEmpty()) {
       return Optional.empty();
     }
 
@@ -393,43 +454,54 @@ public final class QuestionsListView extends BaseHtmlView {
     if (modalHeader.isPresent()) {
       referencingProgramModalContent.with(modalHeader.get());
     }
-    referencingProgramModalContent.with(
-        div()
-            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE)
-            .with(referencingProgramList("Active programs:", activePrograms)),
-        div()
-            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
-            .with(referencingProgramList("Draft programs:", draftPrograms)),
-        p("Note: This list does not automatically refresh. If edits are made to a program"
-                + " in a separate tab, they won't be reflected until the page has been"
-                + " refreshed.")
-            .withClass(Styles.TEXT_SM));
+    referencingProgramModalContent
+        .condWith(
+            !referencingPrograms.usedPrograms().isEmpty(),
+            div()
+                .with(
+                    referencingProgramList(
+                        "This question is used in:", referencingPrograms.usedPrograms()))
+                .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED))
+        .condWith(
+            !referencingPrograms.addedPrograms().isEmpty(),
+            div()
+                .with(
+                    referencingProgramList(
+                        "This question is added to:", referencingPrograms.addedPrograms()))
+                .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ADDED))
+        .condWith(
+            !referencingPrograms.removedPrograms().isEmpty(),
+            div()
+                .with(
+                    referencingProgramList(
+                        "This question is removed from:", referencingPrograms.removedPrograms()))
+                .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_REMOVED))
+        .with(
+            p("Note: This list does not automatically refresh. If edits are made to a program"
+                    + " in a separate tab, they won't be reflected until the page has been"
+                    + " refreshed.")
+                .withClass(Styles.TEXT_SM));
+
     return Optional.of(
         Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
-            .setModalTitle(String.format("Programs including %s", questionName))
+            .setModalTitle(String.format("Programs referencing %s", questionName))
             .setWidth(Width.HALF)
             .build());
   }
 
   private DivTag referencingProgramList(
-      String title, Collection<ProgramDefinition> referencingPrograms) {
+      String title, ImmutableList<ProgramDefinition> referencingPrograms) {
     // TODO(#3162): Add ability to view a published program. Then add
     // links to the specific block that references the question.
-    ImmutableList<ProgramDefinition> sortedReferencingPrograms =
-        referencingPrograms.stream()
-            .sorted(Comparator.comparing(ProgramDefinition::adminName))
-            .collect(ImmutableList.toImmutableList());
     return div()
         .with(p(title).withClass(Styles.FONT_SEMIBOLD))
-        .condWith(sortedReferencingPrograms.isEmpty(), p("None").withClass(Styles.PL_5))
-        .condWith(
-            !sortedReferencingPrograms.isEmpty(),
+        .with(
             div()
                 .with(
                     ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
                         .with(
                             each(
-                                sortedReferencingPrograms,
+                                referencingPrograms,
                                 programReference -> {
                                   return li(programReference.adminName());
                                 }))));
@@ -573,17 +645,16 @@ public final class QuestionsListView extends BaseHtmlView {
                 .with(
                     span(
                         "This question cannot be archived since there are still programs"
-                            + " referencing  it. Please remove all references from the below"
+                            + " using it. Please remove all usages from the below"
                             + " programs before attempting to archive."));
 
         ActiveAndDraftQuestions.ReferencingPrograms programs =
             activeAndDraftQuestions.getReferencingPrograms(definition.getName());
+        GroupedReferencingPrograms referencingPrograms =
+            createReferencingPrograms(programs.activeReferences(), programs.draftReferences());
         Optional<Modal> maybeModal =
             makeReferencingProgramsModal(
-                definition.getName(),
-                programs.activeReferences(),
-                programs.draftReferences(),
-                Optional.of(modalHeader));
+                definition.getName(), referencingPrograms, Optional.of(modalHeader));
         ButtonTag cantArchiveButton =
             makeSvgTextButton("Archive", Icons.ARCHIVE)
                 .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES)

@@ -21,10 +21,12 @@ public final class ReferenceClasses {
   public static final String ADMIN_QUESTION_TITLE = "cf-question-title";
   public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS =
       "cf-admin-question-program-reference-counts";
-  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT =
-      "cf-admin-question-program-reference-counts-draft";
-  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE =
-      "cf-admin-question-program-reference-counts-active";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED =
+      "cf-admin-question-program-reference-counts-used";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ADDED =
+      "cf-admin-question-program-reference-counts-added";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_REMOVED =
+      "cf-admin-question-program-reference-counts-removed";
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String DEBOUNCED_FORM = "cf-debounced-form";
