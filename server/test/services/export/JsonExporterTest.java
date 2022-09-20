@@ -32,6 +32,7 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     resultAsserter.assertLengthOf(3);
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationOne, 2);
+    resultAsserter.assertValueAtPath("$[2].status", STATUS_VALUE);
     resultAsserter.assertValueAtPath(2, ".applicant_name.first_name", "Alice");
     resultAsserter.assertNullValueAtPath(2, ".applicant_name.middle_name");
     resultAsserter.assertValueAtPath(2, ".applicant_name.last_name", "Appleton");
@@ -56,6 +57,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(2, ".radio.selection", "winter");
 
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationTwo, 1);
+    resultAsserter.assertValueAtPath("$[1].status", STATUS_VALUE);
     resultAsserter.assertValueAtPath(1, ".applicant_name.first_name", "Alice");
     resultAsserter.assertNullValueAtPath(1, ".applicant_name.middle_name");
     resultAsserter.assertValueAtPath(1, ".applicant_name.last_name", "Appleton");
@@ -80,6 +82,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(1, ".radio.selection", "winter");
 
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationFour, 0);
+    resultAsserter.assertNullValueAtPath(0,".status");
     resultAsserter.assertValueAtPath(0, ".applicant_name.first_name", "Bob");
     resultAsserter.assertNullValueAtPath(0, ".applicant_name.middle_name");
     resultAsserter.assertValueAtPath(0, ".applicant_name.last_name", "Baker");
