@@ -35,7 +35,7 @@ public final class FeatureFlags {
   /**
    * If the Status Tracking feature is enabled.
    *
-   * <p>Allows for overrides set in {@code request}
+   * <p>Allows for overrides set in {@code request}.
    */
   public boolean isStatusTrackingEnabled(Request request) {
     return getFlagEnabled(request, APPLICATION_STATUS_TRACKING_ENABLED);
