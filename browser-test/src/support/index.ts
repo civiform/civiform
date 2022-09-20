@@ -275,14 +275,9 @@ export const loginAsTestUser = async (page: Page) => {
       await loginAsTestUserSeattleStaging(page)
       break
     default:
-      // TODO(#3326): Throw an error for an unrecognized strategy rather than falling back on
-      // logging in as a guest. Handling this case is presently in place to support AWS staging
-      // and Seattle staging prober runs.
-      if (TEST_USER_LOGIN) {
-        await loginAsTestUserSeattleStaging(page)
-      } else {
-        await loginAsGuest(page)
-      }
+      throw new Error(
+        `Unrecognized or unset TEST_USER_AUTH_STRATEGY environment variable of '${TEST_USER_AUTH_STRATEGY}'`,
+      )
   }
   await waitForPageJsLoad(page)
   await page.waitForSelector(
@@ -356,15 +351,9 @@ async function loginAsTestUserFakeOidc(page: Page) {
 
 export const testUserDisplayName = () => {
   if (!TEST_USER_DISPLAY_NAME) {
-    // TODO(#3326): Throw an error if the environment variable isn't provided rather than falling
-    // back on Guest. This is presently in place to support AWS staging and Seattle staging prober
-    // runs.
-    if (TEST_USER_LOGIN) {
-      // Seattle staging.
-      return 'TEST, UATAPP'
-    }
-    // AWS staging.
-    return 'Guest'
+    throw new Error(
+      'Empty or unset TEST_USER_DISPLAY_NAME environment variable',
+    )
   }
   return TEST_USER_DISPLAY_NAME
 }

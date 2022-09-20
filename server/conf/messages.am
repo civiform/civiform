@@ -143,13 +143,7 @@ link.externalLink=ውጫዊ ጣቢያ
 title.programs=ፕሮግራሞች እና አገልግሎቶች
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=ይቀጥሉ
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=በሂደት ላይ
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=አዲስ ፕሮግራሞች
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=ያልተጀመሩ

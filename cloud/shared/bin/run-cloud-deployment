@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+# DOC: Run deploy scripts from Docker.
+
+# Usage:
+# cloud/shared/bin/build-cloud-deployment
+# cloud/shared/bin/run-cloud-deployment <command> <tag> <config_file>
+
+export COMMAND="${1:-deploy}"
+export IMAGE_TAG="${2:-latest}"
+export CONFIG="${3:-cloud/deploys/dev_aws/civiform_config.sh}"
+if [[ -z "${AWS_ACCESS_KEY_ID}" ]]; then
+  export AWS_ACCESS_KEY_ID=$(aws --profile default configure get aws_access_key_id)
+fi
+if [[ -z "${AWS_SECRET_ACCESS_KEY}" ]]; then
+  export AWS_SECRET_ACCESS_KEY=$(aws --profile default configure get aws_secret_access_key)
+fi
+echo "Running: ${COMMAND} --tag=${IMAGE_TAG} --config=${CONFIG}"
+read -r -p "Do you want to proceed? [y/N] " response
+if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  exit
+fi
+
+docker compose -f cloud/docker-compose.yaml up
+docker compose -f cloud/docker-compose.yaml rm -fsv

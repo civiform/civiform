@@ -87,7 +87,7 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
 
-    assertThat(result.render().matches(".*select aria-describedBy=\"[A-Za-z]{8}-description\".*"))
+    assertThat(result.render().matches(".*select aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
   }
 }
