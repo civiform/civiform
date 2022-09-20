@@ -36,10 +36,10 @@ public class PdfExporterTest extends AbstractExporterTest {
     StringBuilder textFromPDF = new StringBuilder();
 
     int pages = pdfReader.getNumberOfPages();
-    for (int i = 1; i < pages; i++) {
-      textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, i));
+    for (int pageNum = 1; pageNum < pages; pageNum++) {
+      textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
       // Assertions to check if the URL is embedded for the FileUpload
-      PdfDictionary pdfDictionary = pdfReader.getPageN(i);
+      PdfDictionary pdfDictionary = pdfReader.getPageN(pageNum);
       PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
       PdfObject current = annots.getPdfObject(0);
       PdfDictionary currentPdfDictionary = (PdfDictionary) pdfReader.getPdfObject(current);
@@ -61,9 +61,10 @@ public class PdfExporterTest extends AbstractExporterTest {
     String programName = applicationOne.getProgram().getProgramDefinition().adminName();
     assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(linesFromPDF.get(2)).isEqualTo("Status: " + STATUS_VALUE);
     List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_ONE_STRING);
-    for (int i = 3; i < linesFromPDF.size(); i++) {
-      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
+    for (int lineNum = 4; lineNum < linesFromPDF.size(); lineNum++) {
+      assertThat(linesFromPDF.get(lineNum)).isEqualTo(linesFromStaticString.get(lineNum));
     }
   }
 
@@ -145,6 +146,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public static final String APPLICATION_SIX_STRING =
       "Optional.empty (653)\n"
           + "Program Name : Fake Optional Question Program\n"
+          + "Status: none\n"
           + " \n"
           + "applicant name\n"
           + "Example Six\n"
@@ -155,6 +157,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public static final String APPLICATION_FIVE_STRING =
       "Optional.empty (558)\n"
           + "Program Name : Fake Optional Question Program\n"
+          + "Status: none\n"
           + " \n"
           + "applicant name\n"
           + "Example Five\n"
@@ -166,6 +169,9 @@ public class PdfExporterTest extends AbstractExporterTest {
   public static final String APPLICATION_ONE_STRING =
       "Optional.empty (48)\n"
           + "Program Name : Fake Program\n"
+          + "Status: "
+          + STATUS_VALUE
+          + "\n"
           + " \n"
           + "applicant Email address\n"
           + "one@example.com\n"
