@@ -405,7 +405,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 // SHORT will print dates as 1/2/2022.
                 FormatStyle.SHORT)
             .format(dateTime);
-    submittedComponents.add(span(formattedSubmitTime).withClass(Styles.FONT_SEMIBOLD));
+    submittedComponents.add(
+        span(formattedSubmitTime).withClasses(ReferenceClasses.BT_DATE, Styles.FONT_SEMIBOLD));
 
     if (!afterContent.isEmpty()) {
       submittedComponents.add(text(afterContent));
