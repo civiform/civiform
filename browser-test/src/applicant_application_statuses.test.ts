@@ -16,17 +16,15 @@ describe('with program statuses', () => {
 
   const programName = 'applicant-with-statuses-program'
   const approvedStatusName = 'Approved'
-  
+
   beforeAll(async () => {
-    const {page, adminPrograms, adminQuestions, adminProgramStatuses, applicantQuestions} = ctx
+    const {page, adminPrograms, adminProgramStatuses, applicantQuestions} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
     // Add a program with a single question that is used for asserting downloaded content.
     await adminPrograms.addProgram(programName)
-    await adminPrograms.gotoDraftProgramManageStatusesPage(
-      programName,
-    )
+    await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     await adminProgramStatuses.createStatus(approvedStatusName)
     await adminPrograms.publishProgram(programName)
     await adminPrograms.expectActiveProgram(programName)
@@ -44,7 +42,7 @@ describe('with program statuses', () => {
     await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-      approvedStatusName
+      approvedStatusName,
     )
     await adminPrograms.confirmStatusUpdateModal(modal)
     await logout(page)
