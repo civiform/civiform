@@ -44,7 +44,7 @@ public class ProfileFactory {
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
     this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
     this.userRepositoryProvider = Preconditions.checkNotNull(userRepositoryProvider);
-    this.featureFlags = featureFlags;
+    this.featureFlags = Preconditions.checkNotNull(featureFlags);
   }
 
   public CiviFormProfileData createNewApplicant() {
