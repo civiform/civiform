@@ -12,7 +12,7 @@ import sys
 # Requirements:
 #   Must have creds to login to docker hub as 'civiform' user.
 #   Must have a GitHub API token with repo and read:org scopes located at 'gh-release-token.txt' or
-#   in the GH_RELEASE_TOKEN_ENV_VAR_NAME environment variable.
+#   in the GH_TOKEN environment variable.
 #
 # When successful, this script:
 #   1. tags the git commit for the release with the release number
