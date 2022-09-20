@@ -98,7 +98,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withClasses(Styles.MT_10, Styles.FLEX)
                     .with(
                         div().withClass(Styles.FLEX_GROW),
-                        p("Sorting my most recently updated").withClass(Styles.TEXT_SM)),
+                        p("Sorting by most recently updated").withClass(Styles.TEXT_SM)),
                 div()
                     .withClass(Styles.MT_6)
                     .with(
