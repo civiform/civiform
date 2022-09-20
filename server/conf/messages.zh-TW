@@ -143,13 +143,7 @@ link.externalLink=外部網站
 title.programs=計畫與服務
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=繼續
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=進行中
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=新計畫
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=未開始

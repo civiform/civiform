@@ -59,7 +59,7 @@ describe('normal question lifecycle', () => {
 
       await adminQuestions.updateQuestion(questionName)
 
-      const programName = `program for ${type} question lifecycle`
+      const programName = `program-for-${type}-question-lifecycle`
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(
         programName,
@@ -155,12 +155,7 @@ describe('normal question lifecycle', () => {
     // Add a new valid dropdown question
     await adminQuestions.addDropdownQuestion({questionName, options})
     // Edit the newly created question
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(
-        questionName,
-        ':text("Edit")',
-      ),
-    )
+    await adminQuestions.gotoQuestionEditPage(questionName)
 
     // Add an empty option
     await page.click('#add-new-option')
@@ -183,12 +178,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.addRadioButtonQuestion({questionName, options})
 
     // Edit the newly created question
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(
-        questionName,
-        ':text("Edit")',
-      ),
-    )
+    await adminQuestions.gotoQuestionEditPage(questionName)
 
     // Add an empty option
     await page.click('#add-new-option')
@@ -254,7 +244,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.addNameQuestion({questionName: 'name-q'})
 
-    const programName = 'test program'
+    const programName = 'test-program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishProgram(programName)
 

@@ -1,4 +1,4 @@
-import {createTestContext, loginAsAdmin} from './support'
+import {AdminPrograms, createTestContext, loginAsAdmin} from './support'
 
 describe('Most recently updated program is at top of list.', () => {
   const ctx = createTestContext()
@@ -7,42 +7,41 @@ describe('Most recently updated program is at top of list.', () => {
 
     await loginAsAdmin(page)
 
-    const programOne = 'list test program one'
-    const programTwo = 'list test program two'
+    const programOne = 'list-test-program-one'
+    const programTwo = 'list-test-program-two'
     await adminPrograms.addProgram(programOne)
     await adminPrograms.addProgram(programTwo)
 
-    // Note: CI tests already have test programs
-    // available. As such, we only assert the order
-    // of the programs added in this test.
-
     // Most recently added program is on top.
-    let programNames = await adminPrograms.programNames()
-    expect(programNames.length).toBeGreaterThanOrEqual(2)
-    expect(programNames.slice(0, 2)).toEqual([programTwo, programOne])
+    await expectProgramListElements(adminPrograms, [programTwo, programOne])
 
     // Publish all programs, order should be maintained.
     await adminPrograms.publishAllPrograms()
-    programNames = await adminPrograms.programNames()
-    expect(programNames.length).toBeGreaterThanOrEqual(2)
-    expect(programNames.slice(0, 2)).toEqual([programTwo, programOne])
+    await expectProgramListElements(adminPrograms, [programTwo, programOne])
 
     // Now create a draft version of the previously last program. After,
     // it should be on top.
     await adminPrograms.createNewVersion(programOne)
-    programNames = await adminPrograms.programNames()
-    expect(programNames.length).toBeGreaterThanOrEqual(2)
-    expect(programNames.slice(0, 2)).toEqual([programOne, programTwo])
+    await expectProgramListElements(adminPrograms, [programOne, programTwo])
 
     // Now create a new program, which should be on top.
-    const programThree = 'list test program three'
+    const programThree = 'list-test-program-three'
     await adminPrograms.addProgram(programThree)
-    programNames = await adminPrograms.programNames()
-    expect(programNames.length).toBeGreaterThanOrEqual(3)
-    expect(programNames.slice(0, 3)).toEqual([
+    await expectProgramListElements(adminPrograms, [
       programThree,
       programOne,
       programTwo,
     ])
   })
+
+  async function expectProgramListElements(
+    adminPrograms: AdminPrograms,
+    expectedPrograms: string[],
+  ) {
+    if (!expectedPrograms) {
+      throw new Error('expected at least one program')
+    }
+    const programListNames = await adminPrograms.programNames()
+    expect(programListNames).toEqual(expectedPrograms)
+  }
 })

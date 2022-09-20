@@ -9,9 +9,6 @@ public final class ReferenceClasses {
   public static final String ADMIN_APPLICATION_BLOCK_CARD = "cf-admin-application-block-card";
   public static final String ADMIN_APPLICATION_CARD = "cf-admin-application-card";
   public static final String ADMIN_LANGUAGE_LINK = "cf-admin-language-link";
-  public static final String ADMIN_PROGRAM_CARD_LIST = "cf-admin-program-card-list";
-  public static final String ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER =
-      "cf-admin-program-card-list-placeholder";
   public static final String ADMIN_PROGRAM_CARD = "cf-admin-program-card";
   public static final String ADMIN_PROGRAM_CARD_TITLE = "cf-program-title";
   public static final String ADMIN_PROGRAM_STATUS_LIST = "cf-admin-program-status-list";
@@ -21,6 +18,7 @@ public final class ReferenceClasses {
   public static final String ADMIN_PUBLISH_REFERENCES_QUESTION =
       "cf-admin-publish-references-question";
   public static final String ADMIN_QUESTION_TABLE_ROW = "cf-admin-question-table-row";
+  public static final String ADMIN_QUESTION_TITLE = "cf-question-title";
   public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS =
       "cf-admin-question-program-reference-counts";
   public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT =
@@ -126,4 +124,7 @@ public final class ReferenceClasses {
   public static final String MODAL = "cf-modal";
   public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
+  // This class marks fields that contain dates. It is used by browser tests
+  // to replace content with static date when taking screenshot.
+  public static final String BT_DATE = "cf-bt-date";
 }

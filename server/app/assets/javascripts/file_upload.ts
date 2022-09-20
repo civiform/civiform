@@ -40,9 +40,9 @@ function validateFileUploadQuestions(formEl: Element): boolean {
         // Only allow this to be done once so we don't repeatedly append the error id.
         wasSetInvalid = true
         fileInput.setAttribute('aria-invalid', 'true')
-        const ariaDescribedBy = fileInput.getAttribute('aria-describedBy')
+        const ariaDescribedBy = fileInput.getAttribute('aria-describedby')
         fileInput.setAttribute(
-          'aria-describedBy',
+          'aria-describedby',
           `${errorId} ${ariaDescribedBy}`,
         )
       }
