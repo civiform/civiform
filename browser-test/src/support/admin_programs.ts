@@ -92,6 +92,21 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
+  // Question card within a program edit page
+  questionCardSelectorInProgramEditor(questionName: string) {
+    return `.cf-program-question:has(:text("${questionName}"))`
+  }
+
+  // Question card within a program edit page
+  withinQuestionCardSelectorInProgramEditor(
+    questionName: string,
+    selector: string,
+  ) {
+    return (
+      this.questionCardSelectorInProgramEditor(questionName) + ' ' + selector
+    )
+  }
+
   programCardSelector(programName: string, lifecycle: string) {
     return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
   }
@@ -178,12 +193,16 @@ export class AdminPrograms {
     await this.expectProgramBlockEditPage(programName)
   }
 
-  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+  async goToBlockInProgram(programName: string, blockName: string) {
     await this.goToManageQuestionsPage(programName)
 
     // Click on the block to edit
     await this.page.click(`a:has-text("${blockName}")`)
     await waitForPageJsLoad(this.page)
+  }
+
+  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+    await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-predicate')
@@ -256,6 +275,24 @@ export class AdminPrograms {
       ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
     expect(await this.page.innerText('h1')).toContain('Add Question')
+  }
+
+  // Removes questions from given block in program.
+  async removeQuestionFromProgram(
+    programName: string,
+    blockName: string,
+    questionNames: string[] = [],
+  ) {
+    await this.goToBlockInProgram(programName, blockName)
+
+    for (const questionName of questionNames) {
+      await this.page.click(
+        this.withinQuestionCardSelectorInProgramEditor(
+          questionName,
+          'button:text("DELETE")',
+        ),
+      )
+    }
   }
 
   async editProgramBlock(
