@@ -112,10 +112,16 @@ export class AdminQuestions {
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
-    await this.page.fill('label:has-text("Name")', questionName)
-    await this.page.fill('label:has-text("Description")', description ?? '')
     await this.page.fill('label:has-text("Question Text")', questionText ?? '')
     await this.page.fill('label:has-text("Question help text")', helpText ?? '')
+    await this.page.fill(
+      'label:has-text("Administrative identifier")',
+      questionName,
+    )
+    await this.page.fill(
+      'label:has-text("Question note for administrative use only")',
+      description ?? '',
+    )
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })
@@ -270,7 +276,10 @@ export class AdminQuestions {
   }) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, `:text("${buttonText}")`),
+      this.selectWithinQuestionTableRow(
+        questionName,
+        `button:has-text("${buttonText}")`,
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
@@ -368,9 +377,9 @@ export class AdminQuestions {
 
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit')
-    expect(
-      await this.page.getAttribute('input#question-name-input', 'value'),
-    ).toEqual(questionName)
+    expect(await this.page.innerText('#question-name-input')).toEqual(
+      questionName,
+    )
   }
 
   async expectQuestionTranslationPage(questionName: string) {
@@ -789,9 +798,15 @@ export class AdminQuestions {
     await this.page.click('#create-static-question')
     await waitForPageJsLoad(this.page)
 
-    await this.page.fill('label:has-text("Name")', questionName)
-    await this.page.fill('label:has-text("Description")', description)
     await this.page.fill('label:has-text("Question Text")', questionText)
+    await this.page.fill(
+      'label:has-text("Administrative identifier")',
+      questionName,
+    )
+    await this.page.fill(
+      'label:has-text("Question note for administrative use only")',
+      description,
+    )
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })

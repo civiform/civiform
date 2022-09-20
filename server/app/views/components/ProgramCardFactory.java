@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import javax.inject.Inject;
-import services.DateConverter;
 import services.program.ProgramDefinition;
 import views.ViewUtils;
 import views.ViewUtils.BadgeStatus;
@@ -26,11 +25,11 @@ import views.style.Styles;
 /** Responsible for generating a program card for view by CiviForm admins / program admins. */
 public final class ProgramCardFactory {
 
-  private final DateConverter dateConverter;
+  private final ViewUtils viewUtils;
 
   @Inject
-  public ProgramCardFactory(DateConverter dateConverter) {
-    this.dateConverter = checkNotNull(dateConverter);
+  public ProgramCardFactory(ViewUtils viewUtils) {
+    this.viewUtils = checkNotNull(viewUtils);
   }
 
   public DivTag renderCard(ProgramCardData cardData) {
@@ -107,11 +106,6 @@ public final class ProgramCardFactory {
       updatedPrefix = "Published on ";
     }
 
-    String formattedUpdateTime =
-        updatedTime.map(t -> dateConverter.renderDateTime(t)).orElse("unknown");
-    String formattedUpdateDate =
-        updatedTime.map(t -> dateConverter.renderDate(t)).orElse("unknown");
-
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();
 
@@ -142,17 +136,7 @@ public final class ProgramCardFactory {
             div()
                 .withClasses(Styles.ML_4, StyleUtils.responsiveXLarge(Styles.ML_10))
                 .with(
-                    p().with(
-                            span(updatedPrefix),
-                            span(formattedUpdateTime)
-                                .withClasses(
-                                    Styles.FONT_SEMIBOLD,
-                                    Styles.HIDDEN,
-                                    StyleUtils.responsiveLarge(Styles.INLINE)),
-                            span(formattedUpdateDate)
-                                .withClasses(
-                                    Styles.FONT_SEMIBOLD,
-                                    StyleUtils.responsiveLarge(Styles.HIDDEN))),
+                    viewUtils.renderEditOnText(updatedPrefix, updatedTime),
                     p().with(
                             span(String.format("%d", blockCount)).withClass(Styles.FONT_SEMIBOLD),
                             span(blockCount == 1 ? " screen, " : " screens, "),

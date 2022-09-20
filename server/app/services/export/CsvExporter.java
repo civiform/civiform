@@ -23,7 +23,7 @@ import services.program.Column;
  * answer from {@link ReadOnlyApplicantProgramService} if present.
  *
  * <p>Call close() directly or use the try-with-resources pattern in order for the underlying {@link
- * CsvPrinter} to be closed.
+ * CSVPrinter} to be closed.
  */
 public final class CsvExporter implements AutoCloseable {
   private final String EMPTY_VALUE = "";
@@ -54,6 +54,7 @@ public final class CsvExporter implements AutoCloseable {
         roApplicantService.getSummaryData().stream()
             .flatMap(data -> data.scalarAnswersInDefaultLocale().entrySet().stream())
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+
     for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER:
@@ -114,6 +115,10 @@ public final class CsvExporter implements AutoCloseable {
           }
           // We still hash the empty value.
           printer.print(opaqueIdentifier(secret, getValueFromAnswerMap(column, answerMap)));
+          break;
+        case STATUS_TEXT:
+          printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));
+          break;
       }
     }
 
