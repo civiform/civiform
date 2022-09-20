@@ -147,13 +147,13 @@ public final class ViewUtils {
             span(prefix),
             span(formattedUpdateTime)
                 .withClasses(
-                    ReferenceClasses.DATE_FIELD_BROWSER_TEST,
+                    ReferenceClasses.BT_DATE,
                     Styles.FONT_SEMIBOLD,
                     Styles.HIDDEN,
                     StyleUtils.responsiveLarge(Styles.INLINE)),
             span(formattedUpdateDate)
                 .withClasses(
-                    ReferenceClasses.DATE_FIELD_BROWSER_TEST,
+                    ReferenceClasses.BT_DATE,
                     Styles.FONT_SEMIBOLD,
                     StyleUtils.responsiveLarge(Styles.HIDDEN)));
   }
