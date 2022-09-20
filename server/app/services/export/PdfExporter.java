@@ -13,6 +13,7 @@ import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -21,6 +22,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
 import services.applicant.AnswerData;
@@ -32,16 +34,20 @@ public final class PdfExporter {
   private final ApplicantService applicantService;
   private final Provider<LocalDateTime> nowProvider;
   private final String baseUrl;
+  private final FeatureFlags featureFlags;
 
   @Inject
   PdfExporter(
       ApplicantService applicantService,
       @Now Provider<LocalDateTime> nowProvider,
-      Config configuration) {
+      Config configuration,
+      FeatureFlags featureFlags) {
     this.applicantService = checkNotNull(applicantService);
     this.nowProvider = checkNotNull(nowProvider);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.featureFlags = checkNotNull(featureFlags);
   }
+
   /**
    * Generates a byte array containing all the values present in the List of AnswerData using
    * itextPDF.This function creates the output document in memory as a byte[] and is part of the
@@ -64,7 +70,8 @@ public final class PdfExporter {
             answers,
             applicantNameWithApplicationId,
             application.getProgram().getProgramDefinition().adminName(),
-            application.getProgram().id);
+            application.getProgram().id,
+            application.getLatestStatus());
     return new InMemoryPdf(bytes, filename);
   }
 
@@ -72,7 +79,8 @@ public final class PdfExporter {
       ImmutableList<AnswerData> answers,
       String applicantNameWithApplicationId,
       String programName,
-      Long programId)
+      Long programId,
+      Optional<String> statusValue)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -92,6 +100,13 @@ public final class PdfExporter {
               "Program Name : " + programName, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
       document.add(applicant);
       document.add(program);
+      if (featureFlags.isStatusTrackingEnabled()) {
+        Paragraph status =
+            new Paragraph(
+                "Status: " + statusValue.orElse("none"),
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        document.add(status);
+      }
       document.add(Chunk.NEWLINE);
       for (AnswerData answerData : answers) {
         Paragraph question =
