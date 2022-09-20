@@ -59,8 +59,8 @@ def main():
     release_number = sys.argv[2]
     if 'GITHUB_ACTOR' in os.environ:
         shell_cmd(
-            f'git config --global user.email ' +
-            f'{os.environ["GITHUB_ACTOR"]}@users.noreply.github.com')
+            f'git config user.email ' +
+            f'"{os.environ["GITHUB_ACTOR"]}@users.noreply.github.com"')
     releaser_email = shell_cmd('git config --get user.email')
 
     ################################################################################
