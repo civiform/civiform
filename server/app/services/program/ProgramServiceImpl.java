@@ -2,7 +2,6 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.github.slugify.Slugify;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -149,10 +148,6 @@ public final class ProgramServiceImpl implements ProgramService {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
 
-    if (hasProgramNameCollision(adminName)) {
-      errorsBuilder.add(CiviFormError.of("a program named " + adminName + " already exists"));
-    }
-
     if (defaultDisplayName.isBlank()) {
       errorsBuilder.add(CiviFormError.of("A public display name for the program is required"));
     }
@@ -161,6 +156,12 @@ public final class ProgramServiceImpl implements ProgramService {
     }
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of("A program URL is required"));
+    } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
+      errorsBuilder.add(
+          CiviFormError.of(
+              "A program URL may only contain lowercase letters, numbers, and dashes"));
+    } else if (hasProgramNameCollision(adminName)) {
+      errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
     }
     if (displayMode.isBlank()) {
       errorsBuilder.add(CiviFormError.of("A program visibility option must be selected"));
@@ -344,10 +345,9 @@ public final class ProgramServiceImpl implements ProgramService {
   // we can check both by just checking for slug collisions.
   // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
   private boolean hasProgramNameCollision(String programName) {
-    Slugify slugifier = Slugify.builder().build();
     return getAllProgramNames().stream()
-        .map(slugifier::slugify)
-        .anyMatch(slugifier.slugify(programName)::equals);
+        .map(MainModule.SLUGIFIER::slugify)
+        .anyMatch(MainModule.SLUGIFIER.slugify(programName)::equals);
   }
 
   private void validateProgramText(

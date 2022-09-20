@@ -31,7 +31,7 @@ export enum QuestionType {
   RADIO = 'radio',
   TEXT = 'text',
   ENUMERATOR = 'enumerator',
-  FILE_UPLOAD = 'file_upload',
+  FILE_UPLOAD = 'file-upload',
 }
 /* eslint-enable */
 

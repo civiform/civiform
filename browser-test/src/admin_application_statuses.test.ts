@@ -14,7 +14,7 @@ describe('view program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('without program statuses', () => {
-    const programWithoutStatusesName = 'test program without statuses'
+    const programWithoutStatusesName = 'test-program-without-statuses'
     beforeAll(async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
       await loginAsAdmin(page)
@@ -62,7 +62,7 @@ describe('view program statuses', () => {
   })
 
   describe('with program statuses', () => {
-    const programWithStatusesName = 'test program with statuses'
+    const programWithStatusesName = 'test-program-with-statuses'
     const noEmailStatusName = 'No email status'
     const emailStatusName = 'Email status'
 
@@ -257,7 +257,7 @@ describe('view program statuses', () => {
   })
 
   describe('filtering list with program statuses', () => {
-    const programForFilteringName = 'test program for filtering statuses'
+    const programForFilteringName = 'test-program-for-filtering-statuses'
     const approvedStatusName = 'Approved'
     const rejectedStatusName = 'Rejected'
 
