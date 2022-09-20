@@ -39,6 +39,11 @@ public final class FeatureFlags {
     return getFlagEnabled(request, APPLICATION_STATUS_TRACKING_ENABLED);
   }
 
+  /** If the Status Tracking feature is enabled in the system configuration. */
+  public boolean isStatusTrackingEnabled() {
+    return config.getBoolean(APPLICATION_STATUS_TRACKING_ENABLED);
+  }
+
   public boolean allowCiviformAdminAccessPrograms(Request request) {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
