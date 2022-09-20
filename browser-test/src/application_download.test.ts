@@ -28,7 +28,7 @@ describe('normal application flow', () => {
 
     await loginAsAdmin(page)
 
-    const programName = 'test program for export'
+    const programName = 'test-program-for-export'
     await adminQuestions.addDropdownQuestion({
       questionName: 'dropdown-csv-download',
       options: ['op1', 'op2', 'op3'],

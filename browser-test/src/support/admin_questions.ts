@@ -31,7 +31,7 @@ export enum QuestionType {
   RADIO = 'radio',
   TEXT = 'text',
   ENUMERATOR = 'enumerator',
-  FILE_UPLOAD = 'file_upload',
+  FILE_UPLOAD = 'file-upload',
 }
 /* eslint-enable */
 
@@ -236,6 +236,14 @@ export class AdminQuestions {
       this.selectQuestionTableRow(questionName) +
       ' .cf-admin-question-program-reference-counts'
     )
+  }
+
+  async questionNames(): Promise<string[]> {
+    await this.gotoAdminQuestionsPage()
+    const titles = this.page.locator(
+      '.cf-admin-question-table-row .cf-question-title',
+    )
+    return titles.allTextContents()
   }
 
   private async gotoQuestionEditOrNewVersionPage({

@@ -48,7 +48,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .save();
 
     assertThat(newActiveAndDraftQuestions().getQuestionNames())
-        .containsExactly(
+        .containsExactlyInAnyOrder(
             "active-and-draft-question",
             "active-only-question",
             "draft-only-question",
