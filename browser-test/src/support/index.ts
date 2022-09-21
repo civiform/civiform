@@ -358,6 +358,10 @@ export const testUserDisplayName = () => {
   return TEST_USER_DISPLAY_NAME
 }
 
+export const supportsEmailInspection = () => {
+  return TEST_USER_AUTH_STRATEGY === 'fake-oidc'
+}
+
 /**
  * The option to select a language is only shown once for a given applicant. If this is
  * the first time they see this page, select the given language. Otherwise continue.
@@ -475,28 +479,32 @@ export const validateScreenshot = async (
 
 export type LocalstackSesEmail = {
   Body: {
-    html_part: string|null
-    text_part: string|null
+    html_part: string | null
+    text_part: string | null
   }
   Destination: {
     ToAddresses: string[]
-    Source: string
-    Subject: string
   }
+  Source: string
+  Subject: string
 }
 
-export const extractEmailsForRecipient = async function(page: Page, recipientEmail: string): Promise<LocalstackSesEmail[]> {
+export const extractEmailsForRecipient = async function (
+  page: Page,
+  recipientEmail: string,
+): Promise<LocalstackSesEmail[]> {
   if (TEST_USER_AUTH_STRATEGY !== 'fake-oidc') {
     throw new Error('Unsupported call to extractEmailsForRecipient')
   }
   const originalPageUrl = page.url()
   await page.goto('http://localstack:4566/_localstack/ses')
   const responseJson = JSON.parse(await page.innerText('body')) as any
+
   const allEmails = responseJson.messages as LocalstackSesEmail[]
-  // const filteredEmails = allEmails.filter((email) => {
-  //   return email.Destination.ToAddresses.includes(recipientEmail)
-  // })
+  const filteredEmails = allEmails.filter((email) => {
+    return email.Destination.ToAddresses.includes(recipientEmail)
+  })
 
   await page.goto(originalPageUrl)
-  return allEmails
+  return filteredEmails
 }

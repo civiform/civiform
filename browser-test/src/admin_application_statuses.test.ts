@@ -9,13 +9,10 @@ import {
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
+  supportsEmailInspection,
   testUserDisplayName,
   extractEmailsForRecipient,
 } from './support'
-import {
-  TEST_USER_AUTH_STRATEGY,
-  TEST_USER_LOGIN
-} from './support/config'
 
 describe('view program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -31,7 +28,7 @@ describe('view program statuses', () => {
       await adminPrograms.publishProgram(programWithoutStatusesName)
       await adminPrograms.expectActiveProgram(programWithoutStatusesName)
       await logout(page)
-      
+
       // Submit an application as a guest.
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
@@ -214,12 +211,14 @@ describe('view program statuses', () => {
         beforeEach(async () => {
           const {adminPrograms} = ctx
           await adminPrograms.viewApplications(programWithStatusesName)
-          await adminPrograms.viewApplicationForApplicant(testUserDisplayName())  
+          await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
         })
 
         it('checkbox is checked by default and email is sent', async () => {
-          const {page, adminPrograms} = ctx  
-          const emailsBefore = TEST_USER_AUTH_STRATEGY === 'fake-oidc' ? await extractEmailsForRecipient(page, TEST_USER_LOGIN) : []
+          const {page, adminPrograms} = ctx
+          const emailsBefore = supportsEmailInspection()
+            ? await extractEmailsForRecipient(page, testUserDisplayName())
+            : []
           const modal = await adminPrograms.setStatusOptionAndAwaitModal(
             emailStatusName,
           )
@@ -233,18 +232,25 @@ describe('view program statuses', () => {
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
 
-          if (TEST_USER_AUTH_STRATEGY === 'fake-oidc') {
-            const emailsAfter = await extractEmailsForRecipient(page, TEST_USER_LOGIN)
+          if (supportsEmailInspection()) {
+            const emailsAfter = await extractEmailsForRecipient(
+              page,
+              testUserDisplayName(),
+            )
             expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
             const sentEmail = emailsAfter[emailsAfter.length - 1]
-            expect(sentEmail.Destination.Subject).toEqual('An update on your application adsfajdsf')
+            expect(sentEmail.Subject).toEqual(
+              `An update on your application ${programWithStatusesName}`,
+            )
             expect(sentEmail.Body.text_part).toContain(emailBody)
           }
         })
-        
+
         it('choosing not to notify applicant changes status and does not send email', async () => {
-          const {page, adminPrograms} = ctx  
-          const emailsBefore = TEST_USER_AUTH_STRATEGY === 'fake-oidc' ? await extractEmailsForRecipient(page, TEST_USER_LOGIN) : []
+          const {page, adminPrograms} = ctx
+          const emailsBefore = supportsEmailInspection()
+            ? await extractEmailsForRecipient(page, testUserDisplayName())
+            : []
           const modal = await adminPrograms.setStatusOptionAndAwaitModal(
             emailStatusName,
           )
@@ -258,8 +264,11 @@ describe('view program statuses', () => {
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
 
-          if (TEST_USER_AUTH_STRATEGY === 'fake-oidc') {
-            const emailsAfter = await extractEmailsForRecipient(page, TEST_USER_LOGIN)
+          if (supportsEmailInspection()) {
+            const emailsAfter = await extractEmailsForRecipient(
+              page,
+              testUserDisplayName(),
+            )
             expect(emailsAfter.length).toEqual(emailsBefore.length)
           }
         })
