@@ -22,6 +22,11 @@ const configuration = {
         'http://civiform:9000/callback/OidcClient',
         'http://civiform:9000/callback/AdClient',
       ],
+      post_logout_redirect_uris: [
+        'http://localhost:9000/',
+        'http://localhost:19001/',
+        'http://civiform:9000/',
+      ],
     },
   ],
 
@@ -49,6 +54,11 @@ const configuration = {
   claims: {
     openid: ['sub'],
     email: ['user_emailid', 'email_verified', 'user_displayname'],
+  },
+  features: {
+    rpInitiatedLogout: {
+      enabled: true,
+    },
   },
 }
 

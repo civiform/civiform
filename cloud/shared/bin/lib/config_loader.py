@@ -7,11 +7,11 @@ from cloud.shared.bin.lib.variable_definition_loader import VariableDefinitionLo
 """
 Config Loader
   Handles validating and getting data from the configuration/variable files
-  
+
   Call load_config to get the variable definitions and corresponding env
   variables. Will return if the config is valid and the validation errors.
-  
-  Provides getters to return values from the config. 
+
+  Provides getters to return values from the config.
 """
 
 
@@ -127,7 +127,8 @@ class ConfigLoader:
                         f'[{name}] no value_regex_error_message configured')
                 if not re.compile(value_regex).fullmatch(config_value):
                     validation_errors.append(
-                        f'[{name}] {validation_error_message}')
+                        f'[{name}] \'{config_value}\' not valid: {validation_error_message}'
+                    )
 
         return validation_errors
 
