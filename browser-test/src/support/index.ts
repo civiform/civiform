@@ -455,6 +455,14 @@ export const validateScreenshot = async (
         )
         .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
     }
+    for (const applicationId of Array.from(
+      document.querySelectorAll('.cf-application-id'),
+    )) {
+      applicationId.textContent = applicationId.textContent!.replace(
+        /\d+/,
+        '1234',
+      )
+    }
   })
   expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
   expect(
