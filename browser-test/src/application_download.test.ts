@@ -182,12 +182,24 @@ describe('normal application flow', () => {
     await adminPrograms.gotoAdminProgramsPage()
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv()
 
-    expect(demographicsCsvContent).toContain(
-      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
-    )
-    expect(demographicsCsvContent).toContain(
-      'sarah,,smith,1000.00,05/10/2021,op2',
-    )
+    // Export doesn't let us control if Status Tracking is on or off through
+    // browser tests, and different environments have it configured differently
+    // so test for both situations.
+    if (demographicsCsvContent.includes('Status')) {
+      expect(demographicsCsvContent).toContain(
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,Status,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
+      )
+      expect(demographicsCsvContent).toContain(
+        ',,sarah,,smith,1000.00,05/10/2021,op2',
+      )
+    } else {
+      expect(demographicsCsvContent).toContain(
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
+      )
+      expect(demographicsCsvContent).toContain(
+        'sarah,,smith,1000.00,05/10/2021,op2',
+      )
+    }
 
     await adminQuestions.createNewVersion('Name')
     await adminQuestions.exportQuestionOpaque('Name')
@@ -196,9 +208,15 @@ describe('normal application flow', () => {
     await adminPrograms.gotoAdminProgramsPage()
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv()
 
-    expect(newDemographicsCsvContent).toContain(
-      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
-    )
+    if (demographicsCsvContent.includes('Status')) {
+      expect(newDemographicsCsvContent).toContain(
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,Status,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+      )
+    } else {
+      expect(newDemographicsCsvContent).toContain(
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+      )
+    }
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith')
     expect(newDemographicsCsvContent).toContain(',op2,')
     expect(newDemographicsCsvContent).toContain(',1600,')
