@@ -20,9 +20,8 @@ describe('with program statuses', () => {
   beforeAll(async () => {
     const {page, adminPrograms, adminProgramStatuses, applicantQuestions} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
-    // Add a program with a single question that is used for asserting downloaded content.
+    await enableFeatureFlag(page, 'application_status_tracking_enabled')
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     await adminProgramStatuses.createStatus(approvedStatusName)
@@ -30,7 +29,7 @@ describe('with program statuses', () => {
     await adminPrograms.expectActiveProgram(programName)
     await logout(page)
 
-    // Submit an application as a test user so that we can navigate back to the applications page..
+    // Submit an application as a test user so that we can navigate back to the applications page.
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.clickApplyProgramButton(programName)

@@ -251,6 +251,7 @@ public final class ApplicationRepository {
               .query()
               // Eagerly fetch the program in a SQL join.
               .fetch("program")
+              .fetch("applicationEvents")
               .findSet()
               .stream()
               .collect(ImmutableSet.toImmutableSet());

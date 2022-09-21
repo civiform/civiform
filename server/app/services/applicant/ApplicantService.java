@@ -558,18 +558,23 @@ public final class ApplicantService {
                     .build());
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
-            ProgramDefinition programDef = activeProgramNames.get(programName);
+            // When extracting the application status, the definitions associated with the program
+            // version at the time of submission are used. However, when clicking "reapply", we use
+            // the latest program version below.
+            ProgramDefinition applicationProgramVersion =
+                maybeSubmittedApp.get().getProgram().getProgramDefinition();
+            Optional<String> maybeLatestStatus = maybeSubmittedApp.get().getLatestStatus();
             Optional<StatusDefinitions.Status> maybeCurrentStatus =
-                programDef.statusDefinitions().getStatuses().stream()
-                    .filter(
-                        programStatus ->
-                            programStatus
-                                .statusText()
-                                .equals(maybeSubmittedApp.get().getLatestStatus().orElse("")))
-                    .findFirst();
+                maybeLatestStatus.isPresent()
+                    ? applicationProgramVersion.statusDefinitions().getStatuses().stream()
+                        .filter(
+                            programStatus ->
+                                programStatus.statusText().equals(maybeLatestStatus.get()))
+                        .findFirst()
+                    : Optional.empty();
             submittedPrograms.add(
                 ApplicantProgramData.builder()
-                    .setProgram(programDef)
+                    .setProgram(activeProgramNames.get(programName))
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
                     .build());
