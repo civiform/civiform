@@ -382,7 +382,12 @@ public final class ProgramIndexView extends BaseHtmlView {
   private PTag programCardApplicationStatus(
       Locale preferredLocale, StatusDefinitions.Status status) {
     return p().withClasses(
-            Styles.BORDER, Styles.ROUNDED_LG, Styles.P_2, Styles.MB_4, Styles.BG_BLUE_100)
+            Styles.BORDER,
+            Styles.ROUNDED_LG,
+            Styles.PX_2,
+            Styles.PY_1,
+            Styles.MB_4,
+            Styles.BG_BLUE_100)
         .with(
             span(status.localizedStatusText().getOrDefault(preferredLocale))
                 .withClasses(Styles.TEXT_XS, Styles.FONT_MEDIUM));
