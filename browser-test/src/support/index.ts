@@ -472,3 +472,31 @@ export const validateScreenshot = async (
     ...matchImageSnapshotOptions,
   })
 }
+
+export type LocalstackSesEmail = {
+  Body: {
+    html_part: string|null
+    text_part: string|null
+  }
+  Destination: {
+    ToAddresses: string[]
+    Source: string
+    Subject: string
+  }
+}
+
+export const extractEmailsForRecipient = async function(page: Page, recipientEmail: string): Promise<LocalstackSesEmail[]> {
+  if (TEST_USER_AUTH_STRATEGY !== 'fake-oidc') {
+    throw new Error('Unsupported call to extractEmailsForRecipient')
+  }
+  const originalPageUrl = page.url()
+  await page.goto('http://localstack:4566/_localstack/ses')
+  const responseJson = JSON.parse(await page.innerText('body')) as any
+  const allEmails = responseJson.messages as LocalstackSesEmail[]
+  // const filteredEmails = allEmails.filter((email) => {
+  //   return email.Destination.ToAddresses.includes(recipientEmail)
+  // })
+
+  await page.goto(originalPageUrl)
+  return allEmails
+}
