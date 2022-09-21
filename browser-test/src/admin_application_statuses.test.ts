@@ -214,6 +214,33 @@ describe('view program statuses', () => {
           await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
         })
 
+        it('choosing not to notify applicant changes status and does not send email', async () => {
+          const {page, adminPrograms} = ctx
+          const emailsBefore = supportsEmailInspection()
+            ? await extractEmailsForRecipient(page, testUserDisplayName())
+            : []
+          const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+            emailStatusName,
+          )
+          const notifyCheckbox = await modal.$('input[type=checkbox]')
+          if (!notifyCheckbox) {
+            throw new Error('Expected a checkbox input')
+          }
+          await notifyCheckbox.uncheck()
+          expect(await notifyCheckbox.isChecked()).toBe(false)
+          await adminPrograms.confirmStatusUpdateModal(modal)
+          expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+          await adminPrograms.expectUpdateStatusToast()
+
+          if (supportsEmailInspection()) {
+            const emailsAfter = await extractEmailsForRecipient(
+              page,
+              testUserDisplayName(),
+            )
+            expect(emailsAfter.length).toEqual(emailsBefore.length)
+          }
+        })
+
         it('checkbox is checked by default and email is sent', async () => {
           const {page, adminPrograms} = ctx
           const emailsBefore = supportsEmailInspection()
@@ -243,33 +270,6 @@ describe('view program statuses', () => {
               `An update on your application ${programWithStatusesName}`,
             )
             expect(sentEmail.Body.text_part).toContain(emailBody)
-          }
-        })
-
-        it('choosing not to notify applicant changes status and does not send email', async () => {
-          const {page, adminPrograms} = ctx
-          const emailsBefore = supportsEmailInspection()
-            ? await extractEmailsForRecipient(page, testUserDisplayName())
-            : []
-          const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-            emailStatusName,
-          )
-          const notifyCheckbox = await modal.$('input[type=checkbox]')
-          if (!notifyCheckbox) {
-            throw new Error('Expected a checkbox input')
-          }
-          await notifyCheckbox.uncheck()
-          expect(await notifyCheckbox.isChecked()).toBe(false)
-          await adminPrograms.confirmStatusUpdateModal(modal)
-          expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
-          await adminPrograms.expectUpdateStatusToast()
-
-          if (supportsEmailInspection()) {
-            const emailsAfter = await extractEmailsForRecipient(
-              page,
-              testUserDisplayName(),
-            )
-            expect(emailsAfter.length).toEqual(emailsBefore.length)
           }
         })
       })
