@@ -190,7 +190,7 @@ describe('normal application flow', () => {
         'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,Status,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
       )
       expect(demographicsCsvContent).toContain(
-        'sarah,,smith,1000.00,05/10/2021,op2',
+        ',,sarah,,smith,1000.00,05/10/2021,op2',
       )
     } else {
       expect(demographicsCsvContent).toContain(
