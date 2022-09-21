@@ -32,8 +32,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
@@ -89,7 +88,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                 validationErrors.getOrDefault(addressQuestion.getZipPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP);
 
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       streetAddressField.forceAriaInvalid();
       cityField.forceAriaInvalid();
       stateField.forceAriaInvalid();
