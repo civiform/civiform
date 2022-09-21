@@ -9,6 +9,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
@@ -20,6 +21,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.ImgTag;
+import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -37,6 +39,7 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.TranslationUtils;
@@ -280,8 +283,13 @@ public final class ProgramIndexView extends BaseHtmlView {
     DivTag programData =
         div()
             .withId(baseId + "-data")
-            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
-            .with(title, description);
+            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO);
+    if (cardData.latestSubmittedApplicationStatus().isPresent()) {
+      programData.with(
+          programCardApplicationStatus(
+              preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
+    }
+    programData.with(title, description);
 
     // Add info link.
     String infoUrl =
@@ -371,6 +379,20 @@ public final class ProgramIndexView extends BaseHtmlView {
         .with(actionDiv);
   }
 
+  private PTag programCardApplicationStatus(
+      Locale preferredLocale, StatusDefinitions.Status status) {
+    return p().withClasses(
+            Styles.BORDER,
+            Styles.ROUNDED_LG,
+            Styles.PX_2,
+            Styles.PY_1,
+            Styles.MB_4,
+            Styles.BG_BLUE_100)
+        .with(
+            span(status.localizedStatusText().getOrDefault(preferredLocale))
+                .withClasses(Styles.TEXT_XS, Styles.FONT_MEDIUM));
+  }
+
   private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate) {
     TranslationUtils.TranslatedStringSplitResult translateResult =
         TranslationUtils.splitTranslatedSingleArgString(messages, MessageKey.SUBMITTED_DATE);
@@ -388,7 +410,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 // SHORT will print dates as 1/2/2022.
                 FormatStyle.SHORT)
             .format(dateTime);
-    submittedComponents.add(span(formattedSubmitTime).withClass(Styles.FONT_SEMIBOLD));
+    submittedComponents.add(
+        span(formattedSubmitTime).withClasses(ReferenceClasses.BT_DATE, Styles.FONT_SEMIBOLD));
 
     if (!afterContent.isEmpty()) {
       submittedComponents.add(text(afterContent));
