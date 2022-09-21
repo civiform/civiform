@@ -77,8 +77,12 @@ public class SecurityModule extends AbstractModule {
 
     // you can logout by hitting the logout endpoint, you'll be redirected to root page.
     LogoutController logoutController = new LogoutController();
-    logoutController.setDefaultUrl(routes.HomeController.index().url());
+    logoutController.setDefaultUrl(baseUrl + routes.HomeController.index().url());
+    logoutController.setLocalLogout(true);
     logoutController.setDestroySession(true);
+
+    Boolean shouldPerformAuthProviderLogout = configuration.getBoolean("auth.oidc_provider_logout");
+    logoutController.setCentralLogout(shouldPerformAuthProviderLogout);
     bind(LogoutController.class).toInstance(logoutController);
 
     // This is a weird one.  :)  The cookie session store refuses to serialize any

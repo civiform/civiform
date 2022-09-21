@@ -98,7 +98,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withClasses(Styles.MT_10, Styles.FLEX)
                     .with(
                         div().withClass(Styles.FLEX_GROW),
-                        p("Sorting my most recently updated").withClass(Styles.TEXT_SM)),
+                        p("Sorting by most recently updated").withClass(Styles.TEXT_SM)),
                 div()
                     .withClass(Styles.MT_6)
                     .with(
@@ -294,7 +294,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> activeRowActions = Lists.newArrayList();
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
       Optional<ButtonTag> applicationsLink =
-          maybeRenderViewApplicationsLink(activeProgram.get(), profile);
+          maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (!draftProgram.isPresent()) {
         activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
@@ -364,7 +364,9 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(
-      ProgramDefinition activeProgram, Optional<CiviFormProfile> maybeUserProfile) {
+      ProgramDefinition activeProgram,
+      Optional<CiviFormProfile> maybeUserProfile,
+      Http.Request request) {
     if (maybeUserProfile.isEmpty()) {
       return Optional.empty();
     }
@@ -373,7 +375,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // necessary.
     boolean userIsAuthorized;
     try {
-      userProfile.checkProgramAuthorization(activeProgram.adminName()).join();
+      userProfile.checkProgramAuthorization(activeProgram.adminName(), request).join();
       userIsAuthorized = true;
     } catch (CompletionException e) {
       userIsAuthorized = false;
