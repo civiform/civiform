@@ -257,6 +257,7 @@ public final class QuestionEditView extends BaseHtmlView {
             questionForm, enumeratorQuestionDefinitions);
     String cancelUrl = questionForm.getRedirectUrl();
     if (Strings.isNullOrEmpty(cancelUrl)) {
+      // TODO(#3489): Investigate this unused assignment.
       cancelUrl = controllers.admin.routes.AdminQuestionController.index().url();
     }
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
