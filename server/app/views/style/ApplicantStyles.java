@@ -51,7 +51,7 @@ public final class ApplicantStyles {
           Styles.W_FULL,
           // This width is closely tied to the grid layout in ProgramIndexView.java. Increasing the
           // card size may cause them to overlap on smaller screen sizes.
-          StyleUtils.responsiveSmall(Styles.W_96),
+          StyleUtils.responsiveSmall(Styles.W_72),
           Styles.H_80,
           Styles.BG_WHITE,
           Styles.ROUNDED_XL,
