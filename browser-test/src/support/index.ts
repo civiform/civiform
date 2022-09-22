@@ -449,8 +449,7 @@ export const validateScreenshot = async (
       // regexp will break and it will show up in screenshots.
       date.textContent = date
         .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
-        .replace(
-          /^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
+        .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
         .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
     }
     for (const applicationId of Array.from(
