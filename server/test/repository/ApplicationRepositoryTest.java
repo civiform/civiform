@@ -297,6 +297,16 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             .get();
     assertThat(result.stream().map(a -> a.id))
         .containsExactlyInAnyOrder(primaryApplicantDraftApp.id);
+
+    // Unknown applicant.
+    result =
+        repo.getApplicationsForApplicant(
+                Integer.MAX_VALUE,
+                ImmutableSet.of(
+                    LifecycleStage.DRAFT, LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+            .toCompletableFuture()
+            .get();
+    assertThat(result).isEmpty();
   }
 
   private Applicant saveApplicant(String name) {
