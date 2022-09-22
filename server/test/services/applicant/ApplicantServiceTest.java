@@ -959,6 +959,44 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void relevantProgramsForApplicant_otherApplicant() {
+    Applicant primaryApplicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant otherApplicant = subject.createApplicant(2L).toCompletableFuture().join();
+    Program programForDraft =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
+
+    applicationRepository
+        .createOrUpdateDraft(primaryApplicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(primaryApplicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(otherApplicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(
+            programForDraft.id, programForUnapplied.id, programForSubmitted.id);
+    assertThat(result.unapplied().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.empty(), Optional.empty(), Optional.empty());
+  }
+
+  @Test
   public void relevantProgramsForApplicant_withNewerProgramVersion() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
