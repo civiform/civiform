@@ -49,7 +49,9 @@ public final class ApplicantStyles {
   public static final String PROGRAM_CARD =
       StyleUtils.joinStyles(
           Styles.W_FULL,
-          StyleUtils.responsiveSmall(Styles.W_96),
+          // This width is closely tied to the grid layout in ProgramIndexView.java. Increasing the
+          // card size may cause them to overlap on smaller screen sizes.
+          StyleUtils.responsiveSmall(Styles.W_72),
           Styles.H_80,
           Styles.BG_WHITE,
           Styles.ROUNDED_XL,
