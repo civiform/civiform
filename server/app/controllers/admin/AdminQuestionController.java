@@ -363,7 +363,7 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     if (questionForm instanceof MultiOptionQuestionForm) {
-      MultiOptionQuestionDefinition definition = null;
+      final MultiOptionQuestionDefinition definition;
       try {
         definition = (MultiOptionQuestionDefinition) questionForm.getBuilder().build();
       } catch (UnsupportedQuestionTypeException e) {
