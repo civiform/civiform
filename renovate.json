@@ -19,10 +19,6 @@
       "matchPackagePrefixes": ["org.pac4j:pac4j"]
     },
     {
-      "matchPaths": ["cloud/"],
-      "labels": ["dependencies", "infrastructure"]
-    },
-    {
       "matchPaths": ["browser-test/"],
       "labels": ["dependencies", "ignore-for-release"]
     },
