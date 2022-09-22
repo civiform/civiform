@@ -49,7 +49,7 @@ public class QuestionPreview {
                     .withText(type.getLabel())
                     .withClasses(ReferenceClasses.QUESTION_TYPE, Styles.FONT_SEMIBOLD));
 
-    final DivTag renderedQuestion;
+    DivTag renderedQuestion;
     try {
       renderedQuestion = buildQuestionRenderer(type, messages, fileUploadViewStrategy);
     } catch (UnsupportedQuestionTypeException e) {
