@@ -5,8 +5,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import models.DisplayMode;
+import models.LifecycleStage;
 import models.Program;
 import models.Question;
+import models.Version;
 import play.inject.Injector;
 import repository.VersionRepository;
 import services.program.BlockDefinition;
@@ -127,6 +129,29 @@ public class ProgramBuilder {
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getActiveVersion());
+    program.save();
+    ProgramDefinition.Builder builder =
+        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
+    return new ProgramBuilder(program.id, builder);
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link Program} associated with an obsolete
+   * Version.
+   */
+  public static ProgramBuilder newObsoleteProgram(String adminName) {
+    Version obsoleteVersion = new Version(LifecycleStage.OBSOLETE);
+    obsoleteVersion.save();
+    Program program =
+        new Program(
+            adminName,
+            adminName,
+            adminName,
+            adminName,
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(EMPTY_FIRST_BLOCK),
+            obsoleteVersion);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());

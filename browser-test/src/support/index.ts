@@ -439,17 +439,28 @@ export const validateScreenshot = async (
   if (DISABLE_SCREENSHOTS) {
     return
   }
-  // To make screenshots stable go through all date fields (elements that have cf-bt-date class)
-  // and replace date/time with fixed text.
   const page = 'page' in element ? element.page() : element
   await page.evaluate(() => {
+    // To make screenshots stable go through all date fields (elements that have cf-bt-date class)
+    // and replace date/time with fixed text.
     for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
       // Use regexp replacement instead of full replacement to make sure that format of the text
       // matches what we expect. In case underlying format changes to "September 20, 2022" then
       // regexp will break and it will show up in screenshots.
       date.textContent = date
         .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
+        .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
         .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
+    }
+    // Go through all application ID fields (elements that have cf-application-id class) and
+    // replace the ID with a stable value.
+    for (const applicationId of Array.from(
+      document.querySelectorAll('.cf-application-id'),
+    )) {
+      applicationId.textContent = applicationId.textContent!.replace(
+        /\d+/,
+        '1234',
+      )
     }
   })
   expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
@@ -459,9 +470,7 @@ export const validateScreenshot = async (
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,
-    // threshold is 1% it's pretty wide but there is some noise that we can't
-    // explain
-    failureThreshold: 0.01,
+    failureThreshold: 0,
     failureThresholdType: 'percent',
     customSnapshotsDir: 'image_snapshots',
     customDiffDir: 'diff_output',

@@ -111,7 +111,7 @@ public final class PdfExporter {
             new Paragraph(
                 answerData.questionDefinition().getName(),
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
-        Paragraph answer = null;
+        final Paragraph answer;
         if (answerData.encodedFileKey().isPresent()) {
           String encodedFileKey = answerData.encodedFileKey().get();
           String fileLink =
