@@ -5,8 +5,6 @@
 # To type an apostrophe in a message, please type two. Example: can't -> can''t
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
-# The text on the button an applicant clicks to log out of their session.
-button.logout=Mag-logout
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 label.selectLanguage=Please select your preferred language.
@@ -16,6 +14,9 @@ content.applicantInformation=Applicant Information
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
+
+# The text on the button an applicant clicks to log out of their session.
+button.logout=Mag-logout
 
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
@@ -130,12 +131,6 @@ link.externalLink=Panlabas na site
 
 # The title of the page for the list of programs.
 title.programs=Mga programa at mga serbisyo
-
-# Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Ipagpatuloy
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=Mga Bagong Programa
 
 # Screen reader format string for program cards
 title.programCard=Programa {0} ng {1} -- {2} 

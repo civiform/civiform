@@ -4,6 +4,7 @@ source cloud/azure/bin/lib.sh
 # DOC: Connect to the database via the bastion.
 # DOC: Required to pass in the resource group (-g), the database name (-d) and the keyvault name (-v).
 # DOC: example: bin/db-connection -g sgdev -d civiform-artistic-halibut -v sgdev-civiform-kv
+# DOC: You must be logged in and have the "Key Vault Administrator" role.
 key_name="bastion"
 while getopts g:d:k:v: flag; do
   case "${flag}" in

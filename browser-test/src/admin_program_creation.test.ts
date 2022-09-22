@@ -10,7 +10,6 @@ describe('program creation', () => {
   const ctx = createTestContext()
   it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -28,7 +27,7 @@ describe('program creation', () => {
       enumeratorName: 'apc-enumerator',
     })
 
-    const programName = 'apc program'
+    const programName = 'apc-program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
@@ -74,7 +73,6 @@ describe('program creation', () => {
 
   it('change questions order within block', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -85,7 +83,7 @@ describe('program creation', () => {
       await adminQuestions.addTextQuestion({questionName: question})
     }
 
-    const programName = 'apc program 2'
+    const programName = 'apc-program-2'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
@@ -124,7 +122,7 @@ describe('program creation', () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    const programName = 'apc program 3'
+    const programName = 'apc-program-3'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToManageQuestionsPage(programName)
     await page.click('#create-question-button')

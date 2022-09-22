@@ -5,7 +5,7 @@ import {
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
-  userDisplayName,
+  testUserDisplayName,
 } from './support'
 
 describe('create and edit predicates', () => {
@@ -29,7 +29,7 @@ describe('create and edit predicates', () => {
       questionText: 'conditional question',
     })
 
-    const programName = 'create hide predicate'
+    const programName = 'create-hide-predicate'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'first screen', [
       'hide-predicate-q',
@@ -90,7 +90,7 @@ describe('create and edit predicates', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
 
     const applicationText = await adminPrograms
       .applicationFrameLocator()
@@ -118,7 +118,7 @@ describe('create and edit predicates', () => {
       questionText: 'conditional question',
     })
 
-    const programName = 'create show predicate'
+    const programName = 'create-show-predicate'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'first screen', [
       'show-predicate-q',
@@ -182,7 +182,7 @@ describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     expect(
       await adminPrograms
         .applicationFrameLocator()
@@ -216,7 +216,7 @@ describe('create and edit predicates', () => {
       questionName: 'depends on previous',
     })
 
-    const programName = 'test all predicate types'
+    const programName = 'test-all-predicate-types'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'string', [
       'single-string',

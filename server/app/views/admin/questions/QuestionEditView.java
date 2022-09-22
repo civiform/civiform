@@ -1,7 +1,6 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
@@ -13,7 +12,6 @@ import static j2html.TagCreator.span;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
@@ -314,48 +312,9 @@ public final class QuestionEditView extends BaseHtmlView {
                     .withName(QuestionForm.REDIRECT_URL_PARAM)
                     .withValue(questionForm.getRedirectUrl()),
                 requiredFieldsExplanationContent());
-
-    // The question name and enumerator fields should not be changed after the question is created.
-    // If this form is not for creation, the fields are disabled, and hidden fields to pass
-    // enumerator and name data are added.
-    formTag.with(h2("Visible to administrators only").withClasses(Styles.PY_2));
-    FieldWithLabel nameField =
-        FieldWithLabel.input()
-            .setId("question-name-input")
-            .setFieldName(QUESTION_NAME_FIELD)
-            .setLabelText("Administrative name*")
-            .setDisabled(!submittable)
-            .setPlaceholderText("The name displayed in the question builder")
-            .setValue(questionForm.getQuestionName());
-    formTag.with(nameField.setDisabled(!forCreate).getInputTag());
-    if (!forCreate) {
-      formTag.with(
-          input()
-              .isHidden()
-              .withName(QUESTION_NAME_FIELD)
-              .withValue(questionForm.getQuestionName()),
-          input()
-              .isHidden()
-              .withName(QUESTION_ENUMERATOR_FIELD)
-              .withValue(
-                  questionForm
-                      .getEnumeratorId()
-                      .map(String::valueOf)
-                      .orElse(NO_ENUMERATOR_ID_STRING)));
-    }
-
-    formTag.with(
-        FieldWithLabel.textArea()
-            .setFieldName("questionDescription")
-            .setLabelText("Description")
-            .setPlaceholderText("The description displayed in the question builder")
-            .setDisabled(!submittable)
-            .setValue(questionForm.getQuestionDescription())
-            .getTextareaTag(),
-        enumeratorOptions.setDisabled(!forCreate).getSelectTag(),
-        repeatedQuestionInformation());
     formTag.with(
         h2("Visible to applicants").withClasses(Styles.PY_2),
+        repeatedQuestionInformation(),
         FieldWithLabel.textArea()
             .setId("question-text-textarea")
             .setFieldName("questionText")
@@ -373,6 +332,32 @@ public final class QuestionEditView extends BaseHtmlView {
             .setValue(questionForm.getQuestionHelpText())
             .getTextareaTag()
             .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
+
+    // The question name and enumerator fields should not be changed after the question is created.
+    // If this form is not for creation, hidden fields to pass enumerator and name data are added.
+    formTag.with(
+        h2("Visible to administrators only").withClasses(Styles.PY_2),
+        administrativeNameField(questionForm.getQuestionName(), !forCreate));
+    if (!forCreate) {
+      formTag.with(
+          input()
+              .isHidden()
+              .withName(QUESTION_ENUMERATOR_FIELD)
+              .withValue(
+                  questionForm
+                      .getEnumeratorId()
+                      .map(String::valueOf)
+                      .orElse(NO_ENUMERATOR_ID_STRING)));
+    }
+
+    formTag.with(
+        FieldWithLabel.textArea()
+            .setFieldName("questionDescription")
+            .setLabelText("Question note for administrative use only")
+            .setDisabled(!submittable)
+            .setValue(questionForm.getQuestionDescription())
+            .getTextareaTag(),
+        enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
@@ -438,13 +423,25 @@ public final class QuestionEditView extends BaseHtmlView {
   private SelectWithLabel enumeratorOptionsFromEnumerationQuestionDefinitions(
       QuestionForm questionForm,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
-    ImmutableMap.Builder<String, String> optionsBuilder = ImmutableMap.builder();
-    optionsBuilder.put(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING);
-    optionsBuilder.putAll(
-        enumeratorQuestionDefinitions.stream()
-            .collect(toImmutableMap(QuestionDefinition::getName, q -> String.valueOf(q.getId()))));
+    ImmutableList<SelectWithLabel.OptionValue> options =
+        ImmutableList.<SelectWithLabel.OptionValue>builder()
+            .add(
+                SelectWithLabel.OptionValue.builder()
+                    .setLabel(NO_ENUMERATOR_DISPLAY_STRING)
+                    .setValue(NO_ENUMERATOR_ID_STRING)
+                    .build())
+            .addAll(
+                enumeratorQuestionDefinitions.stream()
+                    .map(
+                        q ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(q.getName())
+                                .setValue(String.valueOf(q.getId()))
+                                .build())
+                    .collect(ImmutableList.toImmutableList()))
+            .build();
     return enumeratorOptions(
-        optionsBuilder.build(),
+        options,
         questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING));
   }
 
@@ -462,10 +459,17 @@ public final class QuestionEditView extends BaseHtmlView {
         maybeEnumerationQuestionDefinition
             .map(q -> String.valueOf(q.getId()))
             .orElse(NO_ENUMERATOR_ID_STRING);
-    return enumeratorOptions(ImmutableMap.of(enumeratorName, enumeratorId), enumeratorId);
+    return enumeratorOptions(
+        ImmutableList.of(
+            SelectWithLabel.OptionValue.builder()
+                .setLabel(enumeratorName)
+                .setValue(enumeratorId)
+                .build()),
+        enumeratorId);
   }
 
-  private SelectWithLabel enumeratorOptions(ImmutableMap<String, String> options, String selected) {
+  private SelectWithLabel enumeratorOptions(
+      ImmutableList<SelectWithLabel.OptionValue> options, String selected) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
@@ -491,5 +495,23 @@ public final class QuestionEditView extends BaseHtmlView {
             Styles.FONT_MONO,
             Styles.BORDER_4,
             Styles.BORDER_BLUE_400);
+  }
+
+  private DivTag administrativeNameField(String adminName, boolean editExistingQuestion) {
+    if (editExistingQuestion) {
+      return div()
+          .withClass(Styles.MB_2)
+          .with(
+              p("Administrative identifier. This value can't be changed")
+                  .withClasses(BaseStyles.INPUT_LABEL),
+              p(adminName).withId("question-name-input").withClasses(BaseStyles.FORM_FIELD),
+              input().isHidden().withName(QUESTION_NAME_FIELD).withValue(adminName));
+    }
+    return FieldWithLabel.input()
+        .setId("question-name-input")
+        .setFieldName(QUESTION_NAME_FIELD)
+        .setLabelText("Administrative identifier. This value can't be changed later*")
+        .setValue(adminName)
+        .getInputTag();
   }
 }

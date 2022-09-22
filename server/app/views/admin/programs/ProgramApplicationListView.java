@@ -15,7 +15,6 @@ import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.TagCreator;
@@ -25,7 +24,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
-import java.util.function.Function;
 import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +33,7 @@ import repository.SubmittedApplicationFilter;
 import services.DateConverter;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.UrlUtils;
 import services.program.ProgramDefinition;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
@@ -47,6 +46,7 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
+import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -81,7 +81,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
-      RenderFilterParams filterParams) {
+      RenderFilterParams filterParams,
+      Optional<String> selectedApplicationUri) {
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     DivTag applicationListDiv =
@@ -98,7 +99,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 Optional.of(pageNumber),
                                 filterParams.fromDate(),
                                 filterParams.untilDate(),
-                                filterParams.selectedApplicationStatus()))
+                                filterParams.selectedApplicationStatus(),
+                                /* selectedApplicationUri= */ Optional.empty()))
                     .withClasses(Styles.MB_2),
                 br(),
                 renderSearchForm(
@@ -106,7 +108,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     allPossibleProgramApplicationStatuses,
                     downloadModal.getButton(),
                     filterParams),
-                each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
+                each(
+                    paginatedApplications.getPageContents(),
+                    application ->
+                        renderApplicationListItem(
+                            application,
+                            /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0)))
             .withClasses(
                 Styles.MT_6,
                 StyleUtils.responsiveLarge(Styles.MT_12),
@@ -121,6 +128,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .with(
                 iframe()
                     .withName("application-display-frame")
+                    // Only allow relative URLs to ensure that we redirect to the same domain.
+                    .withSrc(UrlUtils.checkIsRelativeUrl(selectedApplicationUri.orElse("")))
                     .withClasses(Styles.W_FULL, Styles.H_FULL));
 
     HtmlBundle htmlBundle =
@@ -130,8 +139,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
             .addModals(downloadModal)
             .addMainStyles(Styles.FLEX)
-            .addMainContent(applicationListDiv, applicationShowDiv);
-
+            .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv, applicationShowDiv);
+    Optional<String> maybeSuccessMessage = request.flash().get("success");
+    if (maybeSuccessMessage.isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
+    }
     return layout.renderCentered(htmlBundle);
   }
 
@@ -150,26 +162,27 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     /* page= */ Optional.empty(),
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),
-                    /* applicationStatus= */ Optional.empty())
+                    /* applicationStatus= */ Optional.empty(),
+                    /* selectedApplicationUri= */ Optional.empty())
                 .url())
         .with(
             fieldset()
                 .withClasses(Styles.PT_1)
                 .with(
-                    legend("Application submitted").withClasses(Styles.ML_1, Styles.TEXT_GRAY_600),
+                    legend("Applications submitted").withClasses(Styles.ML_1, Styles.TEXT_GRAY_600),
                     div()
                         .withClasses(Styles.FLEX, Styles.SPACE_X_3)
                         .with(
                             FieldWithLabel.date()
                                 .setFieldName(FROM_DATE_PARAM)
                                 .setValue(filterParams.fromDate().orElse(""))
-                                .setLabelText("From:")
+                                .setLabelText("from:")
                                 .getDateTag()
                                 .withClasses(Styles.FLEX),
                             FieldWithLabel.date()
                                 .setFieldName(UNTIL_DATE_PARAM)
                                 .setValue(filterParams.untilDate().orElse(""))
-                                .setLabelText("Until:")
+                                .setLabelText("until:")
                                 .getDateTag()
                                 .withClasses(Styles.FLEX))),
             FieldWithLabel.input()
@@ -184,23 +197,38 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .setFieldName(APPLICATION_STATUS_PARAM)
                 .setLabelText("Application status")
                 .setValue(filterParams.selectedApplicationStatus().orElse(""))
-                // TODO(#3269): Consider adding support for passing <optgroups> and divide the
-                // static options from the application statuses with a "-----" section. Also
-                // update options to take an ordered collection rather than an unordered
-                // collection in order to create more determinism in the order that options are
-                // rendered.
-                .setOptions(
-                    ImmutableMap.<String, String>builder()
-                        .put("Any application status", "")
-                        .put(
-                            "Only applications without a status",
-                            SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID)
-                        .putAll(
-                            allPossibleProgramApplicationStatuses.stream()
-                                .collect(
-                                    ImmutableMap.toImmutableMap(
-                                        Function.identity(), Function.identity())))
-                        .build())
+                .setOptionGroups(
+                    ImmutableList.of(
+                        SelectWithLabel.OptionGroup.builder()
+                            .setLabel("General")
+                            .setOptions(
+                                ImmutableList.of(
+                                    SelectWithLabel.OptionValue.builder()
+                                        .setLabel("Any application status")
+                                        .setValue("")
+                                        .build(),
+                                    SelectWithLabel.OptionValue.builder()
+                                        .setLabel("Only applications without a status")
+                                        .setValue(
+                                            SubmittedApplicationFilter
+                                                .NO_STATUS_FILTERS_OPTION_UUID)
+                                        .build()))
+                            .build(),
+                        SelectWithLabel.OptionGroup.builder()
+                            .setLabel("Application statuses")
+                            .setOptions(
+                                ImmutableList.<SelectWithLabel.OptionValue>builder()
+                                    .addAll(
+                                        allPossibleProgramApplicationStatuses.stream()
+                                            .map(
+                                                status ->
+                                                    SelectWithLabel.OptionValue.builder()
+                                                        .setLabel(status)
+                                                        .setValue(status)
+                                                        .build())
+                                            .collect(ImmutableList.toImmutableList()))
+                                    .build())
+                            .build()))
                 .getSelectTag())
         .with(
             div()
@@ -294,7 +322,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .build();
   }
 
-  private DivTag renderApplicationListItem(Application application) {
+  private DivTag renderApplicationListItem(Application application, boolean displayStatus) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -313,13 +341,20 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 application.getSubmitterEmail().isPresent(),
                 p(application.getSubmitterEmail().orElse(""))
                     .withClasses(Styles.TEXT_LG, Styles.TEXT_GRAY_800, Styles.MB_2))
+            .condWith(
+                displayStatus,
+                p().withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700)
+                    .with(
+                        span("Status: "),
+                        span(application.getLatestStatus().orElse("None"))
+                            .withClass(Styles.FONT_SEMIBOLD)))
             .with(
                 div()
                     .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL)
                     .with(
                         p(renderSubmitTime(application))
                             .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
-                        p().withClasses(Styles.FLEX_GROW),
+                        div().withClasses(Styles.FLEX_GROW),
                         renderViewLink(viewLinkText, application)));
 
     return div(cardContent)

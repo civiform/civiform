@@ -44,20 +44,6 @@ variable "favicon_url" {
   description = "Browser Favicon (16x16 or 32x32 pixels, .ico, .png, or .gif) used on all pages"
   default     = "https://civiform.us/favicon.png"
 }
-
-
-variable "docker_username" {
-  type        = string
-  description = "Docker username"
-  default     = "civiform"
-}
-
-variable "docker_repository_name" {
-  type        = string
-  description = "Name of container image"
-  default     = "civiform"
-}
-
 variable "image_tag" {
   type        = string
   description = "Tag for container image"
@@ -184,6 +170,31 @@ variable "civiform_applicant_idp" {
   type        = string
   description = "identity provider to use for applicant auth. supported values are idcs and login-radius"
   default     = "login-radius"
+}
+
+
+variable "applicant_oidc_provider_logout" {
+  type        = bool
+  description = "If the applicant OIDC logout should also perform a central logout from the auth provider"
+  default     = true
+}
+
+variable "applicant_oidc_override_logout_url" {
+  type        = string
+  description = "The URL to use for the OIDC logout endpoint (when applicant_oidc_provider_logout is true)"
+  default     = ""
+}
+
+variable "applicant_oidc_post_logout_redirect_param" {
+  type        = string
+  description = "What query parameter to use for sending the redirect uri to the central OIDC provider for logout (when applicant_oidc_provider_logout is true). Defaults to post_logout_redirect_uri"
+  default     = "post_logout_redirect_uri"
+}
+
+variable "applicant_oidc_logout_client_param" {
+  type        = string
+  description = "What query parameter to use for sending the client id to the central OIDC provider for logout (when applicant_oidc_provider_logout is true).  If left blank, doesn't send the client id."
+  default     = ""
 }
 
 variable "civiform_applicant_auth_protocol" {

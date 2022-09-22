@@ -11,12 +11,11 @@ describe('Hide a program that should not be public yet', () => {
   const ctx = createTestContext()
   it('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
     const {page, adminPrograms} = ctx
-    page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
 
     // Create a hidden program
-    const programName = 'Hidden Program'
+    const programName = 'hidden-program'
     const programDescription = 'Description'
     await adminPrograms.addProgram(programName, programDescription, '', true)
     await adminPrograms.publishAllPrograms()
@@ -37,12 +36,10 @@ describe('Hide a program that should not be public yet', () => {
   it('create a public program, verify applicants can see it on the home page', async () => {
     const {page, adminPrograms} = ctx
 
-    page.setDefaultTimeout(5000)
-
     await loginAsAdmin(page)
 
     // Create a hidden program
-    const programName = 'Public Program'
+    const programName = 'public-program'
     const programDescription = 'Description'
     await adminPrograms.addProgram(programName, programDescription, '', false)
     await adminPrograms.publishAllPrograms()

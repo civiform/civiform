@@ -30,7 +30,8 @@ public class DateQuestionTest extends ResetPostgres {
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "help text"),
+          /* lastModifiedTime= */ Optional.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;

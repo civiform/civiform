@@ -2,6 +2,7 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
@@ -10,7 +11,7 @@ import services.LocalizedStrings;
  * Defines a static content question. A static content question displays static content without
  * asking for an answer.
  */
-public class StaticContentQuestionDefinition extends QuestionDefinition {
+public final class StaticContentQuestionDefinition extends QuestionDefinition {
 
   public StaticContentQuestionDefinition(
       String name,
@@ -33,7 +34,8 @@ public class StaticContentQuestionDefinition extends QuestionDefinition {
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
+      LocalizedStrings questionHelpText,
+      Optional<Instant> lastModifiedTime) {
     super(
         id,
         name,
@@ -41,7 +43,8 @@ public class StaticContentQuestionDefinition extends QuestionDefinition {
         description,
         questionText,
         questionHelpText,
-        StaticContentQuestionDefinition.StaticContentValidationPredicates.create());
+        StaticContentQuestionDefinition.StaticContentValidationPredicates.create(),
+        lastModifiedTime);
   }
 
   @AutoValue

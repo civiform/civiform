@@ -4,9 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
+import featureflags.FeatureFlags;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,11 +37,14 @@ public class JsonExporter {
 
   private final ApplicantService applicantService;
   private final ProgramService programService;
+  private final FeatureFlags featureFlags;
 
   @Inject
-  JsonExporter(ApplicantService applicantService, ProgramService programService) {
+  JsonExporter(
+      ApplicantService applicantService, ProgramService programService, FeatureFlags featureFlags) {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Pair<String, PaginationResult<Application>> export(
@@ -89,10 +95,20 @@ public class JsonExporter {
     jsonApplication.putString(
         Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
 
-    if (application.getSubmitTime() == null) {
-      jsonApplication.putNull(Path.create("submit_time"));
-    } else {
-      jsonApplication.putString(Path.create("submit_time"), application.getSubmitTime().toString());
+    Path submitTimePath = Path.create("submit_time");
+    Optional.ofNullable(application.getSubmitTime())
+        .map(Instant::toString)
+        .ifPresentOrElse(
+            submitTime -> jsonApplication.putString(submitTimePath, submitTime),
+            () -> jsonApplication.putNull(submitTimePath));
+
+    if (featureFlags.isStatusTrackingEnabled()) {
+      Path statusPath = Path.create("status");
+      application
+          .getLatestStatus()
+          .ifPresentOrElse(
+              status -> jsonApplication.putString(statusPath, status),
+              () -> jsonApplication.putNull(statusPath));
     }
 
     for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {

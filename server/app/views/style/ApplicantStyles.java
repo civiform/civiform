@@ -49,8 +49,8 @@ public final class ApplicantStyles {
   public static final String PROGRAM_CARD =
       StyleUtils.joinStyles(
           Styles.W_FULL,
-          StyleUtils.responsiveSmall(Styles.W_72),
-          Styles.H_72,
+          StyleUtils.responsiveSmall(Styles.W_96),
+          Styles.H_80,
           Styles.BG_WHITE,
           Styles.ROUNDED_XL,
           Styles.SHADOW_MD,

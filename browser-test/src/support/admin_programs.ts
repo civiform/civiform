@@ -9,6 +9,28 @@ import {
 import {BASE_URL} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 
+/**
+ * JSON object representing downloaded application. It can be retrieved by
+ * program admins. To see all fields check buildJsonApplication() method in
+ * JsonExporter.java.
+ */
+export interface DownloadedApplication {
+  program_name: string
+  program_version_id: number
+  applicant_id: number
+  application_id: number
+  language: string
+  create_time: string
+  submitter_email: string
+  submit_time: string
+  // Applicant answers as a map of question name to answer data.
+  application: {
+    [questionName: string]: {
+      [questionField: string]: unknown
+    }
+  }
+}
+
 export class AdminPrograms {
   public page!: Page
 
@@ -51,9 +73,9 @@ export class AdminPrograms {
     await this.page.fill('#program-external-link-input', externalLink)
 
     if (hidden) {
-      await this.page.check(`label:has-text("Hidden in Index")`)
+      await this.page.check(`label:has-text("Hide from applicants.")`)
     } else {
-      await this.page.check(`label:has-text("Public")`)
+      await this.page.check(`label:has-text("Publicly visible")`)
     }
 
     await this.page.click('#program-update-button')
@@ -68,6 +90,21 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage()
     const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
     return titles.allTextContents()
+  }
+
+  // Question card within a program edit page
+  questionCardSelectorInProgramEditor(questionName: string) {
+    return `.cf-program-question:has(:text("${questionName}"))`
+  }
+
+  // Question card within a program edit page
+  withinQuestionCardSelectorInProgramEditor(
+    questionName: string,
+    selector: string,
+  ) {
+    return (
+      this.questionCardSelectorInProgramEditor(questionName) + ' ' + selector
+    )
   }
 
   programCardSelector(programName: string, lifecycle: string) {
@@ -156,12 +193,16 @@ export class AdminPrograms {
     await this.expectProgramBlockEditPage(programName)
   }
 
-  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+  async goToBlockInProgram(programName: string, blockName: string) {
     await this.goToManageQuestionsPage(programName)
 
     // Click on the block to edit
     await this.page.click(`a:has-text("${blockName}")`)
     await waitForPageJsLoad(this.page)
+  }
+
+  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+    await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-predicate')
@@ -236,6 +277,24 @@ export class AdminPrograms {
     expect(await this.page.innerText('h1')).toContain('Add Question')
   }
 
+  // Removes questions from given block in program.
+  async removeQuestionFromProgram(
+    programName: string,
+    blockName: string,
+    questionNames: string[] = [],
+  ) {
+    await this.goToBlockInProgram(programName, blockName)
+
+    for (const questionName of questionNames) {
+      await this.page.click(
+        this.withinQuestionCardSelectorInProgramEditor(
+          questionName,
+          'button:text("DELETE")',
+        ),
+      )
+    }
+  }
+
   async editProgramBlock(
     programName: string,
     blockDescription = 'screen description',
@@ -251,6 +310,14 @@ export class AdminPrograms {
     for (const questionName of questionNames) {
       await this.page.click(`button >> text="${questionName}"`)
     }
+  }
+
+  async questionBankNames(programName: string): Promise<string[]> {
+    await this.goToManageQuestionsPage(programName)
+    const titles = this.page.locator(
+      '.cf-question-bank-element .cf-question-title',
+    )
+    return titles.allTextContents()
   }
 
   async editProgramBlockWithOptional(
@@ -338,10 +405,58 @@ export class AdminPrograms {
     await this.expectActiveProgram(programName)
   }
 
+  private static PUBLISH_ALL_MODAL_TITLE =
+    'All draft programs will be published'
+
+  publishAllProgramsModalLocator() {
+    return this.page.locator(
+      `.cf-modal:has-text("${AdminPrograms.PUBLISH_ALL_MODAL_TITLE}")`,
+    )
+  }
+
   async publishAllPrograms() {
-    await clickAndWaitForModal(this.page, 'publish-all-programs-modal')
-    await this.page.click(`#publish-programs-button`)
+    const modal = await this.openPublishAllProgramsModal()
+    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+    await confirmHandle.click()
+
     await waitForPageJsLoad(this.page)
+  }
+
+  async openPublishAllProgramsModal() {
+    await this.page.click('button:has-text("Publish all drafts")')
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(
+      AdminPrograms.PUBLISH_ALL_MODAL_TITLE,
+    )
+    return modal
+  }
+
+  async expectProgramReferencesModalContains({
+    expectedQuestionNames,
+    expectedProgramNames,
+  }: {
+    expectedQuestionNames: string[]
+    expectedProgramNames: string[]
+  }) {
+    const modal = await this.openPublishAllProgramsModal()
+
+    const editedQuestions = await modal.$$(
+      '.cf-admin-publish-references-question li',
+    )
+    const editedQuestionNames = await Promise.all(
+      editedQuestions.map((editedQuestion) => editedQuestion.innerText()),
+    )
+    expect(editedQuestionNames).toEqual(expectedQuestionNames)
+
+    const editedPrograms = await modal.$$(
+      '.cf-admin-publish-references-program li',
+    )
+    const editedProgramNames = await Promise.all(
+      editedPrograms.map((editedProgram) => editedProgram.innerText()),
+    )
+    expect(editedProgramNames).toEqual(expectedProgramNames)
+
+    await dismissModal(this.page)
   }
 
   async createNewVersion(programName: string) {
@@ -540,13 +655,12 @@ export class AdminPrograms {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const confirmButton = (await modal.$('text=Confirm'))!
-    await Promise.all([this.waitForApplicationFrame(), confirmButton.click()])
+    await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
+    await waitForPageJsLoad(this.page)
   }
 
   async expectUpdateStatusToast() {
-    const toastMessages = await this.applicationFrameLocator()
-      .locator('#toast-container')
-      .innerText()
+    const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain('Application status updated')
   }
 
@@ -558,6 +672,23 @@ export class AdminPrograms {
     return this.applicationFrameLocator()
       .locator(this.editNoteSelector())
       .isVisible()
+  }
+
+  /**
+   * Returns the content of the note modal when viewing an application.
+   */
+  async getNoteContent() {
+    await this.applicationFrameLocator()
+      .locator(this.editNoteSelector())
+      .click()
+
+    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    if (!frame) {
+      throw new Error('Expected an application frame')
+    }
+    const editModal = await waitForAnyModal(frame)
+    const noteContentArea = (await editModal.$('textarea'))!
+    return noteContentArea.inputValue()
   }
 
   /**
@@ -577,10 +708,11 @@ export class AdminPrograms {
     const noteContentArea = (await editModal.$('textarea'))!
     await noteContentArea.fill(noteContent)
 
-    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
+    // Confirming should cause the page to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const saveButton = (await editModal.$('text=Save'))!
-    await Promise.all([this.waitForApplicationFrame(), saveButton.click()])
+    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await waitForPageJsLoad(this.page)
   }
 
   private editNoteSelector() {
@@ -588,13 +720,11 @@ export class AdminPrograms {
   }
 
   async expectNoteUpdatedToast() {
-    const toastMessages = await this.applicationFrameLocator()
-      .locator('#toast-container')
-      .innerText()
+    const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain('Application note updated')
   }
 
-  async getJson(applyFilters: boolean) {
+  async getJson(applyFilters: boolean): Promise<DownloadedApplication[]> {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
       await this.page.check('text="Current results"')
@@ -610,9 +740,21 @@ export class AdminPrograms {
       throw new Error('download failed')
     }
 
+    return JSON.parse(readFileSync(path, 'utf8'))
+  }
+  async getPdf() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.applicationFrameLocator()
+        .locator('a:has-text("Export to PDF")')
+        .click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
     return readFileSync(path, 'utf8')
   }
-
   async getCsv(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {

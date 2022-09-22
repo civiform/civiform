@@ -10,6 +10,7 @@ import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
@@ -33,7 +34,10 @@ public class Application extends BaseModel {
 
   @ManyToOne private Program program;
 
+  // Note: there is not an index on createTime currently as we don't filter on
+  // it and expect the number of results to be small.
   @OneToMany(mappedBy = "application")
+  @OrderBy("createTime desc")
   private List<ApplicationEvent> applicationEvents;
 
   @Constraints.Required private LifecycleStage lifecycleStage;
@@ -117,6 +121,18 @@ public class Application extends BaseModel {
 
   public Application setSubmitTimeToNow() {
     this.submitTime = Instant.now();
+    return this;
+  }
+
+  @VisibleForTesting
+  public Application setSubmitTimeForTest(Instant v) {
+    this.submitTime = v;
+    return this;
+  }
+
+  @VisibleForTesting
+  public Application setCreateTimeForTest(Instant v) {
+    this.createTime = v;
     return this;
   }
 

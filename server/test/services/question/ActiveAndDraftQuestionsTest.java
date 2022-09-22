@@ -48,11 +48,11 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .save();
 
     assertThat(newActiveAndDraftQuestions().getQuestionNames())
-        .containsExactly(
-            "tombstoned-question",
+        .containsExactlyInAnyOrder(
             "active-and-draft-question",
             "active-only-question",
-            "draft-only-question");
+            "draft-only-question",
+            "tombstoned-question");
   }
 
   @Test
@@ -327,16 +327,10 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
-    assertThat(
-            result.activeReferences().stream()
-                .map(ProgramDefinition::id)
-                .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
-    assertThat(
-            result.draftReferences().stream()
-                .map(ProgramDefinition::id)
-                .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
+    assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
+        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
+    assertThat(result.draftReferences().stream().map(ProgramDefinition::id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
   }
 
   @Test
@@ -380,16 +374,10 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
-    assertThat(
-            result.activeReferences().stream()
-                .map(ProgramDefinition::id)
-                .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(ImmutableSet.of(firstProgramActive.id, secondProgramActive.id));
-    assertThat(
-            result.draftReferences().stream()
-                .map(ProgramDefinition::id)
-                .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(ImmutableSet.of(secondProgramDraft.id, thirdProgramDraft.id));
+    assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
+        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
+    assertThat(result.draftReferences().stream().map(ProgramDefinition::id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
   }
 
   @Test

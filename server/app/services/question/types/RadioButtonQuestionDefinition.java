@@ -1,13 +1,14 @@
 package services.question.types;
 
 import com.google.common.collect.ImmutableList;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 
 /** Defines a radio button question. */
-public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition {
+public final class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public RadioButtonQuestionDefinition(
       OptionalLong id,
@@ -16,7 +17,8 @@ public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      ImmutableList<QuestionOption> options) {
+      ImmutableList<QuestionOption> options,
+      Optional<Instant> lastModifiedTime) {
     super(
         id,
         name,
@@ -25,7 +27,8 @@ public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition
         questionText,
         questionHelpText,
         options,
-        SINGLE_SELECT_PREDICATE);
+        SINGLE_SELECT_PREDICATE,
+        lastModifiedTime);
   }
 
   public RadioButtonQuestionDefinition(

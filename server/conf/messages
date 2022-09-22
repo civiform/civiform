@@ -151,15 +151,7 @@ link.externalLink=External site
 title.programs=Programs & services
 
 # Subtitle for the list of programs with draft applications
-# TODO(#2573): Remove this once translations are available for inProgressProgramsUpdated
-title.inProgressPrograms=Continue
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=In progress
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-# TODO(#2573): Remove this once translations are available for activeProgramsUpdated
-title.activePrograms=New Programs
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Not started
@@ -349,6 +341,6 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
 #-------------------------------------------------------#
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
-error.not_found_title=We were unable to find the page you tried to visit
-error.not_found_description='Please go back or return to the '
-error.not_found_description_link=homepage
+error.notFoundTitle=We were unable to find the page you tried to visit
+error.notFoundDescription='Please go back or return to the '
+error.notFoundDescriptionLink=homepage

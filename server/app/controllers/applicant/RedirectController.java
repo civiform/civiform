@@ -6,19 +6,16 @@ import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
 import controllers.routes;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
-import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -130,14 +127,13 @@ public final class RedirectController extends CiviFormController {
       long applicantId, String programSlug) {
     // Find all applicant's DRAFT applications for programs of the same slug
     // redirect to the newest program version with a DRAFT application.
-    // TODO(#2573): clean this up, don't compare on program ID
     return applicantService
-        .relevantPrograms(applicantId)
+        .relevantProgramsForApplicant(applicantId)
         .thenApplyAsync(
-            (ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>> relevantPrograms) ->
-                relevantPrograms.get(LifecycleStage.DRAFT).stream()
+            (ApplicantService.ApplicationPrograms relevantPrograms) ->
+                relevantPrograms.inProgress().stream()
+                    .map(ApplicantService.ApplicantProgramData::program)
                     .filter(program -> program.slug().equals(programSlug))
-                    .sorted(Comparator.comparingLong(ProgramDefinition::id).reversed())
                     .findFirst(),
             httpContext.current());
   }

@@ -166,7 +166,7 @@ public class FieldWithLabelTest {
     String rendered = fieldWithLabel.getNumberTag().render();
 
     assertThat(rendered).contains("aria-invalid=\"true\"");
-    assertThat(rendered).contains("aria-describedBy=\"field-id-errors\"");
+    assertThat(rendered).contains("aria-describedby=\"field-id-errors\"");
     assertThat(rendered).contains("id=\"field-id-errors\"");
     assertThat(rendered).contains("an error message");
   }

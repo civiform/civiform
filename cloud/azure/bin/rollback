@@ -4,9 +4,6 @@ set -e
 source "cloud/shared/bin/lib.sh"
 source "cloud/azure/bin/lib.sh"
 
-# loads and validates config variables and generates tfvars file
-python3 "cloud/shared/bin/lib/run_tf_apply_setup.py"
-
 azure_log::grant_log_role_assignments
 azure_log::fetch_log_file
 azure::set_common_vars

@@ -31,7 +31,6 @@ describe('normal question lifecycle', () => {
   for (const type of Object.values(QuestionType)) {
     it(`${type} question: create, update, publish, create a new version, and update`, async () => {
       const {page, adminQuestions, adminPrograms} = ctx
-      page.setDefaultTimeout(4000)
 
       await loginAsAdmin(page)
 
@@ -60,7 +59,7 @@ describe('normal question lifecycle', () => {
 
       await adminQuestions.updateQuestion(questionName)
 
-      const programName = `program for ${type} question lifecycle`
+      const programName = `program-for-${type}-question-lifecycle`
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(
         programName,
@@ -103,7 +102,6 @@ describe('normal question lifecycle', () => {
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -126,7 +124,6 @@ describe('normal question lifecycle', () => {
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -149,7 +146,6 @@ describe('normal question lifecycle', () => {
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -159,12 +155,7 @@ describe('normal question lifecycle', () => {
     // Add a new valid dropdown question
     await adminQuestions.addDropdownQuestion({questionName, options})
     // Edit the newly created question
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(
-        questionName,
-        ':text("Edit")',
-      ),
-    )
+    await adminQuestions.gotoQuestionEditPage(questionName)
 
     // Add an empty option
     await page.click('#add-new-option')
@@ -177,7 +168,6 @@ describe('normal question lifecycle', () => {
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -188,12 +178,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.addRadioButtonQuestion({questionName, options})
 
     // Edit the newly created question
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(
-        questionName,
-        ':text("Edit")',
-      ),
-    )
+    await adminQuestions.gotoQuestionEditPage(questionName)
 
     // Add an empty option
     await page.click('#add-new-option')
@@ -207,7 +192,6 @@ describe('normal question lifecycle', () => {
 
   it('persists export state', async () => {
     const {page, adminQuestions} = ctx
-    page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
 
@@ -260,12 +244,12 @@ describe('normal question lifecycle', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.addNameQuestion({questionName: 'name-q'})
 
-    const programName = 'test program'
+    const programName = 'test-program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishProgram(programName)
 
     // Update the question to create new draft version.
-    await adminQuestions.gotoQuestionNewVersionPage('name-q')
+    await adminQuestions.gotoQuestionEditPage('name-q')
     // The ID in the URL after clicking new version corresponds to the active question form (e.g. ID=15).
     // After a draft is created, the ID will reflect the newly created draft version (e.g. ID=16).
     const editUrl = page.url()

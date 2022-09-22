@@ -1,16 +1,15 @@
 import {
-  startSession,
+  createTestContext,
   gotoEndpoint,
   loginAsGuest,
-  setLangEsUS,
-  endSession,
   NotFoundPage,
+  setLangEsUS,
 } from './support'
 
 describe('error pages', () => {
+  const ctx = createTestContext()
   it('test 404 page', async () => {
-    const {browser, page} = await startSession()
-    page.setDefaultTimeout(4000)
+    const {page} = ctx
 
     const notFound = new NotFoundPage(page)
 
@@ -22,7 +21,5 @@ describe('error pages', () => {
     await setLangEsUS(page)
     await notFound.gotoNonExistentPage(page)
     await notFound.checkPageHeader('es-US')
-
-    await endSession(browser)
   })
 })

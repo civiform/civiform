@@ -23,9 +23,8 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.SelectTag;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -59,6 +58,8 @@ import views.style.Styles;
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
 
+  private static final String PROGRAM_ID = "programId";
+  private static final String APPLICATION_ID = "applicationId";
   public static final String SEND_EMAIL = "sendEmail";
   public static final String NEW_STATUS = "newStatus";
   public static final String NOTE = "note";
@@ -79,6 +80,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers,
       StatusDefinitions statusDefinitions,
+      Optional<String> noteMaybe,
       Http.Request request) {
     String title = "Program Application View";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
@@ -100,10 +102,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         programName,
                         application,
                         applicantNameWithApplicationId,
-                        status,
-                        request))
+                        status))
             .collect(ImmutableList.toImmutableList());
-    Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, request);
+    Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, noteMaybe);
 
     DivTag contentDiv =
         div()
@@ -142,7 +143,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addMainContent(contentDiv)
             // The body and main styles are necessary for modals to appear since they use fixed
             // sizing.
-            .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
+            .addBodyStyles(Styles.FLEX)
             .addMainStyles(Styles.W_SCREEN)
             .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
@@ -196,8 +197,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
     LocalDate date =
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
     DivTag answerContent;
-    if (answerData.fileKey().isPresent()) {
-      String encodedFileKey = URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
+    if (answerData.encodedFileKey().isPresent()) {
+      String encodedFileKey = answerData.encodedFileKey().get();
       String fileLink =
           controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
       answerContent = div(a(answerData.answerText()).withHref(fileLink));
@@ -268,22 +269,22 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private Modal renderUpdateNoteConfirmationModal(
-      long programId, Application application, Http.Request request) {
+      long programId, Application application, Optional<String> noteMaybe) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     String formId = Modal.randomModalId();
+    // No form action or content is rendered since admin_application_view.ts extracts the values
+    // and calls postMessage rather than attempting a submission. The main frame is responsible for
+    // constructing a form to update the note.
     FormTag modalContent =
         form()
-            .withAction(
-                controllers.admin.routes.AdminApplicationController.updateNote(
-                        programId, application.id)
-                    .url())
             .withId(formId)
-            .withMethod("POST")
-            .withClasses(Styles.PX_6, Styles.PY_2)
-            .with(makeCsrfTokenInputTag(request));
+            .withClasses(Styles.PX_6, Styles.PY_2, "cf-program-admin-edit-note-form");
     modalContent.with(
+        input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
+        input().withName(APPLICATION_ID).withValue(Long.toString(application.id)).isHidden(),
         FieldWithLabel.textArea()
+            .setValue(noteMaybe)
             .setFormId(formId)
             .setFieldName(NOTE)
             .setRows(OptionalLong.of(8))
@@ -307,19 +308,20 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String programName,
       Application application,
       String applicantNameWithApplicationId,
-      StatusDefinitions.Status status,
-      Http.Request request) {
+      StatusDefinitions.Status status) {
     String previousStatus = application.getLatestStatus().orElse("Unset");
+    // No form action or content is rendered since admin_application_view.ts extracts the values
+    // and calls postMessage rather than attempting a submission. The main frame is responsible for
+    // constructing a form to update the status.
     FormTag modalContent =
         form()
-            .withAction(
-                controllers.admin.routes.AdminApplicationController.updateStatus(
-                        programId, application.id)
-                    .url())
-            .withMethod("POST")
-            .withClasses(Styles.PX_6, Styles.PY_2)
+            .withClasses(Styles.PX_6, Styles.PY_2, "cf-program-admin-status-update-form")
             .with(
-                makeCsrfTokenInputTag(request),
+                input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
+                input()
+                    .withName(APPLICATION_ID)
+                    .withValue(Long.toString(application.id))
+                    .isHidden(),
                 p().with(
                         span("Status Change: "),
                         span(previousStatus).withClass(Styles.FONT_SEMIBOLD),
@@ -365,29 +367,34 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String applicantNameWithApplicationId,
       Application application,
       StatusDefinitions.Status status) {
+    InputTag sendEmailInput =
+        input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
     Optional<String> maybeApplicantEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
     if (!status.localizedEmailBodyText().isPresent()) {
-      return p().with(
-              span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
-              span(
-                  " will not receive an email because there is no email content set for this"
-                      + " status. Connect with your CiviForm Admin to add an email to this"
-                      + " status."));
+      return div()
+          .with(
+              sendEmailInput.isHidden(),
+              p().with(
+                      span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+                      span(
+                          " will not receive an email because there is no email content set for"
+                              + " this status. Connect with your CiviForm Admin to add an email to"
+                              + " this status.")));
     } else if (maybeApplicantEmail.isEmpty()) {
-      return p().with(
-              span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
-              span(
-                  " will not receive an email for this change since they have not provided an"
-                      + " email address."));
+      return div()
+          .with(
+              sendEmailInput.isHidden(),
+              p().with(
+                      span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+                      span(
+                          " will not receive an email for this change since they have not provided"
+                              + " an email address.")));
     }
     return label()
         .with(
-            input()
-                .withType("checkbox")
-                .isChecked()
-                .withName(SEND_EMAIL)
-                .withClasses(BaseStyles.CHECKBOX),
+            // Check by default when visible.
+            sendEmailInput.isChecked(),
             span("Notify "),
             span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
             span(" of this change at "),

@@ -22,19 +22,13 @@ describe('normal application flow', () => {
 
   it('all major steps', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
-    // Timeout for clicks and element fills. If your selector fails to locate
-    // the HTML element, the test hangs. If you find the tests time out, you
-    // want to verify that your selectors are working as expected first.
-    // Because all tests are run concurrently, it could be that your selector
-    // selects a different entity from another test.
-    page.setDefaultTimeout(4000)
 
     const noApplyFilters = false
     const applyFilters = true
 
     await loginAsAdmin(page)
 
-    const programName = 'test program for export'
+    const programName = 'test-program-for-export'
     await adminQuestions.addDropdownQuestion({
       questionName: 'dropdown-csv-download',
       options: ['op1', 'op2', 'op3'],
@@ -125,9 +119,7 @@ describe('normal application flow', () => {
       postEditCsvContent.split('Gus,,Guest,op2,01/01/1990,2000.00').length - 1
     expect(numberOfGusEntries).toEqual(2)
 
-    const postEditJsonContent = JSON.parse(
-      await adminPrograms.getJson(noApplyFilters),
-    )
+    const postEditJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(postEditJsonContent.length).toEqual(3)
     expect(postEditJsonContent[0].program_name).toEqual(programName)
     expect(postEditJsonContent[0].language).toEqual('en-US')
@@ -154,9 +146,7 @@ describe('normal application flow', () => {
     expect(filteredCsvContent).not.toContain(
       'Gus,,Guest,op2,01/01/1990,2000.00',
     )
-    const filteredJsonContent = JSON.parse(
-      await adminPrograms.getJson(applyFilters),
-    )
+    const filteredJsonContent = await adminPrograms.getJson(applyFilters)
     expect(filteredJsonContent.length).toEqual(1)
     expect(filteredJsonContent[0].application.name.first_name).toEqual('sarah')
     // Ensures that choosing not to apply filters continues to return all
@@ -164,13 +154,24 @@ describe('normal application flow', () => {
     const allCsvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(allCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(allCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00')
-    const allJsonContent = JSON.parse(
-      await adminPrograms.getJson(noApplyFilters),
-    )
+    const allJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(allJsonContent.length).toEqual(3)
     expect(allJsonContent[0].application.name.first_name).toEqual('Gus')
     expect(allJsonContent[1].application.name.first_name).toEqual('Gus')
     expect(allJsonContent[2].application.name.first_name).toEqual('sarah')
+
+    await logout(page)
+
+    // #######################################
+    // Test pdf applications export
+    // #######################################
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+    await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
+    await adminPrograms.viewApplicationForApplicant('smith, sarah')
+
+    const pdfFile = await adminPrograms.getPdf()
+    expect(pdfFile.length).toBeGreaterThan(1)
 
     await logout(page)
 
@@ -181,12 +182,24 @@ describe('normal application flow', () => {
     await adminPrograms.gotoAdminProgramsPage()
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv()
 
-    expect(demographicsCsvContent).toContain(
-      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
-    )
-    expect(demographicsCsvContent).toContain(
-      'sarah,,smith,1000.00,05/10/2021,op2',
-    )
+    // Export doesn't let us control if Status Tracking is on or off through
+    // browser tests, and different environments have it configured differently
+    // so test for both situations.
+    if (demographicsCsvContent.includes('Status')) {
+      expect(demographicsCsvContent).toContain(
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,Status,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
+      )
+      expect(demographicsCsvContent).toContain(
+        ',,sarah,,smith,1000.00,05/10/2021,op2',
+      )
+    } else {
+      expect(demographicsCsvContent).toContain(
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
+      )
+      expect(demographicsCsvContent).toContain(
+        'sarah,,smith,1000.00,05/10/2021,op2',
+      )
+    }
 
     await adminQuestions.createNewVersion('Name')
     await adminQuestions.exportQuestionOpaque('Name')
@@ -195,9 +208,15 @@ describe('normal application flow', () => {
     await adminPrograms.gotoAdminProgramsPage()
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv()
 
-    expect(newDemographicsCsvContent).toContain(
-      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
-    )
+    if (demographicsCsvContent.includes('Status')) {
+      expect(newDemographicsCsvContent).toContain(
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,Status,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+      )
+    } else {
+      expect(newDemographicsCsvContent).toContain(
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+      )
+    }
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith')
     expect(newDemographicsCsvContent).toContain(',op2,')
     expect(newDemographicsCsvContent).toContain(',1600,')

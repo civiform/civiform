@@ -2,6 +2,7 @@ package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
@@ -16,9 +17,11 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import play.mvc.Http.HttpVerbs;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -58,7 +61,7 @@ public final class QuestionBank {
             .withAction(params.questionAction())
             .with(params.csrfTag());
 
-    DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
+    DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.H_FULL);
     questionForm.with(innerDiv);
     DivTag contentDiv =
         div().withClasses(Styles.RELATIVE, Styles.GRID, Styles.GAP_6, Styles.PX_5, Styles.PY_6);
@@ -104,16 +107,19 @@ public final class QuestionBank {
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl())))));
 
-    ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
+    ImmutableList<QuestionDefinition> questions =
+        filterQuestions()
+            .sorted(
+                Comparator.<QuestionDefinition, Instant>comparing(
+                        qdef -> qdef.getLastModifiedTime().orElse(Instant.EPOCH))
+                    .reversed()
+                    .thenComparing(qdef -> qdef.getName().toLowerCase()))
+            .collect(ImmutableList.toImmutableList());
 
-    ImmutableList<QuestionDefinition> sortedQuestions =
-        ImmutableList.sortedCopyOf(
-            Comparator.comparing(QuestionDefinition::getName), filteredQuestions);
-
-    DivTag questionsDiv = div().withId("question-bank-questions");
-    sortedQuestions.forEach(
-        questionDefinition -> questionsDiv.with(renderQuestionDefinition(questionDefinition)));
-    contentDiv.with(questionsDiv);
+    contentDiv.with(
+        div()
+            .withId("question-bank-questions")
+            .with(each(questions, this::renderQuestionDefinition)));
 
     return questionForm;
   }
@@ -152,7 +158,7 @@ public final class QuestionBank {
         div()
             .withClasses(Styles.ML_4)
             .with(
-                p(definition.getName()),
+                p(definition.getName()).withClass(ReferenceClasses.ADMIN_QUESTION_TITLE),
                 p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
                 addButton);
     return questionDiv.with(PLUS_ICON, icon, content);
@@ -171,16 +177,16 @@ public final class QuestionBank {
    *   <li>Questions already in the program are filtered.
    * </ul>
    */
-  private ImmutableList<QuestionDefinition> filterQuestions() {
+  private Stream<QuestionDefinition> filterQuestions() {
     if (containsSingleBlockQuestion()) {
-      return ImmutableList.of();
+      return Stream.empty();
     }
 
     Predicate<QuestionDefinition> filter =
         params.blockDefinition().getQuestionCount() > 0
             ? this::nonEmptyBlockFilter
             : this::questionFilter;
-    return params.questions().stream().filter(filter).collect(ImmutableList.toImmutableList());
+    return params.questions().stream().filter(filter);
   }
 
   /** If a block already contains a single-block question, no more questions can be added. */

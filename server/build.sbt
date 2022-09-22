@@ -22,9 +22,9 @@ lazy val root = (project in file("."))
       javaJdbc,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.7.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.3",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.3",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.4",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.4",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.4",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -35,8 +35,8 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "ses" % "2.17.263",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.5.4",
-      "com.azure" % "azure-storage-blob" % "12.19.0",
+      "com.azure" % "azure-identity" % "1.5.5",
+      "com.azure" % "azure-storage-blob" % "12.19.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.5.0",
@@ -120,8 +120,9 @@ lazy val root = (project in file("."))
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
     pipelineStages := Seq(digest, gzip), // plugins to use for assets
-    // Uncomment to test the sbt-web asset pipeline locally.
-    // Assets / pipelineStages  := Seq(digest, gzip), // Test the sbt-web pipeline locally.
+    // Enable digest for local dev so that files can be served çached improving
+    // page speed and also browser tests speed.
+    Assets / pipelineStages := Seq(digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(
@@ -202,9 +203,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.3",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.3",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.3"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.4",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.4",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.4"
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)

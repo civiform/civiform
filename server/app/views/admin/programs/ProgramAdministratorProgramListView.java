@@ -62,7 +62,9 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 each(
                     programs.getActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
-                        .map(this::renderProgramListItem)));
+                        .map(this::buildCardData)
+                        .sorted(ProgramCardFactory.lastModifiedTimeThenNameComparator())
+                        .map(programCardFactory::renderCard)));
 
     HtmlBundle htmlBundle =
         layout
@@ -74,20 +76,19 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag renderProgramListItem(ProgramDefinition activeProgram) {
-    return programCardFactory.renderCard(
-        ProgramCardFactory.ProgramCardData.builder()
-            .setActiveProgram(
-                Optional.of(
-                    ProgramCardData.ProgramRow.builder()
-                        .setProgram(activeProgram)
-                        .setRowActions(
-                            ImmutableList.of(
-                                renderShareLink(activeProgram),
-                                renderViewApplicationsLink(activeProgram)))
-                        .setExtraRowActions(ImmutableList.of())
-                        .build()))
-            .build());
+  private ProgramCardFactory.ProgramCardData buildCardData(ProgramDefinition activeProgram) {
+    return ProgramCardFactory.ProgramCardData.builder()
+        .setActiveProgram(
+            Optional.of(
+                ProgramCardData.ProgramRow.builder()
+                    .setProgram(activeProgram)
+                    .setRowActions(
+                        ImmutableList.of(
+                            renderShareLink(activeProgram),
+                            renderViewApplicationsLink(activeProgram)))
+                    .setExtraRowActions(ImmutableList.of())
+                    .build()))
+        .build();
   }
 
   private ButtonTag renderViewApplicationsLink(ProgramDefinition activeProgram) {
@@ -98,7 +99,8 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 /* page= */ Optional.empty(),
                 /* fromDate= */ Optional.empty(),
                 /* untilDate= */ Optional.empty(),
-                /* applicationStatus= */ Optional.empty())
+                /* applicationStatus= */ Optional.empty(),
+                /* selectedApplicationUri= */ Optional.empty())
             .url();
     ButtonTag button =
         makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
