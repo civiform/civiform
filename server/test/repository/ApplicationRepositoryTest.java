@@ -296,7 +296,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             .toCompletableFuture()
             .get();
     assertThat(result.stream().map(a -> a.id))
-        .containsExactlyInAnyOrder(primaryApplicatnDraftApp.id);
+        .containsExactlyInAnyOrder(primaryApplicantDraftApp.id);
   }
 
   private Applicant saveApplicant(String name) {
