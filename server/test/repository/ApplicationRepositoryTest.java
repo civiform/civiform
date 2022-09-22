@@ -271,10 +271,12 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Applicant otherApplicant = saveApplicant("Other");
 
     Program program = createProgram("Program");
-    Application appDraft1 = Application.create(primaryApplicant, program, LifecycleStage.DRAFT);
-    appDraft1.save();
-    Application appDraft2 = Application.create(primaryApplicant, program, LifecycleStage.DRAFT);
-    appDraft2.save();
+    Application primaryApplicantDraftApp =
+        Application.create(primaryApplicant, program, LifecycleStage.DRAFT);
+    primaryApplicantDraftApp.save();
+    Application otherApplicantActiveApp =
+        Application.create(otherApplicant, program, LifecycleStage.ACTIVE);
+    otherApplicantActiveApp.save();
 
     ImmutableSet<Application> result =
         repo.getApplicationsForApplicant(
@@ -283,7 +285,18 @@ public class ApplicationRepositoryTest extends ResetPostgres {
                     LifecycleStage.DRAFT, LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
             .toCompletableFuture()
             .get();
-    assertThat(result).isEmpty();
+    assertThat(result.stream().map(a -> a.id))
+        .containsExactlyInAnyOrder(otherApplicantActiveApp.id);
+
+    result =
+        repo.getApplicationsForApplicant(
+                primaryApplicant.id,
+                ImmutableSet.of(
+                    LifecycleStage.DRAFT, LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+            .toCompletableFuture()
+            .get();
+    assertThat(result.stream().map(a -> a.id))
+        .containsExactlyInAnyOrder(primaryApplicatnDraftApp.id);
   }
 
   private Applicant saveApplicant(String name) {
