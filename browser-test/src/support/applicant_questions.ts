@@ -1,6 +1,7 @@
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {waitForPageJsLoad} from './wait'
+import {BASE_URL} from './config'
 
 export class ApplicantQuestions {
   public page!: Page
@@ -200,6 +201,52 @@ export class ApplicantQuestions {
     const tableInnerText = await this.page.innerText('main')
 
     expect(tableInnerText).not.toContain(programName)
+  }
+
+  async gotoApplicantHomePage() {
+    await this.page.goto(BASE_URL)
+    await waitForPageJsLoad(this.page)
+  }
+
+  async expectPrograms({
+    notStartedPrograms,
+    inProgressPrograms,
+    submittedPrograms,
+  }: {
+    notStartedPrograms: string[]
+    inProgressPrograms: string[]
+    submittedPrograms: string[]
+  }) {
+    const notStartedProgramNames = await this.programNamesForSection(
+      'Not started',
+    )
+    const inProgressProgramNames = await this.programNamesForSection(
+      'In progress',
+    )
+    const submittedProgramNames = await this.programNamesForSection('Submitted')
+
+    // Sort results before comparing since we don't care about order.
+    notStartedProgramNames.sort()
+    notStartedPrograms.sort()
+    inProgressProgramNames.sort()
+    inProgressPrograms.sort()
+    submittedProgramNames.sort()
+    submittedPrograms.sort()
+
+    expect(notStartedProgramNames).toEqual(notStartedPrograms)
+    expect(inProgressProgramNames).toEqual(inProgressPrograms)
+    expect(submittedProgramNames).toEqual(submittedPrograms)
+  }
+
+  private programNamesForSection(sectionName: string): Promise<string[]> {
+    const sectionLocator = this.page.locator(
+      '.cf-application-program-section',
+      {has: this.page.locator(`:text("${sectionName}")`)},
+    )
+    const programTitlesLocator = sectionLocator.locator(
+      '.cf-application-card .cf-application-card-title',
+    )
+    return programTitlesLocator.allTextContents()
   }
 
   async clickNext() {
