@@ -68,5 +68,5 @@ echo 'Start format python'
 yapf -i -r -p -vv \
   --no-local-style \
   --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}' \
-  {cloud,bin}
+  {bin}
 echo 'Done formatting python'

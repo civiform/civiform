@@ -65,13 +65,6 @@ jobs:
         id: check_bin_script_docs
         run: bin/help
 
-      - name: setup terraform
-        uses: hashicorp/setup-terraform@v2
-
-      - name: terraform fmt
-        id: tf_fmt
-        run: terraform fmt -check -recursive -diff cloud
-
   formatter-dockerfile:
     runs-on: ubuntu-latest
     steps:
