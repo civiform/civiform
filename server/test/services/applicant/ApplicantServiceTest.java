@@ -78,11 +78,7 @@ public class ApplicantServiceTest extends ResetPostgres {
       throws Exception {
     // We make the question optional since it's not valid to stage empty updates
     // for a required question.
-    programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
-            .withBlock()
-            .withOptionalQuestion(questionDefinition)
-            .buildDefinition();
+    createProgramWithOptionalQuestion(questionDefinition);
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of())
@@ -104,11 +100,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void stageAndUpdateIfValid_withUpdatesWithEmptyStrings_deletesJsonData() {
     // We make the question optional since it's not valid to update a required
     // question with an empty string (done below).
-    programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
-            .withBlock()
-            .withOptionalQuestion(questionDefinition)
-            .buildDefinition();
+    createProgramWithOptionalQuestion(questionDefinition);
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path questionPath = Path.create("applicant.name");
 
@@ -148,7 +140,9 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_withEmptyUpdatesForMultiSelect_deletesMultiSelectJsonData() {
-    createProgram(testQuestionBank.applicantKitchenTools().getQuestionDefinition());
+    // We make the question optional since it's not valid to stage empty updates
+    createProgramWithOptionalQuestion(
+        testQuestionBank.applicantKitchenTools().getQuestionDefinition());
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path questionPath = Path.create("applicant.kitchen_tools");
 
@@ -239,11 +233,9 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void
       stageAndUpdateIfValid_forEnumeratorBlock_putsMetadataWithEmptyUpdate_andCanPutRealRepeatedEntitiesInAfter() {
-    programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
-            .buildDefinition();
+    // We make the question optional since it's not valid to stage empty updates
+    createProgramWithOptionalQuestion(
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(
@@ -428,7 +420,9 @@ public class ApplicantServiceTest extends ResetPostgres {
                         QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
                         QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse")))))
             .getResult();
-    createProgram(multiSelectQuestion);
+
+    // We make the question optional since it's not valid to stage empty updates
+    createProgramWithOptionalQuestion(multiSelectQuestion);
 
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
@@ -518,7 +512,9 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void stageAndUpdateIfValid_enumeratorNotAnswered_stillWritesPathToApplicantData() {
     QuestionDefinition enumeratorQuestionDefinition =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
-    createProgram(enumeratorQuestionDefinition);
+
+    // We make the question optional since it's not valid to stage empty updates
+    createProgramWithOptionalQuestion(enumeratorQuestionDefinition);
 
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
@@ -1217,6 +1213,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.copyOf(questions))
+            .buildDefinition();
+  }
+
+  private void createProgramWithOptionalQuestion(QuestionDefinition question) {
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withOptionalQuestion(question)
             .buildDefinition();
   }
 }

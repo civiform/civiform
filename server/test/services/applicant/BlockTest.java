@@ -445,7 +445,7 @@ public class BlockTest {
   }
 
   @Test
-  public void hasRequiredQuestionsThatAreSkippedInCurrentProgram_returnsTrue() {
+  public void hasErrorsForSkippedRequiredQuestions_isTrue() {
     long programId = 5L;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
@@ -468,12 +468,11 @@ public class BlockTest {
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> QuestionAnswerer.addMetadata(applicantData, path, programId, 1L));
 
-    assertThat(block.hasRequiredQuestionsThatAreSkippedInCurrentProgram()).isTrue();
+    assertThat(block.hasErrors()).isTrue();
   }
 
   @Test
-  public void
-      hasRequiredQuestionsThatAreSkippedInCurrentProgram_questionsAnsweredInAnotherProgram_returnsFalse() {
+  public void hasErrors_requiredQuestionsAnsweredInAnotherProgram_returnsFalse() {
     long programId = 5L;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
@@ -496,7 +495,7 @@ public class BlockTest {
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> QuestionAnswerer.addMetadata(applicantData, path, programId + 1, 1L));
 
-    assertThat(block.hasRequiredQuestionsThatAreSkippedInCurrentProgram()).isFalse();
+    assertThat(block.hasErrors()).isFalse();
   }
 
   @Test
@@ -529,8 +528,7 @@ public class BlockTest {
   }
 
   @Test
-  public void
-      hasRequiredQuestionsThatAreSkippedInCurrentProgram_withOptionalQuestions_returnsFalse() {
+  public void hasErrorsWithOptionalUnansweredQuestions_returnsFalse() {
     long programId = 5L;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
@@ -551,12 +549,11 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
 
-    assertThat(block.hasRequiredQuestionsThatAreSkippedInCurrentProgram()).isFalse();
+    assertThat(block.hasErrors()).isFalse();
   }
 
   @Test
-  public void
-      hasRequiredQuestionsThatAreSkippedInCurrentProgram_withAnsweredQuestions_returnsFalse() {
+  public void hasErrorsWithAnsweredRequiredQuestions_returnsFalse() {
     long programId = 5L;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
@@ -580,7 +577,7 @@ public class BlockTest {
     QuestionAnswerer.answerTextQuestion(
         applicantData, block.getQuestions().get(1).getContextualizedPath(), "brown");
 
-    assertThat(block.hasRequiredQuestionsThatAreSkippedInCurrentProgram()).isFalse();
+    assertThat(block.hasErrors()).isFalse();
   }
 
   @Test

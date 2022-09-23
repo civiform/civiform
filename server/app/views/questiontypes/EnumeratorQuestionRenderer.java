@@ -28,6 +28,7 @@ import views.style.Styles;
 /** Renders an enumerator question. */
 public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
 
+  // Hardcoded ids used by client side javascript.
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
@@ -109,8 +110,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
   }
 
   /**
-   * Create an enumerator field for existing entries. These come with a checkbox to delete during
-   * form submission.
+   * Create an enumerator field for existing entries. These come with a button to delete during form
+   * submission.
    */
   private static DivTag enumeratorField(
       Messages messages,
