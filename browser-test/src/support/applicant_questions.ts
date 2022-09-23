@@ -209,33 +209,35 @@ export class ApplicantQuestions {
   }
 
   async expectPrograms({
-    notStartedPrograms,
-    inProgressPrograms,
-    submittedPrograms,
+    wantNotStartedPrograms,
+    wantInProgressPrograms,
+    wantSubmittedPrograms,
   }: {
-    notStartedPrograms: string[]
-    inProgressPrograms: string[]
-    submittedPrograms: string[]
+    wantNotStartedPrograms: string[]
+    wantInProgressPrograms: string[]
+    wantSubmittedPrograms: string[]
   }) {
-    const notStartedProgramNames = await this.programNamesForSection(
+    const gotNotStartedProgramNames = await this.programNamesForSection(
       'Not started',
     )
-    const inProgressProgramNames = await this.programNamesForSection(
+    const gotInProgressProgramNames = await this.programNamesForSection(
       'In progress',
     )
-    const submittedProgramNames = await this.programNamesForSection('Submitted')
+    const gotSubmittedProgramNames = await this.programNamesForSection(
+      'Submitted',
+    )
 
     // Sort results before comparing since we don't care about order.
-    notStartedProgramNames.sort()
-    notStartedPrograms.sort()
-    inProgressProgramNames.sort()
-    inProgressPrograms.sort()
-    submittedProgramNames.sort()
-    submittedPrograms.sort()
+    gotNotStartedProgramNames.sort()
+    wantNotStartedPrograms.sort()
+    gotInProgressProgramNames.sort()
+    wantInProgressPrograms.sort()
+    gotSubmittedProgramNames.sort()
+    wantSubmittedPrograms.sort()
 
-    expect(notStartedProgramNames).toEqual(notStartedPrograms)
-    expect(inProgressProgramNames).toEqual(inProgressPrograms)
-    expect(submittedProgramNames).toEqual(submittedPrograms)
+    expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
+    expect(gotInProgressProgramNames).toEqual(wantInProgressPrograms)
+    expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
   }
 
   private programNamesForSection(sectionName: string): Promise<string[]> {

@@ -48,9 +48,9 @@ describe('applicant program index page', () => {
     // Navigate to the applicant's program index and validate that both programs appear in the
     // "Not started" section.
     await applicantQuestions.expectPrograms({
-      notStartedPrograms: [primaryProgramName, otherProgramName],
-      inProgressPrograms: [],
-      submittedPrograms: [],
+      wantNotStartedPrograms: [primaryProgramName, otherProgramName],
+      wantInProgressPrograms: [],
+      wantSubmittedPrograms: [],
     })
 
     // Fill out first application block and confirm that the program appears in the "In progress"
@@ -60,9 +60,9 @@ describe('applicant program index page', () => {
     await applicantQuestions.clickNext()
     await applicantQuestions.gotoApplicantHomePage()
     await applicantQuestions.expectPrograms({
-      notStartedPrograms: [otherProgramName],
-      inProgressPrograms: [primaryProgramName],
-      submittedPrograms: [],
+      wantNotStartedPrograms: [otherProgramName],
+      wantInProgressPrograms: [primaryProgramName],
+      wantSubmittedPrograms: [],
     })
 
     // Finish the application and confirm that the program appears in the "Submitted" section.
@@ -72,13 +72,12 @@ describe('applicant program index page', () => {
     await applicantQuestions.submitFromReviewPage()
     await applicantQuestions.returnToProgramsFromSubmissionPage()
     await applicantQuestions.expectPrograms({
-      notStartedPrograms: [otherProgramName],
-      inProgressPrograms: [],
-      submittedPrograms: [primaryProgramName],
+      wantNotStartedPrograms: [otherProgramName],
+      wantInProgressPrograms: [],
+      wantSubmittedPrograms: [primaryProgramName],
     })
 
-    // Logout, then login as guest and confirm that everything appears unsubmitted. This is a
-    // regression test for the issue fixed with https://github.com/civiform/civiform/pull/3487.
+    // Logout, then login as guest and confirm that everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487).
     await logout(page)
     await loginAsGuest(page)
     await selectApplicantLanguage(
@@ -87,9 +86,9 @@ describe('applicant program index page', () => {
       /* assertProgramIndexPage= */ true,
     )
     await applicantQuestions.expectPrograms({
-      notStartedPrograms: [otherProgramName, primaryProgramName],
-      inProgressPrograms: [],
-      submittedPrograms: [],
+      wantNotStartedPrograms: [otherProgramName, primaryProgramName],
+      wantInProgressPrograms: [],
+      wantSubmittedPrograms: [],
     })
   })
 })
