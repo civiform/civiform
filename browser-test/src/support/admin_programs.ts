@@ -119,20 +119,6 @@ export class AdminPrograms {
     return this.programCardSelector(programName, lifecycle) + ' ' + selector
   }
 
-  async gotoDraftProgramEditPage(programName: string) {
-    await this.gotoAdminProgramsPage()
-    await this.expectDraftProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'Draft',
-        'button :text("Edit")',
-      ),
-    )
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramEditPage(programName)
-  }
-
   async gotoDraftProgramManageStatusesPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -186,9 +172,15 @@ export class AdminPrograms {
   }
 
   async goToManageQuestionsPage(programName: string) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        'Draft',
+        'button :text("Edit")',
+      ),
+    )
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
   }
@@ -467,6 +459,13 @@ export class AdminPrograms {
       this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
     await waitForPageJsLoad(this.page)
+
+    //await this.page.click('text=Edit program details')
+    await this.page.click(
+      `#edit-program-details`,
+    )
+    await waitForPageJsLoad(this.page)
+
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
     await this.expectDraftProgram(programName)
