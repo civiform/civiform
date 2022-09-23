@@ -26,8 +26,7 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
     IdQuestion idQuestion = question.createIdQuestion();
 
     FieldWithLabel idField =
@@ -40,7 +39,7 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setAriaDescribedByIds(ariaDescribedByIds)
             .setScreenReaderText(question.getQuestionText());
 
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       idField.forceAriaInvalid();
     }
 

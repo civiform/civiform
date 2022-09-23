@@ -281,12 +281,10 @@ describe('End to end enumerator test', () => {
     await waitForPageJsLoad(page)
 
     await applicantQuestions.deleteEnumeratorEntity('Bugs')
-    await applicantQuestions.deleteEnumeratorEntity('Daffy')
     // Submit the answers by clicking next, and then go to review page.
     await applicantQuestions.clickNext()
-    await applicantQuestions.clickReview()
 
-    // Make sure there are no enumerators or repeated things in the review page
+    // Make sure that the removed enumerator is not present in the review page
     expect(await page.innerText('#application-summary')).toContain('Porky Pig')
     expect(await page.innerText('#application-summary')).not.toContain(
       'Bugs Bunny',
@@ -295,19 +293,10 @@ describe('End to end enumerator test', () => {
       'Cartoon Character',
     )
     expect(await page.innerText('#application-summary')).not.toContain('100')
-    expect(await page.innerText('#application-summary')).not.toContain(
-      'Daffy Duck',
-    )
-    expect(await page.innerText('#application-summary')).not.toContain('Banker')
-    expect(await page.innerText('#application-summary')).not.toContain(
-      'Painter',
-    )
-    expect(await page.innerText('#application-summary')).not.toContain('31')
-    expect(await page.innerText('#application-summary')).not.toContain('12')
 
     // Go back and add an enumerator answer.
     await page.click(
-      '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Continue")',
+      '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")',
     )
     await waitForPageJsLoad(page)
     await applicantQuestions.addEnumeratorAnswer('Tweety')
@@ -316,11 +305,17 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.clickNext()
     await applicantQuestions.clickReview()
 
-    // Make sure there are no enumerators or repeated things in the review page
+    // Review page should contain Daffy Duck and newly added Tweety Bird.
     expect(await page.innerText('#application-summary')).toContain('Porky Pig')
     expect(await page.innerText('#application-summary')).toContain(
       'Tweety Bird',
     )
+    expect(await page.innerText('#application-summary')).toContain('Daffy Duck')
+    expect(await page.innerText('#application-summary')).toContain('Banker')
+    expect(await page.innerText('#application-summary')).toContain('Painter')
+    expect(await page.innerText('#application-summary')).toContain('31')
+    expect(await page.innerText('#application-summary')).toContain('12')
+    // Review page should not contain deleted enumerator info for Bugs Bunny.
     expect(await page.innerText('#application-summary')).not.toContain(
       'Bugs Bunny',
     )
@@ -328,15 +323,6 @@ describe('End to end enumerator test', () => {
       'Cartoon Character',
     )
     expect(await page.innerText('#application-summary')).not.toContain('100')
-    expect(await page.innerText('#application-summary')).not.toContain(
-      'Daffy Duck',
-    )
-    expect(await page.innerText('#application-summary')).not.toContain('Banker')
-    expect(await page.innerText('#application-summary')).not.toContain(
-      'Painter',
-    )
-    expect(await page.innerText('#application-summary')).not.toContain('31')
-    expect(await page.innerText('#application-summary')).not.toContain('12')
 
     await logout(page)
   })

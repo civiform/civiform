@@ -27,8 +27,7 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
     FieldWithLabel emailField =
@@ -41,7 +40,7 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setAriaDescribedByIds(ariaDescribedByIds)
             .setScreenReaderText(question.getQuestionText());
 
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       emailField.forceAriaInvalid();
     }
 
