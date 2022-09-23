@@ -15,6 +15,7 @@ import java.util.concurrent.CompletionException;
 import models.Account;
 import models.Applicant;
 import models.Application;
+import models.ApplicationEvent;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.Program;
@@ -33,9 +34,12 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
+import services.application.ApplicationEventDetails;
+import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.StatusDefinitions;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.CheckboxQuestionDefinition;
@@ -913,7 +917,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantPrograms() {
+  public void relevantProgramsForApplicant() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
@@ -942,14 +946,58 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);
+    assertThat(result.inProgress().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.empty());
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(programForSubmitted.id);
+    assertThat(result.submitted().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.empty());
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programForUnapplied.id);
+    assertThat(result.unapplied().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.empty());
   }
 
   @Test
-  public void relevantPrograms_withNewerProgramVersion() {
+  public void relevantProgramsForApplicant_otherApplicant() {
+    Applicant primaryApplicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant otherApplicant = subject.createApplicant(2L).toCompletableFuture().join();
+    Program programForDraft =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
+
+    applicationRepository
+        .createOrUpdateDraft(primaryApplicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(primaryApplicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(otherApplicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(
+            programForDraft.id, programForUnapplied.id, programForSubmitted.id);
+    assertThat(result.unapplied().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.empty(), Optional.empty(), Optional.empty());
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_withNewerProgramVersion() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     // Create a draft based on the original version of a program.
@@ -1004,7 +1052,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantPrograms_hiddenFromIndex() {
+  public void relevantProgramsForApplicant_hiddenFromIndex() {
     // This ensures that the applicant can always see that draft
     // applications for a given program, even if a newer version of the
     // program is hidden from the index.
@@ -1069,7 +1117,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantPrograms_submittedTimestamp() {
+  public void relevantProgramsForApplicant_submittedTimestamp() {
     // Creates an app + draft app for a program as well as
     // an application for another program and ensures that
     // the submitted timestamp is present.
@@ -1118,7 +1166,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantPrograms_multipleActiveAndDraftApplications() {
+  public void relevantProgramsForApplicant_multipleActiveAndDraftApplications() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
@@ -1193,6 +1241,107 @@ public class ApplicantServiceTest extends ResetPostgres {
     // confidence that the draft version created above is actually published.
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
+  }
+
+  private static final StatusDefinitions.Status APPROVED_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Approved")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.of(
+                      Locale.US, "I'm a US email!",
+                      Locale.FRENCH, "I'm a FRENCH email!")))
+          .build();
+
+  @Test
+  public void relevantProgramsForApplicant_withApplicationStatus() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+
+    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Application submittedApplication =
+        applicationRepository
+            .submitApplication(applicant.id, program.id, Optional.empty())
+            .toCompletableFuture()
+            .join()
+            .get();
+    addStatusEvent(submittedApplication, APPROVED_STATUS, adminAccount);
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted().stream().map(p -> p.program().id())).containsExactly(program.id);
+    assertThat(result.submitted().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.of(APPROVED_STATUS));
+    assertThat(result.unapplied()).isEmpty();
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_withApplicationStatusAndOlderProgramVersion() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Program originalProgram =
+        ProgramBuilder.newObsoleteProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+
+    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Application submittedApplication =
+        applicationRepository
+            .submitApplication(applicant.id, originalProgram.id, Optional.empty())
+            .toCompletableFuture()
+            .join()
+            .get();
+    addStatusEvent(submittedApplication, APPROVED_STATUS, adminAccount);
+
+    // Publish a new program that has an updated set of status configurations that doesn't include
+    // the application's status. The displayed status definition configuration should be pulled
+    // from the program version associated with the application.
+    StatusDefinitions.Status updatedStatus =
+        APPROVED_STATUS.toBuilder()
+            .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Updated email content"))
+            .build();
+    assertThat(updatedStatus).isNotEqualTo(APPROVED_STATUS);
+    Program updatedProgram =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(updatedStatus)))
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(updatedProgram.id);
+    assertThat(result.submitted().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.of(APPROVED_STATUS));
+    assertThat(result.unapplied()).isEmpty();
+  }
+
+  private static void addStatusEvent(
+      Application application, StatusDefinitions.Status status, Account actorAccount) {
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(
+                StatusEvent.builder()
+                    .setStatusText(status.statusText())
+                    .setEmailSent(false)
+                    .build())
+            .build();
+    ApplicationEvent event = new ApplicationEvent(application, actorAccount, details);
+    event.save();
+    application.refresh();
   }
 
   private void createQuestions() {

@@ -247,10 +247,12 @@ public final class ApplicationRepository {
           return database
               .find(Application.class)
               .where()
+              .eq("applicant.id", applicantId)
               .isIn("lifecycle_stage", stages)
               .query()
               // Eagerly fetch the program in a SQL join.
               .fetch("program")
+              .fetch("applicationEvents")
               .findSet()
               .stream()
               .collect(ImmutableSet.toImmutableSet());

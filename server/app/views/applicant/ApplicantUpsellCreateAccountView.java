@@ -20,6 +20,7 @@ import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -101,7 +102,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
             .with(
                 div(messages.at(
                         MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))
-                    .withClasses(Styles.TEXT_LG));
+                    .withClasses(ReferenceClasses.BT_APPLICATION_ID, Styles.TEXT_LG));
 
     // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
     if (Strings.isNullOrEmpty(account.getEmailAddress()) && account.getMemberOfGroup().isEmpty()) {
