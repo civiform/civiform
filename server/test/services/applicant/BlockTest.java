@@ -469,6 +469,18 @@ public class BlockTest {
         .forEach(path -> QuestionAnswerer.addMetadata(applicantData, path, programId, 1L));
 
     assertThat(block.hasErrors()).isTrue();
+    // Check that there is a required error for a question in the block.
+    assertThat(
+            block.getQuestions().stream()
+                .anyMatch(
+                    q ->
+                        q
+                            .errorsPresenter()
+                            .getValidationErrors()
+                            .get(q.getContextualizedPath())
+                            .stream()
+                            .anyMatch(e -> e.isRequiredError())))
+        .isTrue();
   }
 
   @Test
