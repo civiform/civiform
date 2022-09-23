@@ -432,29 +432,29 @@ export class AdminPrograms {
   }
 
   async expectProgramReferencesModalContains({
-    expectedQuestionNames,
-    expectedProgramNames,
+    expectedQuestionsContents,
+    expectedProgramsContents,
   }: {
-    expectedQuestionNames: string[]
-    expectedProgramNames: string[]
+    expectedQuestionsContents: string[]
+    expectedProgramsContents: string[]
   }) {
     const modal = await this.openPublishAllProgramsModal()
 
     const editedQuestions = await modal.$$(
       '.cf-admin-publish-references-question li',
     )
-    const editedQuestionNames = await Promise.all(
+    const editedQuestionsContents = await Promise.all(
       editedQuestions.map((editedQuestion) => editedQuestion.innerText()),
     )
-    expect(editedQuestionNames).toEqual(expectedQuestionNames)
+    expect(editedQuestionsContents).toEqual(expectedQuestionsContents)
 
     const editedPrograms = await modal.$$(
       '.cf-admin-publish-references-program li',
     )
-    const editedProgramNames = await Promise.all(
+    const editedProgramsContents = await Promise.all(
       editedPrograms.map((editedProgram) => editedProgram.innerText()),
     )
-    expect(editedProgramNames).toEqual(expectedProgramNames)
+    expect(editedProgramsContents).toEqual(expectedProgramsContents)
 
     await dismissModal(this.page)
   }
