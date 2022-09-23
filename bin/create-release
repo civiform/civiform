@@ -61,6 +61,9 @@ def main():
         shell_cmd(
             f'git config user.email ' +
             f'"{os.environ["GITHUB_ACTOR"]}@users.noreply.github.com"')
+        shell_cmd(
+            f'git config user.name ' +
+            f'"{os.environ["GITHUB_ACTOR"]}"')
     releaser_email = shell_cmd('git config --get user.email')
 
     ################################################################################
