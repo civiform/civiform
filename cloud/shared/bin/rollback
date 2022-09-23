@@ -1,8 +1,0 @@
-#! /usr/bin/env bash
-
-set -e
-
-source bin/lib/out.sh
-source cloud/shared/bin/lib.sh
-
-exec "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/rollback" "$@"
