@@ -308,11 +308,11 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     for (const questionName of questionNames) {
-      await this.addQuestion(questionName)
+      await this.addQuestionFromQuestionBank(questionName)
     }
   }
 
-  private async addQuestion(questionName: string) {
+  async addQuestionFromQuestionBank(questionName: string) {
     const questionBankElementLocator = this.page.locator(
       '.cf-question-bank-element',
       {has: this.page.locator(`text="Admin ID: ${questionName}"`)},
@@ -346,13 +346,13 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     // Add the optional question
-    await this.addQuestion(optionalQuestionName)
+    await this.addQuestionFromQuestionBank(optionalQuestionName)
     // Only allow one optional question per block; this selector will always toggle the first optional button.  It
     // cannot tell the difference between multiple option buttons
     await this.page.click(`:is(button:has-text("optional"))`)
 
     for (const questionName of questionNames) {
-      await this.addQuestion(questionName)
+      await this.addQuestionFromQuestionBank(questionName)
     }
   }
 
@@ -374,7 +374,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     for (const questionName of questionNames) {
-      await this.addQuestion(questionName)
+      await this.addQuestionFromQuestionBank(questionName)
     }
     return await this.page.$eval(
       '#block-name-input',
@@ -400,7 +400,7 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     for (const questionName of questionNames) {
-      await this.addQuestion(questionName)
+      await this.addQuestionFromQuestionBank(questionName)
     }
   }
 
