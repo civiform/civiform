@@ -230,6 +230,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
       MessageKey applyTitle) {
     return div()
+        .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
         .with(
             h3().withText(messages.at(sectionTitle.getKeyName()))
                 .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
@@ -264,7 +265,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     DivTag title =
         div()
             .withId(baseId + "-title")
-            .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
+            .withClasses(
+                ReferenceClasses.APPLICATION_CARD_TITLE, Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
             .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.createLinksAndEscapeText(
