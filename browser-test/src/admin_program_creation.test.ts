@@ -87,6 +87,8 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
+    await takeScreenshot(page, 'program-creation-question-bank-initial')
+
     for (const question of [movie, color, song]) {
       await adminPrograms.addQuestionFromQuestionBank(question)
     }
@@ -111,11 +113,7 @@ describe('program creation', () => {
     )
     await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
-    // Questions in the question bank use animation. And it causes flakiness
-    // as buttons have very brief animation upon initial rendering and it can
-    // capturef by screenshot. So delay taking screenshot.
-    await page.waitForTimeout(2000)
-    await validateScreenshot(page, 'program-creation')
+    await takeScreenshot(page, 'program-creation')
   })
 
   it('create question from question bank', async () => {
@@ -148,6 +146,14 @@ describe('program creation', () => {
       questionName,
     ])
   })
+
+  async function takeScreenshot(page: Page, screenshotName: string) {
+    // Questions in the question bank use animation. And it causes flakiness
+    // as buttons have very brief animation upon initial rendering and it can
+    // capturef by screenshot. So delay taking screenshot.
+    await page.waitForTimeout(2000)
+    await validateScreenshot(page, screenshotName)
+  }
 
   async function expectQuestionsOrderWithinBlock(
     page: Page,
