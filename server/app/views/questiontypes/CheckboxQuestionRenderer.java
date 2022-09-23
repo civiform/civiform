@@ -37,8 +37,9 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
+
+    boolean hasErrors = !validationErrors.isEmpty();
     MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
 
     DivTag checkboxQuestionFormContent =
@@ -60,16 +61,13 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 multiOptionQuestion.getSelectionPathAsArray(),
                                 option,
                                 multiOptionQuestion.optionIsSelected(option),
-                                hasQuestionErrors)));
+                                hasErrors)));
 
     return checkboxQuestionFormContent;
   }
 
   private DivTag renderCheckboxOption(
-      String selectionPath,
-      LocalizedQuestionOption option,
-      boolean isSelected,
-      boolean hasQuestionErrors) {
+      String selectionPath, LocalizedQuestionOption option, boolean isSelected, boolean hasErrors) {
     String id = "checkbox-" + question.getContextualizedPath() + "-" + option.id();
     LabelTag labelTag =
         label()
@@ -84,7 +82,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .withName(selectionPath)
                     .withValue(String.valueOf(option.id()))
                     .withCondChecked(isSelected)
-                    .condAttr(hasQuestionErrors, "aria-invalid", "true")
+                    .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
                 span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
