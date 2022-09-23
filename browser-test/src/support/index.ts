@@ -13,6 +13,7 @@ import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
+  LOCALSTACK_URL,
   TEST_USER_AUTH_STRATEGY,
   DISABLE_SCREENSHOTS,
   TEST_USER_LOGIN,
@@ -498,15 +499,21 @@ export type LocalstackSesEmail = {
   Subject: string
 }
 
+/**
+ * Queries the emails that have been sent for a given recipient. This method requires that tests
+ * run in an environment that uses localstack sinc it captures the emails sent using SES and makes
+ * them available at a well-known endpoint). An error is thrown when the method is called from an
+ * environment that does not use localstack.
+ */
 export const extractEmailsForRecipient = async function (
   page: Page,
   recipientEmail: string,
 ): Promise<LocalstackSesEmail[]> {
-  if (TEST_USER_AUTH_STRATEGY !== 'fake-oidc') {
+  if (!supportsEmailInspection()) {
     throw new Error('Unsupported call to extractEmailsForRecipient')
   }
   const originalPageUrl = page.url()
-  await page.goto('http://localstack:4566/_localstack/ses')
+  await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
   const responseJson = JSON.parse(await page.innerText('body')) as any
 
   const allEmails = responseJson.messages as LocalstackSesEmail[]
