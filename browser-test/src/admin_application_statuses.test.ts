@@ -233,7 +233,6 @@ describe('view program statuses', () => {
           await adminPrograms.expectUpdateStatusToast()
 
           if (supportsEmailInspection()) {
-            await page.waitForTimeout(5000)
             const emailsAfter = await extractEmailsForRecipient(
               page,
               testUserDisplayName(),
@@ -261,7 +260,6 @@ describe('view program statuses', () => {
           await adminPrograms.expectUpdateStatusToast()
 
           if (supportsEmailInspection()) {
-            await page.waitForTimeout(5000)
             const emailsAfter = await extractEmailsForRecipient(
               page,
               testUserDisplayName(),
