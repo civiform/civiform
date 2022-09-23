@@ -101,10 +101,12 @@ public final class ApplicantStyles {
   /** Base styles for buttons with a transparent background and an outline. */
   private static final String BUTTON_BASE_OUTLINE =
       StyleUtils.joinStyles(
-          BUTTON_BASE,
+          // Remove "border-transparent" so it doesn't conflict with "border-seattle-blue".
+          StyleUtils.removeStyles(
+            BUTTON_BASE, Styles.BORDER_TRANSPARENT
+          ),
           Styles.BG_TRANSPARENT,
           BaseStyles.TEXT_SEATTLE_BLUE,
-          Styles.BORDER,
           BaseStyles.BORDER_SEATTLE_BLUE,
           StyleUtils.hover(Styles.BG_BLUE_100));
 
@@ -124,7 +126,7 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, Styles.TEXT_BASE);
   public static final String BUTTON_SUBMIT_APPLICATION =
       StyleUtils.joinStyles(
-          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO, Styles.BG_GREEN_700);
+          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
   public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
       StyleUtils.joinStyles(
           BUTTON_BASE_SOLID, Styles.TEXT_BASE, Styles.NORMAL_CASE, Styles.FONT_NORMAL, Styles.PX_4);
