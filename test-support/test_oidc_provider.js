@@ -33,7 +33,7 @@ const configuration = {
         'http://localhost:9000/',
         'http://localhost:19001/',
         'http://civiform:9000/',
-      ]
+      ],
     },
     {
       // IDCS
@@ -73,7 +73,7 @@ const configuration = {
   // Required method, we fake the account details.
   async findAccount(ctx, id) {
     const email = `${id}@example.com`
-    if (ctx.oidc.client.clientId == "foo") {
+    if (ctx.oidc.client.clientId == 'foo') {
       return {
         accountId: id,
         async claims() {
@@ -100,12 +100,12 @@ const configuration = {
           sub: id,
           email: email,
           name: email,
-          picture: "https://www.gravatar.com/avatar/00000000000000000000000000000000.png",
+          picture:
+            'https://www.gravatar.com/avatar/00000000000000000000000000000000.png',
           email_verified: true,
         }
       },
     }
-
   },
   claims: {
     openid: ['sub'],
@@ -124,14 +124,14 @@ const configuration = {
   features: {
     rpInitiatedLogout: {
       enabled: true,
-    }
-  }
+    },
+  },
 }
 
 const oidcPort = process.env.OIDC_PORT || 3380
 const oidc = new Provider('http://localhost:' + oidcPort, configuration)
 
-const { invalidate: orig } = oidc.Client.Schema.prototype
+const {invalidate: orig} = oidc.Client.Schema.prototype
 
 // By default, redirect URLs must be https and cannot refer to localhost. While these are correct
 // for production implementations, this is intended to be used ONLY for testing. For browser tests,
