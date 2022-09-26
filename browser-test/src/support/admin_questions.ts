@@ -147,7 +147,7 @@ export class AdminQuestions {
   }
 
   selectQuestionTableRow(questionName: string) {
-    return `.cf-admin-question-table-row:has-text("${questionName}")`
+    return `.cf-admin-question-table-row:has-text("Admin ID: ${questionName}")`
   }
 
   selectWithinQuestionTableRow(questionName: string, selector: string) {

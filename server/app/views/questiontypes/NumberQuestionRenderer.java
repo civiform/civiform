@@ -29,8 +29,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
     FieldWithLabel numberField =
@@ -44,7 +43,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
                 validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
             .addReferenceClass(getReferenceClass());
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       numberField.forceAriaInvalid();
     }
     if (numberQuestion.getNumberValue().isPresent()) {

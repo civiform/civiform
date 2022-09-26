@@ -227,8 +227,12 @@ public final class QuestionsListView extends BaseHtmlView {
     DivTag adminNote =
         div()
             .withClasses(Styles.PY_7)
-            .with(span("Admin note: ").withClasses(Styles.FONT_BOLD))
-            .with(span(latestDefinition.getName()), br(), span(latestDefinition.getDescription()));
+            .with(
+                span("Admin ID: ").withClasses(Styles.FONT_BOLD),
+                span(latestDefinition.getName()),
+                br(),
+                span("Admin note: ").withClasses(Styles.FONT_BOLD),
+                span(latestDefinition.getDescription()));
 
     DivTag rowWithAdminNote =
         div()
