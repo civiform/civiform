@@ -35,9 +35,7 @@ abstract class ApplicantSingleQuestionRenderer extends ApplicantQuestionRenderer
       ImmutableList<String> ariaDescribedByIds,
       ImmutableList<DomContent> questionTextDoms,
       DivTag questionSecondaryTextDiv) {
-    ContainerTag questionTag;
-
-    questionTag =
+    ContainerTag questionTag =
         div()
             .with(
                 div()

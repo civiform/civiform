@@ -23,9 +23,9 @@ import views.style.Styles;
 /**
  * Superclass for all applicant question renderers with input field(s) for the applicant to answer
  * the question. Question renderers should not subclass from ApplicantQuestionRendererImpl directly;
- * instead they should subclass from one of the child classes, either: -
- * ApplicantCompositeQuestionRenderer (for multiple input fields) or -
- * ApplicantSingleQuestionRenderer (for single input field)
+ * instead they should subclass from one of the child classes, either
+ * ApplicantCompositeQuestionRenderer (for multiple input fields) or ApplicantSingleQuestionRenderer
+ * (for single input field).
  */
 abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRenderer {
 

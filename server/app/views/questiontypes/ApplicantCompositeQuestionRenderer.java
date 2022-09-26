@@ -39,9 +39,7 @@ abstract class ApplicantCompositeQuestionRenderer extends ApplicantQuestionRende
       ImmutableList<String> ariaDescribedByIds,
       ImmutableList<DomContent> questionTextDoms,
       DivTag questionSecondaryTextDiv) {
-    ContainerTag questionTag;
-
-    questionTag =
+    ContainerTag questionTag =
         fieldset()
             .attr("aria-describedby", StringUtils.join(ariaDescribedByIds, " "))
             .with(
