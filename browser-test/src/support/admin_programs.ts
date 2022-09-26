@@ -94,7 +94,7 @@ export class AdminPrograms {
 
   // Question card within a program edit page
   questionCardSelectorInProgramEditor(questionName: string) {
-    return `.cf-program-question:has(:text("${questionName}"))`
+    return `.cf-program-question:has(:text("Admin ID: ${questionName}"))`
   }
 
   // Question card within a program edit page
@@ -308,8 +308,21 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     for (const questionName of questionNames) {
-      await this.page.click(`button >> text="${questionName}"`)
+      await this.addQuestionFromQuestionBank(questionName)
     }
+  }
+
+  async addQuestionFromQuestionBank(questionName: string) {
+    const questionBankElementLocator = this.page.locator(
+      '.cf-question-bank-element',
+      {has: this.page.locator(`text="Admin ID: ${questionName}"`)},
+    )
+    await questionBankElementLocator.click()
+    await waitForPageJsLoad(this.page)
+    // Make sure the question is successfully added to the screen.
+    await this.page.waitForSelector(
+      `div.cf-program-question p:text("Admin ID: ${questionName}")`,
+    )
   }
 
   async questionBankNames(programName: string): Promise<string[]> {
@@ -333,15 +346,13 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     // Add the optional question
-    await this.page.click(`button:text("${optionalQuestionName}")`)
-    await waitForPageJsLoad(this.page)
+    await this.addQuestionFromQuestionBank(optionalQuestionName)
     // Only allow one optional question per block; this selector will always toggle the first optional button.  It
     // cannot tell the difference between multiple option buttons
     await this.page.click(`:is(button:has-text("optional"))`)
 
     for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
-      await waitForPageJsLoad(this.page)
+      await this.addQuestionFromQuestionBank(questionName)
     }
   }
 
@@ -363,12 +374,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
-      await waitForPageJsLoad(this.page)
-      // Make sure the question is successfully added to the screen.
-      await this.page.waitForSelector(
-        `div.cf-program-question p:text("${questionName}")`,
-      )
+      await this.addQuestionFromQuestionBank(questionName)
     }
     return await this.page.$eval(
       '#block-name-input',
@@ -394,7 +400,7 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
+      await this.addQuestionFromQuestionBank(questionName)
     }
   }
 
