@@ -67,9 +67,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
       // not set.
       if (expect.getState().currentTestName) {
         // remove special characters
-        dirs.push(
-          expect.getState().currentTestName.replaceAll(/[:"<>|*?]/g, ''),
-        )
+        dirs.push(expect.getState().currentTestName.replace(/[:"<>|*?]/g, ''))
       }
     }
     return browser.newContext({
