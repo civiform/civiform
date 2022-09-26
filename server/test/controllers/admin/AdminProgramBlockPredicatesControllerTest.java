@@ -94,11 +94,11 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(content).contains("Admin ID: applicant name");
     assertThat(content).contains("what is your name?");
     assertThat(content).contains("Admin ID: applicant address");
-    assertThat(content).contains("what is your address?");
+    assertThat(content).contains("What is your address?");
     assertThat(content).contains("Admin ID: applicant ice cream");
     assertThat(content).contains("Select your favorite ice cream flavor");
     assertThat(content).doesNotContain("Admin ID: applicant favorite color");
-    assertThat(content).contains("What is your favorite color?");
+    assertThat(content).doesNotContain("What is your favorite color?");
   }
 
   @Test
