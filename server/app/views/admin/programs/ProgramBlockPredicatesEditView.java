@@ -181,6 +181,10 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
       InputTag csrfTag) {
+    String questionHelpText =
+        questionDefinition.getQuestionHelpText().isEmpty()
+            ? ""
+            : questionDefinition.getQuestionHelpText().getDefault();
     ButtonTag triggerButtonContent =
         TagCreator.button()
             .with(
@@ -191,10 +195,11 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
                     .with(
                         div()
-                            .withClasses()
+                            .withClasses(Styles.TEXT_LEFT)
                             .with(
-                                div(questionDefinition.getName()),
-                                div(questionDefinition.getDescription())
+                                div(questionDefinition.getQuestionText().getDefault()),
+                                div(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM),
+                                div(String.format("Admin ID: %s", questionDefinition.getName()))
                                     .withClasses(Styles.MT_1, Styles.TEXT_SM))));
 
     DivTag modalContent =
@@ -244,6 +249,10 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   }
 
   private DivTag renderQuestionDefinitionBox(QuestionDefinition questionDefinition) {
+    String questionHelpText =
+        questionDefinition.getQuestionHelpText().isEmpty()
+            ? ""
+            : questionDefinition.getQuestionHelpText().getDefault();
     return div()
         .withClasses(
             Styles.FLEX,
@@ -259,10 +268,10 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                 .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
         .with(
             div()
-                .withClasses()
                 .with(
-                    div(questionDefinition.getName()),
-                    div(questionDefinition.getDescription())
+                    div(questionDefinition.getQuestionText().getDefault()),
+                    div(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM),
+                    div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses(Styles.MT_1, Styles.TEXT_SM)));
   }
 
