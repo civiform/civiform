@@ -13,6 +13,7 @@ import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
+  LOCALSTACK_URL,
   TEST_USER_AUTH_STRATEGY,
   DISABLE_SCREENSHOTS,
   TEST_USER_LOGIN,
@@ -358,6 +359,10 @@ export const testUserDisplayName = () => {
   return TEST_USER_DISPLAY_NAME
 }
 
+export const supportsEmailInspection = () => {
+  return TEST_USER_AUTH_STRATEGY === 'fake-oidc'
+}
+
 /**
  * The option to select a language is only shown once for a given applicant. If this is
  * the first time they see this page, select the given language. Otherwise continue.
@@ -480,4 +485,43 @@ export const validateScreenshot = async (
     },
     ...matchImageSnapshotOptions,
   })
+}
+
+export type LocalstackSesEmail = {
+  Body: {
+    html_part: string | null
+    text_part: string | null
+  }
+  Destination: {
+    ToAddresses: string[]
+  }
+  Source: string
+  Subject: string
+}
+
+/**
+ * Queries the emails that have been sent for a given recipient. This method requires that tests
+ * run in an environment that uses localstack since it captures the emails sent using SES and makes
+ * them available at a well-known endpoint). An error is thrown when the method is called from an
+ * environment that does not use localstack. The supportsEmailInspection method can be used to
+ * determine if the environment supports sending emails.
+ */
+export const extractEmailsForRecipient = async function (
+  page: Page,
+  recipientEmail: string,
+): Promise<LocalstackSesEmail[]> {
+  if (!supportsEmailInspection()) {
+    throw new Error('Unsupported call to extractEmailsForRecipient')
+  }
+  const originalPageUrl = page.url()
+  await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
+  const responseJson = JSON.parse(await page.innerText('body')) as any
+
+  const allEmails = responseJson.messages as LocalstackSesEmail[]
+  const filteredEmails = allEmails.filter((email) => {
+    return email.Destination.ToAddresses.includes(recipientEmail)
+  })
+
+  await page.goto(originalPageUrl)
+  return filteredEmails
 }

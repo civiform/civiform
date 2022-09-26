@@ -131,6 +131,10 @@ if truth::is_enabled both_emulators; then
   else
     compose_browser_test "${use_dev}" --profile aws up --no-recreate -d localstack
   fi
+  # Wait for localstack to start. This script also has the side effect of verifying the email
+  # address used for browser tests. Without this call, emails won't be sent.
+  # The emulator URL is the same as that set by emulators::set_localstack_emulator_vars.
+  "bin/localstack/wait" "http://localhost:6645"
 fi
 
 # Start everything else.
