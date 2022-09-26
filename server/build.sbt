@@ -28,7 +28,7 @@ lazy val root = (project in file("."))
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
-      "com.j2html" % "j2html" % "1.5.0",
+      "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
       "software.amazon.awssdk" % "s3" % "2.17.282",
