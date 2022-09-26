@@ -10,7 +10,7 @@
   },
   "license": "CC0-1.0",
   "devDependencies": {
-    "@tailwindcss/line-clamp": "0.4.0",
+    "@tailwindcss/line-clamp": "0.4.2",
     "@tsconfig/recommended": "1.0.1",
     "@typescript-eslint/eslint-plugin": "5.36.1",
     "@typescript-eslint/parser": "5.36.1",
