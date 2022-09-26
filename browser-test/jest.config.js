@@ -6,6 +6,7 @@ module.exports = {
   },
   globalSetup: './src/delete_database.ts',
   globals: {
+    // TODO(clouser): Fix this.
     'ts-jest': {
       tsconfig: 'src/tsconfig.json',
     },
