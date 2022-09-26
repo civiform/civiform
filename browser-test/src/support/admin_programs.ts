@@ -313,11 +313,9 @@ export class AdminPrograms {
   }
 
   async addQuestionFromQuestionBank(questionName: string) {
-    const questionBankElementLocator = this.page.locator(
-      '.cf-question-bank-element',
-      {has: this.page.locator(`text="Admin ID: ${questionName}"`)},
+    await this.page.click(
+      `.cf-question-bank-element:has-text("Admin ID: ${questionName}")`,
     )
-    await questionBankElementLocator.click()
     await waitForPageJsLoad(this.page)
     // Make sure the question is successfully added to the screen.
     await this.page.waitForSelector(
