@@ -32,8 +32,8 @@ public class CfTestHelpers {
   public static ImmutableMap<String, Object> oidcConfig(String host, int port) {
     return new ImmutableMap.Builder<String, Object>()
         .put("auth.applicant_idp", "idcs")
-        .put("idcs.client_id", "foo")
-        .put("idcs.secret", "bar")
+        .put("idcs.client_id", "idcs-fake-oidc-client")
+        .put("idcs.secret", "idcs-fake-oidc-secret")
         .put(
             "idcs.discovery_uri",
             String.format("http://%s:%d/.well-known/openid-configuration", host, port))
@@ -58,8 +58,8 @@ public class CfTestHelpers {
 
   public static OidcConfiguration getOidcConfiguration(String host, int port) {
     OidcConfiguration config = new OidcConfiguration();
-    config.setClientId("foo");
-    config.setSecret("bar");
+    config.setClientId("idcs-fake-oidc-client");
+    config.setSecret("idcs-fake-oidc-secret");
     config.setDiscoveryURI(
         String.format("http://%s:%d/.well-known/openid-configuration", host, port));
 

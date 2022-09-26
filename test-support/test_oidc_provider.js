@@ -3,8 +3,8 @@ const configuration = {
   clients: [
     {
       // Normal OIDC
-      client_id: 'standard',
-      client_secret: 'bar',
+      client_id: 'generic-fake-oidc-client',
+      client_secret: 'generic-fake-oidc-secret',
       response_types: ['id_token', 'id_token token'],
       response_mode: ['form_post'],
       grant_types: ['implicit'],
@@ -37,8 +37,8 @@ const configuration = {
     },
     {
       // IDCS
-      client_id: 'foo',
-      client_secret: 'bar',
+      client_id: 'idcs-fake-oidc-client',
+      client_secret: 'idcs-fake-oidc-secret',
       response_types: ['id_token'],
       response_mode: ['form_post'],
       grant_types: ['implicit'],

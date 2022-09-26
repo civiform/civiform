@@ -120,7 +120,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     logout();
     assertThat(browser.url())
         .contains(
-            "session/end?post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A19001%2F&client_id=foo")
+            "session/end?post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A19001%2F&client_id=idcs-fake-oidc-client")
         .as("redirects to login provider");
     assertThat(browser.pageSource().contains("Do you want to sign-out from"))
         .as("Confirm logout from dev-oidc");

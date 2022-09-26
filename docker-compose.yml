@@ -66,8 +66,8 @@ services:
       - LOGIN_RADIUS_KEYSTORE_NAME
       - CIVIFORM_APPLICANT_IDP=generic-oidc
       # Hard coded in test-support/test_oidc_provider.js
-      - IDCS_CLIENT_ID=foo
-      - IDCS_SECRET=bar
+      - IDCS_CLIENT_ID=idcs-fake-oidc-client
+      - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - ADFS_CLIENT_ID
       - ADFS_SECRET
@@ -76,7 +76,7 @@ services:
       - APPLICANT_OIDC_LOGOUT_CLIENT_PARAM=client_id
       - APPLICANT_OIDC_OVERRIDE_LOGOUT_URL
       - APPLICANT_OIDC_PROVIDER_NAME
-      - APPLICANT_OIDC_CLIENT_ID=standard
+      - APPLICANT_OIDC_CLIENT_ID=generic-fake-oidc-client
       - APPLICANT_OIDC_CLIENT_SECRET=bar
       - APPLICANT_OIDC_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - APPLICANT_OIDC_RESPONSE_MODE
