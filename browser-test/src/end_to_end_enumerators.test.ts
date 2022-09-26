@@ -95,21 +95,25 @@ describe('End to end enumerator test', () => {
     )
 
     // Add an enumerator question. All options should go away.
-    await page.click('button:text("enumerator-ete-householdmembers")')
+    await adminPrograms.addQuestionFromQuestionBank(
+      'enumerator-ete-householdmembers',
+    )
     expect(await page.innerText('id=question-bank-questions')).toBe('')
 
     // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
     await page.click(
       '.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button',
     )
-    await page.click('button:text("enumerator-ete-name")')
+    await adminPrograms.addQuestionFromQuestionBank('enumerator-ete-name')
     expect(await page.innerText('id=question-bank-questions')).not.toContain(
       'enumerator-ete-householdmembers',
     )
 
     // Create a new block with the first enumerator question, and then create a repeated block. The repeated questions should be the only options.
     await page.click('#add-block-button')
-    await page.click('button:text("enumerator-ete-householdmembers")')
+    await adminPrograms.addQuestionFromQuestionBank(
+      'enumerator-ete-householdmembers',
+    )
     await page.click('#create-repeated-block-button')
     expect(await page.innerText('id=question-bank-questions')).toContain(
       'enumerator-ete-repeated-name',
@@ -133,16 +137,22 @@ describe('End to end enumerator test', () => {
     // Create the rest of the program.
     // Add repeated name question
     await page.click('p:text("Screen 3")')
-    await page.click('button:text("enumerator-ete-repeated-name")')
+    await adminPrograms.addQuestionFromQuestionBank(
+      'enumerator-ete-repeated-name',
+    )
 
     // Create another repeated block and add the nested enumerator question
     await page.click('p:text("Screen 2")')
     await page.click('#create-repeated-block-button')
-    await page.click('button:text("enumerator-ete-repeated-jobs")')
+    await adminPrograms.addQuestionFromQuestionBank(
+      'enumerator-ete-repeated-jobs',
+    )
 
     // Create a nested repeated block and add the nested text question
     await page.click('#create-repeated-block-button')
-    await page.click('button:text("enumerator-ete-repeated-jobs-income")')
+    await adminPrograms.addQuestionFromQuestionBank(
+      'enumerator-ete-repeated-jobs-income',
+    )
 
     // Publish!
     await adminPrograms.publishProgram(programName)

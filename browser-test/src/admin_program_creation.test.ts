@@ -49,7 +49,7 @@ describe('program creation', () => {
     )
 
     // Add a non-enumerator question and the enumerator option should go away
-    await page.click('button:text("apc-name")')
+    await adminPrograms.addQuestionFromQuestionBank('apc-name')
     expect(await page.innerText('id=question-bank-questions')).not.toContain(
       'apc-enumerator',
     )
@@ -61,7 +61,7 @@ describe('program creation', () => {
     await page.click(
       '.cf-program-question:has-text("apc-name") >> .cf-remove-question-button',
     )
-    await page.click('button:text("apc-enumerator")')
+    await adminPrograms.addQuestionFromQuestionBank('apc-enumerator')
     expect(await page.innerText('id=question-bank-questions')).toBe('')
 
     // Create a repeated block. The repeated question should be the only option.
@@ -87,8 +87,10 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
+    await takeScreenshot(page, 'program-creation-question-bank-initial')
+
     for (const question of [movie, color, song]) {
-      await page.click(`button:text("${question}")`)
+      await adminPrograms.addQuestionFromQuestionBank(question)
     }
     // verify original order
     await expectQuestionsOrderWithinBlock(page, [movie, color, song])
@@ -111,11 +113,7 @@ describe('program creation', () => {
     )
     await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
-    // Questions in the question bank use animation. And it causes flakiness
-    // as buttons have very brief animation upon initial rendering and it can
-    // capturef by screenshot. So delay taking screenshot.
-    await page.waitForTimeout(2000)
-    await validateScreenshot(page, 'program-creation')
+    await takeScreenshot(page, 'program-creation')
   })
 
   it('create question from question bank', async () => {
@@ -148,6 +146,14 @@ describe('program creation', () => {
       questionName,
     ])
   })
+
+  async function takeScreenshot(page: Page, screenshotName: string) {
+    // Questions in the question bank use animation. And it causes flakiness
+    // as buttons have very brief animation upon initial rendering and it can
+    // capturef by screenshot. So delay taking screenshot.
+    await page.waitForTimeout(2000)
+    await validateScreenshot(page, screenshotName)
+  }
 
   async function expectQuestionsOrderWithinBlock(
     page: Page,

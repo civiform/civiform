@@ -7,7 +7,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.text;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -144,7 +143,7 @@ public final class QuestionBank {
                     Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
 
     ButtonTag addButton =
-        TagCreator.button(text(definition.getName()))
+        TagCreator.button()
             .withType("submit")
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
@@ -154,12 +153,19 @@ public final class QuestionBank {
     SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType())
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+    String questionHelpText =
+        definition.getQuestionHelpText().isEmpty()
+            ? ""
+            : definition.getQuestionHelpText().getDefault();
     DivTag content =
         div()
             .withClasses(Styles.ML_4)
             .with(
-                p(definition.getName()).withClass(ReferenceClasses.ADMIN_QUESTION_TITLE),
-                p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
+                p(definition.getQuestionText().getDefault())
+                    .withClass(ReferenceClasses.ADMIN_QUESTION_TITLE),
+                p(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM, Styles.LINE_CLAMP_2),
+                p(String.format("Admin ID: %s", definition.getName()))
+                    .withClasses(Styles.MT_1, Styles.TEXT_SM),
                 addButton);
     return questionDiv.with(PLUS_ICON, icon, content);
   }
