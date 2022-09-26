@@ -195,7 +195,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
                     .with(
                         div()
-                            .withClasses()
+                            .withClasses(Styles.TEXT_LEFT)
                             .with(
                                 div(questionDefinition.getQuestionText().getDefault()),
                                 div(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM),
@@ -268,7 +268,6 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                 .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
         .with(
             div()
-                .withClasses()
                 .with(
                     div(questionDefinition.getQuestionText().getDefault()),
                     div(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM),
