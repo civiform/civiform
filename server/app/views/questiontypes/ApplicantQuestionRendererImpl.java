@@ -2,8 +2,6 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.fieldset;
-import static j2html.TagCreator.legend;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -12,7 +10,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -25,26 +22,21 @@ import views.style.Styles;
 
 /**
  * Superclass for all applicant question renderers with input field(s) for the applicant to answer
- * the question.
+ * the question. Question renderers should not subclass from ApplicantQuestionRendererImpl directly;
+ * instead they should subclass from one of the child classes, either: -
+ * ApplicantCompositeQuestionRenderer (for multiple input fields) or -
+ * ApplicantSingleQuestionRenderer (for single input field)
  */
 abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRenderer {
 
-  /** Whether the question is comprised of a single input field or multiple. */
-  protected enum InputFieldType {
-    SINGLE,
-    COMPOSITE
-  }
-
   protected final ApplicantQuestion question;
-  private final InputFieldType inputFieldType;
   // HTML id tags for various elements within this question.
   private final String questionId;
   private final String descriptionId;
   private final String errorId;
 
-  ApplicantQuestionRendererImpl(ApplicantQuestion question, InputFieldType inputFieldType) {
+  ApplicantQuestionRendererImpl(ApplicantQuestion question) {
     this.question = checkNotNull(question);
-    this.inputFieldType = checkNotNull(inputFieldType);
     this.questionId = RandomStringUtils.randomAlphabetic(8);
     this.descriptionId = String.format("%s-description", questionId);
     this.errorId = String.format("%s-error", questionId);
@@ -54,10 +46,13 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     return question.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
   }
 
-  protected abstract DivTag renderTag(
+  /** Renders the question tag. */
+  protected abstract ContainerTag renderQuestionTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds);
+      ImmutableList<String> ariaDescribedByIds,
+      ImmutableList<DomContent> questionTextDoms,
+      DivTag questionSecondaryTextDiv);
 
   @Override
   public final DivTag render(ApplicantQuestionRendererParams params) {
@@ -102,49 +97,19 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
       ariaDescribedByBuilder.add(errorId);
     }
 
-    ContainerTag questionTag;
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
             question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab);
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
-    switch (inputFieldType) {
-      case COMPOSITE:
-        // Composite questions should be rendered with fieldset and legend for screen reader users.
-        questionTag =
-            fieldset()
-                .attr("aria-describedby", StringUtils.join(ariaDescribedByIds, " "))
-                .with(
-                    // Legend must be a direct child of fieldset for screen readers to work
-                    // properly.
-                    legend()
-                        .with(questionTextDoms)
-                        .withClasses(
-                            ReferenceClasses.APPLICANT_QUESTION_TEXT,
-                            ApplicantStyles.QUESTION_TEXT))
-                .with(questionSecondaryTextDiv)
-                // Question level ariaDescribedByIds are attached to fieldset for composite
-                // questions.
-                .with(
-                    renderTag(
-                        params, validationErrors, /* ariaDescribedByIds= */ ImmutableList.of()));
-        break;
-      case SINGLE:
-        questionTag =
-            div()
-                .with(
-                    div()
-                        .with(questionTextDoms)
-                        .withClasses(
-                            ReferenceClasses.APPLICANT_QUESTION_TEXT,
-                            ApplicantStyles.QUESTION_TEXT))
-                .with(questionSecondaryTextDiv)
-                .with(renderTag(params, validationErrors, ariaDescribedByIds));
-        break;
-      default:
-        throw new IllegalArgumentException(
-            String.format("Unhandled input field type: %s", inputFieldType));
-    }
+
+    ContainerTag questionTag =
+        renderQuestionTag(
+            params,
+            validationErrors,
+            ariaDescribedByIds,
+            questionTextDoms,
+            questionSecondaryTextDiv);
 
     return div()
         .withId(questionId)

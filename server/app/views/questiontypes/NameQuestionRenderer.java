@@ -2,7 +2,6 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -16,10 +15,10 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders a name question. */
-public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
   public NameQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.COMPOSITE);
+    super(question);
   }
 
   @Override
@@ -28,10 +27,9 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
