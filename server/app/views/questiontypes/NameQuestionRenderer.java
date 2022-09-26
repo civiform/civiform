@@ -31,8 +31,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
@@ -66,7 +65,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                 validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.NAME_LAST);
 
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       firstNameField.forceAriaInvalid();
       lastNameField.forceAriaInvalid();
     }

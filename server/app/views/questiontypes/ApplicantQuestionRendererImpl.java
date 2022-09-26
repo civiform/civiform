@@ -14,7 +14,6 @@ import j2html.tags.specialized.DivTag;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
-import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -41,16 +40,14 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   // HTML id tags for various elements within this question.
   private final String questionId;
   private final String descriptionId;
-  private final String requiredErrorId;
-  private final String validationErrorId;
+  private final String errorId;
 
   ApplicantQuestionRendererImpl(ApplicantQuestion question, InputFieldType inputFieldType) {
     this.question = checkNotNull(question);
     this.inputFieldType = checkNotNull(inputFieldType);
     this.questionId = RandomStringUtils.randomAlphabetic(8);
     this.descriptionId = String.format("%s-description", questionId);
-    this.requiredErrorId = String.format("%s-required-error", questionId);
-    this.validationErrorId = String.format("%s-validation-error", questionId);
+    this.errorId = String.format("%s-error", questionId);
   }
 
   private String getRequiredClass() {
@@ -60,12 +57,10 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   protected abstract DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors);
+      ImmutableList<String> ariaDescribedByIds);
 
   @Override
   public final DivTag render(ApplicantQuestionRendererParams params) {
-    boolean hasQuestionErrors = false;
     ImmutableList.Builder<String> ariaDescribedByBuilder =
         ImmutableList.<String>builder().add(descriptionId);
     Messages messages = params.messages();
@@ -99,24 +94,12 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ImmutableSet<ValidationErrorMessage> questionErrors =
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
-      hasQuestionErrors = true;
       // Question error text
       questionSecondaryTextDiv.with(
           BaseHtmlView.fieldErrors(
                   messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS)
-              .withId(validationErrorId));
-      ariaDescribedByBuilder.add(validationErrorId);
-    }
-
-    if (question.isRequiredButWasSkippedInCurrentProgram()) {
-      hasQuestionErrors = true;
-      String requiredQuestionMessage = messages.at(MessageKey.VALIDATION_REQUIRED.getKeyName());
-      questionSecondaryTextDiv.with(
-          div()
-              .withClasses(Styles.P_1, Styles.TEXT_RED_600)
-              .withText("*" + requiredQuestionMessage)
-              .withId(requiredErrorId));
-      ariaDescribedByBuilder.add(requiredErrorId);
+              .withId(errorId));
+      ariaDescribedByBuilder.add(errorId);
     }
 
     ContainerTag questionTag;
@@ -144,10 +127,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                 // questions.
                 .with(
                     renderTag(
-                        params,
-                        validationErrors,
-                        /* ariaDescribedByIds= */ ImmutableList.of(),
-                        hasQuestionErrors));
+                        params, validationErrors, /* ariaDescribedByIds= */ ImmutableList.of()));
         break;
       case SINGLE:
         questionTag =
@@ -159,7 +139,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                             ReferenceClasses.APPLICANT_QUESTION_TEXT,
                             ApplicantStyles.QUESTION_TEXT))
                 .with(questionSecondaryTextDiv)
-                .with(renderTag(params, validationErrors, ariaDescribedByIds, hasQuestionErrors));
+                .with(renderTag(params, validationErrors, ariaDescribedByIds));
         break;
       default:
         throw new IllegalArgumentException(
