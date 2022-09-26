@@ -17,10 +17,7 @@ export class AdminPredicates {
     operator: string,
     value: string,
   ) {
-    const addQuestionButtonLocator = this.page.locator('button', {
-      has: this.page.locator(`:text("Admin ID: ${questionName}")`),
-    })
-    await addQuestionButtonLocator.click()
+    await this.page.click(`button:has-text("Admin ID: ${questionName}")`)
 
     await this.page.selectOption('.cf-predicate-action:visible select', {
       label: action,
