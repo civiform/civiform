@@ -501,9 +501,10 @@ export type LocalstackSesEmail = {
 
 /**
  * Queries the emails that have been sent for a given recipient. This method requires that tests
- * run in an environment that uses localstack sinc it captures the emails sent using SES and makes
+ * run in an environment that uses localstack since it captures the emails sent using SES and makes
  * them available at a well-known endpoint). An error is thrown when the method is called from an
- * environment that does not use localstack.
+ * environment that does not use localstack. The supportsEmailInspection method can be used to
+ * determine if the environment supports sending emails.
  */
 export const extractEmailsForRecipient = async function (
   page: Page,
