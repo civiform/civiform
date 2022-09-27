@@ -73,7 +73,7 @@ const configuration = {
   // Required method, we fake the account details.
   async findAccount(ctx, id) {
     const email = `${id}@example.com`
-    if (ctx.oidc.client.clientId == 'foo') {
+    if (ctx.oidc.client.clientId == 'idcs-fake-oidc-client') {
       return {
         accountId: id,
         async claims() {
