@@ -3,7 +3,7 @@ class RadioController {
   static radioDefaultClass = '.cf-radio-default'
   static radioInputClass = '.cf-radio-input'
   static radioOptionClass = '.cf-radio-option'
-  static selectedRadioClasses = ['border-seattle-blue', 'bg-blue-200']
+  static selectedRadioClasses = ['!border-seattle-blue', 'bg-blue-200']
 
   constructor() {
     this.addRadioListeners()
