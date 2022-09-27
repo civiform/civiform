@@ -69,7 +69,7 @@ public class BaseBrowserTest extends WithBrowser {
 
   protected void logout() {
     goTo(org.pac4j.play.routes.LogoutController.logout());
-    if ((browser.url()).contains("session/end")) {
+    if (browser.url().contains("session/end")) {
       FluentWebElement continueButton = browser.$("button").last();
       continueButton.click();
     }
