@@ -59,7 +59,7 @@ public class OidcProviderTest extends ResetPostgres {
     String client_id = oidcProvider.getClientID();
     assertThat(client_id).isEqualTo("foo");
 
-    String client_secret = oidcProvider.getClientSecret();
+    String client_secret = oidcProvider.getClientSecret().get();
     assertThat(client_secret).isEqualTo("bar");
   }
 

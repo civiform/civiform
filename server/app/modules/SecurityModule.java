@@ -17,6 +17,7 @@ import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.admin.AdfsProvider;
 import auth.oidc.applicant.GenericOidcProvider;
+import auth.oidc.applicant.LoginGovProvider;
 import auth.oidc.applicant.IdcsProvider;
 import auth.saml.LoginRadiusProvider;
 import com.google.common.collect.ImmutableMap;
@@ -157,6 +158,12 @@ public class SecurityModule extends AbstractModule {
           bind(IndirectClient.class)
               .annotatedWith(ApplicantAuthClient.class)
               .toProvider(GenericOidcProvider.class);
+          logger.info("Using generic OIDC for applicant auth provider");
+          break;
+        case LOGIN_GOV_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(LoginGovProvider.class);
           logger.info("Using generic OIDC for applicant auth provider");
           break;
         default:

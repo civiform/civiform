@@ -2,6 +2,7 @@ package auth.oidc;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import java.net.URI;
 import java.util.Collections;
@@ -40,9 +41,10 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
       final URI uri,
       final String postLogoutRedirectParam,
       final URI postLogoutRedirectURI,
-      final ImmutableMap<String, String> extraParams) {
+      final ImmutableMap<String, String> extraParams,
+      final State state) {
 
-    super(uri, /* idTokenHint */ null, postLogoutRedirectURI, /* state */ null);
+    super(uri, /* idTokenHint */ null, postLogoutRedirectURI, state);
 
     if (Strings.isNullOrEmpty(postLogoutRedirectParam)) {
       // default to OIDC spec
@@ -56,6 +58,15 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
     } else {
       this.extraParams = extraParams;
     }
+  }
+
+  /** Creates a new OIDC logout request without a state. */
+  public CustomOidcLogoutRequest(
+      final URI uri,
+      final String postLogoutRedirectParam,
+      final URI postLogoutRedirectURI,
+      final ImmutableMap<String, String> extraParams) {
+    this(uri, postLogoutRedirectParam, postLogoutRedirectURI, extraParams, /*state*/ null);
   }
 
   /** Creates a new OIDC logout request without extra params or a custom postLogoutRedirectParam. */
@@ -95,6 +106,9 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
       params.put(
           postLogoutRedirectParam, Collections.singletonList(postLogoutRedirectURI.toString()));
     }
+		if (getState() != null) {
+			params.put("state", Collections.singletonList(getState().getValue()));
+		}
 
     extraParams.forEach((key, value) -> params.put(key, Collections.singletonList(value)));
 

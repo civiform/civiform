@@ -430,6 +430,28 @@ public final class ApplicantService {
   }
 
   /** Return the name of the given applicant id. */
+  public CompletionStage<Optional<String>> getNameOrEmail(long applicantId) {
+    return userRepository
+        .lookupApplicant(applicantId)
+        .thenApplyAsync(
+            applicant -> {
+              if (applicant.isEmpty()) {
+                return Optional.empty();
+              }
+              Optional<String> name = applicant.get().getApplicantData().getApplicantName();
+              if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
+                return name;
+              }
+              String emailAddress = applicant.get().getAccount().getEmailAddress();
+              if (!Strings.isNullOrEmpty(emailAddress)) {
+                return Optional.of(emailAddress);
+              }
+              return Optional.empty();
+            },
+            httpExecutionContext.current());
+  }
+
+  /** Return the name of the given applicant id. */
   public CompletionStage<Optional<String>> getName(long applicantId) {
     return userRepository
         .lookupApplicant(applicantId)

@@ -9,6 +9,7 @@ public enum AuthIdentityProviderName {
   LOGIN_RADIUS_APPLICANT("login-radius"),
   ADFS_ADMIN("adfs"),
   GENERIC_OIDC_APPLICANT("generic-oidc"),
+  LOGIN_GOV_APPLICANT("login-gov"),
   DISABLED_APPLICANT("disabled");
 
   private final String authIdentityProviderNameString;
