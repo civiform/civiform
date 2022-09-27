@@ -134,7 +134,8 @@ public class LoginController extends Controller {
       }
 
     } catch (final HttpAction e) {
-      // But it also returns an HttpAction (redirect) exception in certain cases (such as after a failed login attempt)
+      // But it also returns an HttpAction (redirect) exception in certain cases (such as after a
+      // failed login attempt)
       // We also need to follow the return exception's redirect.
       return (Result) httpActionAdapter.adapt(e, webContext);
     }

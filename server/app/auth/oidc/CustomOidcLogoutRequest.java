@@ -106,9 +106,9 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
       params.put(
           postLogoutRedirectParam, Collections.singletonList(postLogoutRedirectURI.toString()));
     }
-		if (getState() != null) {
-			params.put("state", Collections.singletonList(getState().getValue()));
-		}
+    if (getState() != null) {
+      params.put("state", Collections.singletonList(getState().getValue()));
+    }
 
     extraParams.forEach((key, value) -> params.put(key, Collections.singletonList(value)));
 

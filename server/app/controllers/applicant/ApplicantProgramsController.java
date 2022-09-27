@@ -59,7 +59,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> index(Request request, long applicantId) {
     Optional<ToastMessage> banner =
         request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getNameOrEmail(applicantId);
+    CompletionStage<Optional<String>> applicantStage =
+        this.applicantService.getNameOrEmail(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
