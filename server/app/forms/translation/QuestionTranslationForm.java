@@ -6,7 +6,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
 /** Form for updating translation for questions. */
-public abstract class QuestionTranslationForm {
+public class QuestionTranslationForm {
 
   private String questionText;
   private String questionHelpText;
