@@ -17,6 +17,6 @@
     "autoprefixer": "10.4.12",
     "postcss": "8.4.16",
     "tailwindcss": "2.2.19",
-    "eslint": "8.23.1"
+    "eslint": "8.24.0"
   }
 }
