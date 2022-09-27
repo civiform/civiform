@@ -12,8 +12,7 @@ import support.TestQuestionBank;
 
 public class QuestionTranslationFormTest {
 
-  private static class QuestionTranslationFormImpl extends QuestionTranslationForm {
-  }
+  private static class QuestionTranslationFormImpl extends QuestionTranslationForm {}
 
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
 
