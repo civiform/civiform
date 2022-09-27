@@ -1,7 +1,7 @@
 package forms;
 
 /** Form for updating whether a question is optional in a program. */
-public class ProgramQuestionDefinitionOptionalityForm {
+public final class ProgramQuestionDefinitionOptionalityForm {
   private Boolean optional;
 
   public ProgramQuestionDefinitionOptionalityForm() {

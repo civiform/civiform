@@ -70,7 +70,7 @@ public class FieldWithLabel {
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
   private ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
 
-  private static class FieldErrorsInfo {
+  private static final class FieldErrorsInfo {
     public String fieldErrorsId;
     public boolean hasFieldErrors;
 

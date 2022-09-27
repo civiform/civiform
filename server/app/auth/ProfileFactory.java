@@ -21,7 +21,7 @@ import services.apikey.ApiKeyService;
  * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
  * existing and new accounts. New accounts are persisted in database.
  */
-public class ProfileFactory {
+public final class ProfileFactory {
 
   public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
   private final DatabaseExecutionContext dbContext;

@@ -27,7 +27,7 @@ import views.style.Styles;
  * Contains functions for rendering language-related components. These are used to allow an
  * applicant to select their preferred language.
  */
-public class LanguageSelector {
+public final class LanguageSelector {
 
   public final ImmutableList<Locale> supportedLanguages;
   private final MessagesApi messagesApi;

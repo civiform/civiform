@@ -1,7 +1,7 @@
 package forms;
 
 /** Form for updating name and description of a program. */
-public class ProgramForm {
+public final class ProgramForm {
   private String adminName;
   private String adminDescription;
   private String localizedDisplayName;
