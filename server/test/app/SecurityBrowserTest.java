@@ -9,6 +9,7 @@ import controllers.routes;
 import java.util.Optional;
 import models.Applicant;
 import org.fluentlenium.core.domain.FluentWebElement;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
@@ -33,8 +34,15 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     userRepository = app.injector().instanceOf(UserRepository.class);
   }
 
+  @After
+  public void ensureLogout() {
+    logout();
+  }
+
   private void loginWithSimulatedIdcs() {
     goTo(routes.LoginController.applicantLogin(Optional.empty()));
+    assertThat(browser.pageSource()).contains("Please log in");
+
     // If we are not cookied, enter a username and password.
     // Otherwise, since the fake provider uses the "web" flow, we're automatically sent to the
     // redirect URI to merge logins.
@@ -113,7 +121,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     loginWithSimulatedIdcs();
     goTo(routes.HomeController.securePlayIndex());
     assertThat(browser.pageSource()).contains("You are logged in.");
-    logout();
+    goTo(org.pac4j.play.routes.LogoutController.logout());
     assertThat(browser.url())
         .contains(
             "session/end?post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A19001%2F&client_id=idcs-fake-oidc-client")
