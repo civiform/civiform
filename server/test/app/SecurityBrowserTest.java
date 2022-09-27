@@ -38,18 +38,14 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     // If we are not cookied, enter a username and password.
     // Otherwise, since the fake provider uses the "web" flow, we're automatically sent to the
     // redirect URI to merge logins.
-    // TODO(#1770): Consider removing the below conditional entirely once full logout from the
-    // fake OIDC provider is supported.
-    if (browser.pageSource().contains("Enter any login")) {
-      browser.$("[name='login']").click();
-      browser.keyboard().sendKeys("username");
-      browser.$("[name='password']").click();
-      browser.keyboard().sendKeys("password");
-      // Log in.
-      browser.$(".login-submit").click();
-      // Bypass consent screen.
-      browser.$(".login-submit").click();
-    }
+    browser.$("[name='login']").click();
+    browser.keyboard().sendKeys("username");
+    browser.$("[name='password']").click();
+    browser.keyboard().sendKeys("password");
+    // Log in.
+    browser.$(".login-submit").click();
+    // Bypass consent screen.
+    browser.$(".login-submit").click();
   }
 
   @Test
