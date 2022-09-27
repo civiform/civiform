@@ -14,10 +14,10 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders a date question. */
-public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class DateQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public DateQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
   }
 
   @Override
@@ -26,7 +26,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {

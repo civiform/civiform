@@ -17,10 +17,10 @@ import services.question.LocalizedQuestionOption;
 import views.components.SelectWithLabel;
 
 /** Renders a dropdown question. */
-public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public DropdownQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
   }
 
   @Override
@@ -29,7 +29,7 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {

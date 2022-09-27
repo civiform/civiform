@@ -14,10 +14,10 @@ import services.applicant.question.NumberQuestion;
 import views.components.FieldWithLabel;
 
 /** Renders a number question. */
-public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public NumberQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
   }
 
   @Override
@@ -26,7 +26,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {

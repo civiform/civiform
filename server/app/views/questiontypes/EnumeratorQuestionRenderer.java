@@ -26,7 +26,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders an enumerator question. */
-public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
+public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
   // Hardcoded ids used by client side javascript.
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
@@ -43,7 +43,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
           Styles.MB_4);
 
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.COMPOSITE);
+    super(question);
   }
 
   @Override
@@ -52,10 +52,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantQuestionRendererI
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();

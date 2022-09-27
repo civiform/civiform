@@ -11,10 +11,10 @@ import services.applicant.question.IdQuestion;
 import views.components.FieldWithLabel;
 
 /** Renders an id question. */
-public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public IdQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
   }
 
   @Override
@@ -23,7 +23,7 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {
