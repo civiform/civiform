@@ -28,7 +28,7 @@ abstract class ApplicantCompositeQuestionRenderer extends ApplicantQuestionRende
     super(question);
   }
 
-  protected abstract DivTag renderInputTag(
+  protected abstract DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors);
 

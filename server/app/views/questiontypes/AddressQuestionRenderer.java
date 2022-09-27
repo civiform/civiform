@@ -28,7 +28,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
   }
 
   @Override
-  protected DivTag renderInputTag(
+  protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();

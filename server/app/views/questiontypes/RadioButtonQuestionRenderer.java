@@ -35,7 +35,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
   }
 
   @Override
-  protected DivTag renderInputTag(
+  protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
