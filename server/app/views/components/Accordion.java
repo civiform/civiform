@@ -14,9 +14,9 @@ import views.style.Styles;
  *
  * <p>See {@link TextFormatter}.
  */
-public class Accordion {
-  protected String title = "";
-  protected ArrayList<DomContent> content = new ArrayList<>();
+public final class Accordion {
+  private String title = "";
+  private ArrayList<DomContent> content = new ArrayList<>();
 
   public Accordion setTitle(String title) {
     this.title = title;

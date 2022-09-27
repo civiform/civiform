@@ -16,7 +16,7 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Contains methods for rendering preview of a question. */
-public class QuestionPreview {
+public final class QuestionPreview {
 
   private static DivTag buildQuestionRenderer(
       QuestionType type, Messages messages, FileUploadViewStrategy fileUploadViewStrategy)

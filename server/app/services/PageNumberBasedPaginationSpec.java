@@ -6,7 +6,7 @@ package services;
  * current page - 1 to derive an offset for the underlying query. This type of pagination is
  * typically used in the UI. Page numbers are 1-indexed.
  */
-public class PageNumberBasedPaginationSpec {
+public final class PageNumberBasedPaginationSpec {
 
   public static final PageNumberBasedPaginationSpec MAX_PAGE_SIZE_SPEC =
       new PageNumberBasedPaginationSpec(Integer.MAX_VALUE, 1);

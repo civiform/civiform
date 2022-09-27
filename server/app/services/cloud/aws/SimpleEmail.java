@@ -26,7 +26,7 @@ import software.amazon.awssdk.services.ses.model.SesException;
  * SimpleEmail provides methods to send email notifications through AWS Simple Email Service (SES).
  */
 @Singleton
-public class SimpleEmail {
+public final class SimpleEmail {
   public static final String AWS_SES_SENDER_CONF_PATH = "aws.ses.sender";
   private static final Logger logger = LoggerFactory.getLogger(SimpleEmail.class);
 
