@@ -10,7 +10,7 @@ import java.util.Optional;
 import services.LocalizedStrings;
 
 /** Contains data defining status tracking configuration for a program's applications. */
-public final class StatusDefinitions {
+public class StatusDefinitions {
 
   // The configured status options in their natural ordering.
   @JsonProperty("statuses")

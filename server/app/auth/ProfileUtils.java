@@ -13,7 +13,7 @@ import org.pac4j.play.PlayWebContext;
 import play.mvc.Http;
 
 /** A utility class for CiviForm profile. */
-public class ProfileUtils {
+public final class ProfileUtils {
   private SessionStore sessionStore;
   private ProfileFactory profileFactory;
 

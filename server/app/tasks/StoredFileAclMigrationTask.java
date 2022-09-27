@@ -27,7 +27,7 @@ import services.program.ProgramService;
  *
  * <p>This can be deleted after the data in Seattle production has been migrated.
  */
-public class StoredFileAclMigrationTask implements Runnable {
+public final class StoredFileAclMigrationTask implements Runnable {
   private final ApplicationRepository applicationRepository;
   private final String baseUrl;
   private final Database database;
@@ -103,7 +103,7 @@ public class StoredFileAclMigrationTask implements Runnable {
         });
   }
 
-  private static class Counter {
+  private static final class Counter {
     private int updatedFileCount = 0;
     private int errorCount = 0;
 
