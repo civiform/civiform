@@ -50,7 +50,7 @@ abstract class ApplicantCompositeQuestionRenderer extends ApplicantQuestionRende
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT))
             .with(questionSecondaryTextDiv)
-            .with(renderInputTag(params, validationErrors));
+            .with(renderInputTags(params, validationErrors));
 
     return questionTag;
   }
