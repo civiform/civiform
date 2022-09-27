@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /** Utility class for applying styles. */
-public class StyleUtils {
+public final class StyleUtils {
   public static String EVEN = "even";
   public static String FOCUS = "focus";
   public static String FOCUS_WITHIN = "focus-within";

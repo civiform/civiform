@@ -176,7 +176,7 @@ public final class ApplicationRepository {
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
   // Not useful in the API, not needed more broadly.
-  private static class ApplicationArguments {
+  private static final class ApplicationArguments {
     public Program program;
     public Applicant applicant;
 

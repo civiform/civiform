@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import software.amazon.awssdk.regions.Region;
 
 /** This class reads the AWS region in application.conf and builds a {@code Region} object. */
-public class AwsRegion {
+public final class AwsRegion {
   public static final String AWS_REGION_CONF_PATH = "aws.region";
 
   private final Region region;

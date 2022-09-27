@@ -11,7 +11,7 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 
 /** Helpers to support locales in which translations are supported. */
-public class TranslationLocales {
+public final class TranslationLocales {
 
   private final ImmutableList<Locale> translatableLocales;
   private final ImmutableMap<String, Locale> languageTagToLocale;

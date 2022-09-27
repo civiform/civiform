@@ -28,7 +28,7 @@ import views.admin.programs.ManageProgramAdminsView;
 import views.components.ToastMessage;
 
 /** Controller for admins to manage program admins of programs. */
-public class ProgramAdminManagementController {
+public final class ProgramAdminManagementController {
 
   private final ManageProgramAdminsView manageAdminsView;
   private final ProgramRepository programRepository;

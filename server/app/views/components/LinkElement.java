@@ -25,7 +25,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Utility class for rendering link elements. */
-public class LinkElement {
+public final class LinkElement {
 
   private static final String DEFAULT_LINK_BUTTON_STYLES =
       StyleUtils.joinStyles(
