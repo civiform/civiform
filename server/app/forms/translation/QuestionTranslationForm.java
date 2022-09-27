@@ -6,7 +6,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
 /** Form for updating translation for questions. */
-public class QuestionTranslationForm {
+public abstract class QuestionTranslationForm {
 
   private String questionText;
   private String questionHelpText;
@@ -16,19 +16,19 @@ public class QuestionTranslationForm {
     this.questionHelpText = "";
   }
 
-  public String getQuestionText() {
+  public final String getQuestionText() {
     return questionText;
   }
 
-  public void setQuestionText(String questionText) {
+  public final void setQuestionText(String questionText) {
     this.questionText = questionText;
   }
 
-  public String getQuestionHelpText() {
+  public final String getQuestionHelpText() {
     return questionHelpText;
   }
 
-  public void setQuestionHelpText(String questionHelpText) {
+  public final void setQuestionHelpText(String questionHelpText) {
     this.questionHelpText = questionHelpText;
   }
 
