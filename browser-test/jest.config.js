@@ -1,5 +1,5 @@
 module.exports = {
-  preset: 'jest-playwright-preset',
+  preset: 'ts-jest',
   testMatch: ['**/__tests__/**/*.+(ts|js)', '**/?(*.)+(spec|test).+(ts|js)'],
   transform: {
     '^.+\\.(ts)$': 'ts-jest',
