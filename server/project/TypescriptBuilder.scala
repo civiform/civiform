@@ -51,12 +51,12 @@ object TypescriptBuilder extends AutoPlugin {
   import autoImport._
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
-    compileTypescript := { inputFiles =>
+    compileTypescript := { inputFiles: Seq[PathMapping] =>
       val streamsVal = (Assets / streams).value: @sbtUnchecked
       // targetDir will contain compiled JS files.
       val targetDir = new File(webTarget.value, "typescript/javascripts")
       val cacheDir = new File(streamsVal.cacheDirectory, "run")
-      val compiledJsFiles = recompileTypescriptIfFilesChanged(
+      val compiledJsFiles: Seq[File] = recompileTypescriptIfFilesChanged(
         inputFiles,
         targetDir,
         cacheDir,
@@ -88,11 +88,11 @@ object TypescriptBuilder extends AutoPlugin {
     *   Seq of compiled JS files and sourcemaps.
     */
   def recompileTypescriptIfFilesChanged(
-    inputFiles: Seq[(File, String)],
+    inputFiles: Seq[PathMapping],
     targetDir: File,
     cacheDir: File,
     log: ManagedLogger
-  ) = {
+  ): Seq[File] = {
     // function that provides hash for each file. Includes fileName + timestamp.
     val fileHasher: OpInputHasher[File] =
       OpInputHasher[File](f =>
