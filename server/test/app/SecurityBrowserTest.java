@@ -41,8 +41,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
 
   private void loginWithSimulatedIdcs() {
     goTo(routes.LoginController.applicantLogin(Optional.empty()));
-    assertThat(browser.pageSource()).contains("Please log in");
-
     // If we are not cookied, enter a username and password.
     // Otherwise, since the fake provider uses the "web" flow, we're automatically sent to the
     // redirect URI to merge logins.

@@ -57,7 +57,7 @@ public class OidcProviderTest extends ResetPostgres {
   @Test
   public void Test_getConfigurationValues() {
     String client_id = oidcProvider.getClientID();
-    assertThat(client_id).isEqualTo("fake-oidc-client");
+    assertThat(client_id).isEqualTo("idcs-fake-oidc-client");
 
     String client_secret = oidcProvider.getClientSecret().get();
     assertThat(client_secret).isEqualTo("idcs-fake-oidc-secret");
