@@ -3,61 +3,69 @@
 import re
 import sys
 
-matcher = re.compile(r'([a-z \t]*[ \t]{0,1}class [a-zA-Z0-9]* \{)\n')
-
-prefix = '// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING '
-
 
 def find_class_identifiers(contents):
+    # Look for lines with a class declaration:
+    #  public static final class FooBar {
+    matcher = re.compile(r'([a-z \t]*[ \t]{0,1}class [a-zA-Z0-9]* \{)\n')
     return [m.strip() for m in matcher.findall(contents)]
 
 
-def is_final_violation(class_identifier_line):
-    words_before_class = class_identifier_line[:class_identifier_line.
-                                               find(' class')]
-    return 'final' not in words_before_class and 'abstract' not in words_before_class
+def is_violation(class_identifier_line):
+    class_token_index = class_identifier_line.find(' class')
+    words_before_class_token = class_identifier_line[:class_token_index]
+    return 'final' not in words_before_class_token and 'abstract' not in words_before_class_token
 
 
-def final_exceptions_from_contents(contents):
-    allows_subclassing_lines = [
+def extract_non_final_classes_allowlist(contents):
+    # Certain classes allow subclassing and are directly instantiable. Find any directives
+    # indicating this state:
+    #  // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING FieldWithLabel
+    allowlist_prefix = '// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING '
+    allowlist_lines = [
         content.strip()
         for content in contents.split('\n')
-        if content.strip().startswith(prefix)
+        if content.strip().startswith(allowlist_prefix)
     ]
-    return set((l[len(prefix):] for l in allows_subclassing_lines))
+    return set((l[len(allowlist_prefix):] for l in allowlist_lines))
 
 
 def main(file_names):
-    had_error = False
+    violations = []
     for file_name in file_names:
         with open(file_name, 'r') as f:
             contents = f.read()
-            exceptions = final_exceptions_from_contents(contents)
+            allowlisted_classes = extract_non_final_classes_allowlist(contents)
             for class_identifier in find_class_identifiers(contents):
-                if is_final_violation(class_identifier):
+                if is_violation(class_identifier):
+                    # Sample class identifier line:
+                    #   public static final class FooBar {
                     class_name = class_identifier.split(' ')[-2]
-                    if class_name in exceptions:
-                        exceptions = exceptions.remove(class_name)
+                    if class_name in allowlisted_classes:
+                        allowlisted_classes = allowlisted_classes.remove(
+                            class_name)
                     else:
-                        print(
+                        violations.append(
                             f'[{file_name}]: Found violation for line "{class_identifier}"'
                         )
-                        had_error = True
-            if exceptions:
-                print(
-                    f'[{file_name}]: Unnecessary NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING directive(s): {exceptions}'
+            if allowlisted_classes:
+                violations.append(
+                    f'[{file_name}]: Unnecessary NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING directive(s): {allowlisted_classes}'
                 )
-                had_error = True
 
-    if had_error:
+    if violations:
+        print('\n'.join(violations))
         sys.exit(1)
 
 
 if __name__ == '__main__':
+    # Either parses a set of file names passed as arguments or reads them directly from stdin.
     file_names = []
     if len(sys.argv) > 1:
         file_names = sys.argv[1:]
     else:
-        file_names = sys.stdin.read().split('\n')
+        file_names = [
+            file_name for file_name in sys.stdin.read().split('\n') if file_name
+        ]
 
-    main([file_name for file_name in file_names if file_name.strip()])
+    main(file_names)
