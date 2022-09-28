@@ -483,8 +483,7 @@ public class FieldWithLabel {
     // before the calls to this method, thus simplifying the code.
     fieldTag
         .withClasses(
-            StyleUtils.joinStyles(
-                hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT))
+            StyleUtils.joinStyles(hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT))
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)

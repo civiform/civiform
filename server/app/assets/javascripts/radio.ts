@@ -59,7 +59,7 @@ class RadioController {
             RadioController.selectedRadioClasses.forEach((selectedClass) =>
               radioContainer.classList.toggle(selectedClass, isChecked),
             )
-            
+
             // Prevents conflicting border classes from being applied.
             RadioController.unselectedRadioClasses.forEach((unselectedClass) =>
               radioContainer.classList.toggle(unselectedClass, !isChecked),
