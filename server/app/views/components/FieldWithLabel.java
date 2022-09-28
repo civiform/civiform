@@ -31,7 +31,7 @@ import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CfJsonDocumentContext
+// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING FieldWithLabel
 
 /** Utility class for rendering an input field with an optional label. */
 public class FieldWithLabel {
