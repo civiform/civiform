@@ -62,6 +62,13 @@ jobs:
       - name: show diff
         run: git add .; git diff --exit-code HEAD
 
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: terraform fmt
+        id: tf_fmt
+        run: terraform fmt -check -recursive -diff cloud
+
       - name: Check bin scripts have docstrings.
         if: contains(toJSON(steps.file_changes.outputs.files), 'bin/') || contains(toJSON(steps.file_changes.outputs.files), '.github/workflows/format.yaml')
         id: check_bin_script_docs
@@ -89,7 +96,7 @@ jobs:
           cache-from: |
             civiform/formatter:latest
       - name: Run Browsertest formatter
-        if: contains(toJSON(steps.file_changes.outputs.files), 'browser-test/') || contains(toJSON(steps.file_changes.outputs.files), '.github/workflows/format.yaml')
+        if: contains(toJSON(steps.file_changes.outputs.files), 'browser-test/') || contains(toJSON(steps.file_changes.outputs.files), '.github/workflows/format.yaml') || contains(toJSON(steps.file_changes.outputs.files), 'formatter')
         run: browser-test/bin/fmt
       - name: show Browsertest diff
         run: git add .; git diff --exit-code HEAD
@@ -113,7 +120,7 @@ jobs:
       - name: Run bin/fmt-sbt
         env:
           DOCKER_BUILDKIT: 1
-        if: contains(toJSON(steps.file_changes.outputs.files), '.sbt') || contains(toJSON(steps.file_changes.outputs.files), '.scala')|| contains(toJSON(steps.file_changes.outputs.files), '.github/workflows/format.yaml')
+        if: contains(toJSON(steps.file_changes.outputs.files), '.sbt') || contains(toJSON(steps.file_changes.outputs.files), '.scala') || contains(toJSON(steps.file_changes.outputs.files), '.github/workflows/format.yaml') || contains(toJSON(steps.file_changes.outputs.files), 'fmt-sbt')
         run: bin/fmt-sbt
       - name: show bin/fmt-sbt diff
         run: git add .; git diff --exit-code HEAD
@@ -132,6 +139,7 @@ jobs:
             # -i 2   indent 2 spaces
             # -bn    binary ops like && and | may start a line
             # -ci    switch cases will be indented
+
   python-formatting:
     name: Formatting Check
     runs-on: ubuntu-latest

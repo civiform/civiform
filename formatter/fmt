@@ -63,3 +63,7 @@ echo 'Start format shell'
 shfmt -bn -ci -i 2 -w -l \
   $(shfmt -f . | grep -v -e /node_modules)
 echo 'Done formatting shell'
+
+echo 'Start format terraform'
+terraform fmt -recursive cloud
+echo 'Done format terraform'
