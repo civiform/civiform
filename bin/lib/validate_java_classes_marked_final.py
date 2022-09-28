@@ -46,15 +46,24 @@ def main(file_names):
                             class_name)
                     else:
                         violations.append(
-                            f'[{file_name}]: Found violation for line "{class_identifier}"'
-                        )
+                            f'[{file_name}]: "{class_identifier}"')
             if allowlisted_classes:
                 violations.append(
-                    f'[{file_name}]: Unnecessary NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING directive(s): {allowlisted_classes}'
+                    f'[{file_name}]: Unnecessary NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING directive(s): {allowlisted_classes}. Please remove the directive from the file.'
                 )
 
     if violations:
-        print('\n'.join(violations))
+        sys.stdout.write(
+            '''
+*******************************************************************************
+The following Java class declarations were found which do not contain the
+"final" keyword. Without the "final" keyword, classes are open for subclassing
+by default. Please add the "final" keyword in order to make the decision to
+allow subclassing explicit rathe than implicit.
+*******************************************************************************
+''')
+        sys.stdout.write('\n'.join(violations))
+        sys.stdout.write('\n\n')
         sys.exit(1)
 
 
