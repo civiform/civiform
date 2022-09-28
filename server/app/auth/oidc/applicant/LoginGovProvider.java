@@ -68,7 +68,8 @@ public final class LoginGovProvider extends GenericOidcProvider {
     return Optional.empty();
   }
 
-  protected String getACRValue() {
+  @VisibleForTesting
+  public String getACRValue() {
     return getConfigurationValue("acr_value").orElse("http://idmanagement.gov/ns/assurance/ial/1");
   }
 
