@@ -102,9 +102,7 @@ public final class LanguageSelector {
     LabelTag labelTag =
         label()
             .withLang(locale.toLanguageTag())
-            .withClasses(
-                ReferenceClasses.RADIO_OPTION,
-                BaseStyles.RADIO_LABEL)
+            .withClasses(ReferenceClasses.RADIO_OPTION, BaseStyles.RADIO_LABEL)
             .with(
                 input()
                     .withType("radio")
