@@ -37,6 +37,8 @@ describe('address applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'address')
+      await validateScreenshot(page, 'address-bla-bla')
+      await validateScreenshot(page, 'address-bla-bla-bla')
     })
 
     it('validate screenshot with errors', async () => {
