@@ -1,0 +1,1 @@
+find ./server/app -name "*.java" | ./bin/look_for_non_final.py

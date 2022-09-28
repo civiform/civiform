@@ -13,6 +13,8 @@ import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.components.ToastMessage;
 
+// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
+
 /**
  * Base class for all layout classes.
  *

@@ -67,6 +67,11 @@ jobs:
         id: check_bin_script_docs
         run: bin/help
 
+      - name: Run look_for_non_final_java_classes
+        run: bin/look_for_non_final_java_classes
+      - name: show bin/look_for_non_final_java_classes diff
+        run: git add .; git diff --exit-code HEAD
+
   formatter-dockerfile:
     runs-on: ubuntu-latest
     steps:
