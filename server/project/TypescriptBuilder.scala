@@ -105,22 +105,23 @@ object TypescriptBuilder extends AutoPlugin {
     // we are using sbt-web syncIncremental function. It's somewhat complicated. For our
     // use case we just want to see if any of TS files changed and if so - recompile
     // everything.
-    val res = incremental.syncIncremental(cacheDir, tsFiles)({ modifiedFiles =>
-      if (modifiedFiles.nonEmpty || !targetDir.exists()) {
-        log.info("Typescript files changed. Recompiling...")
-        compileTypescriptInternal(targetDir, log)
-      }
-      val compiledJsFiles: Seq[File] = targetDir.listFiles()
-      // ignore opResults. We are not using full functionality of syncIncremental
-      // so we always return dummy opResults with OpSuccess for each TS file.
-      val opResults: Map[File, OpResult] = modifiedFiles
-        .map(f => f -> OpSuccess(Set.empty[File], Set.empty[File]))
-        .toMap
+    val (_, compiledJsFiles) =
+      incremental.syncIncremental(cacheDir, tsFiles)({ modifiedFiles =>
+        if (modifiedFiles.nonEmpty || !targetDir.exists()) {
+          log.info("Typescript files changed. Recompiling...")
+          compileTypescriptInternal(targetDir, log)
+        }
+        val compiledJsFiles: Seq[File] = targetDir.listFiles()
+        // ignore opResults. We are not using full functionality of syncIncremental
+        // so we always return dummy opResults with OpSuccess for each TS file.
+        val opResults: Map[File, OpResult] = modifiedFiles
+          .map(f => f -> OpSuccess(Set.empty[File], Set.empty[File]))
+          .toMap
 
-      (opResults, compiledJsFiles)
-    })(fileHasher)
+        (opResults, compiledJsFiles)
+      })(fileHasher)
 
-    res._2
+    compiledJsFiles
   }
 
   /** Function that compiles TS files. It relies on tsconfig.json to contain all
