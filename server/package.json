@@ -18,5 +18,8 @@
     "postcss": "8.4.16",
     "tailwindcss": "2.2.19",
     "eslint": "8.24.0"
+  },
+  "dependencies": {
+    "typescript": "^4.8.3"
   }
 }
