@@ -89,6 +89,7 @@ public final class BaseStyles {
       StyleUtils.joinStyles(INPUT_BASE, Styles.ALIGN_MIDDLE);
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
+  public static final String RADIO_LABEL_SELECTED = StyleUtils.removeStyles(RADIO_LABEL, FORM_FIELD_BORDER_COLOR);
 
   /** For labelling a *group* of checkboxes that are related to the same thing. */
   public static final String CHECKBOX_GROUP_LABEL =
