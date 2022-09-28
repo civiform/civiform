@@ -2,4 +2,4 @@
 
 # DOC: Scans for Java files where the contained classes are open for subclassing.
 
-find ./server/app -name "*.java" | ./bin/lib/look_for_non_final.py
+find ./server/app -name "*.java" | ./bin/lib/validate_java_classes_marked_final.py

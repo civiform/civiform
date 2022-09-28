@@ -67,9 +67,9 @@ jobs:
         id: check_bin_script_docs
         run: bin/help
 
-      - name: Run look_for_non_final_java_classes
-        run: bin/look_for_non_final_java_classes
-      - name: show bin/look_for_non_final_java_classes diff
+      - name: Run validate_java_classes_marked_final
+        run: bin/validate_java_classes_marked_final
+      - name: show bin/validate_java_classes_marked_final diff
         run: git add .; git diff --exit-code HEAD
 
   formatter-dockerfile:
