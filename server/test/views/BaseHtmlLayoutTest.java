@@ -69,6 +69,6 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
   public void withProvidedTitle() {
     Content content = layout.render(layout.getBundle().setTitle("A title"));
 
-    assertThat(content.body()).contains("<title>A title - CiviForm</title>");
+    assertThat(content.body()).contains("<title>A title — CiviForm</title>");
   }
 }
