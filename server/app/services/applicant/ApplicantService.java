@@ -429,7 +429,7 @@ public final class ApplicantService {
     }
   }
 
-  /** Return the name of the given applicant id. */
+  /** Return the name of the given applicant id. If not available, returns the email. */
   public CompletionStage<Optional<String>> getNameOrEmail(long applicantId) {
     return userRepository
         .lookupApplicant(applicantId)

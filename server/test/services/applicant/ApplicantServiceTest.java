@@ -841,6 +841,38 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getNameOrEmail_namedApplicantId() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
+    applicant.getApplicantData().setUserName("Hello World");
+    applicant.save();
+
+    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("World, Hello"));
+  }
+
+  @Test
+  public void getNameOrEmail_noName() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
+    applicant.save();
+
+    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("test@example.com"));
+  }
+
+  @Test
+  public void getNameOrEmail_noNameNoEmail() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccount();
+    applicant.setAccount(account);
+    applicant.save();
+    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join()).isEmpty();
+  }
+
+  @Test
   public void getName_invalidApplicantId_doesNotFail() {
     assertThat(subject.getName(9999L).toCompletableFuture().join()).isEmpty();
   }

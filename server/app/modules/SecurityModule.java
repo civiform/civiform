@@ -164,7 +164,7 @@ public class SecurityModule extends AbstractModule {
           bind(IndirectClient.class)
               .annotatedWith(ApplicantAuthClient.class)
               .toProvider(LoginGovProvider.class);
-          logger.info("Using generic OIDC for applicant auth provider");
+          logger.info("Using login.gov PKCE OIDC for applicant auth provider");
           break;
         default:
           logger.info("No provider specified for for applicants");

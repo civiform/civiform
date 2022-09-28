@@ -70,6 +70,12 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     return stateGenerator;
   }
 
+  /**
+   * If the OIDC provider requires the optional state param for logout (see
+   * https://openid.net/specs/openid-connect-rpinitiated-1_0.html), set a state generator here. Note
+   * that the state is not saved and validated by the client, so it does not achive the goal of
+   * "maintain state between the logout request and the callback" as specified by the spec.
+   */
   public void setStateGenerator(final ValueGenerator stateGenerator) {
     if (stateGenerator == null) {
       this.stateGenerator = Optional.empty();
@@ -90,6 +96,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     if (CommonHelper.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
       try {
         URI endSessionEndpoint = new URI(logoutUrl);
+        // Optional state param for logout is only needed by certain OIDC providers.
         State state = null;
         if (getStateGenerator().isPresent()) {
           state = new State(getStateGenerator().get().generateValue(context, sessionStore));

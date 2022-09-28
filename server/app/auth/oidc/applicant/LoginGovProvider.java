@@ -16,7 +16,12 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import repository.UserRepository;
 
-public class LoginGovProvider extends GenericOidcProvider {
+/*
+ * Login.gov (https://developers.login.gov/oidc/) OIDC provider using the PKCE method.
+ */
+public final class LoginGovProvider extends GenericOidcProvider {
+  // Login.gov requires a state longer than 22 characters
+  static RandomValueGenerator stateGenerator = new RandomValueGenerator(30);
 
   @Inject
   public LoginGovProvider(
@@ -58,7 +63,9 @@ public class LoginGovProvider extends GenericOidcProvider {
 
   @Override
   protected Optional<String> getClientSecret() {
-    return Optional.empty(); // No client secret used
+    // No client secret used, since they can be insecure and is not requried by this flow.
+    // Instead uses the PKCE method as required by login.gov.
+    return Optional.empty();
   }
 
   protected String getACRValue() {
@@ -69,7 +76,7 @@ public class LoginGovProvider extends GenericOidcProvider {
   public OidcConfiguration getConfig() {
     OidcConfiguration config = super.getConfig();
     config.setWithState(true);
-    config.setStateGenerator(new RandomValueGenerator(30));
+    config.setStateGenerator(stateGenerator);
     config.addCustomParam("acr_values", getACRValue());
     config.addCustomParam("prompt", "select_account");
     config.setDisablePkce(false);
@@ -84,7 +91,7 @@ public class LoginGovProvider extends GenericOidcProvider {
     providerMetadata.setCodeChallengeMethods(List.of(CodeChallengeMethod.S256));
     CiviformOidcLogoutActionBuilder logoutBuilder =
         (CiviformOidcLogoutActionBuilder) client.getLogoutActionBuilder();
-    logoutBuilder.setStateGenerator(new RandomValueGenerator(30));
+    logoutBuilder.setStateGenerator(stateGenerator);
 
     return client;
   }
