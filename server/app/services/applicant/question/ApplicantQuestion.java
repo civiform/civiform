@@ -23,7 +23,7 @@ import services.question.types.ScalarType;
  * classes provide access to the applicant's answer for the question. They can also implement
  * server-side validation logic.
  */
-public class ApplicantQuestion {
+public final class ApplicantQuestion {
 
   private final ProgramQuestionDefinition programQuestionDefinition;
   private final ApplicantData applicantData;
@@ -59,7 +59,7 @@ public class ApplicantQuestion {
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
 
-  protected ApplicantData getApplicantData() {
+  ApplicantData getApplicantData() {
     return this.applicantData;
   }
 
@@ -290,6 +290,15 @@ public class ApplicantQuestion {
       default:
         throw new RuntimeException("Unrecognized question type: " + getType());
     }
+  }
+
+  @Override
+  public String toString() {
+    // This will print the identity since there's no useful string representation of a question.
+    // Since the class is marked final and consumed in an AutoValue class, a warning will be
+    // emitted since AutoValue automatically generates a toString call for each member of the
+    // class.
+    return super.toString();
   }
 
   @Override

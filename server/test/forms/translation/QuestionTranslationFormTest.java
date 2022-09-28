@@ -12,13 +12,15 @@ import support.TestQuestionBank;
 
 public class QuestionTranslationFormTest {
 
+  private static class QuestionTranslationFormImpl extends QuestionTranslationForm {}
+
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
 
   @Test
   public void builder_updatesExistingTextTranslations() throws Exception {
     QuestionDefinition question = questionBank.applicantName().getQuestionDefinition();
 
-    QuestionTranslationForm form = new QuestionTranslationForm();
+    QuestionTranslationForm form = new QuestionTranslationFormImpl();
     form.setQuestionText("new text");
     form.setQuestionHelpText("new help text");
 
@@ -33,7 +35,7 @@ public class QuestionTranslationFormTest {
   public void builder_addsTranslationsForNewLocale() throws Exception {
     QuestionDefinition question = questionBank.applicantName().getQuestionDefinition();
 
-    QuestionTranslationForm form = new QuestionTranslationForm();
+    QuestionTranslationForm form = new QuestionTranslationFormImpl();
     form.setQuestionText("new locale");
     form.setQuestionHelpText("new help locale");
 
@@ -53,7 +55,7 @@ public class QuestionTranslationFormTest {
             LocalizedStrings.withDefaultValue("question?"),
             LocalizedStrings.empty());
 
-    QuestionTranslationForm form = new QuestionTranslationForm();
+    QuestionTranslationForm form = new QuestionTranslationFormImpl();
     form.setQuestionText("new locale");
     form.setQuestionHelpText("");
 
