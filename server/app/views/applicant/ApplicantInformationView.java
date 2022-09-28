@@ -75,7 +75,7 @@ public class ApplicantInformationView extends BaseHtmlView {
 
     // No translation needed since this appears before applicants select their preferred language,
     // so we always use the default.
-    String title = "Select lanaguage";
+    String title = "Select language";
     HtmlBundle bundle =
         layout
             .getBundle()
