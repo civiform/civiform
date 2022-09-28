@@ -71,7 +71,7 @@ jobs:
         run: bin/run-browser-test-env --aws --ci
       - name: Run browser tests with Localstack
         run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
-      - name: Check no new image snapshots
+      - name: Verify no new image snapshots added
         run: git add browser-test/image_snapshots ; git diff --compact-summary --exit-code HEAD
       - name: Upload image diff outputs
         uses: actions/upload-artifact@v3
