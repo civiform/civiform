@@ -22,6 +22,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -174,6 +175,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(
             div()
                 .withId("brand-id")
+                .withLang(Locale.ENGLISH.toLanguageTag())
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
                 .withText("CiviForm"));
   }
