@@ -37,8 +37,8 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
    * Create new OIDC logout request with a optional redirect url, optional client id, and other
    * params. If the OIDC provider requires the optional state param for logout (see
    * https://openid.net/specs/openid-connect-rpinitiated-1_0.html), include it here. Note that the
-   * state here is not saved and validated by the client, so it does not achive the goal of "maintain
-   * state between the logout request and the callback" as specified by the spec.
+   * state here is not saved and validated by the client, so it does not achive the goal of
+   * "maintain state between the logout request and the callback" as specified by the spec.
    */
   public CustomOidcLogoutRequest(
       final URI uri,
