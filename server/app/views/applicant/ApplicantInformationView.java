@@ -73,6 +73,8 @@ public class ApplicantInformationView extends BaseHtmlView {
         submitButton(submitText).withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE);
     formContent.with(formSubmit);
 
+    // No translation needed since this appears before applicants select their preferred language,
+    // so we always use the default.
     String title = "Select lanaguage";
     HtmlBundle bundle =
         layout
