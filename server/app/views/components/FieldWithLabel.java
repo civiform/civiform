@@ -484,7 +484,7 @@ public class FieldWithLabel {
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
-                BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
+                hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT))
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
