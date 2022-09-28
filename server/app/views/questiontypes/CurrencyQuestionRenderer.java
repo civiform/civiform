@@ -14,10 +14,10 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
-public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public CurrencyQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
   }
 
   @Override
@@ -26,7 +26,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {
