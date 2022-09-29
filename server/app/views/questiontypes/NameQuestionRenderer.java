@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -37,6 +38,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
         FieldWithLabel.input()
             .setFieldName(nameQuestion.getFirstNamePath().toString())
             .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
+            .setAutocomplete(Optional.of("given-name"))
             .setValue(nameQuestion.getFirstNameValue().orElse(""))
             .setFieldErrors(
                 messages,
@@ -47,6 +49,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
         FieldWithLabel.input()
             .setFieldName(nameQuestion.getMiddleNamePath().toString())
             .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
+            .setAutocomplete(Optional.of("additional-name"))
             .setValue(nameQuestion.getMiddleNameValue().orElse(""))
             .setFieldErrors(
                 messages,
@@ -57,6 +60,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
         FieldWithLabel.input()
             .setFieldName(nameQuestion.getLastNamePath().toString())
             .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
+            .setAutocomplete(Optional.of("family-name"))
             .setValue(nameQuestion.getLastNameValue().orElse(""))
             .setFieldErrors(
                 messages,

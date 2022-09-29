@@ -58,6 +58,7 @@ public class FieldWithLabel {
   private String formId = "";
   private String id = "";
   private String labelText = "";
+  private Optional<String> autocomplete = Optional.empty();
   protected String placeholderText = "";
   private String screenReaderText = "";
   private Messages messages;
@@ -161,6 +162,11 @@ public class FieldWithLabel {
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
     this.placeholderText = placeholder;
+    return this;
+  }
+
+  public FieldWithLabel setAutocomplete(Optional<String> autocomplete) {
+    this.autocomplete = autocomplete;
     return this;
   }
 
@@ -475,6 +481,7 @@ public class FieldWithLabel {
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
+        .condAttr(this.autocomplete.isPresent(), Attr.AUTOCOMPLETE, this.autocomplete.orElse(""))
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
