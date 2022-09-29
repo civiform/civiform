@@ -49,6 +49,7 @@ import services.DateConverter;
 import services.LocalizedStrings;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
+import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
 import services.export.ExporterService;
 import services.export.JsonExporter;
@@ -99,10 +100,12 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   private static final ImmutableList<Status> ORIGINAL_STATUSES =
       ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS, WITH_STATUS_TRANSLATIONS);
   private AdminApplicationController controller;
+  private ProgramAdminApplicationService programAdminApplicationService;
 
   @Before
   public void setupController() {
     controller = instanceOf(AdminApplicationController.class);
+    programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
   }
 
   @Test
@@ -276,6 +279,50 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     // Evaluate
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
     assertThat(contentAsString(result)).contains("sendEmail value is invalid");
+  }
+
+  @Test
+  public void updateStatus_outOfDateCurrentStatus_fails() throws Exception {
+    // Setup
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program =
+        ProgramBuilder.newActiveProgram("test name", "test description")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    programAdminApplicationService.setStatus(
+        application,
+        StatusEvent.builder()
+            .setStatusText(APPROVED_STATUS.statusText())
+            .setEmailSent(false)
+            .build(),
+        adminAccount);
+
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .bodyForm(
+                        Map.of(
+                            "successRedirectUri",
+                            "/",
+                            "sendEmail",
+                            "",
+                            "currentStatus",
+                            UNSET_STATUS_TEXT,
+                            "newStatus",
+                            APPROVED_STATUS.statusText())))
+            .build();
+
+    // Execute
+    Result result = controller.updateStatus(request, program.id, application.id);
+
+    // Evaluate
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().get("error")).isPresent();
+    assertThat(result.flash().get("error").get()).contains("application state has changed");
   }
 
   @Test
