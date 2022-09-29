@@ -64,7 +64,7 @@ import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
 
 public class AdminApplicationControllerTest extends ResetPostgres {
-  private static final String UNSET_STATUS_TEXT = "Unset";
+  private static final String UNSET_STATUS_TEXT = "";
   private static final StatusDefinitions.Status APPROVED_STATUS =
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
@@ -221,6 +221,42 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThrows(
         StatusNotFoundException.class,
         () -> controller.updateStatus(request, program.id, application.id));
+  }
+
+  @Test
+  public void updateStatus_invalidCurrentStatus_fails() throws Exception {
+    // Setup
+    Account adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    Program program =
+        ProgramBuilder.newActiveProgram("test name", "test description")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .bodyForm(
+                        Map.of(
+                            "successRedirectUri",
+                            "/",
+                            "sendEmail",
+                            "",
+                            "currentStatus",
+                            "unset shouldn't have a value",
+                            "newStatus",
+                            APPROVED_STATUS.statusText())))
+            .build();
+
+    // Execute
+    Result result = controller.updateStatus(request, program.id, application.id);
+
+    // Evaluate
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(contentAsString(result)).contains("field should be empty");
   }
 
   @Test

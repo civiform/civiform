@@ -393,6 +393,9 @@ public final class AdminApplicationController extends CiviFormController {
                 "The application state has changed since the page was loaded. Please reload and"
                     + " try again.");
       }
+    } else if (!maybeCurrentStatus.get().isBlank()) {
+      return badRequest(
+          String.format("The %s field should be empty as there is no status set", CURRENT_STATUS));
     }
     // Save the new data.
     String newStatus = maybeNewStatus.get();
