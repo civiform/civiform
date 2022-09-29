@@ -1,4 +1,5 @@
-import sbt.internal.io.{Source, WatchState}
+import TypescriptBuilder.autoImport.compileTypescript
+import sbt.internal.io.Source
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
 import com.typesafe.sbt.web.Import.pipelineStages
@@ -119,10 +120,10 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
-    pipelineStages := Seq(digest, gzip), // plugins to use for assets
+    pipelineStages := Seq(compileTypescript, digest, gzip), // plugins to use for assets
     // Enable digest for local dev so that files can be served çached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages := Seq(digest, gzip),
+    Assets / pipelineStages := Seq(compileTypescript, digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(
@@ -207,7 +208,6 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core" % "2.13.4",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.4"
 )
-resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
 Global / onChangedBuildSource := ReloadOnSourceChanges
