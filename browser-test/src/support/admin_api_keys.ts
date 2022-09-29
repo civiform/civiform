@@ -122,7 +122,7 @@ export class AdminApiKeys {
 
   async retireApiKey(keyNameSlugified: string) {
     await this.gotoApiKeyIndexPage()
-    this.page.on('dialog', (dialog) => dialog.accept())
+    this.page.on('dialog', (dialog) => void dialog.accept())
     await this.page.click(`#retire-${keyNameSlugified} button`)
   }
 
