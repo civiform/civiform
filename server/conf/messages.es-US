@@ -150,9 +150,6 @@ title.activeProgramsUpdated=Sin comenzar
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Enviados
 
-# Screen reader format string for program cards
-title.programCard=Programa {0} de {1} -- {2}
-
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Solicitud guardada con éxito: ID de la solicitud {0}
 

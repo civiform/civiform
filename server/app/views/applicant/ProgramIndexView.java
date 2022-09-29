@@ -9,6 +9,8 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
@@ -20,7 +22,9 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.H4Tag;
 import j2html.tags.specialized.ImgTag;
+import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -30,8 +34,6 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -45,6 +47,7 @@ import views.HtmlBundle;
 import views.TranslationUtils;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
@@ -229,42 +232,35 @@ public final class ProgramIndexView extends BaseHtmlView {
       Locale preferredLocale,
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
       MessageKey applyTitle) {
+    String sectionHeaderId = Modal.randomModalId();
     return div()
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
         .with(
-            h3().withText(messages.at(sectionTitle.getKeyName()))
+            h3().withId(sectionHeaderId)
+                .withText(messages.at(sectionTitle.getKeyName()))
                 .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
         .with(
-            div()
+            ol().attr("aria-labelledby", sectionHeaderId)
                 .withClasses(cardContainerStyles)
                 .with(
                     each(
-                        IntStream.range(0, cards.size()).boxed().collect(Collectors.toList()),
-                        index ->
+                        cards,
+                        (card) ->
                             programCard(
-                                messages,
-                                cards.get(index),
-                                index,
-                                cards.size(),
-                                applicantId,
-                                preferredLocale,
-                                applyTitle))));
+                                messages, card, applicantId, preferredLocale, applyTitle))));
   }
 
-  private DivTag programCard(
+  private LiTag programCard(
       Messages messages,
       ApplicantService.ApplicantProgramData cardData,
-      int programIndex,
-      int totalProgramCount,
       Long applicantId,
       Locale preferredLocale,
       MessageKey applyTitle) {
     ProgramDefinition program = cardData.program();
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
-    DivTag title =
-        div()
-            .withId(baseId + "-title")
+    H4Tag title =
+        h4().withId(baseId + "-title")
             .withClasses(
                 ReferenceClasses.APPLICATION_CARD_TITLE, Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
             .withText(program.localizedName().getOrDefault(preferredLocale));
@@ -358,16 +354,8 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(actionButton)
             .withClasses(
                 Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);
-    String srProgramCardTitle =
-        messages.at(
-            MessageKey.TITLE_PROGRAM_CARD.getKeyName(),
-            programIndex + 1,
-            totalProgramCount,
-            program.localizedName().getOrDefault(preferredLocale));
-    return div()
-        .withId(baseId)
+    return li().withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
-        .with(h4(srProgramCardTitle).withClass(Styles.SR_ONLY))
         .with(
             // The visual bar at the top of each program card.
             div()

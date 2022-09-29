@@ -130,9 +130,6 @@ link.externalLink=Goobta dibadda
 # The title of the page for the list of programs.
 title.programs=Barnaamijyada iyo adeegyada
 
-# Screen reader format string for program cards
-title.programCard=Barnaamijka {0} ee {1} -- {2}
-
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
 
