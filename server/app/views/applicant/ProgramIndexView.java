@@ -333,6 +333,10 @@ public final class ProgramIndexView extends BaseHtmlView {
               .asAnchorText()
               .with(
                   Icons.svg(Icons.OPEN_IN_NEW)
+                      .attr("role", "img")
+                      .attr(
+                          "aria-label",
+                          messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()))
                       .withClasses(
                           Styles.FLEX_SHRINK_0,
                           Styles.H_5,

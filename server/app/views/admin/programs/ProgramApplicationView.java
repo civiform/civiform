@@ -61,6 +61,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private static final String PROGRAM_ID = "programId";
   private static final String APPLICATION_ID = "applicationId";
   public static final String SEND_EMAIL = "sendEmail";
+  public static final String CURRENT_STATUS = "currentStatus";
   public static final String NEW_STATUS = "newStatus";
   public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
@@ -309,7 +310,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Application application,
       String applicantNameWithApplicationId,
       StatusDefinitions.Status status) {
-    String previousStatus = application.getLatestStatus().orElse("Unset");
+    // The previous status as it should be displayed and passed as data in the
+    // update.
+    String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
+    String previousStatusData = application.getLatestStatus().orElse("");
     // No form action or content is rendered since admin_application_view.ts extracts the values
     // and calls postMessage rather than attempting a submission. The main frame is responsible for
     // constructing a form to update the status.
@@ -324,7 +328,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     .isHidden(),
                 p().with(
                         span("Status Change: "),
-                        span(previousStatus).withClass(Styles.FONT_SEMIBOLD),
+                        span(previousStatusDisplay).withClass(Styles.FONT_SEMIBOLD),
                         span(" -> ").withClass(Styles.FONT_SEMIBOLD),
                         span(status.statusText()).withClass(Styles.FONT_SEMIBOLD),
                         span(" (visible to applicant)")),
@@ -341,6 +345,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
                             .withType("text")
                             .withName(NEW_STATUS)
                             .withValue(status.statusText()))
+                    // Add the original status to the form hidden so that we can
+                    // detect if the data has changed since this UI was
+                    // generated.
+                    .with(
+                        input()
+                            .isHidden()
+                            .withType("text")
+                            .withName(CURRENT_STATUS)
+                            .withValue(previousStatusData))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
                             applicantNameWithApplicationId, application, status)),

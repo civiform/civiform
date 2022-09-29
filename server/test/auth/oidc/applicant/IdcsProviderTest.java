@@ -57,7 +57,7 @@ public class IdcsProviderTest extends ResetPostgres {
     String clientId = idcsProvider.getClientID();
     assertThat(clientId).isEqualTo("foo");
 
-    String clientSecret = idcsProvider.getClientSecret();
+    String clientSecret = idcsProvider.getClientSecret().get();
     assertThat(clientSecret).isEqualTo("bar");
 
     String discoveryUri = idcsProvider.getDiscoveryURI();

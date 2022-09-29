@@ -1,6 +1,7 @@
 package controllers;
 
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
+import static play.mvc.Results.redirect;
 
 import auth.AdminAuthClient;
 import auth.ApplicantAuthClient;
@@ -15,6 +16,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.oidc.client.OidcClient;
@@ -122,9 +124,20 @@ public class LoginController extends Controller {
       webContext.setRequestAttribute(
           OidcConfiguration.SCOPE, ((OidcClient) client).getConfiguration().getScope());
     }
-    Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);
-    if (redirect.isPresent()) {
-      return (Result) httpActionAdapter.adapt(redirect.get(), webContext);
+    try {
+      Optional<RedirectionAction> redirectMaybe =
+          client.getRedirectionAction(webContext, sessionStore);
+      // If pac4j returns a redirect action, follow it.
+      if (redirectMaybe.isPresent()) {
+        RedirectionAction redirect = redirectMaybe.get();
+        return (Result) httpActionAdapter.adapt(redirect, webContext);
+      }
+
+    } catch (final HttpAction e) {
+      // But it also returns an HttpAction (redirect) exception in certain cases (such as after a
+      // failed login attempt)
+      // We also need to follow the return exception's redirect.
+      return (Result) httpActionAdapter.adapt(e, webContext);
     }
     return badRequest("cannot redirect to identity provider");
   }
