@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import java.util.HashMap;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -54,29 +55,43 @@ public abstract class Question {
     if (!isAnswered() && applicantQuestion.isOptional() && failedUpdates.isEmpty()) {
       return ImmutableMap.of();
     }
-    // Why not just return the result of getValidationErrorsInternal()?
+
+    HashMap<Path, ImmutableSet<ValidationErrorMessage>> errorMap = new HashMap<>();
+
+    // Why not just use the result of getValidationErrorsInternal()?
     // For ease of implementation, subclasses may build the error list by putting a field key
     // in the map along with a call to a validator method that may return an empty set of errors.
     // We remove keys with an empty set of errors here to help defend against downstream consumers
     // assumes that calling isEmpty on the map means that there are no errors.
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> result =
-        ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>builder()
-            .putAll(Maps.filterEntries(getValidationErrorsInternal(), e -> !e.getValue().isEmpty()))
-            .build();
+    errorMap.putAll(
+        Maps.filterEntries(getValidationErrorsInternal(), e -> !e.getValue().isEmpty()));
 
     // We shouldn't have an empty error map if we failed to convert some of the input. If there
     // aren't already errors, append a top-level error that the input couldn't be converted. In
     // practice, this shouldn't happen as long as each question type is properly accounting for bad
     // input.
-    if (result.isEmpty()
+    if (errorMap.isEmpty()
         && !failedUpdates.isEmpty()
         && getAllPaths().stream().anyMatch(failedUpdates::containsKey)) {
-      result =
-          ImmutableMap.of(
-              applicantQuestion.getContextualizedPath(),
-              ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_INPUT)));
+      errorMap.put(
+          applicantQuestion.getContextualizedPath(),
+          ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_INPUT)));
     }
-    return result;
+
+    // Add error for unanswered required question.
+    if (applicantQuestion.isRequiredButWasSkippedInCurrentProgram()) {
+      Path keyPath = applicantQuestion.getContextualizedPath();
+      var valueErrors = new ImmutableSet.Builder<ValidationErrorMessage>();
+      if (errorMap.containsKey(keyPath)) {
+        valueErrors.addAll(errorMap.get(keyPath));
+      }
+      valueErrors.add(ValidationErrorMessage.create(MessageKey.VALIDATION_REQUIRED));
+      errorMap.put(keyPath, valueErrors.build());
+    }
+
+    return new ImmutableMap.Builder<Path, ImmutableSet<ValidationErrorMessage>>()
+        .putAll(errorMap)
+        .build();
   }
 
   /**

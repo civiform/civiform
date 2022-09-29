@@ -9,6 +9,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
@@ -20,6 +21,7 @@ import controllers.admin.routes;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LiTag;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +40,7 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
@@ -85,12 +88,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.PX_4)
             .with(
                 div()
-                    .withClasses(
-                        Styles.FLEX,
-                        Styles.ITEMS_CENTER,
-                        Styles.SPACE_X_4,
-                        Styles.MT_12,
-                        Styles.MB_10)
+                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)
                     .with(
                         h1(pageTitle),
                         div().withClass(Styles.FLEX_GROW),
@@ -100,18 +98,24 @@ public final class ProgramIndexView extends BaseHtmlView {
                         renderNewProgramButton(),
                         maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
                 div()
-                    .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
+                    .withClasses(Styles.MT_10, Styles.FLEX)
                     .with(
-                        p("Loading")
-                            .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER),
+                        div().withClass(Styles.FLEX_GROW),
+                        p("Sorting by most recently updated").withClass(Styles.TEXT_SM)),
+                div()
+                    .withClass(Styles.MT_6)
+                    .with(
                         each(
-                            programs.getProgramNames(),
-                            name ->
-                                this.renderProgramListItem(
-                                    programs.getActiveProgramDefinition(name),
-                                    programs.getDraftProgramDefinition(name),
-                                    request,
-                                    profile))));
+                            programs.getProgramNames().stream()
+                                .map(
+                                    name ->
+                                        this.buildProgramCardData(
+                                            programs.getActiveProgramDefinition(name),
+                                            programs.getDraftProgramDefinition(name),
+                                            request,
+                                            profile))
+                                .sorted(ProgramCardFactory.lastModifiedTimeThenNameComparator())
+                                .map(programCardFactory::renderCard))));
 
     HtmlBundle htmlBundle =
         layout
@@ -211,9 +215,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         !sortedDraftQuestions.isEmpty(),
                         ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
                             .with(
-                                each(
-                                    sortedDraftQuestions,
-                                    draftQuestion -> li(draftQuestion.getName())))),
+                                each(sortedDraftQuestions, this::renderPublishModalQuestionItem))),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
                     .with(
@@ -223,10 +225,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .condWith(
                         !sortedDraftPrograms.isEmpty(),
                         ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
-                            .with(
-                                each(
-                                    sortedDraftPrograms,
-                                    draftProgram -> li(draftProgram.adminName())))),
+                            .with(each(sortedDraftPrograms, this::renderPublishModalProgramItem))),
                 p("Would you like to publish all draft questions and programs now?"),
                 div()
                     .withClasses(Styles.FLEX, Styles.FLEX_ROW)
@@ -250,6 +249,38 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of(publishAllModal);
   }
 
+  private LiTag renderPublishModalProgramItem(ProgramDefinition program) {
+    String visibilityText = "";
+    switch (program.displayMode()) {
+      case HIDDEN_IN_INDEX:
+        visibilityText = "Hidden from applicants";
+        break;
+      case PUBLIC:
+        visibilityText = "Publicly visible";
+        break;
+      default:
+        break;
+    }
+    return li().with(
+            span(program.localizedName().getDefault()).withClasses(Styles.FONT_MEDIUM),
+            span(" - " + visibilityText + " "),
+            new LinkElement()
+                .setText("Edit")
+                .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
+                .asAnchorText());
+  }
+
+  private LiTag renderPublishModalQuestionItem(QuestionDefinition question) {
+    return li().with(
+            span(question.getQuestionText().getDefault()).withClasses(Styles.FONT_MEDIUM),
+            span(" - "),
+            new LinkElement()
+                .setText("Edit")
+                .setHref(
+                    controllers.admin.routes.AdminQuestionController.edit(question.getId()).url())
+                .asAnchorText());
+  }
+
   private ButtonTag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
     ButtonTag button =
@@ -259,7 +290,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectElement(button, link);
   }
 
-  private DivTag renderProgramListItem(
+  private ProgramCardFactory.ProgramCardData buildProgramCardData(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
@@ -293,7 +324,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> activeRowActions = Lists.newArrayList();
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
       Optional<ButtonTag> applicationsLink =
-          maybeRenderViewApplicationsLink(activeProgram.get(), profile);
+          maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (!draftProgram.isPresent()) {
         activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
@@ -309,11 +340,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .build());
     }
 
-    return programCardFactory.renderCard(
-        ProgramCardFactory.ProgramCardData.builder()
-            .setActiveProgram(activeRow)
-            .setDraftProgram(draftRow)
-            .build());
+    return ProgramCardFactory.ProgramCardData.builder()
+        .setActiveProgram(activeRow)
+        .setDraftProgram(draftRow)
+        .build();
   }
 
   ButtonTag renderShareLink(ProgramDefinition program) {
@@ -364,7 +394,9 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(
-      ProgramDefinition activeProgram, Optional<CiviFormProfile> maybeUserProfile) {
+      ProgramDefinition activeProgram,
+      Optional<CiviFormProfile> maybeUserProfile,
+      Http.Request request) {
     if (maybeUserProfile.isEmpty()) {
       return Optional.empty();
     }
@@ -373,7 +405,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // necessary.
     boolean userIsAuthorized;
     try {
-      userProfile.checkProgramAuthorization(activeProgram.adminName()).join();
+      userProfile.checkProgramAuthorization(activeProgram.adminName(), request).join();
       userIsAuthorized = true;
     } catch (CompletionException e) {
       userIsAuthorized = false;

@@ -96,10 +96,8 @@ public enum MessageKey {
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_PROGRAMS("title.programs"),
-  TITLE_PROGRAMS_ACTIVE("title.activePrograms"),
   TITLE_PROGRAMS_ACTIVE_UPDATED("title.activeProgramsUpdated"),
   TITLE_PROGRAM_CARD("title.programCard"),
-  TITLE_PROGRAMS_IN_PROGRESS("title.inProgressPrograms"),
   TITLE_PROGRAMS_IN_PROGRESS_UPDATED("title.inProgressProgramsUpdated"),
   TITLE_PROGRAM_PREVIEW("title.programPreview"),
   TITLE_PROGRAM_REVIEW("title.programReview"),
@@ -108,8 +106,7 @@ public enum MessageKey {
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
   USER_NAME("header.userName"),
-  VALIDATION_REQUIRED("validation.isRequired"),
-  CONTENT_APPLICANT_INFORMATION("content.applicantInformation");
+  VALIDATION_REQUIRED("validation.isRequired");
 
   private final String keyName;
 

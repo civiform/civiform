@@ -1,15 +1,20 @@
 package auth;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.fail;
+import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
-import java.util.concurrent.CompletionException;
+import com.google.common.collect.ImmutableMap;
+import featureflags.FeatureFlags;
 import models.Account;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
+import play.mvc.Http.Request;
 import repository.ResetPostgres;
+import services.program.ProgramDefinition;
+import support.ProgramBuilder;
 
 public class CiviFormProfileTest extends ResetPostgres {
 
@@ -25,12 +30,8 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
-    try {
-      profile.checkAuthorization(1234L).join();
-      fail("Should not have successfully authorized admin.");
-    } catch (CompletionException e) {
-      // pass.
-    }
+    assertThatThrownBy(() -> profile.checkAuthorization(1234L).join())
+        .hasCauseInstanceOf(SecurityException.class);
   }
 
   @Test
@@ -71,5 +72,67 @@ public class CiviFormProfileTest extends ResetPostgres {
 
     assertThatThrownBy(() -> profile.checkAuthorization(1234L).join())
         .hasCauseInstanceOf(SecurityException.class);
+  }
+
+  @Test
+  public void checkProgramAuthorization_noPrograms_fails() {
+    CiviFormProfileData data = profileFactory.createNewProgramAdmin();
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
+
+    assertThatThrownBy(
+            () -> profile.checkProgramAuthorization("program1", fakeRequest().build()).join())
+        .hasCauseInstanceOf(SecurityException.class);
+  }
+
+  @Test
+  public void checkProgramAuthorization_differentPrograms_fails() {
+    CiviFormProfileData data = profileFactory.createNewProgramAdmin();
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
+    ProgramDefinition programOne = ProgramBuilder.newActiveProgram("program1").buildDefinition();
+    profile.getAccount().join().addAdministeredProgram(programOne);
+
+    assertThatThrownBy(
+            () -> profile.checkProgramAuthorization("program2", fakeRequest().build()).join())
+        .hasCauseInstanceOf(SecurityException.class);
+  }
+
+  @Test
+  public void checkProgramAuthorization_success() {
+    CiviFormProfileData data = profileFactory.createNewProgramAdmin();
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
+    ProgramDefinition programOne = ProgramBuilder.newActiveProgram("program1").buildDefinition();
+    profile
+        .getAccount()
+        .thenAccept(
+            account -> {
+              account.addAdministeredProgram(programOne);
+              account.save();
+            })
+        .join();
+
+    profile.getAccount().join().addAdministeredProgram(programOne);
+    assertThat(profile.checkProgramAuthorization("program1", fakeRequest().build()).join())
+        .isEqualTo(null);
+  }
+
+  @Test
+  public void checkProgramAuthorization_CiviformAdmin_fail() {
+    CiviFormProfileData data = profileFactory.createNewAdmin();
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
+    assertThatThrownBy(
+            () -> profile.checkProgramAuthorization("program1", fakeRequest().build()).join())
+        .hasCauseInstanceOf(SecurityException.class);
+  }
+
+  @Test
+  public void checkProgramAuthorization_CiviformAdminAllowed_success() {
+    CiviFormProfileData data = profileFactory.createNewAdmin();
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
+    ImmutableMap<String, String> civiformAdminAllowedMap =
+        ImmutableMap.of(FeatureFlags.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, "true");
+    Request civiformAdminAllowedRequest = fakeRequest().session(civiformAdminAllowedMap).build();
+
+    assertThat(profile.checkProgramAuthorization("program1", civiformAdminAllowedRequest).join())
+        .isEqualTo(null);
   }
 }

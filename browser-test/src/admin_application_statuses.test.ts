@@ -6,15 +6,19 @@ import {
   loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
+  loginAsTestUser,
   logout,
   selectApplicantLanguage,
+  supportsEmailInspection,
+  testUserDisplayName,
+  extractEmailsForRecipient,
 } from './support'
 
 describe('view program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('without program statuses', () => {
-    const programWithoutStatusesName = 'test program without statuses'
+    const programWithoutStatusesName = 'test-program-without-statuses'
     beforeAll(async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
       await loginAsAdmin(page)
@@ -23,12 +27,11 @@ describe('view program statuses', () => {
       await adminPrograms.addProgram(programWithoutStatusesName)
       await adminPrograms.publishProgram(programWithoutStatusesName)
       await adminPrograms.expectActiveProgram(programWithoutStatusesName)
-
       await logout(page)
+
+      // Submit an application as a guest.
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
-
-      // Submit an application.
       await applicantQuestions.clickApplyProgramButton(
         programWithoutStatusesName,
       )
@@ -62,9 +65,10 @@ describe('view program statuses', () => {
   })
 
   describe('with program statuses', () => {
-    const programWithStatusesName = 'test program with statuses'
+    const programWithStatusesName = 'test-program-with-statuses'
     const noEmailStatusName = 'No email status'
     const emailStatusName = 'Email status'
+    const emailBody = 'Some email content'
 
     beforeAll(async () => {
       const {page, adminPrograms, applicantQuestions, adminProgramStatuses} =
@@ -79,25 +83,31 @@ describe('view program statuses', () => {
       )
       await adminProgramStatuses.createStatus(noEmailStatusName)
       await adminProgramStatuses.createStatus(emailStatusName, {
-        emailBody: 'Some email content',
+        emailBody: emailBody,
       })
       await adminPrograms.publishProgram(programWithStatusesName)
       await adminPrograms.expectActiveProgram(programWithStatusesName)
-
       await logout(page)
+
+      // Submit an application as a guest.
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
-
-      // Submit an application.
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
       await applicantQuestions.submitFromPreviewPage()
+      await logout(page)
+
+      // Submit an application as the logged in test user.
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.submitFromPreviewPage()
+      await logout(page)
     })
 
     beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsProgramAdmin(page)
       await enableFeatureFlag(page, 'application_status_tracking_enabled')
-
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant('Guest')
     })
@@ -197,8 +207,72 @@ describe('view program statuses', () => {
         ).toContain(`Status: ${emailStatusName}`)
       })
 
-      // TODO(#3297): Add a test that the send email checkbox is shown when an applicant has logged
-      // in and an email is configured for the status.
+      describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {
+        beforeEach(async () => {
+          const {adminPrograms} = ctx
+          await adminPrograms.viewApplications(programWithStatusesName)
+          await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+        })
+
+        it('choosing not to notify applicant changes status and does not send email', async () => {
+          const {page, adminPrograms} = ctx
+          const emailsBefore = supportsEmailInspection()
+            ? await extractEmailsForRecipient(page, testUserDisplayName())
+            : []
+          const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+            emailStatusName,
+          )
+          const notifyCheckbox = await modal.$('input[type=checkbox]')
+          if (!notifyCheckbox) {
+            throw new Error('Expected a checkbox input')
+          }
+          await notifyCheckbox.uncheck()
+          expect(await notifyCheckbox.isChecked()).toBe(false)
+          await adminPrograms.confirmStatusUpdateModal(modal)
+          expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+          await adminPrograms.expectUpdateStatusToast()
+
+          if (supportsEmailInspection()) {
+            const emailsAfter = await extractEmailsForRecipient(
+              page,
+              testUserDisplayName(),
+            )
+            expect(emailsAfter.length).toEqual(emailsBefore.length)
+          }
+        })
+
+        it('checkbox is checked by default and email is sent', async () => {
+          const {page, adminPrograms} = ctx
+          const emailsBefore = supportsEmailInspection()
+            ? await extractEmailsForRecipient(page, testUserDisplayName())
+            : []
+          const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+            emailStatusName,
+          )
+          const notifyCheckbox = await modal.$('input[type=checkbox]')
+          if (!notifyCheckbox) {
+            throw new Error('Expected a checkbox input')
+          }
+          expect(await notifyCheckbox.isChecked()).toBe(true)
+          expect(await modal.innerText()).toContain(' of this change at ')
+          await adminPrograms.confirmStatusUpdateModal(modal)
+          expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+          await adminPrograms.expectUpdateStatusToast()
+
+          if (supportsEmailInspection()) {
+            const emailsAfter = await extractEmailsForRecipient(
+              page,
+              testUserDisplayName(),
+            )
+            expect(emailsAfter.length).toEqual(emailsBefore.length + 1)
+            const sentEmail = emailsAfter[emailsAfter.length - 1]
+            expect(sentEmail.Subject).toEqual(
+              `An update on your application ${programWithStatusesName}`,
+            )
+            expect(sentEmail.Body.text_part).toContain(emailBody)
+          }
+        })
+      })
     })
 
     it('allows editing a note and preserves the selected application', async () => {
@@ -257,7 +331,7 @@ describe('view program statuses', () => {
   })
 
   describe('filtering list with program statuses', () => {
-    const programForFilteringName = 'test program for filtering statuses'
+    const programForFilteringName = 'test-program-for-filtering-statuses'
     const approvedStatusName = 'Approved'
     const rejectedStatusName = 'Rejected'
 

@@ -14,9 +14,6 @@
 label.selectLanguage=Please select your preferred language.
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-content.applicantInformation=Applicant Information
-
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
 # The text on the button an applicant clicks to log out of their session.
@@ -145,13 +142,7 @@ link.externalLink=Sitio externo
 title.programs=Programas y servicios
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Continuar
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=En curso
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=Programas nuevos
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Sin comenzar

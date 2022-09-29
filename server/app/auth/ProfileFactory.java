@@ -1,6 +1,7 @@
 package auth;
 
 import com.google.common.base.Preconditions;
+import featureflags.FeatureFlags;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -20,7 +21,7 @@ import services.apikey.ApiKeyService;
  * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
  * existing and new accounts. New accounts are persisted in database.
  */
-public class ProfileFactory {
+public final class ProfileFactory {
 
   public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
   private final DatabaseExecutionContext dbContext;
@@ -28,6 +29,7 @@ public class ProfileFactory {
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final Provider<ApiKeyService> apiKeyService;
   private final Provider<UserRepository> userRepositoryProvider;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ProfileFactory(
@@ -35,12 +37,14 @@ public class ProfileFactory {
       HttpExecutionContext httpContext,
       Provider<VersionRepository> versionRepositoryProvider,
       Provider<ApiKeyService> apiKeyService,
-      Provider<UserRepository> userRepositoryProvider) {
+      Provider<UserRepository> userRepositoryProvider,
+      FeatureFlags featureFlags) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
     this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
     this.userRepositoryProvider = Preconditions.checkNotNull(userRepositoryProvider);
+    this.featureFlags = Preconditions.checkNotNull(featureFlags);
   }
 
   public CiviFormProfileData createNewApplicant() {
@@ -72,7 +76,7 @@ public class ProfileFactory {
   }
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
-    return new CiviFormProfile(dbContext, httpContext, p);
+    return new CiviFormProfile(dbContext, httpContext, p, featureFlags);
   }
 
   /**

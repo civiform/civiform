@@ -2,11 +2,11 @@ package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.text;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -16,9 +16,11 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import play.mvc.Http.HttpVerbs;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -104,16 +106,19 @@ public final class QuestionBank {
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl())))));
 
-    ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
+    ImmutableList<QuestionDefinition> questions =
+        filterQuestions()
+            .sorted(
+                Comparator.<QuestionDefinition, Instant>comparing(
+                        qdef -> qdef.getLastModifiedTime().orElse(Instant.EPOCH))
+                    .reversed()
+                    .thenComparing(qdef -> qdef.getName().toLowerCase()))
+            .collect(ImmutableList.toImmutableList());
 
-    ImmutableList<QuestionDefinition> sortedQuestions =
-        ImmutableList.sortedCopyOf(
-            Comparator.comparing(QuestionDefinition::getName), filteredQuestions);
-
-    DivTag questionsDiv = div().withId("question-bank-questions");
-    sortedQuestions.forEach(
-        questionDefinition -> questionsDiv.with(renderQuestionDefinition(questionDefinition)));
-    contentDiv.with(questionsDiv);
+    contentDiv.with(
+        div()
+            .withId("question-bank-questions")
+            .with(each(questions, this::renderQuestionDefinition)));
 
     return questionForm;
   }
@@ -138,7 +143,7 @@ public final class QuestionBank {
                     Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
 
     ButtonTag addButton =
-        TagCreator.button(text(definition.getName()))
+        TagCreator.button()
             .withType("submit")
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
@@ -148,12 +153,19 @@ public final class QuestionBank {
     SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType())
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+    String questionHelpText =
+        definition.getQuestionHelpText().isEmpty()
+            ? ""
+            : definition.getQuestionHelpText().getDefault();
     DivTag content =
         div()
             .withClasses(Styles.ML_4)
             .with(
-                p(definition.getName()),
-                p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
+                p(definition.getQuestionText().getDefault())
+                    .withClass(ReferenceClasses.ADMIN_QUESTION_TITLE),
+                p(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM, Styles.LINE_CLAMP_2),
+                p(String.format("Admin ID: %s", definition.getName()))
+                    .withClasses(Styles.MT_1, Styles.TEXT_SM),
                 addButton);
     return questionDiv.with(PLUS_ICON, icon, content);
   }
@@ -171,16 +183,16 @@ public final class QuestionBank {
    *   <li>Questions already in the program are filtered.
    * </ul>
    */
-  private ImmutableList<QuestionDefinition> filterQuestions() {
+  private Stream<QuestionDefinition> filterQuestions() {
     if (containsSingleBlockQuestion()) {
-      return ImmutableList.of();
+      return Stream.empty();
     }
 
     Predicate<QuestionDefinition> filter =
         params.blockDefinition().getQuestionCount() > 0
             ? this::nonEmptyBlockFilter
             : this::questionFilter;
-    return params.questions().stream().filter(filter).collect(ImmutableList.toImmutableList());
+    return params.questions().stream().filter(filter);
   }
 
   /** If a block already contains a single-block question, no more questions can be added. */

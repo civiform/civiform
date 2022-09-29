@@ -37,6 +37,6 @@ public class CiviFormController extends Controller {
     return profileUtils
         .currentUserProfile(request)
         .orElseThrow()
-        .checkProgramAuthorization(programName);
+        .checkProgramAuthorization(programName, request);
   }
 }

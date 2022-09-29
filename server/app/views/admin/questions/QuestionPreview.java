@@ -16,7 +16,7 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Contains methods for rendering preview of a question. */
-public class QuestionPreview {
+public final class QuestionPreview {
 
   private static DivTag buildQuestionRenderer(
       QuestionType type, Messages messages, FileUploadViewStrategy fileUploadViewStrategy)
@@ -49,7 +49,7 @@ public class QuestionPreview {
                     .withText(type.getLabel())
                     .withClasses(ReferenceClasses.QUESTION_TYPE, Styles.FONT_SEMIBOLD));
 
-    DivTag renderedQuestion = div();
+    DivTag renderedQuestion;
     try {
       renderedQuestion = buildQuestionRenderer(type, messages, fileUploadViewStrategy);
     } catch (UnsupportedQuestionTypeException e) {

@@ -78,4 +78,25 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
 
     assertThat(result.render()).contains("Please select fewer than 2");
   }
+
+  @Test
+  public void render_withAriaLabels() {
+    // Trigger question level error, since max of 2 answers are allowed.
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 1, 2L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 2, 3L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(
+            result
+                .render()
+                .matches(
+                    ".*fieldset aria-describedby=\"[A-Za-z]{8}-error"
+                        + " [A-Za-z]{8}-description\".*"))
+        .isTrue();
+  }
 }

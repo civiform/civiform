@@ -2,17 +2,18 @@ import axe = require('axe-core')
 import {
   Browser,
   BrowserContext,
-  Locator,
   chromium,
   Page,
   PageScreenshotOptions,
   LocatorScreenshotOptions,
+  Locator,
 } from 'playwright'
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
+  LOCALSTACK_URL,
   TEST_USER_AUTH_STRATEGY,
   DISABLE_SCREENSHOTS,
   TEST_USER_LOGIN,
@@ -66,9 +67,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
       // not set.
       if (expect.getState().currentTestName) {
         // remove special characters
-        dirs.push(
-          expect.getState().currentTestName.replaceAll(/[:"<>|*?]/g, ''),
-        )
+        dirs.push(expect.getState().currentTestName.replace(/[:"<>|*?]/g, ''))
       }
     }
     return browser.newContext({
@@ -275,14 +274,9 @@ export const loginAsTestUser = async (page: Page) => {
       await loginAsTestUserSeattleStaging(page)
       break
     default:
-      // TODO(#3326): Throw an error for an unrecognized strategy rather than falling back on
-      // logging in as a guest. Handling this case is presently in place to support AWS staging
-      // and Seattle staging prober runs.
-      if (TEST_USER_LOGIN) {
-        await loginAsTestUserSeattleStaging(page)
-      } else {
-        await loginAsGuest(page)
-      }
+      throw new Error(
+        `Unrecognized or unset TEST_USER_AUTH_STRATEGY environment variable of '${TEST_USER_AUTH_STRATEGY}'`,
+      )
   }
   await waitForPageJsLoad(page)
   await page.waitForSelector(
@@ -356,17 +350,15 @@ async function loginAsTestUserFakeOidc(page: Page) {
 
 export const testUserDisplayName = () => {
   if (!TEST_USER_DISPLAY_NAME) {
-    // TODO(#3326): Throw an error if the environment variable isn't provided rather than falling
-    // back on Guest. This is presently in place to support AWS staging and Seattle staging prober
-    // runs.
-    if (TEST_USER_LOGIN) {
-      // Seattle staging.
-      return 'TEST, UATAPP'
-    }
-    // AWS staging.
-    return 'Guest'
+    throw new Error(
+      'Empty or unset TEST_USER_DISPLAY_NAME environment variable',
+    )
   }
   return TEST_USER_DISPLAY_NAME
+}
+
+export const supportsEmailInspection = () => {
+  return TEST_USER_AUTH_STRATEGY === 'fake-oidc'
 }
 
 /**
@@ -450,6 +442,30 @@ export const validateScreenshot = async (
   if (DISABLE_SCREENSHOTS) {
     return
   }
+  const page = 'page' in element ? element.page() : element
+  await page.evaluate(() => {
+    // To make screenshots stable go through all date fields (elements that have cf-bt-date class)
+    // and replace date/time with fixed text.
+    for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
+      // Use regexp replacement instead of full replacement to make sure that format of the text
+      // matches what we expect. In case underlying format changes to "September 20, 2022" then
+      // regexp will break and it will show up in screenshots.
+      date.textContent = date
+        .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
+        .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
+        .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
+    }
+    // Go through all application ID fields (elements that have cf-application-id class) and
+    // replace the ID with a stable value.
+    for (const applicationId of Array.from(
+      document.querySelectorAll('.cf-application-id'),
+    )) {
+      applicationId.textContent = applicationId.textContent!.replace(
+        /\d+/,
+        '1234',
+      )
+    }
+  })
   expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
   expect(
     await element.screenshot({
@@ -457,9 +473,7 @@ export const validateScreenshot = async (
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,
-    // threshold is 1% it's pretty wide but there is some noise that we can't
-    // explain
-    failureThreshold: 0.01,
+    failureThreshold: 0,
     failureThresholdType: 'percent',
     customSnapshotsDir: 'image_snapshots',
     customDiffDir: 'diff_output',
@@ -469,4 +483,43 @@ export const validateScreenshot = async (
     },
     ...matchImageSnapshotOptions,
   })
+}
+
+export type LocalstackSesEmail = {
+  Body: {
+    html_part: string | null
+    text_part: string | null
+  }
+  Destination: {
+    ToAddresses: string[]
+  }
+  Source: string
+  Subject: string
+}
+
+/**
+ * Queries the emails that have been sent for a given recipient. This method requires that tests
+ * run in an environment that uses localstack since it captures the emails sent using SES and makes
+ * them available at a well-known endpoint). An error is thrown when the method is called from an
+ * environment that does not use localstack. The supportsEmailInspection method can be used to
+ * determine if the environment supports sending emails.
+ */
+export const extractEmailsForRecipient = async function (
+  page: Page,
+  recipientEmail: string,
+): Promise<LocalstackSesEmail[]> {
+  if (!supportsEmailInspection()) {
+    throw new Error('Unsupported call to extractEmailsForRecipient')
+  }
+  const originalPageUrl = page.url()
+  await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
+  const responseJson = JSON.parse(await page.innerText('body')) as any
+
+  const allEmails = responseJson.messages as LocalstackSesEmail[]
+  const filteredEmails = allEmails.filter((email) => {
+    return email.Destination.ToAddresses.includes(recipientEmail)
+  })
+
+  await page.goto(originalPageUrl)
+  return filteredEmails
 }

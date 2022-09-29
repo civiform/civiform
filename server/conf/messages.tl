@@ -10,9 +10,6 @@
 label.selectLanguage=Please select your preferred language.
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-content.applicantInformation=Applicant Information
-
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
 # The text on the button an applicant clicks to log out of their session.
@@ -131,12 +128,6 @@ link.externalLink=Panlabas na site
 
 # The title of the page for the list of programs.
 title.programs=Mga programa at mga serbisyo
-
-# Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Ipagpatuloy
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=Mga Bagong Programa
 
 # Screen reader format string for program cards
 title.programCard=Programa {0} ng {1} -- {2} 

@@ -31,7 +31,7 @@ export enum QuestionType {
   RADIO = 'radio',
   TEXT = 'text',
   ENUMERATOR = 'enumerator',
-  FILE_UPLOAD = 'file_upload',
+  FILE_UPLOAD = 'file-upload',
 }
 /* eslint-enable */
 
@@ -112,10 +112,16 @@ export class AdminQuestions {
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
-    await this.page.fill('label:has-text("Name")', questionName)
-    await this.page.fill('label:has-text("Description")', description ?? '')
     await this.page.fill('label:has-text("Question Text")', questionText ?? '')
     await this.page.fill('label:has-text("Question help text")', helpText ?? '')
+    await this.page.fill(
+      'label:has-text("Administrative identifier")',
+      questionName,
+    )
+    await this.page.fill(
+      'label:has-text("Question note for administrative use only")',
+      description ?? '',
+    )
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })
@@ -141,7 +147,7 @@ export class AdminQuestions {
   }
 
   selectQuestionTableRow(questionName: string) {
-    return `.cf-admin-question-table-row:has-text("${questionName}")`
+    return `.cf-admin-question-table-row:has-text("Admin ID: ${questionName}")`
   }
 
   selectWithinQuestionTableRow(questionName: string, selector: string) {
@@ -194,39 +200,54 @@ export class AdminQuestions {
     expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
 
-  async expectProgramReferencesModalContains({
-    questionName,
-    expectedDraftProgramReferences,
-    expectedActiveProgramReferences,
-  }: {
-    questionName: string
-    expectedDraftProgramReferences: string[]
-    expectedActiveProgramReferences: string[]
-  }) {
+  async clickOnProgramReferencesModal(questionName: string) {
     await this.page.click(
       this.selectProgramReferencesFromRow(questionName) + ' a',
     )
 
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain(
-      `Programs including ${questionName}`,
+      `Programs referencing ${questionName}`,
     )
+    return modal
+  }
 
-    const draftReferences = await modal.$$(
-      '.cf-admin-question-program-reference-counts-draft li',
-    )
-    const draftReferenceNames = await Promise.all(
-      draftReferences.map((reference) => reference.innerText()),
-    )
-    expect(draftReferenceNames).toEqual(expectedDraftProgramReferences)
+  async expectProgramReferencesModalContains({
+    questionName,
+    expectedUsedProgramReferences,
+    expectedAddedProgramReferences,
+    expectedRemovedProgramReferences,
+  }: {
+    questionName: string
+    expectedUsedProgramReferences: string[]
+    expectedAddedProgramReferences: string[]
+    expectedRemovedProgramReferences: string[]
+  }) {
+    const modal = await this.clickOnProgramReferencesModal(questionName)
 
-    const activeReferences = await modal.$$(
-      '.cf-admin-question-program-reference-counts-active li',
+    const usedReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-used li',
     )
-    const activeReferenceNames = await Promise.all(
-      activeReferences.map((reference) => reference.innerText()),
+    const usedReferenceNames = await Promise.all(
+      usedReferences.map((reference) => reference.innerText()),
     )
-    expect(activeReferenceNames).toEqual(expectedActiveProgramReferences)
+    expect(usedReferenceNames).toEqual(expectedUsedProgramReferences)
+
+    const addedReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-added li',
+    )
+    const addedReferenceNames = await Promise.all(
+      addedReferences.map((reference) => reference.innerText()),
+    )
+    expect(addedReferenceNames).toEqual(expectedAddedProgramReferences)
+
+    const removedReferences = await modal.$$(
+      '.cf-admin-question-program-reference-counts-removed li',
+    )
+    const removedReferenceNames = await Promise.all(
+      removedReferences.map((reference) => reference.innerText()),
+    )
+    expect(removedReferenceNames).toEqual(expectedRemovedProgramReferences)
 
     await dismissModal(this.page)
   }
@@ -238,6 +259,14 @@ export class AdminQuestions {
     )
   }
 
+  async questionNames(): Promise<string[]> {
+    await this.gotoAdminQuestionsPage()
+    const titles = this.page.locator(
+      '.cf-admin-question-table-row .cf-question-title',
+    )
+    return titles.allTextContents()
+  }
+
   private async gotoQuestionEditOrNewVersionPage({
     questionName,
     buttonText,
@@ -247,7 +276,10 @@ export class AdminQuestions {
   }) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, `:text("${buttonText}")`),
+      this.selectWithinQuestionTableRow(
+        questionName,
+        `button:has-text("${buttonText}")`,
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
@@ -305,7 +337,7 @@ export class AdminQuestions {
     if (expectModal) {
       const modal = await waitForAnyModal(this.page)
       expect(await modal.innerText()).toContain(
-        'This question cannot be archived since there are still programs referencing it',
+        'This question cannot be archived since there are still programs using it',
       )
       await dismissModal(this.page)
     } else {
@@ -345,9 +377,9 @@ export class AdminQuestions {
 
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit')
-    expect(
-      await this.page.getAttribute('input#question-name-input', 'value'),
-    ).toEqual(questionName)
+    expect(await this.page.innerText('#question-name-input')).toEqual(
+      questionName,
+    )
   }
 
   async expectQuestionTranslationPage(questionName: string) {
@@ -766,9 +798,15 @@ export class AdminQuestions {
     await this.page.click('#create-static-question')
     await waitForPageJsLoad(this.page)
 
-    await this.page.fill('label:has-text("Name")', questionName)
-    await this.page.fill('label:has-text("Description")', description)
     await this.page.fill('label:has-text("Question Text")', questionText)
+    await this.page.fill(
+      'label:has-text("Administrative identifier")',
+      questionName,
+    )
+    await this.page.fill(
+      'label:has-text("Question note for administrative use only")',
+      description,
+    )
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })

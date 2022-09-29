@@ -12,7 +12,7 @@ describe('Text question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single text question', () => {
-    const programName = 'test program for single text q'
+    const programName = 'test-program-for-single-text-q'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -115,7 +115,7 @@ describe('Text question for applicant flow', () => {
   })
 
   describe('multiple text questions', () => {
-    const programName = 'test program for multiple text qs'
+    const programName = 'test-program-for-multiple-text-qs'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx

@@ -9,7 +9,7 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** ToastMessages are messages that appear on the screen to show information to the user. */
-public class ToastMessage {
+public final class ToastMessage {
 
   public enum ToastType {
     ALERT,
@@ -23,7 +23,7 @@ public class ToastMessage {
   /** Toast messages are instantiated with a random id. */
   private String id = UUID.randomUUID().toString();
 
-  private String message = "";
+  private String message;
 
   /** Default duration is 3 seconds. */
   private int duration = 3000;

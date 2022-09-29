@@ -10,7 +10,7 @@ import java.util.Optional;
 import services.LocalizedStrings;
 
 /** Contains data defining status tracking configuration for a program's applications. */
-public class StatusDefinitions {
+public final class StatusDefinitions {
 
   // The configured status options in their natural ordering.
   @JsonProperty("statuses")
@@ -30,6 +30,11 @@ public class StatusDefinitions {
   /** Returns the {@link Status} values in the order originally provided. */
   public ImmutableList<Status> getStatuses() {
     return statuses;
+  }
+
+  @Override
+  public String toString() {
+    return statuses.toString();
   }
 
   /**
