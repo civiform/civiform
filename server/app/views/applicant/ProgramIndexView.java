@@ -180,7 +180,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale,
               relevantPrograms.inProgress(),
               MessageKey.BUTTON_CONTINUE,
-              // TODO(#3552): Once button.continueSr translations are available, switch to using
+              // TODO(#3577): Once button.continueSr translations are available, switch to using
               // those.
               MessageKey.BUTTON_APPLY_SR));
     }
@@ -194,7 +194,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale,
               relevantPrograms.submitted(),
               MessageKey.BUTTON_EDIT,
-              // TODO(#3552): Once button.editSr translations are available, switch to using
+              // TODO(#3577): Once button.editSr translations are available, switch to using
               // those.
               MessageKey.BUTTON_APPLY_SR));
     }
