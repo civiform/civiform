@@ -215,7 +215,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (!forSummary) {
       blockIndex++;
     }
-    // TODO(clouser): Translations
     return String.format("%s  — %d of %d", pageTitle, blockIndex, totalBlockCount);
   }
 
@@ -265,7 +264,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
       blockIndex++;
     }
 
-    // TODO(clouser): Add translations.
     String blockNumberText =
         forSummary ? "" : String.format("%d of %d", blockIndex, totalBlockCount);
 
