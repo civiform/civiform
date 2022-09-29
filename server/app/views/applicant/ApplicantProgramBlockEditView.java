@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
 
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
@@ -50,18 +49,12 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
             .withClasses(Styles.MY_8, Styles.M_AUTO);
 
-    String pageTitle =
-        params.programTitle()
-            + " — "
-            + (params.blockIndex() + 1)
-            + " of "
-            + params.totalBlockCount();
-
     HtmlBundle bundle =
         layout
             .getBundle()
-            .setTitle(pageTitle)
-            .addMainContent(h1(pageTitle).withClasses(Styles.SR_ONLY))
+            .setTitle(
+                layout.renderPageTitleWithBlockProgress(
+                    params.programTitle(), params.blockIndex(), params.totalBlockCount(), false))
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),

@@ -60,12 +60,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    */
   public Content render(Params params) {
     Messages messages = params.messages();
-    String pageTitle =
-        params.inReview()
-            ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
-            : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
-    HtmlBundle bundle =
-        layout.getBundle().setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
+    HtmlBundle bundle = layout.getBundle();
 
     DivTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
@@ -118,6 +113,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
 
+    String pageTitle =
+        params.inReview()
+            ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
+            : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
+    bundle.setTitle(
+        layout.renderPageTitleWithBlockProgress(
+            pageTitle, params.completedBlockCount(), params.totalBlockCount(), true));
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
