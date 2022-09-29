@@ -119,6 +119,12 @@ function hideInput(event: Event) {
   inputDiv.classList.add('hidden')
 }
 
+// Used to allow us to generate a unique ID for each newly added enumerator entity.
+// We can't generate this based on the number of elements rendered since entities
+// can be dynamically removed by using the "Remove" button without refreshing the
+// page.
+let enumeratorCounter = 0
+
 /** In the enumerator form - add a new input field for a repeated entity. */
 function addNewEnumeratorField() {
   // Copy the enumerator field template
@@ -132,6 +138,21 @@ function addNewEnumeratorField() {
   newField
     .querySelector('[type=button]')
     .addEventListener('click', removeEnumeratorField)
+
+  // Update IDs from the template element so that they are unique.
+  const inputElement = newField.querySelector(
+    '#enumerator-field-template-input',
+  )
+  enumeratorCounter++
+  inputElement.id = `${inputElement.id}-${enumeratorCounter}`
+  const labelElement = newField.querySelector(
+    'label[for="enumerator-field-template-input"]',
+  )
+  labelElement.setAttribute('for', inputElement.id)
+  const errorsElement = newField.querySelector(
+    '#enumerator-field-template-input-errors',
+  )
+  errorsElement.id = `enumerator-field-template-input-${enumeratorCounter}-errors`
 
   // Add to the end of enumerator-fields div.
   const enumeratorFields = document.getElementById('enumerator-fields')
