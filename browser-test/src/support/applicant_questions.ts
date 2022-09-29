@@ -277,8 +277,8 @@ export class ApplicantQuestions {
   }
 
   async deleteEnumeratorEntity(entityName: string) {
-    this.page.once('dialog', async (dialog) => {
-      await dialog.accept()
+    this.page.once('dialog', (dialog) => {
+      void dialog.accept()
     })
     await this.page.click(
       `.cf-enumerator-field:has(input[value="${entityName}"]) button`,
@@ -286,8 +286,8 @@ export class ApplicantQuestions {
   }
 
   async deleteEnumeratorEntityByIndex(entityIndex: number) {
-    this.page.once('dialog', async (dialog) => {
-      await dialog.accept()
+    this.page.once('dialog', (dialog) => {
+      void dialog.accept()
     })
     await this.page.click(`:nth-match(:text("Remove Entity"), ${entityIndex})`)
   }
