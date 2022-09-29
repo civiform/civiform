@@ -7,9 +7,10 @@ class AdminApplications {
   // This value should be kept in sync with that in AdminApplicationController.java.
   private static SELECTED_APPLICATION_URI_PARAM_NAME = 'selectedApplicationUri'
 
-  // These values should be kept in sync with those in admin_application_view.ts and
+  // These values should be kept in sync with those in admin_application_view.ts
   // and ProgramApplicationView.java.
   private static SUCCESS_REDIRECT_URI_INPUT_NAME = 'successRedirectUri'
+  private static CURRENT_STATUS_INPUT_NAME = 'currentStatus'
   private static NEW_STATUS_INPUT_NAME = 'newStatus'
   private static SEND_EMAIL_INPUT_NAME = 'sendEmail'
   private static NOTE_INPUT_NAME = 'note'
@@ -146,6 +147,10 @@ class AdminApplications {
           inputValue: this.currentRelativeUrl(),
         },
         {
+          inputName: AdminApplications.CURRENT_STATUS_INPUT_NAME,
+          inputValue: data.currentStatus,
+        },
+        {
           inputName: AdminApplications.NEW_STATUS_INPUT_NAME,
           inputValue: data.newStatus,
         },
@@ -223,6 +228,7 @@ interface ApplicationViewMessage {
 }
 
 interface UpdateStatusData {
+  currentStatus: string
   newStatus: string
   sendEmail: string
 }
