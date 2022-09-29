@@ -1,6 +1,7 @@
 package auth.oidc.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.test.Helpers.fakeRequest;
 
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
@@ -10,10 +11,14 @@ import junitparams.JUnitParamsRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.pac4j.play.PlayWebContext;
 import play.api.test.Helpers;
+import play.mvc.Http.Request;
 import repository.ResetPostgres;
 import repository.UserRepository;
 import support.CfTestHelpers;
@@ -25,6 +30,10 @@ public class LoginGovProviderTest extends ResetPostgres {
   private static UserRepository userRepository;
   private static String DISCOVERY_URI = "http://oidc:3380/.well-known/openid-configuration";
   private static String BASE_URL = String.format("http://localhost:%d", Helpers.testServerPort());
+
+  private static final SessionStore mockSessionStore = Mockito.mock(SessionStore.class);
+  private static final Request requestMock = fakeRequest().remoteAddress("1.1.1.1").build();
+  private static final PlayWebContext webContext = new PlayWebContext(requestMock);
 
   @Before
   public void setup() {
@@ -79,5 +88,22 @@ public class LoginGovProviderTest extends ResetPostgres {
 
     String acr = loginGovProvider.getACRValue();
     assertThat(acr).isEqualTo("http://acr.test");
+  }
+
+  @Test
+  public void Test_redirectURI() {
+    OidcClient client = loginGovProvider.get();
+
+    var redirectAction = client.getRedirectionAction(webContext, mockSessionStore);
+    assertThat(redirectAction).isNotEmpty();
+    assertThat(redirectAction.toString()).contains("scope=openid+profile+email");
+    assertThat(redirectAction.toString()).contains("response_type=code");
+    assertThat(redirectAction.toString()).contains("acr_values=http%3A%2F%2Facr.test");
+    assertThat(redirectAction.toString()).contains("state=");
+    assertThat(redirectAction.toString()).contains("code_challenge_method=S256");
+    assertThat(redirectAction.toString()).contains("prompt=select_account");
+    assertThat(redirectAction.toString()).contains("nonce=");
+    assertThat(redirectAction.toString()).contains("client_id=login%3Agov%3Aclient");
+    assertThat(redirectAction.toString()).contains("code_challenge=");
   }
 }
