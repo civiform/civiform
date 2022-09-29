@@ -190,7 +190,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateStatus_invalidStatus_fails() throws Exception {
+  public void updateStatus_invalidNewStatus_fails() throws Exception {
     // Setup
     Account adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
@@ -224,7 +224,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateStatus_noStatus_fails() throws Exception {
+  public void updateStatus_noNewStatus_fails() throws Exception {
     // Setup
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
     Program program =
@@ -235,7 +235,51 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .bodyForm(
+                        Map.of(
+                            "successRedirectUri",
+                            "/",
+                            "sendEmail",
+                            "",
+                            "currentStatus",
+                            UNSET_STATUS_TEXT)))
+            .build();
+
+    // Execute
+    Result result = controller.updateStatus(request, program.id, application.id);
+
+    // Evaluate
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(contentAsString(result)).contains("is not present");
+  }
+
+  @Test
+  public void updateStatus_noCurrentStatus_fails() throws Exception {
+    // Setup
+    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
+    Program program =
+        ProgramBuilder.newActiveProgram("test name", "test description")
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .build();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Application application =
+        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        addCSRFToken(
+                Helpers.fakeRequest()
+                    .bodyForm(
+                        Map.of(
+                            "successRedirectUri",
+                            "/",
+                            "sendEmail",
+                            "",
+                            "newStatus",
+                            APPROVED_STATUS.statusText())))
+            .build();
 
     // Execute
     Result result = controller.updateStatus(request, program.id, application.id);
