@@ -182,7 +182,10 @@ public final class ProgramIndexView extends BaseHtmlView {
               applicantId,
               preferredLocale,
               relevantPrograms.inProgress(),
-              MessageKey.BUTTON_CONTINUE));
+              MessageKey.BUTTON_CONTINUE,
+              // TODO(#3577): Once button.continueSr translations are available, switch to using
+              // those.
+              MessageKey.BUTTON_APPLY_SR));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
@@ -193,7 +196,10 @@ public final class ProgramIndexView extends BaseHtmlView {
               applicantId,
               preferredLocale,
               relevantPrograms.submitted(),
-              MessageKey.BUTTON_EDIT));
+              MessageKey.BUTTON_EDIT,
+              // TODO(#3577): Once button.editSr translations are available, switch to using
+              // those.
+              MessageKey.BUTTON_APPLY_SR));
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
@@ -204,7 +210,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               applicantId,
               preferredLocale,
               relevantPrograms.unapplied(),
-              MessageKey.BUTTON_APPLY));
+              MessageKey.BUTTON_APPLY,
+              MessageKey.BUTTON_APPLY_SR));
     }
 
     return div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.PLACE_ITEMS_CENTER).with(content);
@@ -231,7 +238,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       Locale preferredLocale,
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
-      MessageKey buttonTitle) {
+      MessageKey buttonTitle,
+      MessageKey buttonSrText) {
     String sectionHeaderId = Modal.randomModalId();
     return div()
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
@@ -247,7 +255,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                         cards,
                         (card) ->
                             programCard(
-                                messages, card, applicantId, preferredLocale, buttonTitle))));
+                                messages,
+                                card,
+                                applicantId,
+                                preferredLocale,
+                                buttonTitle,
+                                buttonSrText))));
   }
 
   private LiTag programCard(
@@ -255,7 +268,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       ApplicantService.ApplicantProgramData cardData,
       Long applicantId,
       Locale preferredLocale,
-      MessageKey buttonTitle) {
+      MessageKey buttonTitle,
+      MessageKey buttonSrText) {
     ProgramDefinition program = cardData.program();
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
