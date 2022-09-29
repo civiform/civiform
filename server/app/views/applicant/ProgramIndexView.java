@@ -231,7 +231,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       Locale preferredLocale,
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
-      MessageKey applyTitle) {
+      MessageKey buttonTitle) {
     String sectionHeaderId = Modal.randomModalId();
     return div()
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
@@ -247,7 +247,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         cards,
                         (card) ->
                             programCard(
-                                messages, card, applicantId, preferredLocale, applyTitle))));
+                                messages, card, applicantId, preferredLocale, buttonTitle))));
   }
 
   private LiTag programCard(
@@ -255,7 +255,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ApplicantService.ApplicantProgramData cardData,
       Long applicantId,
       Locale preferredLocale,
-      MessageKey applyTitle) {
+      MessageKey buttonTitle) {
     ProgramDefinition program = cardData.program();
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
@@ -344,9 +344,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             .attr(
                 "aria-label",
                 messages.at(
-                    MessageKey.BUTTON_APPLY_SR.getKeyName(),
+                    buttonSrText.getKeyName(),
                     program.localizedName().getOrDefault(preferredLocale)))
-            .withText(messages.at(applyTitle.getKeyName()))
+            .withText(messages.at(buttonTitle.getKeyName()))
             .withId(baseId + "-apply")
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 

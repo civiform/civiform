@@ -123,6 +123,10 @@ button.apply=Apply
 button.applySr=Apply to {0}
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Edit
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=Edit submitted application to {0}
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=Continue application to {0}
 
 # Text describing the date the application was last submitted.
 content.submittedDate=Submitted {0}
