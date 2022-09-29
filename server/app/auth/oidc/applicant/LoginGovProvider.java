@@ -62,6 +62,11 @@ public final class LoginGovProvider extends GenericOidcProvider {
   }
 
   @Override
+  protected Optional<String> getProviderName() {
+    return Optional.of("LoginGov");
+  }
+
+  @Override
   protected Optional<String> getClientSecret() {
     // No client secret used, since they can be insecure and is not requried by this flow.
     // Instead uses the PKCE method as required by login.gov.
