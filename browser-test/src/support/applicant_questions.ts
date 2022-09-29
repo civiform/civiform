@@ -294,7 +294,7 @@ export class ApplicantQuestions {
 
   async downloadSingleQuestionFromReviewPage() {
     // Assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain(
+    expect(await this.page.innerText('h2')).toContain(
       'Program application review',
     )
 
@@ -323,7 +323,7 @@ export class ApplicantQuestions {
 
   async submitFromReviewPage() {
     // Assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain(
+    expect(await this.page.innerText('h2')).toContain(
       'Program application review',
     )
 
@@ -334,7 +334,7 @@ export class ApplicantQuestions {
 
   async submitFromPreviewPage() {
     // Assert that we're on the preview page.
-    expect(await this.page.innerText('h1')).toContain(
+    expect(await this.page.innerText('h2')).toContain(
       'Program application preview',
     )
 
