@@ -63,6 +63,7 @@ import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
 
 public class AdminApplicationControllerTest extends ResetPostgres {
+  private static final String UNSET_STATUS_TEXT = "Unset";
   private static final StatusDefinitions.Status APPROVED_STATUS =
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
@@ -203,9 +204,14 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri", "/",
-                            "sendEmail", "",
-                            "newStatus", "NOT A REAL STATUS")))
+                            "successRedirectUri",
+                            "/",
+                            "sendEmail",
+                            "",
+                            "currentStatus",
+                            UNSET_STATUS_TEXT,
+                            "newStatus",
+                            "NOT A REAL STATUS")))
             .build();
 
     // Execute
@@ -253,10 +259,15 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri", "/",
-                            "newStatus", APPROVED_STATUS.statusText(),
+                            "successRedirectUri",
+                            "/",
+                            "currentStatus",
+                            UNSET_STATUS_TEXT,
+                            "newStatus",
+                            APPROVED_STATUS.statusText(),
                             // Only "on" is a valid checkbox state.
-                            "sendEmail", "false")))
+                            "sendEmail",
+                            "false")))
             .build();
 
     // Execute
@@ -289,6 +300,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                         Map.of(
                             "successRedirectUri",
                             "/",
+                            "currentStatus",
+                            UNSET_STATUS_TEXT,
                             "newStatus",
                             APPROVED_STATUS.statusText(),
                             "sendEmail",
@@ -335,6 +348,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                             // Only "on" is a valid checkbox state.
                             "sendEmail",
                             "",
+                            "currentStatus",
+                            UNSET_STATUS_TEXT,
                             "newStatus",
                             APPROVED_STATUS.statusText())))
             .build();
