@@ -14,7 +14,6 @@ import auth.ProfileUtils;
 import auth.Roles;
 import com.typesafe.config.Config;
 import controllers.routes;
-import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
@@ -25,8 +24,6 @@ import j2html.tags.specialized.SelectTag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -44,8 +41,6 @@ import views.style.Styles;
 
 /** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
-
-  private static final Logger logger = LoggerFactory.getLogger(ApplicantLayout.class);
 
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
@@ -86,14 +81,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     bundle.addFooterStyles(Styles.MT_24);
 
-    Content rendered = super.render(bundle);
-    if (!rendered.body().contains("<h1")) {
-      logger.error("Page does not contain an <h1>, which is important for screen readers.");
-    }
-    if (Strings.countOccurrencesOf(rendered.body(), "<h1") > 1) {
-      logger.error("Page contains more than one <h1>, which is detrimental to screen readers.");
-    }
-    return rendered;
+    return super.render(bundle);
   }
 
   public Content renderWithNav(

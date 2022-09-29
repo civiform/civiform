@@ -11,6 +11,8 @@ import com.typesafe.config.Config;
 import j2html.tags.specialized.ScriptTag;
 import java.net.URI;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.twirl.api.Content;
 import views.components.ToastMessage;
 
@@ -22,6 +24,8 @@ import views.components.ToastMessage;
  * #render(HtmlBundle)} method.
  */
 public class BaseHtmlLayout {
+  private static final Logger logger = LoggerFactory.getLogger(BaseHtmlLayout.class);
+
   private final String civiformImageTag;
   private final String civiformFaviconUrl;
 
@@ -114,7 +118,14 @@ public class BaseHtmlLayout {
     } else {
       bundle.setTitle(String.format("%s — %s", currentTitle, getTitleSuffix()));
     }
-    return bundle.render();
+    Content rendered = super.render(bundle);
+    if (!rendered.body().contains("<h1")) {
+      logger.error("Page does not contain an <h1>, which is important for screen readers.");
+    }
+    if (io.jsonwebtoken.lang.Strings.countOccurrencesOf(rendered.body(), "<h1") > 1) {
+      logger.error("Page contains more than one <h1>, which is detrimental to screen readers.");
+    }
+    return rendered;
   }
 
   protected String getTitleSuffix() {
