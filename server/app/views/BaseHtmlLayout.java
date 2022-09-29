@@ -118,7 +118,7 @@ public class BaseHtmlLayout {
     } else {
       bundle.setTitle(String.format("%s — %s", currentTitle, getTitleSuffix()));
     }
-    Content rendered = super.render(bundle);
+    Content rendered = bundle.render();
     if (!rendered.body().contains("<h1")) {
       logger.error("Page does not contain an <h1>, which is important for screen readers.");
     }
