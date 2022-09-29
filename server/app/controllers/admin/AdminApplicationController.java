@@ -370,8 +370,6 @@ public final class AdminApplicationController extends CiviFormController {
     Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
     Optional<String> maybeSuccessRedirectUri =
         Optional.ofNullable(formData.get(SUCCESS_REDIRECT_URI));
-    // TODO(#3263): check that the previous status is the current previous status for
-    // consistency.
     if (maybeCurrentStatus.isEmpty()) {
       return badRequest(String.format("The %s field is not present", CURRENT_STATUS));
     }
@@ -387,14 +385,6 @@ public final class AdminApplicationController extends CiviFormController {
     // Verify the UI is changing from the actual current status to detect an out of date UI.
     if (application.getLatestStatus().isPresent()) {
       if (!application.getLatestStatus().get().equals(maybeCurrentStatus.get())) {
-        // return redirect(
-        //  routes.AdminApplicationController.index(programId,
-        //  Optional.empty(),
-        //    Optional.empty(),
-        //    Optional.empty(),
-        //    Optional.empty(),
-        //    Optional.empty(),
-        //    Optional.of(routes.AdminApplicationController.show(programId, applicationId).path())))
         // Only allow relative URLs to ensure that we redirect to the same domain.
         String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
         return redirect(redirectUrl)
