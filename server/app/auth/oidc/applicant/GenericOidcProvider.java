@@ -77,8 +77,8 @@ public class GenericOidcProvider extends OidcProvider {
   }
 
   @Override
-  protected String getClientSecret() {
-    return getConfigurationValueOrThrow(CLIENT_SECRET_CONFIG_NAME);
+  protected Optional<String> getClientSecret() {
+    return Optional.of(getConfigurationValueOrThrow(CLIENT_SECRET_CONFIG_NAME));
   }
 
   @Override
