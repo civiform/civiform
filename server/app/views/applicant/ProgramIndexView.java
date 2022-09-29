@@ -180,7 +180,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale,
               relevantPrograms.inProgress(),
               MessageKey.BUTTON_CONTINUE,
-              // TODO(#3552): Once button.editSr translations are available, switch to using those.
+              // TODO(#3552): Once button.continueSr translations are available, switch to using
+              // those.
               MessageKey.BUTTON_APPLY_SR));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
@@ -193,7 +194,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale,
               relevantPrograms.submitted(),
               MessageKey.BUTTON_EDIT,
-              // TODO(#3552): Once button.continueSr translations are available, switch to using
+              // TODO(#3552): Once button.editSr translations are available, switch to using
               // those.
               MessageKey.BUTTON_APPLY_SR));
     }
@@ -234,8 +235,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       Locale preferredLocale,
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
-      MessageKey applyTitle,
-      MessageKey applySr) {
+      MessageKey buttonTitle,
+      MessageKey buttonSrText) {
     return div()
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
         .with(
@@ -255,8 +256,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                                 cards.size(),
                                 applicantId,
                                 preferredLocale,
-                                applyTitle,
-                                applySr))));
+                                buttonTitle,
+                                buttonSrText))));
   }
 
   private DivTag programCard(
@@ -266,8 +267,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       int totalProgramCount,
       Long applicantId,
       Locale preferredLocale,
-      MessageKey applyTitle,
-      MessageKey applySr) {
+      MessageKey buttonTitle,
+      MessageKey buttonSrText) {
     ProgramDefinition program = cardData.program();
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
@@ -357,8 +358,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             .attr(
                 "aria-label",
                 messages.at(
-                    applySr.getKeyName(), program.localizedName().getOrDefault(preferredLocale)))
-            .withText(messages.at(applyTitle.getKeyName()))
+                    buttonSrText.getKeyName(),
+                    program.localizedName().getOrDefault(preferredLocale)))
+            .withText(messages.at(buttonTitle.getKeyName()))
             .withId(baseId + "-apply")
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
