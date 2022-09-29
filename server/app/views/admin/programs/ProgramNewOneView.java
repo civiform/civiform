@@ -4,12 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import forms.ProgramForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -17,11 +17,12 @@ import views.admin.AdminLayoutFactory;
 import views.components.ToastMessage;
 
 /** Renders a page for adding a new program. */
-public final class ProgramNewOneView extends BaseHtmlView {
+public final class ProgramNewOneView extends ProgramFormBuilder {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramNewOneView(AdminLayoutFactory layoutFactory) {
+  public ProgramNewOneView(AdminLayoutFactory layoutFactory, Config configuration) {
+    super(configuration);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
@@ -34,7 +35,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
 
     DivTag contentDiv =
         div(
-            ProgramFormBuilder.buildProgramForm(programForm, /* editExistingProgram = */ false)
+            buildProgramForm(programForm, /* editExistingProgram = */ false)
                 .with(makeCsrfTokenInputTag(request))
                 .withAction(controllers.admin.routes.AdminProgramController.create().url()));
 

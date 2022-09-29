@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import play.data.validation.ValidationError;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
@@ -62,12 +63,14 @@ public class FieldWithLabel {
   private Messages messages;
   private ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   private boolean showFieldErrors = true;
+  private boolean shouldForceAriaInvalid = false;
   private boolean checked = false;
   private boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
+  private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
   private ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
 
-  private static class FieldErrorsInfo {
+  private static final class FieldErrorsInfo {
     public String fieldErrorsId;
     public boolean hasFieldErrors;
 
@@ -252,6 +255,21 @@ public class FieldWithLabel {
 
   public FieldWithLabel setScreenReaderText(String screenReaderText) {
     this.screenReaderText = screenReaderText;
+    return this;
+  }
+
+  /** Set the list of HTML tag IDs that should be used for a11y descriptions. */
+  public FieldWithLabel setAriaDescribedByIds(ImmutableList<String> ariaDescribedByIds) {
+    this.ariaDescribedByBuilder.addAll(ariaDescribedByIds);
+    return this;
+  }
+
+  /**
+   * Forceset the aria-invalid attribute on this field to true. This is useful for when there are
+   * question level errors that this field does not know about.
+   */
+  public FieldWithLabel forceAriaInvalid() {
+    this.shouldForceAriaInvalid = true;
     return this;
   }
 
@@ -469,9 +487,17 @@ public class FieldWithLabel {
 
     FieldErrorsInfo fieldErrorsInfo = new FieldErrorsInfo(fieldErrorsId, hasFieldErrors);
     if (fieldErrorsInfo.hasFieldErrors) {
-      fieldTag.attr("aria-invalid", "true");
-      fieldTag.attr("aria-describedBy", fieldErrorsId);
+      ImmutableList.Builder<String> tempBuilder = ImmutableList.builder();
+      // Add error to front.
+      tempBuilder.add(fieldErrorsId);
+      tempBuilder.addAll(ariaDescribedByBuilder.build());
+      ariaDescribedByBuilder = tempBuilder;
     }
+    ImmutableList<String> ariaIds = ariaDescribedByBuilder.build();
+
+    fieldTag.condAttr(!ariaIds.isEmpty(), "aria-describedby", StringUtils.join(ariaIds, " "));
+    fieldTag.condAttr(
+        shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
 
     generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
 

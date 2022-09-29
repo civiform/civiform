@@ -19,7 +19,7 @@ import services.PaginationResult;
  * DatabaseExecutionContext} for scheduling code to be executed using the database interaction
  * thread pool.
  */
-public class ApiKeyRepository {
+public final class ApiKeyRepository {
   private final Database database;
   private final DatabaseExecutionContext executionContext;
 

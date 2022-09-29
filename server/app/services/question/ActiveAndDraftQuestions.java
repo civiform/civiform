@@ -68,8 +68,6 @@ public final class ActiveAndDraftQuestions {
 
     versionedByName =
         Sets.union(activeNameToQuestion.keySet(), draftNameToQuestion.keySet()).stream()
-            // TODO(#3029): remove sorting once client-side sorting is implemented
-            .sorted()
             .collect(
                 ImmutableMap.toImmutableMap(
                     Function.identity(),
@@ -81,8 +79,7 @@ public final class ActiveAndDraftQuestions {
 
     this.draftVersionHasAnyEdits = draft.hasAnyChanges();
     this.referencingActiveProgramsByName = buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName =
-        draftVersionHasAnyEdits ? buildReferencingProgramsMap(withDraftEdits) : ImmutableMap.of();
+    this.referencingDraftProgramsByName = buildReferencingProgramsMap(withDraftEdits);
 
     ImmutableSet<String> tombstonedQuestionNames =
         ImmutableSet.copyOf(

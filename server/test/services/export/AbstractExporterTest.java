@@ -1,16 +1,25 @@
 package services.export;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
+import models.Account;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
+import org.junit.Before;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.application.ApplicationEventDetails.StatusEvent;
+import services.applications.ProgramAdminApplicationService;
+import services.program.StatusDefinitions;
+import services.program.StatusDefinitions.Status;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
@@ -21,15 +30,28 @@ import support.QuestionAnswerer;
  * applications.
  */
 public abstract class AbstractExporterTest extends ResetPostgres {
+  public static final String STATUS_VALUE = "approved";
+  private ProgramAdminApplicationService programAdminApplicationService;
+
   protected Program fakeProgramWithEnumerator;
+  protected Program fakeProgramWithOptionalFileUpload;
   protected Program fakeProgram;
   protected ImmutableList<Question> fakeQuestions;
   protected Applicant applicantOne;
+  protected Applicant applicantFive;
+  protected Applicant applicantSix;
   protected Applicant applicantTwo;
   protected Application applicationOne;
   protected Application applicationTwo;
   protected Application applicationThree;
   protected Application applicationFour;
+  protected Application applicationFive;
+  protected Application applicationSix;
+
+  @Before
+  public void setup() {
+    programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
+  }
 
   protected void answerQuestion(
       QuestionType questionType,
@@ -102,7 +124,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     }
   }
 
-  protected void createFakeApplications() {
+  /**
+   * Setup application 1-4.
+   *
+   * <p>1-3 have the same user with each of the three possible states, each with Status approved. 4
+   * is a different user in Active state.
+   */
+  protected void createFakeApplications() throws Exception {
+    Account admin = resourceCreator.insertAccount();
     Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
     Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
@@ -119,14 +148,29 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationOne =
         new Application(applicantOne, fakeProgram, LifecycleStage.ACTIVE).setSubmitTimeToNow();
     applicationOne.save();
+    programAdminApplicationService.setStatus(
+        applicationOne,
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
+        admin);
+    applicationOne.refresh();
 
     applicationTwo =
         new Application(applicantOne, fakeProgram, LifecycleStage.OBSOLETE).setSubmitTimeToNow();
     applicationTwo.save();
+    programAdminApplicationService.setStatus(
+        applicationTwo,
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
+        admin);
+    applicationTwo.refresh();
 
     applicationThree =
         new Application(applicantOne, fakeProgram, LifecycleStage.DRAFT).setSubmitTimeToNow();
     applicationThree.save();
+    programAdminApplicationService.setStatus(
+        applicationThree,
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
+        admin);
+    applicationThree.refresh();
 
     applicationFour =
         new Application(applicantTwo, fakeProgram, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -145,10 +189,71 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     fakeProgram.withName("Fake Program");
     fakeQuestions.forEach(
         question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
+    fakeProgram.withStatusDefinitions(
+        new StatusDefinitions()
+            .setStatuses(
+                ImmutableList.of(
+                    Status.builder()
+                        .setStatusText(STATUS_VALUE)
+                        .setLocalizedStatusText(
+                            LocalizedStrings.builder()
+                                .setTranslations(ImmutableMap.of(Locale.ENGLISH, STATUS_VALUE))
+                                .build())
+                        .build())));
 
     this.fakeProgram = fakeProgram.build();
   }
 
+  protected void createFakeProgramWithOptionalQuestion() {
+    Question fileQuestion = testQuestionBank.applicantFile();
+    Question nameQuestion = testQuestionBank.applicantName();
+
+    fakeProgramWithOptionalFileUpload =
+        ProgramBuilder.newActiveProgram()
+            .withName("Fake Optional Question Program")
+            .withBlock()
+            .withRequiredQuestion(nameQuestion)
+            .withBlock()
+            .withOptionalQuestion(fileQuestion)
+            .build();
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+    // Applicant five have file uploaded for the optional file upload question
+    applicantFive = resourceCreator.insertApplicantWithAccount();
+    QuestionAnswerer.answerNameQuestion(
+        applicantFive.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Example",
+        "",
+        "Five");
+    QuestionAnswerer.answerFileQuestion(
+        applicantFive.getApplicantData(), answerPath, "my-file-key");
+    applicationFive =
+        new Application(applicantFive, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
+    applicantFive.save();
+    CfTestHelpers.withMockedInstantNow(
+        "2022-01-01T00:00:00Z", () -> applicationFive.setSubmitTimeToNow());
+    applicationFive.save();
+    // Applicant six hasn't uploaded a file for the optional file upload question
+    applicantSix = resourceCreator.insertApplicantWithAccount();
+    QuestionAnswerer.answerNameQuestion(
+        applicantSix.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Example",
+        "",
+        "Six");
+    applicationSix =
+        new Application(applicantSix, fakeProgramWithOptionalFileUpload, LifecycleStage.ACTIVE);
+    applicantSix.save();
+    CfTestHelpers.withMockedInstantNow(
+        "2022-01-01T00:00:00Z", () -> applicationSix.setSubmitTimeToNow());
+    applicationSix.save();
+  }
   /**
    * Creates a program that has an enumerator question with children, three applicants, and three
    * applications. The applications have submission times one month apart starting on 2022-01-01.

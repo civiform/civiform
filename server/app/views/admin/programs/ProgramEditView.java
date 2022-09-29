@@ -3,6 +3,7 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import forms.ProgramForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.FormTag;
@@ -10,7 +11,6 @@ import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -20,22 +20,23 @@ import views.components.ToastMessage;
 import views.style.Styles;
 
 /** Renders a page for editing the name and description of a program. */
-public class ProgramEditView extends BaseHtmlView {
+public final class ProgramEditView extends ProgramFormBuilder {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramEditView(AdminLayoutFactory layoutFactory) {
+  public ProgramEditView(AdminLayoutFactory layoutFactory, Config configuration) {
+    super(configuration);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
   public Content render(Request request, ProgramDefinition program) {
     FormTag formTag =
-        ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
+        buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
 
-    String title = String.format("Edit program: %s", program.adminName());
+    String title = String.format("Edit program: %s", program.localizedName().getDefault());
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
@@ -44,14 +45,18 @@ public class ProgramEditView extends BaseHtmlView {
   }
 
   public Content render(
-      Request request, long id, ProgramForm program, Optional<ToastMessage> message) {
+      Request request,
+      ProgramDefinition existingProgram,
+      ProgramForm program,
+      Optional<ToastMessage> message) {
     FormTag formTag =
-        ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
+        buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
-            .with(buildManageQuestionLink(id))
-            .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
+            .with(buildManageQuestionLink(existingProgram.id()))
+            .withAction(
+                controllers.admin.routes.AdminProgramController.update(existingProgram.id()).url());
 
-    String title = String.format("Edit program: %s", program.getAdminName());
+    String title = String.format("Edit program: %s", existingProgram.localizedName().getDefault());
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);

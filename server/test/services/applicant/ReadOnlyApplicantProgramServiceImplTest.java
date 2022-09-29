@@ -987,9 +987,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     assertEquals(2, result.size());
     // Non-fileupload question does not have a file key
-    assertThat(result.get(0).fileKey()).isEmpty();
+    assertThat(result.get(0).encodedFileKey()).isEmpty();
     // Fileupload question has a file key
-    assertThat(result.get(1).fileKey()).isNotEmpty();
+    assertThat(result.get(1).encodedFileKey()).isNotEmpty();
   }
 
   @Test

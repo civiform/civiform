@@ -2,16 +2,21 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import featureflags.FeatureFlags;
 import java.util.Optional;
 import models.Application;
 import models.Program;
 import org.junit.Test;
+import org.mockito.Mockito;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
+import services.applicant.ApplicantService;
+import services.program.ProgramService;
 
 public class JsonExporterTest extends AbstractExporterTest {
+  private static final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
 
   @Test
   public void testAllQuestionTypesWithoutEnumerators() throws Exception {
@@ -32,6 +37,7 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     resultAsserter.assertLengthOf(3);
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationOne, 2);
+    resultAsserter.assertValueAtPath("$[2].status", STATUS_VALUE);
     resultAsserter.assertValueAtPath(2, ".applicant_name.first_name", "Alice");
     resultAsserter.assertNullValueAtPath(2, ".applicant_name.middle_name");
     resultAsserter.assertValueAtPath(2, ".applicant_name.last_name", "Appleton");
@@ -56,6 +62,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(2, ".radio.selection", "winter");
 
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationTwo, 1);
+    resultAsserter.assertValueAtPath("$[1].status", STATUS_VALUE);
     resultAsserter.assertValueAtPath(1, ".applicant_name.first_name", "Alice");
     resultAsserter.assertNullValueAtPath(1, ".applicant_name.middle_name");
     resultAsserter.assertValueAtPath(1, ".applicant_name.last_name", "Appleton");
@@ -80,6 +87,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(1, ".radio.selection", "winter");
 
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationFour, 0);
+    resultAsserter.assertNullValueAtPath(0, ".status");
     resultAsserter.assertValueAtPath(0, ".applicant_name.first_name", "Bob");
     resultAsserter.assertNullValueAtPath(0, ".applicant_name.middle_name");
     resultAsserter.assertValueAtPath(0, ".applicant_name.last_name", "Baker");
@@ -129,6 +137,30 @@ public class JsonExporterTest extends AbstractExporterTest {
         333);
   }
 
+  @Test
+  public void testStatusTrackingDisabled() throws Exception {
+    createFakeQuestions();
+    createFakeProgram();
+    createFakeApplications();
+
+    JsonExporter exporter =
+        new JsonExporter(
+            instanceOf(ApplicantService.class), instanceOf(ProgramService.class), featureFlags);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertLengthOf(3);
+    testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationOne, 2);
+    resultAsserter.assertDoesNotHavePath("$[0].status");
+  }
+
   private void testApplicationTopLevelAnswers(
       Program program, ResultAsserter resultAsserter, Application application, int resultIndex) {
     resultAsserter.assertValueAtPath(
@@ -150,6 +182,10 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     void assertLengthOf(int num) {
       assertThat((int) resultJson.getDocumentContext().read("$.length()")).isEqualTo(num);
+    }
+
+    void assertDoesNotHavePath(String path) {
+      assertThat(resultJson.hasPath(Path.create(path))).isFalse();
     }
 
     void assertValueAtPath(String path, String value) {

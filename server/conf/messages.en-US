@@ -18,9 +18,6 @@ button.logout=Logout
 label.selectLanguage=Please select your preferred language.
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-content.applicantInformation=Applicant Information
-
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
 # Message displayed before the support email address in the page footer for applicants.
@@ -148,13 +145,7 @@ link.externalLink=External site
 title.programs=Programs & services
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Continue
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=In progress
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=New Programs
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Not started

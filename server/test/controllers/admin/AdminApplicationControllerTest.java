@@ -477,6 +477,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             instanceOf(DatabaseExecutionContext.class),
             instanceOf(HttpExecutionContext.class),
             instanceOf(CiviFormProfileData.class),
+            instanceOf(FeatureFlags.class),
             adminAccount);
     ProfileUtils profileUtilsNoOpTester =
         new ProfileUtilsNoOpTester(
@@ -524,14 +525,16 @@ public class AdminApplicationControllerTest extends ResetPostgres {
           DatabaseExecutionContext dbContext,
           HttpExecutionContext httpContext,
           CiviFormProfileData profileData,
+          FeatureFlags featureFlags,
           Optional<Account> adminAccount) {
-        super(dbContext, httpContext, profileData);
+        super(dbContext, httpContext, profileData, featureFlags);
         this.adminAccount = adminAccount;
       }
 
       // Always passes and does no checks.
       @Override
-      public CompletableFuture<Void> checkProgramAuthorization(String programName) {
+      public CompletableFuture<Void> checkProgramAuthorization(
+          String programName, Request request) {
         return CompletableFuture.completedFuture(null);
       }
 

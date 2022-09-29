@@ -27,7 +27,7 @@ import views.style.Styles;
  * Contains functions for rendering language-related components. These are used to allow an
  * applicant to select their preferred language.
  */
-public class LanguageSelector {
+public final class LanguageSelector {
 
   public final ImmutableList<Locale> supportedLanguages;
   private final MessagesApi messagesApi;
@@ -68,7 +68,7 @@ public class LanguageSelector {
             locale -> {
               String value = locale.toLanguageTag();
               String label = formatLabel(locale);
-              OptionTag optionTag = option(label).withValue(value);
+              OptionTag optionTag = option(label).withLang(value).withValue(value);
               if (value.equals(preferredLanguage)) {
                 optionTag.isSelected();
               }
@@ -85,14 +85,15 @@ public class LanguageSelector {
                 options.with(
                     renderRadioOption(
                         formatLabel(locale),
-                        locale.toLanguageTag(),
+                        locale,
                         locale.toLanguageTag().equals(preferredLanguage))));
     return options;
   }
 
-  private DivTag renderRadioOption(String text, String value, boolean checked) {
+  private DivTag renderRadioOption(String text, Locale locale, boolean checked) {
     LabelTag labelTag =
         label()
+            .withLang(locale.toLanguageTag())
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.RADIO_LABEL,
@@ -101,7 +102,7 @@ public class LanguageSelector {
                 input()
                     .withType("radio")
                     .withName("locale")
-                    .withValue(value)
+                    .withValue(locale.toLanguageTag())
                     .withCondChecked(checked)
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))

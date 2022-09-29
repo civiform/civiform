@@ -22,7 +22,7 @@ describe('file upload applicant flow', () => {
   })
 
   describe('single file upload question', () => {
-    const programName = 'test program for single file upload'
+    const programName = 'test-program-for-single-file-upload'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -121,7 +121,7 @@ describe('file upload applicant flow', () => {
 
   // Optional file upload.
   describe('optional file upload question', () => {
-    const programName = 'test program for optional file upload'
+    const programName = 'test-program-for-optional-file-upload'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx

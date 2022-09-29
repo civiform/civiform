@@ -23,10 +23,10 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a radio button question. */
-public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
   public RadioButtonQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.COMPOSITE);
+    super(question);
   }
 
   @Override
@@ -35,10 +35,11 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
+    boolean hasErrors = !validationErrors.isEmpty();
 
     DivTag radioQuestionFormContent =
         div()
@@ -50,13 +51,14 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
                             renderRadioOption(
                                 singleOptionQuestion.getSelectionPath().toString(),
                                 option,
-                                singleOptionQuestion.optionIsSelected(option))));
+                                singleOptionQuestion.optionIsSelected(option),
+                                hasErrors)));
 
     return radioQuestionFormContent;
   }
 
   private DivTag renderRadioOption(
-      String selectionPath, LocalizedQuestionOption option, boolean checked) {
+      String selectionPath, LocalizedQuestionOption option, boolean checked, boolean hasErrors) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
     LabelTag labelTag =
@@ -70,6 +72,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
+            .condAttr(hasErrors, "aria-invalid", "true")
             .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 
     return div()

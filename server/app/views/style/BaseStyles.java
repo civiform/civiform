@@ -46,22 +46,22 @@ public final class BaseStyles {
   public static final String FORM_ERROR_TEXT_BASE =
       StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, Styles.TEXT_BASE);
 
+  public static final String FORM_FIELD =
+      StyleUtils.joinStyles(Styles.PX_3, Styles.BG_WHITE, Styles.TEXT_BLACK, Styles.TEXT_LG);
+
   private static final String INPUT_BASE =
       StyleUtils.joinStyles(
+          FORM_FIELD,
+          Styles.PY_2,
           Styles.BLOCK,
           Styles.OUTLINE_NONE,
           Styles.BOX_BORDER,
           Styles.M_AUTO,
-          Styles.PX_3,
-          Styles.PY_2,
           Styles.BORDER,
           BaseStyles.FORM_FIELD_BORDER_COLOR,
           Styles.ROUNDED_LG,
           Styles.W_FULL,
-          Styles.BG_WHITE,
-          StyleUtils.focus(BORDER_SEATTLE_BLUE),
-          Styles.TEXT_BLACK,
-          Styles.TEXT_LG);
+          StyleUtils.focus(BORDER_SEATTLE_BLUE));
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
   public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, Styles.PLACEHOLDER_GRAY_500);

@@ -86,4 +86,12 @@ public class RadioButtonQuestionRendererTest {
                 + " name=\"applicant.favorite_ice_cream.selection\""
                 + " value=\"2\" checked");
   }
+
+  @Test
+  public void render_withAriaLabels() {
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render().matches(".*fieldset aria-describedby=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
+  }
 }

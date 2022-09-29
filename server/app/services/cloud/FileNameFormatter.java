@@ -6,7 +6,7 @@ package services.cloud;
  * database and can uniquely identify files, and determine whether the files can be accessed by the
  * current user.
  */
-public class FileNameFormatter {
+public final class FileNameFormatter {
 
   /**
    * This key uniquely identifies the file to be uploaded by the applicant and will be persisted in

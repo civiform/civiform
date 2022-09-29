@@ -90,4 +90,17 @@ public class IdQuestionRendererTest extends ResetPostgres {
 
     assertThat(result.render()).contains("Must contain only numbers.");
   }
+
+  @Test
+  public void render_withAriaLabels() {
+    DivTag result = renderer.render(params);
+
+    assertThat(
+            result
+                .render()
+                .matches(
+                    ".*input type=\"text\" value=\"\""
+                        + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
+  }
 }

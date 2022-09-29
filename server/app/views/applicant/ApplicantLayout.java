@@ -22,6 +22,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -44,7 +45,6 @@ import views.style.Styles;
 /** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
 
-  private static final String CIVIFORM_TITLE = "CiviForm";
   private static final Logger logger = LoggerFactory.getLogger(ApplicantLayout.class);
 
   private final ProfileUtils profileUtils;
@@ -83,13 +83,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   @Override
   public Content render(HtmlBundle bundle) {
     bundle.addBodyStyles(ApplicantStyles.BODY);
-    String currentTitle = bundle.getTitle();
-
-    if (currentTitle != null && !currentTitle.isEmpty()) {
-      bundle.setTitle(String.format("%s — %s", currentTitle, CIVIFORM_TITLE));
-    } else {
-      bundle.setTitle(CIVIFORM_TITLE);
-    }
 
     bundle.addFooterStyles(Styles.MT_24);
 
@@ -174,6 +167,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(
             div()
                 .withId("brand-id")
+                .withLang(Locale.ENGLISH.toLanguageTag())
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
                 .withText("CiviForm"));
   }

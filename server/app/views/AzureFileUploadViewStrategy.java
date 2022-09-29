@@ -8,6 +8,7 @@ import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
 
@@ -22,7 +23,10 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   protected ImmutableList<InputTag> fileUploadFields(
-      Optional<StorageUploadRequest> request, String fileInputId) {
+      Optional<StorageUploadRequest> request,
+      String fileInputId,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors) {
     if (request.isEmpty()) {
       return ImmutableList.of();
     }
@@ -43,6 +47,11 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withValue(signedRequest.successActionRedirect()),
         input()
             .withId(fileInputId)
+            .condAttr(hasErrors, "aria-invalid", "true")
+            .condAttr(
+                !ariaDescribedByIds.isEmpty(),
+                "aria-describedby",
+                StringUtils.join(ariaDescribedByIds, " "))
             .withType("file")
             .withName("file")
             .withAccept(MIME_TYPES_IMAGES_AND_PDF));

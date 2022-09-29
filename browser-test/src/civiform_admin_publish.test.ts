@@ -13,9 +13,13 @@ describe('publishing all draft questions and programs', () => {
   let adminPrograms: AdminPrograms
   let adminQuestions: AdminQuestions
 
-  const programNoQuestions = 'publish-test-program-no-questions'
-  const programWithQuestion = 'publish-test-program-with-question'
+  const hiddenProgramNoQuestions = 'publish-test-program-hidden-no-questions'
+  const visibleProgramWithQuestion =
+    'publish-test-program-visible-with-question'
   const questionName = 'publish-test-address-q'
+  const questionText = 'publish-test-address-q'
+  // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
+  const draftQuestionText = `${questionText} new version`
 
   beforeAll(async () => {
     const session = await startSession()
@@ -25,14 +29,19 @@ describe('publishing all draft questions and programs', () => {
 
     await loginAsAdmin(pageObject)
 
-    // Create a program with no questions
-    await adminPrograms.addProgram(programNoQuestions)
+    // Create a hidden program with no questions
+    await adminPrograms.addProgram(
+      hiddenProgramNoQuestions,
+      'program description',
+      '',
+      true,
+    )
 
     // Create a new question refererenced by a program.
-    await adminQuestions.addAddressQuestion({questionName: questionName})
-    await adminPrograms.addProgram(programWithQuestion)
+    await adminQuestions.addAddressQuestion({questionName, questionText})
+    await adminPrograms.addProgram(visibleProgramWithQuestion)
     await adminPrograms.editProgramBlock(
-      programWithQuestion,
+      visibleProgramWithQuestion,
       'dummy description',
       [questionName],
     )
@@ -42,7 +51,7 @@ describe('publishing all draft questions and programs', () => {
     await adminPrograms.publishAllPrograms()
 
     // Make an edit to the program with no questions.
-    await adminPrograms.createNewVersion(programNoQuestions)
+    await adminPrograms.createNewVersion(hiddenProgramNoQuestions)
 
     // Make an edit to the shared question.
     await adminQuestions.createNewVersion(questionName)
@@ -52,8 +61,11 @@ describe('publishing all draft questions and programs', () => {
 
   it('shows programs and questions that will be published in the modal', async () => {
     await adminPrograms.expectProgramReferencesModalContains({
-      expectedQuestionNames: [questionName],
-      expectedProgramNames: [programNoQuestions, programWithQuestion],
+      expectedQuestionsContents: [`${draftQuestionText} - Edit`],
+      expectedProgramsContents: [
+        `${hiddenProgramNoQuestions} - Hidden from applicants Edit`,
+        `${visibleProgramWithQuestion} - Publicly visible Edit`,
+      ],
     })
   })
 

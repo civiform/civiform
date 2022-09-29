@@ -10,9 +10,6 @@
 label.selectLanguage=Please select your preferred language.
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-content.applicantInformation=Applicant Information
-
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
 # The text on the button an applicant clicks to log out of their session.
@@ -143,13 +140,7 @@ link.externalLink=Trang web bên ngoài
 title.programs=Chương trình và dịch vụ
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Tiếp tục
-
-# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=Đang diễn ra
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=Chương trình mới
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Chưa bắt đầu

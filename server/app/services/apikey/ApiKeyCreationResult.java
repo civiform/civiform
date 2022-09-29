@@ -15,7 +15,7 @@ import play.data.DynamicForm;
  * validation error messages. Attempting to access the form wen {@code isSuccessful()} is true will
  * throw a runtime exception.
  */
-public class ApiKeyCreationResult {
+public final class ApiKeyCreationResult {
   private final Optional<ApiKey> apiKey;
   private final Optional<String> credentials;
   private final Optional<DynamicForm> form;

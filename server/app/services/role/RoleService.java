@@ -15,7 +15,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
 /** A service for reading and updating data related to system roles. */
-public class RoleService {
+public final class RoleService {
 
   private final ProgramService programService;
   private final UserRepository userRepository;

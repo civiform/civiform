@@ -270,7 +270,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.MT_3)
                 .with(
                     div().withClasses(Styles.FLEX_GROW),
-                    asRedirectElement(button("Cancel"), questionForm.getRedirectUrl())
+                    asRedirectElement(button("Cancel"), cancelUrl)
                         .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
                     submitButton("Create")
                         .withClass(Styles.M_4)
@@ -312,48 +312,9 @@ public final class QuestionEditView extends BaseHtmlView {
                     .withName(QuestionForm.REDIRECT_URL_PARAM)
                     .withValue(questionForm.getRedirectUrl()),
                 requiredFieldsExplanationContent());
-
-    // The question name and enumerator fields should not be changed after the question is created.
-    // If this form is not for creation, the fields are disabled, and hidden fields to pass
-    // enumerator and name data are added.
-    formTag.with(h2("Visible to administrators only").withClasses(Styles.PY_2));
-    FieldWithLabel nameField =
-        FieldWithLabel.input()
-            .setId("question-name-input")
-            .setFieldName(QUESTION_NAME_FIELD)
-            .setLabelText("Administrative name*")
-            .setDisabled(!submittable)
-            .setPlaceholderText("The name displayed in the question builder")
-            .setValue(questionForm.getQuestionName());
-    formTag.with(nameField.setDisabled(!forCreate).getInputTag());
-    if (!forCreate) {
-      formTag.with(
-          input()
-              .isHidden()
-              .withName(QUESTION_NAME_FIELD)
-              .withValue(questionForm.getQuestionName()),
-          input()
-              .isHidden()
-              .withName(QUESTION_ENUMERATOR_FIELD)
-              .withValue(
-                  questionForm
-                      .getEnumeratorId()
-                      .map(String::valueOf)
-                      .orElse(NO_ENUMERATOR_ID_STRING)));
-    }
-
-    formTag.with(
-        FieldWithLabel.textArea()
-            .setFieldName("questionDescription")
-            .setLabelText("Description")
-            .setPlaceholderText("The description displayed in the question builder")
-            .setDisabled(!submittable)
-            .setValue(questionForm.getQuestionDescription())
-            .getTextareaTag(),
-        enumeratorOptions.setDisabled(!forCreate).getSelectTag(),
-        repeatedQuestionInformation());
     formTag.with(
         h2("Visible to applicants").withClasses(Styles.PY_2),
+        repeatedQuestionInformation(),
         FieldWithLabel.textArea()
             .setId("question-text-textarea")
             .setFieldName("questionText")
@@ -371,6 +332,32 @@ public final class QuestionEditView extends BaseHtmlView {
             .setValue(questionForm.getQuestionHelpText())
             .getTextareaTag()
             .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
+
+    // The question name and enumerator fields should not be changed after the question is created.
+    // If this form is not for creation, hidden fields to pass enumerator and name data are added.
+    formTag.with(
+        h2("Visible to administrators only").withClasses(Styles.PY_2),
+        administrativeNameField(questionForm.getQuestionName(), !forCreate));
+    if (!forCreate) {
+      formTag.with(
+          input()
+              .isHidden()
+              .withName(QUESTION_ENUMERATOR_FIELD)
+              .withValue(
+                  questionForm
+                      .getEnumeratorId()
+                      .map(String::valueOf)
+                      .orElse(NO_ENUMERATOR_ID_STRING)));
+    }
+
+    formTag.with(
+        FieldWithLabel.textArea()
+            .setFieldName("questionDescription")
+            .setLabelText("Question note for administrative use only")
+            .setDisabled(!submittable)
+            .setValue(questionForm.getQuestionDescription())
+            .getTextareaTag(),
+        enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
@@ -508,5 +495,23 @@ public final class QuestionEditView extends BaseHtmlView {
             Styles.FONT_MONO,
             Styles.BORDER_4,
             Styles.BORDER_BLUE_400);
+  }
+
+  private DivTag administrativeNameField(String adminName, boolean editExistingQuestion) {
+    if (editExistingQuestion) {
+      return div()
+          .withClass(Styles.MB_2)
+          .with(
+              p("Administrative identifier. This value can't be changed")
+                  .withClasses(BaseStyles.INPUT_LABEL),
+              p(adminName).withId("question-name-input").withClasses(BaseStyles.FORM_FIELD),
+              input().isHidden().withName(QUESTION_NAME_FIELD).withValue(adminName));
+    }
+    return FieldWithLabel.input()
+        .setId("question-name-input")
+        .setFieldName(QUESTION_NAME_FIELD)
+        .setLabelText("Administrative identifier. This value can't be changed later*")
+        .setValue(adminName)
+        .getInputTag();
   }
 }

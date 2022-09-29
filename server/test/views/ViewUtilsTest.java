@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
+import services.DateConverter;
 
 public class ViewUtilsTest {
 
@@ -20,11 +21,13 @@ public class ViewUtilsTest {
 
   @Mock public AssetsFinder assetsFinder;
 
+  @Mock public DateConverter dateConverter;
+
   public ViewUtils viewUtils;
 
   @Before
   public void setUp() {
-    viewUtils = new ViewUtils(assetsFinder);
+    viewUtils = new ViewUtils(assetsFinder, dateConverter);
   }
 
   @Test

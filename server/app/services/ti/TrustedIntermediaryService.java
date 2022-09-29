@@ -104,7 +104,7 @@ public final class TrustedIntermediaryService {
     if (Strings.isNullOrEmpty(dob)) {
       return Optional.of("Date of Birth required");
     }
-    LocalDate currentDob = null;
+    final LocalDate currentDob;
     try {
       currentDob = dateConverter.parseIso8601DateToLocalDate(dob);
     } catch (DateTimeParseException e) {
@@ -135,7 +135,7 @@ public final class TrustedIntermediaryService {
     if (searchParameters.nameQuery().isEmpty() && searchParameters.dateQuery().isEmpty()) {
       return TrustedIntermediarySearchResult.success(allAccounts);
     }
-    ImmutableList<Account> searchedResult = null;
+    final ImmutableList<Account> searchedResult;
     try {
       searchedResult = searchAccounts(searchParameters, allAccounts);
     } catch (DateTimeParseException e) {

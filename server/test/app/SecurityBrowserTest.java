@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.routes;
 import java.util.Optional;
 import models.Applicant;
+import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
@@ -109,6 +110,31 @@ public class SecurityBrowserTest extends BaseBrowserTest {
         .isEmpty();
     assertThat(applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME))
         .isEmpty();
+  }
+
+  @Test
+  public void basicOidcProviderCentralLogout() {
+    loginWithSimulatedIdcs();
+    goTo(routes.HomeController.securePlayIndex());
+    assertThat(browser.pageSource()).contains("You are logged in.");
+    logout();
+    assertThat(browser.url())
+        .contains(
+            "session/end?post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A19001%2F&client_id=foo")
+        .as("redirects to login provider");
+    assertThat(browser.pageSource().contains("Do you want to sign-out from"))
+        .as("Confirm logout from dev-oidc");
+    FluentWebElement continueButton = browser.$("button").last();
+    assertThat(continueButton.textContent()).contains("No");
+    continueButton.click();
+    assertThat(browser.url()).contains("loginForm");
+
+    // Log in.
+    goTo(routes.HomeController.index());
+    assertThat(browser.pageSource()).contains("Please log in");
+    goTo(routes.LoginController.applicantLogin(Optional.empty()));
+    // Verify we don't auto-login.
+    assertThat(browser.pageSource()).contains("Authorize");
   }
 
   @Test

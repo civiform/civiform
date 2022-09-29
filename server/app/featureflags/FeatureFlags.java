@@ -20,6 +20,8 @@ public final class FeatureFlags {
   private static final String FEATURE_FLAG_OVERRIDES_ENABLED = "feature_flag_overrides_enabled";
   public static final String APPLICATION_STATUS_TRACKING_ENABLED =
       "application_status_tracking_enabled";
+  public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
+      "allow_civiform_admin_access_programs";
   private final Config config;
 
   @Inject
@@ -32,9 +34,22 @@ public final class FeatureFlags {
         && config.getBoolean(FEATURE_FLAG_OVERRIDES_ENABLED);
   }
 
-  /** If the Status Tracking feature is enabled. */
+  /**
+   * If the Status Tracking feature is enabled.
+   *
+   * <p>Allows for overrides set in {@code request}.
+   */
   public boolean isStatusTrackingEnabled(Request request) {
     return getFlagEnabled(request, APPLICATION_STATUS_TRACKING_ENABLED);
+  }
+
+  /** If the Status Tracking feature is enabled in the system configuration. */
+  public boolean isStatusTrackingEnabled() {
+    return config.getBoolean(APPLICATION_STATUS_TRACKING_ENABLED);
+  }
+
+  public boolean allowCiviformAdminAccessPrograms(Request request) {
+    return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
 
   /**

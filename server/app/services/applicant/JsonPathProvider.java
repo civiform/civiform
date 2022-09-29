@@ -15,7 +15,7 @@ import javax.inject.Singleton;
 
 /** Custom JsonPathProvider used to parse applicant data in JSON format. */
 @Singleton
-public class JsonPathProvider {
+public final class JsonPathProvider {
 
   private static final ParseContext JSON_PATH_PARSE_CONTEXT =
       JsonPath.using(generateConfiguration());

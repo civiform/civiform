@@ -16,6 +16,8 @@ import models.Version;
 import play.Environment;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.CiviFormError;
+import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.ActiveAndDraftPrograms;
@@ -108,7 +110,7 @@ public class DatabaseSeedController extends DevController {
             .filter(q -> q.getName().equals("Name"))
             .findFirst()
             .orElseThrow();
-    insertProgramWithBlocks("Mock program", canonicalNameQuestion);
+    insertProgramWithBlocks("mock-program", "Mock program", canonicalNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }
@@ -319,18 +321,21 @@ public class DatabaseSeedController extends DevController {
         .getResult();
   }
 
-  private ProgramDefinition insertProgramWithBlocks(String name, QuestionDefinition nameQuestion) {
+  private ProgramDefinition insertProgramWithBlocks(
+      String adminName, String displayName, QuestionDefinition nameQuestion) {
     try {
-      ProgramDefinition programDefinition =
-          programService
-              .createProgramDefinition(
-                  name,
-                  "desc",
-                  name,
-                  "display description",
-                  "https://github.com/seattle-uat/civiform",
-                  DisplayMode.PUBLIC.getValue())
-              .getResult();
+      ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
+          programService.createProgramDefinition(
+              adminName,
+              "desc",
+              displayName,
+              "display description",
+              "https://github.com/seattle-uat/civiform",
+              DisplayMode.PUBLIC.getValue());
+      if (programDefinitionResult.isError()) {
+        throw new Exception(programDefinitionResult.getErrors().toString());
+      }
+      ProgramDefinition programDefinition = programDefinitionResult.getResult();
       long programId = programDefinition.id();
 
       long blockId = 1L;

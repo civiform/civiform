@@ -15,7 +15,7 @@ import play.Environment;
  * for more details.
  */
 @Singleton
-public class Credentials {
+public final class Credentials {
 
   private ChainedTokenCredential defaultAzureCredential;
 
