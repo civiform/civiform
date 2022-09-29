@@ -144,6 +144,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
     }
+    Optional<String> maybeErrorMessage = request.flash().get("error");
+    if (maybeErrorMessage.isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.error(maybeErrorMessage.get()));
+    }
     return layout.renderCentered(htmlBundle);
   }
 

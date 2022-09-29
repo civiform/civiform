@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.admin.programs.ProgramApplicationView.CURRENT_STATUS;
 import static views.admin.programs.ProgramApplicationView.NEW_STATUS;
 import static views.admin.programs.ProgramApplicationView.NOTE;
 import static views.admin.programs.ProgramApplicationView.SEND_EMAIL;
@@ -364,12 +365,16 @@ public final class AdminApplicationController extends CiviFormController {
     Application application = applicationMaybe.get();
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+    Optional<String> maybeCurrentStatus = Optional.ofNullable(formData.get(CURRENT_STATUS));
     Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
     Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
     Optional<String> maybeSuccessRedirectUri =
         Optional.ofNullable(formData.get(SUCCESS_REDIRECT_URI));
     // TODO(#3263): check that the previous status is the current previous status for
     // consistency.
+    if (maybeCurrentStatus.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", CURRENT_STATUS));
+    }
     if (maybeNewStatus.isEmpty()) {
       return badRequest(String.format("The %s field is not present", NEW_STATUS));
     }
@@ -379,6 +384,27 @@ public final class AdminApplicationController extends CiviFormController {
     if (maybeSuccessRedirectUri.isEmpty()) {
       return badRequest(String.format("The %s field is not present", SUCCESS_REDIRECT_URI));
     }
+    // Verify the UI is changing from the actual current status to detect an out of date UI.
+    if (application.getLatestStatus().isPresent()) {
+      if (!application.getLatestStatus().get().equals(maybeCurrentStatus.get())) {
+        // return redirect(
+        //  routes.AdminApplicationController.index(programId,
+        //  Optional.empty(),
+        //    Optional.empty(),
+        //    Optional.empty(),
+        //    Optional.empty(),
+        //    Optional.empty(),
+        //    Optional.of(routes.AdminApplicationController.show(programId, applicationId).path())))
+        // Only allow relative URLs to ensure that we redirect to the same domain.
+        String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
+        return redirect(redirectUrl)
+            .flashing(
+                "error",
+                "The application state has changed since the page was loaded. Please reload and"
+                    + " try again.");
+      }
+    }
+    // Save the new data.
     String newStatus = maybeNewStatus.get();
     final boolean sendEmail;
     if (maybeSendEmail.get().isBlank()) {
