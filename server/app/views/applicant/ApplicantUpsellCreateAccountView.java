@@ -119,7 +119,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
     bundle
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
-        .addMainContent(h1(title).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION), content);
+        .addMainContent(h1(title).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE), content);
 
     return layout.renderWithNav(request, applicantName, messages, bundle);
   }

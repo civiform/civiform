@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.text;
@@ -261,7 +261,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     DivTag programTitleDiv =
         div()
-            .with(h2(programTitle).withClasses(ApplicantStyles.H2_PROGRAM_TITLE))
+            .with(h1(programTitle).withClasses(ApplicantStyles.PROGRAM_TITLE))
             .with(blockNumberTag)
             .withClasses(Styles.GRID, Styles.GRID_COLS_2);
 

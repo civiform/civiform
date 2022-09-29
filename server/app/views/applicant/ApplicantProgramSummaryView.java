@@ -5,7 +5,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -121,7 +121,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
-        h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
+        h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
