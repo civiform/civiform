@@ -215,7 +215,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (!forSummary) {
       blockIndex++;
     }
-    return String.format("%s  — %d of %d", pageTitle, blockIndex, totalBlockCount);
+    return String.format("%s — %d of %d", pageTitle, blockIndex, totalBlockCount);
   }
 
   /**
