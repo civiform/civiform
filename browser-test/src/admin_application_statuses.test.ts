@@ -12,6 +12,7 @@ import {
   supportsEmailInspection,
   testUserDisplayName,
   extractEmailsForRecipient,
+  validateScreenshot,
 } from './support'
 
 describe('view program statuses', () => {
@@ -122,6 +123,10 @@ describe('view program statuses', () => {
       )
     })
 
+    it('renders'), async () => {
+      validateScreenshot(cts.page, 'application-view-with-statuses')
+    }
+
     it('shows default status value in application list if no status is set', async () => {
       const {page, adminPrograms} = ctx
       await adminPrograms.viewApplications(programWithStatusesName)
@@ -133,6 +138,12 @@ describe('view program statuses', () => {
     })
 
     describe('when a status is changed, a confirmation dialog is shown', () => {
+      it('renders'), async () => {
+        const {adminPrograms} = ctx
+        await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
+        validateScreenshot(cts.page, 'change-status-modal')
+      }
+
       it('when rejecting, the selected status is not changed', async () => {
         const {adminPrograms} = ctx
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
@@ -287,6 +298,12 @@ describe('view program statuses', () => {
         .innerText()
       expect(applicationText).toContain('Guest')
     })
+
+    it('renders the note dialog'), async () => {
+      const {adminPrograms} = ctx
+      await adminPrograms.awaitEditNoteModal()
+      validateScreenshot(cts.page, 'edit-note-modal')
+    }
 
     it('shows the current note content', async () => {
       const {adminPrograms} = ctx

@@ -24,7 +24,7 @@ describe('modify program statuses', () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectNoStatuses()
-      await validateScreenshot(page, 'status_list_with_no_statuses')
+      await validateScreenshot(page, 'status-list-with-no-statuses')
     })
   })
 
@@ -47,7 +47,7 @@ describe('modify program statuses', () => {
 
       const modal = await waitForAnyModal(page)
       expect(await modal.innerText()).toContain('Create a new status')
-      await validateScreenshot(page, 'create_new_status_modal')
+      await validateScreenshot(page, 'create-new-status-modal')
     })
 
     it('creates a new status with no email', async () => {
@@ -128,7 +128,7 @@ describe('modify program statuses', () => {
 
     it('renders existing statuses', async () => {
       const {page} = ctx
-      await validateScreenshot(page, 'status_list_with_statuses')
+      await validateScreenshot(page, 'status-list-with-statuses')
     })
 
     it('fails to edit status when providing an existing status name', async () => {
