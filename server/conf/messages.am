@@ -148,9 +148,6 @@ title.activeProgramsUpdated=ያልተጀመሩ
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=የገቡ
 
-# Screen reader format string for program cards
-title.programCard=ፕሮግራም {0} ከ{1} -- {2}
-
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
 

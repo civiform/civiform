@@ -148,9 +148,6 @@ title.activeProgramsUpdated=시작 안 함
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=제출됨
 
-# Screen reader format string for program cards
-title.programCard=프로그램 {1}~{2} 중 {0}
-
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
 
