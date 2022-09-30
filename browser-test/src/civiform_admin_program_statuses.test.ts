@@ -5,7 +5,7 @@ import {
   loginAsAdmin,
   validateScreenshot,
 } from './support'
-import {waitForAnyModal} from './support/wait';
+import {waitForAnyModal} from './support/wait'
 
 describe('modify program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
