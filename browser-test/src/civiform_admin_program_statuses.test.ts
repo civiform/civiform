@@ -41,7 +41,7 @@ describe('modify program statuses', () => {
       await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
 
-    it('renders create new status model', async () => {
+    it('renders create new status modal', async () => {
       const {page, adminProgramStatuses} = ctx
       await page.click('button:has-text("Create a new status")')
 
