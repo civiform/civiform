@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -39,6 +40,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
             .setFieldName(addressQuestion.getStreetPath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STREET.getKeyName()))
             .setPlaceholderText(messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
+            .setAutocomplete(Optional.of("address-line1"))
             .setValue(addressQuestion.getStreetValue().orElse(""))
             .setFieldErrors(
                 messages,
@@ -50,6 +52,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
             .setFieldName(addressQuestion.getLine2Path().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_LINE_2.getKeyName()))
             .setPlaceholderText(messages.at(MessageKey.ADDRESS_PLACEHOLDER_LINE_2.getKeyName()))
+            .setAutocomplete(Optional.of("address-line2"))
             .setValue(addressQuestion.getLine2Value().orElse(""))
             .setFieldErrors(
                 messages,
@@ -60,6 +63,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getCityPath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_CITY.getKeyName()))
+            .setAutocomplete(Optional.of("address-level2"))
             .setValue(addressQuestion.getCityValue().orElse(""))
             .setFieldErrors(
                 messages,
@@ -70,6 +74,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getStatePath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
+            .setAutocomplete(Optional.of("address-level1"))
             .setValue(addressQuestion.getStateValue().orElse(""))
             .setFieldErrors(
                 messages,
@@ -80,6 +85,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getZipPath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_ZIPCODE.getKeyName()))
+            .setAutocomplete(Optional.of("postal-code"))
             .setValue(addressQuestion.getZipValue().orElse(""))
             .setFieldErrors(
                 messages,
