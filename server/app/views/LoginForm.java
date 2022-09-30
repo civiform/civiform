@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import auth.AuthIdentityProviderName;
@@ -105,10 +106,9 @@ public class LoginForm extends BaseHtmlView {
     }
 
     content.with(
-        div()
-            .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles.PX_8)
-            .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
-            .with(p("CiviForm")));
+        h1().withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles.PX_8)
+            .with(span(civicEntityShortName).withClasses(Styles.FONT_BOLD))
+            .with(span("CiviForm")));
 
     DivTag applicantAccountLogin =
         div()
@@ -179,7 +179,7 @@ public class LoginForm extends BaseHtmlView {
     return div()
         .withClasses(Styles.ABSOLUTE)
         .with(
-            h1("DEMO MODE. LOGIN AS:"),
+            p("DEMO MODE. LOGIN AS:").withClasses(Styles.TEXT_2XL),
             redirectButton(
                 "admin",
                 "CiviForm Admin",
