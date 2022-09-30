@@ -176,7 +176,7 @@ describe('End to end enumerator test', () => {
     await validateAccessibility(page)
 
     // Adding enumerator answers causes a clone of a hidden DOM element. This element
-    // should have no unique IDs. If not, it should cause accessibility violations.
+    // should have unique IDs. If not, it will cause accessibility violations.
     // See https://github.com/civiform/civiform/issues/3565.
     await applicantQuestions.addEnumeratorAnswer('Bugs')
     await applicantQuestions.addEnumeratorAnswer('Daffy')
