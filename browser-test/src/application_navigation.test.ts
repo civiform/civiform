@@ -56,7 +56,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickPrevious()
 
       // Assert that we're on the preview page.
-      expect(await page.innerText('h1')).toContain(
+      expect(await page.innerText('h2')).toContain(
         'Program application preview',
       )
     })
@@ -107,7 +107,7 @@ describe('Applicant navigation flow', () => {
 
       // Assert that we're on the preview page.
       await applicantQuestions.clickPrevious()
-      expect(await page.innerText('h1')).toContain(
+      expect(await page.innerText('h2')).toContain(
         'Program application preview',
       )
     })
@@ -162,7 +162,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // Verify we are on program preview page.
-      expect(await page.innerText('h1')).toContain(
+      expect(await page.innerText('h2')).toContain(
         'Program application preview',
       )
       await validateAccessibility(page)
@@ -192,7 +192,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
 
       // Verify we are on program review page.
-      expect(await page.innerText('h1')).toContain('Program application review')
+      expect(await page.innerText('h2')).toContain('Program application review')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-review')
     })

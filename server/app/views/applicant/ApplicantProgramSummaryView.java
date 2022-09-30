@@ -5,7 +5,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -60,12 +60,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    */
   public Content render(Params params) {
     Messages messages = params.messages();
-    String pageTitle =
-        params.inReview()
-            ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
-            : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
-    HtmlBundle bundle =
-        layout.getBundle().setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
+    HtmlBundle bundle = layout.getBundle();
 
     DivTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
@@ -118,10 +113,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
 
+    String pageTitle =
+        params.inReview()
+            ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
+            : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
+    bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
-        h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
+        h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
