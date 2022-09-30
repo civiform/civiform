@@ -54,12 +54,20 @@ public final class LanguageSelector {
                 Styles.PX_3,
                 Styles.MX_3,
                 Styles.PY_1,
-                Styles.BORDER,
-                Styles.BORDER_GRAY_500,
-                Styles.ROUNDED_FULL,
-                Styles.BG_WHITE,
                 Styles.TEXT_XS,
-                StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
+                Styles.ROUNDED_FULL,
+                Styles.BORDER,
+                // On hover/focus, invert the colors to make the focus state visually distinctive.
+                // See https://github.com/civiform/civiform/issues/3558.
+                Styles.BORDER_GRAY_500,
+                StyleUtils.focus(Styles.BORDER_BLACK),
+                StyleUtils.hover(Styles.BORDER_BLACK),
+                Styles.BG_WHITE,
+                StyleUtils.focus(Styles.BG_BLACK),
+                StyleUtils.hover(Styles.BG_BLACK),
+                Styles.TEXT_BLACK,
+                StyleUtils.focus(Styles.TEXT_WHITE),
+                StyleUtils.hover(Styles.TEXT_WHITE));
 
     // An option consists of the language (localized to that language - for example,
     // this would display 'Español' for es-US), and the value is the ISO code.
