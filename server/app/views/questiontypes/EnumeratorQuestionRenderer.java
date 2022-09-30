@@ -88,7 +88,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
                         StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400))
                     .with(
-                        span("+ ").attr("aria-hidden", "true"),
+                        span("＋ ").attr("aria-hidden", "true"),
                         span(
                             messages.at(
                                 MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
