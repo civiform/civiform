@@ -4,9 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import auth.CiviFormProfile;
@@ -19,6 +20,7 @@ import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
@@ -206,6 +208,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withClasses(ApplicantStyles.LINK_LOGOUT));
   }
 
+  protected String renderPageTitleWithBlockProgress(
+      String pageTitle, int blockIndex, int totalBlockCount) {
+    // While applicant is filling out the application, include the block they are on as part of
+    // their progress.
+    blockIndex++;
+    return String.format("%s — %d of %d", pageTitle, blockIndex, totalBlockCount);
+  }
+
   /**
    * The progress indicator is a bit different while an application is being filled out vs for the
    * summary view.
@@ -252,20 +262,19 @@ public class ApplicantLayout extends BaseHtmlLayout {
       blockIndex++;
     }
 
-    DivTag blockNumberTag = div();
-    if (!forSummary) {
-      blockNumberTag
-          .withText(String.format("%d of %d", blockIndex, totalBlockCount))
-          .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_RIGHT);
-    }
+    String blockNumberText =
+        forSummary ? "" : String.format("%d of %d", blockIndex, totalBlockCount);
 
-    DivTag programTitleDiv =
-        div()
-            .with(h2(programTitle).withClasses(ApplicantStyles.H2_PROGRAM_TITLE))
-            .with(blockNumberTag)
-            .withClasses(Styles.GRID, Styles.GRID_COLS_2);
+    H1Tag programTitleContainer =
+        h1().withClasses(Styles.FLEX)
+            .with(span(programTitle).withClasses(ApplicantStyles.PROGRAM_TITLE))
+            .condWith(
+                !blockNumberText.isEmpty(),
+                span().withClasses(Styles.FLEX_GROW),
+                span(blockNumberText)
+                    .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_BASE, Styles.TEXT_RIGHT));
 
-    return div().with(programTitleDiv).with(progressIndicator);
+    return div().with(programTitleContainer).with(progressIndicator);
   }
 
   /**

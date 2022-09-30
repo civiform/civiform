@@ -30,10 +30,10 @@ public final class ApplicantStyles {
           Styles.OPACITY_75,
           StyleUtils.hover(Styles.OPACITY_100));
 
-  public static final String H1_PROGRAM_APPLICATION =
+  public static final String PROGRAM_APPLICATION_TITLE =
       StyleUtils.joinStyles(
           Styles.TEXT_3XL, Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.MT_8, Styles.MB_4);
-  public static final String H2_PROGRAM_TITLE =
+  public static final String PROGRAM_TITLE =
       StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
 
   public static final String PROGRAM_CARDS_SUBTITLE =
