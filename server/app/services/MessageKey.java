@@ -91,7 +91,7 @@ public enum MessageKey {
   NUMBER_VALIDATION_TOO_BIG("validation.numberTooBig"),
   NUMBER_VALIDATION_TOO_SMALL("validation.numberTooSmall"),
   NUMBER_VALIDATION_NON_INTEGER("validation.numberNonInteger"),
-  REQUIRED_FIELDS_ANNOTATION("validation.requiredFieldsAnnotation"),
+  REQUIRED_FIELDS_ANNOTATION("content.requiredFieldsAnnotation"),
   SUBMITTED_DATE("content.submittedDate"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
