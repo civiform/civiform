@@ -1,7 +1,9 @@
 package views.questiontypes;
 
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -18,7 +20,6 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.Scalar;
-import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -83,17 +84,18 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
             .with(hiddenDeleteInputTemplate())
             .with(enumeratorFields)
             .with(
-                BaseHtmlView.button(
-                        ADD_ELEMENT_BUTTON_ID,
-                        String.format(
-                            "＋ %s",
-                            messages.at(
-                                MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
-                                localizedEntityType)))
+                button()
+                    .withId(ADD_ELEMENT_BUTTON_ID)
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
-                        StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)))
+                        StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400))
+                    .with(
+                        span("＋ ").attr("aria-hidden", "true"),
+                        span(
+                            messages.at(
+                                MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
+                                localizedEntityType))))
             .with(
                 // Add the hidden enumerator field template.
                 enumeratorField(
