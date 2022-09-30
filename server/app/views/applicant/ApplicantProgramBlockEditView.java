@@ -54,7 +54,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .getBundle()
             .setTitle(
                 layout.renderPageTitleWithBlockProgress(
-                    params.programTitle(), params.blockIndex(), params.totalBlockCount(), false))
+                    params.programTitle(), params.blockIndex(), params.totalBlockCount()))
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),

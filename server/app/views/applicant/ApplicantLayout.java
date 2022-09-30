@@ -209,12 +209,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   protected String renderPageTitleWithBlockProgress(
-      String pageTitle, int blockIndex, int totalBlockCount, boolean forSummary) {
+      String pageTitle, int blockIndex, int totalBlockCount) {
     // While applicant is filling out the application, include the block they are on as part of
     // their progress.
-    if (!forSummary) {
-      blockIndex++;
-    }
+    blockIndex++;
     return String.format("%s — %d of %d", pageTitle, blockIndex, totalBlockCount);
   }
 

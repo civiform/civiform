@@ -117,12 +117,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.inReview()
             ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
-    bundle.setTitle(
-        layout.renderPageTitleWithBlockProgress(
-            String.format("%s — %s", pageTitle, params.programTitle()),
-            params.completedBlockCount(),
-            params.totalBlockCount(),
-            true));
+    bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
