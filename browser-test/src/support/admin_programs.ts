@@ -698,7 +698,7 @@ export class AdminPrograms {
   /**
    * Clicks the edit note button, and returns the modal.
    */
-  async awaitEditNoteModal() :  Promise<ElementHandle<HTMLElement>> {
+  async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
     await this.applicationFrameLocator()
       .locator(this.editNoteSelector())
       .click()
@@ -710,12 +710,12 @@ export class AdminPrograms {
     return await waitForAnyModal(frame)
   }
 
-    /**
-     * Edit note clicks the edit note button, sets the note content to the
-     * provided text, and confirms the dialog.
-     */
-    async editNote(noteContent: string) {
-      const editModal = await this.awaitEditNoteModal();
+  /**
+   * Clicks the edit note button, sets the note content to the provided text,
+   * and confirms the dialog.
+   */
+  async editNote(noteContent: string) {
+    const editModal = await this.awaitEditNoteModal()
     const noteContentArea = (await editModal.$('textarea'))!
     await noteContentArea.fill(noteContent)
 
