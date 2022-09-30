@@ -33,6 +33,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
+  private static final String ENUMERATOR_FIELD_TEMPLATE_INPUT_ID =
+      "enumerator-field-template-input";
   private static final String DELETE_ENTITY_TEMPLATE_ID = "enumerator-delete-template";
 
   private static final String ENUMERATOR_FIELD_CLASSES =
@@ -73,7 +75,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
               /* existingIndex= */ Optional.of(index),
               /* extraStyle= */ Optional.empty(),
               /* isDisabled= */ false,
-              hasErrors));
+              hasErrors,
+              /* elementId= */ Optional.empty()));
     }
 
     DivTag enumeratorQuestionFormContent =
@@ -104,7 +107,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                         /* extraStyle= */ Optional.of(Styles.HIDDEN),
                         // Do not submit this with the form.
                         /* isDisabled= */ true,
-                        hasErrors)
+                        hasErrors,
+                        /* elementId= */ Optional.of(ENUMERATOR_FIELD_TEMPLATE_INPUT_ID))
                     .withId(ENUMERATOR_FIELD_TEMPLATE_ID));
 
     return enumeratorQuestionFormContent;
@@ -122,7 +126,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
       Optional<Integer> existingIndex,
       Optional<String> extraStyle,
       boolean isDisabled,
-      boolean hasErrors) {
+      boolean hasErrors,
+      Optional<String> elementId) {
     FieldWithLabel entityNameInputField =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
@@ -133,6 +138,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT);
+    if (elementId.isPresent()) {
+      entityNameInputField.setId(elementId.get());
+    }
     if (hasErrors) {
       entityNameInputField.forceAriaInvalid();
     }
