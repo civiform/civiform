@@ -12,6 +12,7 @@ import {
   supportsEmailInspection,
   testUserDisplayName,
   extractEmailsForRecipient,
+  validateScreenshot,
 } from './support'
 
 describe('view program statuses', () => {
@@ -121,6 +122,9 @@ describe('view program statuses', () => {
         'Choose an option:',
       )
     })
+    if('renders'), async () => {
+      validateScreenshot(cts.page, 'with-statuses')
+    }
 
     it('shows default status value in application list if no status is set', async () => {
       const {page, adminPrograms} = ctx
