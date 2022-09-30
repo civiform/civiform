@@ -42,7 +42,7 @@ describe('modify program statuses', () => {
     })
 
     it('renders create new status modal', async () => {
-      const {page, adminProgramStatuses} = ctx
+      const {page} = ctx
       await page.click('button:has-text("Create a new status")')
 
       const modal = await waitForAnyModal(page)
