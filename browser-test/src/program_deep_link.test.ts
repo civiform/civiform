@@ -17,7 +17,7 @@ describe('navigating to a deep link', () => {
     // Arrange
     await loginAsAdmin(page)
 
-    const questionText = 'What is your address? *'
+    const questionText = 'What is your address?*'
 
     await adminQuestions.addAddressQuestion({
       questionName: 'Test address question',
