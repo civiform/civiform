@@ -165,6 +165,13 @@ public class FieldWithLabel {
     return this;
   }
 
+  /**
+   * Sets the autocomplete attribute.
+   *
+   * @param autocomplete this value must come from the predefined list here:
+   *     https://www.w3.org/TR/WCAG21/#input-purposes.
+   * @return this, for chaining.
+   */
   public FieldWithLabel setAutocomplete(Optional<String> autocomplete) {
     this.autocomplete = autocomplete;
     return this;
