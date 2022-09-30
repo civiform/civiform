@@ -2,7 +2,6 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -17,10 +16,10 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Renders an address question. */
-public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
   public AddressQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.COMPOSITE);
+    super(question);
   }
 
   @Override
@@ -29,11 +28,9 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
@@ -89,7 +86,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                 validationErrors.getOrDefault(addressQuestion.getZipPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP);
 
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       streetAddressField.forceAriaInvalid();
       cityField.forceAriaInvalid();
       stateField.forceAriaInvalid();

@@ -71,6 +71,10 @@ jobs:
         run: bin/run-browser-test-env --aws --ci
       - name: Run browser tests with Localstack
         run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
+      - name: Verify no new image snapshots added
+        # jest-image-snapshots automatically adds snapshot if it's missing.
+        # Use git diff to fail if we detect new images.
+        run: git add browser-test/image_snapshots ; git diff --compact-summary --exit-code HEAD
       - name: Upload image diff outputs
         uses: actions/upload-artifact@v3
         with:

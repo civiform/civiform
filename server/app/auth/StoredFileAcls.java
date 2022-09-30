@@ -14,7 +14,7 @@ import services.program.ProgramDefinition;
  * <p>Program admins may read a file if they are an admin for a program included in the {@code
  * programReadAcls} for that file.
  */
-public class StoredFileAcls {
+public final class StoredFileAcls {
 
   @JsonProperty("programReadAcls")
   private HashSet<String> programReadAcls;

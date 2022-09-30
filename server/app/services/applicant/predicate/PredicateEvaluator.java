@@ -8,7 +8,7 @@ import services.program.predicate.OrNode;
 import services.program.predicate.PredicateExpressionNode;
 
 /** Evaluates complex predicates based on the given {@link ApplicantData}. */
-public class PredicateEvaluator {
+public final class PredicateEvaluator {
 
   private final ApplicantData applicantData;
   private final JsonPathPredicateGenerator predicateGenerator;

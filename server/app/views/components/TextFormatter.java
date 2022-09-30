@@ -39,7 +39,7 @@ import views.style.Styles;
  *   <li>URL links
  * </ul>
  */
-public class TextFormatter {
+public final class TextFormatter {
   public enum UrlOpenAction {
     SameTab,
     NewTab

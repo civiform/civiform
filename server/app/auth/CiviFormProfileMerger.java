@@ -9,7 +9,7 @@ import org.pac4j.core.profile.UserProfile;
 import repository.UserRepository;
 
 /** Helper class for common {@code UserProfile} merging logic. */
-public class CiviFormProfileMerger {
+public final class CiviFormProfileMerger {
 
   private final ProfileFactory profileFactory;
   private final Provider<UserRepository> applicantRepositoryProvider;

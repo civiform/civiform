@@ -67,7 +67,9 @@ public final class ReferenceClasses {
   public static final String APPLICANT_QUESTION_ERRORS = "cf-applicant-question-errors";
   public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
   public static final String APPLICATION_CARD = "cf-application-card";
+  public static final String APPLICATION_CARD_TITLE = "cf-application-card-title";
   public static final String APPLICATION_CARD_DESCRIPTION = "cf-application-card-description";
+  public static final String APPLICATION_PROGRAM_SECTION = "cf-application-program-section";
 
   public static final String APPLY_BUTTON = "cf-apply-button";
   public static final String CONTINUE_BUTTON = "cf-continue-button";
@@ -126,7 +128,8 @@ public final class ReferenceClasses {
   public static final String MODAL = "cf-modal";
   public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
-  // This class marks fields that contain dates. It is used by browser tests
-  // to replace content with static date when taking screenshot.
+  // These classes mark fields that need dynamic replacement by browser tests when
+  // taking a screenshot (e.g. dates, application IDs).
   public static final String BT_DATE = "cf-bt-date";
+  public static final String BT_APPLICATION_ID = "cf-application-id";
 }

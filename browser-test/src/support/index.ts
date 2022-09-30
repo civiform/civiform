@@ -13,6 +13,7 @@ import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
+  LOCALSTACK_URL,
   TEST_USER_AUTH_STRATEGY,
   DISABLE_SCREENSHOTS,
   TEST_USER_LOGIN,
@@ -66,9 +67,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
       // not set.
       if (expect.getState().currentTestName) {
         // remove special characters
-        dirs.push(
-          expect.getState().currentTestName.replaceAll(/[:"<>|*?]/g, ''),
-        )
+        dirs.push(expect.getState().currentTestName.replace(/[:"<>|*?]/g, ''))
       }
     }
     return browser.newContext({
@@ -358,6 +357,10 @@ export const testUserDisplayName = () => {
   return TEST_USER_DISPLAY_NAME
 }
 
+export const supportsEmailInspection = () => {
+  return TEST_USER_AUTH_STRATEGY === 'fake-oidc'
+}
+
 /**
  * The option to select a language is only shown once for a given applicant. If this is
  * the first time they see this page, select the given language. Otherwise continue.
@@ -368,7 +371,7 @@ export const selectApplicantLanguage = async (
   assertProgramIndexPage = false,
 ) => {
   const infoPageRegex = /applicants\/\d+\/edit/
-  const maybeSelectLanguagePage = await page.url()
+  const maybeSelectLanguagePage = page.url()
   if (maybeSelectLanguagePage.match(infoPageRegex)) {
     const languageOption = `.cf-radio-option:has-text("${language}")`
     await page.click(languageOption + ' input')
@@ -378,7 +381,7 @@ export const selectApplicantLanguage = async (
 
   if (assertProgramIndexPage) {
     const programIndexRegex = /applicants\/\d+\/programs/
-    const maybeProgramIndexPage = await page.url()
+    const maybeProgramIndexPage = page.url()
     expect(maybeProgramIndexPage).toMatch(programIndexRegex)
   }
 }
@@ -439,18 +442,28 @@ export const validateScreenshot = async (
   if (DISABLE_SCREENSHOTS) {
     return
   }
-  // To make screenshots stable go through all date fields (elements that have cf-bt-date class)
-  // and replace date/time with fixed text.
   const page = 'page' in element ? element.page() : element
   await page.evaluate(() => {
+    // To make screenshots stable go through all date fields (elements that have cf-bt-date class)
+    // and replace date/time with fixed text.
     for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
       // Use regexp replacement instead of full replacement to make sure that format of the text
       // matches what we expect. In case underlying format changes to "September 20, 2022" then
       // regexp will break and it will show up in screenshots.
       date.textContent = date
         .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
-        .replace(/\d{1,2}\/\d{1,2}\/\d{2}/, '1/1/30')
+        .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
         .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
+    }
+    // Go through all application ID fields (elements that have cf-application-id class) and
+    // replace the ID with a stable value.
+    for (const applicationId of Array.from(
+      document.querySelectorAll('.cf-application-id'),
+    )) {
+      applicationId.textContent = applicationId.textContent!.replace(
+        /\d+/,
+        '1234',
+      )
     }
   })
   expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
@@ -460,9 +473,7 @@ export const validateScreenshot = async (
     }),
   ).toMatchImageSnapshot({
     allowSizeMismatch: true,
-    // threshold is 1% it's pretty wide but there is some noise that we can't
-    // explain
-    failureThreshold: 0.01,
+    failureThreshold: 0,
     failureThresholdType: 'percent',
     customSnapshotsDir: 'image_snapshots',
     customDiffDir: 'diff_output',
@@ -472,4 +483,43 @@ export const validateScreenshot = async (
     },
     ...matchImageSnapshotOptions,
   })
+}
+
+export type LocalstackSesEmail = {
+  Body: {
+    html_part: string | null
+    text_part: string | null
+  }
+  Destination: {
+    ToAddresses: string[]
+  }
+  Source: string
+  Subject: string
+}
+
+/**
+ * Queries the emails that have been sent for a given recipient. This method requires that tests
+ * run in an environment that uses localstack since it captures the emails sent using SES and makes
+ * them available at a well-known endpoint). An error is thrown when the method is called from an
+ * environment that does not use localstack. The supportsEmailInspection method can be used to
+ * determine if the environment supports sending emails.
+ */
+export const extractEmailsForRecipient = async function (
+  page: Page,
+  recipientEmail: string,
+): Promise<LocalstackSesEmail[]> {
+  if (!supportsEmailInspection()) {
+    throw new Error('Unsupported call to extractEmailsForRecipient')
+  }
+  const originalPageUrl = page.url()
+  await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
+  const responseJson = JSON.parse(await page.innerText('body')) as any
+
+  const allEmails = responseJson.messages as LocalstackSesEmail[]
+  const filteredEmails = allEmails.filter((email) => {
+    return email.Destination.ToAddresses.includes(recipientEmail)
+  })
+
+  await page.goto(originalPageUrl)
+  return filteredEmails
 }

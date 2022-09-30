@@ -61,7 +61,7 @@ describe('Most recently updated question is at top of list.', () => {
       questionTwoPublishedText,
     ])
     await expectQuestionBankElements(programName, adminPrograms, [
-      questionOnePublishedText,
+      questionOneDraftText,
       questionTwoPublishedText,
     ])
 
@@ -78,7 +78,7 @@ describe('Most recently updated question is at top of list.', () => {
     ])
     await expectQuestionBankElements(programName, adminPrograms, [
       questionThreePublishedText,
-      questionOnePublishedText,
+      questionOneDraftText,
       questionTwoPublishedText,
     ])
   })

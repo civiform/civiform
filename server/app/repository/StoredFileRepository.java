@@ -17,7 +17,7 @@ import models.StoredFile;
  * StoredFileRepository performs complicated operations on {@link StoredFile} that involve
  * asynchronous handling.
  */
-public class StoredFileRepository {
+public final class StoredFileRepository {
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;

@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  *   <li>May contain commas in the dollars: 12,345
  *   <li>May contain exactly 2 decimal points for cents: 34.56
  */
-public class Currency {
+public final class Currency {
 
   // Currency validation regexs.
   // Currency containing only numbers, without leading 0s and optional 2 digit cents.
@@ -29,7 +29,7 @@ public class Currency {
   // Currency of 0 dollars with optional 2 digit cents.
   private static final Pattern CURRENCY_ZERO_DOLLARS = Pattern.compile("^0(?:\\.\\d\\d)?$");
 
-  private Long cents = 0L;
+  private Long cents;
 
   /** Constructs a new Currency of the specified cents. */
   public Currency(long cents) {

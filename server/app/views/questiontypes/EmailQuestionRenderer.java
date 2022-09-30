@@ -12,10 +12,10 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders an email question. */
-public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public EmailQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
   }
 
   @Override
@@ -24,11 +24,10 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
     FieldWithLabel emailField =
@@ -41,7 +40,7 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setAriaDescribedByIds(ariaDescribedByIds)
             .setScreenReaderText(question.getQuestionText());
 
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       emailField.forceAriaInvalid();
     }
 

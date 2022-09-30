@@ -9,6 +9,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
@@ -20,6 +21,7 @@ import controllers.admin.routes;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LiTag;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +40,7 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
@@ -212,9 +215,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         !sortedDraftQuestions.isEmpty(),
                         ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
                             .with(
-                                each(
-                                    sortedDraftQuestions,
-                                    draftQuestion -> li(draftQuestion.getName())))),
+                                each(sortedDraftQuestions, this::renderPublishModalQuestionItem))),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
                     .with(
@@ -224,10 +225,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .condWith(
                         !sortedDraftPrograms.isEmpty(),
                         ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
-                            .with(
-                                each(
-                                    sortedDraftPrograms,
-                                    draftProgram -> li(draftProgram.adminName())))),
+                            .with(each(sortedDraftPrograms, this::renderPublishModalProgramItem))),
                 p("Would you like to publish all draft questions and programs now?"),
                 div()
                     .withClasses(Styles.FLEX, Styles.FLEX_ROW)
@@ -249,6 +247,38 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTriggerButtonContent(publishAllButton)
             .build();
     return Optional.of(publishAllModal);
+  }
+
+  private LiTag renderPublishModalProgramItem(ProgramDefinition program) {
+    String visibilityText = "";
+    switch (program.displayMode()) {
+      case HIDDEN_IN_INDEX:
+        visibilityText = "Hidden from applicants";
+        break;
+      case PUBLIC:
+        visibilityText = "Publicly visible";
+        break;
+      default:
+        break;
+    }
+    return li().with(
+            span(program.localizedName().getDefault()).withClasses(Styles.FONT_MEDIUM),
+            span(" - " + visibilityText + " "),
+            new LinkElement()
+                .setText("Edit")
+                .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
+                .asAnchorText());
+  }
+
+  private LiTag renderPublishModalQuestionItem(QuestionDefinition question) {
+    return li().with(
+            span(question.getQuestionText().getDefault()).withClasses(Styles.FONT_MEDIUM),
+            span(" - "),
+            new LinkElement()
+                .setText("Edit")
+                .setHref(
+                    controllers.admin.routes.AdminQuestionController.edit(question.getId()).url())
+                .asAnchorText());
   }
 
   private ButtonTag renderNewProgramButton() {

@@ -30,6 +30,7 @@ services:
       - IDCS_DISCOVERY_URI=http://fake-idcs:3380/.well-known/openid-configuration
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=http://civiform:9000
+      - LOCALSTACK_URL=http://localstack:4566
       - CIVIFORM_TIME_ZONE_ID
       # The default value is true, we set it to false here because we do not know
       # the IP address that will be used to call the API in the browser tests.

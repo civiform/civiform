@@ -1,7 +1,7 @@
 package views.style;
 
 /** Styles for admin pages. */
-public class AdminStyles {
+public final class AdminStyles {
 
   public static final String LANGUAGE_LINK_SELECTED =
       StyleUtils.joinStyles(
