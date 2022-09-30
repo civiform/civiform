@@ -63,10 +63,11 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     String programsLinkText = messages.at(MessageKey.TITLE_PROGRAMS.getKeyName());
     String homeLink = routes.HomeController.index().url();
     ATag allProgramsDiv =
-        a("<")
-            .withHref(homeLink)
+        a().withHref(homeLink)
             .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_LEFT)
-            .with(span().withText(programsLinkText).withClasses(Styles.PX_4));
+            .with(
+                span("<").attr("aria-hidden", "true"),
+                span().withText(programsLinkText).withClasses(Styles.PX_4));
 
     H1Tag titleDiv =
         h1().withText(programTitle)
