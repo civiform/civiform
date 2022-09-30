@@ -59,7 +59,7 @@ public class OidcProviderTest extends ResetPostgres {
     String client_id = oidcProvider.getClientID();
     assertThat(client_id).isEqualTo("foo");
 
-    String client_secret = oidcProvider.getClientSecret();
+    String client_secret = oidcProvider.getClientSecret().get();
     assertThat(client_secret).isEqualTo("bar");
   }
 
@@ -141,23 +141,6 @@ public class OidcProviderTest extends ResetPostgres {
               DISCOVERY_URI,
               "base_url",
               BASE_URL)
-        },
-        new Object[] {
-          "blank secret",
-          ImmutableMap.of(
-              "idcs.client_id",
-              "foo",
-              "idcs.secret",
-              "",
-              "idcs.discovery_uri",
-              DISCOVERY_URI,
-              "base_url",
-              BASE_URL)
-        },
-        new Object[] {
-          "missing secret",
-          ImmutableMap.of(
-              "idcs.client_id", "foo", "idcs.discovery_uri", DISCOVERY_URI, "base_url", BASE_URL)
         },
         new Object[] {
           "missing base_url",

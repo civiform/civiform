@@ -18,6 +18,7 @@ import auth.Roles;
 import auth.oidc.admin.AdfsProvider;
 import auth.oidc.applicant.GenericOidcProvider;
 import auth.oidc.applicant.IdcsProvider;
+import auth.oidc.applicant.LoginGovProvider;
 import auth.saml.LoginRadiusProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -158,6 +159,12 @@ public class SecurityModule extends AbstractModule {
               .annotatedWith(ApplicantAuthClient.class)
               .toProvider(GenericOidcProvider.class);
           logger.info("Using generic OIDC for applicant auth provider");
+          break;
+        case LOGIN_GOV_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(LoginGovProvider.class);
+          logger.info("Using login.gov PKCE OIDC for applicant auth provider");
           break;
         default:
           logger.info("No provider specified for for applicants");
