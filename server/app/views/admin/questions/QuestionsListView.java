@@ -327,7 +327,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .with(div().with(questionText).with(questionDescription));
   }
 
-  private Optional<Modal> maybeRenderEditModal(
+  private Optional<Modal.ModalBuilder> maybeRenderEditModal(
       QuestionDefinition question,
       ActiveAndDraftQuestions activeAndDraftQuestions) {
 
@@ -355,11 +355,10 @@ public final class QuestionsListView extends BaseHtmlView {
                         + " creating a new draft with this change or updating an existing draft:"),
                 div().with(span("Program name 1"), span("Program name 2")));
 
-    Modal editQuestionModal = Modal.builder("edit-question", notifyContent)
-      .setModalTitle("Editing a shared question")
-      .build();
+    Modal.ModalBuilder modalBuilder = Modal.builder("edit-question", notifyContent)
+      .setModalTitle("Editing a shared question");
 
-    return Optional.of(editQuestionModal);
+    return Optional.of(modalBuilder);
   }
 
   private Pair<ButtonTag, Optional<Modal>> getEditButtonAndModal(
@@ -367,10 +366,10 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition definition,
       boolean isVisible) {
 
-    Optional<Modal> maybeEditModal =
+    Optional<Modal.ModalBuilder> modalBuilder =
         maybeRenderEditModal(definition, activeAndDraftQuestions);
 
-    return renderQuestionEditLink(definition, maybeEditModal, isVisible);
+    return renderQuestionEditLink(definition, modalBuilder, isVisible);
   }
 
   /**
@@ -571,7 +570,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private Pair<ButtonTag, Optional<Modal>> renderQuestionEditLink(
       QuestionDefinition definition, 
-      Optional<Modal> maybeEditModal, 
+      Optional<Modal.ModalBuilder> modalBuilder, 
       boolean isVisible) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     ButtonTag editButton = asRedirectElement(
@@ -579,6 +578,12 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : Styles.INVISIBLE),
             //.withCondId(maybeEditModal.isPresent(), maybeEditModal.get().getTriggerButtonId()),
         link);
+
+    Optional<Modal> maybeEditModal = Optional.empty();
+    if (modalBuilder.isPresent()) {
+      modalBuilder.get().setTriggerButtonContent(editButton);
+      maybeEditModal = Optional.of(modalBuilder.get().build());
+    }
 
     return Pair.of(editButton, maybeEditModal);
   }
