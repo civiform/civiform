@@ -326,49 +326,48 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private Optional<Modal> maybeRenderEditModal(
       QuestionDefinition question,
-      ActiveAndDraftQuestions activeAndDraftQuestions,
-      Http.Request request,
-      ButtonTag editButton) {
+      ActiveAndDraftQuestions activeAndDraftQuestions) {
 
     ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
-        activeAndDraftQuestions.getReferencingPrograms(definition.getName());
+        activeAndDraftQuestions.getReferencingPrograms(question.getName());
     Collection<ProgramDefinition> activePrograms = referencingPrograms.activeReferences();
 
-    if (activePrograms.size() > 1) {
-
-      String link = controllers.admin.routes.AdminQuestionController.edit(question.getId()).url();
-      //ButtonTag editButton =
-      //  renderQuestionEditLink(question, activeAndDraftQuestions, request, link);
-
-      String title = "This question is shared by 2 programs";
-      DivTag notifyContent =
-          div()
-              .with(
-                  h1(
-                      "This question is shared by 2 programs. If you edit it, it will be updated for"
-                          + " both programs."),
-                  p(
-                      "Please be aware that this will effect the following programs by either"
-                          + " creating a new draft with this change or updating an existing draft:"),
-                  div().with(span("Program name 1"), span("Program name 2")));
-
-      Modal editQuestionModal = Modal.builder("edit-question", notifyContent)
-        .setModalTitle("Editing a shared question")
-        .setTriggerButton(editButton);
-
-      return Optional.of(editQuestionModal);
+    if (activePrograms.size() == 0) {
+      return Optional.empty();
     }
 
-    return Optional.empty();
+    //String link = controllers.admin.routes.AdminQuestionController.edit(question.getId()).url();
+    //ButtonTag editButton =
+    //  renderQuestionEditLink(question, activeAndDraftQuestions, request, link);
+
+    //String title = "This question is shared by 2 programs";
+    DivTag notifyContent =
+        div()
+            .with(
+                h1(
+                    "This question is shared by 2 programs. If you edit it, it will be updated for"
+                        + " both programs."),
+                p(
+                    "Please be aware that this will effect the following programs by either"
+                        + " creating a new draft with this change or updating an existing draft:"),
+                div().with(span("Program name 1"), span("Program name 2")));
+
+    Modal editQuestionModal = Modal.builder("edit-question", notifyContent)
+      .setModalTitle("Editing a shared question")
+      .build();
+
+    return Optional.of(editQuestionModal);
   }
 
-  private Pair<ButtonTag, ImmutableList<Modal>> getEditButton(
+  private Pair<ButtonTag, Optional<Modal>> getEditButtonAndModal(
       ActiveAndDraftQuestions activeAndDraftQuestions,
       QuestionDefinition definition,
-      boolean isVisible,
-      Optional<Modal> maybeEditModal) {
+      boolean isVisible) {
 
-    return renderQuestionEditLink(definition, isVisible);
+    Optional<Modal> maybeEditModal =
+        maybeRenderEditModal(definition, activeAndDraftQuestions);
+
+    return renderQuestionEditLink(definition, maybeEditModal, isVisible);
   }
 
   /**
@@ -559,14 +558,6 @@ public final class QuestionsListView extends BaseHtmlView {
                                 }))));
   }
 
-  private ButtonTag renderQuestionEditLink(String link, boolean isVisible, Optional<Modal> maybeEditModal) {
-    return asRedirectElement(
-        makeSvgTextButton("Edit", Icons.EDIT)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : Styles.INVISIBLE),
-            .withId(maybeEditModal.get().getTriggerButtonId())
-        link);
-  }
-
   //private ButtonTag renderNotifySharedQuestionLink(
   //    QuestionDefinition definition, boolean isVisible) {
   //  String link =
@@ -575,9 +566,18 @@ public final class QuestionsListView extends BaseHtmlView {
   //  return renderQuestionEditLink(link, isVisible);
   //}
 
-  private ButtonTag renderQuestionEditLink(QuestionDefinition definition, boolean isVisible, Optional<Modal> maybeEditModal) {
+  private Pair<ButtonTag, Optional<Modal>> renderQuestionEditLink(
+      QuestionDefinition definition, 
+      Optional<Modal> maybeEditModal, 
+      boolean isVisible) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
-    return renderQuestionEditLink(link, isVisible, maybeEditModal);
+    ButtonTag editButton = asRedirectElement(
+        makeSvgTextButton("Edit", Icons.EDIT)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : Styles.INVISIBLE)
+            .withId(maybeEditModal.get().getTriggerButtonId()),
+        link);
+
+    return Pair.of(editButton, maybeEditModal);
   }
 
   private Optional<ButtonTag> renderQuestionTranslationLink(QuestionDefinition definition) {
@@ -638,10 +638,10 @@ public final class QuestionsListView extends BaseHtmlView {
                 Styles.H_12,
                 extraActions.build().isEmpty() ? Styles.INVISIBLE : "");
 
-    Optional<Modal> maybeEditModal = maybeRenderEditModal(question, activeAndDraftQuestions, request);
-    Pair<ButtonTag, ImmutableList<Modal>> editButtonAndModal = getEditButton(activeAndDraftQuestions, question, isEditable, maybeEditModal);
+    Pair<ButtonTag, Optional<Modal>> editButtonAndModal = 
+      getEditButtonAndModal(activeAndDraftQuestions, question, isEditable);
     ButtonTag editButton = editButtonAndModal.getLeft();
-    modals.addAll(editButtonAndModal.getRight());
+    modals.add(editButtonAndModal.getRight().get());
     DivTag result =
         div()
             .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.PR_6, Styles.FONT_MEDIUM)
