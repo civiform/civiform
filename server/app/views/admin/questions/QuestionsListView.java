@@ -11,6 +11,8 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.ul;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -58,6 +60,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final Logger logger = LoggerFactory.getLogger(QuestionsListView.class);
 
   @Inject
   public QuestionsListView(
@@ -573,8 +576,8 @@ public final class QuestionsListView extends BaseHtmlView {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     ButtonTag editButton = asRedirectElement(
         makeSvgTextButton("Edit", Icons.EDIT)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : Styles.INVISIBLE)
-            .withId(maybeEditModal.get().getTriggerButtonId()),
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : Styles.INVISIBLE),
+            //.withCondId(maybeEditModal.isPresent(), maybeEditModal.get().getTriggerButtonId()),
         link);
 
     return Pair.of(editButton, maybeEditModal);
@@ -641,7 +644,10 @@ public final class QuestionsListView extends BaseHtmlView {
     Pair<ButtonTag, Optional<Modal>> editButtonAndModal = 
       getEditButtonAndModal(activeAndDraftQuestions, question, isEditable);
     ButtonTag editButton = editButtonAndModal.getLeft();
-    modals.add(editButtonAndModal.getRight().get());
+    logger.error("editButton: " + editButtonAndModal.getRight().isPresent());
+    if (editButtonAndModal.getRight().isPresent()) {
+      modals.add(editButtonAndModal.getRight().get());
+    }
     DivTag result =
         div()
             .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.PR_6, Styles.FONT_MEDIUM)
