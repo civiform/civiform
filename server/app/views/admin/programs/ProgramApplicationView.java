@@ -118,7 +118,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     .with(
                         p(applicantNameWithApplicationId)
                             .withClasses(
-                                Styles.MY_4, Styles.TEXT_BLACK, Styles.TEXT_2XL, Styles.MB_2),
+                                Styles.MY_4,
+                                Styles.TEXT_BLACK,
+                                Styles.TEXT_2XL,
+                                Styles.MB_2,
+                                ReferenceClasses.BT_APPLICATION_ID),
                         // Spread out the items, so the following are right
                         // aligned.
                         p().withClasses(Styles.FLEX_GROW))
@@ -334,7 +338,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         span(" (visible to applicant)")),
                 p().with(
                         span("Applicant: "),
-                        span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
+                        span(applicantNameWithApplicationId)
+                            .withClasses(Styles.FONT_SEMIBOLD, ReferenceClasses.BT_APPLICATION_ID)),
                 p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)),
                 div()
                     .withClasses(Styles.MT_4)
@@ -389,7 +394,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
           .with(
               sendEmailInput.isHidden(),
               p().with(
-                      span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+                      span(applicantNameWithApplicationId)
+                          .withClasses(Styles.FONT_SEMIBOLD, ReferenceClasses.BT_APPLICATION_ID),
                       span(
                           " will not receive an email because there is no email content set for"
                               + " this status. Connect with your CiviForm Admin to add an email to"
