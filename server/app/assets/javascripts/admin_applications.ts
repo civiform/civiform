@@ -7,9 +7,10 @@ class AdminApplications {
   // This value should be kept in sync with that in AdminApplicationController.java.
   private static SELECTED_APPLICATION_URI_PARAM_NAME = 'selectedApplicationUri'
 
+  // These values should be kept in sync with those in AdminApplicationController.java.
+  private static REDIRECT_URI_INPUT_NAME = 'redirectUri'
   // These values should be kept in sync with those in admin_application_view.ts
   // and ProgramApplicationView.java.
-  private static SUCCESS_REDIRECT_URI_INPUT_NAME = 'successRedirectUri'
   private static CURRENT_STATUS_INPUT_NAME = 'currentStatus'
   private static NEW_STATUS_INPUT_NAME = 'newStatus'
   private static SEND_EMAIL_INPUT_NAME = 'sendEmail'
@@ -143,7 +144,7 @@ class AdminApplications {
       action: `/admin/programs/${programId}/applications/${applicationId}/updateStatus`,
       inputs: [
         {
-          inputName: AdminApplications.SUCCESS_REDIRECT_URI_INPUT_NAME,
+          inputName: AdminApplications.REDIRECT_URI_INPUT_NAME,
           inputValue: this.currentRelativeUrl(),
         },
         {
@@ -175,7 +176,7 @@ class AdminApplications {
       action: `/admin/programs/${programId}/applications/${applicationId}/updateNote`,
       inputs: [
         {
-          inputName: AdminApplications.SUCCESS_REDIRECT_URI_INPUT_NAME,
+          inputName: AdminApplications.REDIRECT_URI_INPUT_NAME,
           inputValue: this.currentRelativeUrl(),
         },
         {inputName: AdminApplications.NOTE_INPUT_NAME, inputValue: data.note},
