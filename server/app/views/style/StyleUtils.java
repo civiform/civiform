@@ -116,10 +116,7 @@ public final class StyleUtils {
 
   public static String removeStyles(String style, String... stylesToRemove) {
     return Stream.of(stylesToRemove)
-        .reduce(
-            style,
-            (acc, styleToRemove) -> acc.replace(styleToRemove, ""),
-            (acc1, acc2) -> acc1 + acc2)
+        .reduce(style, (acc, styleToRemove) -> acc.replace(styleToRemove, ""))
         .trim();
   }
 }
