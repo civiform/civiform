@@ -19,7 +19,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.DeletionStatus;
 import services.ErrorAnd;
-import services.export.ExporterService;
+import services.export.CsvExporterService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -252,7 +252,7 @@ public final class QuestionService {
       throw new QuestionNotFoundException(questionDefinition.getId());
     }
     Question question = questionMaybe.get();
-    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
+    if (CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
         questionDefinition.getQuestionType())) {
       question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
       question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
