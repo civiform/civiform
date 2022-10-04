@@ -64,7 +64,7 @@ import views.admin.programs.ProgramApplicationView;
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
 
-  private static final String REDIRECT_URI_KEY = "RedirectUri";
+  private static final String REDIRECT_URI_KEY = "redirectUri";
 
   private final ApplicantService applicantService;
   private final ProgramAdminApplicationService programAdminApplicationService;
