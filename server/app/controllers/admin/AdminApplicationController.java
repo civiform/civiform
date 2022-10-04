@@ -47,7 +47,7 @@ import services.application.ApplicationEventDetails;
 import services.applications.AccountHasNoEmailException;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
-import services.export.ExporterService;
+import services.export.CsvExporterService;
 import services.export.JsonExporter;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
@@ -71,7 +71,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
   private final ProgramService programService;
-  private final ExporterService exporterService;
+  private final CsvExporterService exporterService;
   private final FormFactory formFactory;
   private final JsonExporter jsonExporter;
   private final PdfExporter pdfExporter;
@@ -85,7 +85,7 @@ public final class AdminApplicationController extends CiviFormController {
   public AdminApplicationController(
       ProgramService programService,
       ApplicantService applicantService,
-      ExporterService exporterService,
+      CsvExporterService csvExporterService,
       FormFactory formFactory,
       JsonExporter jsonExporter,
       PdfExporter pdfExporter,
@@ -104,7 +104,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.applicationView = checkNotNull(applicationView);
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
-    this.exporterService = checkNotNull(exporterService);
+    this.exporterService = checkNotNull(csvExporterService);
     this.formFactory = checkNotNull(formFactory);
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);

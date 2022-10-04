@@ -51,7 +51,7 @@ import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
-import services.export.ExporterService;
+import services.export.CsvExporterService;
 import services.export.JsonExporter;
 import services.export.PdfExporter;
 import services.program.ProgramNotFoundException;
@@ -627,7 +627,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     return new AdminApplicationController(
         instanceOf(ProgramService.class),
         instanceOf(ApplicantService.class),
-        instanceOf(ExporterService.class),
+        instanceOf(CsvExporterService.class),
         instanceOf(FormFactory.class),
         instanceOf(JsonExporter.class),
         instanceOf(PdfExporter.class),
