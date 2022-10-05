@@ -207,7 +207,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -241,7 +241,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -276,7 +276,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -309,7 +309,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -342,7 +342,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "currentStatus",
                             UNSET_STATUS_TEXT,
@@ -386,7 +386,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -425,7 +425,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "currentStatus",
                             UNSET_STATUS_TEXT,
@@ -470,7 +470,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             // Only "on" is a valid checkbox state.
                             "sendEmail",
@@ -565,8 +565,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest().bodyForm(Map.of("successRedirectUri", "/", "note", noteText)))
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
             .build();
 
     // Execute.
@@ -596,8 +595,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest().bodyForm(Map.of("successRedirectUri", "/", "note", noteText)))
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
             .build();
 
     // Execute.

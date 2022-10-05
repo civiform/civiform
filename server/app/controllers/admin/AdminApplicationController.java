@@ -64,7 +64,7 @@ import views.admin.programs.ProgramApplicationView;
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
 
-  private static final String SUCCESS_REDIRECT_URI = "successRedirectUri";
+  private static final String REDIRECT_URI_KEY = "redirectUri";
 
   private final ApplicantService applicantService;
   private final ProgramAdminApplicationService programAdminApplicationService;
@@ -368,8 +368,7 @@ public final class AdminApplicationController extends CiviFormController {
     Optional<String> maybeCurrentStatus = Optional.ofNullable(formData.get(CURRENT_STATUS));
     Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
     Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
-    Optional<String> maybeSuccessRedirectUri =
-        Optional.ofNullable(formData.get(SUCCESS_REDIRECT_URI));
+    Optional<String> maybeRedirectUri = Optional.ofNullable(formData.get(REDIRECT_URI_KEY));
     if (maybeCurrentStatus.isEmpty()) {
       return badRequest(String.format("The %s field is not present", CURRENT_STATUS));
     }
@@ -379,14 +378,14 @@ public final class AdminApplicationController extends CiviFormController {
     if (maybeSendEmail.isEmpty()) {
       return badRequest(String.format("The %s field is not present", SEND_EMAIL));
     }
-    if (maybeSuccessRedirectUri.isEmpty()) {
-      return badRequest(String.format("The %s field is not present", SUCCESS_REDIRECT_URI));
+    if (maybeRedirectUri.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", REDIRECT_URI_KEY));
     }
     // Verify the UI is changing from the actual current status to detect an out of date UI.
     if (application.getLatestStatus().isPresent()) {
       if (!application.getLatestStatus().get().equals(maybeCurrentStatus.get())) {
         // Only allow relative URLs to ensure that we redirect to the same domain.
-        String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
+        String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
         return redirect(redirectUrl)
             .flashing(
                 "error",
@@ -416,7 +415,7 @@ public final class AdminApplicationController extends CiviFormController {
             .build(),
         profileUtils.currentUserProfile(request).get().getAccount().join());
     // Only allow relative URLs to ensure that we redirect to the same domain.
-    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application status updated");
   }
 
@@ -448,13 +447,12 @@ public final class AdminApplicationController extends CiviFormController {
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeNote = Optional.ofNullable(formData.get(NOTE));
-    Optional<String> maybeSuccessRedirectUri =
-        Optional.ofNullable(formData.get("successRedirectUri"));
+    Optional<String> maybeRedirectUri = Optional.ofNullable(formData.get(REDIRECT_URI_KEY));
     if (maybeNote.isEmpty()) {
       return badRequest("A note is not present.");
     }
     String note = maybeNote.get();
-    if (maybeSuccessRedirectUri.isEmpty()) {
+    if (maybeRedirectUri.isEmpty()) {
       return badRequest("A redirect URI is not present");
     }
 
@@ -464,7 +462,7 @@ public final class AdminApplicationController extends CiviFormController {
         profileUtils.currentUserProfile(request).get().getAccount().join());
 
     // Only allow relative URLs to ensure that we redirect to the same domain.
-    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application note updated");
   }
 
