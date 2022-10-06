@@ -143,28 +143,6 @@ public class OidcProviderTest extends ResetPostgres {
               BASE_URL)
         },
         new Object[] {
-          "blank secret",
-          ImmutableMap.of(
-              "idcs.client_id",
-              "idcs-fake-oidc-client",
-              "idcs.secret",
-              "",
-              "idcs.discovery_uri",
-              DISCOVERY_URI,
-              "base_url",
-              BASE_URL)
-        },
-        new Object[] {
-          "missing secret",
-          ImmutableMap.of(
-              "idcs.client_id",
-              "idcs-fake-oidc-client",
-              "idcs.discovery_uri",
-              DISCOVERY_URI,
-              "base_url",
-              BASE_URL)
-        },
-        new Object[] {
           "missing base_url",
           ImmutableMap.of(
               "idcs.client_id",
