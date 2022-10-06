@@ -104,8 +104,7 @@ public final class LanguageSelector {
             .withLang(locale.toLanguageTag())
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
-                BaseStyles.RADIO_LABEL,
-                checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+                checked ? BaseStyles.RADIO_LABEL_SELECTED : BaseStyles.RADIO_LABEL)
             .with(
                 input()
                     .withType("radio")
