@@ -1,5 +1,6 @@
 class AdminApplications {
   private static BACKGROUND_GRAY_CLASS = 'bg-gray-200'
+  private static BACKGROUND_WHITE_CLASS = 'bg-white'
   private static CARD_SELECTOR = '.cf-admin-application-card'
   private static DISPLAY_FRAME_SELECTOR =
     'iframe[name="application-display-frame"]'
@@ -68,11 +69,22 @@ class AdminApplications {
       ),
     )
 
+    this.cards.forEach((card) =>
+      this._assertNotNull(card.children[0], 'card inner div').classList.add(
+        AdminApplications.BACKGROUND_WHITE_CLASS,
+      ),
+    )
+
     // Add selection style to selected card.
     this._assertNotNull(
       selectedCard.children[0],
       'card inner div',
     ).classList.add(AdminApplications.BACKGROUND_GRAY_CLASS)
+
+    this._assertNotNull(
+      selectedCard.children[0],
+      'card inner div',
+    ).classList.remove(AdminApplications.BACKGROUND_WHITE_CLASS)
 
     // Preserve the selected application in the URL so that any attempts to refresh the page
     // maintain the selected application.
