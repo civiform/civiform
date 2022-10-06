@@ -15,7 +15,7 @@
     "@typescript-eslint/eslint-plugin": "5.38.1",
     "@typescript-eslint/parser": "5.38.1",
     "autoprefixer": "10.4.12",
-    "postcss": "8.4.16",
+    "postcss": "8.4.17",
     "tailwindcss": "2.2.19",
     "eslint": "8.24.0",
     "typescript": "4.8.3"
