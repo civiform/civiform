@@ -139,8 +139,11 @@ public class SecurityModule extends AbstractModule {
   }
 
   private void bindApplicantIdpProvider(String applicantIdpName) {
-    AuthIdentityProviderName idpName = AuthIdentityProviderName.forString(applicantIdpName).get();
-
+    AuthIdentityProviderName idpName =
+        AuthIdentityProviderName.forString(applicantIdpName)
+            .orElseThrow(
+                () ->
+                    new RuntimeException("No applicant IDP named " + applicantIdpName + " found"));
     try {
       switch (idpName) {
         case DISABLED_APPLICANT:
