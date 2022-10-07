@@ -2,6 +2,7 @@ package auth.oidc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.AuthIdentityProviderName;
 import auth.CiviFormProfileData;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.oauth2.sdk.id.State;
@@ -33,8 +34,8 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
  * <p>Uses the post_logout_redirect_uri parameter by default, but allows overriding to a different
  * value using the auth.oidc_post_logout_param config variable
  *
- * <p>If the oidc_logout_client_id_param config variable is set, also adds the client_id to the
- * logout request.
+ * <p>For certain auth providers can add custom parameters. For example login.gov requires passing
+ * client_id in logout request.
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
@@ -48,11 +49,12 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     checkNotNull(civiformConfiguration);
     this.postLogoutRedirectParam =
         getConfigurationValue(civiformConfiguration, "auth.oidc_post_logout_param");
-    Optional<String> clientIdParam =
-        getConfigurationValue(civiformConfiguration, "auth.oidc_logout_client_id_param");
 
-    if (clientIdParam.isPresent()) {
-      this.extraParams = ImmutableMap.of(clientIdParam.get(), clientID);
+    if (AuthIdentityProviderName.fromConfig(civiformConfiguration)
+        == AuthIdentityProviderName.LOGIN_GOV_APPLICANT) {
+      // logout flow in login.gov requires passing client_id param:
+      // https://developers.login.gov/oidc/#logout-request
+      this.extraParams = ImmutableMap.of("client_id", clientID);
     } else {
       this.extraParams = ImmutableMap.of();
     }

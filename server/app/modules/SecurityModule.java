@@ -22,7 +22,6 @@ import auth.oidc.applicant.LoginGovProvider;
 import auth.saml.LoginRadiusProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
-import com.google.inject.ConfigurationException;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.util.Providers;
@@ -120,16 +119,8 @@ public class SecurityModule extends AbstractModule {
         new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
     bind(SessionStore.class).toInstance(sessionStore);
 
-    String applicantAuthClient = "idcs";
-
-    try {
-      applicantAuthClient = configuration.getString("auth.applicant_idp");
-    } catch (ConfigurationException ignore) {
-      // Default to IDCS.
-    }
-
     bindAdminIdpProvider();
-    bindApplicantIdpProvider(applicantAuthClient);
+    bindApplicantIdpProvider(configuration);
   }
 
   private void bindAdminIdpProvider() {
@@ -138,8 +129,8 @@ public class SecurityModule extends AbstractModule {
     bind(IndirectClient.class).annotatedWith(AdminAuthClient.class).toProvider(AdfsProvider.class);
   }
 
-  private void bindApplicantIdpProvider(String applicantIdpName) {
-    AuthIdentityProviderName idpName = AuthIdentityProviderName.forString(applicantIdpName).get();
+  private void bindApplicantIdpProvider(com.typesafe.config.Config config) {
+    AuthIdentityProviderName idpName = AuthIdentityProviderName.fromConfig(config);
 
     try {
       switch (idpName) {

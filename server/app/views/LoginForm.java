@@ -32,7 +32,7 @@ public class LoginForm extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final boolean useIdcsApplicantRegistration;
   private final boolean applicantAuthIsDisabled;
-  private final String applicantIdp;
+  private final AuthIdentityProviderName applicantIdp;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final String civicEntityShortName;
@@ -43,7 +43,7 @@ public class LoginForm extends BaseHtmlView {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
 
-    this.applicantIdp = config.getString("auth.applicant_idp");
+    this.applicantIdp = AuthIdentityProviderName.fromConfig(config);
     this.maybeLogoUrl =
         config.hasPath("whitelabel.small_logo_url")
             ? Optional.of(config.getString("whitelabel.small_logo_url"))
@@ -53,9 +53,7 @@ public class LoginForm extends BaseHtmlView {
     this.fakeAdminClient = checkNotNull(fakeAdminClient);
 
     // Adjust UI for applicant-provider specific settings.
-    AuthIdentityProviderName applicantIdpName =
-        AuthIdentityProviderName.forString(applicantIdp).get();
-    switch (applicantIdpName) {
+    switch (applicantIdp) {
       case DISABLED_APPLICANT:
         this.applicantAuthIsDisabled = true;
         this.useIdcsApplicantRegistration = false;
@@ -209,7 +207,9 @@ public class LoginForm extends BaseHtmlView {
   private ButtonTag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return redirectButton(
-            applicantIdp, msg, routes.LoginController.applicantLogin(Optional.empty()).url())
+            applicantIdp.getString(),
+            msg,
+            routes.LoginController.applicantLogin(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 
