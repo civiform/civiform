@@ -64,14 +64,13 @@ class AdminApplications {
   viewApplication(selectedCard: Element, applicationUrlPath: string) {
     // Remove selection style from previously selected card.
     this.cards.forEach((card) => {
-        this._assertNotNull(card.children[0], 'card inner div').classList.remove(
-          AdminApplications.BACKGROUND_GRAY_CLASS,
-        )
-        this._assertNotNull(card.children[0], 'card inner div').classList.add(
-          AdminApplications.BACKGROUND_WHITE_CLASS,
-        )
-      }
-    )
+      this._assertNotNull(card.children[0], 'card inner div').classList.remove(
+        AdminApplications.BACKGROUND_GRAY_CLASS,
+      )
+      this._assertNotNull(card.children[0], 'card inner div').classList.add(
+        AdminApplications.BACKGROUND_WHITE_CLASS,
+      )
+    })
 
     // Add selection style to selected card.
     this._assertNotNull(
