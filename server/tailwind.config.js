@@ -1,17 +1,14 @@
 module.exports = {
-  purge: {
-    enabled: true,
-    content: [
+  content: {
+    files: [
       './app/assets/javascripts/*.ts',
       './app/views/style/Styles.java',
       './app/views/style/BaseStyles.java',
     ],
+    // Override tailwind's default extractor in order to include style prefixes
+    // since we generate those dynamically. See:
+    //  https://tailwindcss.com/docs/content-configuration#customizing-extraction-logic
     extract: {
-      java: (content) => {
-        return content
-      },
-    },
-    transform: {
       java: (content) => {
         const output = []
         for (const match of content.matchAll(/"([\w-/:.]+)"/g)) {
@@ -37,7 +34,6 @@ module.exports = {
       },
     },
   },
-  darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
       colors: {
@@ -56,13 +52,6 @@ module.exports = {
           DEFAULT: '#4a148c',
         },
       },
-    },
-  },
-  variants: {
-    extend: {
-      backgroundColor: ['disabled', 'odd'],
-      textColor: ['disabled'],
-      opacity: ['disabled'],
     },
   },
   plugins: [require('@tailwindcss/line-clamp')],

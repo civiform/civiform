@@ -94,7 +94,7 @@ public final class TextFormatter {
             .with(
                 Icons.svg(Icons.OPEN_IN_NEW)
                     .withClasses(
-                        Styles.FLEX_SHRINK_0,
+                        Styles.SHRINK_0,
                         Styles.H_5,
                         Styles.W_AUTO,
                         Styles.INLINE,

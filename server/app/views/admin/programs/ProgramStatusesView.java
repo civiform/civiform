@@ -397,8 +397,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
             Styles.TEXT_SM,
             Styles.BORDER,
             Styles.ROUNDED_LG,
-            Styles.BORDER_YELLOW_400,
-            Styles.BG_YELLOW_200);
+            Styles.BORDER_AMBER_400,
+            Styles.BG_AMBER_200);
   }
 
   private DivTag renderFormGlobalErrors(Messages messages, Form<ProgramStatusesForm> form) {

@@ -76,7 +76,7 @@ export class AdminQuestions {
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-green-200')
+    expect(toastContainer).toContain('bg-emerald-200')
     expect(toastContainer).toContain(successText)
     await this.expectAdminQuestionsPage()
   }

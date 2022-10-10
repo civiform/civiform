@@ -73,9 +73,9 @@ class ToastController {
     } else if (message.type === 'error') {
       toastMessage.classList.add('bg-red-400', 'border-red-500')
     } else if (message.type === 'success') {
-      toastMessage.classList.add('bg-green-200', 'border-green-300')
+      toastMessage.classList.add('bg-emerald-200', 'border-emerald-300')
     } else if (message.type === 'warning') {
-      toastMessage.classList.add('bg-yellow-200', 'border-yellow-300')
+      toastMessage.classList.add('bg-amber-200', 'border-amber-300')
     }
 
     toastMessage.appendChild(this.getToastIcon(message.type))

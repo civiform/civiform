@@ -306,7 +306,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 Styles.ITEMS_CENTER)
             .with(
                 Icons.questionTypeSvg(definition.getQuestionType())
-                    .withClasses(Styles.W_6, Styles.H_6, Styles.FLEX_SHRINK_0))
+                    .withClasses(Styles.W_6, Styles.H_6, Styles.SHRINK_0))
             .with(
                 div(definition.getQuestionText().getDefault())
                     .withClasses(

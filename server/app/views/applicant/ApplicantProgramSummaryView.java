@@ -221,7 +221,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .withClasses(
             ReferenceClasses.APPLICANT_SUMMARY_ROW,
             marginIndentClass(data.repeatedEntity().map(RepeatedEntity::depth).orElse(0)),
-            data.isAnswered() ? "" : Styles.BG_YELLOW_50,
+            data.isAnswered() ? "" : Styles.BG_AMBER_50,
             Styles.MY_0,
             Styles.P_2,
             Styles.PT_4,
