@@ -96,10 +96,12 @@ public final class LoginGovProvider extends GenericOidcProvider {
     OidcClient client = super.get();
     var providerMetadata = client.getConfiguration().getProviderMetadata();
     providerMetadata.setCodeChallengeMethods(List.of(CodeChallengeMethod.S256));
-    CiviformOidcLogoutActionBuilder logoutBuilder =
-        (CiviformOidcLogoutActionBuilder) client.getLogoutActionBuilder();
-    logoutBuilder.setStateGenerator(stateGenerator);
-    logoutBuilder.setExtraParams(ImmutableMap.of("client_id", getClientID()));
+
+    // Apply logout settings specific to login.gov
+    ((CiviformOidcLogoutActionBuilder) client.getLogoutActionBuilder())
+        .setStateGenerator(stateGenerator)
+        // See https://developers.login.gov/oidc/#logout-request
+        .setExtraParams(ImmutableMap.of("client_id", getClientID()));
 
     return client;
   }

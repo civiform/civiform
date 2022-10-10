@@ -76,7 +76,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
    * that the state is not saved and validated by the client, so it does not achive the goal of
    * "maintain state between the logout request and the callback" as specified by the spec.
    */
-  public void setStateGenerator(final ValueGenerator stateGenerator) {
+  public CiviformOidcLogoutActionBuilder setStateGenerator(final ValueGenerator stateGenerator) {
     if (stateGenerator == null) {
       this.stateGenerator = Optional.empty();
     }
@@ -87,7 +87,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
    * Additional url params to add to logout request. Some identity providers require including
    * client_id for example.
    */
-  public void setExtraParams(ImmutableMap<String, String> extraParams) {
+  public CiviformOidcLogoutActionBuilder setExtraParams(ImmutableMap<String, String> extraParams) {
     this.extraParams = extraParams;
   }
 
