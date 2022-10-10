@@ -81,6 +81,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
       this.stateGenerator = Optional.empty();
     }
     this.stateGenerator = Optional.of(stateGenerator);
+    return this;
   }
 
   /**
@@ -89,6 +90,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
    */
   public CiviformOidcLogoutActionBuilder setExtraParams(ImmutableMap<String, String> extraParams) {
     this.extraParams = extraParams;
+    return this;
   }
 
   /**
