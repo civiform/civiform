@@ -192,7 +192,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                     .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
                     .with(
                         Icons.questionTypeSvg(questionDefinition.getQuestionType())
-                            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
+                            .withClasses(Styles.SHRINK_0, Styles.H_12, Styles.W_6))
                     .with(
                         div()
                             .withClasses(Styles.TEXT_LEFT)
@@ -265,7 +265,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             Styles.BORDER_GRAY_200)
         .with(
             Icons.questionTypeSvg(questionDefinition.getQuestionType())
-                .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
+                .withClasses(Styles.SHRINK_0, Styles.H_12, Styles.W_6))
         .with(
             div()
                 .with(

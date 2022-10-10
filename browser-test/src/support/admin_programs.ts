@@ -258,7 +258,7 @@ export class AdminPrograms {
   async expectSuccessToast(successToastMessage: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-green-200')
+    expect(toastContainer).toContain('bg-emerald-200')
     expect(toastContainer).toContain(successToastMessage)
   }
 
