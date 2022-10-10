@@ -4,6 +4,7 @@ import auth.ProfileFactory;
 import auth.oidc.CiviformOidcLogoutActionBuilder;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.typesafe.config.Config;
@@ -98,6 +99,7 @@ public final class LoginGovProvider extends GenericOidcProvider {
     CiviformOidcLogoutActionBuilder logoutBuilder =
         (CiviformOidcLogoutActionBuilder) client.getLogoutActionBuilder();
     logoutBuilder.setStateGenerator(stateGenerator);
+    logoutBuilder.setExtraParams(ImmutableMap.of("client_id", getClientID()));
 
     return client;
   }

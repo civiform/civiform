@@ -39,7 +39,7 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
   private final Optional<String> postLogoutRedirectParam;
-  private final ImmutableMap<String, String> extraParams;
+  private ImmutableMap<String, String> extraParams;
   private Optional<ValueGenerator> stateGenerator = Optional.empty();
 
   public CiviformOidcLogoutActionBuilder(
@@ -81,6 +81,14 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
       this.stateGenerator = Optional.empty();
     }
     this.stateGenerator = Optional.of(stateGenerator);
+  }
+
+  /**
+   * Additional url params to add to logout request. Some identity providers require including
+   * client_id for example.
+   */
+  public void setExtraParams(ImmutableMap<String, String> extraParams) {
+    this.extraParams = extraParams;
   }
 
   /**
