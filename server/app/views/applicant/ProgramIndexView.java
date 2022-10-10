@@ -142,10 +142,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 logoImg
                     .withAlt(civicEntityFullName + " logo")
                     .attr("aria-hidden", "true")
-                    .withWidth("175")
-                    .withHeight("70"))
-            .withClasses(Styles.TOP_2, Styles.LEFT_2);
-
+                    .withStyle("max-width: 155px; max-height: 40px;"))
+            .withClasses(Styles.PT_6, Styles.PX_6);
     return div()
         .withId("top-content")
         .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, Styles.RELATIVE)
