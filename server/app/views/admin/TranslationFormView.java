@@ -39,7 +39,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
   /** Render a list of languages, with the currently selected language underlined. */
   protected final DivTag renderLanguageLinks(long entityId, Locale currentlySelected) {
     return div()
-        .withClasses(Styles.M_2)
+        .withClasses("m-2")
         .with(
             each(
                 translationLocales.translatableLocales(),
@@ -107,21 +107,21 @@ public abstract class TranslationFormView extends BaseHtmlView {
   protected final DivTag fieldWithDefaultLocaleTextHint(
       DomContent field, LocalizedStrings localizedStrings) {
     return div()
-        .withClasses(Styles.GRID, Styles.GAP_6, Styles.GRID_COLS_2)
+        .withClasses("grid", "gap-6", "grid-cols-2")
         .with(
             field,
             div()
-                .withClasses(Styles.PX_2, Styles.PY_1, Styles.TEXT_SM, Styles.BG_GRAY_100)
+                .withClasses("px-2", "py-1", "text-sm", "bg-gray-100")
                 .with(
-                    p("English text:").withClass(Styles.FONT_MEDIUM),
-                    pre(localizedStrings.getDefault()).withClasses(Styles.FONT_SANS)));
+                    p("English text:").withClass("font-medium"),
+                    pre(localizedStrings.getDefault()).withClasses("font-sans")));
   }
 
   /** Creates a fieldset wrapping several form fields to be rendered. */
   protected final FieldsetTag fieldSetForFields(
       LegendTag legendContent, ImmutableList<DomContent> fields) {
     return fieldset()
-        .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
-        .with(legendContent, div().withClasses(Styles.FLEX_ROW, Styles.SPACE_Y_4).with(fields));
+        .withClasses("my-4", "pt-1", "pb-2", "px-2", "border")
+        .with(legendContent, div().withClasses("flex-row", "space-y-4").with(fields));
   }
 }

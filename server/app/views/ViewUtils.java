@@ -83,10 +83,10 @@ public final class ViewUtils {
     return button()
         .with(
             Icons.svg(icon)
-                .withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.SHRINK_0)
+                .withClasses("ml-1", "inline-block", "shrink-0")
                 // Can't set 18px using Tailwind CSS classes.
                 .withStyle("width: 18px; height: 18px;"),
-            span(buttonText).withClass(Styles.TEXT_LEFT));
+            span(buttonText).withClass("text-left"));
   }
 
   public static enum BadgeStatus {
@@ -117,19 +117,19 @@ public final class ViewUtils {
     return p().withClasses(
             badgeBGColor,
             badgeFillColor,
-            Styles.FONT_MEDIUM,
-            Styles.ROUNDED_FULL,
-            Styles.FLEX,
-            Styles.FLEX_ROW,
-            Styles.GAP_X_2,
-            Styles.PLACE_ITEMS_CENTER,
-            Styles.JUSTIFY_CENTER,
-            Styles.H_10,
+            "font-medium",
+            "rounded-full",
+            "flex",
+            "flex-row",
+            "gap-x-2",
+            "place-items-center",
+            "justify-center",
+            "h-10",
             Joiner.on(" ").join(extraClasses))
         .withStyle("width: 100px")
         .with(
-            Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
-            span(badgeText).withClass(Styles.MR_4));
+            Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses("inline-block", "ml-3.5"),
+            span(badgeText).withClass("mr-4"));
   }
 
   /**
@@ -148,13 +148,13 @@ public final class ViewUtils {
             span(formattedUpdateTime)
                 .withClasses(
                     ReferenceClasses.BT_DATE,
-                    Styles.FONT_SEMIBOLD,
-                    Styles.HIDDEN,
-                    StyleUtils.responsiveLarge(Styles.INLINE)),
+                    "font-semibold",
+                    "hidden",
+                    StyleUtils.responsiveLarge("inline")),
             span(formattedUpdateDate)
                 .withClasses(
                     ReferenceClasses.BT_DATE,
-                    Styles.FONT_SEMIBOLD,
-                    StyleUtils.responsiveLarge(Styles.HIDDEN)));
+                    "font-semibold",
+                    StyleUtils.responsiveLarge("hidden")));
   }
 }

@@ -40,10 +40,10 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
   private static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
           ReferenceClasses.ENUMERATOR_FIELD,
-          Styles.GRID,
-          Styles.GRID_COLS_2,
-          Styles.GAP_4,
-          Styles.MB_4);
+          "grid",
+          "grid-cols-2",
+          "gap-4",
+          "mb-4");
 
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -89,7 +89,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
-                        StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400))
+                        StyleUtils.disabled("bg-gray-200", "text-gray-400"))
                     .with(
                         span("＋ ").attr("aria-hidden", "true"),
                         span(
@@ -104,7 +104,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                         question.getContextualizedPath(),
                         /* existingEntity= */ Optional.empty(),
                         /* existingIndex= */ Optional.empty(),
-                        /* extraStyle= */ Optional.of(Styles.HIDDEN),
+                        /* extraStyle= */ Optional.of("hidden"),
                         // Do not submit this with the form.
                         /* isDisabled= */ true,
                         hasErrors,
@@ -177,6 +177,6 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
         .withId(DELETE_ENTITY_TEMPLATE_ID)
         .withName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
         .isDisabled() // do not submit this with the form
-        .withClasses(Styles.HIDDEN);
+        .withClasses("hidden");
   }
 }

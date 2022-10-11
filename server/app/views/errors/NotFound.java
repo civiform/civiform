@@ -56,7 +56,7 @@ public final class NotFound extends BaseHtmlView {
   /** Page returned on 404 error */
   private DivTag mainContent(Messages messages) {
     return div(h1Content(messages), descriptionContent(messages))
-        .withClasses(Styles.TEXT_CENTER, Styles.MAX_W_SCREEN_SM, Styles.W_5_6, Styles.MX_AUTO);
+        .withClasses("text-center", "max-w-screen-sm", "w-5/6", "mx-auto");
   }
 
   private HtmlBundle addBodyFooter(Http.RequestHeader request, Messages messages) {

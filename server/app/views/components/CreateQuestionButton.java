@@ -30,15 +30,15 @@ public final class CreateQuestionButton {
         div()
             .withId(dropdownId)
             .withClasses(
-                Styles.Z_50,
-                Styles.BORDER,
-                Styles.BG_WHITE,
-                Styles.TEXT_GRAY_600,
-                Styles.SHADOW_LG,
-                Styles.ABSOLUTE,
-                Styles.ML_3,
-                Styles.MT_1,
-                Styles.HIDDEN);
+                "z-50",
+                "border",
+                "bg-white",
+                "text-gray-600",
+                "shadow-lg",
+                "absolute",
+                "ml-3",
+                "mt-1",
+                "hidden");
 
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
@@ -50,25 +50,25 @@ public final class CreateQuestionButton {
           a().withHref(link)
               .withId(String.format("create-%s-question", typeString))
               .withClasses(
-                  Styles.BLOCK,
-                  Styles.P_3,
-                  Styles.BG_WHITE,
-                  Styles.TEXT_GRAY_600,
-                  StyleUtils.hover(Styles.BG_GRAY_100, Styles.TEXT_GRAY_800))
+                  "block",
+                  "p-3",
+                  "bg-white",
+                  "text-gray-600",
+                  StyleUtils.hover("bg-gray-100", "text-gray-800"))
               .with(
                   Icons.questionTypeSvg(type)
                       .withClasses(
-                          Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6, Styles.MR_1, Styles.TEXT_SM))
+                          "inline-block", "h-6", "w-6", "mr-1", "text-sm"))
               .with(
                   p(type.getLabel())
                       .withClasses(
-                          Styles.ML_2,
-                          Styles.MR_4,
-                          Styles.INLINE,
-                          Styles.TEXT_SM,
-                          Styles.UPPERCASE));
+                          "ml-2",
+                          "mr-4",
+                          "inline",
+                          "text-sm",
+                          "uppercase"));
       dropdown.with(linkTag);
     }
-    return div().withClasses(Styles.RELATIVE).with(createNewQuestionButton, dropdown);
+    return div().withClasses("relative").with(createNewQuestionButton, dropdown);
   }
 }

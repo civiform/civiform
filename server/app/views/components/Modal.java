@@ -69,8 +69,8 @@ public final class Modal {
   private DivTag getModalHeader() {
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
-        .with(div(modalTitle).withClasses(Styles.TEXT_LG))
-        .with(div().withClasses(Styles.FLEX_GROW))
+        .with(div(modalTitle).withClasses("text-lg"))
+        .with(div().withClasses("flex-grow"))
         .with(
             Icons.svg(Icons.CLOSE)
                 .withClasses(ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON));
@@ -147,11 +147,11 @@ public final class Modal {
   }
 
   public enum Width {
-    DEFAULT(Styles.W_AUTO),
-    HALF(Styles.W_1_2),
-    THIRD(Styles.W_1_3),
-    FOURTH(Styles.W_1_4),
-    THREE_FOURTHS(Styles.W_9_12);
+    DEFAULT("w-auto"),
+    HALF("w-1/2"),
+    THIRD("w-1/3"),
+    FOURTH("w-1/4"),
+    THREE_FOURTHS("w-9/12");
 
     private final String width;
 

@@ -49,7 +49,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .withName(multiOptionQuestion.getSelectionPathAsArray())
                     .withValue("")
                     .withCondChecked(!multiOptionQuestion.hasValue())
-                    .withClasses(ReferenceClasses.RADIO_DEFAULT, Styles.HIDDEN))
+                    .withClasses(ReferenceClasses.RADIO_DEFAULT, "hidden"))
             .with(
                 multiOptionQuestion.getOptions().stream()
                     .sorted(Comparator.comparing(LocalizedQuestionOption::order))
@@ -86,7 +86,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                 span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
     return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, Styles.MY_2, Styles.RELATIVE)
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "my-2", "relative")
         .with(labelTag);
   }
 }

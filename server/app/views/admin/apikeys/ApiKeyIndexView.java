@@ -52,16 +52,16 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     String title = "API Keys";
     DivTag headerDiv =
         div()
-            .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN, Styles.MY_8)
+            .withClasses("flex", "place-content-between", "my-8")
             .with(
-                h1(title).withClasses(Styles.MY_4),
+                h1(title).withClasses("my-4"),
                 new LinkElement()
                     .setHref(controllers.admin.routes.AdminApiKeysController.newOne().url())
                     .setId("new-api-key-button")
                     .setText("New API Key")
                     .asButton());
 
-    DivTag contentDiv = div().withClasses(Styles.PX_20).with(headerDiv);
+    DivTag contentDiv = div().withClasses("px-20").with(headerDiv);
 
     for (ApiKey apiKey : apiKeyPaginationResult.getPageContents()) {
       contentDiv.with(renderApiKey(request, apiKey, buildProgramSlugToName(allProgramNames)));
@@ -86,9 +86,9 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                         .orElse("Last used by N/A"))
                     .withId(keyNameSlugified + "-last-call-ip"),
                 p("Call count: " + apiKey.getCallCount()).withId(keyNameSlugified + "-call-count"))
-            .withClasses(Styles.TEXT_XS);
+            .withClasses("text-xs");
 
-    DivTag linksDiv = div().withClasses(Styles.FLEX);
+    DivTag linksDiv = div().withClasses("flex");
 
     if (apiKey.isRetired()) {
       statsDiv.with(p("Retired " + dateConverter.formatRfc1123(apiKey.getRetiredTime().get())));
@@ -113,20 +113,20 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                 div(
                     div(
                         p("ID: " + apiKey.getKeyId())
-                            .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_SM),
+                            .withClasses("text-gray-700", "text-sm"),
                         p("Allowed subnet: " + apiKey.getSubnet())
-                            .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_SM))),
+                            .withClasses("text-gray-700", "text-sm"))),
                 statsDiv)
-            .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN);
+            .withClasses("flex", "place-content-between");
 
     TableTag grantsTable =
         table()
-            .withClasses(Styles.TABLE_AUTO, Styles.W_2_3)
+            .withClasses("table-auto", "w-2/3")
             .with(
                 tr(
-                    th("Program name").withClasses(Styles.TEXT_LEFT, Styles.TEXT_SM),
-                    th("Program slug").withClasses(Styles.TEXT_LEFT, Styles.TEXT_SM),
-                    th("Permission").withClasses(Styles.TEXT_LEFT, Styles.TEXT_SM)));
+                    th("Program name").withClasses("text-left", "text-sm"),
+                    th("Program slug").withClasses("text-left", "text-sm"),
+                    th("Permission").withClasses("text-left", "text-sm")));
 
     apiKey
         .getGrants()
@@ -142,22 +142,22 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
     DivTag bottomDiv =
         div(grantsTable, linksDiv)
-            .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN, Styles.MT_4);
+            .withClasses("flex", "place-content-between", "mt-4");
 
     DivTag content =
         div()
             .withClasses(
-                Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4)
+                "border", "border-gray-300", "bg-white", "rounded", "p-4")
             .with(
                 h2().with(
                         text(apiKey.getName()),
                         span(apiKey.isRetired() ? " retired" : " active")
-                            .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_SM))
-                    .withClasses(Styles.MB_2, ReferenceClasses.ADMIN_API_KEY_INDEX_ENTRY_NAME),
+                            .withClasses("text-gray-700", "text-sm"))
+                    .withClasses("mb-2", ReferenceClasses.ADMIN_API_KEY_INDEX_ENTRY_NAME),
                 topRowDiv,
                 bottomDiv);
 
-    return div(content).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_6);
+    return div(content).withClasses("w-full", "shadow-lg", "mb-6");
   }
 
   private ImmutableMap<String, String> buildProgramSlugToName(ImmutableSet<String> programNames) {

@@ -33,11 +33,11 @@ public final class QuestionConfig {
 
   private static final String INNER_DIV_CLASSES =
       StyleUtils.joinStyles(
-          Styles.BORDER, Styles.BG_GRAY_100,
-          Styles.P_4, Styles.M_4);
+          "border", "bg-gray-100",
+          "p-4", "m-4");
 
   private static final String OUTER_DIV_CLASSES =
-      StyleUtils.joinStyles(Styles.W_FULL, Styles.PT_0, Styles._MT_4);
+      StyleUtils.joinStyles("w-full", "pt-0", "-mt-4");
 
   private DivTag content = div();
 
@@ -172,7 +172,7 @@ public final class QuestionConfig {
                 ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
             .showFieldErrors(false)
             .getInputTag()
-            .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
+            .withClasses("flex", "ml-2", "gap-x-3");
     DivTag optionIndexInput =
         isForNewOption
             ? div()
@@ -181,18 +181,18 @@ public final class QuestionConfig {
                 .setValue(String.valueOf(existingOption.get().id()))
                 .setScreenReaderText("option ids")
                 .getInputTag()
-                .withClasses(Styles.HIDDEN);
+                .withClasses("hidden");
     ButtonTag removeOptionButton =
         button("Remove")
             .withType("button")
-            .withClasses(Styles.FLEX, Styles.ML_4, "multi-option-question-field-remove-button");
+            .withClasses("flex", "ml-4", "multi-option-question-field-remove-button");
 
     return div()
         .withClasses(
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-            Styles.FLEX,
-            Styles.FLEX_ROW,
-            Styles.MB_4)
+            "flex",
+            "flex-row",
+            "mb-4")
         .with(optionInput, optionIndexInput, removeOptionButton);
   }
 
@@ -234,7 +234,7 @@ public final class QuestionConfig {
             button("Add answer option")
                 .withType("button")
                 .withId("add-new-option")
-                .withClasses(Styles.M_2));
+                .withClasses("m-2"));
     return this;
   }
 

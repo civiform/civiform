@@ -29,50 +29,50 @@ public final class LinkElement {
 
   private static final String DEFAULT_LINK_BUTTON_STYLES =
       StyleUtils.joinStyles(
-          Styles.FLOAT_LEFT,
-          Styles.INLINE_BLOCK,
-          Styles.CURSOR_POINTER,
-          Styles.P_2,
-          Styles.M_2,
-          Styles.ROUNDED_MD,
-          Styles.RING_BLUE_200,
-          Styles.RING_OFFSET_2,
-          Styles.BORDER,
-          Styles.BORDER_TRANSPARENT,
+          "float-left",
+          "inline-block",
+          "cursor-pointer",
+          "p-2",
+          "m-2",
+          "rounded-md",
+          "ring-blue-200",
+          "ring-offset-2",
+          "border",
+          "border-transparent",
           BaseStyles.BG_SEATTLE_BLUE,
-          Styles.TEXT_WHITE,
-          StyleUtils.hover(Styles.BG_BLUE_700),
-          StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));
+          "text-white",
+          StyleUtils.hover("bg-blue-700"),
+          StyleUtils.focus("outline-none", "ring-2"));
   private static final String RIGHT_ALIGNED_LINK_BUTTON_STYLES =
       StyleUtils.joinStyles(
-          Styles.FLOAT_RIGHT,
-          Styles.INLINE_BLOCK,
-          Styles.CURSOR_POINTER,
-          Styles.P_2,
-          Styles.M_2,
-          Styles.ROUNDED_MD,
-          Styles.RING_BLUE_200,
-          Styles.RING_OFFSET_2,
-          Styles.BORDER,
-          Styles.BORDER_TRANSPARENT,
+          "float-right",
+          "inline-block",
+          "cursor-pointer",
+          "p-2",
+          "m-2",
+          "rounded-md",
+          "ring-blue-200",
+          "ring-offset-2",
+          "border",
+          "border-transparent",
           BaseStyles.BG_SEATTLE_BLUE,
-          Styles.TEXT_WHITE,
-          StyleUtils.hover(Styles.BG_BLUE_700),
-          StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));
+          "text-white",
+          StyleUtils.hover("bg-blue-700"),
+          StyleUtils.focus("outline-none", "ring-2"));
 
   private static final String DEFAULT_LINK_STYLES =
       StyleUtils.joinStyles(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
 
   private static final String BUTTON_LOOKS_LIKE_LINK_STYLES =
       StyleUtils.joinStyles(
-          Styles.BORDER_NONE,
-          Styles.CURSOR_POINTER,
-          Styles.BG_TRANSPARENT,
-          StyleUtils.hover(Styles.BG_TRANSPARENT),
+          "border-none",
+          "cursor-pointer",
+          "bg-transparent",
+          StyleUtils.hover("bg-transparent"),
           DEFAULT_LINK_STYLES,
-          Styles.P_0,
-          Styles.MR_2,
-          Styles.FONT_NORMAL);
+          "p-0",
+          "mr-2",
+          "font-normal");
 
   private String id = "";
   private String text = "";
@@ -198,7 +198,7 @@ public final class LinkElement {
                 button(TagCreator.text(text))
                     .withClasses(BUTTON_LOOKS_LIKE_LINK_STYLES)
                     .withType("submit"))
-            .withClasses(Styles.INLINE)
+            .withClasses("inline")
             .withMethod("POST")
             .withCondOnsubmit(!Strings.isNullOrEmpty(onsubmit), onsubmit)
             .withAction(href)

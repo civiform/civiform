@@ -107,12 +107,12 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
 
     DivTag content =
         div()
-            .withClasses(Styles.MX_6, Styles.MY_10, Styles.FLEX, Styles.FLEX_COL, Styles.GAP_6)
+            .withClasses("mx-6", "my-10", "flex", "flex-col", "gap-6")
             .with(
                 div()
-                    .withClasses(Styles.FLEX, Styles.FLEX_ROW)
-                    .with(h1(title).withClasses(Styles.FONT_BOLD, Styles.TEXT_XL))
-                    .with(div().withClasses(Styles.FLEX_GROW))
+                    .withClasses("flex", "flex-row")
+                    .with(h1(title).withClasses("font-bold", "text-xl"))
+                    .with(div().withClasses("flex-grow"))
                     .with(
                         new LinkElement()
                             .setHref(editBlockUrl)
@@ -122,7 +122,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                 div()
                     .with(
                         h2(H2_CURRENT_VISIBILITY_CONDITION)
-                            .withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))
+                            .withClasses("font-semibold", "text-lg"))
                     .with(
                         div(blockDefinition.visibilityPredicate().isPresent()
                                 ? blockDefinition
@@ -137,8 +137,8 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                 div()
                     .with(
                         h2(H2_NEW_VISIBILITY_CONDITION)
-                            .withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))
-                    .with(div(TEXT_NEW_VISIBILITY_CONDITION).withClasses(Styles.MB_2))
+                            .withClasses("font-semibold", "text-lg"))
+                    .with(div(TEXT_NEW_VISIBILITY_CONDITION).withClasses("mb-2"))
                     .with(
                         modals.isEmpty()
                             ? text(TEXT_NO_AVAILABLE_QUESTIONS)
@@ -189,22 +189,22 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
         TagCreator.button()
             .with(
                 div()
-                    .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+                    .withClasses("flex", "flex-row", "gap-4")
                     .with(
                         Icons.questionTypeSvg(questionDefinition.getQuestionType())
-                            .withClasses(Styles.SHRINK_0, Styles.H_12, Styles.W_6))
+                            .withClasses("shrink-0", "h-12", "w-6"))
                     .with(
                         div()
-                            .withClasses(Styles.TEXT_LEFT)
+                            .withClasses("text-left")
                             .with(
                                 div(questionDefinition.getQuestionText().getDefault()),
-                                div(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM),
+                                div(questionHelpText).withClasses("mt-1", "text-sm"),
                                 div(String.format("Admin ID: %s", questionDefinition.getName()))
-                                    .withClasses(Styles.MT_1, Styles.TEXT_SM))));
+                                    .withClasses("mt-1", "text-sm"))));
 
     DivTag modalContent =
         div()
-            .withClasses(Styles.M_4)
+            .withClasses("m-4")
             .with(renderPredicateForm(blockName, questionDefinition, predicateUpdateUrl, csrfTag));
 
     return Modal.builder(
@@ -235,7 +235,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
         .with(
             div()
                 .withClasses(
-                    ReferenceClasses.PREDICATE_OPTIONS, Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_1)
+                    ReferenceClasses.PREDICATE_OPTIONS, "flex", "flex-row", "gap-1")
                 .with(createScalarDropdown(questionDefinition))
                 .with(createOperatorDropdown())
                 .with(createValueField(questionDefinition)))
@@ -244,7 +244,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
 
   private DivTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
     return div()
-        .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_2)
+        .withClasses("flex", "flex-col", "gap-2")
         .with(each(modals, modal -> modal.getButton()));
   }
 
@@ -255,24 +255,24 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             : questionDefinition.getQuestionHelpText().getDefault();
     return div()
         .withClasses(
-            Styles.FLEX,
-            Styles.FLEX_ROW,
-            Styles.GAP_4,
-            Styles.PX_4,
-            Styles.PY_2,
-            Styles.MY_2,
-            Styles.BORDER,
-            Styles.BORDER_GRAY_200)
+            "flex",
+            "flex-row",
+            "gap-4",
+            "px-4",
+            "py-2",
+            "my-2",
+            "border",
+            "border-gray-200")
         .with(
             Icons.questionTypeSvg(questionDefinition.getQuestionType())
-                .withClasses(Styles.SHRINK_0, Styles.H_12, Styles.W_6))
+                .withClasses("shrink-0", "h-12", "w-6"))
         .with(
             div()
                 .with(
                     div(questionDefinition.getQuestionText().getDefault()),
-                    div(questionHelpText).withClasses(Styles.MT_1, Styles.TEXT_SM),
+                    div(questionHelpText).withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
-                        .withClasses(Styles.MT_1, Styles.TEXT_SM)));
+                        .withClasses("mt-1", "text-sm")));
   }
 
   private DivTag createActionDropdown(String blockName) {
@@ -384,8 +384,8 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
               div()
                   .withClasses(
                       ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
-                      Styles.HIDDEN,
-                      Styles.TEXT_XS,
+                      "hidden",
+                      "text-xs",
                       BaseStyles.FORM_LABEL_TEXT_COLOR)
                   .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
     }

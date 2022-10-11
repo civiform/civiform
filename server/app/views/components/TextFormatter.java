@@ -94,12 +94,12 @@ public final class TextFormatter {
             .with(
                 Icons.svg(Icons.OPEN_IN_NEW)
                     .withClasses(
-                        Styles.SHRINK_0,
-                        Styles.H_5,
-                        Styles.W_AUTO,
-                        Styles.INLINE,
-                        Styles.ML_1,
-                        Styles.ALIGN_TEXT_TOP));
+                        "shrink-0",
+                        "h-5",
+                        "w-auto",
+                        "inline",
+                        "ml-1",
+                        "align-text-top"));
       }
       contentBuilder.add(urlTag);
 
@@ -144,7 +144,7 @@ public final class TextFormatter {
             TextFormatter.createLinksAndEscapeText(line, UrlOpenAction.NewTab);
         builder.add(div().with(lineContent));
       } else if (preserveEmptyLines) {
-        builder.add(div().withClasses(Styles.H_6));
+        builder.add(div().withClasses("h-6"));
       }
     }
     return builder.build();
@@ -158,7 +158,7 @@ public final class TextFormatter {
   }
 
   private static UlTag buildList(ArrayList<String> items) {
-    UlTag listTag = ul().withClasses(Styles.LIST_DISC, Styles.MX_8);
+    UlTag listTag = ul().withClasses("list-disc", "mx-8");
     items.forEach(item -> listTag.with(li().withText(item)));
     return listTag;
   }

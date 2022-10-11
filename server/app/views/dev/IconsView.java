@@ -49,7 +49,7 @@ public final class IconsView extends BaseHtmlView {
   private TrTag renderIconRow(Icons icon) {
     return tr().with(
             td(icon.name()),
-            td(Icons.svg(icon).withClasses(Styles.H_6, Styles.W_6)),
+            td(Icons.svg(icon).withClasses("h-6", "w-6")),
             td(p("").withClass("icon-width")),
             td(p("").withClass("icon-height")));
   }

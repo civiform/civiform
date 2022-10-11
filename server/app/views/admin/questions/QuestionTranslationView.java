@@ -155,7 +155,7 @@ public final class QuestionTranslationView extends TranslationFormView {
                         controllers.admin.routes.AdminQuestionController.edit(
                                 questionDefinition.getId())
                             .url())
-                    .setStyles(Styles.ML_2)
+                    .setStyles("ml-2")
                     .asAnchorText()),
         fields.build());
   }

@@ -30,7 +30,7 @@ import views.style.Styles;
 public class ManageProgramAdminsView extends BaseHtmlView {
 
   private static final String EMAIL_FIELD_STYLES =
-      StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW);
+      StyleUtils.joinStyles("flex", "flex-row");
   private static final String PAGE_TITLE = "Manage Admins for Program: ";
   private static final String ADD_ADMIN_BUTTON = "Add admin";
   private static final String SUBMIT_BUTTON = "Save";
@@ -84,16 +84,16 @@ public class ManageProgramAdminsView extends BaseHtmlView {
     DivTag emailFields =
         div()
             .withId(EMAIL_CONTAINER_DIV_ID)
-            .withClasses(Styles.ML_4)
+            .withClasses("ml-4")
             .with(each(existingAdminEmails, email -> adminEmailInput(Optional.of(email))))
-            .with(button(ADD_ADMIN_BUTTON).withId(ADD_BUTTON_ID).withClasses(Styles.MY_2));
+            .with(button(ADD_ADMIN_BUTTON).withId(ADD_BUTTON_ID).withClasses("my-2"));
 
     return form()
         .with(makeCsrfTokenInputTag(request))
         .withAction(routes.ProgramAdminManagementController.update(programId).url())
         .withMethod("POST")
         .with(emailFields)
-        .with(submitButton(SUBMIT_BUTTON).withClasses(Styles.MY_4));
+        .with(submitButton(SUBMIT_BUTTON).withClasses("my-4"));
   }
 
   private DivTag adminEmailInput(Optional<String> existing) {
@@ -112,11 +112,11 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             // If there is an existing value, do not allow changes in the input field.
             .setDisabled(existing.isPresent())
             .getEmailTag()
-            .withClasses(Styles.FLEX, Styles.M_2);
+            .withClasses("flex", "m-2");
 
     ButtonTag removeAdminButton =
         button(REMOVE_BUTTON)
-            .withClasses(ReferenceClasses.PROGRAM_ADMIN_REMOVE_BUTTON, Styles.FLEX, Styles.M_2);
+            .withClasses(ReferenceClasses.PROGRAM_ADMIN_REMOVE_BUTTON, "flex", "m-2");
 
     return div().with(input, removeAdminButton).withClasses(EMAIL_FIELD_STYLES);
   }
@@ -125,6 +125,6 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   private DivTag adminEmailTemplate() {
     return adminEmailInput(Optional.empty())
         .withId(EMAIL_INPUT_TEMPLATE_ID)
-        .withClasses(Styles.HIDDEN, EMAIL_FIELD_STYLES);
+        .withClasses("hidden", EMAIL_FIELD_STYLES);
   }
 }

@@ -73,7 +73,7 @@ public final class ProgramEditView extends ProgramFormBuilder {
         .setId("manage-questions-link")
         .setHref(manageQuestionLink)
         .setText("Manage Questions →")
-        .setStyles(Styles.MX_4, Styles.FLOAT_RIGHT)
+        .setStyles("mx-4", "float-right")
         .asAnchorText();
   }
 }

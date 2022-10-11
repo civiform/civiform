@@ -18,13 +18,13 @@ abstract class ProgramBlockView extends BaseHtmlView {
     DivTag programTitle =
         div(programDefinition.adminName())
             .withId("program-title")
-            .withClasses(Styles.TEXT_3XL, Styles.PB_3);
+            .withClasses("text-3xl", "pb-3");
     DivTag programDescription =
-        div(programDefinition.adminDescription()).withClasses(Styles.TEXT_SM);
+        div(programDefinition.adminDescription()).withClasses("text-sm");
 
     ButtonTag editDetailsButton =
         ViewUtils.makeSvgTextButton("Edit program details", Icons.EDIT)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_5);
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-5");
     asRedirectElement(
         editDetailsButton,
         controllers.admin.routes.AdminProgramController.edit(programDefinition.id()).url());
@@ -35,11 +35,11 @@ abstract class ProgramBlockView extends BaseHtmlView {
             programDescription,
             editDetailsButton)
         .withClasses(
-            Styles.BG_GRAY_100,
-            Styles.TEXT_GRAY_800,
-            Styles.SHADOW_MD,
-            Styles.P_8,
-            Styles.PT_4,
-            Styles._MX_2);
+            "bg-gray-100",
+            "text-gray-800",
+            "shadow-md",
+            "p-8",
+            "pt-4",
+            "-mx-2");
   }
 }

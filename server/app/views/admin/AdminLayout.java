@@ -88,24 +88,24 @@ public final class AdminLayout extends BaseHtmlLayout {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     DivTag headerIcon =
-        div(span("C"), span("F").withClasses(Styles.FONT_THIN))
+        div(span("C"), span("F").withClasses("font-thin"))
             .withClasses(AdminStyles.ADMIN_NAV_BAR);
     DivTag headerTitle =
         div()
             .withClasses(
-                Styles.FONT_NORMAL,
-                Styles.TEXT_XL,
-                Styles.INLINE,
-                Styles.PL_10,
-                Styles.PY_0,
-                Styles.MR_4)
-            .with(span("Civi"), span("Form").withClasses(Styles.FONT_THIN));
+                "font-normal",
+                "text-xl",
+                "inline",
+                "pl-10",
+                "py-0",
+                "mr-4")
+            .with(span("Civi"), span("Form").withClasses("font-thin"));
 
     NavTag adminHeader = nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
 
     // Don't include nav links for program admin.
     if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
-      return adminHeader.with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
+      return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
     }
 
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
@@ -116,8 +116,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     String activeNavStyle =
         StyleUtils.joinStyles(
             BaseStyles.TEXT_SEATTLE_BLUE,
-            Styles.FONT_MEDIUM,
-            Styles.BORDER_B_2,
+            "font-medium",
+            "border-b-2",
             BaseStyles.BORDER_SEATTLE_BLUE);
 
     return adminHeader
@@ -137,16 +137,16 @@ public final class AdminLayout extends BaseHtmlLayout {
         .with(
             headerLink(
                 "API keys", apiKeysLink, activeNavPage == NavPage.API_KEYS ? activeNavStyle : ""))
-        .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
+        .with(headerLink("Logout", logoutLink, "float-right"));
   }
 
   private ATag headerLink(String text, String href, String... styles) {
     return a(text)
         .withHref(href)
         .withClasses(
-            Styles.PX_3,
-            Styles.OPACITY_75,
-            StyleUtils.hover(Styles.OPACITY_100),
+            "px-3",
+            "opacity-75",
+            StyleUtils.hover("opacity-100"),
             StyleUtils.joinStyles(styles));
   }
 }

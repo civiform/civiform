@@ -94,7 +94,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                             new LinkElement()
                                 .setText("(edit default)")
                                 .setHref(programDetailsLink)
-                                .setStyles(Styles.ML_2)
+                                .setStyles("ml-2")
                                 .asAnchorText()),
                     ImmutableList.of(
                         fieldWithDefaultLocaleTextHint(
@@ -163,7 +163,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                         new LinkElement()
                             .setText("(edit default)")
                             .setHref(programStatusesLink)
-                            .setStyles(Styles.ML_2)
+                            .setStyles("ml-2")
                             .asAnchorText()),
                 fieldsBuilder.build()));
       }

@@ -56,9 +56,9 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
     String title = "Your programs";
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_20)
+            .withClasses("px-20")
             .with(
-                h1(title).withClasses(Styles.MY_4),
+                h1(title).withClasses("my-4"),
                 each(
                     programs.getActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
