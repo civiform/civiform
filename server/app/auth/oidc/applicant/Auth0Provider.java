@@ -31,7 +31,7 @@ public class Auth0Provider extends GenericOidcProvider {
 
   @Override
   protected Optional<String> getProviderName() {
-    return getConfigurationValue("Auth0");
+    return Optional.of("Auth0");
   }
 
   @Override

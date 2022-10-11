@@ -58,6 +58,11 @@ public class Auth0ProviderTest extends ResetPostgres {
   }
 
   @Test
+  public void testProviderName() {
+    assertThat(auth0Provider.getProviderName()).contains("Auth0");
+  }
+
+  @Test
   public void testLogout() throws Exception {
     String afterLogoutUri = "https://civiform.dev";
     var logoutAction =
