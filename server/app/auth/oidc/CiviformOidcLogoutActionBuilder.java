@@ -38,7 +38,7 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
-  private final Optional<String> postLogoutRedirectParam;
+  private String postLogoutRedirectParam;
   private ImmutableMap<String, String> extraParams;
   private Optional<ValueGenerator> stateGenerator = Optional.empty();
 
@@ -46,8 +46,10 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
       Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientID) {
     super(oidcConfiguration);
     checkNotNull(civiformConfiguration);
+    // Use `post_logout_redirect_uri` by default according OIDC spec.
     this.postLogoutRedirectParam =
-        getConfigurationValue(civiformConfiguration, "auth.oidc_post_logout_param");
+        getConfigurationValue(civiformConfiguration, "auth.oidc_post_logout_param")
+            .orElse("post_logout_redirect_uri");
     Optional<String> clientIdParam =
         getConfigurationValue(civiformConfiguration, "auth.oidc_logout_client_id_param");
 
@@ -77,9 +79,6 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
    * "maintain state between the logout request and the callback" as specified by the spec.
    */
   public CiviformOidcLogoutActionBuilder setStateGenerator(final ValueGenerator stateGenerator) {
-    if (stateGenerator == null) {
-      this.stateGenerator = Optional.empty();
-    }
     this.stateGenerator = Optional.of(stateGenerator);
     return this;
   }
@@ -90,6 +89,16 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
    */
   public CiviformOidcLogoutActionBuilder setExtraParams(ImmutableMap<String, String> extraParams) {
     this.extraParams = extraParams;
+    return this;
+  }
+
+  /**
+   * Sets param that contains uri that user will be redirected to after they are logged out from the
+   * auth provider. In OIDC spec it should be `post_logout_redirect_uri` but some providers use
+   * different value.
+   */
+  public CiviformOidcLogoutActionBuilder setPostLogoutRedirectParam(String param) {
+    this.postLogoutRedirectParam = param;
     return this;
   }
 
@@ -115,7 +124,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
                 endSessionEndpoint,
-                postLogoutRedirectParam.orElse(null),
+                postLogoutRedirectParam,
                 new URI(targetUrl),
                 extraParams,
                 state);
