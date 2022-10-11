@@ -212,4 +212,10 @@ public final class AddressQuestion extends Question {
     return ImmutableList.of(
         getStreetPath(), getLine2Path(), getCityPath(), getStatePath(), getZipPath());
   }
+
+  public Optional<String> getDefaultState() {
+
+    AddressQuestionDefinition definition = getQuestionDefinition();
+    return definition.getDefaultState();
+  }
 }

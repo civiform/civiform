@@ -4,18 +4,24 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
+import java.util.Optional;
+
 /** Form for updating an address question. */
 public class AddressQuestionForm extends QuestionForm {
   private boolean disallowPoBox;
 
+  private Optional<String> defaultState;
+
   public AddressQuestionForm() {
     super();
     this.disallowPoBox = false;
+    this.defaultState = Optional.empty();
   }
 
   public AddressQuestionForm(AddressQuestionDefinition qd) {
     super(qd);
     this.disallowPoBox = qd.getDisallowPoBox();
+    this.defaultState = qd.getDefaultState();
   }
 
   @Override
@@ -29,6 +35,13 @@ public class AddressQuestionForm extends QuestionForm {
 
   public void setDisallowPoBox(boolean disallowPoBox) {
     this.disallowPoBox = disallowPoBox;
+  }
+  public void setDefaultState(String defaultState) {
+    this.defaultState = Optional.ofNullable(defaultState);
+  }
+
+  public Optional<String> getDefaultState() {
+    return defaultState;
   }
 
   @Override

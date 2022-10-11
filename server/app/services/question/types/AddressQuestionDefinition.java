@@ -72,15 +72,20 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
     }
 
     public static AddressValidationPredicates create() {
-      return builder().setDisallowPoBox(false).build();
+      return builder().setDisallowPoBox(false).setDefaultState("").build();
     }
 
     public static AddressValidationPredicates create(boolean disallowPoBox) {
-      return builder().setDisallowPoBox(disallowPoBox).build();
+      return builder().setDisallowPoBox(disallowPoBox).setDefaultState("").build();
+    }
+    public static AddressValidationPredicates create(boolean disallowPoBox, String defaultState) {
+      return builder().setDisallowPoBox(disallowPoBox).setDefaultState(defaultState).build();
     }
 
     @JsonProperty("disallowPoBox")
     public abstract Optional<Boolean> disallowPoBox();
+    @JsonProperty("defaultState")
+    public abstract Optional<String> defaultState();
 
     public static Builder builder() {
       return new AutoValue_AddressQuestionDefinition_AddressValidationPredicates.Builder();
@@ -93,6 +98,9 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
       public abstract Builder setDisallowPoBox(boolean disallowPoBox);
 
       public abstract AddressValidationPredicates build();
+
+      @JsonProperty("defaultState")
+      public abstract Builder setDefaultState(String defaultState);
     }
   }
 
@@ -107,5 +115,8 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
 
   public boolean getDisallowPoBox() {
     return getAddressValidationPredicates().disallowPoBox().orElse(false);
+  }
+  public Optional<String> getDefaultState() {
+    return getAddressValidationPredicates().defaultState();
   }
 }

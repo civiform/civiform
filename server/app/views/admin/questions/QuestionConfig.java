@@ -91,9 +91,10 @@ public final class QuestionConfig {
     content.with(
         new SelectWithLabel()
             .setFieldName("defaultState")
+          .setId("default-state-address-input")
             .setLabelText("Default state")
             .setOptions(stateOptions())
-            .setValue("-")
+            .setValue(addressQuestionForm.getDefaultState().orElse(""))
             .getSelectTag(),
         FieldWithLabel.checkbox()
             .setFieldName("disallowPoBox")
@@ -293,7 +294,7 @@ public final class QuestionConfig {
    */
   private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
     return ImmutableList.of(
-        SelectWithLabel.OptionValue.builder().setLabel("-- Leave blank --").setValue("-").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Washington").setValue("WA").build());
+        SelectWithLabel.OptionValue.builder().setLabel("-- Leave blank --").setValue("").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("Washington").setValue("Washington").build());
   }
 }

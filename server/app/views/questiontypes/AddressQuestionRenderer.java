@@ -72,7 +72,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getStatePath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
-            .setValue(addressQuestion.getStateValue().orElse(""))
+            .setValue(addressQuestion.getDefaultState().orElse(""))
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(addressQuestion.getStatePath(), ImmutableSet.of()))

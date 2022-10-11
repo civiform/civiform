@@ -91,7 +91,6 @@ public final class ApplicantQuestionRendererFactory {
     if (questionType.equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(LocalizedStrings.withDefaultValue("Sample repeated entity type"));
     }
-
     return builder.build();
   }
 }
