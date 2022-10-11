@@ -12,7 +12,7 @@ ENV JAVA_FORMATTER_URL "https://github.com/google/google-java-format/releases/do
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar
 
 RUN apk update && apk add --no-cache --update \
-  openjdk11 bash wget npm shfmt git py3-pip
+  openjdk11 bash wget npm shfmt git py3-pip terraform
 
 RUN pip install yapf
 RUN npm install --global yarn

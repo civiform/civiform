@@ -35,7 +35,7 @@ import views.components.ToastMessage;
 import views.style.BaseStyles;
 
 /** The HtmlBundle class stores all of the data necessary for rendering a page. */
-public class HtmlBundle {
+public final class HtmlBundle {
   private static final Logger logger = LoggerFactory.getLogger(HtmlBundle.class);
 
   private String pageTitle;

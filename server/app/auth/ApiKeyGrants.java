@@ -15,7 +15,7 @@ import com.google.common.collect.Multimap;
  * "utility-discount" program with "read" ability. Multiple permissions may be stored for the same
  * resource. E.g. having both the "read" and "write" permission for a given resource.
  */
-public class ApiKeyGrants {
+public final class ApiKeyGrants {
 
   /** Enumerates the abilities an ApiKey may have with respect to a resource. */
   public enum Permission {

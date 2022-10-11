@@ -9,7 +9,7 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** ToastMessages are messages that appear on the screen to show information to the user. */
-public class ToastMessage {
+public final class ToastMessage {
 
   public enum ToastType {
     ALERT,

@@ -33,7 +33,7 @@ import services.program.ProgramService;
 import services.question.LocalizedQuestionOption;
 
 /** Exports all applications for a given program as JSON. */
-public class JsonExporter {
+public final class JsonExporter {
 
   private final ApplicantService applicantService;
   private final ProgramService programService;

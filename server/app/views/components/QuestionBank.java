@@ -36,7 +36,7 @@ import views.style.Styles;
 public final class QuestionBank {
   private static final SvgTag PLUS_ICON =
       Icons.svg(Icons.PLUS)
-          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_5)
+          .withClasses(Styles.SHRINK_0, Styles.H_12, Styles.W_5)
           .attr("fill", "currentColor")
           .attr("stroke-width", "2")
           .attr("stroke-linecap", "round")
@@ -152,7 +152,7 @@ public final class QuestionBank {
 
     SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType())
-            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+            .withClasses(Styles.SHRINK_0, Styles.H_12, Styles.W_6);
     String questionHelpText =
         definition.getQuestionHelpText().isEmpty()
             ? ""

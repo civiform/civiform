@@ -27,7 +27,7 @@ import views.style.Styles;
  * Contains functions for rendering language-related components. These are used to allow an
  * applicant to select their preferred language.
  */
-public class LanguageSelector {
+public final class LanguageSelector {
 
   public final ImmutableList<Locale> supportedLanguages;
   private final MessagesApi messagesApi;
@@ -54,12 +54,20 @@ public class LanguageSelector {
                 Styles.PX_3,
                 Styles.MX_3,
                 Styles.PY_1,
-                Styles.BORDER,
-                Styles.BORDER_GRAY_500,
-                Styles.ROUNDED_FULL,
-                Styles.BG_WHITE,
                 Styles.TEXT_XS,
-                StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
+                Styles.ROUNDED_FULL,
+                Styles.BORDER,
+                // On hover/focus, invert the colors to make the focus state visually distinctive.
+                // See https://github.com/civiform/civiform/issues/3558.
+                Styles.BORDER_GRAY_500,
+                StyleUtils.focus(Styles.BORDER_BLACK),
+                StyleUtils.hover(Styles.BORDER_BLACK),
+                Styles.BG_WHITE,
+                StyleUtils.focus(Styles.BG_BLACK),
+                StyleUtils.hover(Styles.BG_BLACK),
+                Styles.TEXT_BLACK,
+                StyleUtils.focus(Styles.TEXT_WHITE),
+                StyleUtils.hover(Styles.TEXT_WHITE));
 
     // An option consists of the language (localized to that language - for example,
     // this would display 'Español' for es-US), and the value is the ISO code.
@@ -68,7 +76,7 @@ public class LanguageSelector {
             locale -> {
               String value = locale.toLanguageTag();
               String label = formatLabel(locale);
-              OptionTag optionTag = option(label).withValue(value);
+              OptionTag optionTag = option(label).withLang(value).withValue(value);
               if (value.equals(preferredLanguage)) {
                 optionTag.isSelected();
               }
@@ -85,23 +93,23 @@ public class LanguageSelector {
                 options.with(
                     renderRadioOption(
                         formatLabel(locale),
-                        locale.toLanguageTag(),
+                        locale,
                         locale.toLanguageTag().equals(preferredLanguage))));
     return options;
   }
 
-  private DivTag renderRadioOption(String text, String value, boolean checked) {
+  private DivTag renderRadioOption(String text, Locale locale, boolean checked) {
     LabelTag labelTag =
         label()
+            .withLang(locale.toLanguageTag())
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
-                BaseStyles.RADIO_LABEL,
-                checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+                checked ? BaseStyles.RADIO_LABEL_SELECTED : BaseStyles.RADIO_LABEL)
             .with(
                 input()
                     .withType("radio")
                     .withName("locale")
-                    .withValue(value)
+                    .withValue(locale.toLanguageTag())
                     .withCondChecked(checked)
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))

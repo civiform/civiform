@@ -58,6 +58,7 @@ public class FieldWithLabel {
   private String formId = "";
   private String id = "";
   private String labelText = "";
+  private Optional<String> autocomplete = Optional.empty();
   protected String placeholderText = "";
   private String screenReaderText = "";
   private Messages messages;
@@ -70,7 +71,7 @@ public class FieldWithLabel {
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
   private ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
 
-  private static class FieldErrorsInfo {
+  private static final class FieldErrorsInfo {
     public String fieldErrorsId;
     public boolean hasFieldErrors;
 
@@ -161,6 +162,18 @@ public class FieldWithLabel {
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
     this.placeholderText = placeholder;
+    return this;
+  }
+
+  /**
+   * Sets the autocomplete attribute.
+   *
+   * @param autocomplete this value must come from the predefined list here:
+   *     https://www.w3.org/TR/WCAG21/#input-purposes.
+   * @return this, for chaining.
+   */
+  public FieldWithLabel setAutocomplete(Optional<String> autocomplete) {
+    this.autocomplete = autocomplete;
     return this;
   }
 
@@ -470,11 +483,11 @@ public class FieldWithLabel {
     // before the calls to this method, thus simplifying the code.
     fieldTag
         .withClasses(
-            StyleUtils.joinStyles(
-                BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
+            StyleUtils.joinStyles(hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT))
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
+        .condAttr(this.autocomplete.isPresent(), Attr.AUTOCOMPLETE, this.autocomplete.orElse(""))
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);

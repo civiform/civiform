@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.admin.programs.ProgramApplicationView.CURRENT_STATUS;
 import static views.admin.programs.ProgramApplicationView.NEW_STATUS;
 import static views.admin.programs.ProgramApplicationView.NOTE;
 import static views.admin.programs.ProgramApplicationView.SEND_EMAIL;
@@ -46,7 +47,7 @@ import services.application.ApplicationEventDetails;
 import services.applications.AccountHasNoEmailException;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
-import services.export.ExporterService;
+import services.export.CsvExporterService;
 import services.export.JsonExporter;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
@@ -63,14 +64,14 @@ import views.admin.programs.ProgramApplicationView;
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
 
-  private static final String SUCCESS_REDIRECT_URI = "successRedirectUri";
+  private static final String REDIRECT_URI_KEY = "redirectUri";
 
   private final ApplicantService applicantService;
   private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
   private final ProgramService programService;
-  private final ExporterService exporterService;
+  private final CsvExporterService exporterService;
   private final FormFactory formFactory;
   private final JsonExporter jsonExporter;
   private final PdfExporter pdfExporter;
@@ -84,7 +85,7 @@ public final class AdminApplicationController extends CiviFormController {
   public AdminApplicationController(
       ProgramService programService,
       ApplicantService applicantService,
-      ExporterService exporterService,
+      CsvExporterService csvExporterService,
       FormFactory formFactory,
       JsonExporter jsonExporter,
       PdfExporter pdfExporter,
@@ -103,7 +104,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.applicationView = checkNotNull(applicationView);
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
-    this.exporterService = checkNotNull(exporterService);
+    this.exporterService = checkNotNull(csvExporterService);
     this.formFactory = checkNotNull(formFactory);
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
@@ -364,21 +365,38 @@ public final class AdminApplicationController extends CiviFormController {
     Application application = applicationMaybe.get();
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+    Optional<String> maybeCurrentStatus = Optional.ofNullable(formData.get(CURRENT_STATUS));
     Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
     Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
-    Optional<String> maybeSuccessRedirectUri =
-        Optional.ofNullable(formData.get(SUCCESS_REDIRECT_URI));
-    // TODO(#3263): check that the previous status is the current previous status for
-    // consistency.
+    Optional<String> maybeRedirectUri = Optional.ofNullable(formData.get(REDIRECT_URI_KEY));
+    if (maybeCurrentStatus.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", CURRENT_STATUS));
+    }
     if (maybeNewStatus.isEmpty()) {
       return badRequest(String.format("The %s field is not present", NEW_STATUS));
     }
     if (maybeSendEmail.isEmpty()) {
       return badRequest(String.format("The %s field is not present", SEND_EMAIL));
     }
-    if (maybeSuccessRedirectUri.isEmpty()) {
-      return badRequest(String.format("The %s field is not present", SUCCESS_REDIRECT_URI));
+    if (maybeRedirectUri.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", REDIRECT_URI_KEY));
     }
+    // Verify the UI is changing from the actual current status to detect an out of date UI.
+    if (application.getLatestStatus().isPresent()) {
+      if (!application.getLatestStatus().get().equals(maybeCurrentStatus.get())) {
+        // Only allow relative URLs to ensure that we redirect to the same domain.
+        String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
+        return redirect(redirectUrl)
+            .flashing(
+                "error",
+                "The application state has changed since the page was loaded. Please reload and"
+                    + " try again.");
+      }
+    } else if (!maybeCurrentStatus.get().isBlank()) {
+      return badRequest(
+          String.format("The %s field should be empty as there is no status set", CURRENT_STATUS));
+    }
+    // Save the new data.
     String newStatus = maybeNewStatus.get();
     final boolean sendEmail;
     if (maybeSendEmail.get().isBlank()) {
@@ -397,7 +415,7 @@ public final class AdminApplicationController extends CiviFormController {
             .build(),
         profileUtils.currentUserProfile(request).get().getAccount().join());
     // Only allow relative URLs to ensure that we redirect to the same domain.
-    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application status updated");
   }
 
@@ -429,13 +447,12 @@ public final class AdminApplicationController extends CiviFormController {
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeNote = Optional.ofNullable(formData.get(NOTE));
-    Optional<String> maybeSuccessRedirectUri =
-        Optional.ofNullable(formData.get("successRedirectUri"));
+    Optional<String> maybeRedirectUri = Optional.ofNullable(formData.get(REDIRECT_URI_KEY));
     if (maybeNote.isEmpty()) {
       return badRequest("A note is not present.");
     }
     String note = maybeNote.get();
-    if (maybeSuccessRedirectUri.isEmpty()) {
+    if (maybeRedirectUri.isEmpty()) {
       return badRequest("A redirect URI is not present");
     }
 
@@ -445,7 +462,7 @@ public final class AdminApplicationController extends CiviFormController {
         profileUtils.currentUserProfile(request).get().getAccount().join());
 
     // Only allow relative URLs to ensure that we redirect to the same domain.
-    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeSuccessRedirectUri.orElse(""));
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
     return redirect(redirectUrl).flashing("success", "Application note updated");
   }
 

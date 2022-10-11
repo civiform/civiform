@@ -424,7 +424,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
 
     SvgTag icon =
         Icons.questionTypeSvg(questionDefinition.getQuestionType())
-            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+            .withClasses(Styles.SHRINK_0, Styles.H_12, Styles.W_6);
     String questionHelpText =
         questionDefinition.getQuestionHelpText().isEmpty()
             ? ""

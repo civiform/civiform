@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import auth.AuthIdentityProviderName;
@@ -31,7 +32,7 @@ public class LoginForm extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final boolean useIdcsApplicantRegistration;
   private final boolean applicantAuthIsDisabled;
-  private final String applicantIdp;
+  private final AuthIdentityProviderName applicantIdp;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final String civicEntityShortName;
@@ -42,7 +43,7 @@ public class LoginForm extends BaseHtmlView {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
 
-    this.applicantIdp = config.getString("auth.applicant_idp");
+    this.applicantIdp = AuthIdentityProviderName.fromConfig(config);
     this.maybeLogoUrl =
         config.hasPath("whitelabel.small_logo_url")
             ? Optional.of(config.getString("whitelabel.small_logo_url"))
@@ -52,9 +53,7 @@ public class LoginForm extends BaseHtmlView {
     this.fakeAdminClient = checkNotNull(fakeAdminClient);
 
     // Adjust UI for applicant-provider specific settings.
-    AuthIdentityProviderName applicantIdpName =
-        AuthIdentityProviderName.forString(applicantIdp).get();
-    switch (applicantIdpName) {
+    switch (applicantIdp) {
       case DISABLED_APPLICANT:
         this.applicantAuthIsDisabled = true;
         this.useIdcsApplicantRegistration = false;
@@ -105,10 +104,9 @@ public class LoginForm extends BaseHtmlView {
     }
 
     content.with(
-        div()
-            .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles.PX_8)
-            .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
-            .with(p("CiviForm")));
+        h1().withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles.PX_8)
+            .with(span(civicEntityShortName).withClasses(Styles.FONT_BOLD))
+            .with(span("CiviForm")));
 
     DivTag applicantAccountLogin =
         div()
@@ -179,7 +177,7 @@ public class LoginForm extends BaseHtmlView {
     return div()
         .withClasses(Styles.ABSOLUTE)
         .with(
-            h1("DEMO MODE. LOGIN AS:"),
+            p("DEMO MODE. LOGIN AS:").withClasses(Styles.TEXT_2XL),
             redirectButton(
                 "admin",
                 "CiviForm Admin",
@@ -209,7 +207,9 @@ public class LoginForm extends BaseHtmlView {
   private ButtonTag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return redirectButton(
-            applicantIdp, msg, routes.LoginController.applicantLogin(Optional.empty()).url())
+            applicantIdp.getString(),
+            msg,
+            routes.LoginController.applicantLogin(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 

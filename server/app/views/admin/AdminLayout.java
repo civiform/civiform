@@ -66,17 +66,17 @@ public final class AdminLayout extends BaseHtmlLayout {
     bundle.addMainStyles(
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
-    String currentTitle = bundle.getTitle();
-
-    if (currentTitle != null && !currentTitle.isEmpty()) {
-      bundle.setTitle(currentTitle + " - CiviForm Admin Console");
-    }
 
     for (String source : FOOTER_SCRIPTS) {
       bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
     }
 
     return super.render(bundle);
+  }
+
+  @Override
+  protected String getTitleSuffix() {
+    return "CiviForm Admin Console";
   }
 
   @Override

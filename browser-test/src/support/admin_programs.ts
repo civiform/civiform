@@ -258,7 +258,7 @@ export class AdminPrograms {
   async expectSuccessToast(successToastMessage: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-green-200')
+    expect(toastContainer).toContain('bg-emerald-200')
     expect(toastContainer).toContain(successToastMessage)
   }
 
@@ -313,11 +313,9 @@ export class AdminPrograms {
   }
 
   async addQuestionFromQuestionBank(questionName: string) {
-    const questionBankElementLocator = this.page.locator(
-      '.cf-question-bank-element',
-      {has: this.page.locator(`text="Admin ID: ${questionName}"`)},
+    await this.page.click(
+      `.cf-question-bank-element:has-text("Admin ID: ${questionName}")`,
     )
-    await questionBankElementLocator.click()
     await waitForPageJsLoad(this.page)
     // Make sure the question is successfully added to the screen.
     await this.page.waitForSelector(
@@ -698,10 +696,9 @@ export class AdminPrograms {
   }
 
   /**
-   * Edit note clicks the edit button, sets the note content to the provided
-   * text, and confirms the dialog.
+   * Clicks the edit note button, and returns the modal.
    */
-  async editNote(noteContent: string) {
+  async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
     await this.applicationFrameLocator()
       .locator(this.editNoteSelector())
       .click()
@@ -710,7 +707,15 @@ export class AdminPrograms {
     if (!frame) {
       throw new Error('Expected an application frame')
     }
-    const editModal = await waitForAnyModal(frame)
+    return await waitForAnyModal(frame)
+  }
+
+  /**
+   * Clicks the edit note button, sets the note content to the provided text,
+   * and confirms the dialog.
+   */
+  async editNote(noteContent: string) {
+    const editModal = await this.awaitEditNoteModal()
     const noteContentArea = (await editModal.$('textarea'))!
     await noteContentArea.fill(noteContent)
 

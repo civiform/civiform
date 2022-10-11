@@ -5,7 +5,6 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.span;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -24,10 +23,10 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a radio button question. */
-public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
   public RadioButtonQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.COMPOSITE);
+    super(question);
   }
 
   @Override
@@ -36,10 +35,9 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
     boolean hasErrors = !validationErrors.isEmpty();
 

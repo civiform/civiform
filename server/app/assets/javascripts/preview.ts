@@ -333,7 +333,7 @@ class PreviewController {
     pieces.forEach((piece) => {
       if (piece.match(PreviewController.THIS_REGEX)) {
         const thisSpan = document.createElement('span')
-        thisSpan.classList.add('bg-yellow-300')
+        thisSpan.classList.add('bg-amber-300')
         thisSpan.textContent = piece
         previewDiv.appendChild(thisSpan)
       } else {

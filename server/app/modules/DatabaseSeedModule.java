@@ -12,14 +12,14 @@ import tasks.DatabaseSeedTask;
  * Binds the {@link DatabaseSeedScheduler} as an eager singleton, which causes it to run at server
  * start time.
  */
-public class DatabaseSeedModule extends AbstractModule {
+public final class DatabaseSeedModule extends AbstractModule {
 
   @Override
   protected void configure() {
     bind(DatabaseSeedScheduler.class).asEagerSingleton();
   }
 
-  public static class DatabaseSeedScheduler {
+  public static final class DatabaseSeedScheduler {
 
     @Inject
     public DatabaseSeedScheduler(

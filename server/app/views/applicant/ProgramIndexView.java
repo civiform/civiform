@@ -9,6 +9,8 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
@@ -20,7 +22,9 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.H4Tag;
 import j2html.tags.specialized.ImgTag;
+import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -30,8 +34,6 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -45,6 +47,7 @@ import views.HtmlBundle;
 import views.TranslationUtils;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
@@ -139,10 +142,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 logoImg
                     .withAlt(civicEntityFullName + " logo")
                     .attr("aria-hidden", "true")
-                    .withWidth("175")
-                    .withHeight("70"))
-            .withClasses(Styles.TOP_2, Styles.LEFT_2);
-
+                    .withStyle("max-width: 155px; max-height: 40px;"))
+            .withClasses(Styles.PT_6, Styles.PX_6);
     return div()
         .withId("top-content")
         .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, Styles.RELATIVE)
@@ -179,7 +180,10 @@ public final class ProgramIndexView extends BaseHtmlView {
               applicantId,
               preferredLocale,
               relevantPrograms.inProgress(),
-              MessageKey.BUTTON_CONTINUE));
+              MessageKey.BUTTON_CONTINUE,
+              // TODO(#3577): Once button.continueSr translations are available, switch to using
+              // those.
+              MessageKey.BUTTON_APPLY_SR));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
@@ -190,7 +194,10 @@ public final class ProgramIndexView extends BaseHtmlView {
               applicantId,
               preferredLocale,
               relevantPrograms.submitted(),
-              MessageKey.BUTTON_EDIT));
+              MessageKey.BUTTON_EDIT,
+              // TODO(#3577): Once button.editSr translations are available, switch to using
+              // those.
+              MessageKey.BUTTON_APPLY_SR));
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
@@ -201,7 +208,8 @@ public final class ProgramIndexView extends BaseHtmlView {
               applicantId,
               preferredLocale,
               relevantPrograms.unapplied(),
-              MessageKey.BUTTON_APPLY));
+              MessageKey.BUTTON_APPLY,
+              MessageKey.BUTTON_APPLY_SR));
     }
 
     return div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.PLACE_ITEMS_CENTER).with(content);
@@ -228,43 +236,43 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       Locale preferredLocale,
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
-      MessageKey applyTitle) {
+      MessageKey buttonTitle,
+      MessageKey buttonSrText) {
+    String sectionHeaderId = Modal.randomModalId();
     return div()
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
         .with(
-            h3().withText(messages.at(sectionTitle.getKeyName()))
+            h3().withId(sectionHeaderId)
+                .withText(messages.at(sectionTitle.getKeyName()))
                 .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
         .with(
-            div()
+            ol().attr("aria-labelledby", sectionHeaderId)
                 .withClasses(cardContainerStyles)
                 .with(
                     each(
-                        IntStream.range(0, cards.size()).boxed().collect(Collectors.toList()),
-                        index ->
+                        cards,
+                        (card) ->
                             programCard(
                                 messages,
-                                cards.get(index),
-                                index,
-                                cards.size(),
+                                card,
                                 applicantId,
                                 preferredLocale,
-                                applyTitle))));
+                                buttonTitle,
+                                buttonSrText))));
   }
 
-  private DivTag programCard(
+  private LiTag programCard(
       Messages messages,
       ApplicantService.ApplicantProgramData cardData,
-      int programIndex,
-      int totalProgramCount,
       Long applicantId,
       Locale preferredLocale,
-      MessageKey applyTitle) {
+      MessageKey buttonTitle,
+      MessageKey buttonSrText) {
     ProgramDefinition program = cardData.program();
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
-    DivTag title =
-        div()
-            .withId(baseId + "-title")
+    H4Tag title =
+        h4().withId(baseId + "-title")
             .withClasses(
                 ReferenceClasses.APPLICATION_CARD_TITLE, Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
             .withText(program.localizedName().getOrDefault(preferredLocale));
@@ -323,8 +331,12 @@ public final class ProgramIndexView extends BaseHtmlView {
               .asAnchorText()
               .with(
                   Icons.svg(Icons.OPEN_IN_NEW)
+                      .attr("role", "img")
+                      .attr(
+                          "aria-label",
+                          messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()))
                       .withClasses(
-                          Styles.FLEX_SHRINK_0,
+                          Styles.SHRINK_0,
                           Styles.H_5,
                           Styles.W_AUTO,
                           Styles.INLINE,
@@ -348,9 +360,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             .attr(
                 "aria-label",
                 messages.at(
-                    MessageKey.BUTTON_APPLY_SR.getKeyName(),
+                    buttonSrText.getKeyName(),
                     program.localizedName().getOrDefault(preferredLocale)))
-            .withText(messages.at(applyTitle.getKeyName()))
+            .withText(messages.at(buttonTitle.getKeyName()))
             .withId(baseId + "-apply")
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
@@ -358,22 +370,14 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(actionButton)
             .withClasses(
                 Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);
-    String srProgramCardTitle =
-        messages.at(
-            MessageKey.TITLE_PROGRAM_CARD.getKeyName(),
-            programIndex + 1,
-            totalProgramCount,
-            program.localizedName().getOrDefault(preferredLocale));
-    return div()
-        .withId(baseId)
+    return li().withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
-        .with(h4(srProgramCardTitle).withClass(Styles.SR_ONLY))
         .with(
             // The visual bar at the top of each program card.
             div()
                 .withClasses(
                     Styles.BLOCK,
-                    Styles.FLEX_SHRINK_0,
+                    Styles.SHRINK_0,
                     BaseStyles.BG_SEATTLE_BLUE,
                     Styles.ROUNDED_T_XL,
                     Styles.H_3))

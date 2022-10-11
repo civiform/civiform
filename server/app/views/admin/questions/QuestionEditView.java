@@ -26,7 +26,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.export.ExporterService;
+import services.export.CsvExporterService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -365,7 +365,7 @@ public final class QuestionEditView extends BaseHtmlView {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
 
-    if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
+    if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();

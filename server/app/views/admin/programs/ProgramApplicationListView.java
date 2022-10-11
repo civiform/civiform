@@ -144,6 +144,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
     }
+    Optional<String> maybeErrorMessage = request.flash().get("error");
+    if (maybeErrorMessage.isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.error(maybeErrorMessage.get()));
+    }
     return layout.renderCentered(htmlBundle);
   }
 
@@ -336,7 +340,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4)
             .with(
                 p(applicantNameWithApplicationId)
-                    .withClasses(Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_1))
+                    .withClasses(
+                        Styles.TEXT_BLACK,
+                        Styles.FONT_BOLD,
+                        Styles.TEXT_XL,
+                        Styles.MB_1,
+                        ReferenceClasses.BT_APPLICATION_ID))
             .condWith(
                 application.getSubmitterEmail().isPresent(),
                 p(application.getSubmitterEmail().orElse(""))
@@ -353,7 +362,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL)
                     .with(
                         p(renderSubmitTime(application))
-                            .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
+                            .withClasses(
+                                Styles.TEXT_GRAY_700, Styles.ITALIC, ReferenceClasses.BT_DATE),
                         div().withClasses(Styles.FLEX_GROW),
                         renderViewLink(viewLinkText, application)));
 

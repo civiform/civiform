@@ -12,6 +12,7 @@ class AdminApplicationView {
   // ProgramApplicationView.java.
   private static PROGRAM_ID_INPUT_NAME = 'programId'
   private static APPLICATION_ID_INPUT_NAME = 'applicationId'
+  private static CURRENT_STATUS_INPUT_NAME = 'currentStatus'
   private static NEW_STATUS_INPUT_NAME = 'newStatus'
   private static SEND_EMAIL_INPUT_NAME = 'sendEmail'
   private static NOTE_INPUT_NAME = 'note'
@@ -56,6 +57,10 @@ class AdminApplicationView {
               10,
             ),
             data: {
+              currentStatus: this.extractInputValueFromForm(
+                formEl,
+                AdminApplicationView.CURRENT_STATUS_INPUT_NAME,
+              ),
               newStatus: this.extractInputValueFromForm(
                 formEl,
                 AdminApplicationView.NEW_STATUS_INPUT_NAME,

@@ -23,7 +23,7 @@ import views.style.Styles;
  * <p>A file upload question requires a different form. See {@code
  * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlock}.
  */
-public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer {
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final FileUploadQuestion fileUploadQuestion;
   // The ID used to associate the file input field with its screen reader label.
@@ -44,14 +44,14 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public FileUploadQuestionRenderer(
       ApplicantQuestion question, FileUploadViewStrategy fileUploadViewStrategy) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
     this.fileUploadQuestion = question.createFileUploadQuestion();
     this.fileUploadViewStrategy = fileUploadViewStrategy;
     this.fileInputId = RandomStringUtils.randomAlphabetic(8);
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {

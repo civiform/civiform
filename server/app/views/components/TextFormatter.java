@@ -39,7 +39,7 @@ import views.style.Styles;
  *   <li>URL links
  * </ul>
  */
-public class TextFormatter {
+public final class TextFormatter {
   public enum UrlOpenAction {
     SameTab,
     NewTab
@@ -94,7 +94,7 @@ public class TextFormatter {
             .with(
                 Icons.svg(Icons.OPEN_IN_NEW)
                     .withClasses(
-                        Styles.FLEX_SHRINK_0,
+                        Styles.SHRINK_0,
                         Styles.H_5,
                         Styles.W_AUTO,
                         Styles.INLINE,

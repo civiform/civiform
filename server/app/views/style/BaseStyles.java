@@ -66,6 +66,11 @@ public final class BaseStyles {
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
   public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, Styles.PLACEHOLDER_GRAY_500);
 
+  public static final String INPUT_WITH_ERROR =
+      StyleUtils.joinStyles(
+          StyleUtils.removeStyles(INPUT, BaseStyles.FORM_FIELD_BORDER_COLOR),
+          FORM_FIELD_ERROR_BORDER_COLOR);
+
   /** For use on `label` elements that label non-checkbox and non-radio `input` elements. */
   public static final String INPUT_LABEL =
       StyleUtils.joinStyles(
@@ -84,6 +89,9 @@ public final class BaseStyles {
       StyleUtils.joinStyles(INPUT_BASE, Styles.ALIGN_MIDDLE);
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
+
+  public static final String RADIO_LABEL_SELECTED =
+      StyleUtils.removeStyles(RADIO_LABEL, FORM_FIELD_BORDER_COLOR);
 
   /** For labelling a *group* of checkboxes that are related to the same thing. */
   public static final String CHECKBOX_GROUP_LABEL =
@@ -197,7 +205,7 @@ public final class BaseStyles {
           Styles.TEXT_BLUE_800,
           Styles.TEXT_BASE,
           Styles.BG_WHITE,
-          StyleUtils.hover(Styles.BG_BLUE_100, Styles.OPACITY_90));
+          StyleUtils.hover(Styles.BG_BLUE_100S90));
 
   public static final String ADMIN_LOGIN =
       StyleUtils.joinStyles(
