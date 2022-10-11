@@ -16,6 +16,7 @@ import auth.GuestClient;
 import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.admin.AdfsProvider;
+import auth.oidc.applicant.Auth0Provider;
 import auth.oidc.applicant.GenericOidcProvider;
 import auth.oidc.applicant.IdcsProvider;
 import auth.oidc.applicant.LoginGovProvider;
@@ -163,6 +164,12 @@ public class SecurityModule extends AbstractModule {
               .annotatedWith(ApplicantAuthClient.class)
               .toProvider(LoginGovProvider.class);
           logger.info("Using login.gov PKCE OIDC for applicant auth provider");
+          break;
+        case AUTH0_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(Auth0Provider.class);
+          logger.info("Using Auth0 for applicant auth provider");
           break;
         default:
           logger.info("No provider specified for for applicants");
