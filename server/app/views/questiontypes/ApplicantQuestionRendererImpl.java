@@ -18,7 +18,7 @@ import views.BaseHtmlView;
 import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /**
  * Superclass for all applicant question renderers with input field(s) for the applicant to answer

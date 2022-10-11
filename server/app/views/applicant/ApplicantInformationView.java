@@ -23,7 +23,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /**
  * Provides a form for selecting an applicant's preferred language. Note that we cannot use Play's

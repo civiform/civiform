@@ -22,7 +22,7 @@ import services.TranslationLocales;
 import views.BaseHtmlView;
 import views.components.LinkElement;
 import views.style.AdminStyles;
-import views.style.Styles;
+
 
 /**
  * Contains helper methods for rendering a form allow an admin to translate a given entity, such as

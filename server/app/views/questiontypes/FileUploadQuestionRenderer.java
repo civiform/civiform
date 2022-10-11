@@ -15,7 +15,7 @@ import services.applicant.question.FileUploadQuestion;
 import views.FileUploadViewStrategy;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /**
  * Renders a file upload question.

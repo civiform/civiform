@@ -17,7 +17,7 @@ import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.Icons;
-import views.style.Styles;
+
 
 /**
  * Renders a listing of all SVG icons and metadata about the icon size. This is generally useful for

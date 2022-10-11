@@ -27,7 +27,7 @@ import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /**
  * A strategy pattern that abstracts out the logic of file upload/download into the different cloud

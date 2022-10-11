@@ -26,7 +26,7 @@ import views.components.Icons;
 import views.components.ProgramCardFactory;
 import views.components.ProgramCardFactory.ProgramCardData;
 import views.style.AdminStyles;
-import views.style.Styles;
+
 
 /** Renders a page for program admins to view programs they administer. */
 public final class ProgramAdministratorProgramListView extends BaseHtmlView {

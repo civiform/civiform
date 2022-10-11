@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.style.BaseStyles;
-import views.style.Styles;
+
 
 /**
  * The TextFormatter class introduces options for converting plain-text strings into richer HTML

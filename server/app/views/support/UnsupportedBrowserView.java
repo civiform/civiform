@@ -13,7 +13,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.applicant.ApplicantLayout;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** View responsible for rendering pages showing information regarding unsupported browsers. */
 public final class UnsupportedBrowserView extends BaseHtmlView {

@@ -12,7 +12,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
 

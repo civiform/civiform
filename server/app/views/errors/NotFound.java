@@ -20,7 +20,7 @@ import views.LanguageSelector;
 import views.applicant.ApplicantLayout;
 import views.style.BaseStyles;
 import views.style.ErrorStyles;
-import views.style.Styles;
+
 
 public final class NotFound extends BaseHtmlView {
 

@@ -26,7 +26,7 @@ import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Contains methods for rendering type-specific question settings components. */
 public final class QuestionConfig {

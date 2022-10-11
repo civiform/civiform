@@ -49,7 +49,7 @@ import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /** Renders a page for editing predicates of a block in a program. */
 public final class ProgramBlockPredicatesEditView extends ProgramBlockView {

@@ -24,7 +24,7 @@ import views.components.FieldWithLabel;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Renders an enumerator question. */
 public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestionRenderer {

@@ -11,7 +11,7 @@ import java.util.UUID;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Utility class for rendering a modal box. */
 public final class Modal {
