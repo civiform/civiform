@@ -3,16 +3,19 @@ package auth.oidc.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.fakeRequest;
 
+import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.net.URI;
 import junitparams.JUnitParamsRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
@@ -58,7 +61,7 @@ public class LoginGovProviderTest extends ResetPostgres {
   }
 
   @Test
-  public void Test_getConfigurationValues() {
+  public void testGetConfigurationValues() {
     OidcClient client = loginGovProvider.get();
     OidcConfiguration client_config = client.getConfiguration();
     ProfileCreator adaptor = loginGovProvider.getProfileAdapter(client_config, client);
@@ -91,19 +94,39 @@ public class LoginGovProviderTest extends ResetPostgres {
   }
 
   @Test
-  public void Test_redirectURI() {
+  public void testRedirectURI() throws Exception {
     OidcClient client = loginGovProvider.get();
 
     var redirectAction = client.getRedirectionAction(webContext, mockSessionStore);
-    assertThat(redirectAction).isNotEmpty();
-    assertThat(redirectAction.toString()).contains("scope=openid+profile+email");
-    assertThat(redirectAction.toString()).contains("response_type=code");
-    assertThat(redirectAction.toString()).contains("acr_values=http%3A%2F%2Facr.test");
-    assertThat(redirectAction.toString()).contains("state=");
-    assertThat(redirectAction.toString()).contains("code_challenge_method=S256");
-    assertThat(redirectAction.toString()).contains("prompt=select_account");
-    assertThat(redirectAction.toString()).contains("nonce=");
-    assertThat(redirectAction.toString()).contains("client_id=login%3Agov%3Aclient");
-    assertThat(redirectAction.toString()).contains("code_challenge=");
+    assertThat(redirectAction).containsInstanceOf(FoundAction.class);
+    var redirectUri = new URI(((FoundAction) redirectAction.get()).getLocation());
+    assertThat(redirectUri)
+        .hasParameter("scope", "openid profile email")
+        .hasParameter("response_type", "code")
+        .hasParameter("acr_values", "http://acr.test")
+        .hasParameter("state")
+        .hasParameter("code_challenge_method", "S256")
+        .hasParameter("prompt", "select_account")
+        .hasParameter("nonce")
+        .hasParameter("client_id", "login:gov:client")
+        .hasParameter("code_challenge");
+  }
+
+  @Test
+  public void testLogout() throws Exception {
+    OidcClient client = loginGovProvider.get();
+    String afterLogoutUri = "https://civiform.dev";
+    var logoutAction =
+        client.getLogoutAction(
+            webContext, mockSessionStore, new CiviFormProfileData(), afterLogoutUri);
+    assertThat(logoutAction).containsInstanceOf(FoundAction.class);
+    var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
+    assertThat(logoutUri)
+        // host and path come from DISCOVERY_URI
+        .hasHost("oidc")
+        .hasPath("/session/end")
+        .hasParameter("state")
+        .hasParameter("client_id", "login:gov:client")
+        .hasParameter("post_logout_redirect_uri", afterLogoutUri);
   }
 }
