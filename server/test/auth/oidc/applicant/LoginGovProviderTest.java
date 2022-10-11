@@ -29,10 +29,10 @@ import support.CfTestHelpers;
 @RunWith(JUnitParamsRunner.class)
 public class LoginGovProviderTest extends ResetPostgres {
   private LoginGovProvider loginGovProvider;
-  private ProfileFactory profileFactory;
-  private static UserRepository userRepository;
-  private static String DISCOVERY_URI = "http://oidc:3380/.well-known/openid-configuration";
-  private static String BASE_URL = String.format("http://localhost:%d", Helpers.testServerPort());
+  private static final String DISCOVERY_URI = "http://oidc:3380/.well-known/openid-configuration";
+  private static final String BASE_URL =
+      String.format("http://localhost:%d", Helpers.testServerPort());
+  private static final String CLIENT_ID = "login:gov:client";
 
   private static final SessionStore mockSessionStore = Mockito.mock(SessionStore.class);
   private static final Request requestMock = fakeRequest().remoteAddress("1.1.1.1").build();
@@ -40,19 +40,16 @@ public class LoginGovProviderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    userRepository = instanceOf(UserRepository.class);
-    profileFactory = instanceOf(ProfileFactory.class);
+    UserRepository userRepository = instanceOf(UserRepository.class);
+    ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     Config config =
         ConfigFactory.parseMap(
-            ImmutableMap.of(
-                "login_gov.client_id",
-                "login:gov:client",
-                "login_gov.discovery_uri",
-                DISCOVERY_URI,
-                "login_gov.acr_value",
-                "http://acr.test",
-                "base_url",
-                BASE_URL));
+            ImmutableMap.<String, String>builder()
+                .put("login_gov.client_id", CLIENT_ID)
+                .put("login_gov.discovery_uri", DISCOVERY_URI)
+                .put("login_gov.acr_value", "http://acr.test")
+                .put("base_url", BASE_URL)
+                .build());
 
     // Just need some complete adaptor to access methods.
     loginGovProvider =
@@ -67,7 +64,7 @@ public class LoginGovProviderTest extends ResetPostgres {
     ProfileCreator adaptor = loginGovProvider.getProfileAdapter(client_config, client);
 
     String clientId = loginGovProvider.getClientID();
-    assertThat(clientId).isEqualTo("login:gov:client");
+    assertThat(clientId).isEqualTo(CLIENT_ID);
 
     String discoveryUri = loginGovProvider.getDiscoveryURI();
     assertThat(discoveryUri).isEqualTo(DISCOVERY_URI);
@@ -108,7 +105,7 @@ public class LoginGovProviderTest extends ResetPostgres {
         .hasParameter("code_challenge_method", "S256")
         .hasParameter("prompt", "select_account")
         .hasParameter("nonce")
-        .hasParameter("client_id", "login:gov:client")
+        .hasParameter("client_id", CLIENT_ID)
         .hasParameter("code_challenge");
   }
 
@@ -126,7 +123,7 @@ public class LoginGovProviderTest extends ResetPostgres {
         .hasHost("oidc")
         .hasPath("/session/end")
         .hasParameter("state")
-        .hasParameter("client_id", "login:gov:client")
+        .hasParameter("client_id", CLIENT_ID)
         .hasParameter("post_logout_redirect_uri", afterLogoutUri);
   }
 }
