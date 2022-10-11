@@ -5,10 +5,7 @@ public final class AdminStyles {
 
   public static final String LANGUAGE_LINK_SELECTED =
       StyleUtils.joinStyles(
-          ReferenceClasses.ADMIN_LANGUAGE_LINK,
-          "m-2",
-          "border-blue-400",
-          "border-b-2");
+          ReferenceClasses.ADMIN_LANGUAGE_LINK, "m-2", "border-blue-400", "border-b-2");
 
   public static final String LANGUAGE_LINK_NOT_SELECTED =
       StyleUtils.joinStyles(ReferenceClasses.ADMIN_LANGUAGE_LINK, "m-2");
@@ -30,14 +27,12 @@ public final class AdminStyles {
           "rounded");
 
   public static final String BODY_GRADIENT_STYLE =
-      StyleUtils.joinStyles(
-          "bg-gradient-to-r", "from-gray-100", "via-white", "to-gray-100");
+      StyleUtils.joinStyles("bg-gradient-to-r", "from-gray-100", "via-white", "to-gray-100");
 
   public static final String NAV_BACKGROUND_COLOR = "bg-white";
   public static final String NAV_TEXT_COLOR = "text-gray-700";
   public static final String NAV_HEIGHT = "h-12";
-  public static final String NAV_FIXED =
-      StyleUtils.joinStyles("fixed", "top-0", "w-screen");
+  public static final String NAV_FIXED = StyleUtils.joinStyles("fixed", "top-0", "w-screen");
   public static final String NAV_PADDING = StyleUtils.joinStyles("px-4", "py-3");
   public static final String NAV_STYLES =
       StyleUtils.joinStyles(
@@ -45,13 +40,7 @@ public final class AdminStyles {
 
   /** Invisible buttons covering an area that are used for form submit. */
   public static final String CLICK_TARGET_BUTTON =
-      StyleUtils.joinStyles(
-          "absolute",
-          "h-full",
-          "left-0",
-          "opacity-0",
-          "top-0",
-          "w-full");
+      StyleUtils.joinStyles("absolute", "h-full", "left-0", "opacity-0", "top-0", "w-full");
 
   public static final String MOVE_BLOCK_BUTTON =
       StyleUtils.joinStyles(
@@ -64,12 +53,7 @@ public final class AdminStyles {
 
   public static final String BODY =
       StyleUtils.joinStyles(
-          BODY_GRADIENT_STYLE,
-          "box-border",
-          "h-screen",
-          "w-screen",
-          "overflow-hidden",
-          "flex");
+          BODY_GRADIENT_STYLE, "box-border", "h-screen", "w-screen", "overflow-hidden", "flex");
 
   public static final String MAIN_CENTERED =
       StyleUtils.joinStyles("px-2", "max-w-screen-2xl", "mx-auto");

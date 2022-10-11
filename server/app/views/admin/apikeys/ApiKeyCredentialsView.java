@@ -18,7 +18,6 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 
-
 /** Renders a page that displays an API key's crentials after it's created. */
 public final class ApiKeyCredentialsView extends BaseHtmlView {
   private final AdminLayout layout;

@@ -28,7 +28,6 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
-
 /**
  * A strategy pattern that abstracts out the logic of file upload/download into the different cloud
  * providers.

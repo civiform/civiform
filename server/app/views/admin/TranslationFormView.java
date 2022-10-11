@@ -23,7 +23,6 @@ import views.BaseHtmlView;
 import views.components.LinkElement;
 import views.style.AdminStyles;
 
-
 /**
  * Contains helper methods for rendering a form allow an admin to translate a given entity, such as
  * a question or program.

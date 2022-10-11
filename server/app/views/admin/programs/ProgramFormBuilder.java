@@ -19,7 +19,6 @@ import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.BaseStyles;
 
-
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.

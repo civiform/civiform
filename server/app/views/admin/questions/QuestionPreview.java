@@ -14,7 +14,6 @@ import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
-
 /** Contains methods for rendering preview of a question. */
 public final class QuestionPreview {
 
@@ -36,13 +35,7 @@ public final class QuestionPreview {
     DivTag titleContainer =
         div()
             .withId("sample-render")
-            .withClasses(
-                "text-gray-800",
-                "font-thin",
-                "text-xl",
-                "mx-auto",
-                "w-max",
-                "my-4")
+            .withClasses("text-gray-800", "font-thin", "text-xl", "mx-auto", "w-max", "my-4")
             .withText("Sample Question of type: ")
             .with(
                 span()
@@ -57,15 +50,10 @@ public final class QuestionPreview {
     }
 
     DivTag innerContentContainer =
-        div(renderedQuestion)
-            .withClasses("text-3xl", "pl-16", "pt-20", "w-full");
+        div(renderedQuestion).withClasses("text-3xl", "pl-16", "pt-20", "w-full");
     DivTag contentContainer = div(innerContentContainer).withId("sample-question");
 
     return div(titleContainer, contentContainer)
-        .withClasses(
-            "w-3/5",
-            ApplicantStyles.BODY_BG_COLOR,
-            "overflow-hidden",
-            "overflow-y-auto");
+        .withClasses("w-3/5", ApplicantStyles.BODY_BG_COLOR, "overflow-hidden", "overflow-y-auto");
   }
 }

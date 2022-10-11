@@ -45,7 +45,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ApplicantLayout layout;
@@ -137,8 +136,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       Http.Request request) {
     DivTag main =
         div(table()
-                .withClasses(
-                    "border", "border-gray-300", "shadow-md", "flex-auto")
+                .withClasses("border", "border-gray-300", "shadow-md", "flex-auto")
                 .with(renderApplicantTableHeader())
                 .with(
                     tbody(
@@ -226,8 +224,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 dateOfBirthField.getDateTag(),
                 makeCsrfTokenInputTag(request),
                 submitButton("Add").withClasses("ml-2", "mb-6")))
-        .withClasses(
-            "border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
+        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
   private TrTag renderTIRow(Account ti) {
@@ -278,8 +275,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .withType("date")
                         .withValue(currentDob),
                     makeCsrfTokenInputTag(request),
-                    submitButton("Update DOB")
-                        .withClasses("uppercase", "text-xs", "ml-3")));
+                    submitButton("Update DOB").withClasses("uppercase", "text-xs", "ml-3")));
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {

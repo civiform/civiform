@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import views.style.ReferenceClasses;
 
-
 /**
  * Utility class for rendering an accordion.
  *

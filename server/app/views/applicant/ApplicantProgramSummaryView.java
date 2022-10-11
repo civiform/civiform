@@ -34,7 +34,6 @@ import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Shows all questions in the applying program and answers to the questions if present. */
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
@@ -161,15 +160,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       questionContent.with(answerContent);
     }
 
-    DivTag actionAndTimestampDiv =
-        div().withClasses("pr-2", "flex", "flex-col", "text-right");
+    DivTag actionAndTimestampDiv = div().withClasses("pr-2", "flex", "flex-col", "text-right");
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
       DivTag timestampContent =
-          div("Previously answered on " + date)
-              .withClasses("font-light", "text-xs", "flex-grow");
+          div("Previously answered on " + date).withClasses("font-light", "text-xs", "flex-grow");
       actionAndTimestampDiv.with(timestampContent);
     }
 
@@ -195,11 +192,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           new LinkElement()
               .setHref(editLink)
               .setText(editText)
-              .setStyles(
-                  "bottom-0",
-                  "right-0",
-                  "text-blue-600",
-                  StyleUtils.hover("text-blue-700"))
+              .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"))
               .asAnchorText()
               .attr(
                   "aria-label",

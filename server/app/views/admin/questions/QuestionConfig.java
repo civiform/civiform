@@ -27,7 +27,6 @@ import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Contains methods for rendering type-specific question settings components. */
 public final class QuestionConfig {
 
@@ -36,8 +35,7 @@ public final class QuestionConfig {
           "border", "bg-gray-100",
           "p-4", "m-4");
 
-  private static final String OUTER_DIV_CLASSES =
-      StyleUtils.joinStyles("w-full", "pt-0", "-mt-4");
+  private static final String OUTER_DIV_CLASSES = StyleUtils.joinStyles("w-full", "pt-0", "-mt-4");
 
   private DivTag content = div();
 
@@ -188,11 +186,7 @@ public final class QuestionConfig {
             .withClasses("flex", "ml-4", "multi-option-question-field-remove-button");
 
     return div()
-        .withClasses(
-            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-            "flex",
-            "flex-row",
-            "mb-4")
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "flex", "flex-row", "mb-4")
         .with(optionInput, optionIndexInput, removeOptionButton);
   }
 

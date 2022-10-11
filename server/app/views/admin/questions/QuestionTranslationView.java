@@ -27,7 +27,6 @@ import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 
-
 /** Renders a list of languages to select from, and a form for updating question information. */
 public final class QuestionTranslationView extends TranslationFormView {
 

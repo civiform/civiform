@@ -7,7 +7,6 @@ import j2html.tags.specialized.DivTag;
 import java.util.UUID;
 import views.style.ReferenceClasses;
 
-
 /** ToastMessages are messages that appear on the screen to show information to the user. */
 public final class ToastMessage {
 

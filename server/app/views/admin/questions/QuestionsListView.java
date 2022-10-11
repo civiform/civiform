@@ -50,7 +50,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
 
@@ -298,19 +297,13 @@ public final class QuestionsListView extends BaseHtmlView {
   private DivTag renderInfoCell(QuestionDefinition definition) {
     DivTag questionText =
         div()
-            .withClasses(
-                "font-bold",
-                "text-black",
-                "flex",
-                "flex-row",
-                "items-center")
+            .withClasses("font-bold", "text-black", "flex", "flex-row", "items-center")
             .with(
                 Icons.questionTypeSvg(definition.getQuestionType())
                     .withClasses("w-6", "h-6", "shrink-0"))
             .with(
                 div(definition.getQuestionText().getDefault())
-                    .withClasses(
-                        ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
+                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
     DivTag questionDescription =
         div(
             div(definition.getQuestionHelpText().isEmpty()
@@ -318,8 +311,7 @@ public final class QuestionsListView extends BaseHtmlView {
                     : definition.getQuestionHelpText().getDefault())
                 .withClasses("pl-10"));
     return div()
-        .withClasses(
-            "py-7", "w-1/4", "flex", "flex-col", "justify-between")
+        .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
         .with(div().with(questionText).with(questionDescription));
   }
 
@@ -453,8 +445,7 @@ public final class QuestionsListView extends BaseHtmlView {
       return Optional.empty();
     }
 
-    DivTag referencingProgramModalContent =
-        div().withClasses("p-6", "flex-row", "space-y-6");
+    DivTag referencingProgramModalContent = div().withClasses("p-6", "flex-row", "space-y-6");
     if (modalHeader.isPresent()) {
       referencingProgramModalContent.with(modalHeader.get());
     }
@@ -640,12 +631,7 @@ public final class QuestionsListView extends BaseHtmlView {
       default:
         DivTag modalHeader =
             div()
-                .withClasses(
-                    "p-2",
-                    "border",
-                    "border-gray-400",
-                    "bg-gray-200",
-                    "text-sm")
+                .withClasses("p-2", "border", "border-gray-400", "bg-gray-200", "text-sm")
                 .with(
                     span(
                         "This question cannot be archived since there are still programs"

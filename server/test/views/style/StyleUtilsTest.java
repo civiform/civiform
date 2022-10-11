@@ -19,8 +19,7 @@ public class StyleUtilsTest {
   public void applyUtility_multiReturnsExpected() {
     String expected = "focus:outline-none focus:ring-2";
     String result =
-        StyleUtils.applyUtilityClass(
-            StyleUtils.FOCUS, ImmutableList.of("outline-none", "ring-2"));
+        StyleUtils.applyUtilityClass(StyleUtils.FOCUS, ImmutableList.of("outline-none", "ring-2"));
 
     assertEquals(expected, result);
   }
@@ -50,8 +49,7 @@ public class StyleUtilsTest {
   @Test
   public void responsiveSmall_returnsExpected() {
     String expected = "sm:outline-none sm:ring-2";
-    String result =
-        StyleUtils.responsiveSmall(ImmutableList.of("outline-none", "ring-2"));
+    String result = StyleUtils.responsiveSmall(ImmutableList.of("outline-none", "ring-2"));
     assertEquals(expected, result);
 
     expected = "sm:outline-none";
@@ -62,8 +60,7 @@ public class StyleUtilsTest {
   @Test
   public void responsiveMedium_returnsExpected() {
     String expected = "md:outline-none md:ring-2";
-    String result =
-        StyleUtils.responsiveMedium(ImmutableList.of("outline-none", "ring-2"));
+    String result = StyleUtils.responsiveMedium(ImmutableList.of("outline-none", "ring-2"));
     assertEquals(expected, result);
 
     expected = "md:outline-none";
@@ -74,8 +71,7 @@ public class StyleUtilsTest {
   @Test
   public void responsiveLarge_returnsExpected() {
     String expected = "lg:outline-none lg:ring-2";
-    String result =
-        StyleUtils.responsiveLarge(ImmutableList.of("outline-none", "ring-2"));
+    String result = StyleUtils.responsiveLarge(ImmutableList.of("outline-none", "ring-2"));
     assertEquals(expected, result);
 
     expected = "lg:outline-none";

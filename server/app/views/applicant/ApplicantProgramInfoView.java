@@ -27,7 +27,6 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
-
 /** Shows information for a specific program with a button to start the application. */
 public class ApplicantProgramInfoView extends BaseHtmlView {
 
@@ -72,11 +71,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     H1Tag titleDiv =
         h1().withText(programTitle)
             .withClasses(
-                BaseStyles.TEXT_SEATTLE_BLUE,
-                "text-2xl",
-                "font-semibold",
-                "text-gray-700",
-                "mt-4");
+                BaseStyles.TEXT_SEATTLE_BLUE, "text-2xl", "font-semibold", "text-gray-700", "mt-4");
 
     // "Markdown" the program description.
     ImmutableList<DomContent> items = TextFormatter.formatText(programInfo, false);
@@ -96,9 +91,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
             .withHref(applyUrl)
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
     DivTag buttonDiv =
-        div(applyLink)
-            .withClasses(
-                "w-full", "mb-6", "flex-grow", "flex", "items-end");
+        div(applyLink).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
 
     return buttonDiv;
   }

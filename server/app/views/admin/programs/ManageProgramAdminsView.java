@@ -25,12 +25,10 @@ import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders a form for adding and removing program admins via email for a given program. */
 public class ManageProgramAdminsView extends BaseHtmlView {
 
-  private static final String EMAIL_FIELD_STYLES =
-      StyleUtils.joinStyles("flex", "flex-row");
+  private static final String EMAIL_FIELD_STYLES = StyleUtils.joinStyles("flex", "flex-row");
   private static final String PAGE_TITLE = "Manage Admins for Program: ";
   private static final String ADD_ADMIN_BUTTON = "Add admin";
   private static final String SUBMIT_BUTTON = "Save";

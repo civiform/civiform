@@ -33,7 +33,6 @@ import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 
-
 /** Renders a page that lists the system's {@link models.ApiKey}s. */
 public final class ApiKeyIndexView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -112,8 +111,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
             .with(
                 div(
                     div(
-                        p("ID: " + apiKey.getKeyId())
-                            .withClasses("text-gray-700", "text-sm"),
+                        p("ID: " + apiKey.getKeyId()).withClasses("text-gray-700", "text-sm"),
                         p("Allowed subnet: " + apiKey.getSubnet())
                             .withClasses("text-gray-700", "text-sm"))),
                 statsDiv)
@@ -141,13 +139,11 @@ public final class ApiKeyIndexView extends BaseHtmlView {
             });
 
     DivTag bottomDiv =
-        div(grantsTable, linksDiv)
-            .withClasses("flex", "place-content-between", "mt-4");
+        div(grantsTable, linksDiv).withClasses("flex", "place-content-between", "mt-4");
 
     DivTag content =
         div()
-            .withClasses(
-                "border", "border-gray-300", "bg-white", "rounded", "p-4")
+            .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")
             .with(
                 h2().with(
                         text(apiKey.getName()),

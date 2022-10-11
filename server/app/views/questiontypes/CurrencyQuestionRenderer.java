@@ -13,7 +13,6 @@ import services.applicant.question.CurrencyQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
-
 public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public CurrencyQuestionRenderer(ApplicantQuestion question) {

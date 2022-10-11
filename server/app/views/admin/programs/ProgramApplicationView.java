@@ -54,7 +54,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
 
@@ -173,29 +172,19 @@ public final class ProgramApplicationView extends BaseHtmlView {
         div()
             .withClasses("flex")
             .with(
-                div(
-                    div(block.getName())
-                        .withClasses(
-                            "text-black", "font-bold", "text-xl", "mb-2")))
+                div(div(block.getName()).withClasses("text-black", "font-bold", "text-xl", "mb-2")))
             .with(p().withClasses("flex-grow"))
             .with(p(block.getDescription()).withClasses("text-gray-700", "italic"));
 
     DivTag mainContent =
-        div()
-            .withClasses("w-full")
-            .with(each(answers, answer -> renderAnswer(programId, answer)));
+        div().withClasses("w-full").with(each(answers, answer -> renderAnswer(programId, answer)));
 
     DivTag innerDiv =
         div(topContent, mainContent)
-            .withClasses(
-                "border", "border-gray-300", "bg-white", "rounded", "p-4");
+            .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4");
 
     return div(innerDiv)
-        .withClasses(
-            ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD,
-            "w-full",
-            "shadow-lg",
-            "mb-4");
+        .withClasses(ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
   private DivTag renderAnswer(long programId, AnswerData answerData) {
@@ -219,13 +208,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     div(answerData.questionDefinition().getName())
                         .withClasses("text-gray-400", "text-base", "line-clamp-3")))
         .with(p().withClasses("w-8"))
-        .with(
-            answerContent.withClasses("text-gray-700", "text-base", "line-clamp-3"))
+        .with(answerContent.withClasses("text-gray-700", "text-base", "line-clamp-3"))
         .with(p().withClasses("flex-grow"))
         .with(
             div("Answered on " + date)
-                .withClasses(
-                    "flex-auto", "text-right", "font-light", "text-xs"));
+                .withClasses("flex-auto", "text-right", "font-light", "text-xs"));
   }
 
   private DivTag renderStatusOptionsSelector(
@@ -282,9 +269,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     // and calls postMessage rather than attempting a submission. The main frame is responsible for
     // constructing a form to update the note.
     FormTag modalContent =
-        form()
-            .withId(formId)
-            .withClasses("px-6", "py-2", "cf-program-admin-edit-note-form");
+        form().withId(formId).withClasses("px-6", "py-2", "cf-program-admin-edit-note-form");
     modalContent.with(
         input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
         input().withName(APPLICATION_ID).withValue(Long.toString(application.id)).isHidden(),

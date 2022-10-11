@@ -31,7 +31,6 @@ import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public final class QuestionBank {
   private static final SvgTag PLUS_ICON =
@@ -62,8 +61,7 @@ public final class QuestionBank {
 
     DivTag innerDiv = div().withClasses("shadow-lg", "h-full");
     questionForm.with(innerDiv);
-    DivTag contentDiv =
-        div().withClasses("relative", "grid", "gap-6", "px-5", "py-6");
+    DivTag contentDiv = div().withClasses("relative", "grid", "gap-6", "px-5", "py-6");
     innerDiv.with(contentDiv);
 
     H1Tag headerDiv = h1("Add Question").withClasses("mx-2", "-mb-3", "text-xl");
@@ -88,10 +86,8 @@ public final class QuestionBank {
                 StyleUtils.focus("outline-none"));
 
     SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses("h-4", "w-4");
-    DivTag filterIconDiv =
-        div().withClasses("absolute", "ml-4", "mt-3", "mr-4").with(filterIcon);
-    DivTag filterDiv =
-        div().withClasses("mb-2", "relative").with(filterIconDiv, filterInput);
+    DivTag filterIconDiv = div().withClasses("absolute", "ml-4", "mt-3", "mr-4").with(filterIcon);
+    DivTag filterDiv = div().withClasses("mb-2", "relative").with(filterIconDiv, filterInput);
     contentDiv.with(filterDiv);
     contentDiv.with(
         div()
@@ -139,8 +135,7 @@ public final class QuestionBank {
                 "border-transparent",
                 "transition-all",
                 "transform",
-                StyleUtils.hover(
-                    "scale-105", "text-gray-800", "border", "border-gray-100"));
+                StyleUtils.hover("scale-105", "text-gray-800", "border", "border-gray-100"));
 
     ButtonTag addButton =
         TagCreator.button()
@@ -151,8 +146,7 @@ public final class QuestionBank {
             .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     SvgTag icon =
-        Icons.questionTypeSvg(definition.getQuestionType())
-            .withClasses("shrink-0", "h-12", "w-6");
+        Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-12", "w-6");
     String questionHelpText =
         definition.getQuestionHelpText().isEmpty()
             ? ""

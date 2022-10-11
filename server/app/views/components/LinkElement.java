@@ -23,7 +23,6 @@ import scala.Option;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
-
 /** Utility class for rendering link elements. */
 public final class LinkElement {
 

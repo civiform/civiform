@@ -25,7 +25,6 @@ import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders an enumerator question. */
 public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
@@ -39,11 +38,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
 
   private static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
-          ReferenceClasses.ENUMERATOR_FIELD,
-          "grid",
-          "grid-cols-2",
-          "gap-4",
-          "mb-4");
+          ReferenceClasses.ENUMERATOR_FIELD, "grid", "grid-cols-2", "gap-4", "mb-4");
 
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
     super(question);

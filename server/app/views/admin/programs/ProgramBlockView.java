@@ -11,16 +11,12 @@ import views.ViewUtils.BadgeStatus;
 import views.components.Icons;
 import views.style.AdminStyles;
 
-
 abstract class ProgramBlockView extends BaseHtmlView {
   /** Renders a div with internal/admin program information. */
   protected final DivTag renderProgramInfo(ProgramDefinition programDefinition) {
     DivTag programTitle =
-        div(programDefinition.adminName())
-            .withId("program-title")
-            .withClasses("text-3xl", "pb-3");
-    DivTag programDescription =
-        div(programDefinition.adminDescription()).withClasses("text-sm");
+        div(programDefinition.adminName()).withId("program-title").withClasses("text-3xl", "pb-3");
+    DivTag programDescription = div(programDefinition.adminDescription()).withClasses("text-sm");
 
     ButtonTag editDetailsButton =
         ViewUtils.makeSvgTextButton("Edit program details", Icons.EDIT)
@@ -34,12 +30,6 @@ abstract class ProgramBlockView extends BaseHtmlView {
             programTitle,
             programDescription,
             editDetailsButton)
-        .withClasses(
-            "bg-gray-100",
-            "text-gray-800",
-            "shadow-md",
-            "p-8",
-            "pt-4",
-            "-mx-2");
+        .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
 }

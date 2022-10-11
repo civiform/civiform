@@ -12,7 +12,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Utility class for rendering a modal box. */
 public final class Modal {
 

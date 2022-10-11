@@ -19,7 +19,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders a checkbox question. */
 public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 

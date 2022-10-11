@@ -55,7 +55,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
 public final class ProgramIndexView extends BaseHtmlView {
 
@@ -125,11 +124,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     DivTag infoLine2Div =
         div()
             .withText(infoTextLine2)
-            .withClasses(
-                "text-sm",
-                "px-6",
-                "pb-6",
-                StyleUtils.responsiveSmall("text-base"));
+            .withClasses("text-sm", "px-6", "pb-6", StyleUtils.responsiveSmall("text-base"));
 
     ImgTag logoImg =
         maybeLogoUrl.isPresent()
@@ -273,8 +268,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     H4Tag title =
         h4().withId(baseId + "-title")
-            .withClasses(
-                ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
+            .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
             .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.createLinksAndEscapeText(
@@ -284,16 +278,11 @@ public final class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-description")
             .withClasses(
-                ReferenceClasses.APPLICATION_CARD_DESCRIPTION,
-                "text-xs",
-                "my-2",
-                "line-clamp-5")
+                ReferenceClasses.APPLICATION_CARD_DESCRIPTION, "text-xs", "my-2", "line-clamp-5")
             .with(descriptionContent);
 
     DivTag programData =
-        div()
-            .withId(baseId + "-data")
-            .withClasses("w-full", "px-4", "overflow-auto");
+        div().withId(baseId + "-data").withClasses("w-full", "px-4", "overflow-auto");
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
@@ -336,12 +325,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                           "aria-label",
                           messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()))
                       .withClasses(
-                          "shrink-0",
-                          "h-5",
-                          "w-auto",
-                          "inline",
-                          "ml-1",
-                          "align-text-top"));
+                          "shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top"));
 
       programData.with(externalLink);
     }
@@ -367,33 +351,21 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
     DivTag actionDiv =
-        div(actionButton)
-            .withClasses(
-                "w-full", "mb-6", "flex-grow", "flex", "items-end");
+        div(actionButton).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
     return li().withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
         .with(
             // The visual bar at the top of each program card.
             div()
                 .withClasses(
-                    "block",
-                    "shrink-0",
-                    BaseStyles.BG_SEATTLE_BLUE,
-                    "rounded-t-xl",
-                    "h-3"))
+                    "block", "shrink-0", BaseStyles.BG_SEATTLE_BLUE, "rounded-t-xl", "h-3"))
         .with(programData)
         .with(actionDiv);
   }
 
   private PTag programCardApplicationStatus(
       Locale preferredLocale, StatusDefinitions.Status status) {
-    return p().withClasses(
-            "border",
-            "rounded-lg",
-            "px-2",
-            "py-1",
-            "mb-4",
-            "bg-blue-100")
+    return p().withClasses("border", "rounded-lg", "px-2", "py-1", "mb-4", "bg-blue-100")
         .with(
             span(status.localizedStatusText().getOrDefault(preferredLocale))
                 .withClasses("text-xs", "font-medium"));

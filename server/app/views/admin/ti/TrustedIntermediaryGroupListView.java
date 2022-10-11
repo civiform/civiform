@@ -36,7 +36,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders a page for viewing trusted intermediary groups. */
 public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private final AdminLayout layout;
@@ -105,8 +104,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                 descriptionField.getInputTag(),
                 makeCsrfTokenInputTag(request),
                 submitButton("Create").withClasses("ml-2", "mb-6")))
-        .withClasses(
-            "border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
+        .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
   private TrTag renderGroupRow(TrustedIntermediaryGroup ti, Http.Request request) {
@@ -161,10 +159,6 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .with(th("Size").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"))
             .with(
                 th("Actions")
-                    .withClasses(
-                        BaseStyles.TABLE_CELL_STYLES,
-                        "text-right",
-                        "pr-8",
-                        "w-1/6")));
+                    .withClasses(BaseStyles.TABLE_CELL_STYLES, "text-right", "pr-8", "w-1/6")));
   }
 }

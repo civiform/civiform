@@ -21,7 +21,6 @@ import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Responsible for generating a program card for view by CiviForm admins / program admins. */
 public final class ProgramCardFactory {
 
@@ -68,12 +67,9 @@ public final class ProgramCardFactory {
                                 "font-bold",
                                 "text-xl"),
                         p(programDescriptionText)
-                            .withClasses(
-                                "line-clamp-2", "text-gray-700", "text-base")),
+                            .withClasses("line-clamp-2", "text-gray-700", "text-base")),
                 statusDiv.withClasses(
-                    "flex-grow",
-                    "text-sm",
-                    StyleUtils.responsiveLarge("text-base")));
+                    "flex-grow", "text-sm", StyleUtils.responsiveLarge("text-base")));
 
     return div()
         .withClasses(
@@ -87,13 +83,7 @@ public final class ProgramCardFactory {
         .with(titleAndStatus)
         .condWith(
             !adminNoteText.isBlank(),
-            p().withClasses(
-                    "w-3/4",
-                    "mb-8",
-                    "pt-4",
-                    "line-clamp-3",
-                    "text-gray-700",
-                    "text-base")
+            p().withClasses("w-3/4", "mb-8", "pt-4", "line-clamp-3", "text-gray-700", "text-base")
                 .with(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText)));
   }
 
@@ -140,8 +130,7 @@ public final class ProgramCardFactory {
                     p().with(
                             span(String.format("%d", blockCount)).withClass("font-semibold"),
                             span(blockCount == 1 ? " screen, " : " screens, "),
-                            span(String.format("%d", questionCount))
-                                .withClass("font-semibold"),
+                            span(String.format("%d", questionCount)).withClass("font-semibold"),
                             span(questionCount == 1 ? " question" : " questions"))),
             div().withClass("flex-grow"),
             div()

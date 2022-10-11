@@ -24,7 +24,6 @@ import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 
-
 /**
  * Renders a page for a developer to seed the database. This is only available in non-prod
  * environments.

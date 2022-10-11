@@ -43,7 +43,6 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
-
 /** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
 
@@ -111,13 +110,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return nav()
-        .withClasses(
-            "bg-white",
-            "border-b",
-            "align-middle",
-            "p-4",
-            "grid",
-            "grid-cols-3")
+        .withClasses("bg-white", "border-b", "align-middle", "p-4", "grid", "grid-cols-3")
         .with(branding())
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
@@ -271,8 +264,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .condWith(
                 !blockNumberText.isEmpty(),
                 span().withClasses("flex-grow"),
-                span(blockNumberText)
-                    .withClasses("text-gray-500", "text-base", "text-right"));
+                span(blockNumberText).withClasses("text-gray-500", "text-base", "text-right"));
 
     return div().with(programTitleContainer).with(progressIndicator);
   }

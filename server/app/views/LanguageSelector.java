@@ -22,7 +22,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /**
  * Contains functions for rendering language-related components. These are used to allow an
  * applicant to select their preferred language.

@@ -46,7 +46,6 @@ import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders a page for an admin to edit the configuration for a single block of a program. */
 public final class ProgramBlockEditView extends ProgramBlockView {
 
@@ -174,19 +173,11 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             .withMethod(HttpVerbs.POST)
             .withAction(blockDeleteAction);
 
-    return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm)
-        .withClasses("hidden");
+    return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm).withClasses("hidden");
   }
 
   private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
-    DivTag ret =
-        div()
-            .withClasses(
-                "shadow-lg",
-                "pt-6",
-                "w-2/12",
-                "border-r",
-                "border-gray-200");
+    DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
         renderBlockList(
             request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
@@ -312,8 +303,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
 
     DivTag blockInfoDisplay =
         div()
-            .with(
-                div(blockForm.getName()).withClasses("text-xl", "font-bold", "py-2"))
+            .with(div(blockForm.getName()).withClasses("text-xl", "font-bold", "py-2"))
             .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
             .withClasses("m-4");
 
@@ -388,8 +378,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             : predicate.get().toDisplayString(blockName, questions);
     return div()
         .withClasses("m-4")
-        .with(
-            div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
+        .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
         .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"))
         .with(
             redirectButton(
@@ -593,8 +582,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 !canRemove,
                 "An enumerator question can only be removed from the screen when the screen has no"
                     + " repeated screens.")
-            .withClasses(
-                ReferenceClasses.REMOVE_QUESTION_BUTTON, canRemove ? "" : "opacity-50");
+            .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, canRemove ? "" : "opacity-50");
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
@@ -660,11 +648,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             submitButton("Save")
                 .withId("update-block-button")
                 .withClasses(
-                    "mx-4",
-                    "my-1",
-                    "inline",
-                    "opacity-100",
-                    StyleUtils.disabled("opacity-50"))
+                    "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
                 .isDisabled());
     return Modal.builder("block-description-modal", blockDescriptionForm)
         .setModalTitle(modalTitle)

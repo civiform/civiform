@@ -12,7 +12,6 @@ import services.question.types.QuestionType;
 import views.style.AdminStyles;
 import views.style.StyleUtils;
 
-
 /**
  * Contains a helper method to render the create question button with it's corresponding dropdown.
  */
@@ -57,16 +56,9 @@ public final class CreateQuestionButton {
                   StyleUtils.hover("bg-gray-100", "text-gray-800"))
               .with(
                   Icons.questionTypeSvg(type)
-                      .withClasses(
-                          "inline-block", "h-6", "w-6", "mr-1", "text-sm"))
+                      .withClasses("inline-block", "h-6", "w-6", "mr-1", "text-sm"))
               .with(
-                  p(type.getLabel())
-                      .withClasses(
-                          "ml-2",
-                          "mr-4",
-                          "inline",
-                          "text-sm",
-                          "uppercase"));
+                  p(type.getLabel()).withClasses("ml-2", "mr-4", "inline", "text-sm", "uppercase"));
       dropdown.with(linkTag);
     }
     return div().withClasses("relative").with(createNewQuestionButton, dropdown);

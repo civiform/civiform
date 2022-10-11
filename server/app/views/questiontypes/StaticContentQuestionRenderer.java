@@ -8,7 +8,6 @@ import services.applicant.question.ApplicantQuestion;
 import views.components.TextFormatter;
 import views.style.ReferenceClasses;
 
-
 /** This renders the question text as formatted text. */
 public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer {
   private final ApplicantQuestion question;

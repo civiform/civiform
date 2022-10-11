@@ -47,7 +47,6 @@ import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
-
 /** Renders a page so the admin can view all active programs and draft programs. */
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;

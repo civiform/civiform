@@ -3,8 +3,7 @@ package views.style;
 /** Styles for applicant pages. */
 public final class ApplicantStyles {
   public static final String BODY_BG_COLOR = BaseStyles.BG_CIVIFORM_WHITE;
-  public static final String BODY =
-      StyleUtils.joinStyles(BODY_BG_COLOR, "h-full", "w-full");
+  public static final String BODY = StyleUtils.joinStyles(BODY_BG_COLOR, "h-full", "w-full");
 
   public static final String MAIN_APPLICANT_INFO =
       StyleUtils.joinStyles("w-5/6", "max-w-screen-sm", "mx-auto", "my-8");
@@ -17,22 +16,16 @@ public final class ApplicantStyles {
           StyleUtils.responsiveSmall("my-12"));
 
   public static final String PROGRAM_INDEX_TOP_CONTENT =
-      StyleUtils.joinStyles(
-          BaseStyles.BG_SEATTLE_BLUE, "text-white", "text-center", "w-full");
+      StyleUtils.joinStyles(BaseStyles.BG_SEATTLE_BLUE, "text-white", "text-center", "w-full");
 
   public static final String CIVIFORM_LOGO =
-      StyleUtils.joinStyles(
-          "text-2xl", "opacity-75", StyleUtils.hover("opacity-100"));
+      StyleUtils.joinStyles("text-2xl", "opacity-75", StyleUtils.hover("opacity-100"));
   public static final String LINK_LOGOUT =
       StyleUtils.joinStyles(
-          "text-base",
-          "font-bold",
-          "opacity-75",
-          StyleUtils.hover("opacity-100"));
+          "text-base", "font-bold", "opacity-75", StyleUtils.hover("opacity-100"));
 
   public static final String PROGRAM_APPLICATION_TITLE =
-      StyleUtils.joinStyles(
-          "text-3xl", "text-black", "font-bold", "mt-8", "mb-4");
+      StyleUtils.joinStyles("text-3xl", "text-black", "font-bold", "mt-8", "mb-4");
   public static final String PROGRAM_TITLE =
       StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, "text-lg", "font-bold");
 
@@ -64,12 +57,10 @@ public final class ApplicantStyles {
 
   public static final String QUESTION_TEXT =
       StyleUtils.joinStyles("text-black", "text-xl", "font-bold", "mb-2");
-  public static final String QUESTION_HELP_TEXT =
-      StyleUtils.joinStyles("text-black", "text-xl");
+  public static final String QUESTION_HELP_TEXT = StyleUtils.joinStyles("text-black", "text-xl");
 
   public static final String APPLICATION_NAV_BAR =
-      StyleUtils.joinStyles(
-          "gap-4", "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"));
+      StyleUtils.joinStyles("gap-4", "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"));
 
   /**
    * Base styles for buttons in the applicant UI. This is missing a specified text size, so that
@@ -77,12 +68,7 @@ public final class ApplicantStyles {
    */
   private static final String BUTTON_BASE =
       StyleUtils.joinStyles(
-          "block",
-          "py-2",
-          "text-center",
-          "rounded-full",
-          "border",
-          "border-transparent");
+          "block", "py-2", "text-center", "rounded-full", "border", "border-transparent");
 
   /** Base styles for buttons with a solid background color. */
   private static final String BUTTON_BASE_SOLID =
@@ -109,8 +95,7 @@ public final class ApplicantStyles {
           StyleUtils.hover("bg-blue-100"));
 
   private static final String BUTTON_BASE_OUTLINE_UPPERCASE =
-      StyleUtils.joinStyles(
-          BUTTON_BASE_OUTLINE, "uppercase", "font-semibold", "px-8");
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE, "uppercase", "font-semibold", "px-8");
 
   public static final String BUTTON_SELECT_LANGUAGE =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-base", "mx-auto");
@@ -125,8 +110,7 @@ public final class ApplicantStyles {
   public static final String BUTTON_SUBMIT_APPLICATION =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-base", "mx-auto");
   public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
-      StyleUtils.joinStyles(
-          BUTTON_BASE_SOLID, "text-base", "normal-case", "font-normal", "px-4");
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID, "text-base", "normal-case", "font-normal", "px-4");
   public static final String BUTTON_ENUMERATOR_REMOVE_ENTITY =
       StyleUtils.joinStyles(
           BUTTON_BASE_OUTLINE,

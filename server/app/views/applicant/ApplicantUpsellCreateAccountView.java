@@ -23,7 +23,6 @@ import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders a confirmation page after application submission. */
 public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
@@ -68,10 +67,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses(
-                        "flex",
-                        "flex-col",
-                        "gap-4",
-                        StyleUtils.responsiveSmall("flex-row"))
+                        "flex", "flex-col", "gap-4", StyleUtils.responsiveSmall("flex-row"))
                     // Empty div to push buttons to the right on desktop.
                     .with(div().withClasses("flex-grow"))
                     .with(

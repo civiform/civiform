@@ -30,7 +30,6 @@ import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
-
 /** Utility class for rendering an input field with an optional label. */
 public class FieldWithLabel {
 
@@ -440,8 +439,7 @@ public class FieldWithLabel {
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
     return div(
             labelTag,
-            div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
-                .withClasses("flex", "flex-col"))
+            div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);

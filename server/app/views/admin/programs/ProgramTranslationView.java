@@ -31,7 +31,6 @@ import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 
-
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;

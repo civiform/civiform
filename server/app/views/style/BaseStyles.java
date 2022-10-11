@@ -74,19 +74,14 @@ public final class BaseStyles {
   /** For use on `label` elements that label non-checkbox and non-radio `input` elements. */
   public static final String INPUT_LABEL =
       StyleUtils.joinStyles(
-          "pointer-events-none",
-          BaseStyles.FORM_LABEL_TEXT_COLOR,
-          "text-base",
-          "px-1",
-          "py-2");
+          "pointer-events-none", BaseStyles.FORM_LABEL_TEXT_COLOR, "text-base", "px-1", "py-2");
 
   /**
    * For use on a `label` that labels a checkbox. The label element should contain the checkbox
    * input element and its label text, e.g., <label><input type="checkbox">This is the label
    * text.</label>
    */
-  public static final String CHECKBOX_LABEL =
-      StyleUtils.joinStyles(INPUT_BASE, "align-middle");
+  public static final String CHECKBOX_LABEL = StyleUtils.joinStyles(INPUT_BASE, "align-middle");
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
 
@@ -98,8 +93,7 @@ public final class BaseStyles {
       StyleUtils.joinStyles(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-base");
 
   /** For use on an `input` of type "checkbox". */
-  public static final String CHECKBOX =
-      StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle");
+  public static final String CHECKBOX = StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle");
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
 
@@ -112,8 +106,7 @@ public final class BaseStyles {
       StyleUtils.joinStyles("hidden", "fixed", "h-screen", "w-screen");
   /** The modal container for the modal glass pane. */
   public static final String MODAL_GLASS_PANE =
-      StyleUtils.joinStyles(
-          "fixed", "h-screen", "w-screen", "bg-gray-400", "opacity-75");
+      StyleUtils.joinStyles("fixed", "h-screen", "w-screen", "bg-gray-400", "opacity-75");
   /** Generic style for all modals. This should be centered. */
   public static final String MODAL =
       StyleUtils.joinStyles(
@@ -132,13 +125,7 @@ public final class BaseStyles {
 
   public static final String MODAL_HEADER =
       StyleUtils.joinStyles(
-          "sticky",
-          "top-0",
-          "bg-gray-200",
-          "p-2",
-          "flex",
-          "gap-4",
-          "place-items-center");
+          "sticky", "top-0", "bg-gray-200", "p-2", "flex", "gap-4", "place-items-center");
   /** Generic style for for the button for the modal. */
   public static final String MODAL_BUTTON =
       StyleUtils.joinStyles(

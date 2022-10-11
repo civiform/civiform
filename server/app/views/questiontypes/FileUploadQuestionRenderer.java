@@ -16,7 +16,6 @@ import views.FileUploadViewStrategy;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
-
 /**
  * Renders a file upload question.
  *
@@ -58,10 +57,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
     boolean hasErrors = !validationErrors.isEmpty();
     return div()
         .with(
-            label()
-                .withFor(fileInputId)
-                .withClass("sr-only")
-                .withText(question.getQuestionText()))
+            label().withFor(fileInputId).withClass("sr-only").withText(question.getQuestionText()))
         .with(
             fileUploadViewStrategy.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors));

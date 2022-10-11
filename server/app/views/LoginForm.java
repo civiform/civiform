@@ -25,7 +25,6 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import views.style.BaseStyles;
 
-
 /** Renders a page for login. */
 public class LoginForm extends BaseHtmlView {
 
@@ -134,14 +133,7 @@ public class LoginForm extends BaseHtmlView {
     }
 
     DivTag alternativeLoginButtons =
-        div()
-            .withClasses(
-                "pb-12",
-                "px-8",
-                "flex",
-                "gap-4",
-                "items-center",
-                "text-lg");
+        div().withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
     if (useIdcsApplicantRegistration) {
       String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
       alternativeLoginButtons
@@ -168,9 +160,7 @@ public class LoginForm extends BaseHtmlView {
                 "text-base")
             .with(p(adminPrompt).with(text(" ")).with(adminLink(messages))));
 
-    return div()
-        .withClasses("fixed", "w-screen", "h-screen", "bg-gray-200")
-        .with(content);
+    return div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content);
   }
 
   private DivTag debugContent() {

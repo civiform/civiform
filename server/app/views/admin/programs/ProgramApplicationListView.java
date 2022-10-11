@@ -51,7 +51,6 @@ import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Renders a page for viewing applications to a program. */
 public final class ProgramApplicationListView extends BaseHtmlView {
   private static final String FROM_DATE_PARAM = "fromDate";
@@ -114,17 +113,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                         renderApplicationListItem(
                             application,
                             /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0)))
-            .withClasses(
-                "mt-6",
-                StyleUtils.responsiveLarge("mt-12"),
-                "mb-16",
-                "ml-6",
-                "mr-2");
+            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =
         div()
-            .withClasses(
-                "mt-6", StyleUtils.responsiveLarge("mt-12"), "w-full", "h-full")
+            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "w-full", "h-full")
             .with(
                 iframe()
                     .withName("application-display-frame")
@@ -336,8 +329,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     DivTag cardContent =
         div()
-            .withClasses(
-                "border", "border-gray-300", "bg-white", "rounded", "p-4")
+            .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")
             .with(
                 p(applicantNameWithApplicationId)
                     .withClasses(
@@ -362,14 +354,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     .withClasses("flex", "text-sm", "w-full")
                     .with(
                         p(renderSubmitTime(application))
-                            .withClasses(
-                                "text-gray-700", "italic", ReferenceClasses.BT_DATE),
+                            .withClasses("text-gray-700", "italic", ReferenceClasses.BT_DATE),
                         div().withClasses("flex-grow"),
                         renderViewLink(viewLinkText, application)));
 
     return div(cardContent)
-        .withClasses(
-            ReferenceClasses.ADMIN_APPLICATION_CARD, "w-full", "shadow-lg", "mt-4");
+        .withClasses(ReferenceClasses.ADMIN_APPLICATION_CARD, "w-full", "shadow-lg", "mt-4");
   }
 
   private SpanTag renderSubmitTime(Application application) {

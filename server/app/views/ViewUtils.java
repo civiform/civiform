@@ -24,7 +24,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /** Utility class for accessing stateful view dependencies. */
 public final class ViewUtils {
   private final AssetsFinder assetsFinder;

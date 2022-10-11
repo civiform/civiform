@@ -20,10 +20,7 @@ function pushWithPrefixes(output, match) {
 
 module.exports = {
   content: {
-    files: [
-      './app/assets/javascripts/*.ts',
-      './app/views/**/*.java',
-    ],
+    files: ['./app/assets/javascripts/*.ts', './app/views/**/*.java'],
     // Override tailwind's default extractor in order to include style prefixes
     // since we generate those dynamically. See:
     //  https://tailwindcss.com/docs/content-configuration#customizing-extraction-logic

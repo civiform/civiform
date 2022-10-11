@@ -18,7 +18,6 @@ import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
-
 /** Contains methods rendering common compoments used across admin pages. */
 public final class AdminLayout extends BaseHtmlLayout {
 
@@ -88,17 +87,10 @@ public final class AdminLayout extends BaseHtmlLayout {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     DivTag headerIcon =
-        div(span("C"), span("F").withClasses("font-thin"))
-            .withClasses(AdminStyles.ADMIN_NAV_BAR);
+        div(span("C"), span("F").withClasses("font-thin")).withClasses(AdminStyles.ADMIN_NAV_BAR);
     DivTag headerTitle =
         div()
-            .withClasses(
-                "font-normal",
-                "text-xl",
-                "inline",
-                "pl-10",
-                "py-0",
-                "mr-4")
+            .withClasses("font-normal", "text-xl", "inline", "pl-10", "py-0", "mr-4")
             .with(span("Civi"), span("Form").withClasses("font-thin"));
 
     NavTag adminHeader = nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
@@ -144,9 +136,6 @@ public final class AdminLayout extends BaseHtmlLayout {
     return a(text)
         .withHref(href)
         .withClasses(
-            "px-3",
-            "opacity-75",
-            StyleUtils.hover("opacity-100"),
-            StyleUtils.joinStyles(styles));
+            "px-3", "opacity-75", StyleUtils.hover("opacity-100"), StyleUtils.joinStyles(styles));
   }
 }

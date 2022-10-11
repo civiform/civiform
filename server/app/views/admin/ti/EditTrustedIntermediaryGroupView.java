@@ -34,7 +34,6 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-
 /**
  * Renders a page for viewing one trusted intermediary group and editing the members in the group.
  */
@@ -57,8 +56,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
                 div().withClasses("my-5").with(renderAddNewButton(tiGroup, request)),
                 div(
                     table()
-                        .withClasses(
-                            "border", "border-gray-300", "shadow-md", "w-full")
+                        .withClasses("border", "border-gray-300", "shadow-md", "w-full")
                         .with(renderGroupTableHeader())
                         .with(
                             tbody(
@@ -140,10 +138,6 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             .with(th("Status").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"))
             .with(
                 th("Actions")
-                    .withClasses(
-                        BaseStyles.TABLE_CELL_STYLES,
-                        "text-right",
-                        "pr-8",
-                        "w-1/6")));
+                    .withClasses(BaseStyles.TABLE_CELL_STYLES, "text-right", "pr-8", "w-1/6")));
   }
 }

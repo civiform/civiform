@@ -43,7 +43,6 @@ import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
-
 public final class ProgramStatusesView extends BaseHtmlView {
   public static final String DELETE_STATUS_TEXT_NAME = "deleteStatusText";
 
@@ -104,8 +103,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
 
     DivTag topBarDiv =
         div()
-            .withClasses(
-                "flex", "items-center", "space-x-4", "mt-12", "mb-10")
+            .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-10")
             .with(
                 h1(String.format("Manage application statuses for %s", program.adminName())),
                 div().withClass("flex-grow"));
@@ -197,8 +195,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .with(statusTagsAndModals.stream().map(Pair::getLeft))
                     .condWith(
                         statuses.isEmpty(),
-                        p("No statuses have been created yet")
-                            .withClasses("ml-4", "my-4")));
+                        p("No statuses have been created yet").withClasses("ml-4", "my-4")));
     ImmutableList<Modal> modals =
         statusTagsAndModals.stream()
             .map(Pair::getRight)
@@ -261,8 +258,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 div()
                     .condWith(
                         status.localizedEmailBodyText().isPresent(),
-                        p().withClasses(
-                                "mt-1", "text-xs", "flex", "items-center")
+                        p().withClasses("mt-1", "text-xs", "flex", "items-center")
                             .with(
                                 Icons.svg(Icons.EMAIL)
                                     // Tailwind doesn't have classes for 18px so use inline
@@ -392,13 +388,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return p("Please be aware that clearing the email body will also clear any associated"
             + " translations")
         .withClasses(
-            "m-2",
-            "p-2",
-            "text-sm",
-            "border",
-            "rounded-lg",
-            "border-amber-400",
-            "bg-amber-200");
+            "m-2", "p-2", "text-sm", "border", "rounded-lg", "border-amber-400", "bg-amber-200");
   }
 
   private DivTag renderFormGlobalErrors(Messages messages, Form<ProgramStatusesForm> form) {
@@ -408,7 +398,6 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .collect(ImmutableList.toImmutableList());
     return errors.isEmpty()
         ? div()
-        : div(each(errors, e -> p(e).withClasses("text-sm", "text-red-600")))
-            .withClasses("pb-4");
+        : div(each(errors, e -> p(e).withClasses("text-sm", "text-red-600"))).withClasses("pb-4");
   }
 }

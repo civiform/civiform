@@ -24,7 +24,6 @@ import views.HtmlBundle;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
-
 /**
  * Provides a form for selecting an applicant's preferred language. Note that we cannot use Play's
  * {@link play.i18n.Messages}, since the applicant has no language set yet. Instead, we use English

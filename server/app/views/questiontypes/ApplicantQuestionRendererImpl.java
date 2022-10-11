@@ -19,7 +19,6 @@ import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
-
 /**
  * Superclass for all applicant question renderers with input field(s) for the applicant to answer
  * the question. Question renderers should not subclass from ApplicantQuestionRendererImpl directly;

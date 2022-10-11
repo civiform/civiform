@@ -18,7 +18,6 @@ import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 
-
 /** Renders a page for editing the name and description of a program. */
 public final class ProgramEditView extends ProgramFormBuilder {
   private final AdminLayout layout;

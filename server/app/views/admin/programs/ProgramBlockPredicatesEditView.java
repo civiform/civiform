@@ -50,7 +50,6 @@ import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
-
 /** Renders a page for editing predicates of a block in a program. */
 public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
@@ -121,8 +120,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             .with(
                 div()
                     .with(
-                        h2(H2_CURRENT_VISIBILITY_CONDITION)
-                            .withClasses("font-semibold", "text-lg"))
+                        h2(H2_CURRENT_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
                     .with(
                         div(blockDefinition.visibilityPredicate().isPresent()
                                 ? blockDefinition
@@ -135,9 +133,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             .with(removePredicateForm)
             .with(
                 div()
-                    .with(
-                        h2(H2_NEW_VISIBILITY_CONDITION)
-                            .withClasses("font-semibold", "text-lg"))
+                    .with(h2(H2_NEW_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
                     .with(div(TEXT_NEW_VISIBILITY_CONDITION).withClasses("mb-2"))
                     .with(
                         modals.isEmpty()
@@ -234,8 +230,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
         .with(createHiddenQuestionDefinitionInput(questionDefinition))
         .with(
             div()
-                .withClasses(
-                    ReferenceClasses.PREDICATE_OPTIONS, "flex", "flex-row", "gap-1")
+                .withClasses(ReferenceClasses.PREDICATE_OPTIONS, "flex", "flex-row", "gap-1")
                 .with(createScalarDropdown(questionDefinition))
                 .with(createOperatorDropdown())
                 .with(createValueField(questionDefinition)))
@@ -255,14 +250,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             : questionDefinition.getQuestionHelpText().getDefault();
     return div()
         .withClasses(
-            "flex",
-            "flex-row",
-            "gap-4",
-            "px-4",
-            "py-2",
-            "my-2",
-            "border",
-            "border-gray-200")
+            "flex", "flex-row", "gap-4", "px-4", "py-2", "my-2", "border", "border-gray-200")
         .with(
             Icons.questionTypeSvg(questionDefinition.getQuestionType())
                 .withClasses("shrink-0", "h-12", "w-6"))

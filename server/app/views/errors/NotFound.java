@@ -21,7 +21,6 @@ import views.applicant.ApplicantLayout;
 import views.style.BaseStyles;
 import views.style.ErrorStyles;
 
-
 public final class NotFound extends BaseHtmlView {
 
   private final ApplicantLayout layout;

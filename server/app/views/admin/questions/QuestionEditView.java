@@ -46,7 +46,6 @@ import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
-
 /** Renders a page for editing a question. */
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;

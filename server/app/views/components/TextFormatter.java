@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.style.BaseStyles;
 
-
 /**
  * The TextFormatter class introduces options for converting plain-text strings into richer HTML
  * content.
@@ -93,13 +92,7 @@ public final class TextFormatter {
             .withTarget("_blank")
             .with(
                 Icons.svg(Icons.OPEN_IN_NEW)
-                    .withClasses(
-                        "shrink-0",
-                        "h-5",
-                        "w-auto",
-                        "inline",
-                        "ml-1",
-                        "align-text-top"));
+                    .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top"));
       }
       contentBuilder.add(urlTag);
 

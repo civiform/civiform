@@ -15,7 +15,6 @@ import services.applicant.question.ApplicantQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
-
 /** Renders an address question. */
 public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
