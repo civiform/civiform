@@ -25,6 +25,8 @@ import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
 
+// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CfJsonDocumentContext
+
 public class CfJsonDocumentContext {
   private static final TypeRef<List<Object>> LIST_OF_OBJECTS_TYPE = new TypeRef<>() {};
   private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
