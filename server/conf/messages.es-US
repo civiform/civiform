@@ -113,6 +113,7 @@ link.createAccountOrSignIn=Crear una cuenta o acceder
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Solicitar
+
 # The text read for screen readers.
 button.applySr=Solicitar {0}
 # The text on the button an applicant clicks to edit the application for a specific program.
@@ -146,6 +147,9 @@ title.inProgressProgramsUpdated=En curso
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Sin comenzar
+
+# Screen reader format string for program cards
+title.programCard=Programa {0} de {1} -- {2}
 
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Enviados
@@ -273,7 +277,6 @@ validation.fileRequired=Elige un archivo.
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Debe tener menos de {0} caracteres.
 validation.idTooShort=Debe tener más de {0} caracteres.
-validation.numberRequired=Solo puede incluir números.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -309,6 +312,7 @@ validation.lastNameRequired=Ingresa tu apellido.
 validation.numberTooBig=El número debe ser menor que {0}.
 validation.numberTooSmall=El número debe ser mayor que {0}.
 validation.numberNonInteger=El número debe ser positivo y entero y solo puede contener caracteres numéricos entre 0 y 9.
+validation.numberRequired=Solo debe contener números.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
