@@ -21,7 +21,6 @@ import play.mvc.Http;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /**
  * Contains functions for rendering language-related components. These are used to allow an
@@ -49,25 +48,25 @@ public final class LanguageSelector {
             .withId("select-language")
             .withName("locale")
             .withClasses(
-                Styles.BLOCK,
-                Styles.OUTLINE_NONE,
-                Styles.PX_3,
-                Styles.MX_3,
-                Styles.PY_1,
-                Styles.TEXT_XS,
-                Styles.ROUNDED_FULL,
-                Styles.BORDER,
+                "block",
+                "outline-none",
+                "px-3",
+                "mx-3",
+                "py-1",
+                "text-xs",
+                "rounded-full",
+                "border",
                 // On hover/focus, invert the colors to make the focus state visually distinctive.
                 // See https://github.com/civiform/civiform/issues/3558.
-                Styles.BORDER_GRAY_500,
-                StyleUtils.focus(Styles.BORDER_BLACK),
-                StyleUtils.hover(Styles.BORDER_BLACK),
-                Styles.BG_WHITE,
-                StyleUtils.focus(Styles.BG_BLACK),
-                StyleUtils.hover(Styles.BG_BLACK),
-                Styles.TEXT_BLACK,
-                StyleUtils.focus(Styles.TEXT_WHITE),
-                StyleUtils.hover(Styles.TEXT_WHITE));
+                "border-gray-500",
+                StyleUtils.focus("border-black"),
+                StyleUtils.hover("border-black"),
+                "bg-white",
+                StyleUtils.focus("bg-black"),
+                StyleUtils.hover("bg-black"),
+                "text-black",
+                StyleUtils.focus("text-white"),
+                StyleUtils.hover("text-white"));
 
     // An option consists of the language (localized to that language - for example,
     // this would display 'Español' for es-US), and the value is the ISO code.
@@ -115,7 +114,7 @@ public final class LanguageSelector {
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))
             .withText(text);
 
-    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
+    return div().withClasses("my-2", "relative").with(labelTag);
   }
 
   /**

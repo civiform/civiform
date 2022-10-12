@@ -45,7 +45,6 @@ import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /** Renders a page for editing a question. */
 public final class QuestionEditView extends BaseHtmlView {
@@ -210,16 +209,16 @@ public final class QuestionEditView extends BaseHtmlView {
     return div()
         .withId("question-form")
         .withClasses(
-            Styles.BORDER_GRAY_400,
-            Styles.BORDER_R,
-            Styles.P_6,
-            Styles.FLEX,
-            Styles.FLEX_COL,
-            Styles.H_FULL,
-            Styles.OVERFLOW_HIDDEN,
-            Styles.OVERFLOW_Y_AUTO,
-            Styles.RELATIVE,
-            Styles.W_2_5)
+            "border-gray-400",
+            "border-r",
+            "p-6",
+            "flex",
+            "flex-col",
+            "h-full",
+            "overflow-hidden",
+            "overflow-y-auto",
+            "relative",
+            "w-2/5")
         .with(renderHeader(title))
         .with(multiOptionQuestionField(questionForm));
   }
@@ -234,17 +233,17 @@ public final class QuestionEditView extends BaseHtmlView {
                     // Add "hidden" to other classes, so that the template is not shown
                     .withClasses(
                         ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-                        Styles.HIDDEN,
-                        Styles.FLEX,
-                        Styles.FLEX_ROW,
-                        Styles.MB_4));
+                        "hidden",
+                        "flex",
+                        "flex-row",
+                        "mb-4"));
     if (questionForm instanceof MultiOptionQuestionForm) {
       multiOptionQuestionField.with(
           FieldWithLabel.number()
               .setFieldName("nextAvailableId")
               .setValue(((MultiOptionQuestionForm) questionForm).getNextAvailableId())
               .getNumberTag()
-              .withClasses(Styles.HIDDEN));
+              .withClasses("hidden"));
     }
     return multiOptionQuestionField;
   }
@@ -267,13 +266,13 @@ public final class QuestionEditView extends BaseHtmlView {
                 .url())
         .with(
             div()
-                .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.MT_3)
+                .withClasses("flex", "space-x-2", "mt-3")
                 .with(
-                    div().withClasses(Styles.FLEX_GROW),
+                    div().withClasses("flex-grow"),
                     asRedirectElement(button("Cancel"), cancelUrl)
                         .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
                     submitButton("Create")
-                        .withClass(Styles.M_4)
+                        .withClass("m-4")
                         .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)));
 
     return formTag;
@@ -291,7 +290,7 @@ public final class QuestionEditView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Update").withClass(Styles.ML_2));
+        .with(submitButton("Update").withClass("ml-2"));
     return formTag;
   }
 
@@ -313,7 +312,7 @@ public final class QuestionEditView extends BaseHtmlView {
                     .withValue(questionForm.getRedirectUrl()),
                 requiredFieldsExplanationContent());
     formTag.with(
-        h2("Visible to applicants").withClasses(Styles.PY_2),
+        h2("Visible to applicants").withClasses("py-2"),
         repeatedQuestionInformation(),
         FieldWithLabel.textArea()
             .setId("question-text-textarea")
@@ -331,12 +330,12 @@ public final class QuestionEditView extends BaseHtmlView {
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionHelpText())
             .getTextareaTag()
-            .withCondClass(questionType.equals(QuestionType.STATIC), Styles.HIDDEN));
+            .withCondClass(questionType.equals(QuestionType.STATIC), "hidden"));
 
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, hidden fields to pass enumerator and name data are added.
     formTag.with(
-        h2("Visible to administrators only").withClasses(Styles.PY_2),
+        h2("Visible to administrators only").withClasses("py-2"),
         administrativeNameField(questionForm.getQuestionName(), !forCreate));
     if (!forCreate) {
       formTag.with(
@@ -370,7 +369,7 @@ public final class QuestionEditView extends BaseHtmlView {
     }
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
-      formTag.with(h2("Question settings").withClasses(Styles.PY_2)).with(questionSettingsContent);
+      formTag.with(h2("Question settings").withClasses("py-2")).with(questionSettingsContent);
     }
 
     return formTag;
@@ -383,7 +382,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return fieldset()
         .with(
             legend("Data privacy settings*").withClass(BaseStyles.INPUT_LABEL),
-            p().withClasses(Styles.PX_1, Styles.PB_2, Styles.TEXT_SM, Styles.TEXT_GRAY_600)
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
                 .with(
                     span("Learn more about each of the data export settings in the "),
                     new LinkElement()
@@ -488,19 +487,19 @@ public final class QuestionEditView extends BaseHtmlView {
             + " \"this.parent.parent\", etc.")
         .withId("repeated-question-information")
         .withClasses(
-            Styles.HIDDEN,
-            Styles.TEXT_BLUE_500,
-            Styles.TEXT_SM,
-            Styles.P_2,
-            Styles.FONT_MONO,
-            Styles.BORDER_4,
-            Styles.BORDER_BLUE_400);
+            "hidden",
+            "text-blue-500",
+            "text-sm",
+            "p-2",
+            "font-mono",
+            "border-4",
+            "border-blue-400");
   }
 
   private DivTag administrativeNameField(String adminName, boolean editExistingQuestion) {
     if (editExistingQuestion) {
       return div()
-          .withClass(Styles.MB_2)
+          .withClass("mb-2")
           .with(
               p("Administrative identifier. This value can't be changed")
                   .withClasses(BaseStyles.INPUT_LABEL),
