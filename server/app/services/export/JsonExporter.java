@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
+import featureflags.FeatureFlags;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -12,7 +14,7 @@ import javax.inject.Inject;
 import models.Application;
 import org.apache.commons.lang3.tuple.Pair;
 import play.libs.F;
-import repository.TimeFilter;
+import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
@@ -31,30 +33,29 @@ import services.program.ProgramService;
 import services.question.LocalizedQuestionOption;
 
 /** Exports all applications for a given program as JSON. */
-public class JsonExporter {
+public final class JsonExporter {
 
   private final ApplicantService applicantService;
   private final ProgramService programService;
+  private final FeatureFlags featureFlags;
 
   @Inject
-  JsonExporter(ApplicantService applicantService, ProgramService programService) {
+  JsonExporter(
+      ApplicantService applicantService, ProgramService programService, FeatureFlags featureFlags) {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Pair<String, PaginationResult<Application>> export(
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
-      Optional<String> searchFragment,
-      TimeFilter submitTimeFilter) {
+      SubmittedApplicationFilter filters) {
     PaginationResult<Application> paginationResult;
     try {
       paginationResult =
           programService.getSubmittedProgramApplicationsAllVersions(
-              programDefinition.id(),
-              F.Either.Left(paginationSpec),
-              searchFragment,
-              submitTimeFilter);
+              programDefinition.id(), F.Either.Left(paginationSpec), filters);
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -94,10 +95,20 @@ public class JsonExporter {
     jsonApplication.putString(
         Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
 
-    if (application.getSubmitTime() == null) {
-      jsonApplication.putNull(Path.create("submit_time"));
-    } else {
-      jsonApplication.putString(Path.create("submit_time"), application.getSubmitTime().toString());
+    Path submitTimePath = Path.create("submit_time");
+    Optional.ofNullable(application.getSubmitTime())
+        .map(Instant::toString)
+        .ifPresentOrElse(
+            submitTime -> jsonApplication.putString(submitTimePath, submitTime),
+            () -> jsonApplication.putNull(submitTimePath));
+
+    if (featureFlags.isStatusTrackingEnabled()) {
+      Path statusPath = Path.create("status");
+      application
+          .getLatestStatus()
+          .ifPresentOrElse(
+              status -> jsonApplication.putString(statusPath, status),
+              () -> jsonApplication.putNull(statusPath));
     }
 
     for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {

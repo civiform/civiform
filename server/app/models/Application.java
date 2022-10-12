@@ -1,12 +1,16 @@
 package models;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
@@ -30,6 +34,12 @@ public class Application extends BaseModel {
 
   @ManyToOne private Program program;
 
+  // Note: there is not an index on createTime currently as we don't filter on
+  // it and expect the number of results to be small.
+  @OneToMany(mappedBy = "application")
+  @OrderBy("createTime desc")
+  private List<ApplicationEvent> applicationEvents;
+
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @WhenCreated private Instant createTime;
@@ -39,6 +49,7 @@ public class Application extends BaseModel {
   private Instant submitTime;
   private String preferredLocale;
   private String submitterEmail;
+  private String latestStatus;
 
   public Application(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
@@ -87,6 +98,10 @@ public class Application extends BaseModel {
     return this;
   }
 
+  public List<ApplicationEvent> getApplicationEvents() {
+    return applicationEvents;
+  }
+
   public LifecycleStage getLifecycleStage() {
     return this.lifecycleStage;
   }
@@ -107,5 +122,41 @@ public class Application extends BaseModel {
   public Application setSubmitTimeToNow() {
     this.submitTime = Instant.now();
     return this;
+  }
+
+  @VisibleForTesting
+  public Application setSubmitTimeForTest(Instant v) {
+    this.submitTime = v;
+    return this;
+  }
+
+  @VisibleForTesting
+  public Application setCreateTimeForTest(Instant v) {
+    this.createTime = v;
+    return this;
+  }
+
+  /**
+   * Returns the latest application status text value associated with the application.
+   *
+   * <p>This value is updated by DB triggers defined in conf/evolutions/default/44.sql which set the
+   * status to the latest ApplicationEventDetails event for the application with a type of
+   * "status_change". Attempts to update the status manually will be overridden by the trigger (and
+   * has associated tests confirming this).
+   *
+   * <p>If information about the actual event that set this status is desired, make use of
+   * getApplicationEvents instead.
+   */
+  public Optional<String> getLatestStatus() {
+    return Optional.ofNullable(latestStatus);
+  }
+
+  /**
+   * This is visible only for tests to manipulate the latest status directly in order to ensure that
+   * updates to it are overridden by the configured database trigger.
+   */
+  @VisibleForTesting
+  void setLatestStatusForTest(String latestStatus) {
+    this.latestStatus = latestStatus;
   }
 }

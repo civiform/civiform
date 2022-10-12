@@ -1,25 +1,26 @@
 import {
-  AdminPredicates,
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
-  endSession,
+  createTestContext,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
-  startSession,
-  userDisplayName,
+  testUserDisplayName,
+  validateScreenshot,
 } from './support'
 
 describe('create and edit predicates', () => {
+  const ctx = createTestContext()
   it('add a hide predicate', async () => {
-    const {browser, page} = await startSession()
+    const {
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+      adminPredicates,
+    } = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
@@ -29,7 +30,7 @@ describe('create and edit predicates', () => {
       questionText: 'conditional question',
     })
 
-    const programName = 'create hide predicate'
+    const programName = 'create-hide-predicate'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'first screen', [
       'hide-predicate-q',
@@ -40,7 +41,6 @@ describe('create and edit predicates', () => {
 
     // Edit predicate for second block
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2')
-    const adminPredicates = new AdminPredicates(page)
     await adminPredicates.addPredicate(
       'hide-predicate-q',
       'hidden if',
@@ -49,26 +49,28 @@ describe('create and edit predicates', () => {
       'hide me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is hidden if hide-predicate-q\'s text is equal to "hide me"',
+      'Screen 2 is hidden if question with an admin ID of "hide-predicate-q"\'s text is equal to "hide me"',
     )
+    await validateScreenshot(page, 'hide-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
 
-    // Switch to the applicant view and apply to the program
+    // Switch to the applicantQuestions.view and apply to the program
     await logout(page)
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
-    const applicant = new ApplicantQuestions(page)
-    await applicant.applyProgram(programName)
+    await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that the next screen will be shown
-    await applicant.answerTextQuestion('show me')
-    await applicant.clickNext()
+    await applicantQuestions.answerTextQuestion('show me')
+    await applicantQuestions.clickNext()
 
     // Fill out the second screen
-    await applicant.answerTextQuestion('will be hidden and not submitted')
-    await applicant.clickNext()
+    await applicantQuestions.answerTextQuestion(
+      'will be hidden and not submitted',
+    )
+    await applicantQuestions.clickNext()
 
     // We should be on the review page, with an answer to Screen 2's question
     expect(await page.innerText('#application-summary')).toContain(
@@ -77,36 +79,38 @@ describe('create and edit predicates', () => {
 
     // Return to the first screen and answer it so that the second screen is hidden
     await page.click('text=Edit') // first screen edit
-    await applicant.answerTextQuestion('hide me')
-    await applicant.clickNext()
+    await applicantQuestions.answerTextQuestion('hide me')
+    await applicantQuestions.clickNext()
 
     // We should be on the review page
     expect(await page.innerText('#application-summary')).not.toContain(
       'conditional question',
     )
-    await applicant.submitFromReviewPage()
+    await applicantQuestions.submitFromReviewPage()
 
     // Visit the program admin page and assert the hidden question does not show
     await logout(page)
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
 
     const applicationText = await adminPrograms
       .applicationFrameLocator()
       .locator('#application-view')
       .innerText()
     expect(applicationText).not.toContain('Screen 2')
-
-    await endSession(browser)
   })
 
   it('add a show predicate', async () => {
-    const {browser, page} = await startSession()
+    const {
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+      adminPredicates,
+    } = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'show-predicate-q'})
@@ -116,7 +120,7 @@ describe('create and edit predicates', () => {
       questionText: 'conditional question',
     })
 
-    const programName = 'create show predicate'
+    const programName = 'create-show-predicate'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'first screen', [
       'show-predicate-q',
@@ -127,7 +131,6 @@ describe('create and edit predicates', () => {
 
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2')
-    const adminPredicates = new AdminPredicates(page)
     await adminPredicates.addPredicate(
       'show-predicate-q',
       'shown if',
@@ -136,22 +139,22 @@ describe('create and edit predicates', () => {
       'show me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is shown if show-predicate-q\'s text is equal to "show me"',
+      'Screen 2 is shown if question with an admin ID of "show-predicate-q"\'s text is equal to "show me"',
     )
+    await validateScreenshot(page, 'show-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
 
-    // Switch to the applicant view and apply to the program
+    // Switch to the applicantQuestions.view and apply to the program
     await logout(page)
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
-    const applicant = new ApplicantQuestions(page)
-    await applicant.applyProgram(programName)
+    await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that the next screen will be hidden
-    await applicant.answerTextQuestion('hide next screen')
-    await applicant.clickNext()
+    await applicantQuestions.answerTextQuestion('hide next screen')
+    await applicantQuestions.clickNext()
 
     // We should be on the review page, with no Screen 2 questions shown. We should
     // be able to submit the application
@@ -164,41 +167,43 @@ describe('create and edit predicates', () => {
 
     // Return to the first screen and answer it so that the second screen is shown
     await page.click('text=Edit') // first screen edit
-    await applicant.answerTextQuestion('show me')
-    await applicant.clickNext()
+    await applicantQuestions.answerTextQuestion('show me')
+    await applicantQuestions.clickNext()
 
     // The second screen should now appear, and we must fill it out
-    await applicant.answerTextQuestion('hello world!')
-    await applicant.clickNext()
+    await applicantQuestions.answerTextQuestion('hello world!')
+    await applicantQuestions.clickNext()
 
     // We should be on the review page
     expect(await page.innerText('#application-summary')).toContain(
       'conditional question',
     )
-    await applicant.submitFromReviewPage()
+    await applicantQuestions.submitFromReviewPage()
 
     // Visit the program admin page and assert the conditional question is shown
     await logout(page)
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicant(userDisplayName())
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     expect(
       await adminPrograms
         .applicationFrameLocator()
         .locator('#application-view')
         .innerText(),
     ).toContain('Screen 2')
-
-    await endSession(browser)
   })
 
   it('every right hand type evaluates correctly', async () => {
-    const {browser, page} = await startSession()
+    const {
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+      adminPredicates,
+    } = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     // DATE, STRING, LONG, LIST_OF_STRINGS, LIST_OF_LONGS
     await adminQuestions.addNameQuestion({questionName: 'single-string'})
@@ -214,7 +219,7 @@ describe('create and edit predicates', () => {
       questionName: 'depends on previous',
     })
 
-    const programName = 'test all predicate types'
+    const programName = 'test-all-predicate-types'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'string', [
       'single-string',
@@ -236,7 +241,6 @@ describe('create and edit predicates', () => {
 
     // Simple string predicate
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2')
-    const adminPredicates = new AdminPredicates(page)
     await adminPredicates.addPredicate(
       'single-string',
       'shown if',
@@ -297,31 +301,29 @@ describe('create and edit predicates', () => {
 
     await adminPrograms.publishProgram(programName)
 
-    // Switch to applicant view - if they answer each question according to the predicate,
+    // Switch to applicantQuestions.view - if they answer each question according to the predicate,
     // the next screen will be shown.
     await logout(page)
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
-    const applicant = new ApplicantQuestions(page)
-    await applicant.applyProgram(programName)
+    await applicantQuestions.applyProgram(programName)
 
-    await applicant.answerNameQuestion('show', 'next', 'screen')
-    await applicant.clickNext()
-    await applicant.answerTextQuestion('blue')
-    await applicant.clickNext()
-    await applicant.answerNumberQuestion('42')
-    await applicant.clickNext()
-    await applicant.answerNumberQuestion('123')
-    await applicant.clickNext()
-    await applicant.answerDateQuestion('1998-09-04')
-    await applicant.clickNext()
-    await applicant.answerCheckboxQuestion(['cat'])
-    await applicant.clickNext()
-    await applicant.answerTextQuestion('last one!')
-    await applicant.clickNext()
+    await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.answerTextQuestion('blue')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.answerNumberQuestion('42')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.answerNumberQuestion('123')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.answerDateQuestion('1998-09-04')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.answerCheckboxQuestion(['cat'])
+    await applicantQuestions.clickNext()
+    await applicantQuestions.answerTextQuestion('last one!')
+    await applicantQuestions.clickNext()
 
     // We should now be on the summary page
-    await applicant.submitFromReviewPage()
-    await endSession(browser)
+    await applicantQuestions.submitFromReviewPage()
   })
 })

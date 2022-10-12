@@ -41,7 +41,7 @@ import views.admin.questions.QuestionsListView;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing questions. */
-public class AdminQuestionController extends CiviFormController {
+public final class AdminQuestionController extends CiviFormController {
   private final QuestionService service;
   private final QuestionsListView listView;
   private final QuestionEditView editView;
@@ -108,7 +108,7 @@ public class AdminQuestionController extends CiviFormController {
 
   /** Return a HTML page containing a form to create a new question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result newOne(Request request, String type) {
+  public Result newOne(Request request, String type, String redirectUrl) {
     QuestionType questionType;
     try {
       questionType = QuestionType.of(type);
@@ -125,7 +125,8 @@ public class AdminQuestionController extends CiviFormController {
 
     try {
       return ok(
-          editView.renderNewQuestionForm(request, questionType, enumeratorQuestionDefinitions));
+          editView.renderNewQuestionForm(
+              request, questionType, enumeratorQuestionDefinitions, redirectUrl));
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
     }
@@ -170,7 +171,11 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
-    return withSuccessMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+    String redirectUrl =
+        questionForm.getRedirectUrl().isEmpty()
+            ? routes.AdminQuestionController.index().url()
+            : questionForm.getRedirectUrl();
+    return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
 
   /** POST endpoint for un-archiving a question. */
@@ -358,7 +363,7 @@ public class AdminQuestionController extends CiviFormController {
     }
 
     if (questionForm instanceof MultiOptionQuestionForm) {
-      MultiOptionQuestionDefinition definition = null;
+      final MultiOptionQuestionDefinition definition;
       try {
         definition = (MultiOptionQuestionDefinition) questionForm.getBuilder().build();
       } catch (UnsupportedQuestionTypeException e) {

@@ -1,36 +1,24 @@
-import {
-  startSession,
-  loginAsAdmin,
-  AdminPrograms,
-  AdminQuestions,
-} from './support'
-import {Page} from 'playwright'
+import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
 
 describe('view program references from question view', () => {
-  let pageObject: Page
-  let adminPrograms: AdminPrograms
-  let adminQuestions: AdminQuestions
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-    adminPrograms = new AdminPrograms(pageObject)
-    adminQuestions = new AdminQuestions(pageObject)
-
-    await loginAsAdmin(pageObject)
-  })
+  const ctx = createTestContext()
 
   it('shows no results for an unreferenced question', async () => {
+    const {page, adminQuestions} = ctx
+    await loginAsAdmin(page)
     const questionName = 'unreferenced-q'
     await adminQuestions.addAddressQuestion({questionName})
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
-      expectedProgramReferencesText: 'Used across 0 active & 0 draft programs',
+      expectedProgramReferencesText: 'Used in 0 programs',
+      version: 'draft',
     })
   })
 
   it('shows results for referencing programs', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
     const questionName = 'question-references-q'
+    await loginAsAdmin(page)
     await adminQuestions.addAddressQuestion({questionName})
 
     // Add a reference to the question in the second block. We'll later assert
@@ -42,15 +30,6 @@ describe('view program references from question view', () => {
       questionName,
     ])
 
-    await adminQuestions.gotoAdminQuestionsPage()
-    await adminQuestions.expectQuestionProgramReferencesText({
-      questionName,
-      expectedProgramReferencesText: 'Used across 0 active & 1 draft programs',
-    })
-
-    // Publish and add a reference from a new program in the draft version.
-    await adminPrograms.gotoAdminProgramsPage()
-    await adminPrograms.publishAllPrograms()
     const secondProgramName = 'second-program'
     await adminPrograms.addProgram(secondProgramName)
     await adminPrograms.addProgramBlock(secondProgramName, 'first block', [
@@ -60,13 +39,46 @@ describe('view program references from question view', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectQuestionProgramReferencesText({
       questionName,
-      expectedProgramReferencesText: 'Used across 1 active & 2 draft programs',
+      expectedProgramReferencesText: 'Added to 2 programs.',
+      version: 'draft',
+    })
+
+    // Publish.
+    await adminPrograms.gotoAdminProgramsPage()
+    await adminPrograms.publishAllPrograms()
+
+    // Add a reference from a new program in the draft version.
+    const thirdProgramName = 'third-program'
+    await adminPrograms.addProgram(thirdProgramName)
+    await adminPrograms.addProgramBlock(thirdProgramName, 'first block', [
+      questionName,
+    ])
+
+    // Remove question from an existing published program.
+    await adminPrograms.createNewVersion(secondProgramName)
+    await adminPrograms.removeQuestionFromProgram(
+      secondProgramName,
+      'Screen 2',
+      [questionName],
+    )
+
+    await adminQuestions.gotoAdminQuestionsPage()
+    await validateScreenshot(page, 'question-used-in-programs')
+    await adminQuestions.expectQuestionProgramReferencesText({
+      questionName,
+      expectedProgramReferencesText:
+        'Used in 1 program.\n\nAdded to 1 program.\n\nRemoved from 1 program.',
+      version: 'active',
     })
 
     await adminQuestions.expectProgramReferencesModalContains({
       questionName,
-      expectedDraftProgramReferences: ['first-program', 'second-program'],
-      expectedActiveProgramReferences: ['first-program'],
+      expectedUsedProgramReferences: ['first-program'],
+      expectedAddedProgramReferences: ['third-program'],
+      expectedRemovedProgramReferences: ['second-program'],
     })
+
+    await adminQuestions.clickOnProgramReferencesModal(questionName)
+    await validateScreenshot(page, 'question-program-modal')
   })
 })

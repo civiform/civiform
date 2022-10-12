@@ -2,7 +2,6 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.github.slugify.Slugify;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -31,7 +30,7 @@ import play.db.ebean.Transactional;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
-import repository.TimeFilter;
+import repository.SubmittedApplicationFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -82,8 +81,7 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ActiveAndDraftPrograms getActiveAndDraftPrograms() {
-    return new ActiveAndDraftPrograms(
-        this, versionRepository.getActiveVersion(), versionRepository.getDraftVersion());
+    return ActiveAndDraftPrograms.buildFromCurrentVersions(this, versionRepository);
   }
 
   @Override
@@ -150,15 +148,27 @@ public final class ProgramServiceImpl implements ProgramService {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
 
-    if (hasProgramNameCollision(adminName)) {
-      errorsBuilder.add(CiviFormError.of("a program named " + adminName + " already exists"));
+    if (defaultDisplayName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A public display name for the program is required"));
     }
-
-    validateProgramText(errorsBuilder, "admin name", adminName);
-    validateProgramText(errorsBuilder, "admin description", adminDescription);
-    validateProgramText(errorsBuilder, "display name", defaultDisplayName);
-    validateProgramText(errorsBuilder, "display description", defaultDisplayDescription);
-    validateProgramText(errorsBuilder, "display mode", displayMode);
+    if (defaultDisplayDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A public description for the program is required"));
+    }
+    if (adminName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program URL is required"));
+    } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
+      errorsBuilder.add(
+          CiviFormError.of(
+              "A program URL may only contain lowercase letters, numbers, and dashes"));
+    } else if (hasProgramNameCollision(adminName)) {
+      errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
+    }
+    if (displayMode.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program visibility option must be selected"));
+    }
+    if (adminDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program note is required"));
+    }
 
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
@@ -199,9 +209,18 @@ public final class ProgramServiceImpl implements ProgramService {
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    validateProgramText(errorsBuilder, "admin description", adminDescription);
-    validateProgramText(errorsBuilder, "display name", displayName);
-    validateProgramText(errorsBuilder, "display description", displayDescription);
+    if (displayName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A public display name for the program is required"));
+    }
+    if (displayDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A public description for the program is required"));
+    }
+    if (displayMode.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program visibility option must be selected"));
+    }
+    if (adminDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of("A program note is required"));
+    }
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -326,10 +345,9 @@ public final class ProgramServiceImpl implements ProgramService {
   // we can check both by just checking for slug collisions.
   // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
   private boolean hasProgramNameCollision(String programName) {
-    Slugify slugifier = Slugify.builder().build();
     return getAllProgramNames().stream()
-        .map(slugifier::slugify)
-        .anyMatch(slugifier.slugify(programName)::equals);
+        .map(MainModule.SLUGIFIER::slugify)
+        .anyMatch(MainModule.SLUGIFIER.slugify(programName)::equals);
   }
 
   private void validateProgramText(
@@ -794,10 +812,9 @@ public final class ProgramServiceImpl implements ProgramService {
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      Optional<String> searchNameFragment,
-      TimeFilter submitTimeFilter) {
+      SubmittedApplicationFilter filters) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpecEither, searchNameFragment, submitTimeFilter);
+        programId, paginationSpecEither, filters);
   }
 
   @Override

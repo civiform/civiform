@@ -2,6 +2,8 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import java.util.List;
 import java.util.Optional;
 import models.Question;
@@ -9,41 +11,35 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
+import org.mockito.Mockito;
 import repository.TimeFilter;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicantService;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
+import services.program.ProgramService;
+import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import support.ProgramBuilder;
 
 public class CsvExporterTest extends AbstractExporterTest {
 
   private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
+  private static final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
 
   private ApplicantQuestion getApplicantQuestion(QuestionDefinition questionDefinition) {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
   }
 
-  @Override
-  protected void createFakeProgram() {
-    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
-
-    createFakeQuestions();
-    fakeQuestions.forEach(
-        question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
-
-    this.fakeProgram = fakeProgram.build();
-  }
-
   @Test
-  public void programCsv_noRepeatedEnties() throws Exception {
+  public void programCsv_noRepeatedEntities() throws Exception {
+    createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
 
-    ExporterService exporterService = instanceOf(ExporterService.class);
+    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
@@ -56,6 +52,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
+            "Status",
             "applicant email address (email)",
             "applicant name (first_name)",
             "applicant name (middle_name)",
@@ -78,18 +75,22 @@ public class CsvExporterTest extends AbstractExporterTest {
     NameQuestion nameApplicantQuestion =
         getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
             .createNameQuestion();
-    String firstNameHeader = ExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
-    String lastNameHeader = ExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
+    String firstNameHeader =
+        CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
+    String lastNameHeader =
+        CsvExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
     // Applications should appear most recent first.
     assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Bob");
     assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Appleton");
+    assertThat(records.get(0).get("Status")).isEqualTo("");
+    assertThat(records.get(1).get("Status")).isEqualTo(STATUS_VALUE);
     // Check list for multiselect in default locale
     Question checkboxQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
     MultiSelectQuestion multiSelectApplicantQuestion =
         getApplicantQuestion(checkboxQuestion.getQuestionDefinition()).createMultiSelectQuestion();
     String multiSelectHeader =
-        ExporterService.pathToHeader(multiSelectApplicantQuestion.getSelectionPath());
+        CsvExporterService.pathToHeader(multiSelectApplicantQuestion.getSelectionPath());
     assertThat(records.get(1).get(multiSelectHeader)).isEqualTo("[toaster, pepper grinder]");
     // Check link for uploaded file
     Question fileuploadQuestion =
@@ -97,23 +98,53 @@ public class CsvExporterTest extends AbstractExporterTest {
     FileUploadQuestion fileuploadApplicantQuestion =
         getApplicantQuestion(fileuploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
     String fileKeyHeader =
-        ExporterService.pathToHeader(fileuploadApplicantQuestion.getFileKeyPath());
+        CsvExporterService.pathToHeader(fileuploadApplicantQuestion.getFileKeyPath());
     assertThat(records.get(1).get(fileKeyHeader))
         .contains(String.format("/admin/programs/%d/files/my-file-key", fakeProgram.id));
   }
 
   @Test
   public void programCsv_noEntities() throws Exception {
+    createFakeQuestions();
     createFakeProgram();
 
-    ExporterService exporterService = instanceOf(ExporterService.class);
+    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
     assertThat(records).hasSize(0);
 
-    // No applications means there are no answers to add columns for.
+    assertThat(parser.getHeaderNames())
+        .containsExactly(
+            "Applicant ID",
+            "Application ID",
+            "Applicant language",
+            "Submit time",
+            "Submitted by",
+            "Status");
+  }
+
+  @Test
+  public void programCsv_statusTrackingDisabled() throws Exception {
+    createFakeQuestions();
+    createFakeProgram();
+
+    CsvExporterService exporterService =
+        new CsvExporterService(
+            instanceOf(ProgramService.class),
+            instanceOf(QuestionService.class),
+            instanceOf(ApplicantService.class),
+            featureFlags,
+            instanceOf(Config.class));
+
+    CSVParser parser =
+        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    assertThat(records).hasSize(0);
+
+    // Status is not present in the headers.
     assertThat(parser.getHeaderNames())
         .containsExactly(
             "Applicant ID", "Application ID", "Applicant language", "Submit time", "Submitted by");
@@ -121,11 +152,12 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Test
   public void demographicsCsv_withRepeatedEntities() throws Exception {
+    createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
     createFakeProgramWithEnumerator();
 
-    ExporterService exporterService = instanceOf(ExporterService.class);
+    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
 
@@ -136,12 +168,13 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Submitter Email (Opaque)",
             "TI Organization",
             "Create time",
-            "Submit time");
+            "Submit time",
+            "Status");
   }
 
   @Test
   public void demographicsCsv_noEntities() throws Exception {
-    ExporterService exporterService = instanceOf(ExporterService.class);
+    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
 
@@ -152,18 +185,20 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Submitter Email (Opaque)",
             "TI Organization",
             "Create time",
-            "Submit time");
+            "Submit time",
+            "Status");
     assertThat(parser.getRecords()).hasSize(0);
   }
 
   @Test
   public void programCsv_withRepeatedEntities() throws Exception {
+    createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
     createFakeProgramWithEnumerator();
 
     // Generate default CSV
-    ExporterService exporterService = instanceOf(ExporterService.class);
+    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramCsv(fakeProgramWithEnumerator.id), DEFAULT_FORMAT);
@@ -175,6 +210,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
+            "Status",
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",

@@ -1,8 +1,8 @@
 package views.questiontypes;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -17,7 +17,7 @@ import services.question.LocalizedQuestionOption;
 import views.components.SelectWithLabel;
 
 /** Renders a dropdown question. */
-public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public DropdownQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -29,9 +29,10 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds) {
     Messages messages = params.messages();
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
@@ -43,10 +44,17 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setOptions(
                 singleSelectQuestion.getOptions().stream()
                     .sorted(Comparator.comparing(LocalizedQuestionOption::order))
-                    .collect(
-                        toImmutableMap(
-                            LocalizedQuestionOption::optionText,
-                            option -> String.valueOf(option.id()))));
+                    .map(
+                        option ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(option.optionText())
+                                .setValue(String.valueOf(option.id()))
+                                .build())
+                    .collect(ImmutableList.toImmutableList()))
+            .setAriaDescribedByIds(ariaDescribedByIds);
+    if (!validationErrors.isEmpty()) {
+      select.forceAriaInvalid();
+    }
     select.setScreenReaderText(question.getQuestionText());
 
     if (singleSelectQuestion.getSelectedOptionId().isPresent()) {

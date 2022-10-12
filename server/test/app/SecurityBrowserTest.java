@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.routes;
 import java.util.Optional;
 import models.Applicant;
+import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
@@ -32,9 +33,13 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     userRepository = app.injector().instanceOf(UserRepository.class);
   }
 
-  protected void loginWithSimulatedIdcs() {
+  private void loginWithSimulatedIdcs() {
     goTo(routes.LoginController.applicantLogin(Optional.empty()));
     // If we are not cookied, enter a username and password.
+    // Otherwise, since the fake provider uses the "web" flow, we're automatically sent to the
+    // redirect URI to merge logins.
+    // TODO(#1770): Consider removing the below conditional entirely once full logout from the
+    // fake OIDC provider is supported.
     if (browser.pageSource().contains("Enter any login")) {
       browser.$("[name='login']").click();
       browser.keyboard().sendKeys("username");
@@ -43,8 +48,6 @@ public class SecurityBrowserTest extends BaseBrowserTest {
       // Log in.
       browser.$(".login-submit").click();
       // Bypass consent screen.
-      browser.$(".login-submit").click();
-    } else {
       browser.$(".login-submit").click();
     }
   }
@@ -101,15 +104,37 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     Optional<String> applicantName =
         applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
     assertThat(applicantName).isPresent();
-    assertThat(applicantName.get()).isEqualTo("first");
+    assertThat(applicantName.get()).isEqualTo("username@example.com");
 
-    applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_MIDDLE_NAME);
-    assertThat(applicantName).isPresent();
-    assertThat(applicantName.get()).isEqualTo("middle");
+    assertThat(applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_MIDDLE_NAME))
+        .isEmpty();
+    assertThat(applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME))
+        .isEmpty();
+  }
 
-    applicantName = applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_LAST_NAME);
-    assertThat(applicantName).isPresent();
-    assertThat(applicantName.get()).isEqualTo("last");
+  @Test
+  public void basicOidcProviderCentralLogout() {
+    loginWithSimulatedIdcs();
+    goTo(routes.HomeController.securePlayIndex());
+    assertThat(browser.pageSource()).contains("You are logged in.");
+    logout();
+    assertThat(browser.url())
+        .contains(
+            "session/end?post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A19001%2F&client_id=foo")
+        .as("redirects to login provider");
+    assertThat(browser.pageSource().contains("Do you want to sign-out from"))
+        .as("Confirm logout from dev-oidc");
+    FluentWebElement continueButton = browser.$("button").last();
+    assertThat(continueButton.textContent()).contains("No");
+    continueButton.click();
+    assertThat(browser.url()).contains("loginForm");
+
+    // Log in.
+    goTo(routes.HomeController.index());
+    assertThat(browser.pageSource()).contains("Please log in");
+    goTo(routes.LoginController.applicantLogin(Optional.empty()));
+    // Verify we don't auto-login.
+    assertThat(browser.pageSource()).contains("Authorize");
   }
 
   @Test

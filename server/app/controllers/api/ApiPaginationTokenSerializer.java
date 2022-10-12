@@ -36,7 +36,7 @@ import services.CryptographicUtils;
  * <p>Deserializing a string is the same process in reverse, with a check to ensure the signature of
  * the provided token matches the freshly computed signature of the provided payload.
  */
-public class ApiPaginationTokenSerializer {
+public final class ApiPaginationTokenSerializer {
   private static final ObjectMapper mapper =
       new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
 

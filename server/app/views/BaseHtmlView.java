@@ -12,12 +12,14 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
+import j2html.tags.Tag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.PTag;
+import j2html.tags.specialized.SpanTag;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -29,7 +31,6 @@ import views.components.LinkElement;
 import views.html.helper.CSRF;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /**
  * Base class for all HTML views. Provides stateless convenience methods for generating HTML.
@@ -40,7 +41,7 @@ import views.style.Styles;
 public abstract class BaseHtmlView {
 
   public static H1Tag renderHeader(String headerText, String... additionalClasses) {
-    return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
+    return h1(headerText).withClasses("mb-4", StyleUtils.joinStyles(additionalClasses));
   }
 
   public static DivTag fieldErrors(
@@ -66,19 +67,32 @@ public abstract class BaseHtmlView {
   }
 
   protected static ButtonTag redirectButton(String id, String text, String redirectUrl) {
-    return asRedirectButton(
-        TagCreator.button(text).withId(id).withClasses(Styles.M_2), redirectUrl);
+    return asRedirectElement(TagCreator.button(text).withId(id).withClasses("m-2"), redirectUrl);
   }
 
-  protected static ButtonTag asRedirectButton(ButtonTag buttonEl, String redirectUrl) {
-    return buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
+  /**
+   * Turns provided element into a clickable element. Upon click the user will be redirected to the
+   * provided url. It's up to caller of this method to style element appropriately to make it clear
+   * that the element is clickable. For example add hover effect and change cursor style.
+   *
+   * @return The element itself.
+   */
+  protected static <T extends Tag> T asRedirectElement(T element, String redirectUrl) {
+    // Attribute `data-redirect-to` is handled in JS by main.ts file.
+    element.attr("data-redirect-to", redirectUrl);
+    return element;
   }
 
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
-    return TagCreator.button()
-        .with(
-            Icons.svg(icon, 18).withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0),
-            span(buttonText).withClass(Styles.TEXT_LEFT));
+    return ViewUtils.makeSvgTextButton(buttonText, icon);
+  }
+
+  protected static SpanTag spanNowrap(String tag) {
+    return span(tag).withClasses("whitespace-nowrap");
+  }
+
+  protected static SpanTag spanNowrap(Tag... tags) {
+    return span().with(tags).withClasses("whitespace-nowrap");
   }
 
   /**
@@ -105,9 +119,7 @@ public abstract class BaseHtmlView {
     String paginationText =
         pageCount > 0 ? String.format("Page %d of %d", page, pageCount) : "No results";
     div.with(
-        div(paginationText)
-            .withClasses(
-                Styles.LEADING_3, Styles.FLOAT_LEFT, Styles.INLINE_BLOCK, Styles.P_2, Styles.M_4));
+        div(paginationText).withClasses("leading-3", "float-left", "inline-block", "p-2", "m-4"));
     if (pageCount > page) {
       div.with(
           new LinkElement().setText("→").setHref(linkForPage.apply(page + 1).url()).asButton());
@@ -123,7 +135,7 @@ public abstract class BaseHtmlView {
     FormTag hiddenForm =
         form()
             .withId(formId)
-            .withClass(Styles.HIDDEN)
+            .withClass("hidden")
             .withMethod("POST")
             .withAction(href)
             .with(input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken"));
@@ -132,7 +144,6 @@ public abstract class BaseHtmlView {
   }
 
   protected static final PTag requiredFieldsExplanationContent() {
-    return p("Note: Fields marked with a * are required.")
-        .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600, Styles.MB_2);
+    return p("Note: Fields marked with a * are required.").withClasses("text-sm", "text-gray-600");
   }
 }

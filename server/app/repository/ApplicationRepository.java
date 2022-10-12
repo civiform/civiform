@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
@@ -26,7 +27,7 @@ import services.program.ProgramNotFoundException;
  * ApplicationRepository performs complicated operations on {@link Application} that often involve
  * other EBean models or asynchronous handling.
  */
-public class ApplicationRepository {
+public final class ApplicationRepository {
   private final ProgramRepository programRepository;
   private final UserRepository userRepository;
   private final Database database;
@@ -63,23 +64,23 @@ public class ApplicationRepository {
    * and create a new application in the active state.
    */
   public CompletionStage<Application> submitApplication(
-      Applicant applicant, Program program, Optional<String> submitterEmail) {
+      Applicant applicant, Program program, Optional<String> tiSubmitterEmail) {
     return supplyAsync(
-        () -> submitApplicationInternal(applicant, program, submitterEmail),
+        () -> submitApplicationInternal(applicant, program, tiSubmitterEmail),
         executionContext.current());
   }
 
   public CompletionStage<Optional<Application>> submitApplication(
-      long applicantId, long programId, Optional<String> submitterEmail) {
+      long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     return this.perform(
         applicantId,
         programId,
         (ApplicationArguments appArgs) ->
-            submitApplicationInternal(appArgs.applicant, appArgs.program, submitterEmail));
+            submitApplicationInternal(appArgs.applicant, appArgs.program, tiSubmitterEmail));
   }
 
   private Application submitApplicationInternal(
-      Applicant applicant, Program program, Optional<String> submitterEmail) {
+      Applicant applicant, Program program, Optional<String> tiSubmitterEmail) {
     database.beginTransaction();
     try {
       List<Application> oldApplications =
@@ -106,8 +107,8 @@ public class ApplicationRepository {
               : drafts.get(0);
       application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();
-      if (submitterEmail.isPresent()) {
-        application.setSubmitterEmail(submitterEmail.get());
+      if (tiSubmitterEmail.isPresent()) {
+        application.setSubmitterEmail(tiSubmitterEmail.get());
       }
       application.save();
 
@@ -175,7 +176,7 @@ public class ApplicationRepository {
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
   // Not useful in the API, not needed more broadly.
-  private static class ApplicationArguments {
+  private static final class ApplicationArguments {
     public Program program;
     public Applicant applicant;
 
@@ -231,6 +232,31 @@ public class ApplicationRepository {
   public CompletionStage<Optional<Application>> getApplication(long applicationId) {
     return supplyAsync(
         () -> database.find(Application.class).setId(applicationId).findOneOrEmpty(),
+        executionContext.current());
+  }
+
+  /**
+   * Get all applications with the specified {@link LifecyleStage}s for an applicant.
+   *
+   * <p>The {@link Program} associated with the application is eagerly loaded.
+   */
+  public CompletionStage<ImmutableSet<Application>> getApplicationsForApplicant(
+      long applicantId, ImmutableSet<LifecycleStage> stages) {
+    return supplyAsync(
+        () -> {
+          return database
+              .find(Application.class)
+              .where()
+              .eq("applicant.id", applicantId)
+              .isIn("lifecycle_stage", stages)
+              .query()
+              // Eagerly fetch the program in a SQL join.
+              .fetch("program")
+              .fetch("applicationEvents")
+              .findSet()
+              .stream()
+              .collect(ImmutableSet.toImmutableSet());
+        },
         executionContext.current());
   }
 }

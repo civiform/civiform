@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** A form for adding and removing program admins by email for a specific program. */
-public class ManageProgramAdminsForm {
+public final class ManageProgramAdminsForm {
 
   private List<String> addAdminEmails;
   private List<String> removeAdminEmails;

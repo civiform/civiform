@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -11,9 +12,8 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
-public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public CurrencyQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -25,9 +25,10 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
     FieldWithLabel currencyField =
@@ -38,7 +39,11 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(
-                    currencyQuestion.getCurrencyPath(), ImmutableSet.of()));
+                    currencyQuestion.getCurrencyPath(), ImmutableSet.of()))
+            .setAriaDescribedByIds(ariaDescribedByIds);
+    if (!validationErrors.isEmpty()) {
+      currencyField.forceAriaInvalid();
+    }
     if (currencyQuestion.getCurrencyValue().isPresent()) {
       currencyField.setValue(currencyQuestion.getCurrencyValue().get().prettyPrint());
     } else {
@@ -50,18 +55,18 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
         div()
             .withText("$")
             .withClasses(
-                Styles.FLEX,
-                Styles.ITEMS_CENTER,
+                "flex",
+                "items-center",
                 // Same height and padding as the input field.
-                Styles.H_12,
-                Styles.MB_2,
+                "h-12",
+                "mb-2",
                 // Pad the right side.
-                Styles.MR_2,
+                "mr-2",
                 // Same text as the input field.
-                Styles.TEXT_LG);
+                "text-lg");
 
     DivTag currencyQuestionFormContent =
-        div().withClasses(Styles.FLEX).with(dollarSign).with(currencyField.getCurrencyTag());
+        div().withClasses("flex").with(dollarSign).with(currencyField.getCurrencyTag());
 
     return currencyQuestionFormContent;
   }

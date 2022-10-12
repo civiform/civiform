@@ -1,9 +1,12 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.admin.programs.ProgramApplicationView.CURRENT_STATUS;
+import static views.admin.programs.ProgramApplicationView.NEW_STATUS;
+import static views.admin.programs.ProgramApplicationView.NOTE;
+import static views.admin.programs.ProgramApplicationView.SEND_EMAIL;
 
 import annotations.BindingAnnotations.Now;
-import annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -11,37 +14,47 @@ import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
+import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.UrlUtils;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.application.ApplicationEventDetails;
+import services.applications.AccountHasNoEmailException;
 import services.applications.ProgramAdminApplicationService;
-import services.export.ExporterService;
+import services.applications.StatusEmailNotFoundException;
+import services.export.CsvExporterService;
 import services.export.JsonExporter;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.StatusDefinitions;
+import services.program.StatusNotFoundException;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
@@ -51,25 +64,29 @@ import views.admin.programs.ProgramApplicationView;
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
 
-  private final ProgramService programService;
+  private static final String REDIRECT_URI_KEY = "redirectUri";
+
   private final ApplicantService applicantService;
   private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
-  private final ExporterService exporterService;
+  private final ProgramService programService;
+  private final CsvExporterService exporterService;
+  private final FormFactory formFactory;
   private final JsonExporter jsonExporter;
   private final PdfExporter pdfExporter;
   private final ProfileUtils profileUtils;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
-  private final Provider<Boolean> statusTrackingEnabled;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public AdminApplicationController(
       ProgramService programService,
       ApplicantService applicantService,
-      ExporterService exporterService,
+      CsvExporterService csvExporterService,
+      FormFactory formFactory,
       JsonExporter jsonExporter,
       PdfExporter pdfExporter,
       ProgramApplicationListView applicationListView,
@@ -79,7 +96,7 @@ public final class AdminApplicationController extends CiviFormController {
       MessagesApi messagesApi,
       DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider,
-      @ApplicationStatusTrackingEnabled Provider<Boolean> statusTrackingEnabled) {
+      FeatureFlags featureFlags) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationListView = checkNotNull(applicationListView);
@@ -87,12 +104,13 @@ public final class AdminApplicationController extends CiviFormController {
     this.applicationView = checkNotNull(applicationView);
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
-    this.exporterService = checkNotNull(exporterService);
+    this.exporterService = checkNotNull(csvExporterService);
+    this.formFactory = checkNotNull(formFactory);
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
-    this.statusTrackingEnabled = checkNotNull(statusTrackingEnabled);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -103,6 +121,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> untilDate,
+      Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     final ProgramDefinition program;
@@ -115,23 +134,24 @@ public final class AdminApplicationController extends CiviFormController {
     }
 
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
-    TimeFilter submitTimeFilter =
-        shouldApplyFilters
-            ? TimeFilter.builder()
-                .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-                .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
-                .build()
-            : TimeFilter.EMPTY;
-    Optional<String> searchFragment = shouldApplyFilters ? search : Optional.empty();
+    SubmittedApplicationFilter filters = SubmittedApplicationFilter.EMPTY;
+    if (shouldApplyFilters) {
+      filters =
+          SubmittedApplicationFilter.builder()
+              .setSearchNameFragment(search)
+              .setSubmitTimeFilter(
+                  TimeFilter.builder()
+                      .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+                      .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                      .build())
+              .setApplicationStatus(applicationStatus)
+              .build();
+    }
 
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
         jsonExporter
-            .export(
-                program,
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                searchFragment,
-                submitTimeFilter)
+            .export(program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters)
             .getLeft();
 
     return ok(json)
@@ -147,23 +167,28 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> untilDate,
+      Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
     try {
-      TimeFilter submitTimeFilter =
-          shouldApplyFilters
-              ? TimeFilter.builder()
-                  .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-                  .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
-                  .build()
-              : TimeFilter.EMPTY;
-      Optional<String> searchFragment = shouldApplyFilters ? search : Optional.empty();
+      SubmittedApplicationFilter filters = SubmittedApplicationFilter.EMPTY;
+      if (shouldApplyFilters) {
+        filters =
+            SubmittedApplicationFilter.builder()
+                .setSearchNameFragment(search)
+                .setSubmitTimeFilter(
+                    TimeFilter.builder()
+                        .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+                        .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                        .build())
+                .setApplicationStatus(applicationStatus)
+                .build();
+      }
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv =
-          exporterService.getProgramAllVersionsCsv(programId, searchFragment, submitTimeFilter);
+      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -297,6 +322,7 @@ public final class AdminApplicationController extends CiviFormController {
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+    Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
     return ok(
         applicationView.render(
@@ -307,6 +333,7 @@ public final class AdminApplicationController extends CiviFormController {
             blocks,
             answers,
             program.statusDefinitions(),
+            noteMaybe,
             request));
   }
 
@@ -316,8 +343,9 @@ public final class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatus(Http.Request request, long programId, long applicationId)
-      throws ProgramNotFoundException {
-    if (!statusTrackingEnabled.get()) {
+      throws ProgramNotFoundException, StatusEmailNotFoundException, StatusNotFoundException,
+          AccountHasNoEmailException {
+    if (!featureFlags.isStatusTrackingEnabled(request)) {
       return notFound("status tracking is not enabled");
     }
     ProgramDefinition program = programService.getProgramDefinition(programId);
@@ -334,11 +362,108 @@ public final class AdminApplicationController extends CiviFormController {
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
+    Application application = applicationMaybe.get();
 
-    // TODO(#3020): Actually update the status rather than unconditionally returning success.
-    return redirect(
-            routes.AdminApplicationController.show(programId, applicationMaybe.get().id).url())
-        .flashing("success", "Application status updated");
+    Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+    Optional<String> maybeCurrentStatus = Optional.ofNullable(formData.get(CURRENT_STATUS));
+    Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
+    Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
+    Optional<String> maybeRedirectUri = Optional.ofNullable(formData.get(REDIRECT_URI_KEY));
+    if (maybeCurrentStatus.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", CURRENT_STATUS));
+    }
+    if (maybeNewStatus.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", NEW_STATUS));
+    }
+    if (maybeSendEmail.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", SEND_EMAIL));
+    }
+    if (maybeRedirectUri.isEmpty()) {
+      return badRequest(String.format("The %s field is not present", REDIRECT_URI_KEY));
+    }
+    // Verify the UI is changing from the actual current status to detect an out of date UI.
+    if (application.getLatestStatus().isPresent()) {
+      if (!application.getLatestStatus().get().equals(maybeCurrentStatus.get())) {
+        // Only allow relative URLs to ensure that we redirect to the same domain.
+        String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
+        return redirect(redirectUrl)
+            .flashing(
+                "error",
+                "The application state has changed since the page was loaded. Please reload and"
+                    + " try again.");
+      }
+    } else if (!maybeCurrentStatus.get().isBlank()) {
+      return badRequest(
+          String.format("The %s field should be empty as there is no status set", CURRENT_STATUS));
+    }
+    // Save the new data.
+    String newStatus = maybeNewStatus.get();
+    final boolean sendEmail;
+    if (maybeSendEmail.get().isBlank()) {
+      sendEmail = false;
+    } else if (maybeSendEmail.get().equals("on")) {
+      sendEmail = true;
+    } else {
+      return badRequest(String.format("%s value is invalid: %s", SEND_EMAIL, maybeSendEmail.get()));
+    }
+
+    programAdminApplicationService.setStatus(
+        application,
+        ApplicationEventDetails.StatusEvent.builder()
+            .setStatusText(newStatus)
+            .setEmailSent(sendEmail)
+            .build(),
+        profileUtils.currentUserProfile(request).get().getAccount().join());
+    // Only allow relative URLs to ensure that we redirect to the same domain.
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
+    return redirect(redirectUrl).flashing("success", "Application status updated");
+  }
+
+  /**
+   * Edits the note for the associated application and redirects to the summary page for the
+   * application.
+   */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result updateNote(Http.Request request, long programId, long applicationId)
+      throws ProgramNotFoundException {
+    if (!featureFlags.isStatusTrackingEnabled(request)) {
+      return notFound("status tracking is not enabled");
+    }
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    String programName = program.adminName();
+
+    try {
+      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+    } catch (CompletionException | NoSuchElementException e) {
+      return unauthorized();
+    }
+
+    Optional<Application> applicationMaybe =
+        programAdminApplicationService.getApplication(applicationId, program);
+    if (!applicationMaybe.isPresent()) {
+      return notFound(String.format("Application %d does not exist.", applicationId));
+    }
+    Application application = applicationMaybe.get();
+
+    Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+    Optional<String> maybeNote = Optional.ofNullable(formData.get(NOTE));
+    Optional<String> maybeRedirectUri = Optional.ofNullable(formData.get(REDIRECT_URI_KEY));
+    if (maybeNote.isEmpty()) {
+      return badRequest("A note is not present.");
+    }
+    String note = maybeNote.get();
+    if (maybeRedirectUri.isEmpty()) {
+      return badRequest("A redirect URI is not present");
+    }
+
+    programAdminApplicationService.setNote(
+        application,
+        ApplicationEventDetails.NoteEvent.create(note),
+        profileUtils.currentUserProfile(request).get().getAccount().join());
+
+    // Only allow relative URLs to ensure that we redirect to the same domain.
+    String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
+    return redirect(redirectUrl).flashing("success", "Application note updated");
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
@@ -349,18 +474,31 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<Integer> page,
       Optional<String> fromDate,
-      Optional<String> untilDate)
+      Optional<String> untilDate,
+      Optional<String> applicationStatus,
+      Optional<String> selectedApplicationUri)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(
           routes.AdminApplicationController.index(
-              programId, search, Optional.of(1), fromDate, untilDate));
+              programId,
+              search,
+              Optional.of(1),
+              fromDate,
+              untilDate,
+              applicationStatus,
+              selectedApplicationUri));
     }
 
-    TimeFilter submitTimeFilter =
-        TimeFilter.builder()
-            .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-            .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+    SubmittedApplicationFilter filters =
+        SubmittedApplicationFilter.builder()
+            .setSearchNameFragment(search)
+            .setSubmitTimeFilter(
+                TimeFilter.builder()
+                    .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+                    .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                    .build())
+            .setApplicationStatus(applicationStatus)
             .build();
 
     final ProgramDefinition program;
@@ -374,18 +512,31 @@ public final class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<Application> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), search, submitTimeFilter);
+            programId, F.Either.Right(paginationSpec), filters);
 
     return ok(
         applicationListView.render(
             request,
             program,
+            getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
             RenderFilterParams.builder()
                 .setSearch(search)
                 .setFromDate(fromDate)
                 .setUntilDate(untilDate)
-                .build()));
+                .setSelectedApplicationStatus(applicationStatus)
+                .build(),
+            selectedApplicationUri));
+  }
+
+  private ImmutableList<String> getAllApplicationStatusesForProgram(long programId) {
+    return programService.getAllProgramDefinitionVersions(programId).stream()
+        .map(pdef -> pdef.statusDefinitions().getStatuses())
+        .flatMap(ImmutableList::stream)
+        .map(StatusDefinitions.Status::statusText)
+        .distinct()
+        .sorted()
+        .collect(ImmutableList.toImmutableList());
   }
 }

@@ -12,7 +12,7 @@ import sys
 # Requirements:
 #   Must have creds to login to docker hub as 'civiform' user.
 #   Must have a GitHub API token with repo and read:org scopes located at 'gh-release-token.txt' or
-#   in the GH_RELEASE_TOKEN_ENV_VAR_NAME environment variable.
+#   in the GH_TOKEN environment variable.
 #
 # When successful, this script:
 #   1. tags the git commit for the release with the release number
@@ -21,8 +21,12 @@ import sys
 
 
 def shell_cmd(command_string):
-    process = subprocess.run(
-        shlex.split(command_string), check=True, capture_output=True)
+    try:
+        process = subprocess.run(
+            shlex.split(command_string), check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        print(f'Failed to run {command_string}.\nError: {e.stderr}')
+        raise
     return process.stdout.decode('ascii') if process else ''
 
 
@@ -53,9 +57,12 @@ def main():
 
     commit_sha = sys.argv[1]
     release_number = sys.argv[2]
-    releaser_email = os.environ[
-        'GITHUB_ACTOR'] if 'GITHUB_ACTOR' in os.environ else shell_cmd(
-            'git config --get user.email')
+    if 'GITHUB_ACTOR' in os.environ:
+        shell_cmd(
+            f'git config user.email ' +
+            f'"{os.environ["GITHUB_ACTOR"]}@users.noreply.github.com"')
+        shell_cmd(f'git config user.name ' + f'"{os.environ["GITHUB_ACTOR"]}"')
+    releaser_email = shell_cmd('git config --get user.email')
 
     ################################################################################
     # Resolve and validate GitHub token, check auth
@@ -81,10 +88,6 @@ def main():
     ################################################################################
 
     if not 'Login Succeeded' in shell_cmd('docker login'):
-        print('Unable to login to docker hub', file=sys.stderr)
-        exit(1)
-
-    if not 'civiform' in shell_cmd('docker info'):
         print('Unable to login to docker hub', file=sys.stderr)
         exit(1)
 

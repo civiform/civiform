@@ -5,7 +5,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -14,8 +14,6 @@ import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -35,7 +33,6 @@ import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Shows all questions in the applying program and answers to the questions if present. */
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
@@ -62,14 +59,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    */
   public Content render(Params params) {
     Messages messages = params.messages();
-    String pageTitle =
-        params.inReview()
-            ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
-            : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
-    HtmlBundle bundle =
-        layout.getBundle().setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
+    HtmlBundle bundle = layout.getBundle();
 
-    DivTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
+    DivTag applicationSummary = div().withId("application-summary").withClasses("mb-8");
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
     boolean isFirstUnanswered = true;
     for (AnswerData answerData : params.summaryData()) {
@@ -120,10 +112,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
 
+    String pageTitle =
+        params.inReview()
+            ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
+            : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
+    bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
-        h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
+        h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
@@ -137,20 +134,20 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       long applicantId,
       boolean inReview,
       boolean isFirstUnanswered) {
-    DivTag questionPrompt = div(data.questionText()).withClasses(Styles.FONT_SEMIBOLD);
-    DivTag questionContent = div(questionPrompt).withClasses(Styles.PR_2);
+    DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
+    DivTag questionContent = div(questionPrompt).withClasses("pr-2");
 
     // Add existing answer.
     if (data.isAnswered()) {
       final ContainerTag answerContent;
-      if (data.fileKey().isPresent()) {
-        String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
+      if (data.encodedFileKey().isPresent()) {
+        String encodedFileKey = data.encodedFileKey().get();
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
         answerContent = a().withHref(fileLink);
       } else {
         answerContent = div();
       }
-      answerContent.withClasses(Styles.FONT_LIGHT, Styles.TEXT_SM);
+      answerContent.withClasses("font-light", "text-sm");
       // Add answer text, converting newlines to <br/> tags.
       String[] texts = data.answerText().split("\n");
       texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
@@ -163,15 +160,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       questionContent.with(answerContent);
     }
 
-    DivTag actionAndTimestampDiv =
-        div().withClasses(Styles.PR_2, Styles.FLEX, Styles.FLEX_COL, Styles.TEXT_RIGHT);
+    DivTag actionAndTimestampDiv = div().withClasses("pr-2", "flex", "flex-col", "text-right");
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
       DivTag timestampContent =
-          div("Previously answered on " + date)
-              .withClasses(Styles.FONT_LIGHT, Styles.TEXT_XS, Styles.FLEX_GROW);
+          div("Previously answered on " + date).withClasses("font-light", "text-xs", "flex-grow");
       actionAndTimestampDiv.with(timestampContent);
     }
 
@@ -197,11 +192,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           new LinkElement()
               .setHref(editLink)
               .setText(editText)
-              .setStyles(
-                  Styles.BOTTOM_0,
-                  Styles.RIGHT_0,
-                  Styles.TEXT_BLUE_600,
-                  StyleUtils.hover(Styles.TEXT_BLUE_700))
+              .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"))
               .asAnchorText()
               .attr(
                   "aria-label",
@@ -209,12 +200,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       DivTag editContent =
           div(editAction)
               .withClasses(
-                  Styles.FONT_MEDIUM,
-                  Styles.BREAK_NORMAL,
-                  Styles.FLEX,
-                  Styles.FLEX_GROW,
-                  Styles.JUSTIFY_END,
-                  Styles.ITEMS_CENTER);
+                  "font-medium",
+                  "break-normal",
+                  "flex",
+                  "flex-grow",
+                  "justify-end",
+                  "items-center");
 
       actionAndTimestampDiv.with(editContent);
     }
@@ -223,14 +214,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .withClasses(
             ReferenceClasses.APPLICANT_SUMMARY_ROW,
             marginIndentClass(data.repeatedEntity().map(RepeatedEntity::depth).orElse(0)),
-            data.isAnswered() ? "" : Styles.BG_YELLOW_50,
-            Styles.MY_0,
-            Styles.P_2,
-            Styles.PT_4,
-            Styles.BORDER_B,
-            Styles.BORDER_GRAY_300,
-            Styles.FLEX,
-            Styles.JUSTIFY_BETWEEN)
+            data.isAnswered() ? "" : "bg-amber-50",
+            "my-0",
+            "p-2",
+            "pt-4",
+            "border-b",
+            "border-gray-300",
+            "flex",
+            "justify-between")
         .withStyle("word-break:break-word");
   }
 
@@ -246,13 +237,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     return div(content)
         .withClasses(
             marginIndentClass(repeatedEntity.depth() - 1),
-            Styles.MY_2,
-            Styles.PY_2,
-            Styles.PL_4,
-            Styles.FLEX_AUTO,
-            Styles.BG_GRAY_200,
-            Styles.FONT_SEMIBOLD,
-            Styles.ROUNDED_LG);
+            "my-2",
+            "py-2",
+            "pl-4",
+            "flex-auto",
+            "bg-gray-200",
+            "font-semibold",
+            "rounded-lg");
   }
 
   private String marginIndentClass(int depth) {

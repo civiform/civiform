@@ -47,6 +47,9 @@ public enum MessageKey {
   CONTENT_OR("content.or"),
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
+  ERROR_NOT_FOUND_TITLE("error.notFoundTitle"),
+  ERROR_NOT_FOUND_DESCRIPTION("error.notFoundDescription"),
+  ERROR_NOT_FOUND_DESCRIPTION_LINK("error.notFoundDescriptionLink"),
   DATE_VALIDATION_MISFORMATTED("validation.dateMisformatted"),
   DROPDOWN_PLACEHOLDER("placeholder.noDropdownSelection"),
   ENUMERATOR_BUTTON_ADD_ENTITY("button.addEntity"),
@@ -56,6 +59,7 @@ public enum MessageKey {
   ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),
   EXTERNAL_LINK("link.externalLink"),
+  EXTERNAL_LINK_OPENS_IN_NEW_TAB("link.externalLinkOpensInNewTab"),
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   GUEST("guest"),
@@ -87,16 +91,14 @@ public enum MessageKey {
   NUMBER_VALIDATION_TOO_BIG("validation.numberTooBig"),
   NUMBER_VALIDATION_TOO_SMALL("validation.numberTooSmall"),
   NUMBER_VALIDATION_NON_INTEGER("validation.numberNonInteger"),
+  REQUIRED_FIELDS_ANNOTATION("content.requiredFieldsAnnotation"),
   SUBMITTED_DATE("content.submittedDate"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_PROGRAMS("title.programs"),
-  TITLE_PROGRAMS_ACTIVE("title.activePrograms"),
   TITLE_PROGRAMS_ACTIVE_UPDATED("title.activeProgramsUpdated"),
-  TITLE_PROGRAM_CARD("title.programCard"),
-  TITLE_PROGRAMS_IN_PROGRESS("title.inProgressPrograms"),
   TITLE_PROGRAMS_IN_PROGRESS_UPDATED("title.inProgressProgramsUpdated"),
   TITLE_PROGRAM_PREVIEW("title.programPreview"),
   TITLE_PROGRAM_REVIEW("title.programReview"),
@@ -105,8 +107,7 @@ public enum MessageKey {
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
   USER_NAME("header.userName"),
-  VALIDATION_REQUIRED("validation.isRequired"),
-  CONTENT_APPLICANT_INFORMATION("content.applicantInformation");
+  VALIDATION_REQUIRED("validation.isRequired");
 
   private final String keyName;
 

@@ -3,6 +3,7 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -19,10 +20,9 @@ import services.question.LocalizedQuestionOption;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Renders a radio button question. */
-public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
   public RadioButtonQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -34,10 +34,11 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
+    boolean hasErrors = !validationErrors.isEmpty();
 
     DivTag radioQuestionFormContent =
         div()
@@ -49,16 +50,20 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
                             renderRadioOption(
                                 singleOptionQuestion.getSelectionPath().toString(),
                                 option,
-                                singleOptionQuestion.optionIsSelected(option))));
+                                singleOptionQuestion.optionIsSelected(option),
+                                hasErrors)));
 
     return radioQuestionFormContent;
   }
 
   private DivTag renderRadioOption(
-      String selectionPath, LocalizedQuestionOption option, boolean checked) {
+      String selectionPath, LocalizedQuestionOption option, boolean checked, boolean hasErrors) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
-    LabelTag labelTag = label().withFor(id).withText(option.optionText());
+    LabelTag labelTag =
+        label()
+            .withFor(id)
+            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
     InputTag inputTag =
         input()
             .withId(id)
@@ -66,12 +71,14 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
+            .condAttr(hasErrors, "aria-invalid", "true")
             .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 
     return div()
         .withClasses(
-            Styles.MY_2,
-            Styles.RELATIVE,
+            "my-2",
+            "relative",
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
             ReferenceClasses.RADIO_OPTION,
             BaseStyles.RADIO_LABEL,
             checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")

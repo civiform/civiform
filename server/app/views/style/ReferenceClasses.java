@@ -9,20 +9,24 @@ public final class ReferenceClasses {
   public static final String ADMIN_APPLICATION_BLOCK_CARD = "cf-admin-application-block-card";
   public static final String ADMIN_APPLICATION_CARD = "cf-admin-application-card";
   public static final String ADMIN_LANGUAGE_LINK = "cf-admin-language-link";
-  public static final String ADMIN_PROGRAM_CARD_LIST = "cf-admin-program-card-list";
-  public static final String ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER =
-      "cf-admin-program-card-list-placeholder";
   public static final String ADMIN_PROGRAM_CARD = "cf-admin-program-card";
   public static final String ADMIN_PROGRAM_CARD_TITLE = "cf-program-title";
   public static final String ADMIN_PROGRAM_STATUS_LIST = "cf-admin-program-status-list";
   public static final String ADMIN_PROGRAM_STATUS_ITEM = "cf-admin-program-status-item";
+  public static final String ADMIN_PUBLISH_REFERENCES_PROGRAM =
+      "cf-admin-publish-references-program";
+  public static final String ADMIN_PUBLISH_REFERENCES_QUESTION =
+      "cf-admin-publish-references-question";
   public static final String ADMIN_QUESTION_TABLE_ROW = "cf-admin-question-table-row";
+  public static final String ADMIN_QUESTION_TITLE = "cf-question-title";
   public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS =
       "cf-admin-question-program-reference-counts";
-  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT =
-      "cf-admin-question-program-reference-counts-draft";
-  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE =
-      "cf-admin-question-program-reference-counts-active";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED =
+      "cf-admin-question-program-reference-counts-used";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ADDED =
+      "cf-admin-question-program-reference-counts-added";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_REMOVED =
+      "cf-admin-question-program-reference-counts-removed";
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String DEBOUNCED_FORM = "cf-debounced-form";
@@ -63,7 +67,9 @@ public final class ReferenceClasses {
   public static final String APPLICANT_QUESTION_ERRORS = "cf-applicant-question-errors";
   public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
   public static final String APPLICATION_CARD = "cf-application-card";
+  public static final String APPLICATION_CARD_TITLE = "cf-application-card-title";
   public static final String APPLICATION_CARD_DESCRIPTION = "cf-application-card-description";
+  public static final String APPLICATION_PROGRAM_SECTION = "cf-application-program-section";
 
   public static final String APPLY_BUTTON = "cf-apply-button";
   public static final String CONTINUE_BUTTON = "cf-continue-button";
@@ -82,6 +88,7 @@ public final class ReferenceClasses {
   public static final String ADDRESS_STATE = "cf-address-state";
   public static final String ADDRESS_ZIP = "cf-address-zip";
 
+  public static final String MULTI_OPTION_VALUE = "cf-multi-option-value";
   public static final String MULTI_OPTION_QUESTION_OPTION = "cf-multi-option-question-option";
   public static final String MULTI_OPTION_INPUT = "cf-multi-option-input";
 
@@ -121,4 +128,8 @@ public final class ReferenceClasses {
   public static final String MODAL = "cf-modal";
   public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
+  // These classes mark fields that need dynamic replacement by browser tests when
+  // taking a screenshot (e.g. dates, application IDs).
+  public static final String BT_DATE = "cf-bt-date";
+  public static final String BT_APPLICATION_ID = "cf-application-id";
 }

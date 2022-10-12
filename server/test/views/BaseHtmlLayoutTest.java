@@ -26,12 +26,16 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
 
     assertThat(content.body())
-        .contains("<link href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
+        .containsPattern(
+            "<link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
     assertThat(content.body())
-        .contains("<script src=\"/assets/javascripts/main.js\" type=\"text/javascript\"></script>");
+        .containsPattern(
+            "<script src=\"/assets/javascripts/[a-z0-9]+-main.js\""
+                + " type=\"text/javascript\"></script>");
     assertThat(content.body())
-        .contains(
-            "<script src=\"/assets/javascripts/radio.js\" type=\"text/javascript\"></script>");
+        .containsPattern(
+            "<script src=\"/assets/javascripts/[a-z0-9]+-radio.js\""
+                + " type=\"text/javascript\"></script>");
 
     assertThat(content.body()).contains("<main></main>");
   }
@@ -49,8 +53,22 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
     assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
     assertThat(content.body())
-        .contains(
+        .containsPattern(
             "<link href=\"moose.css\" rel=\"stylesheet\"><link"
-                + " href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
+                + " href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
+  }
+
+  @Test
+  public void withNoExplicitTitle() {
+    Content content = layout.render(layout.getBundle());
+
+    assertThat(content.body()).contains("<title>CiviForm</title>");
+  }
+
+  @Test
+  public void withProvidedTitle() {
+    Content content = layout.render(layout.getBundle().setTitle("A title"));
+
+    assertThat(content.body()).contains("<title>A title — CiviForm</title>");
   }
 }

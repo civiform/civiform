@@ -23,12 +23,14 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import play.data.validation.ValidationError;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
-import views.style.Styles;
+
+// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING FieldWithLabel
 
 /** Utility class for rendering an input field with an optional label. */
 public class FieldWithLabel {
@@ -57,17 +59,20 @@ public class FieldWithLabel {
   private String formId = "";
   private String id = "";
   private String labelText = "";
+  private Optional<String> autocomplete = Optional.empty();
   protected String placeholderText = "";
   private String screenReaderText = "";
   private Messages messages;
   private ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   private boolean showFieldErrors = true;
+  private boolean shouldForceAriaInvalid = false;
   private boolean checked = false;
   private boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
+  private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
   private ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
 
-  private static class FieldErrorsInfo {
+  private static final class FieldErrorsInfo {
     public String fieldErrorsId;
     public boolean hasFieldErrors;
 
@@ -158,6 +163,18 @@ public class FieldWithLabel {
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
     this.placeholderText = placeholder;
+    return this;
+  }
+
+  /**
+   * Sets the autocomplete attribute.
+   *
+   * @param autocomplete this value must come from the predefined list here:
+   *     https://www.w3.org/TR/WCAG21/#input-purposes.
+   * @return this, for chaining.
+   */
+  public FieldWithLabel setAutocomplete(Optional<String> autocomplete) {
+    this.autocomplete = autocomplete;
     return this;
   }
 
@@ -255,6 +272,21 @@ public class FieldWithLabel {
     return this;
   }
 
+  /** Set the list of HTML tag IDs that should be used for a11y descriptions. */
+  public FieldWithLabel setAriaDescribedByIds(ImmutableList<String> ariaDescribedByIds) {
+    this.ariaDescribedByBuilder.addAll(ariaDescribedByIds);
+    return this;
+  }
+
+  /**
+   * Forceset the aria-invalid attribute on this field to true. This is useful for when there are
+   * question level errors that this field does not know about.
+   */
+  public FieldWithLabel forceAriaInvalid() {
+    this.shouldForceAriaInvalid = true;
+    return this;
+  }
+
   public FieldWithLabel setFieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     this.messages = messages;
@@ -330,10 +362,10 @@ public class FieldWithLabel {
       applyAttributesFromSet(textareaFieldTag);
       textareaFieldTag.withText(this.fieldValue);
       if (this.rows.isPresent()) {
-        textareaFieldTag.withRows(this.rows.toString());
+        textareaFieldTag.withRows(String.valueOf(this.rows.getAsLong()));
       }
       if (this.cols.isPresent()) {
-        textareaFieldTag.withCols(this.cols.toString());
+        textareaFieldTag.withCols(String.valueOf(this.cols.getAsLong()));
       }
       return applyAttrsAndGenLabel(textareaFieldTag);
     }
@@ -384,8 +416,8 @@ public class FieldWithLabel {
         .withId(id)
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),
-            StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
-            fieldErrors.isEmpty() || !showFieldErrors ? Styles.HIDDEN : "");
+            StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, "p-1"),
+            fieldErrors.isEmpty() || !showFieldErrors ? "hidden" : "");
   }
 
   private void genRandIdIfEmpty() {
@@ -402,15 +434,14 @@ public class FieldWithLabel {
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
-        .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
+        .withClass(labelText.isEmpty() ? "sr-only" : BaseStyles.INPUT_LABEL)
         .withText(labelText.isEmpty() ? screenReaderText : labelText);
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
     return div(
             labelTag,
-            div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
-                .withClasses(Styles.FLEX, Styles.FLEX_COL))
+            div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
@@ -452,11 +483,11 @@ public class FieldWithLabel {
     // before the calls to this method, thus simplifying the code.
     fieldTag
         .withClasses(
-            StyleUtils.joinStyles(
-                BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
+            StyleUtils.joinStyles(hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT))
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
+        .condAttr(this.autocomplete.isPresent(), Attr.AUTOCOMPLETE, this.autocomplete.orElse(""))
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
@@ -469,9 +500,17 @@ public class FieldWithLabel {
 
     FieldErrorsInfo fieldErrorsInfo = new FieldErrorsInfo(fieldErrorsId, hasFieldErrors);
     if (fieldErrorsInfo.hasFieldErrors) {
-      fieldTag.attr("aria-invalid", "true");
-      fieldTag.attr("aria-describedBy", fieldErrorsId);
+      ImmutableList.Builder<String> tempBuilder = ImmutableList.builder();
+      // Add error to front.
+      tempBuilder.add(fieldErrorsId);
+      tempBuilder.addAll(ariaDescribedByBuilder.build());
+      ariaDescribedByBuilder = tempBuilder;
     }
+    ImmutableList<String> ariaIds = ariaDescribedByBuilder.build();
+
+    fieldTag.condAttr(!ariaIds.isEmpty(), "aria-describedby", StringUtils.join(ariaIds, " "));
+    fieldTag.condAttr(
+        shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
 
     generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
 
@@ -515,7 +554,7 @@ public class FieldWithLabel {
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
-            labelText.isEmpty() ? Styles.W_MIN : "")
+            labelText.isEmpty() ? "w-min" : "")
         .withCondFor(!this.id.isEmpty(), this.id)
         .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
         .withText(this.labelText);

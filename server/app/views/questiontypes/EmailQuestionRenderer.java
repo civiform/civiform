@@ -1,8 +1,10 @@
 package views.questiontypes;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -11,7 +13,7 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders an email question. */
-public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public EmailQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -23,21 +25,27 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
-    DivTag questionFormContent =
+    FieldWithLabel emailField =
         FieldWithLabel.email()
             .setFieldName(emailQuestion.getEmailPath().toString())
+            .setAutocomplete(Optional.of("email"))
             .setValue(emailQuestion.getEmailValue().orElse(""))
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
-            .setScreenReaderText(question.getQuestionText())
-            .getEmailTag();
+            .setAriaDescribedByIds(ariaDescribedByIds)
+            .setScreenReaderText(question.getQuestionText());
 
-    return questionFormContent;
+    if (!validationErrors.isEmpty()) {
+      emailField.forceAriaInvalid();
+    }
+
+    return emailField.getEmailTag();
   }
 }

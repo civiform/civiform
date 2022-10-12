@@ -10,50 +10,45 @@
 # GENERAL - contains text that corresponds to multiple views. #
 #-------------------------------------------------------------#
 
-# The text on the button an applicant clicks to log out of their session.
-button.logout=Cerrar Sesión
-
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 label.selectLanguage=Please select your preferred language.
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-content.applicantInformation=Applicant Information
-
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
-# Message displayed before the support email address in the page footer for applicants.
-footer.supportLinkDescription=Para obtener asistencia técnica, póngase en contacto con
+# The text on the button an applicant clicks to log out of their session.
+button.logout=Salir
 
+# Message displayed before the support email address in the page footer for applicants.
+footer.supportLinkDescription=Para recibir asistencia técnica, comunícate con
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
-# TODO(#1918): Translate.
-guest=Invitado(a)
+guest=Invitado
 
 # Label read by screen readers for the language dropdown shown in the page header.
-label.languageSr=Elija un idioma
+label.languageSr=Elegir un idioma
 
 # Message with user's name to show who you are logged in as.
-header.userName=Conectado como {0}
+header.userName=Accediste como {0}
 
 # Error message to answer a required question
 validation.isRequired=Esta pregunta es obligatoria.
 
 # Validation error that is shown when the user input couldn't be converted for any reason.
-validation.invalidInput=Ingrese información valida
+validation.invalidInput=Ingresa una entrada válida.
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# Prompt for applicant to log in
-content.loginPrompt=Por favor inicie sesión con su cuenta de la Ciudad de Seattle
+# Prompt for applicant to log in, input is the full civic entity name.
+content.loginPrompt=Accede con tu cuenta {0}
 
 # The text on the button an applicant clicks to log in to their session.
-button.login=Iniciar sesión
+button.login=Acceder
 
 # Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=¿No tiene cuenta con nosotros?
+content.alternativeLoginPrompt=¿No tienes una cuenta?
 
 # The text between creating a new account, and becoming a guest
 content.or=o
@@ -64,54 +59,53 @@ button.createAccount=Crear cuenta
 # The text on the button for guests to log in to their session.
 button.guestLogin=Continuar como invitado
 
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=Se inhabilitó el acceso a la cuenta por el momento
+
 # The words leading up to the admin login anchor
-content.adminLoginPrompt=¿Está buscando algo más?
-
+content.adminLoginPrompt=¿Estás buscando otra cosa?
 # The text on the anchor for admins to log in to their session.
-link.adminLogin=Inicio de sesión del administrador
-
-# The text on the anchor for admins to log in to their session.
-link.adminLogin=Inicio de sesión del administrador
+link.adminLogin=Acceso de administrador
 
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
 # The text displayed when a file has already been uploaded and the name is being displayed.
-input.fileAlreadyUploaded=Archivo enviado {0}
+input.fileAlreadyUploaded=Archivo subido: {0}
 
 # The text on the button an applicant clicks to delete an uploaded file.
-button.deleteFile=Eliminar
+button.deleteFile=Borrar
 
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
 button.keepFile=Continuar
 
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
-button.nextScreen=Siguiente
+button.nextScreen=Guardar y continuar
 
 # The button text for navigating to the previous screen in the form.
-button.previousScreen=Atrás
+button.previousScreen=Anterior
 
 # The text on the button an applicant clicks to jump to the review page.
 button.review=Revisar
 
 # The text on the button an applicant clicks to skip uploading a file.
-button.skipFileUpload=Saltar
+button.skipFileUpload=Omitir
 
 # The text on the button an applicant clicks to upload a file and continue to the next screen.
 button.upload=Subir
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=Lo sentimos, este programa no está totalmente traducido al idioma de su preferencia.
+toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo al inglés.
 
 # A link that logs out a guest user after they submit an application.
-link.allDone=He terminado
+link.allDone=Listo
 
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
-link.applyToAnotherProgram=Solicitar a otro programa
+link.applyToAnotherProgram=Solicitar otro programa
 
 # A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=Configurar una cuenta o iniciar sesión
+link.createAccountOrSignIn=Crear una cuenta o acceder
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -121,7 +115,12 @@ link.createAccountOrSignIn=Configurar una cuenta o iniciar sesión
 button.apply=Solicitar
 
 # The text read for screen readers.
-button.applySr=Solicitar para {0}
+button.applySr=Solicitar {0}
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=Editar
+
+# Text describing the date the application was last submitted.
+content.submittedDate=Enviada el {0}
 
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Editar
@@ -130,19 +129,18 @@ button.edit=Editar
 content.submittedDate=Enviar {0}
 
 # "Get benefits" floating text
-content.benefits=Obtener beneficios
+content.benefits=Obtén beneficios
 
 # Long form description of the CiviForm site shown to the applicant. Line 1.
-content.description1=CiviForm le permite solicitar varios beneficios a la vez volviendo a utilizar la misma información.
+content.description1=CiviForm te permite reutilizar la información para solicitar varios beneficios a la vez.
 
 # Long form description of the CiviForm site shown to the applicant. Line 2.
-content.description2=Empiece por elegir una solicitud.
+content.description2=Elige una de las solicitudes a continuación para comenzar.
 
 # Link text to read more about a program.
 link.programDetails=Detalles del programa
-
 # The same text, read for screen readers.
-link.programDetailsSr=Detalles de programa para {0}
+link.programDetailsSr=Detalles del programa para {0}
 
 # Link text to an external site to read more about a program.
 link.externalLink=Sitio externo
@@ -151,25 +149,25 @@ link.externalLink=Sitio externo
 title.programs=Programas y servicios
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Continuar
+title.inProgressProgramsUpdated=En curso
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=En curso
 
 # Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=Programas nuevos
-
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activeProgramsUpdated=No se ha iniciado
+title.activeProgramsUpdated=Sin comenzar
 
 # Screen reader format string for program cards
 title.programCard=Programa {0} de {1} -- {2}
 
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=Enviados
+
 # A toast message that displays when an applicant submits an application.
-toast.applicationSaved=La solicitud se ha guardado correctamente: ID de la solicitud {0}
+toast.applicationSaved=Solicitud guardada con éxito: ID de la solicitud {0}
 
 # A toast message that displays when an applicant tries to apply to a previously completed program.
-toast.programCompleted=La solicitud ya estaba completa.
+toast.programCompleted=Ya se completó la solicitud.
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -182,7 +180,7 @@ button.submit=Enviar
 button.continue=Continuar
 
 # The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=Empiece aquí
+link.begin=Comenzar aquí
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Editar
@@ -193,7 +191,6 @@ ariaLabel.edit=Editar {0}
 
 # Program Preview Title
 title.programPreview=Vista previa de la solicitud del programa
-
 # Program Review Title
 title.programReview=Revisión de la solicitud del programa
 
@@ -205,46 +202,53 @@ title.programReview=Revisión de la solicitud del programa
 title.applicationConfirmation=Confirmación de la solicitud
 
 # A confirmation message that shows after an applicant has submitted their application.
-content.confirmed=Gracias por solicitar al {0}.  Su solicitud ha sido recibida y el ID de su solicitud es {1}.
+content.confirmed=Gracias por solicitar {0}. Recibimos tu solicitud y el ID de la solicitud es {1}.
 
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
-title.createAnAccount=Crear una cuenta o iniciar sesión
+title.createAnAccount=Crea una cuenta o accede
 
 # A message urging users to create an account to save their data.
-content.pleaseCreateAccount=Si inicia sesión en una cuenta de la Ciudad, su información será guardada y podrá volver en cualquier momento para llenar otras solicitudes. Si usted no tiene cuenta todavía, la página de inicio de sesión le permitirá registrarse. No perderá los datos que ya haya ingresado.
+content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardará tu información y podrás regresar en cualquier momento para completar solicitudes en el futuro. Si no tienes una cuenta, la página de acceso te permitirá registrarte. No perderás los datos que ya ingresaste.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Número de unidad/departamento
+label.addressLine2=Número de departamento o unidad
 label.city=Ciudad
 label.state=Estado
-label.street=Dirección línea 1
+label.street=Línea de dirección 1
 label.zipcode=Código postal
 
 # Question placeholders - these are shown in the text input boxes, before a user enters an answer.
 placeholder.city=Ciudad
-placeholder.line2=Departamento, suite, unidad, edificio, piso, etc.
+placeholder.line2=Departamento, oficina, unidad, edificio, piso, etc.
 placeholder.state=Estado
-placeholder.street=Nombre y número de la calle
+placeholder.street=Dirección
 placeholder.zipcode=Código postal
 
+
 # Validation errors that are shown when a user enters an invalid address.
-validation.streetRequired=Por favor introduzca un nombre de la calle y número válidos.
-validation.cityRequired=Por favor introduzca la ciudad.
-validation.currencyMisformatted=Las cifras monetarias deben estar en uno de los siguientes formatos: 1000 1,000 1000.30 1,000.30
-validation.stateRequired=Por favor introduzca el estado.
-validation.invalidZipcode=Por favor introduzca el código postal de 5 dígitos.
-validation.noPoBox=Por favor introduzca una dirección postal válida. No se aceptan PO Boxes.
+validation.streetRequired=Ingresa un nombre y un número de calle válidos.
+validation.cityRequired=Ingresa una ciudad.
+validation.currencyMisformatted=La moneda debe tener uno de estos formatos: 1000 1,000 1000.30 1,000.30
+validation.stateRequired=Ingresa un estado.
+validation.invalidZipcode=Ingresa un código postal válido de 5 dígitos.
+validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postales.
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
 #----------------------------------------------------------------------------------------------------------#
 
 # Placeholder text shown in a dropdown selector before the user has made a selection.
-placeholder.noDropdownSelection=Elija una opción:
+placeholder.noDropdownSelection=Elige una opción:
+
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
@@ -254,46 +258,42 @@ placeholder.noDropdownSelection=Elija una opción:
 button.addEntity=Agregar {0}
 
 # Text on a button an applicant would click to delete an entity
-button.removeEntity=Eliminar {0}
+button.removeEntity=Quitar {0}
 
 # The confirmation dialog when an applicant deletes an enumerator entry.
-dialog.confirmDelete=¿Está seguro que desea eliminar esto {0}? Este cambio será guardado después de hacer clic en "Siguiente" y todos los datos asociados con este {0} se perderán.
+dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
 
 # Validation error that shows when an applicant does not enter a value.
-validation.entityNameRequired=Introduzca un valor para cada línea.
+validation.entityNameRequired=Ingresa un valor para cada línea.
 
 # Validation error that shows when an applicant uses a duplicate entity name
-validation.duplicateEntityName=Introduzca un valor único para cada línea.
+validation.duplicateEntityName=Ingresa un valor único para cada línea.
 
 # The placeholder text for enumerator fields
-placeholder.entityName=Sobrenombre para {0}
+placeholder.entityName=Nombre de {0}
 
 #---------------------------------------------------------------------------------#
 # FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
 #---------------------------------------------------------------------------------#
 
 # Validation error that shows when an applicant does not select a file to upload
-validation.fileRequired=Por favor seleccione un archivo.
+validation.fileRequired=Elige un archivo.
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if a user enters an answer that is too long or too short.
-validation.idTooLong=Debe contener un máximo de {0} caracteres.
-validation.idTooShort=Debe contener al menos {0} caracteres.
-validation.numberNonInteger=El número debe ser un número entero, positivo y solo puede contener caracteres numéricos de 0 a 9.
-
-
-validation.numberRequired=Solo debe contener números.
+validation.idTooLong=Debe tener menos de {0} caracteres.
+validation.idTooShort=Debe tener más de {0} caracteres.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
 #----------------------------------------------------------------------------------------------------------#
 
 # Validation errors that are shown if a user selects too many or too few answers.
-validation.tooFewSelections=Por favor seleccione al menos {0}.
-validation.tooManySelections=Por favor seleccione menos de {0}.
+validation.tooFewSelections=Elige al menos {0} opción.
+validation.tooManySelections=Elige menos de {0} opciones.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
@@ -310,28 +310,37 @@ placeholder.lastName=Apellido
 placeholder.middleName=Segundo nombre
 
 # Validation errors - these are shown if a user enters an invalid name.
-validation.firstNameRequired=Por favor ingrese su nombre.
-validation.lastNameRequired=Por favor ingrese su apellido.
+validation.firstNameRequired=Ingresa tu nombre.
+validation.lastNameRequired=Ingresa tu apellido.
 
 #------------------------------------------------------------------------#
 # NUMBER QUESTION - text specific to answering a question with a number. #
 #------------------------------------------------------------------------#
 
-# Validation errors that are shown when a user enters a number that is too big or too small.
-validation.numberTooBig=Debe ser como máximo {0}.
-validation.numberTooSmall=Debe ser al menos {0}.
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
+validation.numberTooBig=El número debe ser menor que {0}.
+validation.numberTooSmall=El número debe ser mayor que {0}.
+validation.numberNonInteger=El número debe ser positivo y entero y solo puede contener caracteres numéricos entre 0 y 9.
+validation.numberRequired=Solo debe contener números.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if a user enters an answer that is too long or too short.
-validation.textTooLong=Debe contener un máximo de {0} caracteres.
-validation.textTooShort=Debe contener al menos {0} caracteres.
+validation.textTooLong=Debe tener menos de {0} caracteres.
+validation.textTooShort=Debe tener más de {0} caracteres.
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if an admin leaves a multi option question blank.
-adminValidation.multiOptionEmpty=Las preguntas de opción múltiple no pueden quedar en blanco.
+adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
+error.notFoundDescription='Por favor revise la URL o regrese a la '
+error.notFoundDescriptionLink=página de inicio

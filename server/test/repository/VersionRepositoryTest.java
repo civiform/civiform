@@ -195,8 +195,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .map(Program::getProgramDefinition)
             .collect(
                 ImmutableMap.toImmutableMap(
-                    v -> String.format("%d %s", v.id(), v.adminName()),
-                    v -> v.lastModifiedTime().orElseThrow()));
+                    program -> String.format("%d %s", program.id(), program.adminName()),
+                    program -> program.lastModifiedTime().orElseThrow()));
 
     ImmutableList<Question> questions =
         ImmutableList.of(
@@ -209,8 +209,11 @@ public class VersionRepositoryTest extends ResetPostgres {
         questions.stream()
             .collect(
                 ImmutableMap.toImmutableMap(
-                    v -> String.format("%d %s", v.id, v.getQuestionDefinition().getName()),
-                    v -> v.getLastModifiedTime().orElseThrow()));
+                    question ->
+                        String.format(
+                            "%d %s", question.id, question.getQuestionDefinition().getName()),
+                    question ->
+                        question.getQuestionDefinition().getLastModifiedTime().orElseThrow()));
 
     // When persisting models with @WhenModified fields, EBean
     // truncates the persisted timestamp to milliseconds:
@@ -235,8 +238,8 @@ public class VersionRepositoryTest extends ResetPostgres {
                         .getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(
-                    v -> String.format("%d %s", v.id(), v.adminName()),
-                    v -> v.lastModifiedTime().orElseThrow()));
+                    program -> String.format("%d %s", program.id(), program.adminName()),
+                    program -> program.lastModifiedTime().orElseThrow()));
     ImmutableMap<String, Instant> afterQuestionTimestamps =
         questions.stream()
             .map(
@@ -249,40 +252,14 @@ public class VersionRepositoryTest extends ResetPostgres {
                         .orElseThrow())
             .collect(
                 ImmutableMap.toImmutableMap(
-                    v -> String.format("%d %s", v.id, v.getQuestionDefinition().getName()),
-                    v -> v.getLastModifiedTime().orElseThrow()));
+                    question ->
+                        String.format(
+                            "%d %s", question.id, question.getQuestionDefinition().getName()),
+                    question ->
+                        question.getQuestionDefinition().getLastModifiedTime().orElseThrow()));
 
     assertThat(beforeProgramTimestamps).isEqualTo(afterProgramTimestamps);
     assertThat(beforeQuestionTimestamps).isEqualTo(afterQuestionTimestamps);
-  }
-
-  @Test
-  public void testRollback() {
-    resourceCreator.insertActiveProgram("foo");
-    resourceCreator.insertDraftProgram("bar");
-    Version oldDraft = versionRepository.getDraftVersion();
-    Version oldActive = versionRepository.getActiveVersion();
-    versionRepository.publishNewSynchronizedVersion();
-    oldDraft.refresh();
-    oldActive.refresh();
-
-    assertThat(oldDraft.getPrograms()).hasSize(2);
-    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
-
-    versionRepository.setLiveVersion(oldActive.id);
-
-    oldActive.refresh();
-    oldDraft.refresh();
-    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
-
-    versionRepository.setLiveVersion(oldDraft.id);
-
-    oldActive.refresh();
-    oldDraft.refresh();
-    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
-    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test

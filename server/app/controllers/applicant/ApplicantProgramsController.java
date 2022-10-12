@@ -7,18 +7,12 @@ import static views.components.ToastMessage.ToastType.ALERT;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
-import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
@@ -36,7 +30,7 @@ import views.components.ToastMessage;
  * explicitly check the current profile so that an unauthorized user cannot access another
  * applicant's data!
  */
-public class ApplicantProgramsController extends CiviFormController {
+public final class ApplicantProgramsController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
@@ -44,7 +38,6 @@ public class ApplicantProgramsController extends CiviFormController {
   private final ProgramIndexView programIndexView;
   private final ApplicantProgramInfoView programInfoView;
   private final ProfileUtils profileUtils;
-  private final Logger logger = LoggerFactory.getLogger(ApplicantProgramsController.class);
 
   @Inject
   public ApplicantProgramsController(
@@ -54,8 +47,8 @@ public class ApplicantProgramsController extends CiviFormController {
       ProgramIndexView programIndexView,
       ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils) {
-    this.httpContext = httpContext;
-    this.applicantService = applicantService;
+    this.httpContext = checkNotNull(httpContext);
+    this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
@@ -66,61 +59,22 @@ public class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> index(Request request, long applicantId) {
     Optional<ToastMessage> banner =
         request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantStage =
+        this.applicantService.getNameOrEmail(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantPrograms(applicantId), httpContext.current())
+            v -> applicantService.relevantProgramsForApplicant(applicantId), httpContext.current())
         .thenApplyAsync(
-            allPrograms -> {
-              ImmutableList<ProgramDefinition> programsWithDraftApplications =
-                  allPrograms.get(LifecycleStage.DRAFT);
-              Set<String> adminNames =
-                  programsWithDraftApplications.stream()
-                      .map(ProgramDefinition::adminName)
-                      .collect(Collectors.toSet());
-              ImmutableList<ProgramDefinition> dedupedActivePrograms =
-                  allPrograms.get(LifecycleStage.ACTIVE).stream()
-                      .filter(
-                          programDefinition -> !adminNames.contains(programDefinition.adminName()))
-                      .collect(ImmutableList.toImmutableList());
-              // Deduplicate programs with draft applications. This is a temporary fix for a bug
-              // where some applicants were seeing duplicates of programs for which they had
-              // draft applications.
-              // We can remove this deduplication once we determine and resolve the root cause of
-              // the duplicate programs.
-              Map<String, Long> draftProgramDebugMap = new HashMap<>();
-              ImmutableList<ProgramDefinition> dedupedDraftPrograms =
-                  ImmutableList.copyOf(
-                      programsWithDraftApplications.stream()
-                          .filter(
-                              program -> {
-                                if (draftProgramDebugMap.containsKey(program.adminName())) {
-                                  // If we had to deduplicate, log data for debugging purposes.
-                                  logger.debug(
-                                      String.format(
-                                          "DEBUG LOG ID: 98afa07855eb8e69338b5af13236a6b7. Program"
-                                              + " Admin Name: %1$s, Duplicate Program Definition"
-                                              + " id: %2$s. Original Program Definition id: %3$s",
-                                          program.adminName(),
-                                          program.id(),
-                                          draftProgramDebugMap.get(program.adminName())));
-                                  return false;
-                                } else {
-                                  draftProgramDebugMap.put(program.adminName(), program.id());
-                                  return true;
-                                }
-                              })
-                          .collect(Collectors.toList()));
+            applicationPrograms -> {
               return ok(
                   programIndexView.render(
                       messagesApi.preferred(request),
                       request,
                       applicantId,
                       applicantStage.toCompletableFuture().join(),
-                      dedupedDraftPrograms,
-                      dedupedActivePrograms,
+                      applicationPrograms,
                       banner));
             },
             httpContext.current())
@@ -142,14 +96,19 @@ public class ApplicantProgramsController extends CiviFormController {
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantPrograms(applicantId), httpContext.current())
+            v -> applicantService.relevantProgramsForApplicant(applicantId), httpContext.current())
         .thenApplyAsync(
-            allPrograms -> {
+            relevantPrograms -> {
               Optional<ProgramDefinition> programDefinition =
-                  allPrograms.values().stream()
+                  Stream.of(
+                          relevantPrograms.inProgress(),
+                          relevantPrograms.submitted(),
+                          relevantPrograms.unapplied())
                       .flatMap(ImmutableList::stream)
+                      .map(p -> p.program())
                       .filter(program -> program.id() == programId)
                       .findFirst();
+
               if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(

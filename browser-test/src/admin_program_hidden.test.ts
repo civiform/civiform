@@ -1,24 +1,21 @@
 import {
-  startSession,
-  loginAsAdmin,
-  AdminPrograms,
-  endSession,
-  logout,
-  loginAsGuest,
-  selectApplicantLanguage,
   ApplicantQuestions,
+  createTestContext,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  selectApplicantLanguage,
 } from './support'
 
 describe('Hide a program that should not be public yet', () => {
+  const ctx = createTestContext()
   it('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
-    const {browser, page} = await startSession()
-    page.setDefaultTimeout(5000)
+    const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    const adminPrograms = new AdminPrograms(page)
 
     // Create a hidden program
-    const programName = 'Hidden Program'
+    const programName = 'hidden-program'
     const programDescription = 'Description'
     await adminPrograms.addProgram(programName, programDescription, '', true)
     await adminPrograms.publishAllPrograms()
@@ -34,18 +31,15 @@ describe('Hide a program that should not be public yet', () => {
     await applicantQuestions.expectProgramHidden(programName)
 
     await logout(page)
-    await endSession(browser)
   })
 
   it('create a public program, verify applicants can see it on the home page', async () => {
-    const {browser, page} = await startSession()
-    page.setDefaultTimeout(5000)
+    const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    const adminPrograms = new AdminPrograms(page)
 
     // Create a hidden program
-    const programName = 'Public Program'
+    const programName = 'public-program'
     const programDescription = 'Description'
     await adminPrograms.addProgram(programName, programDescription, '', false)
     await adminPrograms.publishAllPrograms()
@@ -61,7 +55,5 @@ describe('Hide a program that should not be public yet', () => {
       programName,
       programDescription,
     )
-
-    await endSession(browser)
   })
 })

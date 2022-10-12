@@ -1,14 +1,19 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h3;
 import static j2html.TagCreator.legend;
+import static j2html.TagCreator.p;
 
+import com.typesafe.config.Config;
 import forms.ProgramForm;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import models.DisplayMode;
+import modules.MainModule;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
@@ -18,10 +23,16 @@ import views.style.BaseStyles;
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
-public class ProgramFormBuilder extends BaseHtmlView {
+abstract class ProgramFormBuilder extends BaseHtmlView {
+
+  private final String baseUrl;
+
+  ProgramFormBuilder(Config configuration) {
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
+  }
 
   /** Builds the form using program form data. */
-  public static FormTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
+  protected final FormTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
     return buildProgramForm(
         program.getAdminName(),
         program.getAdminDescription(),
@@ -33,7 +44,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   /** Builds the form using program definition data. */
-  public static FormTag buildProgramForm(ProgramDefinition program, boolean editExistingProgram) {
+  protected final FormTag buildProgramForm(ProgramDefinition program, boolean editExistingProgram) {
     return buildProgramForm(
         program.adminName(),
         program.adminDescription(),
@@ -44,7 +55,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         editExistingProgram);
   }
 
-  private static FormTag buildProgramForm(
+  private FormTag buildProgramForm(
       String adminName,
       String adminDescription,
       String displayName,
@@ -55,41 +66,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
     FormTag formTag = form().withMethod("POST");
     formTag.with(
         requiredFieldsExplanationContent(),
-        h2("Internal program information"),
-        h3("This will only be visible to administrators"),
-        FieldWithLabel.input()
-            .setId("program-name-input")
-            .setFieldName("adminName")
-            .setLabelText("Enter internal name or nickname of this program*")
-            .setValue(adminName)
-            .setDisabled(editExistingProgram)
-            .getInputTag(),
-        FieldWithLabel.textArea()
-            .setId("program-description-textarea")
-            .setFieldName("adminDescription")
-            .setLabelText("Describe this program for administrative use*")
-            .setValue(adminDescription)
-            .getTextareaTag(),
-        // TODO(#2618): Consider using helpers for grouping related radio controls.
-        fieldset()
-            .with(
-                legend("Program visibility*").withClass(BaseStyles.INPUT_LABEL),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-public")
-                    .setFieldName("displayMode")
-                    .setLabelText("Public")
-                    .setValue(DisplayMode.PUBLIC.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-hidden")
-                    .setFieldName("displayMode")
-                    .setLabelText("Hidden in Index")
-                    .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
-                    .getRadioTag()),
-        h2("Public program information"),
-        h3("This will be visible to the public"),
+        h2("Visible to applicants").withClasses("py-2"),
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
@@ -102,13 +79,66 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Describe this program for the public*")
             .setValue(displayDescription)
             .getTextareaTag(),
+        programUrlField(adminName, editExistingProgram),
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
             .setLabelText("Link to program website")
             .setValue(externalLink)
             .getInputTag(),
+        h2("Visible to administrators only").withClasses("py-2"),
+        // TODO(#2618): Consider using helpers for grouping related radio controls.
+        fieldset()
+            .with(
+                legend("Program visibility*").withClass(BaseStyles.INPUT_LABEL),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-public")
+                    .setFieldName("displayMode")
+                    .setLabelText("Publicly visible")
+                    .setValue(DisplayMode.PUBLIC.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-hidden")
+                    .setFieldName("displayMode")
+                    .setLabelText(
+                        "Hide from applicants. Only individuals with the unique program link can"
+                            + " access this program")
+                    .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
+                    .getRadioTag()),
+        FieldWithLabel.textArea()
+            .setId("program-description-textarea")
+            .setFieldName("adminDescription")
+            .setLabelText("Program note for administrative use only*")
+            .setValue(adminDescription)
+            .getTextareaTag(),
         submitButton("Save").withId("program-update-button"));
     return formTag;
+  }
+
+  private DomContent programUrlField(String adminName, boolean editExistingProgram) {
+    if (editExistingProgram) {
+      String programUrl =
+          baseUrl
+              + controllers.applicant.routes.RedirectController.programBySlug(
+                      MainModule.SLUGIFIER.slugify(adminName))
+                  .url();
+      return div()
+          .withClass("mb-2")
+          .with(
+              p("The URL for this program. This value can't be changed")
+                  .withClasses(BaseStyles.INPUT_LABEL),
+              p(programUrl).withClasses(BaseStyles.FORM_FIELD));
+    }
+    return FieldWithLabel.input()
+        .setId("program-name-input")
+        .setFieldName("adminName")
+        .setLabelText(
+            "Enter an identifier that will be used in this program's applicant-facing URL. This"
+                + " value can't be changed later. Aim to keep it short so it's easy to share. Use"
+                + " a dash between each word*")
+        .setValue(adminName)
+        .getInputTag();
   }
 }

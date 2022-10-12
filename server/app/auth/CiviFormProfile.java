@@ -4,6 +4,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import featureflags.FeatureFlags;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
@@ -14,7 +15,10 @@ import javax.persistence.EntityNotFoundException;
 import models.Account;
 import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http.Request;
 import repository.DatabaseExecutionContext;
+
+// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CiviFormProfile
 
 /**
  * This is a "pure" wrapper of CiviFormProfileData. Since CiviFormProfileData is the serialized data
@@ -25,15 +29,18 @@ public class CiviFormProfile {
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private CiviFormProfileData profileData;
+  private FeatureFlags featureFlags;
 
   @Inject
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
-      CiviFormProfileData profileData) {
+      CiviFormProfileData profileData,
+      FeatureFlags featureFlags) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.profileData = Preconditions.checkNotNull(profileData);
+    this.featureFlags = Preconditions.checkNotNull(featureFlags);
   }
 
   /** Get the latest {@link Applicant} associated with the profile. */
@@ -225,10 +232,14 @@ public class CiviFormProfile {
    * @param programName name of the program whose data is requested to be accessed
    * @return the future of the check
    */
-  public CompletableFuture<Void> checkProgramAuthorization(String programName) {
+  public CompletableFuture<Void> checkProgramAuthorization(String programName, Request request) {
     return this.getAccount()
         .thenApply(
             account -> {
+              if (account.getGlobalAdmin()
+                  && featureFlags.allowCiviformAdminAccessPrograms(request)) {
+                return null;
+              }
               if (account.getAdministeredProgramNames().stream()
                   .anyMatch(program -> program.equals(programName))) {
                 return null;

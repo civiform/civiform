@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Optional;
 import models.Applicant;
@@ -35,7 +36,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void submitApplication_updatesOtherApplicationVersions() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = createDraftProgram("Program");
+    Program program = createProgram("Program");
 
     Application appOne =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
@@ -74,8 +75,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Applicant applicant1 = saveApplicant("Alice");
     Applicant applicant2 = saveApplicant("Bob");
 
-    Program program1 = createDraftProgram("Program");
-    Program program2 = createDraftProgram("OtherProgram");
+    Program program1 = createProgram("Program");
+    Program program2 = createProgram("OtherProgram");
 
     repo.createOrUpdateDraft(applicant1, program1).toCompletableFuture().join();
 
@@ -92,7 +93,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void createOrUpdateDraftApplication_updatesExistingDraft() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = createDraftProgram("Program");
+    Program program = createProgram("Program");
     Application appDraft1 =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
     Application appDraft2 =
@@ -106,7 +107,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void submitApplication_twoDraftsThrowsException() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = createDraftProgram("Program");
+    Program program = createProgram("Program");
     Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
     appDraft1.save();
     Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
@@ -140,7 +141,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void submitApplication_noDrafts() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = createDraftProgram("Program");
+    Program program = createProgram("Program");
     Application app =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
     assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
@@ -165,8 +166,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplications() {
-    Program programOne = createDraftProgram("first");
-    Program programTwo = createDraftProgram("second");
+    Program programOne = createProgram("first");
+    Program programTwo = createProgram("second");
 
     Instant yesterday = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-02");
     Instant today = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-03");
@@ -216,6 +217,98 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     assertThat(repo.getApplications(restrictiveFilter)).isEmpty();
   }
 
+  @Test
+  public void getApplicationsForApplicant() throws Exception {
+    Applicant applicant = saveApplicant("Applicant");
+
+    Program program = createProgram("Program");
+    Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
+    appDraft1.save();
+    Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
+    appDraft2.save();
+    Application appActive1 = Application.create(applicant, program, LifecycleStage.ACTIVE);
+    appActive1.save();
+    Application appActive2 = Application.create(applicant, program, LifecycleStage.ACTIVE);
+    appActive2.save();
+    Application appObsolete1 = Application.create(applicant, program, LifecycleStage.OBSOLETE);
+    appObsolete1.save();
+    Application appObsolete2 = Application.create(applicant, program, LifecycleStage.OBSOLETE);
+    appObsolete2.save();
+
+    ImmutableSet<Application> result =
+        repo.getApplicationsForApplicant(
+                applicant.id,
+                ImmutableSet.of(
+                    LifecycleStage.DRAFT, LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+            .toCompletableFuture()
+            .get();
+    assertThat(result.stream().map(a -> a.id))
+        .containsExactlyInAnyOrder(
+            appDraft1.id,
+            appDraft2.id,
+            appActive1.id,
+            appActive2.id,
+            appObsolete1.id,
+            appObsolete2.id);
+
+    result =
+        repo.getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.DRAFT))
+            .toCompletableFuture()
+            .get();
+    assertThat(result.stream().map(a -> a.id))
+        .containsExactlyInAnyOrder(appDraft1.id, appDraft2.id);
+
+    result =
+        repo.getApplicationsForApplicant(applicant.id, ImmutableSet.of())
+            .toCompletableFuture()
+            .get();
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getApplicationsForApplicant_filtersById() throws Exception {
+    Applicant primaryApplicant = saveApplicant("Applicant");
+    Applicant otherApplicant = saveApplicant("Other");
+
+    Program program = createProgram("Program");
+    Application primaryApplicantDraftApp =
+        Application.create(primaryApplicant, program, LifecycleStage.DRAFT);
+    primaryApplicantDraftApp.save();
+    Application otherApplicantActiveApp =
+        Application.create(otherApplicant, program, LifecycleStage.ACTIVE);
+    otherApplicantActiveApp.save();
+
+    ImmutableSet<Application> result =
+        repo.getApplicationsForApplicant(
+                otherApplicant.id,
+                ImmutableSet.of(
+                    LifecycleStage.DRAFT, LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+            .toCompletableFuture()
+            .get();
+    assertThat(result.stream().map(a -> a.id))
+        .containsExactlyInAnyOrder(otherApplicantActiveApp.id);
+
+    result =
+        repo.getApplicationsForApplicant(
+                primaryApplicant.id,
+                ImmutableSet.of(
+                    LifecycleStage.DRAFT, LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+            .toCompletableFuture()
+            .get();
+    assertThat(result.stream().map(a -> a.id))
+        .containsExactlyInAnyOrder(primaryApplicantDraftApp.id);
+
+    // Unknown applicant.
+    result =
+        repo.getApplicationsForApplicant(
+                Integer.MAX_VALUE,
+                ImmutableSet.of(
+                    LifecycleStage.DRAFT, LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+            .toCompletableFuture()
+            .get();
+    assertThat(result).isEmpty();
+  }
+
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
     applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
@@ -223,7 +316,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     return applicant;
   }
 
-  private Program createDraftProgram(String name) {
+  private Program createProgram(String name) {
     Program program =
         new Program(
             name,

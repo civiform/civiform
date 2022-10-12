@@ -1,110 +1,109 @@
 import {
-  startSession,
   loginAsAdmin,
   AdminQuestions,
-  AdminPrograms,
-  endSession,
-  dropTables,
   seedCanonicalQuestions,
   waitForPageJsLoad,
+  validateScreenshot,
+  dropTables,
+  createTestContext,
 } from './support'
+import {QuestionType} from './support/admin_questions'
+import {BASE_URL} from './support/config'
 
 describe('normal question lifecycle', () => {
-  beforeAll(async () => {
-    const {page} = await startSession()
+  const ctx = createTestContext()
+
+  it('canonical question seeding works', async () => {
+    const {page, adminQuestions} = ctx
     await dropTables(page)
     await seedCanonicalQuestions(page)
-  })
 
-  it('has canonical questions available by default', async () => {
-    const {browser, page} = await startSession()
+    await page.goto(BASE_URL)
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Name')
     await adminQuestions.expectDraftQuestionExist('Applicant Date of Birth')
-
-    await endSession(browser)
   })
 
-  it('create, update, publish, create a new version, and update all questions', async () => {
-    const {browser, page} = await startSession()
-    page.setDefaultTimeout(4000)
+  // Run create-update-publish test for each question type individually to keep
+  // test duration reasonable.
+  for (const type of Object.values(QuestionType)) {
+    it(`${type} question: create, update, publish, create a new version, and update`, async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
 
-    await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
+      await loginAsAdmin(page)
 
-    const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes(
-      'qlc-',
-    )
-    const singleBlockQuestions =
-      await adminQuestions.addAllSingleBlockQuestionTypes('qlc-')
-    const repeatedQuestion = 'qlc-repeated-number'
-    await adminQuestions.addNumberQuestion({
-      questionName: repeatedQuestion,
-      description: 'description',
-      questionText: "$this's favorite number",
-      helpText: '',
-      enumeratorName: 'qlc-enumerator',
-    })
+      const questionName = `qlc-${type}`
+      // for most question types there will be only 1 question. But for
+      // enumerator question we'll create repeated question later.
+      const allQuestions = [questionName]
 
-    // Combine all the questions that were made so we can update them all together.
-    const allQuestions = questions.concat(singleBlockQuestions)
-    // Add to the front of the list because creating a new version of the enumerator question will
-    // automatically create a new version of the repeated question.
-    allQuestions.unshift(repeatedQuestion)
+      await adminQuestions.addQuestionForType(type, questionName)
+      const repeatedQuestion = 'qlc-repeated-number'
+      const isEnumerator = type === QuestionType.ENUMERATOR
+      if (isEnumerator) {
+        // Add to the front of the list because creating a new version of the enumerator question will
+        // automatically create a new version of the repeated question. This is important for
+        // createNewVersionForQuestions() call below.
+        allQuestions.unshift(repeatedQuestion)
+        await adminQuestions.addNumberQuestion({
+          questionName: repeatedQuestion,
+          description: 'description',
+          questionText: "$this's favorite number",
+          helpText: '',
+          enumeratorName: questionName,
+        })
+        await adminQuestions.updateQuestion(repeatedQuestion)
+      }
 
-    await adminQuestions.updateAllQuestions(allQuestions)
+      await adminQuestions.updateQuestion(questionName)
 
-    const programName = 'program for question lifecycle'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(
-      programName,
-      'qlc program description',
-      questions,
-    )
-    for (const singleBlockQuestion of singleBlockQuestions) {
-      const blockName = await adminPrograms.addProgramBlock(
+      const programName = `program-for-${type}-question-lifecycle`
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlock(
         programName,
-        'single-block question',
-        [singleBlockQuestion],
+        'qlc program description',
+        [questionName],
       )
-      if (singleBlockQuestion == 'qlc-enumerator') {
+      if (isEnumerator) {
         await adminPrograms.addProgramRepeatedBlock(
           programName,
-          blockName,
+          'Screen 1',
           'repeated block desc',
           [repeatedQuestion],
         )
       }
-    }
-    await adminPrograms.publishProgram(programName)
+      await adminPrograms.publishProgram(programName)
 
-    await adminQuestions.expectActiveQuestions(allQuestions)
+      await adminQuestions.expectActiveQuestions(allQuestions)
 
-    await adminQuestions.createNewVersionForQuestions(allQuestions)
+      // Take screenshot of questions being published and active.
+      await adminQuestions.gotoAdminQuestionsPage()
+      await validateScreenshot(page, `${type}-only-active`)
 
-    await adminQuestions.updateAllQuestions(allQuestions)
+      await adminQuestions.createNewVersionForQuestions(allQuestions)
 
-    await adminPrograms.publishProgram(programName)
+      await adminQuestions.updateAllQuestions(allQuestions)
 
-    await adminPrograms.createNewVersion(programName)
+      // Take screenshot of question being in draft state.
+      await adminQuestions.gotoAdminQuestionsPage()
+      await validateScreenshot(page, `${type}-active-and-draft`)
 
-    await adminPrograms.publishProgram(programName)
+      await adminPrograms.publishProgram(programName)
 
-    await adminQuestions.expectActiveQuestions(allQuestions)
+      await adminPrograms.createNewVersion(programName)
 
-    await endSession(browser)
-  })
+      await adminPrograms.publishProgram(programName)
+
+      await adminQuestions.expectActiveQuestions(allQuestions)
+    })
+  }
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
-    const {page} = await startSession()
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2', '']
 
@@ -124,11 +123,9 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
-    const {page} = await startSession()
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2', '']
 
@@ -148,11 +145,9 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
-    const {page} = await startSession()
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2']
     const questionName = 'updateEmptyDropdown'
@@ -160,12 +155,7 @@ describe('normal question lifecycle', () => {
     // Add a new valid dropdown question
     await adminQuestions.addDropdownQuestion({questionName, options})
     // Edit the newly created question
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(
-        questionName,
-        ':text("Edit")',
-      ),
-    )
+    await adminQuestions.gotoQuestionEditPage(questionName)
 
     // Add an empty option
     await page.click('#add-new-option')
@@ -177,11 +167,9 @@ describe('normal question lifecycle', () => {
   })
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
-    const {page} = await startSession()
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
     const options = ['option1', 'option2']
     const questionName = 'updateEmptyRadio'
@@ -190,12 +178,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.addRadioButtonQuestion({questionName, options})
 
     // Edit the newly created question
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(
-        questionName,
-        ':text("Edit")',
-      ),
-    )
+    await adminQuestions.gotoQuestionEditPage(questionName)
 
     // Add an empty option
     await page.click('#add-new-option')
@@ -208,13 +191,12 @@ describe('normal question lifecycle', () => {
   })
 
   it('persists export state', async () => {
-    const {page} = await startSession()
-    page.setDefaultTimeout(4000)
+    const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
 
-    // Navigate to the new question page and ensure that "No export" is pre-selected.
+    // Navigate to the new question page and ensure that "Don't allow answers to be exported"
+    // is pre-selected.
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
@@ -256,21 +238,18 @@ describe('normal question lifecycle', () => {
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
-    const {page} = await startSession()
+    const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
-
-    const adminQuestions = new AdminQuestions(page)
-    const adminPrograms = new AdminPrograms(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.addNameQuestion({questionName: 'name-q'})
 
-    const programName = 'test program'
+    const programName = 'test-program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishProgram(programName)
 
     // Update the question to create new draft version.
-    await adminQuestions.gotoQuestionNewVersionPage('name-q')
+    await adminQuestions.gotoQuestionEditPage('name-q')
     // The ID in the URL after clicking new version corresponds to the active question form (e.g. ID=15).
     // After a draft is created, the ID will reflect the newly created draft version (e.g. ID=16).
     const editUrl = page.url()

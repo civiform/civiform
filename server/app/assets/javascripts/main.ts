@@ -14,7 +14,10 @@ function attachDropdown(elementId: string) {
   const dropdown = document.getElementById(dropdownId)
   if (dropdown && element) {
     // Attach onclick event to element to toggle dropdown visibility.
-    element.addEventListener('click', () => toggleElementVisibility(dropdownId))
+    element.addEventListener('click', (e) => {
+      e.stopPropagation()
+      toggleElementVisibility(dropdownId)
+    })
 
     // Attach onblur event to page to hide dropdown if it wasn't the clicked element.
     document.addEventListener('click', (e) =>
@@ -116,6 +119,12 @@ function hideInput(event: Event) {
   inputDiv.classList.add('hidden')
 }
 
+// Used to allow us to generate a unique ID for each newly added enumerator entity.
+// We can't generate this based on the number of elements rendered since entities
+// can be dynamically removed by using the "Remove" button without refreshing the
+// page.
+let enumeratorCounter = 0
+
 /** In the enumerator form - add a new input field for a repeated entity. */
 function addNewEnumeratorField() {
   // Copy the enumerator field template
@@ -129,6 +138,21 @@ function addNewEnumeratorField() {
   newField
     .querySelector('[type=button]')
     .addEventListener('click', removeEnumeratorField)
+
+  // Update IDs from the template element so that they are unique.
+  const inputElement = newField.querySelector(
+    '#enumerator-field-template-input',
+  )
+  enumeratorCounter++
+  inputElement.id = `${inputElement.id}-${enumeratorCounter}`
+  const labelElement = newField.querySelector(
+    'label[for="enumerator-field-template-input"]',
+  )
+  labelElement.setAttribute('for', inputElement.id)
+  const errorsElement = newField.querySelector(
+    '#enumerator-field-template-input-errors',
+  )
+  errorsElement.id = `enumerator-field-template-input-${enumeratorCounter}-errors`
 
   // Add to the end of enumerator-fields div.
   const enumeratorFields = document.getElementById('enumerator-fields')
@@ -466,6 +490,34 @@ function attachFormDebouncers() {
   )
 }
 
+/**
+ * Adds event listener to all elements on a page that match given selector.
+ * This function doesn't handle elements added dynamically after the function was invoked.
+ * @param {string} selector CSS selector that will be used to retrieve list of elements.
+ * @param {string} event Browser event. For example 'click'
+ * @param {Function} listener Listener that will be registered on all matching elements.
+ */
+function addEventListenerToElements(
+  selector: string,
+  event: string,
+  listener: (e: Event) => void,
+) {
+  Array.from(document.querySelectorAll(selector)).forEach((el) =>
+    el.addEventListener(event, listener),
+  )
+}
+
+/**
+ * Adds listeners to all elements that have `data-redirect-to="..."` attribute.
+ * All such elements act as links taking user to another page.
+ */
+function attachRedirectToPageListeners() {
+  addEventListenerToElements('[data-redirect-to]', 'click', (e: Event) => {
+    e.stopPropagation()
+    window.location.href = (e.currentTarget as HTMLElement).dataset.redirectTo
+  })
+}
+
 window.addEventListener('load', () => {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
@@ -476,12 +528,16 @@ window.addEventListener('load', () => {
 
   // Configure the admin predicate builder to show the appropriate options based on
   // the type of scalar selected.
-  Array.from(document.querySelectorAll('.cf-scalar-select')).forEach((el) =>
-    el.addEventListener('input', configurePredicateFormOnScalarChange),
+  addEventListenerToElements(
+    '.cf-scalar-select',
+    'input',
+    configurePredicateFormOnScalarChange,
   )
 
-  Array.from(document.querySelectorAll('.cf-operator-select')).forEach((el) =>
-    el.addEventListener('input', configurePredicateFormOnOperatorChange),
+  addEventListenerToElements(
+    '.cf-operator-select',
+    'input',
+    configurePredicateFormOnOperatorChange,
   )
 
   // Submit button is disabled by default until program block edit form is changed
@@ -503,9 +559,11 @@ window.addEventListener('load', () => {
   }
 
   // Bind click handler for remove options in multi-option edit view
-  Array.from(
-    document.querySelectorAll('.multi-option-question-field-remove-button'),
-  ).forEach((el) => el.addEventListener('click', removeInput))
+  addEventListenerToElements(
+    '.multi-option-question-field-remove-button',
+    'click',
+    removeInput,
+  )
 
   // Configure the button on the manage program admins form to add more email inputs
   const adminEmailButton = document.getElementById('add-program-admin-button')
@@ -520,9 +578,11 @@ window.addEventListener('load', () => {
   }
 
   // Bind click handler for removing program admins in the program admin management view
-  Array.from(
-    document.querySelectorAll('.cf-program-admin-remove-button'),
-  ).forEach((el) => el.addEventListener('click', hideInput))
+  addEventListenerToElements(
+    '.cf-program-admin-remove-button',
+    'click',
+    hideInput,
+  )
 
   // Configure the button on the enumerator question form to add more enumerator field options
   const enumeratorOptionButton = document.getElementById(
@@ -533,12 +593,16 @@ window.addEventListener('load', () => {
   }
 
   // Configure existing enumerator entity remove buttons
-  Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
-    (el) => el.addEventListener('click', removeExistingEnumeratorField),
+  addEventListenerToElements(
+    '.cf-enumerator-delete-button',
+    'click',
+    removeExistingEnumeratorField,
   )
   addEnumeratorListeners()
 
   attachFormDebouncers()
+
+  attachRedirectToPageListeners()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'

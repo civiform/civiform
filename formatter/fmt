@@ -38,28 +38,28 @@ else
 fi
 
 echo 'Start formatting with prettier'
+# prettier is installed as node module in `formatter` directory
+cd formatter
 npx prettier \
   --write \
-  --config .prettierrc.js \
-  --ignore-path .prettierignore \
+  --config ../.prettierrc.js \
+  --ignore-path ../.prettierignore \
   --ignore-unknown \
-  .
+  ../
+cd ..
 echo 'Done formatting with prettier'
 
 echo 'Start formatting with eslint'
-npx eslint \
-  --fix \
-  {server/app/assets/javascripts,server/tailwind.config.js,test-support,browser-test}
+cd server
+npm install --silent
+npx eslint --fix "app/assets/javascripts/**/*.ts"
+cd ../browser-test
+yarn install --silent
+npx eslint --fix "src/**/*.ts"
+cd ..
 echo 'Done formatting with eslint'
 
 echo 'Start format shell'
 shfmt -bn -ci -i 2 -w -l \
   $(shfmt -f . | grep -v -e /node_modules)
 echo 'Done formatting shell'
-
-echo 'Start format python'
-yapf -i -r -p -vv \
-  --no-local-style \
-  --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}' \
-  {cloud,bin}
-echo 'Done formatting python'

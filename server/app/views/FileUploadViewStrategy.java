@@ -27,7 +27,6 @@ import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /**
  * A strategy pattern that abstracts out the logic of file upload/download into the different cloud
@@ -49,28 +48,38 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    *
    * @param params the fields necessary to render applicant questions.
    * @param fileUploadQuestion The question that requires a file upload.
+   * @param ariaDescribedByIds HTML tag IDs that this file upload input should be associated with.
+   * @param hasErrors whether this file upload input is displaying errors.
    * @return a container tag with the necessary fields
    */
   public final DivTag signedFileUploadFields(
       ApplicantQuestionRendererParams params,
       FileUploadQuestion fileUploadQuestion,
-      String fileInputId) {
+      String fileInputId,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors) {
     Optional<String> uploaded =
         fileUploadQuestion
             .getFilename()
             .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
 
     DivTag result = div().with(div().withText(uploaded.orElse("")));
-    result.with(fileUploadFields(params.signedFileUploadRequest(), fileInputId));
+    result.with(
+        fileUploadFields(
+            params.signedFileUploadRequest(), fileInputId, ariaDescribedByIds, hasErrors));
     result.with(
         div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
+            .withId(fileInputId + "-required-error")
             .withClasses(
-                ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN));
+                ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, "hidden"));
     return result;
   }
 
   protected abstract ImmutableList<InputTag> fileUploadFields(
-      Optional<StorageUploadRequest> request, String fileInputId);
+      Optional<StorageUploadRequest> request,
+      String fileInputId,
+      ImmutableList<String> ariaDescribedByIds,
+      boolean hasErrors);
 
   /**
    * Method to render the UI for uploading a file.
@@ -214,7 +223,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
                 each(
                     params.block().getQuestions(),
                     question -> renderEmptyFileKeyField(question, rendererParams)));
-    return div(continueForm, deleteForm).withClasses(Styles.HIDDEN);
+    return div(continueForm, deleteForm).withClasses("hidden");
   }
 
   private ButtonTag renderUploadButton(Params params) {
@@ -256,7 +265,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
             // An empty div to take up the space to the left of the buttons.
-            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(div().withClasses("flex-grow"))
             .with(renderReviewButton(params))
             .with(renderPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,15 +32,17 @@ public abstract class QuestionDefinition {
   private final LocalizedStrings questionText;
   private final LocalizedStrings questionHelpText;
   private final ValidationPredicates validationPredicates;
+  private final Optional<Instant> lastModifiedTime;
 
-  public QuestionDefinition(
+  protected QuestionDefinition(
       OptionalLong id,
       String name,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      ValidationPredicates validationPredicates) {
+      ValidationPredicates validationPredicates,
+      Optional<Instant> lastModifiedTime) {
     this.id = checkNotNull(id);
     this.name = checkNotNull(name);
     this.enumeratorId = checkNotNull(enumeratorId);
@@ -47,9 +50,10 @@ public abstract class QuestionDefinition {
     this.questionText = checkNotNull(questionText);
     this.questionHelpText = checkNotNull(questionHelpText);
     this.validationPredicates = checkNotNull(validationPredicates);
+    this.lastModifiedTime = checkNotNull(lastModifiedTime);
   }
 
-  public QuestionDefinition(
+  protected QuestionDefinition(
       String name,
       Optional<Long> enumeratorId,
       String description,
@@ -63,7 +67,8 @@ public abstract class QuestionDefinition {
         description,
         questionText,
         questionHelpText,
-        validationPredicates);
+        validationPredicates,
+        /* lastModifiedTime= */ Optional.empty());
   }
 
   public abstract static class ValidationPredicates {
@@ -84,12 +89,12 @@ public abstract class QuestionDefinition {
   }
 
   /** Return true if the question is persisted and has an unique identifier. */
-  public boolean isPersisted() {
+  public final boolean isPersisted() {
     return this.id.isPresent();
   }
 
   /** Get the unique identifier for this question. */
-  public long getId() {
+  public final long getId() {
     return this.id.getAsLong();
   }
 
@@ -100,12 +105,16 @@ public abstract class QuestionDefinition {
    *
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
-  public String getName() {
+  public final String getName() {
     return this.name;
   }
 
+  public final Optional<Instant> getLastModifiedTime() {
+    return this.lastModifiedTime;
+  }
+
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
-  public String getQuestionPathSegment() {
+  public final String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
     String formattedName = name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
@@ -123,7 +132,8 @@ public abstract class QuestionDefinition {
    * "root.household_member[].name", while a contextualized path would look like
    * "root.household_member[3].name".
    */
-  public Path getContextualizedPath(Optional<RepeatedEntity> repeatedEntity, Path defaultRoot) {
+  public final Path getContextualizedPath(
+      Optional<RepeatedEntity> repeatedEntity, Path defaultRoot) {
     return repeatedEntity
         .map(RepeatedEntity::contextualizedPath)
         .orElse(defaultRoot)
@@ -136,7 +146,7 @@ public abstract class QuestionDefinition {
    *
    * @return true if this is an enumerator question.
    */
-  public boolean isEnumerator() {
+  public final boolean isEnumerator() {
     return getQuestionType().equals(QuestionType.ENUMERATOR);
   }
 
@@ -145,7 +155,7 @@ public abstract class QuestionDefinition {
    *
    * @return true if this is a repeated question.
    */
-  public boolean isRepeated() {
+  public final boolean isRepeated() {
     return enumeratorId.isPresent();
   }
 
@@ -162,7 +172,7 @@ public abstract class QuestionDefinition {
    * @return the {@link QuestionDefinition#id} for this question definition's enumerator, if it
    *     exists.
    */
-  public Optional<Long> getEnumeratorId() {
+  public final Optional<Long> getEnumeratorId() {
     return enumeratorId;
   }
 
@@ -171,15 +181,15 @@ public abstract class QuestionDefinition {
    *
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
-  public String getDescription() {
+  public final String getDescription() {
     return this.description;
   }
 
-  public LocalizedStrings getQuestionText() {
+  public final LocalizedStrings getQuestionText() {
     return questionText;
   }
 
-  public LocalizedStrings getQuestionHelpText() {
+  public final LocalizedStrings getQuestionHelpText() {
     return questionHelpText;
   }
 
@@ -198,12 +208,12 @@ public abstract class QuestionDefinition {
   }
 
   /** Get the validation predicates. */
-  public ValidationPredicates getValidationPredicates() {
+  public final ValidationPredicates getValidationPredicates() {
     return validationPredicates;
   }
 
   /** Serialize validation predicates as a string. This is used for persisting in database. */
-  public String getValidationPredicatesAsString() {
+  public final String getValidationPredicatesAsString() {
     return validationPredicates.serializeAsString();
   }
 
@@ -211,16 +221,16 @@ public abstract class QuestionDefinition {
   public abstract QuestionType getQuestionType();
 
   /** Validate that all required fields are present and valid for the question. */
-  public ImmutableSet<CiviFormError> validate() {
+  public final ImmutableSet<CiviFormError> validate() {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
-    if (name.isBlank()) {
-      errors.add(CiviFormError.of("Name cannot be blank"));
-    }
     if (questionText.isEmpty()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
     if (questionText.hasEmptyTranslation()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
+    }
+    if (name.isBlank()) {
+      errors.add(CiviFormError.of("Administrative identifier cannot be blank"));
     }
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
@@ -314,7 +324,7 @@ public abstract class QuestionDefinition {
     return this.idEquals(other) && this.equalsIgnoreId(other);
   }
 
-  public boolean idEquals(Object other) {
+  private boolean idEquals(Object other) {
     if (other instanceof QuestionDefinition) {
       QuestionDefinition o = (QuestionDefinition) other;
 
@@ -331,7 +341,7 @@ public abstract class QuestionDefinition {
    *
    * <p>This checks all other fields ignoring the id.
    */
-  public boolean equalsIgnoreId(Object other) {
+  private boolean equalsIgnoreId(Object other) {
     if (other instanceof QuestionDefinition) {
       QuestionDefinition o = (QuestionDefinition) other;
 

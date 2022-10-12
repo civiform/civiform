@@ -3,6 +3,7 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -14,7 +15,6 @@ import services.applicant.question.FileUploadQuestion;
 import views.FileUploadViewStrategy;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /**
  * Renders a file upload question.
@@ -22,7 +22,7 @@ import views.style.Styles;
  * <p>A file upload question requires a different form. See {@code
  * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlock}.
  */
-public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer {
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final FileUploadQuestion fileUploadQuestion;
   // The ID used to associate the file input field with its screen reader label.
@@ -50,17 +50,17 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds) {
+    boolean hasErrors = !validationErrors.isEmpty();
     return div()
         .with(
-            label()
-                .withFor(fileInputId)
-                .withClass(Styles.SR_ONLY)
-                .withText(question.getQuestionText()))
+            label().withFor(fileInputId).withClass("sr-only").withText(question.getQuestionText()))
         .with(
-            fileUploadViewStrategy.signedFileUploadFields(params, fileUploadQuestion, fileInputId));
+            fileUploadViewStrategy.signedFileUploadFields(
+                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors));
   }
 
   @Override

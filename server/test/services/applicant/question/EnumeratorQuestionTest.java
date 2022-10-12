@@ -35,7 +35,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          LocalizedStrings.empty());
+          LocalizedStrings.empty(),
+          /* lastModifiedTime= */ Optional.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;

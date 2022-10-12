@@ -28,7 +28,8 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "help text"),
+          /* lastModifiedTime= */ Optional.empty());
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -66,5 +67,18 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
 
     // Error message is hidden.
     assertThat(result.render()).contains("hidden");
+  }
+
+  @Test
+  public void render_withAriaLabels() {
+    DivTag result = renderer.render(params);
+
+    assertThat(
+            result
+                .render()
+                .matches(
+                    ".*input type=\"text\" currency value=\"\""
+                        + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
+        .isTrue();
   }
 }

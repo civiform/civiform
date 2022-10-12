@@ -94,9 +94,12 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    // A program's name appears in the index view page content 4 times.
-    // If it appeared 8 times, that means there is a duplicate of the program.
-    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(4);
+    // A program's name appears in the index view page content 3 times:
+    //  1) Program card title
+    //  2) Program details aria-label
+    //  3) Apply button aria-label
+    // If it appears 6 times, that means there is a duplicate of the program.
+    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(3);
   }
 
   /** Returns the number of times a substring appears in the string. */
@@ -131,7 +134,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Obtener beneficios");
+    assertThat(contentAsString(result)).contains("Obtén beneficios");
   }
 
   @Test

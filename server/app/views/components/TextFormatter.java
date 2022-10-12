@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.style.BaseStyles;
-import views.style.Styles;
 
 /**
  * The TextFormatter class introduces options for converting plain-text strings into richer HTML
@@ -39,7 +38,7 @@ import views.style.Styles;
  *   <li>URL links
  * </ul>
  */
-public class TextFormatter {
+public final class TextFormatter {
   public enum UrlOpenAction {
     SameTab,
     NewTab
@@ -92,14 +91,8 @@ public class TextFormatter {
         urlTag
             .withTarget("_blank")
             .with(
-                Icons.svg(Icons.OPEN_IN_NEW, 24, 24)
-                    .withClasses(
-                        Styles.FLEX_SHRINK_0,
-                        Styles.H_5,
-                        Styles.W_AUTO,
-                        Styles.INLINE,
-                        Styles.ML_1,
-                        Styles.ALIGN_TEXT_TOP));
+                Icons.svg(Icons.OPEN_IN_NEW)
+                    .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top"));
       }
       contentBuilder.add(urlTag);
 
@@ -144,7 +137,7 @@ public class TextFormatter {
             TextFormatter.createLinksAndEscapeText(line, UrlOpenAction.NewTab);
         builder.add(div().with(lineContent));
       } else if (preserveEmptyLines) {
-        builder.add(div().withClasses(Styles.H_6));
+        builder.add(div().withClasses("h-6"));
       }
     }
     return builder.build();
@@ -158,7 +151,7 @@ public class TextFormatter {
   }
 
   private static UlTag buildList(ArrayList<String> items) {
-    UlTag listTag = ul().withClasses(Styles.LIST_DISC, Styles.MX_8);
+    UlTag listTag = ul().withClasses("list-disc", "mx-8");
     items.forEach(item -> listTag.with(li().withText(item)));
     return listTag;
   }

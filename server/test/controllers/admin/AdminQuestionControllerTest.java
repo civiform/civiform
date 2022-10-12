@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
@@ -155,7 +156,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(request, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New text question");
+    assertThat(contentAsString(result)).contains("New text field question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Question text cannot be blank");
     assertThat(contentAsString(result)).contains("name");
@@ -206,7 +207,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.edit(request, question.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name question");
+    assertThat(contentAsString(result)).contains("Edit name field question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
   }
@@ -217,7 +218,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name question");
+    assertThat(contentAsString(result)).contains("Edit name field question");
     assertThat(contentAsString(result)).contains("applicant household members");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
@@ -284,19 +285,28 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void newOne_returnsExpectedForm() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.newOne(request, "text");
+    Result result = controller.newOne(request, "text", "/some/redirect/url");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New text question");
+    assertThat(contentAsString(result)).contains("New text field question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
+    assertThat(contentAsString(result)).contains("/some/redirect/url");
   }
 
   @Test
   public void newOne_returnsFailureForInvalidQuestionType() {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.newOne(request, "nope");
+    Result result = controller.newOne(request, "nope", "/some/redirect/url");
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void newOne_absoluteRedirectUrl_throws() {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    assertThatThrownBy(() -> controller.newOne(request, "text", "https://www.example.com"))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContainingAll("Invalid absolute URL.");
   }
 
   @Test
@@ -459,7 +469,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.update(request, question.id, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit text question");
+    assertThat(contentAsString(result)).contains("Edit text field question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("question text updated!");
   }

@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -13,7 +14,7 @@ import services.applicant.question.NumberQuestion;
 import views.components.FieldWithLabel;
 
 /** Renders a number question. */
-public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public NumberQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -25,9 +26,10 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ImmutableList<String> ariaDescribedByIds) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
     FieldWithLabel numberField =
@@ -39,7 +41,11 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))
+            .setAriaDescribedByIds(ariaDescribedByIds)
             .addReferenceClass(getReferenceClass());
+    if (!validationErrors.isEmpty()) {
+      numberField.forceAriaInvalid();
+    }
     if (numberQuestion.getNumberValue().isPresent()) {
       // Note: If the provided input was invalid, there's no use rendering
       // the value on roundtrip since inputs with type="number" won't allow

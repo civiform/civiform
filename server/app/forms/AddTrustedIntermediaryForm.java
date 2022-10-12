@@ -1,7 +1,7 @@
 package forms;
 
 /** Form for adding a trusted intermediary in a trusted intermediary group. */
-public class AddTrustedIntermediaryForm {
+public final class AddTrustedIntermediaryForm {
   private String emailAddress;
 
   public AddTrustedIntermediaryForm(String emailAddress) {

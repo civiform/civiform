@@ -7,16 +7,15 @@ import j2html.tags.specialized.DivTag;
 import java.util.ArrayList;
 import java.util.Arrays;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /**
  * Utility class for rendering an accordion.
  *
  * <p>See {@link TextFormatter}.
  */
-public class Accordion {
-  protected String title = "";
-  protected ArrayList<DomContent> content = new ArrayList<>();
+public final class Accordion {
+  private String title = "";
+  private ArrayList<DomContent> content = new ArrayList<>();
 
   public Accordion setTitle(String title) {
     this.title = title;
@@ -33,20 +32,20 @@ public class Accordion {
         div()
             .withClasses(
                 ReferenceClasses.ACCORDION,
-                Styles.BG_WHITE,
-                Styles.MY_4,
-                Styles.P_4,
-                Styles.ROUNDED_LG,
-                Styles.SHADOW_MD,
-                Styles.BORDER,
-                Styles.BORDER_GRAY_300);
+                "bg-white",
+                "my-4",
+                "p-4",
+                "rounded-lg",
+                "shadow-md",
+                "border",
+                "border-gray-300");
 
-    DivTag titleContainer = div().withClasses(ReferenceClasses.ACCORDION_HEADER, Styles.RELATIVE);
-    DivTag titleDiv = div(this.title).withClasses(Styles.TEXT_XL, Styles.FONT_LIGHT);
+    DivTag titleContainer = div().withClasses(ReferenceClasses.ACCORDION_HEADER, "relative");
+    DivTag titleDiv = div(this.title).withClasses("text-xl", "font-light");
 
     SvgTag accordionSvg =
-        Icons.svg(Icons.ACCORDION_BUTTON, 24)
-            .withClasses(Styles.H_6, Styles.W_6)
+        Icons.svg(Icons.ACCORDION_BUTTON)
+            .withClasses("h-6", "w-6")
             .attr("fill", "none")
             .attr("stroke-width", "2")
             .attr("stroke-linecap", "round")
@@ -55,18 +54,18 @@ public class Accordion {
         div(accordionSvg)
             .withClasses(
                 ReferenceClasses.ACCORDION_BUTTON,
-                Styles.TRANSITION_ALL,
-                Styles.DURATION_300,
-                Styles.ABSOLUTE,
-                Styles.TOP_1,
-                Styles.RIGHT_2,
-                Styles.TRANSFORM);
+                "transition-all",
+                "duration-300",
+                "absolute",
+                "top-1",
+                "right-2",
+                "transform");
     titleContainer.with(titleDiv, accordionButton);
 
     DivTag contentContainer =
         div()
             .with(this.content)
-            .withClasses(ReferenceClasses.ACCORDION_CONTENT, Styles.H_0, Styles.OVERFLOW_HIDDEN);
+            .withClasses(ReferenceClasses.ACCORDION_CONTENT, "h-0", "overflow-hidden");
     accordion.with(titleContainer, contentContainer);
 
     return accordion;

@@ -5,51 +5,47 @@
 # To type an apostrophe in a message, please type two. Example: can't -> can''t
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
-# The text on the button an applicant clicks to log out of their session.
-button.logout=로그 아웃
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 label.selectLanguage=Please select your preferred language.
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-content.applicantInformation=Applicant Information
-
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
-# Message displayed before the support email address in the page footer for applicants.
-footer.supportLinkDescription=전문 지원을 받으려면, 다음 연락처로 문의하십시오:
+# The text on the button an applicant clicks to log out of their session.
+button.logout=로그아웃
 
+# Message displayed before the support email address in the page footer for applicants.
+footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
 
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
-# TODO(#1918): Translate.
-guest=Guest
+guest=게스트
 
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=언어 선택
 
 # Message with user's name to show who you are logged in as.
-header.userName=(으)로 로그인되었습니다 {0}
+header.userName={0}(으)로 로그인됨
 
 # Error message to answer a required question
-validation.isRequired=이 질문은 필수 질문입니다.
+validation.isRequired=이 질문은 필수입니다.
 
 # Validation error that is shown when the user input couldn't be converted for any reason.
-validation.invalidInput=각 줄에 해당되는 값을 입력하세요.
+validation.invalidInput=유효한 내용을 입력하세요.
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
 # Prompt for applicant to log in, input is the full civic entity name.
-content.loginPrompt=귀하의 시애틀시 계정으로 로그인하십시오 {0}
+content.loginPrompt={0} 계정으로 로그인하세요.
 
 # The text on the button an applicant clicks to log in to their session.
 button.login=로그인
 
 # Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=계정이 없으십니까?
+content.alternativeLoginPrompt=계정이 없나요?
 
 # The text between creating a new account, and becoming a guest
 content.or=또는
@@ -58,17 +54,23 @@ content.or=또는
 button.createAccount=계정 만들기
 
 # The text on the button for guests to log in to their session.
-button.guestLogin=손님으로 계속 이용
+button.guestLogin=게스트로 계속
+
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=계정 로그인이 현재 사용 중지됨
 
 # The words leading up to the admin login anchor
-content.adminLoginPrompt=다른 것을 찾고 계십니까?
+content.adminLoginPrompt=다른 내용을 찾고 있나요?
 
 # The text on the anchor for admins to log in to their session.
-link.adminLogin=Admin login
+link.adminLogin=관리자 로그인
 
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
+input.fileAlreadyUploaded=업로드된 파일: {0}
 
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=삭제
@@ -77,7 +79,7 @@ button.deleteFile=삭제
 button.keepFile=계속
 
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
-button.nextScreen=다음
+button.nextScreen=저장 후 다음으로 이동
 
 # The button text for navigating to the previous screen in the form.
 button.previousScreen=이전
@@ -86,22 +88,22 @@ button.previousScreen=이전
 button.review=검토
 
 # The text on the button an applicant clicks to skip uploading a file.
-button.skipFileUpload=생략
+button.skipFileUpload=건너뛰기
 
 # The text on the button an applicant clicks to upload a file and continue to the next screen.
 button.upload=업로드
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=죄송합니다. 해당 프로그램은 귀하의 선호 언어로 완전히 번역되지 않았습니다.
+toast.localeNotSupported=이 프로그램은 영어로 완전히 번역되어 있지 않습니다.
 
 # A link that logs out a guest user after they submit an application.
-link.allDone=완료하였습니다
+link.allDone=모두 완료했습니다
 
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
-link.applyToAnotherProgram=다른 프로그램을 신청하세요
+link.applyToAnotherProgram=다른 프로그램 신청
 
 # A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=계정 생성 또는 로그인
+link.createAccountOrSignIn=계정 만들기 또는 로그인
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -109,24 +111,27 @@ link.createAccountOrSignIn=계정 생성 또는 로그인
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=신청
-
 # The text read for screen readers.
-button.applySr=다음을 신청하세요 {0}
+button.applySr={0} 신청
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=편집
+
+# Text describing the date the application was last submitted.
+content.submittedDate=제출 날짜: {0}
 
 # "Get benefits" floating text
 content.benefits=혜택 받기
 
 # Long form description of the CiviForm site shown to the applicant. Line 1.
-content.description1=CiviForm은 정보를 재사용함으로써 귀하가 한 번 등록으로 많은 혜택을 신청할 수 있게 해 줍니다.
+content.description1=CiviForm을 통해 정보를 재사용하여 다양한 혜택을 한 번에 신청할 수 있습니다.
 
 # Long form description of the CiviForm site shown to the applicant. Line 2.
-content.description2=아래에서 신청서를 선택하여 시작하세요.
+content.description2=아래에서 신청서를 선택하여 작성을 시작합니다.
 
 # Link text to read more about a program.
-link.programDetails=프로그램 세부 정보
-
+link.programDetails=프로그램 세부정보
 # The same text, read for screen readers.
-link.programDetailsSr=다음 프로그램 세부 정보 {0}
+link.programDetailsSr={0}의 프로그램 세부정보
 
 # Link text to an external site to read more about a program.
 link.externalLink=외부 사이트
@@ -135,19 +140,19 @@ link.externalLink=외부 사이트
 title.programs=프로그램 및 서비스
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=계속
+title.inProgressProgramsUpdated=진행 중
 
 # Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=신규 프로그램
+title.activeProgramsUpdated=시작 안 함
 
-# Screen reader format string for program cards
-title.programCard=프로그램 {0} 개 중 {1} -- {2}
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=제출됨
 
 # A toast message that displays when an applicant submits an application.
-toast.applicationSaved=신청서가 성공적으로 저장되었습니다: 신청 ID {0}
+toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
 
 # A toast message that displays when an applicant tries to apply to a previously completed program.
-toast.programCompleted=신청서가 이미 완료되었습니다.
+toast.programCompleted=신청서가 이미 작성되어 있습니다.
 
 #------------------------------------------------------------------------#
 # APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
@@ -163,93 +168,88 @@ button.continue=계속
 link.begin=여기에서 시작
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
-link.edit=수정
+link.edit=편집
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
-ariaLabel.edit=수정 {0}
+ariaLabel.edit={0} 편집
 
 # Program Preview Title
-title.programPreview=프로그램 신청서 미리보기
+title.programPreview=프로그램 신청 미리보기
 
 # Program Review Title
-title.programReview=프로그램 신청서 미리보기
+title.programReview=프로그램 신청 검토
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
 
 # Title on the page after the applicant has successfully submitted an application.
-title.applicationConfirmation=신청서 확인
+title.applicationConfirmation=애플리케이션 확인
 
 # A confirmation message that shows after an applicant has submitted their application.
-content.confirmed= {0} 에 신청해 주셔서 감사합니다. 귀하의 신청서가 접수되었으며, 귀하의 신청 ID는 {1} 입니다.
-
+content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수했으며 신청 ID는 {1}입니다.
 
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
-title.createAnAccount=계정 생성 또는 로그인
+title.createAnAccount=계정 만들기 또는 로그인
 
 # A message urging users to create an account to save their data.
-content.pleaseCreateAccount=지금 시 계정에 로그인하면 귀하의 정보가 저장되어 언제든지 돌아와 향후 신청서들을 작성할 수 있습니다.아직 계정이 없는 경우 로그인 페이지에서 등록할 수 있습니다.이미 입력한 데이터는 손실되지 않습니다.
-
-
-
+content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=아파트 동/호수
-label.city=시
-label.state=주
-label.street=주소 1
-label.zipcode=우편 번호
+label.addressLine2=단위/아파트 번호
+label.city=시/군/구
+label.state=주/도
+label.street=상세 주소 1
+label.zipcode=우편번호
 
 # Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=시
-placeholder.line2=아파트, 스위트, 유닛, 빌딩, 층 등
-placeholder.state=주
-placeholder.street=거리 주소
-placeholder.zipcode=우편 번호
+placeholder.city=시/군/구
+placeholder.line2=아파트, 빌딩, 호, 층 등
+placeholder.state=시/도
+placeholder.street=상세 주소
+placeholder.zipcode=우편번호
 
 # Validation errors that are shown when a user enters an invalid address.
-validation.streetRequired=유효한 도로명과 번지를 입력하세요.
-validation.cityRequired=도시를 입력하세요.
-validation.currencyMisformatted=통화는 반드시 다음 형식 중 하나를 따라 표기되어야 합니다: 1000 1,000 1000.30 1,000.30
-validation.stateRequired=주를 입력하세요.
+validation.streetRequired=유효한 도로명과 번호를 입력하세요.
+validation.cityRequired=시/군/구를 입력하세요.
+validation.currencyMisformatted=통화는 1000 1,000 1000.30 1,000.30과 같은 형식이어야 합니다.
+validation.stateRequired=시/도를 입력하세요.
 validation.invalidZipcode=유효한 5자리 우편번호를 입력하세요.
-validation.noPoBox=유효한 주소를 입력하세요.사서함(PO Box)은 이용할 수 없습니다.
+validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정보로 등록할 수 없습니다.
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
 #----------------------------------------------------------------------------------------------------------#
 
 # Placeholder text shown in a dropdown selector before the user has made a selection.
-placeholder.noDropdownSelection=옵션을 선택하세요:
+placeholder.noDropdownSelection=다음 중 옵션을 선택하세요.
 
 
 #----------------------------------------------------------------------------------------------------------#
 # DATE QUESTION - text shown when answering a question where a user must select date. #
 #----------------------------------------------------------------------------------------------------------#
-validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
+validation.dateMisformatted=YYYY/MM/DD 형식으로 날짜를 입력하세요.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
 #--------------------------------------------------------------------------------------------------------#
 
 # Text on a button an applicant would click to add another entity
-button.addEntity=추가 {0}
+button.addEntity={0} 추가
 
 # Text on a button an applicant would click to delete an entity
-button.removeEntity=삭제 {0}
+button.removeEntity={0} 삭제
 
 # The confirmation dialog when an applicant deletes an enumerator entry.
-dialog.confirmDelete=정말로 삭제하시겠습니까?{0}? ''Next(다음)''을 클릭하면 현재의 변경 사항이 저장되어 이와 관련되었던 모든 데이터가 손실됩니다.
+dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
 
 # Validation error that shows when an applicant does not enter a value.
-validation.entityNameRequired=각 줄에 해당되는 값을 입력하세요.
-
+validation.entityNameRequired=각 줄에 값을 입력하세요.
 
 # Validation error that shows when an applicant uses a duplicate entity name
 validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
@@ -269,10 +269,8 @@ validation.fileRequired=파일을 선택하세요.
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if a user enters an answer that is too long or too short.
-validation.idTooLong=최대 {0} 자를 포함해야 합니다.
-
-validation.idTooShort=최소 {0} 자를 포함해야 합니다.
-
+validation.idTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
+validation.idTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 validation.numberRequired=숫자만 포함해야 합니다.
 
 #----------------------------------------------------------------------------------------------------------#
@@ -280,19 +278,17 @@ validation.numberRequired=숫자만 포함해야 합니다.
 #----------------------------------------------------------------------------------------------------------#
 
 # Validation errors that are shown if a user selects too many or too few answers.
-validation.tooFewSelections={0} 이상을 선택하십시오.
-
-validation.tooManySelections={0}보다 적게 선택하십시오.
-
+validation.tooFewSelections={0}개 이상 선택하세요.
+validation.tooManySelections={0}개보다 적게 선택하세요.
 
 #---------------------------------------------------#
 # NAME QUESTION - text when viewing a name question #
 #---------------------------------------------------#
 
 # Name question labels - these are shown as the field label before an input box.
-label.firstName=First name
-label.lastName=Last name
-label.middleName=Middle name
+label.firstName=이름
+label.lastName=성
+label.middleName=중간 이름
 
 # Placeholder text - this is shown inside the input box, before a user enters an answer.
 placeholder.firstName=이름
@@ -308,22 +304,22 @@ validation.lastNameRequired=성을 입력하세요.
 #------------------------------------------------------------------------#
 
 # Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
-validation.numberTooBig=반드시 최대 {0}이어야 합니다.
-validation.numberTooSmall=반드시 최소 {0} 이어야 합니다.
-
-validation.numberNonInteger=숫자만 포함해야 합니다.
+validation.numberTooBig=최댓값은 {0}입니다.
+validation.numberTooSmall=최솟값은 {0}입니다.
+validation.numberNonInteger=숫자는 양의 정수여야 하며, 0~9의 숫자만 포함해야 합니다.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if a user enters an answer that is too long or too short.
-validation.textTooLong=최대 {0} 자를 포함해야 합니다.
-validation.textTooShort=최소 {0} 자를 포함해야 합니다.
+validation.textTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
+validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
+
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if an admin leaves a multi option question blank.
-adminValidation.multiOptionEmpty=다중 선택 질문은 꼭 선택하셔야 합니다.
+adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.

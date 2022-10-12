@@ -18,19 +18,19 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.OptionTag;
+import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.SelectTag;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.OptionalLong;
 import models.Application;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -43,6 +43,8 @@ import services.program.StatusDefinitions;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
@@ -51,10 +53,16 @@ import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
+
+  private static final String PROGRAM_ID = "programId";
+  private static final String APPLICATION_ID = "applicationId";
+  public static final String SEND_EMAIL = "sendEmail";
+  public static final String CURRENT_STATUS = "currentStatus";
+  public static final String NEW_STATUS = "newStatus";
+  public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
 
@@ -72,6 +80,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers,
       StatusDefinitions statusDefinitions,
+      Optional<String> noteMaybe,
       Http.Request request) {
     String title = "Program Application View";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
@@ -93,29 +102,37 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         programName,
                         application,
                         applicantNameWithApplicationId,
-                        status,
-                        request))
+                        status))
             .collect(ImmutableList.toImmutableList());
+    Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, noteMaybe);
 
     DivTag contentDiv =
         div()
             .withId("application-view")
-            .withClasses(Styles.PX_20)
+            .withClasses("px-20")
             .with(
-                h2("Program: " + programName).withClasses(Styles.MY_4),
+                h2("Program: " + programName).withClasses("my-4"),
                 div()
-                    .withClasses(Styles.FLEX)
+                    .withClasses("flex")
                     .with(
                         p(applicantNameWithApplicationId)
                             .withClasses(
-                                Styles.MY_4, Styles.TEXT_BLACK, Styles.TEXT_2XL, Styles.MB_2),
+                                "my-4",
+                                "text-black",
+                                "text-2xl",
+                                "mb-2",
+                                ReferenceClasses.BT_APPLICATION_ID),
                         // Spread out the items, so the following are right
                         // aligned.
-                        p().withClasses(Styles.FLEX_GROW))
+                        p().withClasses("flex-grow"))
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
-                        renderStatusOptionsSelector(statusDefinitions))
+                        div()
+                            .withClasses("flex", "mr-4", "space-x-2")
+                            .with(
+                                renderStatusOptionsSelector(application, statusDefinitions),
+                                updateNoteModal.getButton()))
                     .with(renderDownloadButton(programId, application.id)))
             .with(
                 each(
@@ -130,8 +147,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addMainContent(contentDiv)
             // The body and main styles are necessary for modals to appear since they use fixed
             // sizing.
-            .addBodyStyles(Styles.OVERFLOW_HIDDEN, Styles.FLEX)
-            .addMainStyles(Styles.W_SCREEN)
+            .addBodyStyles("flex")
+            .addMainStyles("w-screen")
+            .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
     Optional<String> maybeSuccessMessage = request.flash().get("success");
@@ -145,50 +163,36 @@ public final class ProgramApplicationView extends BaseHtmlView {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
-    return new LinkElement()
-        .setId("download-button")
-        .setHref(link)
-        .setText("Export to PDF")
-        .asRightAlignedButton();
+    return new LinkElement().setHref(link).setText("Export to PDF").asRightAlignedButton();
   }
 
   private DivTag renderApplicationBlock(
       long programId, Block block, Collection<AnswerData> answers) {
     DivTag topContent =
         div()
-            .withClasses(Styles.FLEX)
+            .withClasses("flex")
             .with(
-                div(
-                    div(block.getName())
-                        .withClasses(
-                            Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)))
-            .with(p().withClasses(Styles.FLEX_GROW))
-            .with(p(block.getDescription()).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC));
+                div(div(block.getName()).withClasses("text-black", "font-bold", "text-xl", "mb-2")))
+            .with(p().withClasses("flex-grow"))
+            .with(p(block.getDescription()).withClasses("text-gray-700", "italic"));
 
     DivTag mainContent =
-        div()
-            .withClasses(Styles.W_FULL)
-            .with(each(answers, answer -> renderAnswer(programId, answer)));
+        div().withClasses("w-full").with(each(answers, answer -> renderAnswer(programId, answer)));
 
     DivTag innerDiv =
         div(topContent, mainContent)
-            .withClasses(
-                Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
+            .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4");
 
     return div(innerDiv)
-        .withClasses(
-            ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD,
-            Styles.W_FULL,
-            Styles.SHADOW_LG,
-            Styles.MB_4);
+        .withClasses(ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
   private DivTag renderAnswer(long programId, AnswerData answerData) {
     LocalDate date =
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
     DivTag answerContent;
-    if (answerData.fileKey().isPresent()) {
-      String encodedFileKey = URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
+    if (answerData.encodedFileKey().isPresent()) {
+      String encodedFileKey = answerData.encodedFileKey().get();
       String fileLink =
           controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
       answerContent = div(a(answerData.answerText()).withHref(fileLink));
@@ -196,44 +200,43 @@ public final class ProgramApplicationView extends BaseHtmlView {
       answerContent = div(answerData.answerText());
     }
     return div()
-        .withClasses(Styles.FLEX)
+        .withClasses("flex")
         .with(
             div()
-                .withClasses(Styles.MB_8)
+                .withClasses("mb-8")
                 .with(
                     div(answerData.questionDefinition().getName())
-                        .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, Styles.LINE_CLAMP_3)))
-        .with(p().withClasses(Styles.W_8))
-        .with(
-            answerContent.withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.LINE_CLAMP_3))
-        .with(p().withClasses(Styles.FLEX_GROW))
+                        .withClasses("text-gray-400", "text-base", "line-clamp-3")))
+        .with(p().withClasses("w-8"))
+        .with(answerContent.withClasses("text-gray-700", "text-base", "line-clamp-3"))
+        .with(p().withClasses("flex-grow"))
         .with(
             div("Answered on " + date)
-                .withClasses(
-                    Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
+                .withClasses("flex-auto", "text-right", "font-light", "text-xs"));
   }
 
-  private DivTag renderStatusOptionsSelector(StatusDefinitions statusDefinitions) {
+  private DivTag renderStatusOptionsSelector(
+      Application application, StatusDefinitions statusDefinitions) {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     DivTag container =
         div()
-            .withClasses(Styles.FLEX, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
-            .with(label("Status:").withClasses(Styles.SELF_CENTER).withFor(SELECTOR_ID));
+            .withClasses("flex", ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
+            .with(label("Status:").withClasses("self-center").withFor(SELECTOR_ID));
 
     SelectTag dropdownTag =
         select()
             .withId(SELECTOR_ID)
             .withClasses(
-                Styles.OUTLINE_NONE,
-                Styles.PX_3,
-                Styles.PY_1,
-                Styles.MX_3,
-                Styles.MY_4,
-                Styles.BORDER,
-                Styles.BORDER_GRAY_500,
-                Styles.ROUNDED_FULL,
-                Styles.BG_WHITE,
-                Styles.TEXT_XS,
+                "outline-none",
+                "px-3",
+                "py-1",
+                "ml-3",
+                "my-4",
+                "border",
+                "border-gray-500",
+                "rounded-full",
+                "bg-white",
+                "text-xs",
                 StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
 
     // Add the options available to the admin.
@@ -242,18 +245,52 @@ public final class ProgramApplicationView extends BaseHtmlView {
     dropdownTag.with(
         option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .isDisabled()
-            .isSelected());
+            .withCondSelected(!application.getLatestStatus().isPresent()));
 
     // Add statuses in the order they're provided.
-    statusDefinitions
-        .getStatuses()
+    String latestStatusText = application.getLatestStatus().orElse("");
+    statusDefinitions.getStatuses().stream()
+        .map(StatusDefinitions.Status::statusText)
         .forEach(
-            status -> {
-              String value = status.statusText();
-              OptionTag optionTag = option(value).withValue(value);
-              dropdownTag.with(optionTag);
+            statusText -> {
+              boolean isCurrentStatus = statusText.equals(latestStatusText);
+              dropdownTag.with(
+                  option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
             });
     return container.with(dropdownTag);
+  }
+
+  private Modal renderUpdateNoteConfirmationModal(
+      long programId, Application application, Optional<String> noteMaybe) {
+    ButtonTag triggerButton =
+        makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+    String formId = Modal.randomModalId();
+    // No form action or content is rendered since admin_application_view.ts extracts the values
+    // and calls postMessage rather than attempting a submission. The main frame is responsible for
+    // constructing a form to update the note.
+    FormTag modalContent =
+        form().withId(formId).withClasses("px-6", "py-2", "cf-program-admin-edit-note-form");
+    modalContent.with(
+        input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
+        input().withName(APPLICATION_ID).withValue(Long.toString(application.id)).isHidden(),
+        FieldWithLabel.textArea()
+            .setValue(noteMaybe)
+            .setFormId(formId)
+            .setFieldName(NOTE)
+            .setRows(OptionalLong.of(8))
+            .getTextareaTag(),
+        div()
+            .withClasses("flex", "mt-5", "space-x-2")
+            .with(
+                div().withClass("flex-grow"),
+                button("Cancel")
+                    .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                submitButton("Save").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+    return Modal.builder(Modal.randomModalId(), modalContent)
+        .setModalTitle("Edit note")
+        .setTriggerButtonContent(triggerButton)
+        .setWidth(Width.THREE_FOURTHS)
+        .build();
   }
 
   private Modal renderStatusUpdateConfirmationModal(
@@ -261,70 +298,110 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String programName,
       Application application,
       String applicantNameWithApplicationId,
-      StatusDefinitions.Status status,
-      Http.Request request) {
-    Optional<String> maybeApplicantEmail =
-        Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
-    boolean showEmailSelection =
-        status.localizedEmailBodyText().isPresent() && maybeApplicantEmail.isPresent();
-
-    // TODO(#3020): Populate the modal content with the previous configured status.
-    String previousStatus = "Unset";
+      StatusDefinitions.Status status) {
+    // The previous status as it should be displayed and passed as data in the
+    // update.
+    String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
+    String previousStatusData = application.getLatestStatus().orElse("");
+    // No form action or content is rendered since admin_application_view.ts extracts the values
+    // and calls postMessage rather than attempting a submission. The main frame is responsible for
+    // constructing a form to update the status.
     FormTag modalContent =
         form()
-            .withAction(
-                controllers.admin.routes.AdminApplicationController.updateStatus(
-                        programId, application.id)
-                    .url())
-            .withMethod("POST")
-            .withClasses(Styles.PX_6, Styles.PY_2)
+            .withClasses("px-6", "py-2", "cf-program-admin-status-update-form")
             .with(
-                makeCsrfTokenInputTag(request),
+                input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
+                input()
+                    .withName(APPLICATION_ID)
+                    .withValue(Long.toString(application.id))
+                    .isHidden(),
                 p().with(
                         span("Status Change: "),
-                        span(previousStatus).withClass(Styles.FONT_SEMIBOLD),
-                        span(" -> ").withClass(Styles.FONT_SEMIBOLD),
-                        span(status.statusText()).withClass(Styles.FONT_SEMIBOLD),
+                        span(previousStatusDisplay).withClass("font-semibold"),
+                        span(" -> ").withClass("font-semibold"),
+                        span(status.statusText()).withClass("font-semibold"),
                         span(" (visible to applicant)")),
                 p().with(
                         span("Applicant: "),
-                        span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
-                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)));
-    if (showEmailSelection) {
-      // TODO(#2912): Add warnings when either no email is configured or the applicant hasn't
-      // provided an email.
-      modalContent.with(
-          div()
-              .withClasses(Styles.MT_4)
-              .with(
-                  label()
-                      .with(
-                          input()
-                              .withType("checkbox")
-                              .withName("sendEmail")
-                              .withCondChecked(showEmailSelection)
-                              .withClasses(BaseStyles.CHECKBOX),
-                          span("Notify "),
-                          span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
-                          span(" of this change at "),
-                          span(maybeApplicantEmail.orElse("")).withClass(Styles.FONT_SEMIBOLD))));
-    }
-    modalContent.with(
-        div()
-            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
-            .with(
-                div().withClass(Styles.FLEX_GROW),
-                button("Cancel")
-                    .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
-                submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                        span(applicantNameWithApplicationId)
+                            .withClasses("font-semibold", ReferenceClasses.BT_APPLICATION_ID)),
+                p().with(span("Program: "), span(programName).withClass("font-semibold")),
+                div()
+                    .withClasses("mt-4")
+                    // Add the new status to the form hidden.
+                    .with(
+                        input()
+                            .isHidden()
+                            .withType("text")
+                            .withName(NEW_STATUS)
+                            .withValue(status.statusText()))
+                    // Add the original status to the form hidden so that we can
+                    // detect if the data has changed since this UI was
+                    // generated.
+                    .with(
+                        input()
+                            .isHidden()
+                            .withType("text")
+                            .withName(CURRENT_STATUS)
+                            .withValue(previousStatusData))
+                    .with(
+                        renderStatusUpdateConfirmationModalEmailSection(
+                            applicantNameWithApplicationId, application, status)),
+                div()
+                    .withClasses("flex", "mt-5", "space-x-2")
+                    .with(
+                        div().withClass("flex-grow"),
+                        button("Cancel")
+                            .withClasses(
+                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     ButtonTag triggerButton =
         button("")
-            .withClasses(Styles.HIDDEN)
+            .withClasses("hidden")
             .withData("status-update-confirm-for-status", status.statusText());
     return Modal.builder(Modal.randomModalId(), modalContent)
         .setModalTitle("Change the status of this application?")
         .setWidth(Width.THREE_FOURTHS)
         .setTriggerButtonContent(triggerButton)
         .build();
+  }
+
+  private DomContent renderStatusUpdateConfirmationModalEmailSection(
+      String applicantNameWithApplicationId,
+      Application application,
+      StatusDefinitions.Status status) {
+    InputTag sendEmailInput =
+        input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
+    Optional<String> maybeApplicantEmail =
+        Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
+    if (!status.localizedEmailBodyText().isPresent()) {
+      return div()
+          .with(
+              sendEmailInput.isHidden(),
+              p().with(
+                      span(applicantNameWithApplicationId)
+                          .withClasses("font-semibold", ReferenceClasses.BT_APPLICATION_ID),
+                      span(
+                          " will not receive an email because there is no email content set for"
+                              + " this status. Connect with your CiviForm Admin to add an email to"
+                              + " this status.")));
+    } else if (maybeApplicantEmail.isEmpty()) {
+      return div()
+          .with(
+              sendEmailInput.isHidden(),
+              p().with(
+                      span(applicantNameWithApplicationId).withClass("font-semibold"),
+                      span(
+                          " will not receive an email for this change since they have not provided"
+                              + " an email address.")));
+    }
+    return label()
+        .with(
+            // Check by default when visible.
+            sendEmailInput.isChecked(),
+            span("Notify "),
+            span(applicantNameWithApplicationId).withClass("font-semibold"),
+            span(" of this change at "),
+            span(maybeApplicantEmail.orElse("")).withClass("font-semibold"));
   }
 }

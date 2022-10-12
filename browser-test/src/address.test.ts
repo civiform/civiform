@@ -1,38 +1,22 @@
-import {Page} from 'playwright'
 import {
-  AdminPrograms,
-  AdminQuestions,
-  ApplicantQuestions,
+  createTestContext,
   loginAsAdmin,
   loginAsGuest,
   logout,
-  resetSession,
   selectApplicantLanguage,
-  startSession,
   validateAccessibility,
+  validateScreenshot,
 } from './support'
 
 describe('address applicant flow', () => {
-  let pageObject: Page
-
-  beforeAll(async () => {
-    const {page} = await startSession()
-    pageObject = page
-  })
-
-  afterEach(async () => {
-    await resetSession(pageObject)
-  })
+  const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single required address question', () => {
-    let applicantQuestions: ApplicantQuestions
-    const programName = 'test program for single address'
+    const programName = 'test-program-for-single-address'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      const {page, adminQuestions, adminPrograms} = ctx
+      await loginAsAdmin(page)
 
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-q',
@@ -42,12 +26,34 @@ describe('address applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
+      await logout(page)
+    })
+
+    it('validate screenshot', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+
+      await validateScreenshot(page, 'address')
+    })
+
+    it('validate screenshot with errors', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickNext()
+
+      await validateScreenshot(page, 'address-errors')
     })
 
     it('does not show errors initially', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
@@ -57,19 +63,20 @@ describe('address applicant flow', () => {
         'Ames',
         '54321',
       )
-      let error = pageObject.locator('.cf-address-street-1-error')
+      let error = page.locator('.cf-address-street-1-error')
       expect(await error.isHidden()).toEqual(true)
-      error = pageObject.locator('.cf-address-city-error')
+      error = page.locator('.cf-address-city-error')
       expect(await error.isHidden()).toEqual(true)
-      error = pageObject.locator('.cf-address-state-error')
+      error = page.locator('.cf-address-state-error')
       expect(await error.isHidden()).toEqual(true)
-      error = pageObject.locator('.cf-address-zip-error')
+      error = page.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(true)
     })
 
     it('with valid address does submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
@@ -85,26 +92,28 @@ describe('address applicant flow', () => {
     })
 
     it('with empty address does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '')
       await applicantQuestions.clickNext()
 
-      let error = pageObject.locator('.cf-address-street-1-error')
+      let error = page.locator('.cf-address-street-1-error')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-city-error')
+      error = page.locator('.cf-address-city-error')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-state-error')
+      error = page.locator('.cf-address-state-error')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-zip-error')
+      error = page.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(false)
     })
 
     it('with invalid address does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
@@ -116,20 +125,17 @@ describe('address applicant flow', () => {
       )
       await applicantQuestions.clickNext()
 
-      const error = pageObject.locator('.cf-address-zip-error')
+      const error = page.locator('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(false)
     })
   })
 
   describe('multiple address questions', () => {
-    let applicantQuestions: ApplicantQuestions
-    const programName = 'test program for multiple addresses'
+    const programName = 'test-program-for-multiple-addresses'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      const {page, adminPrograms, adminQuestions} = ctx
+      await loginAsAdmin(page)
 
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-a-q',
@@ -142,12 +148,13 @@ describe('address applicant flow', () => {
         programName,
       )
 
-      await logout(pageObject)
+      await logout(page)
     })
 
     it('with valid addresses does submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
@@ -172,8 +179,9 @@ describe('address applicant flow', () => {
     })
 
     it('with first invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0)
@@ -188,29 +196,30 @@ describe('address applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has errors.
-      let error = pageObject.locator('.cf-address-street-1-error >> nth=0')
+      let error = page.locator('.cf-address-street-1-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-city-error >> nth=0')
+      error = page.locator('.cf-address-city-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-state-error >> nth=0')
+      error = page.locator('.cf-address-state-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-zip-error >> nth=0')
+      error = page.locator('.cf-address-zip-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
 
       // Second question has no errors.
-      error = pageObject.locator('.cf-address-street-1-error >> nth=1')
+      error = page.locator('.cf-address-street-1-error >> nth=1')
       expect(await error.isHidden()).toEqual(true)
-      error = pageObject.locator('.cf-address-city-error >> nth=1')
+      error = page.locator('.cf-address-city-error >> nth=1')
       expect(await error.isHidden()).toEqual(true)
-      error = pageObject.locator('.cf-address-state-error >> nth=1')
+      error = page.locator('.cf-address-state-error >> nth=1')
       expect(await error.isHidden()).toEqual(true)
-      error = pageObject.locator('.cf-address-zip-error >> nth=1')
+      error = page.locator('.cf-address-zip-error >> nth=1')
       expect(await error.isHidden()).toEqual(true)
     })
 
     it('with second invalid does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
@@ -225,46 +234,44 @@ describe('address applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has no errors.
-      let error = pageObject.locator('.cf-address-street-1-error >> nth=0')
+      let error = page.locator('.cf-address-street-1-error >> nth=0')
       expect(await error.isHidden()).toEqual(true)
-      error = pageObject.locator('.cf-address-city-error >> nth=0')
+      error = page.locator('.cf-address-city-error >> nth=0')
       expect(await error.isHidden()).toEqual(true)
-      error = pageObject.locator('.cf-address-state-error >> nth=0')
+      error = page.locator('.cf-address-state-error >> nth=0')
       expect(await error.isHidden()).toEqual(true)
-      error = pageObject.locator('.cf-address-zip-error >> nth=0')
+      error = page.locator('.cf-address-zip-error >> nth=0')
       expect(await error.isHidden()).toEqual(true)
 
       // Second question has errors.
-      error = pageObject.locator('.cf-address-street-1-error >> nth=1')
+      error = page.locator('.cf-address-street-1-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-city-error >> nth=1')
+      error = page.locator('.cf-address-city-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-state-error >> nth=1')
+      error = page.locator('.cf-address-state-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-zip-error >> nth=1')
+      error = page.locator('.cf-address-zip-error >> nth=1')
       expect(await error.isHidden()).toEqual(false)
     })
 
-    it('has no accessiblity violations', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+    it('has no accessibility violations', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
 
-      await validateAccessibility(pageObject)
+      await validateAccessibility(page)
     })
   })
 
   // One optional address followed by one required address.
   describe('optional address question', () => {
-    let applicantQuestions: ApplicantQuestions
-    const programName = 'test program for optional address'
+    const programName = 'test-program-for-optional-address'
 
     beforeAll(async () => {
-      await loginAsAdmin(pageObject)
-      const adminQuestions = new AdminQuestions(pageObject)
-      const adminPrograms = new AdminPrograms(pageObject)
-      applicantQuestions = new ApplicantQuestions(pageObject)
+      const {page, adminPrograms, adminQuestions} = ctx
+      await loginAsAdmin(page)
 
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-optional-q',
@@ -282,12 +289,13 @@ describe('address applicant flow', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
-      await logout(pageObject)
+      await logout(page)
     })
 
     it('with valid required address does submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
@@ -304,8 +312,9 @@ describe('address applicant flow', () => {
     })
 
     it('with invalid optional address does not submit', async () => {
-      await loginAsGuest(pageObject)
-      await selectApplicantLanguage(pageObject, 'English')
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
@@ -327,18 +336,19 @@ describe('address applicant flow', () => {
       await applicantQuestions.clickNext()
 
       // First question has errors.
-      let error = pageObject.locator('.cf-address-city-error >> nth=0')
+      let error = page.locator('.cf-address-city-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-state-error >> nth=0')
+      error = page.locator('.cf-address-state-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
-      error = pageObject.locator('.cf-address-zip-error >> nth=0')
+      error = page.locator('.cf-address-zip-error >> nth=0')
       expect(await error.isHidden()).toEqual(false)
     })
 
     describe('with invalid required address', () => {
       beforeEach(async () => {
-        await loginAsGuest(pageObject)
-        await selectApplicantLanguage(pageObject, 'English')
+        const {page, applicantQuestions} = ctx
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
 
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion('', '', '', '', '', 1)
@@ -346,26 +356,28 @@ describe('address applicant flow', () => {
       })
 
       it('does not submit', async () => {
+        const {page} = ctx
         // Second question has errors.
-        let error = pageObject.locator('.cf-address-street-1-error >> nth=1')
+        let error = page.locator('.cf-address-street-1-error >> nth=1')
         expect(await error.isHidden()).toEqual(false)
-        error = pageObject.locator('.cf-address-city-error >> nth=1')
+        error = page.locator('.cf-address-city-error >> nth=1')
         expect(await error.isHidden()).toEqual(false)
-        error = pageObject.locator('.cf-address-state-error >> nth=1')
+        error = page.locator('.cf-address-state-error >> nth=1')
         expect(await error.isHidden()).toEqual(false)
-        error = pageObject.locator('.cf-address-zip-error >> nth=1')
+        error = page.locator('.cf-address-zip-error >> nth=1')
         expect(await error.isHidden()).toEqual(false)
       })
 
       it('optional has no errors', async () => {
+        const {page} = ctx
         // First question has no errors.
-        let error = pageObject.locator('.cf-address-street-1-error >> nth=0')
+        let error = page.locator('.cf-address-street-1-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
-        error = pageObject.locator('.cf-address-city-error >> nth=0')
+        error = page.locator('.cf-address-city-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
-        error = pageObject.locator('.cf-address-state-error >> nth=0')
+        error = page.locator('.cf-address-state-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
-        error = pageObject.locator('.cf-address-zip-error >> nth=0')
+        error = page.locator('.cf-address-zip-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
       })
     })

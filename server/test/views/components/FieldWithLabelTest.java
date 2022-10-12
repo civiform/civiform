@@ -166,7 +166,7 @@ public class FieldWithLabelTest {
     String rendered = fieldWithLabel.getNumberTag().render();
 
     assertThat(rendered).contains("aria-invalid=\"true\"");
-    assertThat(rendered).contains("aria-describedBy=\"field-id-errors\"");
+    assertThat(rendered).contains("aria-describedby=\"field-id-errors\"");
     assertThat(rendered).contains("id=\"field-id-errors\"");
     assertThat(rendered).contains("an error message");
   }
@@ -188,8 +188,9 @@ public class FieldWithLabelTest {
             .setRows(OptionalLong.of(8))
             .setCols(OptionalLong.of(5));
 
-    // random check just to keep -Werror happy
-    assertThat(fieldWithLabel.getFieldType()).isEqualTo("text");
+    String renderedContent = fieldWithLabel.getTextareaTag().render();
+    assertThat(renderedContent).contains("rows=\"8\"");
+    assertThat(renderedContent).contains("cols=\"5\"");
   }
 
   @Test
