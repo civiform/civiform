@@ -47,6 +47,39 @@ export class ApplicantQuestions {
     await this.validateInputValue(zip, '.cf-address-zip input')
   }
 
+  async checkDefaultAddressQuestionValue(
+    street: string,
+    line2: string,
+    city: string,
+    zip: string,
+  ) {
+    // Verify elements are present
+    await this.page.waitForSelector('.cf-address-street-1 input')
+    await this.page.waitForSelector('.cf-address-street-2 input')
+    await this.page.waitForSelector('.cf-address-city input')
+    await this.page.waitForSelector('.cf-address-state input')
+    await this.page.waitForSelector('.cf-address-zip input')
+
+    // Check values are equal to expected
+    await this.validateInputValue(street, '.cf-address-street-1 input')
+    await this.validateInputValue(line2, '.cf-address-street-2 input')
+    await this.validateInputValue(city, '.cf-address-city input')
+    await this.validateInputValue('Washington', '.cf-address-state input')
+    await this.validateInputValue(zip, '.cf-address-zip input')
+  }
+  async answerDefaultStateAddressQuestion(
+    street: string,
+    line2: string,
+    city: string,
+    zip: string,
+    index = 0,
+  ) {
+    await this.page.fill(`.cf-address-street-1 input >> nth=${index}`, street)
+    await this.page.fill(`.cf-address-street-2 input >> nth=${index}`, line2)
+    await this.page.fill(`.cf-address-city input >> nth=${index}`, city)
+    await this.page.fill(`.cf-address-zip input >> nth=${index}`, zip)
+  }
+
   async answerNameQuestion(
     firstName: string,
     lastName: string,

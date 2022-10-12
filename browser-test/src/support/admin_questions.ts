@@ -43,6 +43,7 @@ export class AdminQuestions {
   public static readonly NO_EXPORT_OPTION = "Don't allow answers to be exported"
   public static readonly EXPORT_VALUE_OPTION = 'Export exact answers'
   public static readonly EXPORT_OBFUSCATED_OPTION = 'Export obfuscated answers'
+  public static readonly DEFAULT_STATE_OPTION = 'Washington'
 
   constructor(page: Page) {
     this.page = page
@@ -534,6 +535,40 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+    })
+
+    await this.clickSubmitButtonAndNavigate('Create')
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
+
+    await this.expectDraftQuestionExist(questionName, questionText)
+  }
+
+  async addAddressQuestionWithDefaultState({
+    questionName,
+    description = 'address description',
+    questionText = 'address question text',
+    helpText = 'address question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+  }: QuestionParams) {
+    await this.gotoAdminQuestionsPage()
+
+    await this.page.click('#create-question-button')
+    await this.page.click('#create-address-question')
+    await waitForPageJsLoad(this.page)
+
+    await this.fillInQuestionBasics({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+    })
+
+    await this.page.selectOption('#default-state-address-input', {
+      label: AdminQuestions.DEFAULT_STATE_OPTION,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')

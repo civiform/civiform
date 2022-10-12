@@ -130,6 +130,48 @@ describe('address applicant flow', () => {
     })
   })
 
+  describe('address questions with default state', () => {
+    const programName = 'test-program-for-default-state-address'
+
+    beforeAll(async () => {
+      const {page, adminPrograms, adminQuestions} = ctx
+      await loginAsAdmin(page)
+
+      await adminQuestions.addAddressQuestionWithDefaultState({
+        questionName: 'address-default-state',
+      })
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['address-default-state'],
+        programName,
+      )
+
+      await logout(page)
+    })
+
+    it('application form has default state', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerDefaultStateAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        '54321',
+      )
+      await applicantQuestions.checkDefaultAddressQuestionValue(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        '54321',
+      )
+
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+    })
+  })
+
   describe('multiple address questions', () => {
     const programName = 'test-program-for-multiple-addresses'
 
