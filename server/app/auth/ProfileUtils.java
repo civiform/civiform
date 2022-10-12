@@ -12,6 +12,8 @@ import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.play.PlayWebContext;
 import play.mvc.Http;
 
+// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ProfileUtils
+
 /** A utility class for CiviForm profile. */
 public class ProfileUtils {
   private SessionStore sessionStore;
