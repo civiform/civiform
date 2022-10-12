@@ -20,7 +20,6 @@ import services.question.LocalizedQuestionOption;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Renders a radio button question. */
 public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRenderer {
@@ -77,8 +76,8 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
 
     return div()
         .withClasses(
-            Styles.MY_2,
-            Styles.RELATIVE,
+            "my-2",
+            "relative",
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
             ReferenceClasses.RADIO_OPTION,
             BaseStyles.RADIO_LABEL,

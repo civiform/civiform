@@ -29,7 +29,8 @@ import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
-import views.style.Styles;
+
+// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING FieldWithLabel
 
 /** Utility class for rendering an input field with an optional label. */
 public class FieldWithLabel {
@@ -415,8 +416,8 @@ public class FieldWithLabel {
         .withId(id)
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),
-            StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
-            fieldErrors.isEmpty() || !showFieldErrors ? Styles.HIDDEN : "");
+            StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, "p-1"),
+            fieldErrors.isEmpty() || !showFieldErrors ? "hidden" : "");
   }
 
   private void genRandIdIfEmpty() {
@@ -433,15 +434,14 @@ public class FieldWithLabel {
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
-        .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
+        .withClass(labelText.isEmpty() ? "sr-only" : BaseStyles.INPUT_LABEL)
         .withText(labelText.isEmpty() ? screenReaderText : labelText);
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
     return div(
             labelTag,
-            div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
-                .withClasses(Styles.FLEX, Styles.FLEX_COL))
+            div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
@@ -483,8 +483,7 @@ public class FieldWithLabel {
     // before the calls to this method, thus simplifying the code.
     fieldTag
         .withClasses(
-            StyleUtils.joinStyles(
-                BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
+            StyleUtils.joinStyles(hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT))
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
@@ -555,7 +554,7 @@ public class FieldWithLabel {
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
-            labelText.isEmpty() ? Styles.W_MIN : "")
+            labelText.isEmpty() ? "w-min" : "")
         .withCondFor(!this.id.isEmpty(), this.id)
         .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
         .withText(this.labelText);

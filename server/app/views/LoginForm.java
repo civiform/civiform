@@ -24,7 +24,6 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import views.style.BaseStyles;
-import views.style.Styles;
 
 /** Renders a page for login. */
 public class LoginForm extends BaseHtmlView {
@@ -32,7 +31,7 @@ public class LoginForm extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final boolean useIdcsApplicantRegistration;
   private final boolean applicantAuthIsDisabled;
-  private final String applicantIdp;
+  private final AuthIdentityProviderName applicantIdp;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final String civicEntityShortName;
@@ -43,7 +42,7 @@ public class LoginForm extends BaseHtmlView {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
 
-    this.applicantIdp = config.getString("auth.applicant_idp");
+    this.applicantIdp = AuthIdentityProviderName.fromConfig(config);
     this.maybeLogoUrl =
         config.hasPath("whitelabel.small_logo_url")
             ? Optional.of(config.getString("whitelabel.small_logo_url"))
@@ -53,9 +52,7 @@ public class LoginForm extends BaseHtmlView {
     this.fakeAdminClient = checkNotNull(fakeAdminClient);
 
     // Adjust UI for applicant-provider specific settings.
-    AuthIdentityProviderName applicantIdpName =
-        AuthIdentityProviderName.forString(applicantIdp).get();
-    switch (applicantIdpName) {
+    switch (applicantIdp) {
       case DISABLED_APPLICANT:
         this.applicantAuthIsDisabled = true;
         this.useIdcsApplicantRegistration = false;
@@ -94,7 +91,7 @@ public class LoginForm extends BaseHtmlView {
               .withSrc(maybeLogoUrl.get())
               .withAlt(civicEntityFullName + "Logo")
               .attr("aria-hidden", "true")
-              .withClasses(Styles.W_1_4, Styles.PT_4));
+              .withClasses("w-1/4", "pt-4"));
     } else {
       content.with(
           this.layout
@@ -102,25 +99,25 @@ public class LoginForm extends BaseHtmlView {
               .makeLocalImageTag("ChiefSeattle_Blue")
               .withAlt(civicEntityFullName + " Logo")
               .attr("aria-hidden", "true")
-              .withClasses(Styles.W_1_4, Styles.PT_4));
+              .withClasses("w-1/4", "pt-4"));
     }
 
     content.with(
-        h1().withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles.PX_8)
-            .with(span(civicEntityShortName).withClasses(Styles.FONT_BOLD))
+        h1().withClasses("flex", "text-4xl", "gap-1", "px-8")
+            .with(span(civicEntityShortName).withClasses("font-bold"))
             .with(span("CiviForm")));
 
     DivTag applicantAccountLogin =
         div()
             .withClasses(
-                Styles.FLEX,
-                Styles.FLEX_COL,
-                Styles.GAP_2,
-                Styles.PY_6,
-                Styles.PX_8,
-                Styles.TEXT_LG,
-                Styles.W_FULL,
-                Styles.PLACE_ITEMS_CENTER);
+                "flex",
+                "flex-col",
+                "gap-2",
+                "py-6",
+                "px-8",
+                "text-lg",
+                "w-full",
+                "place-items-center");
 
     if (applicantAuthIsDisabled) {
       String loginDisabledMessage =
@@ -132,18 +129,11 @@ public class LoginForm extends BaseHtmlView {
       content.with(applicantAccountLogin.with(p(loginMessage)).with(loginButton(messages)));
       String alternativeMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
-      content.with(p(alternativeMessage).withClasses(Styles.TEXT_LG));
+      content.with(p(alternativeMessage).withClasses("text-lg"));
     }
 
     DivTag alternativeLoginButtons =
-        div()
-            .withClasses(
-                Styles.PB_12,
-                Styles.PX_8,
-                Styles.FLEX,
-                Styles.GAP_4,
-                Styles.ITEMS_CENTER,
-                Styles.TEXT_LG);
+        div().withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
     if (useIdcsApplicantRegistration) {
       String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
       alternativeLoginButtons
@@ -159,27 +149,25 @@ public class LoginForm extends BaseHtmlView {
     content.with(
         div()
             .withClasses(
-                Styles.BG_GRAY_100,
-                Styles.PY_4,
-                Styles.PX_8,
-                Styles.W_FULL,
-                Styles.FLEX,
-                Styles.GAP_2,
-                Styles.JUSTIFY_CENTER,
-                Styles.ITEMS_CENTER,
-                Styles.TEXT_BASE)
+                "bg-gray-100",
+                "py-4",
+                "px-8",
+                "w-full",
+                "flex",
+                "gap-2",
+                "justify-center",
+                "items-center",
+                "text-base")
             .with(p(adminPrompt).with(text(" ")).with(adminLink(messages))));
 
-    return div()
-        .withClasses(Styles.FIXED, Styles.W_SCREEN, Styles.H_SCREEN, Styles.BG_GRAY_200)
-        .with(content);
+    return div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content);
   }
 
   private DivTag debugContent() {
     return div()
-        .withClasses(Styles.ABSOLUTE)
+        .withClasses("absolute")
         .with(
-            p("DEMO MODE. LOGIN AS:").withClasses(Styles.TEXT_2XL),
+            p("DEMO MODE. LOGIN AS:").withClasses("text-2xl"),
             redirectButton(
                 "admin",
                 "CiviForm Admin",
@@ -209,7 +197,9 @@ public class LoginForm extends BaseHtmlView {
   private ButtonTag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return redirectButton(
-            applicantIdp, msg, routes.LoginController.applicantLogin(Optional.empty()).url())
+            applicantIdp.getString(),
+            msg,
+            routes.LoginController.applicantLogin(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 

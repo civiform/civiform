@@ -16,13 +16,13 @@ import auth.GuestClient;
 import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.admin.AdfsProvider;
+import auth.oidc.applicant.Auth0Provider;
 import auth.oidc.applicant.GenericOidcProvider;
 import auth.oidc.applicant.IdcsProvider;
 import auth.oidc.applicant.LoginGovProvider;
 import auth.saml.LoginRadiusProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
-import com.google.inject.ConfigurationException;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.util.Providers;
@@ -120,16 +120,8 @@ public class SecurityModule extends AbstractModule {
         new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
     bind(SessionStore.class).toInstance(sessionStore);
 
-    String applicantAuthClient = "idcs";
-
-    try {
-      applicantAuthClient = configuration.getString("auth.applicant_idp");
-    } catch (ConfigurationException ignore) {
-      // Default to IDCS.
-    }
-
     bindAdminIdpProvider();
-    bindApplicantIdpProvider(applicantAuthClient);
+    bindApplicantIdpProvider(configuration);
   }
 
   private void bindAdminIdpProvider() {
@@ -138,12 +130,9 @@ public class SecurityModule extends AbstractModule {
     bind(IndirectClient.class).annotatedWith(AdminAuthClient.class).toProvider(AdfsProvider.class);
   }
 
-  private void bindApplicantIdpProvider(String applicantIdpName) {
-    AuthIdentityProviderName idpName =
-        AuthIdentityProviderName.forString(applicantIdpName)
-            .orElseThrow(
-                () ->
-                    new RuntimeException("No applicant IDP named " + applicantIdpName + " found"));
+  private void bindApplicantIdpProvider(com.typesafe.config.Config config) {
+    AuthIdentityProviderName idpName = AuthIdentityProviderName.fromConfig(config);
+
     try {
       switch (idpName) {
         case DISABLED_APPLICANT:
@@ -175,6 +164,12 @@ public class SecurityModule extends AbstractModule {
               .annotatedWith(ApplicantAuthClient.class)
               .toProvider(LoginGovProvider.class);
           logger.info("Using login.gov PKCE OIDC for applicant auth provider");
+          break;
+        case AUTH0_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(Auth0Provider.class);
+          logger.info("Using Auth0 for applicant auth provider");
           break;
         default:
           logger.info("No provider specified for for applicants");
