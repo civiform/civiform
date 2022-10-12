@@ -9,10 +9,10 @@ package views.style;
  */
 public final class BaseStyles {
 
-  public static final String LINK_TEXT = Styles.TEXT_BLUE_600;
-  public static final String LINK_HOVER_TEXT = StyleUtils.hover(Styles.TEXT_BLUE_500);
+  public static final String LINK_TEXT = "text-blue-600";
+  public static final String LINK_HOVER_TEXT = StyleUtils.hover("text-blue-500");
 
-  public static final String TABLE_CELL_STYLES = StyleUtils.joinStyles(Styles.PX_4, Styles.PY_2);
+  public static final String TABLE_CELL_STYLES = StyleUtils.joinStyles("px-4", "py-2");
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // CiviForm color classes
@@ -33,38 +33,38 @@ public final class BaseStyles {
   // Form style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-  public static final String FORM_FIELD_MARGIN_BOTTOM = Styles.MB_2;
+  public static final String FORM_FIELD_MARGIN_BOTTOM = "mb-2";
 
-  public static final String FORM_FIELD_BORDER_COLOR = Styles.BORDER_GRAY_500;
-  public static final String FORM_FIELD_ERROR_BORDER_COLOR = Styles.BORDER_RED_600;
+  public static final String FORM_FIELD_BORDER_COLOR = "border-gray-500";
+  public static final String FORM_FIELD_ERROR_BORDER_COLOR = "border-red-600";
 
-  public static final String FORM_LABEL_TEXT_COLOR = Styles.TEXT_GRAY_600;
+  public static final String FORM_LABEL_TEXT_COLOR = "text-gray-600";
 
-  public static final String FORM_ERROR_TEXT_COLOR = Styles.TEXT_RED_600;
+  public static final String FORM_ERROR_TEXT_COLOR = "text-red-600";
   public static final String FORM_ERROR_TEXT_XS =
-      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, Styles.TEXT_XS);
+      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, "text-xs");
   public static final String FORM_ERROR_TEXT_BASE =
-      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, Styles.TEXT_BASE);
+      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, "text-base");
 
   public static final String FORM_FIELD =
-      StyleUtils.joinStyles(Styles.PX_3, Styles.BG_WHITE, Styles.TEXT_BLACK, Styles.TEXT_LG);
+      StyleUtils.joinStyles("px-3", "bg-white", "text-black", "text-lg");
 
   private static final String INPUT_BASE =
       StyleUtils.joinStyles(
           FORM_FIELD,
-          Styles.PY_2,
-          Styles.BLOCK,
-          Styles.OUTLINE_NONE,
-          Styles.BOX_BORDER,
-          Styles.M_AUTO,
-          Styles.BORDER,
+          "py-2",
+          "block",
+          "outline-none",
+          "box-border",
+          "m-auto",
+          "border",
           BaseStyles.FORM_FIELD_BORDER_COLOR,
-          Styles.ROUNDED_LG,
-          Styles.W_FULL,
+          "rounded-lg",
+          "w-full",
           StyleUtils.focus(BORDER_SEATTLE_BLUE));
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
-  public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, Styles.PLACEHOLDER_GRAY_500);
+  public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, "placeholder-gray-500");
 
   public static final String INPUT_WITH_ERROR =
       StyleUtils.joinStyles(
@@ -74,19 +74,14 @@ public final class BaseStyles {
   /** For use on `label` elements that label non-checkbox and non-radio `input` elements. */
   public static final String INPUT_LABEL =
       StyleUtils.joinStyles(
-          Styles.POINTER_EVENTS_NONE,
-          BaseStyles.FORM_LABEL_TEXT_COLOR,
-          Styles.TEXT_BASE,
-          Styles.PX_1,
-          Styles.PY_2);
+          "pointer-events-none", BaseStyles.FORM_LABEL_TEXT_COLOR, "text-base", "px-1", "py-2");
 
   /**
    * For use on a `label` that labels a checkbox. The label element should contain the checkbox
    * input element and its label text, e.g., <label><input type="checkbox">This is the label
    * text.</label>
    */
-  public static final String CHECKBOX_LABEL =
-      StyleUtils.joinStyles(INPUT_BASE, Styles.ALIGN_MIDDLE);
+  public static final String CHECKBOX_LABEL = StyleUtils.joinStyles(INPUT_BASE, "align-middle");
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
 
@@ -95,11 +90,10 @@ public final class BaseStyles {
 
   /** For labelling a *group* of checkboxes that are related to the same thing. */
   public static final String CHECKBOX_GROUP_LABEL =
-      StyleUtils.joinStyles(BaseStyles.FORM_LABEL_TEXT_COLOR, Styles.TEXT_BASE);
+      StyleUtils.joinStyles(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-base");
 
   /** For use on an `input` of type "checkbox". */
-  public static final String CHECKBOX =
-      StyleUtils.joinStyles(Styles.H_4, Styles.W_4, Styles.MR_4, Styles.ALIGN_MIDDLE);
+  public static final String CHECKBOX = StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle");
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
 
@@ -109,109 +103,102 @@ public final class BaseStyles {
 
   /** The modal container contains modals, and the glass pane, and covers the whole page. */
   public static final String MODAL_CONTAINER =
-      StyleUtils.joinStyles(Styles.HIDDEN, Styles.FIXED, Styles.H_SCREEN, Styles.W_SCREEN);
+      StyleUtils.joinStyles("hidden", "fixed", "h-screen", "w-screen");
   /** The modal container for the modal glass pane. */
   public static final String MODAL_GLASS_PANE =
-      StyleUtils.joinStyles(
-          Styles.FIXED, Styles.H_SCREEN, Styles.W_SCREEN, Styles.BG_GRAY_400, Styles.OPACITY_75);
+      StyleUtils.joinStyles("fixed", "h-screen", "w-screen", "bg-gray-400", "opacity-75");
   /** Generic style for all modals. This should be centered. */
   public static final String MODAL =
       StyleUtils.joinStyles(
-          Styles.HIDDEN,
-          Styles.ABSOLUTE,
-          Styles.LEFT_1_2,
-          Styles.TOP_1_2,
-          Styles.TRANSFORM,
-          Styles._TRANSLATE_X_1_2,
-          Styles._TRANSLATE_Y_1_2,
-          Styles.ROUNDED_XL,
-          Styles.SHADOW_XL,
-          Styles.BG_WHITE,
-          Styles.MAX_H_SCREEN,
-          Styles.OVERFLOW_Y_AUTO);
+          "hidden",
+          "absolute",
+          "left-1/2",
+          "top-1/2",
+          "transform",
+          "-translate-x-1/2",
+          "-translate-y-1/2",
+          "rounded-xl",
+          "shadow-xl",
+          "bg-white",
+          "max-h-screen",
+          "overflow-y-auto");
 
   public static final String MODAL_HEADER =
       StyleUtils.joinStyles(
-          Styles.STICKY,
-          Styles.TOP_0,
-          Styles.BG_GRAY_200,
-          Styles.P_2,
-          Styles.FLEX,
-          Styles.GAP_4,
-          Styles.PLACE_ITEMS_CENTER);
+          "sticky", "top-0", "bg-gray-200", "p-2", "flex", "gap-4", "place-items-center");
   /** Generic style for for the button for the modal. */
   public static final String MODAL_BUTTON =
       StyleUtils.joinStyles(
-          Styles.BLOCK,
-          Styles.PY_2,
-          Styles.TEXT_CENTER,
-          Styles.ROUNDED_FULL,
+          "block",
+          "py-2",
+          "text-center",
+          "rounded-full",
           BaseStyles.BG_SEATTLE_BLUE,
-          StyleUtils.hover(Styles.BG_BLUE_700),
-          Styles.TEXT_WHITE,
-          Styles.ROUNDED_FULL);
+          StyleUtils.hover("bg-blue-700"),
+          "text-white",
+          "rounded-full");
   /** Generic styles for the button to close the modal. This is shared across all modals. */
   public static final String MODAL_CLOSE_BUTTON =
       StyleUtils.joinStyles(
-          Styles.FONT_BOLD,
-          Styles.CURSOR_POINTER,
-          Styles.OPACITY_60,
-          Styles.W_7,
-          Styles.H_7,
-          StyleUtils.hover(Styles.OPACITY_100));
+          "font-bold",
+          "cursor-pointer",
+          "opacity-60",
+          "w-7",
+          "h-7",
+          StyleUtils.hover("opacity-100"));
   /**
    * Simple styling for the div that holds the custom modal content. Should just have decent margins
    * and sizing.
    */
-  public static final String MODAL_CONTENT = StyleUtils.joinStyles(Styles.MY_4);
+  public static final String MODAL_CONTENT = StyleUtils.joinStyles("my-4");
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Login style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
   public static final String LOGIN_PAGE =
       StyleUtils.joinStyles(
-          Styles.ABSOLUTE,
-          Styles.LEFT_1_2,
-          Styles.TOP_1_2,
-          Styles.TRANSFORM,
-          Styles._TRANSLATE_X_1_2,
-          Styles._TRANSLATE_Y_1_2,
-          Styles.BORDER,
-          Styles.BORDER_GRAY_200,
-          Styles.ROUNDED_LG,
-          Styles.SHADOW_XL,
-          Styles.BG_WHITE,
-          Styles.FLEX,
-          Styles.FLEX_COL,
-          Styles.GAP_2,
-          Styles.PLACE_ITEMS_CENTER);
+          "absolute",
+          "left-1/2",
+          "top-1/2",
+          "transform",
+          "-translate-x-1/2",
+          "-translate-y-1/2",
+          "border",
+          "border-gray-200",
+          "rounded-lg",
+          "shadow-xl",
+          "bg-white",
+          "flex",
+          "flex-col",
+          "gap-2",
+          "place-items-center");
 
   private static final String LOGIN_REDIRECT_BUTTON_BASE =
-      StyleUtils.joinStyles(Styles.ROUNDED_3XL, Styles.UPPERCASE);
+      StyleUtils.joinStyles("rounded-3xl", "uppercase");
 
   public static final String LOGIN_REDIRECT_BUTTON =
       StyleUtils.joinStyles(
           LOGIN_REDIRECT_BUTTON_BASE,
-          Styles.BG_BLUE_800,
-          Styles.TEXT_WHITE,
-          Styles.W_3_4,
-          StyleUtils.responsiveMedium(Styles.W_1_3));
+          "bg-blue-800",
+          "text-white",
+          "w-3/4",
+          StyleUtils.responsiveMedium("w-1/3"));
 
   public static final String LOGIN_REDIRECT_BUTTON_SECONDARY =
       StyleUtils.joinStyles(
           LOGIN_REDIRECT_BUTTON_BASE,
-          Styles.BORDER,
-          Styles.BORDER_BLUE_800,
-          Styles.TEXT_BLUE_800,
-          Styles.TEXT_BASE,
-          Styles.BG_WHITE,
-          StyleUtils.hover(Styles.BG_BLUE_100S90));
+          "border",
+          "border-blue-800",
+          "text-blue-800",
+          "text-base",
+          "bg-white",
+          StyleUtils.hover("bg-blue-100/90"));
 
   public static final String ADMIN_LOGIN =
       StyleUtils.joinStyles(
-          Styles.BG_TRANSPARENT,
-          Styles.TEXT_BLACK,
-          Styles.UNDERLINE,
-          Styles.FONT_BOLD,
-          StyleUtils.hover(Styles.BG_GRAY_200, Styles.OPACITY_90));
+          "bg-transparent",
+          "text-black",
+          "underline",
+          "font-bold",
+          StyleUtils.hover("bg-gray-200", "opacity-90"));
 }

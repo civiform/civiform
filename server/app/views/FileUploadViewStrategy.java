@@ -27,7 +27,6 @@ import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /**
  * A strategy pattern that abstracts out the logic of file upload/download into the different cloud
@@ -72,7 +71,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
             .withId(fileInputId + "-required-error")
             .withClasses(
-                ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN));
+                ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, "hidden"));
     return result;
   }
 
@@ -224,7 +223,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
                 each(
                     params.block().getQuestions(),
                     question -> renderEmptyFileKeyField(question, rendererParams)));
-    return div(continueForm, deleteForm).withClasses(Styles.HIDDEN);
+    return div(continueForm, deleteForm).withClasses("hidden");
   }
 
   private ButtonTag renderUploadButton(Params params) {
@@ -266,7 +265,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
             // An empty div to take up the space to the left of the buttons.
-            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(div().withClasses("flex-grow"))
             .with(renderReviewButton(params))
             .with(renderPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {

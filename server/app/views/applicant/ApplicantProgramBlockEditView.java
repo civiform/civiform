@@ -23,7 +23,6 @@ import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
-import views.style.Styles;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
@@ -46,8 +45,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   public Content render(Params params) {
     DivTag blockDiv =
         div()
-            .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
-            .withClasses(Styles.MY_8, Styles.M_AUTO);
+            .with(div(renderBlockWithSubmitForm(params)).withClasses("my-8"))
+            .withClasses("my-8", "m-auto");
 
     HtmlBundle bundle =
         layout
@@ -133,7 +132,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         // An empty div to take up the space to the left of the buttons.
-        .with(div().withClasses(Styles.FLEX_GROW))
+        .with(div().withClasses("flex-grow"))
         .with(renderReviewButton(params))
         .with(renderPreviousButton(params))
         .with(renderNextButton(params));

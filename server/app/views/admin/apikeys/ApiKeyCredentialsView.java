@@ -17,7 +17,6 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.style.Styles;
 
 /** Renders a page that displays an API key's crentials after it's created. */
 public final class ApiKeyCredentialsView extends BaseHtmlView {
@@ -39,13 +38,13 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
 
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_20)
+            .withClasses("px-20")
             .with(
-                h1(title).withClasses(Styles.MY_4),
+                h1(title).withClasses("my-4"),
                 h2("Credentials"),
                 p(CREDENTIALS_DESCRIPTION),
                 p(text("API key: "), span(credentials).withId("api-key-credentials"))
-                    .withClasses(Styles.MT_4));
+                    .withClasses("mt-4"));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
 
