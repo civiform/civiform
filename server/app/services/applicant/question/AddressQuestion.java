@@ -214,7 +214,6 @@ public final class AddressQuestion extends Question {
   }
 
   public Optional<String> getDefaultState() {
-
     AddressQuestionDefinition definition = getQuestionDefinition();
     return definition.getDefaultState();
   }

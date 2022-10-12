@@ -46,7 +46,16 @@ public class AddressQuestionTest {
           LocalizedStrings.of(Locale.US, "help text"),
           AddressQuestionDefinition.AddressValidationPredicates.create(true),
           /* lastModifiedTime= */ Optional.empty());
-
+  private static final AddressQuestionDefinition defaultStateAddressQuestionDefinition =
+    new AddressQuestionDefinition(
+      OptionalLong.of(1),
+      "question name",
+      Optional.empty(),
+      "description",
+      LocalizedStrings.of(Locale.US, "question?"),
+      LocalizedStrings.of(Locale.US, "help text"),
+      AddressQuestionDefinition.AddressValidationPredicates.create(false,Optional.of("Washington")),
+      /* lastModifiedTime= */ Optional.empty());
   private Applicant applicant;
   private ApplicantData applicantData;
 
@@ -90,6 +99,28 @@ public class AddressQuestionTest {
     assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
     assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
+    assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
+  }
+  @Test
+  public void createAddressQuestion_WithDefaultState() {
+    ApplicantQuestion applicantQuestion =
+      new ApplicantQuestion(defaultStateAddressQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerAddressQuestion(
+      applicantData,
+      applicantQuestion.getContextualizedPath(),
+      "PO Box 123",
+      "Line 2",
+      "Seattle",
+      "WA",
+      "98101");
+
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
+    assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
+    assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
+    assertThat(addressQuestion.getDefaultState().get()).isEqualTo("Washington");
     assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
   }
 
