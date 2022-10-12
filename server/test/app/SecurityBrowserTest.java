@@ -55,7 +55,9 @@ public class SecurityBrowserTest extends BaseBrowserTest {
       browser.$(".login-submit").click();
       // Bypass consent screen.
       browser.$(".login-submit").click();
-    } else {
+    } else if (browser.pageSource().contains("Authorize")) {
+      // If we are not cookied, but we are logged into the idp,
+      // we need to authorize the request.
       browser.$(".login-submit").click();
     }
   }
@@ -132,8 +134,8 @@ public class SecurityBrowserTest extends BaseBrowserTest {
         .as("redirects to login provider");
     assertThat(browser.pageSource().contains("Do you want to sign-out from"))
         .as("Confirm logout from dev-oidc");
-    FluentWebElement continueButton = browser.$("button").last();
-    assertThat(continueButton.textContent()).contains("No");
+    FluentWebElement continueButton = browser.$("button[name='logout']").first();
+    assertThat(continueButton.textContent()).contains("Yes, sign me out");
     continueButton.click();
     assertThat(browser.url()).contains("loginForm");
 
