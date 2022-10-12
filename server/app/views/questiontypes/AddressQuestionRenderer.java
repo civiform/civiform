@@ -74,7 +74,10 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getStatePath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
-            .setValue(addressQuestion.getDefaultState().orElse(addressQuestion.getStateValue().orElse("")))
+            .setValue(
+                addressQuestion
+                    .getDefaultState()
+                    .orElse(addressQuestion.getStateValue().orElse("")))
             .setAutocomplete(Optional.of("address-level1"))
             .setFieldErrors(
                 messages,

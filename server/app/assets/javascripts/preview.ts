@@ -1,6 +1,7 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 class PreviewController {
-  private static readonly QUESTION_ADDRESS_DEFAULT_STATE = 'default-state-address-input'
+  private static readonly QUESTION_ADDRESS_DEFAULT_STATE =
+    'default-state-address-input'
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
   private static readonly QUESTION_HELP_TEXT_INPUT_ID =
     'question-help-text-textarea'
@@ -88,7 +89,7 @@ class PreviewController {
     const defaultState = document.getElementById(
       PreviewController.QUESTION_ADDRESS_DEFAULT_STATE,
     ) as HTMLInputElement | null
-    if(defaultState) {
+    if (defaultState) {
       defaultState.addEventListener(
         'input',
         (ev) => {
@@ -281,7 +282,7 @@ class PreviewController {
   }
   private static updateDefaultStateText(defaultState: string) {
     const state = document.querySelector('[name="applicant.state"]')
-    state.setAttribute("value",defaultState)
+    state.setAttribute('value', defaultState)
   }
   private static updateFromNewEnumeratorSelector(
     enumeratorSelectorValue: string,

@@ -91,7 +91,7 @@ public final class QuestionConfig {
     content.with(
         new SelectWithLabel()
             .setFieldName("defaultState")
-          .setId("default-state-address-input")
+            .setId("default-state-address-input")
             .setLabelText("Default state")
             .setOptions(stateOptions())
             .setValue(addressQuestionForm.getDefaultState().orElse(""))
@@ -295,6 +295,9 @@ public final class QuestionConfig {
   private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
     return ImmutableList.of(
         SelectWithLabel.OptionValue.builder().setLabel("-- Leave blank --").setValue("").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Washington").setValue("Washington").build());
+        SelectWithLabel.OptionValue.builder()
+            .setLabel("Washington")
+            .setValue("Washington")
+            .build());
   }
 }

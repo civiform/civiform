@@ -1,10 +1,9 @@
 package forms;
 
+import java.util.Optional;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-
-import java.util.Optional;
 
 /** Form for updating an address question. */
 public class AddressQuestionForm extends QuestionForm {
@@ -36,6 +35,7 @@ public class AddressQuestionForm extends QuestionForm {
   public void setDisallowPoBox(boolean disallowPoBox) {
     this.disallowPoBox = disallowPoBox;
   }
+
   public void setDefaultState(String defaultState) {
     this.defaultState = Optional.ofNullable(defaultState);
   }

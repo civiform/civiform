@@ -47,15 +47,16 @@ public class AddressQuestionTest {
           AddressQuestionDefinition.AddressValidationPredicates.create(true),
           /* lastModifiedTime= */ Optional.empty());
   private static final AddressQuestionDefinition defaultStateAddressQuestionDefinition =
-    new AddressQuestionDefinition(
-      OptionalLong.of(1),
-      "question name",
-      Optional.empty(),
-      "description",
-      LocalizedStrings.of(Locale.US, "question?"),
-      LocalizedStrings.of(Locale.US, "help text"),
-      AddressQuestionDefinition.AddressValidationPredicates.create(false,Optional.of("Washington")),
-      /* lastModifiedTime= */ Optional.empty());
+      new AddressQuestionDefinition(
+          OptionalLong.of(1),
+          "question name",
+          Optional.empty(),
+          "description",
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"),
+          AddressQuestionDefinition.AddressValidationPredicates.create(
+              false, Optional.of("Washington")),
+          /* lastModifiedTime= */ Optional.empty());
   private Applicant applicant;
   private ApplicantData applicantData;
 
@@ -101,18 +102,20 @@ public class AddressQuestionTest {
     assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
     assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
   }
+
   @Test
   public void createAddressQuestion_WithDefaultState() {
     ApplicantQuestion applicantQuestion =
-      new ApplicantQuestion(defaultStateAddressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            defaultStateAddressQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
-      applicantData,
-      applicantQuestion.getContextualizedPath(),
-      "PO Box 123",
-      "Line 2",
-      "Seattle",
-      "WA",
-      "98101");
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "PO Box 123",
+        "Line 2",
+        "Seattle",
+        "WA",
+        "98101");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 

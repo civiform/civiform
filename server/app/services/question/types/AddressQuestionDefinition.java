@@ -78,12 +78,15 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
     public static AddressValidationPredicates create(boolean disallowPoBox) {
       return builder().setDisallowPoBox(disallowPoBox).setDefaultState(Optional.empty()).build();
     }
-    public static AddressValidationPredicates create(boolean disallowPoBox, Optional<String> defaultState) {
+
+    public static AddressValidationPredicates create(
+        boolean disallowPoBox, Optional<String> defaultState) {
       return builder().setDisallowPoBox(disallowPoBox).setDefaultState(defaultState).build();
     }
 
     @JsonProperty("disallowPoBox")
     public abstract Optional<Boolean> disallowPoBox();
+
     @JsonProperty("defaultState")
     public abstract Optional<String> defaultState();
 
@@ -116,6 +119,7 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
   public boolean getDisallowPoBox() {
     return getAddressValidationPredicates().disallowPoBox().orElse(false);
   }
+
   public Optional<String> getDefaultState() {
     return getAddressValidationPredicates().defaultState();
   }
