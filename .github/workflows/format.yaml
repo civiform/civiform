@@ -53,7 +53,7 @@ jobs:
 
       - name: Run ESLint on browser tests
         working-directory: browser-test
-        run: yarn install && npx eslint . --ext .ts
+        run: npm install --force && npx eslint . --ext .ts
 
       - name: Run ESLint on server
         working-directory: server
