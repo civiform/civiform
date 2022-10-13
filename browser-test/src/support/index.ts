@@ -60,7 +60,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
     const dirs = ['tmp/videos']
-    if ('expect' in global) {
+    if ('expect' in global && expect.getState() != null) {
       const testPath = expect.getState().testPath
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
       dirs.push(testFile)
