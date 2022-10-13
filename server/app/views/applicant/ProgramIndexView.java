@@ -9,6 +9,8 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
@@ -20,7 +22,9 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.H4Tag;
 import j2html.tags.specialized.ImgTag;
+import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -30,8 +34,6 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -45,13 +47,13 @@ import views.HtmlBundle;
 import views.TranslationUtils;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
 public final class ProgramIndexView extends BaseHtmlView {
@@ -107,26 +109,22 @@ public final class ProgramIndexView extends BaseHtmlView {
     H1Tag programIndexH1 =
         h1().withText(titleText)
             .withClasses(
-                Styles.TEXT_4XL,
-                StyleUtils.responsiveSmall(Styles.TEXT_5XL),
-                Styles.FONT_SEMIBOLD,
-                Styles.MB_2,
-                Styles.PX_6,
-                StyleUtils.responsiveSmall(Styles.MB_6));
+                "text-4xl",
+                StyleUtils.responsiveSmall("text-5xl"),
+                "font-semibold",
+                "mb-2",
+                "px-6",
+                StyleUtils.responsiveSmall("mb-6"));
 
     DivTag infoLine1Div =
         div()
             .withText(infoTextLine1)
-            .withClasses(Styles.TEXT_SM, Styles.PX_6, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+            .withClasses("text-sm", "px-6", StyleUtils.responsiveSmall("text-base"));
 
     DivTag infoLine2Div =
         div()
             .withText(infoTextLine2)
-            .withClasses(
-                Styles.TEXT_SM,
-                Styles.PX_6,
-                Styles.PB_6,
-                StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+            .withClasses("text-sm", "px-6", "pb-6", StyleUtils.responsiveSmall("text-base"));
 
     ImgTag logoImg =
         maybeLogoUrl.isPresent()
@@ -139,13 +137,11 @@ public final class ProgramIndexView extends BaseHtmlView {
                 logoImg
                     .withAlt(civicEntityFullName + " logo")
                     .attr("aria-hidden", "true")
-                    .withWidth("175")
-                    .withHeight("70"))
-            .withClasses(Styles.TOP_2, Styles.LEFT_2);
-
+                    .withStyle("max-width: 155px; max-height: 40px;"))
+            .withClasses("pt-6", "px-6");
     return div()
         .withId("top-content")
-        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, Styles.RELATIVE)
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative")
         .with(logoDiv, programIndexH1, infoLine1Div, infoLine2Div);
   }
 
@@ -157,10 +153,10 @@ public final class ProgramIndexView extends BaseHtmlView {
     DivTag content =
         div()
             .withId("main-content")
-            .withClasses(Styles.MX_AUTO, Styles.MY_4, StyleUtils.responsiveSmall(Styles.M_10))
+            .withClasses("mx-auto", "my-4", StyleUtils.responsiveSmall("m-10"))
             .with(
                 h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
-                    .withClasses(Styles.MB_4, Styles.PX_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
+                    .withClasses("mb-4", "px-4", "text-xl", "font-semibold"));
 
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
@@ -179,7 +175,10 @@ public final class ProgramIndexView extends BaseHtmlView {
               applicantId,
               preferredLocale,
               relevantPrograms.inProgress(),
-              MessageKey.BUTTON_CONTINUE));
+              MessageKey.BUTTON_CONTINUE,
+              // TODO(#3577): Once button.continueSr translations are available, switch to using
+              // those.
+              MessageKey.BUTTON_APPLY_SR));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
@@ -190,7 +189,10 @@ public final class ProgramIndexView extends BaseHtmlView {
               applicantId,
               preferredLocale,
               relevantPrograms.submitted(),
-              MessageKey.BUTTON_EDIT));
+              MessageKey.BUTTON_EDIT,
+              // TODO(#3577): Once button.editSr translations are available, switch to using
+              // those.
+              MessageKey.BUTTON_APPLY_SR));
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
@@ -201,10 +203,11 @@ public final class ProgramIndexView extends BaseHtmlView {
               applicantId,
               preferredLocale,
               relevantPrograms.unapplied(),
-              MessageKey.BUTTON_APPLY));
+              MessageKey.BUTTON_APPLY,
+              MessageKey.BUTTON_APPLY_SR));
     }
 
-    return div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.PLACE_ITEMS_CENTER).with(content);
+    return div().withClasses("flex", "flex-col", "place-items-center").with(content);
   }
 
   /**
@@ -215,10 +218,10 @@ public final class ProgramIndexView extends BaseHtmlView {
   private String programCardsContainerStyles(int numPrograms) {
     return StyleUtils.joinStyles(
         ApplicantStyles.PROGRAM_CARDS_CONTAINER_BASE,
-        numPrograms >= 2 ? StyleUtils.responsiveMedium(Styles.GRID_COLS_2) : "",
-        numPrograms >= 3 ? StyleUtils.responsiveLarge(Styles.GRID_COLS_3) : "",
-        numPrograms >= 4 ? StyleUtils.responsiveXLarge(Styles.GRID_COLS_4) : "",
-        numPrograms >= 5 ? StyleUtils.responsive2XLarge(Styles.GRID_COLS_5) : "");
+        numPrograms >= 2 ? StyleUtils.responsiveMedium("grid-cols-2") : "",
+        numPrograms >= 3 ? StyleUtils.responsiveLarge("grid-cols-3") : "",
+        numPrograms >= 4 ? StyleUtils.responsiveXLarge("grid-cols-4") : "",
+        numPrograms >= 5 ? StyleUtils.responsive2XLarge("grid-cols-5") : "");
   }
 
   private DivTag programCardsSection(
@@ -228,45 +231,44 @@ public final class ProgramIndexView extends BaseHtmlView {
       long applicantId,
       Locale preferredLocale,
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
-      MessageKey applyTitle) {
+      MessageKey buttonTitle,
+      MessageKey buttonSrText) {
+    String sectionHeaderId = Modal.randomModalId();
     return div()
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
         .with(
-            h3().withText(messages.at(sectionTitle.getKeyName()))
+            h3().withId(sectionHeaderId)
+                .withText(messages.at(sectionTitle.getKeyName()))
                 .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
         .with(
-            div()
+            ol().attr("aria-labelledby", sectionHeaderId)
                 .withClasses(cardContainerStyles)
                 .with(
                     each(
-                        IntStream.range(0, cards.size()).boxed().collect(Collectors.toList()),
-                        index ->
+                        cards,
+                        (card) ->
                             programCard(
                                 messages,
-                                cards.get(index),
-                                index,
-                                cards.size(),
+                                card,
                                 applicantId,
                                 preferredLocale,
-                                applyTitle))));
+                                buttonTitle,
+                                buttonSrText))));
   }
 
-  private DivTag programCard(
+  private LiTag programCard(
       Messages messages,
       ApplicantService.ApplicantProgramData cardData,
-      int programIndex,
-      int totalProgramCount,
       Long applicantId,
       Locale preferredLocale,
-      MessageKey applyTitle) {
+      MessageKey buttonTitle,
+      MessageKey buttonSrText) {
     ProgramDefinition program = cardData.program();
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
-    DivTag title =
-        div()
-            .withId(baseId + "-title")
-            .withClasses(
-                ReferenceClasses.APPLICATION_CARD_TITLE, Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
+    H4Tag title =
+        h4().withId(baseId + "-title")
+            .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
             .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.createLinksAndEscapeText(
@@ -276,16 +278,11 @@ public final class ProgramIndexView extends BaseHtmlView {
         div()
             .withId(baseId + "-description")
             .withClasses(
-                ReferenceClasses.APPLICATION_CARD_DESCRIPTION,
-                Styles.TEXT_XS,
-                Styles.MY_2,
-                Styles.LINE_CLAMP_5)
+                ReferenceClasses.APPLICATION_CARD_DESCRIPTION, "text-xs", "my-2", "line-clamp-5")
             .with(descriptionContent);
 
     DivTag programData =
-        div()
-            .withId(baseId + "-data")
-            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO);
+        div().withId(baseId + "-data").withClasses("w-full", "px-4", "overflow-auto");
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
@@ -300,7 +297,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ATag infoLink =
         new LinkElement()
             .setId(baseId + "-info-link")
-            .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)
+            .setStyles("block", "my-2", "text-sm", "underline")
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
             .setHref(infoUrl)
             .asAnchorText()
@@ -316,20 +313,19 @@ public final class ProgramIndexView extends BaseHtmlView {
       ATag externalLink =
           new LinkElement()
               .setId(baseId + "-external-link")
-              .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)
+              .setStyles("block", "my-2", "text-sm", "underline")
               .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
               .setHref(program.externalLink())
               .opensInNewTab()
               .asAnchorText()
               .with(
                   Icons.svg(Icons.OPEN_IN_NEW)
+                      .attr("role", "img")
+                      .attr(
+                          "aria-label",
+                          messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()))
                       .withClasses(
-                          Styles.FLEX_SHRINK_0,
-                          Styles.H_5,
-                          Styles.W_AUTO,
-                          Styles.INLINE,
-                          Styles.ML_1,
-                          Styles.ALIGN_TEXT_TOP));
+                          "shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top"));
 
       programData.with(externalLink);
     }
@@ -348,51 +344,31 @@ public final class ProgramIndexView extends BaseHtmlView {
             .attr(
                 "aria-label",
                 messages.at(
-                    MessageKey.BUTTON_APPLY_SR.getKeyName(),
+                    buttonSrText.getKeyName(),
                     program.localizedName().getOrDefault(preferredLocale)))
-            .withText(messages.at(applyTitle.getKeyName()))
+            .withText(messages.at(buttonTitle.getKeyName()))
             .withId(baseId + "-apply")
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
     DivTag actionDiv =
-        div(actionButton)
-            .withClasses(
-                Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);
-    String srProgramCardTitle =
-        messages.at(
-            MessageKey.TITLE_PROGRAM_CARD.getKeyName(),
-            programIndex + 1,
-            totalProgramCount,
-            program.localizedName().getOrDefault(preferredLocale));
-    return div()
-        .withId(baseId)
+        div(actionButton).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
+    return li().withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
-        .with(h4(srProgramCardTitle).withClass(Styles.SR_ONLY))
         .with(
             // The visual bar at the top of each program card.
             div()
                 .withClasses(
-                    Styles.BLOCK,
-                    Styles.FLEX_SHRINK_0,
-                    BaseStyles.BG_SEATTLE_BLUE,
-                    Styles.ROUNDED_T_XL,
-                    Styles.H_3))
+                    "block", "shrink-0", BaseStyles.BG_SEATTLE_BLUE, "rounded-t-xl", "h-3"))
         .with(programData)
         .with(actionDiv);
   }
 
   private PTag programCardApplicationStatus(
       Locale preferredLocale, StatusDefinitions.Status status) {
-    return p().withClasses(
-            Styles.BORDER,
-            Styles.ROUNDED_LG,
-            Styles.PX_2,
-            Styles.PY_1,
-            Styles.MB_4,
-            Styles.BG_BLUE_100)
+    return p().withClasses("border", "rounded-lg", "px-2", "py-1", "mb-4", "bg-blue-100")
         .with(
             span(status.localizedStatusText().getOrDefault(preferredLocale))
-                .withClasses(Styles.TEXT_XS, Styles.FONT_MEDIUM));
+                .withClasses("text-xs", "font-medium"));
   }
 
   private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate) {
@@ -413,12 +389,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                 FormatStyle.SHORT)
             .format(dateTime);
     submittedComponents.add(
-        span(formattedSubmitTime).withClasses(ReferenceClasses.BT_DATE, Styles.FONT_SEMIBOLD));
+        span(formattedSubmitTime).withClasses(ReferenceClasses.BT_DATE, "font-semibold"));
 
     if (!afterContent.isEmpty()) {
       submittedComponents.add(text(afterContent));
     }
 
-    return div().withClasses(Styles.TEXT_XS, Styles.TEXT_GRAY_700).with(submittedComponents);
+    return div().withClasses("text-xs", "text-gray-700").with(submittedComponents);
   }
 }

@@ -70,7 +70,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
   /*
    * The OIDC Client Secret.
    */
-  protected abstract String getClientSecret();
+  protected abstract Optional<String> getClientSecret();
 
   /*
    * The OIDC Discovery URI.
@@ -151,23 +151,19 @@ public abstract class OidcProvider implements Provider<OidcClient> {
         .collect(Collectors.joining(" "));
   }
 
-  @Override
-  public OidcClient get() {
+  public OidcConfiguration getConfig() {
     String clientID = getClientID();
-    String clientSecret = getClientSecret();
+    Optional<String> clientSecretMaybe = getClientSecret();
     String discoveryURI = getDiscoveryURI();
     String responseMode = getResponseMode();
     String responseType = getResponseType();
-    String callbackURL = getCallbackURL();
     String scope = getScopesAttribute();
     var missingData =
         ImmutableMap.<String, String>builder()
             .put("clientID", clientID)
-            .put("clientSecret", clientSecret)
             .put("discoveryURI", discoveryURI)
             .put("responseMode", responseMode)
             .put("responseType", responseType)
-            .put("callbackURL", callbackURL)
             .build()
             .entrySet()
             .stream()
@@ -178,15 +174,18 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     // Check that none are null or blank.
     if (missingData.size() > 0) {
       throw new RuntimeException(
-          "Missing OIDC attributes " + missingData.stream().collect(Collectors.joining(", ")));
+          "Missing OIDC config attributes "
+              + missingData.stream().collect(Collectors.joining(", ")));
     }
-    Optional<String> providerName = getProviderName();
     OidcConfiguration config = new OidcConfiguration();
 
     getLogoutURL().ifPresent(config::setLogoutUrl);
     config.setClientId(clientID);
 
-    config.setSecret(clientSecret);
+    if (clientSecretMaybe.isPresent() && !Strings.isNullOrEmpty(clientSecretMaybe.get())) {
+      config.setSecret(clientSecretMaybe.get());
+    }
+
     config.setDiscoveryURI(discoveryURI);
 
     // Tells the OIDC provider what type of response to use when it sends info back
@@ -198,8 +197,20 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     config.setWithState(false);
 
     config.setScope(scope);
+    return config;
+  }
+
+  @Override
+  public OidcClient get() {
+    String callbackURL = getCallbackURL();
+    if (Strings.isNullOrEmpty(callbackURL)) {
+      throw new RuntimeException("Missing OIDC client attribute: callbackURL");
+    }
+
+    OidcConfiguration config = getConfig();
     OidcClient client = new OidcClient(config);
 
+    Optional<String> providerName = getProviderName();
     if (providerName.isPresent()) {
       client.setName(providerName.get());
     }
@@ -207,7 +218,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     client.setProfileCreator(getProfileAdapter(config, client));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setLogoutActionBuilder(
-        new CiviformOidcLogoutActionBuilder(civiformConfig, config, clientID));
+        new CiviformOidcLogoutActionBuilder(civiformConfig, config, config.getClientId()));
 
     try {
       client.init();
@@ -216,6 +227,8 @@ public abstract class OidcProvider implements Provider<OidcClient> {
       throw e;
     }
     var providerMetadata = client.getConfiguration().getProviderMetadata();
+    String responseMode = config.getResponseMode();
+    String responseType = config.getResponseType();
     if (providerMetadata.supportsAuthorizationResponseIssuerParam()
         && responseMode.equals("form_post")
         && responseType.contains("token")

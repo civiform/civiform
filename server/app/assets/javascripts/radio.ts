@@ -4,6 +4,7 @@ class RadioController {
   static radioInputClass = '.cf-radio-input'
   static radioOptionClass = '.cf-radio-option'
   static selectedRadioClasses = ['border-seattle-blue', 'bg-blue-200']
+  static unselectedRadioClasses = ['border-gray-500', 'bg-white']
 
   constructor() {
     this.addRadioListeners()
@@ -57,6 +58,11 @@ class RadioController {
           if (radioContainer) {
             RadioController.selectedRadioClasses.forEach((selectedClass) =>
               radioContainer.classList.toggle(selectedClass, isChecked),
+            )
+
+            // Prevents conflicting border classes from being applied.
+            RadioController.unselectedRadioClasses.forEach((unselectedClass) =>
+              radioContainer.classList.toggle(unselectedClass, !isChecked),
             )
           }
         }

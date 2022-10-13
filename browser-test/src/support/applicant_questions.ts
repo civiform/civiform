@@ -141,7 +141,7 @@ export class ApplicantQuestions {
   }
 
   async addEnumeratorAnswer(entityName: string) {
-    await this.page.click('button:text("add entity")')
+    await this.page.click('button:text("＋ Add entity")')
     // TODO(leonwong): may need to specify row index to wait for newly added row.
     await this.page.fill(
       '#enumerator-fields .cf-enumerator-field:last-of-type input[data-entity-input]',
@@ -294,7 +294,7 @@ export class ApplicantQuestions {
 
   async downloadSingleQuestionFromReviewPage() {
     // Assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain(
+    expect(await this.page.innerText('h2')).toContain(
       'Program application review',
     )
 
@@ -323,7 +323,7 @@ export class ApplicantQuestions {
 
   async submitFromReviewPage() {
     // Assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain(
+    expect(await this.page.innerText('h2')).toContain(
       'Program application review',
     )
 
@@ -334,7 +334,7 @@ export class ApplicantQuestions {
 
   async submitFromPreviewPage() {
     // Assert that we're on the preview page.
-    expect(await this.page.innerText('h1')).toContain(
+    expect(await this.page.innerText('h2')).toContain(
       'Program application preview',
     )
 

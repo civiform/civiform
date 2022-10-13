@@ -129,9 +129,6 @@ link.externalLink=Panlabas na site
 # The title of the page for the list of programs.
 title.programs=Mga programa at mga serbisyo
 
-# Screen reader format string for program cards
-title.programCard=Programa {0} ng {1} -- {2} 
-
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: Matagumpay na nai-save ang aplikasyon: ID ng aplikasyon {0}
 

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -33,6 +34,7 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
     FieldWithLabel emailField =
         FieldWithLabel.email()
             .setFieldName(emailQuestion.getEmailPath().toString())
+            .setAutocomplete(Optional.of("email"))
             .setValue(emailQuestion.getEmailValue().orElse(""))
             .setFieldErrors(
                 params.messages(),

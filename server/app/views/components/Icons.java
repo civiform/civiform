@@ -10,7 +10,7 @@ import services.question.types.QuestionType;
  * tailwind's size classes like you we do with regular elements:
  *
  * <pre>
- *   Icons.svg(Icons.ICON_NAME).withClasses(Styles.H_4, Styles.W_4)
+ *   Icons.svg(Icons.ICON_NAME).withClasses("h-4", "w-4")
  * </pre>
  *
  * Add new icon: icons are from https://fonts.google.com/icons, each one is commented with its icon

@@ -174,6 +174,19 @@ describe('End to end enumerator test', () => {
 
     // Validate that enumerators are accessible
     await validateAccessibility(page)
+
+    // Adding enumerator answers causes a clone of a hidden DOM element. This element
+    // should have unique IDs. If not, it will cause accessibility violations.
+    // See https://github.com/civiform/civiform/issues/3565.
+    await applicantQuestions.addEnumeratorAnswer('Bugs')
+    await applicantQuestions.addEnumeratorAnswer('Daffy')
+    await validateAccessibility(page)
+
+    // Correspondingly, removing an element happens without a page refresh. Remove an
+    // element and add another to ensure that element IDs remain unique.
+    await applicantQuestions.deleteEnumeratorEntityByIndex(1)
+    await applicantQuestions.addEnumeratorAnswer('Porky')
+    await validateAccessibility(page)
   })
 
   it('validate screenshot', async () => {

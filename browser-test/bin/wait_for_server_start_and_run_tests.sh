@@ -7,8 +7,8 @@ DEADLINE=$(($START_TIME + 500))
 SERVER_URL="http://civiform:9000"
 
 # Install any new packages not built into the image
-# Also saves any yarn.lock changes back to your local filesystem.
-yarn install
+# Also saves any package-lock.json changes back to your local filesystem.
+npm install --force --quiet
 
 echo "Polling to check server start"
 
@@ -30,7 +30,7 @@ for arg; do
 done
 
 if (($debug == 1)); then
-  DEBUG="pw:api" BASE_URL="${SERVER_URL}" yarn test "$@"
+  DEBUG="pw:api" BASE_URL="${SERVER_URL}" npm test "$@"
 else
-  BASE_URL="${SERVER_URL}" yarn test "$@"
+  BASE_URL="${SERVER_URL}" npm test "$@"
 fi

@@ -3,7 +3,9 @@ import {
   dismissModal,
   enableFeatureFlag,
   loginAsAdmin,
+  validateScreenshot,
 } from './support'
+import {waitForAnyModal} from './support/wait'
 
 describe('modify program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -16,12 +18,13 @@ describe('modify program statuses', () => {
 
   describe('statuses list', () => {
     it('creates a new program and has no statuses', async () => {
-      const {adminPrograms, adminProgramStatuses} = ctx
+      const {page, adminPrograms, adminProgramStatuses} = ctx
       // Add a draft program, no questions are needed.
       const programName = 'test-program-without-statuses'
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectNoStatuses()
+      await validateScreenshot(page, 'status-list-with-no-statuses')
     })
   })
 
@@ -36,6 +39,15 @@ describe('modify program statuses', () => {
 
     beforeEach(async () => {
       await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+    })
+
+    it('renders create new status modal', async () => {
+      const {page} = ctx
+      await page.click('button:has-text("Create a new status")')
+
+      const modal = await waitForAnyModal(page)
+      expect(await modal.innerText()).toContain('Create a new status')
+      await validateScreenshot(page, 'create-new-status-modal')
     })
 
     it('creates a new status with no email', async () => {
@@ -112,6 +124,11 @@ describe('modify program statuses', () => {
 
     beforeEach(async () => {
       await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+    })
+
+    it('renders existing statuses', async () => {
+      const {page} = ctx
+      await validateScreenshot(page, 'status-list-with-statuses')
     })
 
     it('fails to edit status when providing an existing status name', async () => {

@@ -12,10 +12,9 @@ ENV JAVA_FORMATTER_URL "https://github.com/google/google-java-format/releases/do
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar
 
 RUN apk update && apk add --no-cache --update \
-  openjdk11 bash wget npm shfmt git py3-pip
+  openjdk11 bash wget npm shfmt git py3-pip terraform
 
 RUN pip install yapf
-RUN npm install --global yarn
 
 COPY .prettier* /
 COPY .editorconfig* /
@@ -23,8 +22,8 @@ COPY .editorconfig* /
 # Below we pre-install nodejs depdendencies for various
 # TS codebases we have. We need all dependencies in order to
 # run type-based checks with eslint. For each directory that
-# contains package.json we run npm install or yarn install and
-# save resulted `node_modules` directory as volume.
+# contains package.json we run npm install and save resulted `node_modules`
+# directory as volume.
 
 # Fetch node js dependencies for `formatter` directory.
 ENV FORMATTER_DIR /code/formatter
@@ -38,9 +37,9 @@ RUN npm install
 ENV BROWSER_TEST_DIR /code/browser-test
 RUN mkdir -p $BROWSER_TEST_DIR
 COPY browser-test/package.json $BROWSER_TEST_DIR
-COPY browser-test/yarn.lock $BROWSER_TEST_DIR
+COPY browser-test/package-lock.json $BROWSER_TEST_DIR
 WORKDIR $BROWSER_TEST_DIR
-RUN yarn install
+RUN npm install --force
 
 # Fetch node js dependencies for `server` directory.
 ENV SERVER_DIR /code/server

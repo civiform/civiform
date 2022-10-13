@@ -23,7 +23,6 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.style.Styles;
 
 /**
  * Renders a page for a developer to seed the database. This is only available in non-prod
@@ -82,12 +81,12 @@ public class DatabaseSeedView extends BaseHtmlView {
                             .withAction(routes.DatabaseSeedController.clear().url())))
             .with(
                 div()
-                    .withClasses(Styles.GRID, Styles.GRID_COLS_2)
+                    .withClasses("grid", "grid-cols-2")
                     .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
                     .with(
                         div().with(h2("Current Active Programs:")).with(pre(prettyActivePrograms)))
                     .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
-            .withClasses(Styles.PX_6, Styles.PY_6);
+            .withClasses("px-6", "py-6");
 
     HtmlBundle bundle = layout.getBundle().setTitle(title).addMainContent(content);
     return layout.render(bundle);

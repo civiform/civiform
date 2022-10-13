@@ -13,7 +13,7 @@
 bin
 browser-test
 !browser-test/package.json
-!browser-test/yarn.lock
+!browser-test/package-lock.json
 code_of_conduct.md
 docker-compose.yml
 Dockerfile
