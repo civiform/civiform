@@ -20,7 +20,7 @@ if ! output="$(node -v)"; then
   exit 1
 fi
 
-npx yarn --cwd browser-test install
+npm install --force --prefix browser-test --quiet
 
 echo "Polling to check server start"
 
@@ -33,4 +33,4 @@ done
 
 echo "Detected server start"
 
-npx yarn --cwd browser-test test "$@"
+npm test --prefix browser-test "$@"

@@ -54,7 +54,7 @@ cd server
 npm install --silent
 npx eslint --fix "app/assets/javascripts/**/*.ts"
 cd ../browser-test
-yarn install --silent
+npm install --force --silent
 npx eslint --fix "src/**/*.ts"
 cd ..
 echo 'Done formatting with eslint'
