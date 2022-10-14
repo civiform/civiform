@@ -4,12 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.p;
 
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.PTag;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
@@ -113,6 +115,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
+        .with(requiredFieldsExplanationContent(params.messages()))
         .with(
             each(
                 params.block().getQuestions(),
@@ -142,5 +145,10 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
+  }
+
+  private PTag requiredFieldsExplanationContent(Messages messages) {
+    return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
+        .withClasses("text-sm", "text-gray-600", "mb-2");
   }
 }
