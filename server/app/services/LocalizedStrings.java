@@ -14,8 +14,7 @@ import java.util.Optional;
  * A collection of localized strings intended to represent the same message, translated into
  * different locales.
  *
- *
- * <p>There is a bit of nuance around {@link #isRequired()}.
+ * <p>There words is a bit of nuance around {@link #isRequired()}.
  */
 @AutoValue
 public abstract class LocalizedStrings {
