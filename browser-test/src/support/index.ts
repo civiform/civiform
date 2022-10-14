@@ -237,8 +237,7 @@ export const logout = async (page: Page) => {
       // OIDC central provider confirmation page
       await page.click('button:has-text("Yes")')
     }
-  }
-  catch (e) {
+  } catch (e) {
     console.log(`failed to load logout page`)
   }
 
@@ -371,11 +370,9 @@ export const testUserDisplayName = () => {
 
 export const testUserEmail = () => {
   if (!TEST_USER_LOGIN) {
-    throw new Error(
-      'Empty or unset TEST_USER_LOGIN environment variable',
-    )
+    throw new Error('Empty or unset TEST_USER_LOGIN environment variable')
   }
-  return TEST_USER_LOGIN + "@example.com"
+  return TEST_USER_LOGIN + '@example.com'
 }
 
 export const supportsEmailInspection = () => {

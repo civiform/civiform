@@ -1,12 +1,9 @@
 import {
   createTestContext,
-  gotoEndpoint,
-  loginAsAdmin,
   loginAsTestUser,
   loginAsGuest,
   selectApplicantLanguage,
   validateScreenshot,
-  logout,
   testUserEmail,
 } from './support'
 describe('applicant auth', () => {
@@ -19,7 +16,9 @@ describe('applicant auth', () => {
 
     await validateScreenshot(page, 'logged_in')
 
-    expect(await ctx.page.textContent('html')).toContain('Logged in as ' + testUserEmail())
+    expect(await ctx.page.textContent('html')).toContain(
+      'Logged in as ' + testUserEmail(),
+    )
     expect(await ctx.page.textContent('html')).toContain('Logout')
   })
 
@@ -37,19 +36,25 @@ describe('applicant auth', () => {
     const {page} = ctx
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
-    expect(await ctx.page.textContent('html')).toContain('Logged in as ' + testUserEmail())
+    expect(await ctx.page.textContent('html')).toContain(
+      'Logged in as ' + testUserEmail(),
+    )
 
     await page.click('text=Logout')
 
     await validateScreenshot(page, 'central-provider-logout')
-    expect(await ctx.page.textContent('html')).toContain('Do you want to sign-out from')
+    expect(await ctx.page.textContent('html')).toContain(
+      'Do you want to sign-out from',
+    )
   })
 
   it('applicant can logout', async () => {
     const {page} = ctx
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
-    expect(await ctx.page.textContent('html')).toContain('Logged in as ' + testUserEmail())
+    expect(await ctx.page.textContent('html')).toContain(
+      'Logged in as ' + testUserEmail(),
+    )
 
     await page.click('text=Logout')
     await page.click('button:has-text("Yes")')
