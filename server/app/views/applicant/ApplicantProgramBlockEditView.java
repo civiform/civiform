@@ -25,7 +25,6 @@ import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
-import views.style.Styles;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
@@ -150,6 +149,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
   private PTag requiredFieldsExplanationContent(Messages messages) {
     return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
-        .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600);
+        .withClasses("text-sm", "text-gray-600");
   }
 }
