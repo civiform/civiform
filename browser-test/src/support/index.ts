@@ -231,7 +231,17 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 
 export const logout = async (page: Page) => {
   await page.click('text=Logout')
-  await page.click('button[name="logout"]') // OIDC confirmation page.
+  try {
+    const pageContent = await page.textContent('html', {timeout: 100})
+    if (pageContent!.includes('Do you want to sign-out from')) {
+      // OIDC central provider confirmation page
+      await page.click('button:has-text("Yes")')
+    }
+  }
+  catch (e) {
+    console.log(`failed to load logout page`)
+  }
+
   // Logout is handled by the play framework so it doesn't land on a
   // page with civiform js where we should waitForPageJsLoad. Because
   // the process goes through a sequence of redirects we need to wait
@@ -357,6 +367,15 @@ export const testUserDisplayName = () => {
     )
   }
   return TEST_USER_DISPLAY_NAME
+}
+
+export const testUserEmail = () => {
+  if (!TEST_USER_LOGIN) {
+    throw new Error(
+      'Empty or unset TEST_USER_LOGIN environment variable',
+    )
+  }
+  return TEST_USER_LOGIN + "@example.com"
 }
 
 export const supportsEmailInspection = () => {
