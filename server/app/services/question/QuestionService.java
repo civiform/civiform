@@ -212,7 +212,7 @@ public final class QuestionService {
             .id;
     Preconditions.checkArgument(
         !draftId.equals(activeId),
-        "Draft and Active IDs are the same ({}) for Question {}, this should not be possible.",
+        "Draft and Active IDs are the same (%s) for Question %s, this should not be possible.",
         draftId,
         question.getQuestionDefinition().getName());
 
