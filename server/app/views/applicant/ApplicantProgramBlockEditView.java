@@ -149,7 +149,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   }
 
   private PTag requiredFieldsExplanationContent(Messages messages) { 
-    return p(messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()))
+    return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
         .withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_600); 
   }
 }

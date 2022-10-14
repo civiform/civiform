@@ -45,8 +45,8 @@ describe('navigating to a deep link', () => {
 
     // Assert
     await page.click('#continue-application-button')
-    expect(await page.innerText('.cf-applicant-question-text')).toEqual(
-      'What is your address?*',
+    expect(await page.innerText('.cf-applicant-question-text')).toContain(
+      questionText,
     )
 
     await logout(page)
