@@ -14,7 +14,7 @@ describe('applicant auth', () => {
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
 
-    await validateScreenshot(page, 'logged_in')
+    await validateScreenshot(page, 'logged-in')
 
     expect(await ctx.page.textContent('html')).toContain(
       'Logged in as ' + testUserEmail(),
@@ -27,7 +27,7 @@ describe('applicant auth', () => {
     await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
-    await validateScreenshot(page, 'logged_in_guest')
+    await validateScreenshot(page, 'logged-in-guest')
     expect(await ctx.page.textContent('html')).toContain('Logged in as Guest')
     expect(await ctx.page.textContent('html')).toContain('Logout')
   })

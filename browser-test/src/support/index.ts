@@ -468,7 +468,7 @@ export const validateScreenshot = async (
     await normalizeElements(frame)
   }
 
-  expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
+  expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
       ...screenshotOptions,
