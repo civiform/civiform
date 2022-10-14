@@ -149,6 +149,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
   private PTag requiredFieldsExplanationContent(Messages messages) {
     return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
-        .withClasses("text-sm", "text-gray-600");
+        .withClasses("text-sm", "text-gray-600", "mb-2");
   }
 }
