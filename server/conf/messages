@@ -42,6 +42,9 @@ validation.isRequired=This question is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Please enter valid input.
 
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -162,9 +165,6 @@ title.activeProgramsUpdated=Not started
 
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Submitted
-
-# Screen reader format string for program cards
-title.programCard=Program {0} of {1} -- {2}
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}

@@ -49,7 +49,6 @@ import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
@@ -77,21 +76,21 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_4)
+            .withClasses("px-4")
             .with(
                 div()
-                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)
+                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
                     .with(
                         h1(title),
-                        div().withClass(Styles.FLEX_GROW),
+                        div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index().url())),
                 div()
-                    .withClasses(Styles.MT_10, Styles.FLEX)
+                    .withClasses("mt-10", "flex")
                     .with(
-                        div().withClass(Styles.FLEX_GROW),
-                        p("Sorting by most recently updated").withClass(Styles.TEXT_SM)))
-            .with(div().withClass(Styles.MT_6).with(questionRowsAndModals.getLeft()))
+                        div().withClass("flex-grow"),
+                        p("Sorting by most recently updated").withClass("text-sm")))
+            .with(div().withClass("mt-6").with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
         layout
@@ -117,7 +116,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // where we have a single entry for a question that is active and has a draft.
     return div(String.format(
             "Total Questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
-        .withClasses(Styles.FLOAT_RIGHT, Styles.TEXT_BASE, Styles.PX_4, Styles.MY_2);
+        .withClasses("float-right", "text-base", "px-4", "my-2");
   }
 
   private static QuestionDefinition getDisplayQuestion(QuestionCardData cardData) {
@@ -197,11 +196,11 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag row =
         div()
-            .withClasses(Styles.FLEX)
+            .withClasses("flex")
             .with(renderInfoCell(latestDefinition))
             .with(referencingProgramAndModal.getLeft());
 
-    DivTag draftAndActiveRows = div().withClasses(Styles.FLEX_GROW);
+    DivTag draftAndActiveRows = div().withClasses("flex-grow");
     if (cardData.draftQuestion().isPresent()) {
       Pair<DivTag, ImmutableList<Modal>> draftRow =
           renderActiveOrDraftRow(
@@ -226,23 +225,23 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag adminNote =
         div()
-            .withClasses(Styles.PY_7)
+            .withClasses("py-7")
             .with(
-                span("Admin ID: ").withClasses(Styles.FONT_BOLD),
+                span("Admin ID: ").withClasses("font-bold"),
                 span(latestDefinition.getName()),
                 br(),
-                span("Admin note: ").withClasses(Styles.FONT_BOLD),
+                span("Admin note: ").withClasses("font-bold"),
                 span(latestDefinition.getDescription()));
 
     DivTag rowWithAdminNote =
         div()
             .withClasses(
-                Styles.W_FULL,
-                Styles.MY_4,
-                Styles.PL_6,
-                Styles.BORDER_GRAY_300,
-                Styles.ROUNDED_LG,
-                Styles.BORDER,
+                "w-full",
+                "my-4",
+                "pl-6",
+                "border-gray-300",
+                "rounded-lg",
+                "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .with(row)
             .with(adminNote);
@@ -268,24 +267,24 @@ public final class QuestionsListView extends BaseHtmlView {
     PTag badge =
         ViewUtils.makeBadge(
             isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
-            Styles.ML_2,
-            StyleUtils.responsiveXLarge(Styles.ML_8));
+            "ml-2",
+            StyleUtils.responsiveXLarge("ml-8"));
 
     DivTag row =
         div()
             .withClasses(
-                Styles.PY_7,
-                Styles.FLEX,
-                Styles.FLEX_ROW,
-                Styles.ITEMS_CENTER,
-                StyleUtils.hover(Styles.BG_GRAY_100),
-                Styles.CURSOR_POINTER,
-                isSecondRow ? Styles.BORDER_T : "")
+                "py-7",
+                "flex",
+                "flex-row",
+                "items-center",
+                StyleUtils.hover("bg-gray-100"),
+                "cursor-pointer",
+                isSecondRow ? "border-t" : "")
             .with(badge)
-            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(div().withClasses("flex-grow"))
             .with(
                 div()
-                    .withClasses(Styles.ML_4, StyleUtils.responsiveXLarge(Styles.ML_10))
+                    .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
                     .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime())))
             .with(actionsCellAndModal.getLeft());
 
@@ -298,28 +297,21 @@ public final class QuestionsListView extends BaseHtmlView {
   private DivTag renderInfoCell(QuestionDefinition definition) {
     DivTag questionText =
         div()
-            .withClasses(
-                Styles.FONT_BOLD,
-                Styles.TEXT_BLACK,
-                Styles.FLEX,
-                Styles.FLEX_ROW,
-                Styles.ITEMS_CENTER)
+            .withClasses("font-bold", "text-black", "flex", "flex-row", "items-center")
             .with(
                 Icons.questionTypeSvg(definition.getQuestionType())
-                    .withClasses(Styles.W_6, Styles.H_6, Styles.FLEX_SHRINK_0))
+                    .withClasses("w-6", "h-6", "shrink-0"))
             .with(
                 div(definition.getQuestionText().getDefault())
-                    .withClasses(
-                        ReferenceClasses.ADMIN_QUESTION_TITLE, Styles.PL_4, Styles.TEXT_XL));
+                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
     DivTag questionDescription =
         div(
             div(definition.getQuestionHelpText().isEmpty()
                     ? ""
                     : definition.getQuestionHelpText().getDefault())
-                .withClasses(Styles.PL_10));
+                .withClasses("pl-10"));
     return div()
-        .withClasses(
-            Styles.PY_7, Styles.W_1_4, Styles.FLEX, Styles.FLEX_COL, Styles.JUSTIFY_BETWEEN)
+        .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
         .with(div().with(questionText).with(questionDescription));
   }
 
@@ -344,10 +336,10 @@ public final class QuestionsListView extends BaseHtmlView {
         div()
             .withClasses(
                 ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS,
-                Styles.ML_4,
-                StyleUtils.responsiveXLarge(Styles.ML_10),
-                Styles.PY_7,
-                Styles.W_1_4);
+                "ml-4",
+                StyleUtils.responsiveXLarge("ml-10"),
+                "py-7",
+                "w-1/4");
     if (groupedReferencingPrograms.isEmpty()) {
       tag.with(p("Used in 0 programs."));
     } else {
@@ -368,11 +360,11 @@ public final class QuestionsListView extends BaseHtmlView {
       tag.with(
           a().withId(maybeReferencingProgramsModal.get().getTriggerButtonId())
               .withClasses(
-                  Styles.CURSOR_POINTER,
-                  Styles.FONT_MEDIUM,
-                  Styles.UNDERLINE,
+                  "cursor-pointer",
+                  "font-medium",
+                  "underline",
                   BaseStyles.TEXT_SEATTLE_BLUE,
-                  StyleUtils.hover(Styles.TEXT_BLACK))
+                  StyleUtils.hover("text-black"))
               .withText("See list"));
     }
     return Pair.of(
@@ -453,8 +445,7 @@ public final class QuestionsListView extends BaseHtmlView {
       return Optional.empty();
     }
 
-    DivTag referencingProgramModalContent =
-        div().withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6);
+    DivTag referencingProgramModalContent = div().withClasses("p-6", "flex-row", "space-y-6");
     if (modalHeader.isPresent()) {
       referencingProgramModalContent.with(modalHeader.get());
     }
@@ -484,7 +475,7 @@ public final class QuestionsListView extends BaseHtmlView {
             p("Note: This list does not automatically refresh. If edits are made to a program"
                     + " in a separate tab, they won't be reflected until the page has been"
                     + " refreshed.")
-                .withClass(Styles.TEXT_SM));
+                .withClass("text-sm"));
 
     return Optional.of(
         Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
@@ -498,11 +489,11 @@ public final class QuestionsListView extends BaseHtmlView {
     // TODO(#3162): Add ability to view a published program. Then add
     // links to the specific block that references the question.
     return div()
-        .with(p(title).withClass(Styles.FONT_SEMIBOLD))
+        .with(p(title).withClass("font-semibold"))
         .with(
             div()
                 .with(
-                    ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                    ul().withClasses("list-disc", "list-inside")
                         .with(
                             each(
                                 referencingPrograms,
@@ -515,7 +506,7 @@ public final class QuestionsListView extends BaseHtmlView {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     return asRedirectElement(
         makeSvgTextButton("Edit", Icons.EDIT)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : Styles.INVISIBLE),
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : "invisible"),
         link);
   }
 
@@ -574,29 +565,29 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(
                 AdminStyles.TERTIARY_BUTTON_STYLES,
                 ReferenceClasses.WITH_DROPDOWN,
-                Styles.H_12,
-                extraActions.build().isEmpty() ? Styles.INVISIBLE : "");
+                "h-12",
+                extraActions.build().isEmpty() ? "invisible" : "");
     DivTag result =
         div()
-            .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.PR_6, Styles.FONT_MEDIUM)
+            .withClasses("flex", "space-x-2", "pr-6", "font-medium")
             .with(renderQuestionEditLink(question, isEditable))
             .with(
                 div()
-                    .withClass(Styles.RELATIVE)
+                    .withClass("relative")
                     .with(
                         extraActionsButton,
                         div()
                             .withId(extraActionsButtonId + "-dropdown")
                             .withClasses(
-                                Styles.HIDDEN,
-                                Styles.FLEX,
-                                Styles.FLEX_COL,
-                                Styles.BORDER,
-                                Styles.BG_WHITE,
-                                Styles.ABSOLUTE,
-                                Styles.RIGHT_0,
-                                Styles.W_56,
-                                Styles.Z_50)
+                                "hidden",
+                                "flex",
+                                "flex-col",
+                                "border",
+                                "bg-white",
+                                "absolute",
+                                "right-0",
+                                "w-56",
+                                "z-50")
                             .with(extraActions.build())));
 
     return Pair.of(result, modals.build());
@@ -640,12 +631,7 @@ public final class QuestionsListView extends BaseHtmlView {
       default:
         DivTag modalHeader =
             div()
-                .withClasses(
-                    Styles.P_2,
-                    Styles.BORDER,
-                    Styles.BORDER_GRAY_400,
-                    Styles.BG_GRAY_200,
-                    Styles.TEXT_SM)
+                .withClasses("p-2", "border", "border-gray-400", "bg-gray-200", "text-sm")
                 .with(
                     span(
                         "This question cannot be archived since there are still programs"

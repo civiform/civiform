@@ -4,9 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import auth.CiviFormProfile;
@@ -19,6 +20,7 @@ import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
@@ -40,7 +42,6 @@ import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
@@ -72,8 +73,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 a(supportEmail)
                     .withHref("mailto:" + supportEmail)
                     .withTarget("_blank")
-                    .withClasses(Styles.TEXT_BLUE_800))
-            .withClasses(Styles.MX_AUTO, Styles.MAX_W_SCREEN_SM, Styles.W_5_6);
+                    .withClasses("text-blue-800"))
+            .withClasses("mx-auto", "max-w-screen-sm", "w-5/6");
 
     bundle.addFooterContent(supportLink);
 
@@ -84,7 +85,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   public Content render(HtmlBundle bundle) {
     bundle.addBodyStyles(ApplicantStyles.BODY);
 
-    bundle.addFooterStyles(Styles.MT_24);
+    bundle.addFooterStyles("mt-24");
 
     Content rendered = super.render(bundle);
     if (!rendered.body().contains("<h1")) {
@@ -109,20 +110,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return nav()
-        .withClasses(
-            Styles.BG_WHITE,
-            Styles.BORDER_B,
-            Styles.ALIGN_MIDDLE,
-            Styles.P_4,
-            Styles.GRID,
-            Styles.GRID_COLS_3)
+        .withClasses("bg-white", "border-b", "align-middle", "p-4", "grid", "grid-cols-3")
         .with(branding())
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
             div(
                     getLanguageForm(request, profile, messages),
                     logoutButton(displayUserName, messages))
-                .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+                .withClasses("justify-self-end", "flex", "flex-row"));
   }
 
   private ContainerTag<?> getLanguageForm(
@@ -186,13 +181,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
               .withId("ti-dashboard-link")
               .withHref(tiDashboardLink)
               .withClasses(
-                  Styles.PX_3,
-                  Styles.TEXT_SM,
-                  Styles.OPACITY_75,
-                  StyleUtils.hover(Styles.OPACITY_100),
+                  "px-3",
+                  "text-sm",
+                  "opacity-75",
+                  StyleUtils.hover("opacity-100"),
                   ApplicantStyles.BUTTON_PROGRAM_APPLY),
           div("(applying as: " + userName + ")")
-              .withClasses(Styles.TEXT_SM, Styles.TEXT_BLACK, Styles.TEXT_CENTER));
+              .withClasses("text-sm", "text-black", "text-center"));
     }
     return div();
   }
@@ -200,10 +195,18 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private DivTag logoutButton(String userName, Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     return div(
-        div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses(Styles.TEXT_SM),
+        div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses("text-sm"),
         a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
             .withHref(logoutLink)
             .withClasses(ApplicantStyles.LINK_LOGOUT));
+  }
+
+  protected String renderPageTitleWithBlockProgress(
+      String pageTitle, int blockIndex, int totalBlockCount) {
+    // While applicant is filling out the application, include the block they are on as part of
+    // their progress.
+    blockIndex++;
+    return String.format("%s — %d of %d", pageTitle, blockIndex, totalBlockCount);
   }
 
   /**
@@ -223,28 +226,28 @@ public class ApplicantLayout extends BaseHtmlLayout {
         div()
             .withClasses(
                 BaseStyles.BG_SEATTLE_BLUE,
-                Styles.TRANSITION_ALL,
-                Styles.DURATION_300,
-                Styles.H_FULL,
-                Styles.BLOCK,
-                Styles.ABSOLUTE,
-                Styles.LEFT_0,
-                Styles.TOP_0,
-                Styles.W_1,
-                Styles.ROUNDED_FULL)
+                "transition-all",
+                "duration-300",
+                "h-full",
+                "block",
+                "absolute",
+                "left-0",
+                "top-0",
+                "w-1",
+                "rounded-full")
             .withStyle("width:" + percentComplete + "%");
     DivTag progressIndicator =
         div(progressInner)
             .withId("progress-indicator")
             .withClasses(
-                Styles.BORDER,
+                "border",
                 BaseStyles.BORDER_SEATTLE_BLUE,
-                Styles.ROUNDED_FULL,
-                Styles.FONT_SEMIBOLD,
-                Styles.BG_WHITE,
-                Styles.RELATIVE,
-                Styles.H_4,
-                Styles.MT_4);
+                "rounded-full",
+                "font-semibold",
+                "bg-white",
+                "relative",
+                "h-4",
+                "mt-4");
 
     // While applicant is filling out the application, include the block they are on as part of
     // their progress.
@@ -252,20 +255,18 @@ public class ApplicantLayout extends BaseHtmlLayout {
       blockIndex++;
     }
 
-    DivTag blockNumberTag = div();
-    if (!forSummary) {
-      blockNumberTag
-          .withText(String.format("%d of %d", blockIndex, totalBlockCount))
-          .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_RIGHT);
-    }
+    String blockNumberText =
+        forSummary ? "" : String.format("%d of %d", blockIndex, totalBlockCount);
 
-    DivTag programTitleDiv =
-        div()
-            .with(h2(programTitle).withClasses(ApplicantStyles.H2_PROGRAM_TITLE))
-            .with(blockNumberTag)
-            .withClasses(Styles.GRID, Styles.GRID_COLS_2);
+    H1Tag programTitleContainer =
+        h1().withClasses("flex")
+            .with(span(programTitle).withClasses(ApplicantStyles.PROGRAM_TITLE))
+            .condWith(
+                !blockNumberText.isEmpty(),
+                span().withClasses("flex-grow"),
+                span(blockNumberText).withClasses("text-gray-500", "text-base", "text-right"));
 
-    return div().with(programTitleDiv).with(progressIndicator);
+    return div().with(programTitleContainer).with(progressIndicator);
   }
 
   /**

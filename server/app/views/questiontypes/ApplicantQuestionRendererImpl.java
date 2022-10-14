@@ -18,7 +18,6 @@ import views.BaseHtmlView;
 import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /**
  * Superclass for all applicant question renderers with input field(s) for the applicant to answer
@@ -71,7 +70,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                     .with(
                         TextFormatter.createLinksAndEscapeText(
                             question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab)))
-            .withClasses(Styles.MB_4);
+            .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
     switch (params.errorDisplayMode()) {
@@ -114,7 +113,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
     return div()
         .withId(questionId)
-        .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
+        .withClasses("mx-auto", "mb-8", getReferenceClass(), getRequiredClass())
         .with(questionTag);
   }
 }

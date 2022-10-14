@@ -10,7 +10,7 @@ import models.QuestionTag;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.UrlUtils;
-import services.export.ExporterService;
+import services.export.CsvExporterService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -167,7 +167,7 @@ public abstract class QuestionForm {
    * getQuestionExportStateTag}.
    */
   public final String getQuestionExportState() {
-    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(getQuestionType())) {
+    if (CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(getQuestionType())) {
       return QuestionTag.NON_DEMOGRAPHIC.getValue();
     }
 

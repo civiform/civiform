@@ -30,7 +30,6 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
-import views.style.Styles;
 
 /** Renders a page for adding a new ApiKey. */
 public final class ApiKeyNewOneView extends BaseHtmlView {
@@ -126,9 +125,9 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
 
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_20)
+            .withClasses("px-20")
             .with(
-                h1(title).withClasses(Styles.MY_4),
+                h1(title).withClasses("my-4"),
                 formTag
                     .with(submitButton("Save").withId("apikey-submit-button"))
                     .withAction(routes.AdminApiKeysController.create().url()));

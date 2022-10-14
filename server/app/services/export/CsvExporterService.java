@@ -50,7 +50,7 @@ import services.question.types.ScalarType;
  * ExporterService generates CSV files for applications to a program or demographic information
  * across all programs.
  */
-public final class ExporterService {
+public final class CsvExporterService {
 
   private final ProgramService programService;
   private final QuestionService questionService;
@@ -68,7 +68,7 @@ public final class ExporterService {
       ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.STATIC);
 
   @Inject
-  public ExporterService(
+  public CsvExporterService(
       ProgramService programService,
       QuestionService questionService,
       ApplicantService applicantService,

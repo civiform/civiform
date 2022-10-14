@@ -1,6 +1,5 @@
 package auth.oidc;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
@@ -48,13 +47,7 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
       final State state) {
 
     super(uri, /* idTokenHint */ null, postLogoutRedirectURI, state);
-
-    if (Strings.isNullOrEmpty(postLogoutRedirectParam)) {
-      // default to OIDC spec
-      this.postLogoutRedirectParam = "post_logout_redirect_uri";
-    } else {
-      this.postLogoutRedirectParam = postLogoutRedirectParam;
-    }
+    this.postLogoutRedirectParam = postLogoutRedirectParam;
     this.postLogoutRedirectURI = postLogoutRedirectURI;
     if (extraParams == null) {
       this.extraParams = ImmutableMap.of();

@@ -3,6 +3,7 @@ import {
   Browser,
   BrowserContext,
   chromium,
+  Frame,
   Page,
   PageScreenshotOptions,
   LocatorScreenshotOptions,
@@ -59,7 +60,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
     const dirs = ['tmp/videos']
-    if ('expect' in global) {
+    if ('expect' in global && expect.getState() != null) {
       const testPath = expect.getState().testPath
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
       dirs.push(testFile)
@@ -443,29 +444,13 @@ export const validateScreenshot = async (
     return
   }
   const page = 'page' in element ? element.page() : element
-  await page.evaluate(() => {
-    // To make screenshots stable go through all date fields (elements that have cf-bt-date class)
-    // and replace date/time with fixed text.
-    for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
-      // Use regexp replacement instead of full replacement to make sure that format of the text
-      // matches what we expect. In case underlying format changes to "September 20, 2022" then
-      // regexp will break and it will show up in screenshots.
-      date.textContent = date
-        .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
-        .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
-        .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
-    }
-    // Go through all application ID fields (elements that have cf-application-id class) and
-    // replace the ID with a stable value.
-    for (const applicationId of Array.from(
-      document.querySelectorAll('.cf-application-id'),
-    )) {
-      applicationId.textContent = applicationId.textContent!.replace(
-        /\d+/,
-        '1234',
-      )
-    }
-  })
+  // Normalize all variable content so that the screenshot is stable.
+  await normalizeElements(page)
+  // Also process any sub frames.
+  for (const frame of page.frames()) {
+    await normalizeElements(frame)
+  }
+
   expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
   expect(
     await element.screenshot({
@@ -485,6 +470,35 @@ export const validateScreenshot = async (
   })
 }
 
+/*
+ * Replaces any variable content with static values. This is particularly useful
+ * for image diffs.
+ *
+ * Supports date and time elements with class .cf-bt-date, and applicant IDs
+ * with class .cf-application-id
+ */
+const normalizeElements = async (page: Frame | Page) => {
+  await page.evaluate(() => {
+    for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
+      // Use regexp replacement instead of full replacement to make sure that format of the text
+      // matches what we expect. In case underlying format changes to "September 20, 2022" then
+      // regexp will break and it will show up in screenshots.
+      date.textContent = date
+        .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
+        .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
+        .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
+    }
+    // Process application id values.
+    for (const applicationId of Array.from(
+      document.querySelectorAll('.cf-application-id'),
+    )) {
+      applicationId.textContent = applicationId.textContent!.replace(
+        /\d+/,
+        '1234',
+      )
+    }
+  })
+}
 export type LocalstackSesEmail = {
   Body: {
     html_part: string | null

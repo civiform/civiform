@@ -1,5 +1,6 @@
 class AdminApplications {
   private static BACKGROUND_GRAY_CLASS = 'bg-gray-200'
+  private static BACKGROUND_WHITE_CLASS = 'bg-white'
   private static CARD_SELECTOR = '.cf-admin-application-card'
   private static DISPLAY_FRAME_SELECTOR =
     'iframe[name="application-display-frame"]'
@@ -7,9 +8,10 @@ class AdminApplications {
   // This value should be kept in sync with that in AdminApplicationController.java.
   private static SELECTED_APPLICATION_URI_PARAM_NAME = 'selectedApplicationUri'
 
+  // These values should be kept in sync with those in AdminApplicationController.java.
+  private static REDIRECT_URI_INPUT_NAME = 'redirectUri'
   // These values should be kept in sync with those in admin_application_view.ts
   // and ProgramApplicationView.java.
-  private static SUCCESS_REDIRECT_URI_INPUT_NAME = 'successRedirectUri'
   private static CURRENT_STATUS_INPUT_NAME = 'currentStatus'
   private static NEW_STATUS_INPUT_NAME = 'newStatus'
   private static SEND_EMAIL_INPUT_NAME = 'sendEmail'
@@ -61,17 +63,25 @@ class AdminApplications {
 
   viewApplication(selectedCard: Element, applicationUrlPath: string) {
     // Remove selection style from previously selected card.
-    this.cards.forEach((card) =>
-      this._assertNotNull(card.children[0], 'card inner div').classList.remove(
+    this.cards.forEach((card) => {
+      const child = card.children[0]
+      this._assertNotNull(child, 'card inner div').classList.remove(
         AdminApplications.BACKGROUND_GRAY_CLASS,
-      ),
-    )
+      )
+      this._assertNotNull(child, 'card inner div').classList.add(
+        AdminApplications.BACKGROUND_WHITE_CLASS,
+      )
+    })
 
     // Add selection style to selected card.
-    this._assertNotNull(
-      selectedCard.children[0],
-      'card inner div',
-    ).classList.add(AdminApplications.BACKGROUND_GRAY_CLASS)
+    const child = selectedCard.children[0]
+    this._assertNotNull(child, 'card inner div').classList.add(
+      AdminApplications.BACKGROUND_GRAY_CLASS,
+    )
+
+    this._assertNotNull(child, 'card inner div').classList.remove(
+      AdminApplications.BACKGROUND_WHITE_CLASS,
+    )
 
     // Preserve the selected application in the URL so that any attempts to refresh the page
     // maintain the selected application.
@@ -143,7 +153,7 @@ class AdminApplications {
       action: `/admin/programs/${programId}/applications/${applicationId}/updateStatus`,
       inputs: [
         {
-          inputName: AdminApplications.SUCCESS_REDIRECT_URI_INPUT_NAME,
+          inputName: AdminApplications.REDIRECT_URI_INPUT_NAME,
           inputValue: this.currentRelativeUrl(),
         },
         {
@@ -175,7 +185,7 @@ class AdminApplications {
       action: `/admin/programs/${programId}/applications/${applicationId}/updateNote`,
       inputs: [
         {
-          inputName: AdminApplications.SUCCESS_REDIRECT_URI_INPUT_NAME,
+          inputName: AdminApplications.REDIRECT_URI_INPUT_NAME,
           inputValue: this.currentRelativeUrl(),
         },
         {inputName: AdminApplications.NOTE_INPUT_NAME, inputValue: data.note},

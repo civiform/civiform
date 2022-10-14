@@ -51,7 +51,7 @@ import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
-import services.export.ExporterService;
+import services.export.CsvExporterService;
 import services.export.JsonExporter;
 import services.export.PdfExporter;
 import services.program.ProgramNotFoundException;
@@ -207,7 +207,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -241,7 +241,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -276,7 +276,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -309,7 +309,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -342,7 +342,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "currentStatus",
                             UNSET_STATUS_TEXT,
@@ -386,7 +386,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "sendEmail",
                             "",
@@ -425,7 +425,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             "currentStatus",
                             UNSET_STATUS_TEXT,
@@ -470,7 +470,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                 Helpers.fakeRequest()
                     .bodyForm(
                         Map.of(
-                            "successRedirectUri",
+                            "redirectUri",
                             "/",
                             // Only "on" is a valid checkbox state.
                             "sendEmail",
@@ -565,8 +565,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest().bodyForm(Map.of("successRedirectUri", "/", "note", noteText)))
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
             .build();
 
     // Execute.
@@ -596,8 +595,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
     Request request =
-        addCSRFToken(
-                Helpers.fakeRequest().bodyForm(Map.of("successRedirectUri", "/", "note", noteText)))
+        addCSRFToken(Helpers.fakeRequest().bodyForm(Map.of("redirectUri", "/", "note", noteText)))
             .build();
 
     // Execute.
@@ -627,7 +625,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     return new AdminApplicationController(
         instanceOf(ProgramService.class),
         instanceOf(ApplicantService.class),
-        instanceOf(ExporterService.class),
+        instanceOf(CsvExporterService.class),
         instanceOf(FormFactory.class),
         instanceOf(JsonExporter.class),
         instanceOf(PdfExporter.class),

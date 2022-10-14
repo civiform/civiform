@@ -6,7 +6,6 @@ import static j2html.TagCreator.div;
 import j2html.tags.specialized.DivTag;
 import java.util.UUID;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /** ToastMessages are messages that appear on the screen to show information to the user. */
 public final class ToastMessage {
@@ -97,7 +96,7 @@ public final class ToastMessage {
   public DivTag getContainerTag() {
     DivTag ret =
         div(this.message)
-            .withClasses(Styles.HIDDEN, ReferenceClasses.TOAST_MESSAGE)
+            .withClasses("hidden", ReferenceClasses.TOAST_MESSAGE)
             .withId(this.id)
             .attr("canDismiss", this.canDismiss)
             .attr("canIgnore", this.canIgnore)

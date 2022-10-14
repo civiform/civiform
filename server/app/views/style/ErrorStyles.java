@@ -3,25 +3,25 @@ package views.style;
 public final class ErrorStyles {
   public static final String H1_NOT_FOUND =
       StyleUtils.joinStyles(
-          Styles.TEXT_2XL,
-          Styles.TEXT_BLACK,
-          Styles.FONT_BOLD,
-          Styles.TEXT_CENTER,
-          Styles.TEXT_GRAY_800,
-          Styles.MT_28,
-          Styles.MB_10,
-          StyleUtils.responsiveSmall(Styles.MT_40, Styles.MB_5, Styles.TEXT_3XL));
+          "text-2xl",
+          "text-black",
+          "font-bold",
+          "text-center",
+          "text-gray-800",
+          "mt-28",
+          "mb-10",
+          StyleUtils.responsiveSmall("mt-40", "mb-5", "text-3xl"));
 
   public static final String P_DESCRIPTION =
       StyleUtils.joinStyles(
-          Styles.TEXT_XL,
-          Styles.TEXT_BASE,
-          Styles.TEXT_BLACK,
-          Styles.TEXT_CENTER,
-          Styles.TEXT_GRAY_700,
-          Styles.MB_6,
-          StyleUtils.responsiveSmall(Styles.MT_10));
+          "text-xl",
+          "text-base",
+          "text-black",
+          "text-center",
+          "text-gray-700",
+          "mb-6",
+          StyleUtils.responsiveSmall("mt-10"));
 
   public static final String P_MOBILE_INLINE =
-      StyleUtils.joinStyles(Styles.INLINE, StyleUtils.responsiveSmall(Styles.BLOCK));
+      StyleUtils.joinStyles("inline", StyleUtils.responsiveSmall("block"));
 }

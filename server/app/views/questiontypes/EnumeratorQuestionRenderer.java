@@ -1,7 +1,9 @@
 package views.questiontypes;
 
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -18,12 +20,10 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.Scalar;
-import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Renders an enumerator question. */
 public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestionRenderer {
@@ -32,15 +32,13 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
   private static final String ENUMERATOR_FIELD_TEMPLATE_ID = "enumerator-field-template";
+  private static final String ENUMERATOR_FIELD_TEMPLATE_INPUT_ID =
+      "enumerator-field-template-input";
   private static final String DELETE_ENTITY_TEMPLATE_ID = "enumerator-delete-template";
 
   private static final String ENUMERATOR_FIELD_CLASSES =
       StyleUtils.joinStyles(
-          ReferenceClasses.ENUMERATOR_FIELD,
-          Styles.GRID,
-          Styles.GRID_COLS_2,
-          Styles.GAP_4,
-          Styles.MB_4);
+          ReferenceClasses.ENUMERATOR_FIELD, "grid", "grid-cols-2", "gap-4", "mb-4");
 
   public EnumeratorQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -72,7 +70,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
               /* existingIndex= */ Optional.of(index),
               /* extraStyle= */ Optional.empty(),
               /* isDisabled= */ false,
-              hasErrors));
+              hasErrors,
+              /* elementId= */ Optional.empty()));
     }
 
     DivTag enumeratorQuestionFormContent =
@@ -80,17 +79,18 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
             .with(hiddenDeleteInputTemplate())
             .with(enumeratorFields)
             .with(
-                BaseHtmlView.button(
-                        ADD_ELEMENT_BUTTON_ID,
-                        String.format(
-                            "＋ %s",
-                            messages.at(
-                                MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
-                                localizedEntityType)))
+                button()
+                    .withId(ADD_ELEMENT_BUTTON_ID)
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
-                        StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)))
+                        StyleUtils.disabled("bg-gray-200", "text-gray-400"))
+                    .with(
+                        span("＋ ").attr("aria-hidden", "true"),
+                        span(
+                            messages.at(
+                                MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
+                                localizedEntityType))))
             .with(
                 // Add the hidden enumerator field template.
                 enumeratorField(
@@ -99,10 +99,11 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                         question.getContextualizedPath(),
                         /* existingEntity= */ Optional.empty(),
                         /* existingIndex= */ Optional.empty(),
-                        /* extraStyle= */ Optional.of(Styles.HIDDEN),
+                        /* extraStyle= */ Optional.of("hidden"),
                         // Do not submit this with the form.
                         /* isDisabled= */ true,
-                        hasErrors)
+                        hasErrors,
+                        /* elementId= */ Optional.of(ENUMERATOR_FIELD_TEMPLATE_INPUT_ID))
                     .withId(ENUMERATOR_FIELD_TEMPLATE_ID));
 
     return enumeratorQuestionFormContent;
@@ -120,7 +121,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
       Optional<Integer> existingIndex,
       Optional<String> extraStyle,
       boolean isDisabled,
-      boolean hasErrors) {
+      boolean hasErrors,
+      Optional<String> elementId) {
     FieldWithLabel entityNameInputField =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
@@ -131,6 +133,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT);
+    if (elementId.isPresent()) {
+      entityNameInputField.setId(elementId.get());
+    }
     if (hasErrors) {
       entityNameInputField.forceAriaInvalid();
     }
@@ -167,6 +172,6 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
         .withId(DELETE_ENTITY_TEMPLATE_ID)
         .withName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
         .isDisabled() // do not submit this with the form
-        .withClasses(Styles.HIDDEN);
+        .withClasses("hidden");
   }
 }
