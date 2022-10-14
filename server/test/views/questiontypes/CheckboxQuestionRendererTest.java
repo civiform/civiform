@@ -95,7 +95,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
             result
                 .render()
                 .matches(
-                    ".*fieldset aria-describedby=\"[A-Za-z]{8}-validation-error"
+                    ".*fieldset aria-describedby=\"[A-Za-z]{8}-error"
                         + " [A-Za-z]{8}-description\".*"))
         .isTrue();
   }

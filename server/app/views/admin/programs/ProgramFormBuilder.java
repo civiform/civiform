@@ -18,7 +18,6 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.BaseStyles;
-import views.style.Styles;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
@@ -67,7 +66,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     FormTag formTag = form().withMethod("POST");
     formTag.with(
         requiredFieldsExplanationContent(),
-        h2("Visible to applicants").withClasses(Styles.PY_2),
+        h2("Visible to applicants").withClasses("py-2"),
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
@@ -87,7 +86,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Link to program website")
             .setValue(externalLink)
             .getInputTag(),
-        h2("Visible to administrators only").withClasses(Styles.PY_2),
+        h2("Visible to administrators only").withClasses("py-2"),
         // TODO(#2618): Consider using helpers for grouping related radio controls.
         fieldset()
             .with(
@@ -126,7 +125,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                       MainModule.SLUGIFIER.slugify(adminName))
                   .url();
       return div()
-          .withClass(Styles.MB_2)
+          .withClass("mb-2")
           .with(
               p("The URL for this program. This value can't be changed")
                   .withClasses(BaseStyles.INPUT_LABEL),

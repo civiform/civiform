@@ -71,7 +71,7 @@ public class GenericOidcProviderTest extends ResetPostgres {
     String clientId = genericOidcProvider.getClientID();
     assertThat(clientId).isEqualTo("civi");
 
-    String clientSecret = genericOidcProvider.getClientSecret();
+    String clientSecret = genericOidcProvider.getClientSecret().get();
     assertThat(clientSecret).isEqualTo("pass");
 
     String responseType = genericOidcProvider.getResponseType();

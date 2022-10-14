@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /** Utility class for converting dates between different formats. */
-public class DateConverter {
+public final class DateConverter {
 
   private final ZoneId zoneId;
   private static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_SLASH =

@@ -1,7 +1,7 @@
 package auth.oidc;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import java.net.URI;
 import java.util.Collections;
@@ -34,28 +34,35 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
 
   /**
    * Create new OIDC logout request with a optional redirect url, optional client id, and other
-   * params.
+   * params. If the OIDC provider requires the optional state param for logout (see
+   * https://openid.net/specs/openid-connect-rpinitiated-1_0.html), include it here. Note that the
+   * state here is not saved and validated by the client, so it does not achive the goal of
+   * "maintain state between the logout request and the callback" as specified by the spec.
    */
   public CustomOidcLogoutRequest(
       final URI uri,
       final String postLogoutRedirectParam,
       final URI postLogoutRedirectURI,
-      final ImmutableMap<String, String> extraParams) {
+      final ImmutableMap<String, String> extraParams,
+      final State state) {
 
-    super(uri, /* idTokenHint */ null, postLogoutRedirectURI, /* state */ null);
-
-    if (Strings.isNullOrEmpty(postLogoutRedirectParam)) {
-      // default to OIDC spec
-      this.postLogoutRedirectParam = "post_logout_redirect_uri";
-    } else {
-      this.postLogoutRedirectParam = postLogoutRedirectParam;
-    }
+    super(uri, /* idTokenHint */ null, postLogoutRedirectURI, state);
+    this.postLogoutRedirectParam = postLogoutRedirectParam;
     this.postLogoutRedirectURI = postLogoutRedirectURI;
     if (extraParams == null) {
       this.extraParams = ImmutableMap.of();
     } else {
       this.extraParams = extraParams;
     }
+  }
+
+  /** Creates a new OIDC logout request without a state. */
+  public CustomOidcLogoutRequest(
+      final URI uri,
+      final String postLogoutRedirectParam,
+      final URI postLogoutRedirectURI,
+      final ImmutableMap<String, String> extraParams) {
+    this(uri, postLogoutRedirectParam, postLogoutRedirectURI, extraParams, /*state*/ null);
   }
 
   /** Creates a new OIDC logout request without extra params or a custom postLogoutRedirectParam. */
@@ -94,6 +101,9 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
     if (postLogoutRedirectURI != null) {
       params.put(
           postLogoutRedirectParam, Collections.singletonList(postLogoutRedirectURI.toString()));
+    }
+    if (getState() != null) {
+      params.put("state", Collections.singletonList(getState().getValue()));
     }
 
     extraParams.forEach((key, value) -> params.put(key, Collections.singletonList(value)));

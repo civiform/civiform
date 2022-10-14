@@ -19,7 +19,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.DeletionStatus;
 import services.ErrorAnd;
-import services.export.ExporterService;
+import services.export.CsvExporterService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -212,7 +212,7 @@ public final class QuestionService {
             .id;
     Preconditions.checkArgument(
         !draftId.equals(activeId),
-        "Draft and Active IDs are the same ({}) for Question {}, this should not be possible.",
+        "Draft and Active IDs are the same (%s) for Question %s, this should not be possible.",
         draftId,
         question.getQuestionDefinition().getName());
 
@@ -252,7 +252,7 @@ public final class QuestionService {
       throw new QuestionNotFoundException(questionDefinition.getId());
     }
     Question question = questionMaybe.get();
-    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
+    if (CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
         questionDefinition.getQuestionType())) {
       question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
       question.removeTag(QuestionTag.NON_DEMOGRAPHIC);

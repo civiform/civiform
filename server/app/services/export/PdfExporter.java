@@ -144,7 +144,7 @@ public final class PdfExporter {
     return byteArrayOutputStream.toByteArray();
   }
 
-  public static class InMemoryPdf {
+  public static final class InMemoryPdf {
     private byte[] byteArray;
     private String fileName;
 

@@ -14,7 +14,7 @@ import services.program.predicate.LeafOperationExpressionNode;
 import services.question.types.QuestionDefinition;
 
 /** Generates {@link JsonPathPredicate}s based on the current applicant filling out the program. */
-public class JsonPathPredicateGenerator {
+public final class JsonPathPredicateGenerator {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final Optional<RepeatedEntity> currentRepeatedContext;

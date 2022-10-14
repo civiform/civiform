@@ -42,7 +42,6 @@ import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 public final class ProgramStatusesView extends BaseHtmlView {
   public static final String DELETE_STATUS_TEXT_NAME = "deleteStatusText";
@@ -96,7 +95,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             /* showEmailDeletionWarning= */ false);
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-2")
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
@@ -104,11 +103,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
 
     DivTag topBarDiv =
         div()
-            .withClasses(
-                Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12, Styles.MB_10)
+            .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-10")
             .with(
                 h1(String.format("Manage application statuses for %s", program.adminName())),
-                div().withClass(Styles.FLEX_GROW));
+                div().withClass("flex-grow"));
 
     Optional<ButtonTag> maybeManageTranslationsLink = renderManageTranslationsLink(program);
     if (maybeManageTranslationsLink.isPresent()) {
@@ -117,7 +115,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     topBarDiv.with(createStatusTriggerButton);
 
     DivTag contentDiv =
-        div().withClasses(Styles.PX_4).with(topBarDiv, statusContainerAndModals.getLeft());
+        div().withClasses("px-4").with(topBarDiv, statusContainerAndModals.getLeft());
 
     HtmlBundle htmlBundle =
         layout
@@ -193,12 +191,11 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .with(
                 p(numResultsText),
                 div()
-                    .withClasses(Styles.MT_6, Styles.BORDER, Styles.ROUNDED_MD, Styles.DIVIDE_Y)
+                    .withClasses("mt-6", "border", "rounded-md", "divide-y")
                     .with(statusTagsAndModals.stream().map(Pair::getLeft))
                     .condWith(
                         statuses.isEmpty(),
-                        p("No statuses have been created yet")
-                            .withClasses(Styles.ML_4, Styles.MY_4)));
+                        p("No statuses have been created yet").withClasses("ml-4", "my-4")));
     ImmutableList<Modal> modals =
         statusTagsAndModals.stream()
             .map(Pair::getRight)
@@ -245,32 +242,31 @@ public final class ProgramStatusesView extends BaseHtmlView {
         div()
             .withClasses(
                 ReferenceClasses.ADMIN_PROGRAM_STATUS_ITEM,
-                Styles.PL_7,
-                Styles.PR_6,
-                Styles.PY_9,
-                Styles.FONT_NORMAL,
-                Styles.SPACE_X_2,
-                Styles.FLEX,
-                Styles.ITEMS_CENTER)
+                "pl-7",
+                "pr-6",
+                "py-9",
+                "font-normal",
+                "space-x-2",
+                "flex",
+                "items-center")
             .with(
                 div()
-                    .withClass(Styles.W_1_4)
+                    .withClass("w-1/4")
                     .with(
                         // TODO(#3272): Optional SVG icon for status attribute.
-                        span(status.statusText()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
+                        span(status.statusText()).withClasses("ml-2", "break-words")),
                 div()
                     .condWith(
                         status.localizedEmailBodyText().isPresent(),
-                        p().withClasses(
-                                Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
+                        p().withClasses("mt-1", "text-xs", "flex", "items-center")
                             .with(
                                 Icons.svg(Icons.EMAIL)
                                     // Tailwind doesn't have classes for 18px so use inline
                                     // style.
                                     .withStyle("width: 18px; height: 18px;")
-                                    .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
+                                    .withClasses("mr-2", "inline-block"),
                                 span("Applicant notification email added"))),
-                div().withClass(Styles.FLEX_GROW),
+                div().withClass("flex-grow"),
                 deleteStatusTriggerButton,
                 editStatusTriggerButton),
         ImmutableList.of(editStatusModal, deleteStatusModal));
@@ -280,7 +276,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request, ProgramDefinition program, String toDeleteStatusText) {
     DivTag content =
         div()
-            .withClasses(Styles.PX_6, Styles.PY_2)
+            .withClasses("px-6", "py-2")
             .with(
                 p(
                     "Warning: This will also remove any translated content for the status and"
@@ -295,9 +291,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .withName(DELETE_STATUS_TEXT_NAME)
                             .withValue(toDeleteStatusText),
                         div()
-                            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                            .withClasses("flex", "mt-5", "space-x-2")
                             .with(
-                                div().withClass(Styles.FLEX_GROW),
+                                div().withClass("flex-grow"),
                                 submitButton("Delete")
                                     .withClass(AdminStyles.SECONDARY_BUTTON_STYLES))));
 
@@ -339,7 +335,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
         form()
             .withMethod("POST")
             .withAction(routes.AdminProgramStatusesController.createOrUpdate(program.id()).url())
-            .withClasses(Styles.PX_6, Styles.PY_2)
+            .withClasses("px-6", "py-2")
             .with(
                 makeCsrfTokenInputTag(request),
                 input()
@@ -358,7 +354,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         messages, form.errors(ProgramStatusesForm.STATUS_TEXT_FORM_NAME))
                     .getInputTag(),
                 div()
-                    .withClasses(Styles.PT_8)
+                    .withClasses("pt-8")
                     .with(
                         FieldWithLabel.textArea()
                             .setFieldName(ProgramStatusesForm.EMAIL_BODY_FORM_NAME)
@@ -374,9 +370,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .condWith(showEmailDeletionWarning, renderEmailTranslationWarning())
             .with(
                 div()
-                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                    .withClasses("flex", "mt-5", "space-x-2")
                     .with(
-                        div().withClass(Styles.FLEX_GROW),
+                        div().withClass("flex-grow"),
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     return Modal.builder(Modal.randomModalId(), content)
         .setModalTitle(
@@ -392,13 +388,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return p("Please be aware that clearing the email body will also clear any associated"
             + " translations")
         .withClasses(
-            Styles.M_2,
-            Styles.P_2,
-            Styles.TEXT_SM,
-            Styles.BORDER,
-            Styles.ROUNDED_LG,
-            Styles.BORDER_YELLOW_400,
-            Styles.BG_YELLOW_200);
+            "m-2", "p-2", "text-sm", "border", "rounded-lg", "border-amber-400", "bg-amber-200");
   }
 
   private DivTag renderFormGlobalErrors(Messages messages, Form<ProgramStatusesForm> form) {
@@ -408,7 +398,6 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .collect(ImmutableList.toImmutableList());
     return errors.isEmpty()
         ? div()
-        : div(each(errors, e -> p(e).withClasses(Styles.TEXT_SM, Styles.TEXT_RED_600)))
-            .withClasses(Styles.PB_4);
+        : div(each(errors, e -> p(e).withClasses("text-sm", "text-red-600"))).withClasses("pb-4");
   }
 }

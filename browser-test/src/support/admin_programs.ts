@@ -94,7 +94,7 @@ export class AdminPrograms {
 
   // Question card within a program edit page
   questionCardSelectorInProgramEditor(questionName: string) {
-    return `.cf-program-question:has(:text("${questionName}"))`
+    return `.cf-program-question:has(:text("Admin ID: ${questionName}"))`
   }
 
   // Question card within a program edit page
@@ -250,7 +250,7 @@ export class AdminPrograms {
   async expectSuccessToast(successToastMessage: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-green-200')
+    expect(toastContainer).toContain('bg-emerald-200')
     expect(toastContainer).toContain(successToastMessage)
   }
 
@@ -300,8 +300,19 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     for (const questionName of questionNames) {
-      await this.page.click(`button >> text="${questionName}"`)
+      await this.addQuestionFromQuestionBank(questionName)
     }
+  }
+
+  async addQuestionFromQuestionBank(questionName: string) {
+    await this.page.click(
+      `.cf-question-bank-element:has-text("Admin ID: ${questionName}")`,
+    )
+    await waitForPageJsLoad(this.page)
+    // Make sure the question is successfully added to the screen.
+    await this.page.waitForSelector(
+      `div.cf-program-question p:text("Admin ID: ${questionName}")`,
+    )
   }
 
   async questionBankNames(programName: string): Promise<string[]> {
@@ -325,15 +336,13 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     // Add the optional question
-    await this.page.click(`button:text("${optionalQuestionName}")`)
-    await waitForPageJsLoad(this.page)
+    await this.addQuestionFromQuestionBank(optionalQuestionName)
     // Only allow one optional question per block; this selector will always toggle the first optional button.  It
     // cannot tell the difference between multiple option buttons
     await this.page.click(`:is(button:has-text("optional"))`)
 
     for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
-      await waitForPageJsLoad(this.page)
+      await this.addQuestionFromQuestionBank(questionName)
     }
   }
 
@@ -355,12 +364,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
-      await waitForPageJsLoad(this.page)
-      // Make sure the question is successfully added to the screen.
-      await this.page.waitForSelector(
-        `div.cf-program-question p:text("${questionName}")`,
-      )
+      await this.addQuestionFromQuestionBank(questionName)
     }
     return await this.page.$eval(
       '#block-name-input',
@@ -386,7 +390,7 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
+      await this.addQuestionFromQuestionBank(questionName)
     }
   }
 
@@ -424,29 +428,29 @@ export class AdminPrograms {
   }
 
   async expectProgramReferencesModalContains({
-    expectedQuestionNames,
-    expectedProgramNames,
+    expectedQuestionsContents,
+    expectedProgramsContents,
   }: {
-    expectedQuestionNames: string[]
-    expectedProgramNames: string[]
+    expectedQuestionsContents: string[]
+    expectedProgramsContents: string[]
   }) {
     const modal = await this.openPublishAllProgramsModal()
 
     const editedQuestions = await modal.$$(
       '.cf-admin-publish-references-question li',
     )
-    const editedQuestionNames = await Promise.all(
+    const editedQuestionsContents = await Promise.all(
       editedQuestions.map((editedQuestion) => editedQuestion.innerText()),
     )
-    expect(editedQuestionNames).toEqual(expectedQuestionNames)
+    expect(editedQuestionsContents).toEqual(expectedQuestionsContents)
 
     const editedPrograms = await modal.$$(
       '.cf-admin-publish-references-program li',
     )
-    const editedProgramNames = await Promise.all(
+    const editedProgramsContents = await Promise.all(
       editedPrograms.map((editedProgram) => editedProgram.innerText()),
     )
-    expect(editedProgramNames).toEqual(expectedProgramNames)
+    expect(editedProgramsContents).toEqual(expectedProgramsContents)
 
     await dismissModal(this.page)
   }
@@ -691,10 +695,9 @@ export class AdminPrograms {
   }
 
   /**
-   * Edit note clicks the edit button, sets the note content to the provided
-   * text, and confirms the dialog.
+   * Clicks the edit note button, and returns the modal.
    */
-  async editNote(noteContent: string) {
+  async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
     await this.applicationFrameLocator()
       .locator(this.editNoteSelector())
       .click()
@@ -703,7 +706,15 @@ export class AdminPrograms {
     if (!frame) {
       throw new Error('Expected an application frame')
     }
-    const editModal = await waitForAnyModal(frame)
+    return await waitForAnyModal(frame)
+  }
+
+  /**
+   * Clicks the edit note button, sets the note content to the provided text,
+   * and confirms the dialog.
+   */
+  async editNote(noteContent: string) {
+    const editModal = await this.awaitEditNoteModal()
     const noteContentArea = (await editModal.$('textarea'))!
     await noteContentArea.fill(noteContent)
 

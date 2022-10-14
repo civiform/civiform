@@ -14,10 +14,10 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders a date question. */
-public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class DateQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public DateQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
   }
 
   @Override
@@ -26,11 +26,10 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =
@@ -41,7 +40,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
                 params.messages(),
                 validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds);
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       dateField.forceAriaInvalid();
     }
     if (dateQuestion.getDateValue().isPresent()) {

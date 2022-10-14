@@ -23,7 +23,15 @@ public abstract class ValidationErrorMessage {
 
   public abstract ImmutableList<Object> args();
 
+  public boolean isRequiredError() {
+    return key().equals(MessageKey.VALIDATION_REQUIRED);
+  }
+
   public String getMessage(Messages messages) {
-    return messages.at(key().getKeyName(), args().toArray());
+    String prefix = "";
+    if (key().equals(MessageKey.VALIDATION_REQUIRED)) {
+      prefix = "*";
+    }
+    return prefix + messages.at(key().getKeyName(), args().toArray());
   }
 }

@@ -17,7 +17,6 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.Styles;
 
 /** Renders a page for editing the name and description of a program. */
 public final class ProgramEditView extends ProgramFormBuilder {
@@ -73,7 +72,7 @@ public final class ProgramEditView extends ProgramFormBuilder {
         .setId("manage-questions-link")
         .setHref(manageQuestionLink)
         .setText("Manage Questions →")
-        .setStyles(Styles.MX_4, Styles.FLOAT_RIGHT)
+        .setStyles("mx-4", "float-right")
         .asAnchorText();
   }
 }

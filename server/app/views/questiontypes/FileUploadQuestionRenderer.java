@@ -15,7 +15,6 @@ import services.applicant.question.FileUploadQuestion;
 import views.FileUploadViewStrategy;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /**
  * Renders a file upload question.
@@ -23,7 +22,7 @@ import views.style.Styles;
  * <p>A file upload question requires a different form. See {@code
  * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlock}.
  */
-public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer {
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final FileUploadQuestion fileUploadQuestion;
   // The ID used to associate the file input field with its screen reader label.
@@ -44,27 +43,24 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public FileUploadQuestionRenderer(
       ApplicantQuestion question, FileUploadViewStrategy fileUploadViewStrategy) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
     this.fileUploadQuestion = question.createFileUploadQuestion();
     this.fileUploadViewStrategy = fileUploadViewStrategy;
     this.fileInputId = RandomStringUtils.randomAlphabetic(8);
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
+    boolean hasErrors = !validationErrors.isEmpty();
     return div()
         .with(
-            label()
-                .withFor(fileInputId)
-                .withClass(Styles.SR_ONLY)
-                .withText(question.getQuestionText()))
+            label().withFor(fileInputId).withClass("sr-only").withText(question.getQuestionText()))
         .with(
             fileUploadViewStrategy.signedFileUploadFields(
-                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasQuestionErrors));
+                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors));
   }
 
   @Override

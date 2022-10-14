@@ -26,7 +26,6 @@ import views.components.Icons;
 import views.components.ProgramCardFactory;
 import views.components.ProgramCardFactory.ProgramCardData;
 import views.style.AdminStyles;
-import views.style.Styles;
 
 /** Renders a page for program admins to view programs they administer. */
 public final class ProgramAdministratorProgramListView extends BaseHtmlView {
@@ -56,9 +55,9 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
     String title = "Your programs";
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_20)
+            .withClasses("px-20")
             .with(
-                h1(title).withClasses(Styles.MY_4),
+                h1(title).withClasses("my-4"),
                 each(
                     programs.getActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))

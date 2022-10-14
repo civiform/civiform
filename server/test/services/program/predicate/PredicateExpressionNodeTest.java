@@ -70,7 +70,10 @@ public class PredicateExpressionNodeTest {
             question.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
 
     assertThat(PredicateExpressionNode.create(leaf).toDisplayString(ImmutableList.of(question)))
-        .isEqualTo(question.getName() + "'s city is equal to \"Seattle\"");
+        .isEqualTo(
+            String.format(
+                "question with an admin ID of \"%s\"'s city is equal to \"Seattle\"",
+                question.getName()));
   }
 
   @Test
@@ -92,10 +95,10 @@ public class PredicateExpressionNodeTest {
 
     assertThat(node.toDisplayString(ImmutableList.of(question)))
         .isEqualTo(
-            question.getName()
-                + "'s number is greater than 45 and "
-                + question.getName()
-                + "'s number is less than or equal to 72");
+            String.format(
+                "question with an admin ID of \"%s\"'s number is greater than 45 and question with"
+                    + " an admin ID of \"%s\"'s number is less than or equal to 72",
+                question.getName(), question.getName()));
   }
 
   @Test
@@ -124,9 +127,9 @@ public class PredicateExpressionNodeTest {
 
     assertThat(node.toDisplayString(ImmutableList.of(multiOption, date)))
         .isEqualTo(
-            multiOption.getName()
-                + "'s selection is one of [chocolate, strawberry] or "
-                + date.getName()
-                + "'s date is earlier than 2021-01-01");
+            String.format(
+                "question with an admin ID of \"%s\"'s selection is one of [chocolate, strawberry]"
+                    + " or question with an admin ID of \"%s\"'s date is earlier than 2021-01-01",
+                multiOption.getName(), date.getName()));
   }
 }

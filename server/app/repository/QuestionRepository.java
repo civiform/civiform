@@ -28,7 +28,7 @@ import services.question.types.QuestionDefinitionBuilder;
  * QuestionRepository performs complicated operations on {@link Question} that often involve other
  * EBean models or asynchronous handling.
  */
-public class QuestionRepository {
+public final class QuestionRepository {
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
@@ -195,7 +195,7 @@ public class QuestionRepository {
                 (q1, q2) -> q1.getId() > q2.getId() ? q1 : q2));
   }
 
-  private static class ConflictDetector {
+  private static final class ConflictDetector {
     private Optional<Question> conflictedQuestion = Optional.empty();
     private final Optional<Long> enumeratorId;
     private final String questionPathSegment;

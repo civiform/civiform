@@ -20,9 +20,6 @@ button.logout=Logout
 label.selectLanguage=Please select your preferred language.
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-content.applicantInformation=Applicant Information
-
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
 # Message displayed before the support email address in the page footer for applicants.
@@ -44,6 +41,9 @@ validation.isRequired=This question is required.
 
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Please enter valid input.
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -126,6 +126,10 @@ button.apply=Apply
 button.applySr=Apply to {0}
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Edit
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=Edit submitted application to {0}
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=Continue application to {0}
 
 # Text describing the date the application was last submitted.
 content.submittedDate=Submitted {0}
@@ -147,6 +151,9 @@ link.programDetailsSr=Program details for {0}
 # Link text to an external site to read more about a program.
 link.externalLink=External site
 
+# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
+link.externalLinkOpensInNewTab=Opens in a new tab
+
 # The title of the page for the list of programs.
 title.programs=Programs & services
 
@@ -158,9 +165,6 @@ title.activeProgramsUpdated=Not started
 
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Submitted
-
-# Screen reader format string for program cards
-title.programCard=Program {0} of {1} -- {2}
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}

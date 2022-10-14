@@ -6,7 +6,7 @@ import javax.inject.Inject;
 import repository.VersionRepository;
 
 /** Utility class for checking Request parameters. */
-class RequestChecker {
+final class RequestChecker {
   private VersionRepository versionRepository;
 
   @Inject

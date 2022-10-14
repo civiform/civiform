@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfileData;
 import com.google.common.collect.ImmutableMap;
+import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import com.typesafe.config.Config;
 import java.net.URI;
@@ -16,6 +17,7 @@ import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.util.CommonHelper;
 import org.pac4j.core.util.HttpActionHelper;
+import org.pac4j.core.util.generator.ValueGenerator;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 
@@ -36,15 +38,18 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
-  private final Optional<String> postLogoutRedirectParam;
-  private final ImmutableMap<String, String> extraParams;
+  private String postLogoutRedirectParam;
+  private ImmutableMap<String, String> extraParams;
+  private Optional<ValueGenerator> stateGenerator = Optional.empty();
 
   public CiviformOidcLogoutActionBuilder(
       Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientID) {
     super(oidcConfiguration);
     checkNotNull(civiformConfiguration);
+    // Use `post_logout_redirect_uri` by default according OIDC spec.
     this.postLogoutRedirectParam =
-        getConfigurationValue(civiformConfiguration, "auth.oidc_post_logout_param");
+        getConfigurationValue(civiformConfiguration, "auth.oidc_post_logout_param")
+            .orElse("post_logout_redirect_uri");
     Optional<String> clientIdParam =
         getConfigurationValue(civiformConfiguration, "auth.oidc_logout_client_id_param");
 
@@ -63,6 +68,40 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     return Optional.empty();
   }
 
+  public Optional<ValueGenerator> getStateGenerator() {
+    return stateGenerator;
+  }
+
+  /**
+   * If the OIDC provider requires the optional state param for logout (see
+   * https://openid.net/specs/openid-connect-rpinitiated-1_0.html), set a state generator here. Note
+   * that the state is not saved and validated by the client, so it does not achive the goal of
+   * "maintain state between the logout request and the callback" as specified by the spec.
+   */
+  public CiviformOidcLogoutActionBuilder setStateGenerator(final ValueGenerator stateGenerator) {
+    this.stateGenerator = Optional.of(stateGenerator);
+    return this;
+  }
+
+  /**
+   * Additional url params to add to logout request. Some identity providers require including
+   * client_id for example.
+   */
+  public CiviformOidcLogoutActionBuilder setExtraParams(ImmutableMap<String, String> extraParams) {
+    this.extraParams = extraParams;
+    return this;
+  }
+
+  /**
+   * Sets param that contains uri that user will be redirected to after they are logged out from the
+   * auth provider. In OIDC spec it should be `post_logout_redirect_uri` but some providers use
+   * different value.
+   */
+  public CiviformOidcLogoutActionBuilder setPostLogoutRedirectParam(String param) {
+    this.postLogoutRedirectParam = param;
+    return this;
+  }
+
   /**
    * Override the parent's getLogoutAction, since it checks that the profile is an instance of
    * OidcProfile, and uses fields we don't have access to. Generally keeps the same basic logic.
@@ -76,12 +115,19 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     if (CommonHelper.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
       try {
         URI endSessionEndpoint = new URI(logoutUrl);
+        // Optional state param for logout is only needed by certain OIDC providers.
+        State state = null;
+        if (getStateGenerator().isPresent()) {
+          state = new State(getStateGenerator().get().generateValue(context, sessionStore));
+        }
+
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
                 endSessionEndpoint,
-                postLogoutRedirectParam.orElse(null),
+                postLogoutRedirectParam,
                 new URI(targetUrl),
-                extraParams);
+                extraParams,
+                state);
 
         return Optional.of(
             HttpActionHelper.buildRedirectUrlAction(context, logoutRequest.toURI().toString()));
