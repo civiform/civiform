@@ -3,7 +3,7 @@
 # DOC: Run the browser tests locally. Requires browser test env already running.
 
 source bin/lib.sh
-export BASE_URL=http://localhost:9999
+export BASE_URL="https://staging-mikita.civiform.dev"
 export DISABLE_SCREENSHOTS=true
 export TEST_USER_AUTH_STRATEGY=fake-oidc
 export TEST_USER_LOGIN=testuser
@@ -34,7 +34,9 @@ done
 
 echo "Detected server start"
 
-npm test "$@"
+# If test fails - don't abort script. Allow eslint below to run in case it can
+# provide useful findings about code.
+npm test "$@" || true
 
 echo -e "\nRunning eslint..."
 npx eslint --cache "src/**/*.ts"
