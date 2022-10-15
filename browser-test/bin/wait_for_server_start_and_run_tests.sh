@@ -34,3 +34,7 @@ if (($debug == 1)); then
 else
   BASE_URL="${SERVER_URL}" npm test "$@"
 fi
+
+echo -e "\nRunning eslint..."
+npx eslint --cache "src/**/*.ts"
+echo "Done!"

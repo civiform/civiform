@@ -14,6 +14,7 @@ bin/pull-image
 # The display name returned by test_oidc_provider.js is <username>@example.com.
 docker run --rm -it \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
+  -v "$(pwd)/formatter:/usr/src/formatter" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   -e TEST_USER_AUTH_STRATEGY="fake-oidc" \
   -e TEST_USER_LOGIN="testuser" \

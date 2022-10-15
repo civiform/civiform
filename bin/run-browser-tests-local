@@ -20,7 +20,8 @@ if ! output="$(node -v)"; then
   exit 1
 fi
 
-npm install --force --prefix browser-test --quiet
+cd browser-test
+npm install --force --quiet
 
 echo "Polling to check server start"
 
@@ -33,4 +34,8 @@ done
 
 echo "Detected server start"
 
-npm test --prefix browser-test "$@"
+npm test "$@"
+
+echo -e "\nRunning eslint..."
+npx eslint --cache "src/**/*.ts"
+echo "Done!"

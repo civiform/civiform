@@ -527,10 +527,11 @@ export const extractEmailsForRecipient = async function (
   }
   const originalPageUrl = page.url()
   await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
-  const responseJson = JSON.parse(await page.innerText('body')) as any
+  const response = JSON.parse(await page.innerText('body')) as {
+    messages: LocalstackSesEmail[]
+  }
 
-  const allEmails = responseJson.messages as LocalstackSesEmail[]
-  const filteredEmails = allEmails.filter((email) => {
+  const filteredEmails = response.messages.filter((email) => {
     return email.Destination.ToAddresses.includes(recipientEmail)
   })
 
