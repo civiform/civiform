@@ -11,7 +11,7 @@ describe('applicant security', () => {
   it('applicant cannot access another applicant data', async () => {
     const {page} = ctx
     await loginAsGuest(page)
-    const response = await gotoEndpoint(page, '/applicants/1234/programs')
+    const response = await gotoEndpoint(page, '/applicantsss/1234/programs')
     expect(response!.status()).toBe(401)
   })
 

@@ -29,10 +29,12 @@ for arg; do
   set -- "$@" "$arg"
 done
 
+  # If test fails - don't abort script. Allow eslint below to run in case it can
+  # provide useful findings about code.
 if (($debug == 1)); then
-  DEBUG="pw:api" BASE_URL="${SERVER_URL}" npm test "$@"
+  DEBUG="pw:api" BASE_URL="${SERVER_URL}" npm test "$@" || true
 else
-  BASE_URL="${SERVER_URL}" npm test "$@"
+  BASE_URL="${SERVER_URL}" npm test "$@"  || true
 fi
 
 echo -e "\nRunning eslint..."
