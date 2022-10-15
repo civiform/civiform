@@ -43,16 +43,4 @@ done
 
 echo "Detected server start"
 
-debug=0
-for arg; do
-  shift
-  # if debug flag, set the var and leave it out of the forwarded args list
-  [ "$arg" = "--debug" ] && debug=1 && continue
-  set -- "$@" "$arg"
-done
-
-if (($debug == 1)); then
-  DEBUG="pw:api" npm test "$@"
-else
-  npm test "$@"
-fi
+npm test "$@"
