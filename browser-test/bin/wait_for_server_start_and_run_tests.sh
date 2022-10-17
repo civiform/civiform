@@ -22,6 +22,8 @@ if ! output="$(node -v)"; then
 fi
 
 # Sanity check that this script was called from within browser-test directory.
+# This is done by checking whether the current directory looks like browser-test:
+# it should contains image_snapshots subdirectory.
 if [ ! -d "image_snapshots" ]; then
   echo output
   echo "$(basename "$0") must be run from within browser-test directory."
