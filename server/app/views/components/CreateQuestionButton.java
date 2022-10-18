@@ -24,7 +24,7 @@ public final class CreateQuestionButton {
         button("Create new question")
             .withId(parentId)
             .withType("button")
-            .withClass(AdminStyles.PRIMARY_BUTTON_STYLES);
+            .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);
     DivTag dropdown =
         div()
             .withId(dropdownId)
