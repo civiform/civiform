@@ -30,7 +30,7 @@ for arg; do
 done
 
 if (($debug == 1)); then
-  DEBUG="pw:api" BASE_URL="${SERVER_URL}" npm test "$@"
+  DEBUG="pw:api" BASE_URL="${SERVER_URL}" npm test -- "$@"
 else
-  BASE_URL="${SERVER_URL}" npm test "$@"
+  BASE_URL="${SERVER_URL}" npm test -- "$@"
 fi
