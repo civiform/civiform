@@ -45,4 +45,4 @@ done
 
 echo "Detected server start"
 
-npm test "$@"
+npm test -- "$@"

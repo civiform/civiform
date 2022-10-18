@@ -7,7 +7,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -33,6 +32,7 @@ import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -181,11 +181,13 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     ret.with(
         renderBlockList(
             request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+
     ret.with(
-        submitButton("Add Screen")
+        ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
+            .withType("submit")
             .withId("add-block-button")
-            .withForm(CREATE_BLOCK_FORM_ID)
-            .withClasses("m-4"));
+            .withForm(CREATE_BLOCK_FORM_ID));
     return ret;
   }
 
@@ -320,27 +322,28 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     buttons.with(blockDescriptionModalButton);
     if (blockDefinitionIsEnumerator) {
       buttons.with(
-          submitButton("Create Repeated Screen")
+          button("Create repeated screen")
+              .withType("submit")
               .withId("create-repeated-block-button")
-              .withForm(CREATE_REPEATED_BLOCK_FORM_ID));
+              .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
+              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
     }
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?
     if (program.blockDefinitions().size() > 1) {
       buttons.with(div().withClass("flex-grow"));
       buttons.with(
-          submitButton("Delete Screen")
+          ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
+              .withType("submit")
               .withId("delete-block-button")
               .withForm(DELETE_BLOCK_FORM_ID)
               .withCondDisabled(!canDelete)
               .withCondTitle(
                   !canDelete, "A screen can only be deleted when it has no repeated screens.")
               .withClasses(
+                  AdminStyles.SECONDARY_BUTTON_STYLES,
                   "mx-4",
                   "my-1",
-                  "bg-red-500",
-                  StyleUtils.hover("bg-red-700"),
-                  "inline",
                   StyleUtils.disabled("opacity-50")));
     }
 
@@ -376,14 +379,18 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         predicate.isEmpty()
             ? "This screen is always shown."
             : predicate.get().toDisplayString(blockName, questions);
+
+    ButtonTag editScreenButton =
+        ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+            .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
     return div()
         .withClasses("m-4")
         .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
         .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"))
         .with(
-            redirectButton(
-                ReferenceClasses.EDIT_PREDICATE_BUTTON,
-                "Edit visibility condition",
+            asRedirectElement(
+                editScreenButton,
                 routes.AdminProgramBlockPredicatesController.edit(programId, blockId).url()));
   }
 
@@ -572,7 +579,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       QuestionDefinition questionDefinition,
       boolean canRemove) {
     ButtonTag removeButton =
-        TagCreator.button(text("DELETE"))
+        ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
             .withType("submit")
             .withId("block-question-" + questionDefinition.getId())
             .withName("questionDefinitionId")
@@ -582,7 +589,10 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 !canRemove,
                 "An enumerator question can only be removed from the screen when the screen has no"
                     + " repeated screens.")
-            .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, canRemove ? "" : "opacity-50");
+            .withClasses(
+                ReferenceClasses.REMOVE_QUESTION_BUTTON,
+                AdminStyles.SECONDARY_BUTTON_STYLES,
+                canRemove ? "" : "opacity-50");
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
@@ -623,7 +633,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
   private Modal blockDescriptionModal(
       InputTag csrfTag, BlockForm blockForm, String blockUpdateAction) {
     String modalTitle = "Screen name and description";
-    String modalButtonText = "Edit screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
     blockDescriptionForm
@@ -650,9 +659,12 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 .withClasses(
                     "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
                 .isDisabled());
+    ButtonTag editScreenButton =
+        ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
     return Modal.builder("block-description-modal", blockDescriptionForm)
         .setModalTitle(modalTitle)
-        .setTriggerButtonText(modalButtonText)
+        .setTriggerButtonContent(editScreenButton)
         .setWidth(Modal.Width.THIRD)
         .build();
   }
