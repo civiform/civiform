@@ -231,7 +231,6 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 
 export const logout = async (page: Page) => {
   await page.click('text=Logout')
-  console.log(page.url())
   if (page.url().match('fake-idcs.*/session/end')) {
     const pageContent = await page.textContent('html')
     if (pageContent!.includes('Do you want to sign-out from')) {
