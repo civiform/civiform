@@ -17,14 +17,18 @@ import views.style.StyleUtils;
  */
 public final class CreateQuestionButton {
   /** Renders the "Create new question" button with a dropdown for each question type. */
-  public static DivTag renderCreateQuestionButton(String questionCreateRedirectUrl) {
+  public static DivTag renderCreateQuestionButton(
+      String questionCreateRedirectUrl, boolean isPrimaryButton) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
         button("Create new question")
             .withId(parentId)
             .withType("button")
-            .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);
+            .withClass(
+                isPrimaryButton
+                    ? AdminStyles.PRIMARY_BUTTON_STYLES
+                    : AdminStyles.SECONDARY_BUTTON_STYLES);
     DivTag dropdown =
         div()
             .withId(dropdownId)
