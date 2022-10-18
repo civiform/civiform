@@ -231,14 +231,13 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 
 export const logout = async (page: Page) => {
   await page.click('text=Logout')
-  try {
-    const pageContent = await page.textContent('html', {timeout: 100})
+  console.log(page.url())
+  if (page.url().match('fake-idcs.*/session/end')) {
+    const pageContent = await page.textContent('html')
     if (pageContent!.includes('Do you want to sign-out from')) {
       // OIDC central provider confirmation page
       await page.click('button:has-text("Yes")')
     }
-  } catch (e) {
-    console.log(`failed to load logout page`)
   }
 
   // Logout is handled by the play framework so it doesn't land on a
