@@ -24,7 +24,10 @@ import sys
 def shell_cmd(command_string, timeout=None):
     try:
         process = subprocess.run(
-            shlex.split(command_string), check=True, capture_output=True, timeout=timeout)
+            shlex.split(command_string),
+            check=True,
+            capture_output=True,
+            timeout=timeout)
     except subprocess.CalledProcessError as e:
         print(f'Failed to run {command_string}.\nError: {e.stderr}')
         raise
