@@ -231,7 +231,7 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 
 export const logout = async (page: Page) => {
   await page.click('text=Logout')
-  // If user logged through OIDC previous - during logout page they are
+  // If the user logged in through OIDC previously - during logout they are
   // redirected to fake-idcs:PORT/session/end page. There they need to confirm
   // logout.
   if (page.url().match('fake-idcs.*/session/end')) {
