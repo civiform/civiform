@@ -30,7 +30,6 @@ import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
@@ -94,7 +93,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                             new LinkElement()
                                 .setText("(edit default)")
                                 .setHref(programDetailsLink)
-                                .setStyles(Styles.ML_2)
+                                .setStyles("ml-2")
                                 .asAnchorText()),
                     ImmutableList.of(
                         fieldWithDefaultLocaleTextHint(
@@ -163,7 +162,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                         new LinkElement()
                             .setText("(edit default)")
                             .setHref(programStatusesLink)
-                            .setStyles(Styles.ML_2)
+                            .setStyles("ml-2")
                             .asAnchorText()),
                 fieldsBuilder.build()));
       }

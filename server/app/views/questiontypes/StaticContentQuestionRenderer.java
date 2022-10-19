@@ -7,7 +7,6 @@ import j2html.tags.specialized.DivTag;
 import services.applicant.question.ApplicantQuestion;
 import views.components.TextFormatter;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /** This renders the question text as formatted text. */
 public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer {
@@ -26,11 +25,11 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
   public DivTag render(ApplicantQuestionRendererParams params) {
     DivTag questionTextDiv =
         div()
-            .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, Styles.MB_2, Styles.FONT_NORMAL)
+            .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, "mb-2", "font-normal")
             .with(TextFormatter.formatText(question.getQuestionText(), false));
     return div()
         .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.MB_8, this.getReferenceClass())
+        .withClasses("mx-auto", "mb-8", this.getReferenceClass())
         .with(questionTextDiv);
   }
 }

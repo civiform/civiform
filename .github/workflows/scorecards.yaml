@@ -17,17 +17,19 @@ jobs:
     permissions:
       # Needed to upload the results to code-scanning dashboard.
       security-events: write
+      # Used to receive a badge
+      id-token: write
       actions: read
       contents: read
 
     steps:
       - name: 'Checkout code'
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
         with:
           persist-credentials: false
 
       - name: 'Run analysis'
-        uses: ossf/scorecard-action@v1.1.2
+        uses: ossf/scorecard-action@v2.0.6
         with:
           results_file: results.sarif
           results_format: sarif
@@ -50,6 +52,6 @@ jobs:
 
       # Upload the results to GitHub's code scanning dashboard.
       - name: 'Upload to code-scanning'
-        uses: github/codeql-action/upload-sarif@v2.1.22
+        uses: github/codeql-action/upload-sarif@v2.1.28
         with:
           sarif_file: results.sarif

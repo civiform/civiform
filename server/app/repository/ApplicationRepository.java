@@ -176,7 +176,7 @@ public final class ApplicationRepository {
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
   // Not useful in the API, not needed more broadly.
-  private static class ApplicationArguments {
+  private static final class ApplicationArguments {
     public Program program;
     public Applicant applicant;
 
@@ -247,10 +247,12 @@ public final class ApplicationRepository {
           return database
               .find(Application.class)
               .where()
+              .eq("applicant.id", applicantId)
               .isIn("lifecycle_stage", stages)
               .query()
               // Eagerly fetch the program in a SQL join.
               .fetch("program")
+              .fetch("applicationEvents")
               .findSet()
               .stream()
               .collect(ImmutableSet.toImmutableSet());

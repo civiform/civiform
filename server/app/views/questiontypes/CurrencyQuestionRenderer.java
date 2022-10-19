@@ -12,12 +12,11 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
-public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public CurrencyQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
   }
 
   @Override
@@ -26,11 +25,10 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
     FieldWithLabel currencyField =
@@ -43,7 +41,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
                 validationErrors.getOrDefault(
                     currencyQuestion.getCurrencyPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds);
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       currencyField.forceAriaInvalid();
     }
     if (currencyQuestion.getCurrencyValue().isPresent()) {
@@ -57,18 +55,18 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
         div()
             .withText("$")
             .withClasses(
-                Styles.FLEX,
-                Styles.ITEMS_CENTER,
+                "flex",
+                "items-center",
                 // Same height and padding as the input field.
-                Styles.H_12,
-                Styles.MB_2,
+                "h-12",
+                "mb-2",
                 // Pad the right side.
-                Styles.MR_2,
+                "mr-2",
                 // Same text as the input field.
-                Styles.TEXT_LG);
+                "text-lg");
 
     DivTag currencyQuestionFormContent =
-        div().withClasses(Styles.FLEX).with(dollarSign).with(currencyField.getCurrencyTag());
+        div().withClasses("flex").with(dollarSign).with(currencyField.getCurrencyTag());
 
     return currencyQuestionFormContent;
   }

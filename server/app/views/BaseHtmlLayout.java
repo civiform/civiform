@@ -5,6 +5,7 @@ import static j2html.TagCreator.meta;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import j2html.tags.specialized.ScriptTag;
@@ -12,6 +13,8 @@ import java.net.URI;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.components.ToastMessage;
+
+// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
 
 /**
  * Base class for all layout classes.
@@ -24,6 +27,7 @@ public class BaseHtmlLayout {
   private final String civiformImageTag;
   private final String civiformFaviconUrl;
 
+  private static final String CIVIFORM_TITLE = "CiviForm";
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
   private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast"};
   private static final String BANNER_TEXT =
@@ -106,7 +110,17 @@ public class BaseHtmlLayout {
    * page.
    */
   public Content render(HtmlBundle bundle) {
+    String currentTitle = bundle.getTitle();
+    if (Strings.isNullOrEmpty(currentTitle)) {
+      bundle.setTitle(getTitleSuffix());
+    } else {
+      bundle.setTitle(String.format("%s — %s", currentTitle, getTitleSuffix()));
+    }
     return bundle.render();
+  }
+
+  protected String getTitleSuffix() {
+    return CIVIFORM_TITLE;
   }
 
   /** Creates Google Analytics scripts for the site. */

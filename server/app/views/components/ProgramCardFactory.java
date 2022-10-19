@@ -14,23 +14,21 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import javax.inject.Inject;
-import services.DateConverter;
 import services.program.ProgramDefinition;
 import views.ViewUtils;
 import views.ViewUtils.BadgeStatus;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Responsible for generating a program card for view by CiviForm admins / program admins. */
 public final class ProgramCardFactory {
 
-  private final DateConverter dateConverter;
+  private final ViewUtils viewUtils;
 
   @Inject
-  public ProgramCardFactory(DateConverter dateConverter) {
-    this.dateConverter = checkNotNull(dateConverter);
+  public ProgramCardFactory(ViewUtils viewUtils) {
+    this.viewUtils = checkNotNull(viewUtils);
   }
 
   public DivTag renderCard(ProgramCardData cardData) {
@@ -52,50 +50,41 @@ public final class ProgramCardFactory {
               renderProgramRow(
                   /* isActive = */ true,
                   cardData.activeProgram().get(),
-                  cardData.draftProgram().isPresent() ? Styles.BORDER_T : ""));
+                  cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
     DivTag titleAndStatus =
         div()
-            .withClass(Styles.FLEX)
+            .withClass("flex")
             .with(
                 div()
-                    .withClasses(Styles.W_1_3, Styles.PY_7)
+                    .withClasses("w-1/3", "py-7")
                     .with(
                         p(programTitleText)
                             .withClasses(
                                 ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
-                                Styles.TEXT_BLACK,
-                                Styles.FONT_BOLD,
-                                Styles.TEXT_XL),
+                                "text-black",
+                                "font-bold",
+                                "text-xl"),
                         p(programDescriptionText)
-                            .withClasses(
-                                Styles.LINE_CLAMP_2, Styles.TEXT_GRAY_700, Styles.TEXT_BASE)),
+                            .withClasses("line-clamp-2", "text-gray-700", "text-base")),
                 statusDiv.withClasses(
-                    Styles.FLEX_GROW,
-                    Styles.TEXT_SM,
-                    StyleUtils.responsiveLarge(Styles.TEXT_BASE)));
+                    "flex-grow", "text-sm", StyleUtils.responsiveLarge("text-base")));
 
     return div()
         .withClasses(
             ReferenceClasses.ADMIN_PROGRAM_CARD,
-            Styles.W_FULL,
-            Styles.MY_4,
-            Styles.PL_6,
-            Styles.BORDER,
-            Styles.BORDER_GRAY_300,
-            Styles.ROUNDED_LG)
+            "w-full",
+            "my-4",
+            "pl-6",
+            "border",
+            "border-gray-300",
+            "rounded-lg")
         .with(titleAndStatus)
         .condWith(
             !adminNoteText.isBlank(),
-            p().withClasses(
-                    Styles.W_3_4,
-                    Styles.MB_8,
-                    Styles.PT_4,
-                    Styles.LINE_CLAMP_3,
-                    Styles.TEXT_GRAY_700,
-                    Styles.TEXT_BASE)
-                .with(span("Admin note: ").withClasses(Styles.FONT_SEMIBOLD), span(adminNoteText)));
+            p().withClasses("w-3/4", "mb-8", "pt-4", "line-clamp-3", "text-gray-700", "text-base")
+                .with(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText)));
   }
 
   private DivTag renderProgramRow(
@@ -107,11 +96,6 @@ public final class ProgramCardFactory {
       updatedPrefix = "Published on ";
     }
 
-    String formattedUpdateTime =
-        updatedTime.map(t -> dateConverter.renderDateTime(t)).orElse("unknown");
-    String formattedUpdateDate =
-        updatedTime.map(t -> dateConverter.renderDate(t)).orElse("unknown");
-
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();
 
@@ -122,64 +106,53 @@ public final class ProgramCardFactory {
             .withClasses(
                 AdminStyles.TERTIARY_BUTTON_STYLES,
                 ReferenceClasses.WITH_DROPDOWN,
-                Styles.H_12,
-                programRow.extraRowActions().size() == 0 ? Styles.INVISIBLE : "");
+                "h-12",
+                programRow.extraRowActions().size() == 0 ? "invisible" : "");
 
     PTag badge =
         ViewUtils.makeBadge(
             isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
-            Styles.ML_2,
-            StyleUtils.responsiveXLarge(Styles.ML_8));
+            "ml-2",
+            StyleUtils.responsiveXLarge("ml-8"));
     return div()
         .withClasses(
-            Styles.PY_7,
-            Styles.FLEX,
-            Styles.FLEX_ROW,
-            StyleUtils.hover(Styles.BG_GRAY_100),
+            "py-7",
+            "flex",
+            "flex-row",
+            StyleUtils.hover("bg-gray-100"),
             StyleUtils.joinStyles(extraStyles))
         .with(
             badge,
             div()
-                .withClasses(Styles.ML_4, StyleUtils.responsiveXLarge(Styles.ML_10))
+                .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
                 .with(
+                    viewUtils.renderEditOnText(updatedPrefix, updatedTime),
                     p().with(
-                            span(updatedPrefix),
-                            span(formattedUpdateTime)
-                                .withClasses(
-                                    Styles.FONT_SEMIBOLD,
-                                    Styles.HIDDEN,
-                                    StyleUtils.responsiveLarge(Styles.INLINE)),
-                            span(formattedUpdateDate)
-                                .withClasses(
-                                    Styles.FONT_SEMIBOLD,
-                                    StyleUtils.responsiveLarge(Styles.HIDDEN))),
-                    p().with(
-                            span(String.format("%d", blockCount)).withClass(Styles.FONT_SEMIBOLD),
+                            span(String.format("%d", blockCount)).withClass("font-semibold"),
                             span(blockCount == 1 ? " screen, " : " screens, "),
-                            span(String.format("%d", questionCount))
-                                .withClass(Styles.FONT_SEMIBOLD),
+                            span(String.format("%d", questionCount)).withClass("font-semibold"),
                             span(questionCount == 1 ? " question" : " questions"))),
-            div().withClass(Styles.FLEX_GROW),
+            div().withClass("flex-grow"),
             div()
-                .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.PR_6, Styles.FONT_MEDIUM)
+                .withClasses("flex", "space-x-2", "pr-6", "font-medium")
                 .with(programRow.rowActions())
                 .with(
                     div()
-                        .withClass(Styles.RELATIVE)
+                        .withClass("relative")
                         .with(
                             extraActionsButton,
                             div()
                                 .withId(extraActionsButtonId + "-dropdown")
                                 .withClasses(
-                                    Styles.HIDDEN,
-                                    Styles.FLEX,
-                                    Styles.FLEX_COL,
-                                    Styles.BORDER,
-                                    Styles.BG_WHITE,
-                                    Styles.ABSOLUTE,
-                                    Styles.RIGHT_0,
-                                    Styles.W_56,
-                                    Styles.Z_50)
+                                    "hidden",
+                                    "flex",
+                                    "flex-col",
+                                    "border",
+                                    "bg-white",
+                                    "absolute",
+                                    "right-0",
+                                    "w-56",
+                                    "z-50")
                                 .with(programRow.extraRowActions()))));
   }
 

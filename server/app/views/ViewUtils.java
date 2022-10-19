@@ -15,18 +15,24 @@ import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.ScriptTag;
+import java.time.Instant;
+import java.util.Optional;
 import javax.inject.Inject;
+import services.DateConverter;
 import views.components.Icons;
 import views.style.BaseStyles;
-import views.style.Styles;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /** Utility class for accessing stateful view dependencies. */
 public final class ViewUtils {
   private final AssetsFinder assetsFinder;
+  private final DateConverter dateConverter;
 
   @Inject
-  ViewUtils(AssetsFinder assetsFinder) {
+  ViewUtils(AssetsFinder assetsFinder, DateConverter dateConverter) {
     this.assetsFinder = checkNotNull(assetsFinder);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -76,10 +82,10 @@ public final class ViewUtils {
     return button()
         .with(
             Icons.svg(icon)
-                .withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0)
+                .withClasses("ml-1", "inline-block", "shrink-0")
                 // Can't set 18px using Tailwind CSS classes.
                 .withStyle("width: 18px; height: 18px;"),
-            span(buttonText).withClass(Styles.TEXT_LEFT));
+            span(buttonText).withClass("text-left"));
   }
 
   public static enum BadgeStatus {
@@ -110,18 +116,44 @@ public final class ViewUtils {
     return p().withClasses(
             badgeBGColor,
             badgeFillColor,
-            Styles.FONT_MEDIUM,
-            Styles.ROUNDED_FULL,
-            Styles.FLEX,
-            Styles.FLEX_ROW,
-            Styles.GAP_X_2,
-            Styles.PLACE_ITEMS_CENTER,
-            Styles.JUSTIFY_CENTER,
-            Styles.H_10,
+            "font-medium",
+            "rounded-full",
+            "flex",
+            "flex-row",
+            "gap-x-2",
+            "place-items-center",
+            "justify-center",
+            "h-10",
             Joiner.on(" ").join(extraClasses))
         .withStyle("width: 100px")
         .with(
-            Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
-            span(badgeText).withClass(Styles.MR_4));
+            Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses("inline-block", "ml-3.5"),
+            span(badgeText).withClass("mr-4"));
+  }
+
+  /**
+   * Renders "Edited on YYYY/MM/DD" text for given instant. Provides responsive text that shows only
+   * date on narrow screens and both date and time on wider screens.
+   *
+   * @param prefix Text to use before the rendered date. Examples: "Edited on " or "Published on ".
+   * @param time Time to render. If time is missing then "unkown" will be rendered.
+   * @return Tag containing rendered time.
+   */
+  public PTag renderEditOnText(String prefix, Optional<Instant> time) {
+    String formattedUpdateTime = time.map(dateConverter::renderDateTime).orElse("unknown");
+    String formattedUpdateDate = time.map(dateConverter::renderDate).orElse("unknown");
+    return p().with(
+            span(prefix),
+            span(formattedUpdateTime)
+                .withClasses(
+                    ReferenceClasses.BT_DATE,
+                    "font-semibold",
+                    "hidden",
+                    StyleUtils.responsiveLarge("inline")),
+            span(formattedUpdateDate)
+                .withClasses(
+                    ReferenceClasses.BT_DATE,
+                    "font-semibold",
+                    StyleUtils.responsiveLarge("hidden")));
   }
 }

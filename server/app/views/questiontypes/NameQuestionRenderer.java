@@ -2,10 +2,10 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -16,10 +16,10 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders a name question. */
-public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
 
   public NameQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.COMPOSITE);
+    super(question);
   }
 
   @Override
@@ -28,11 +28,9 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
@@ -40,6 +38,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.input()
             .setFieldName(nameQuestion.getFirstNamePath().toString())
             .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
+            .setAutocomplete(Optional.of("given-name"))
             .setValue(nameQuestion.getFirstNameValue().orElse(""))
             .setFieldErrors(
                 messages,
@@ -50,6 +49,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.input()
             .setFieldName(nameQuestion.getMiddleNamePath().toString())
             .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
+            .setAutocomplete(Optional.of("additional-name"))
             .setValue(nameQuestion.getMiddleNameValue().orElse(""))
             .setFieldErrors(
                 messages,
@@ -60,13 +60,14 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.input()
             .setFieldName(nameQuestion.getLastNamePath().toString())
             .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
+            .setAutocomplete(Optional.of("family-name"))
             .setValue(nameQuestion.getLastNameValue().orElse(""))
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.NAME_LAST);
 
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       firstNameField.forceAriaInvalid();
       lastNameField.forceAriaInvalid();
     }

@@ -9,19 +9,19 @@ ENV PROJECT_DIR /usr/src/civiform-browser-tests
 ENV PLAYWRIGHT_BROWSERS_PATH 0
 WORKDIR $PROJECT_DIR
 
-# Copy the node (yarn) package files (package.json and yarn.lock)
+# Copy the node (npm) package files (package.json and package-lock.json)
 # and save them to the npm cache.
 # Do this before the rest of the server code, so they don't
 # get re-downloaded every time code changes.
 COPY package.json ${PROJECT_DIR}
-COPY yarn.lock ${PROJECT_DIR}
-RUN yarn install
+COPY package-lock.json ${PROJECT_DIR}
+RUN npm install --force
 RUN npx playwright install
 
 COPY . ${PROJECT_DIR}
 
 # Re-run, to install from cache after overriting it.
-RUN yarn install
+RUN npm install --force
 RUN npx playwright install
 
 ENTRYPOINT ["/bin/bash"]

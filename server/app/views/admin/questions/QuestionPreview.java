@@ -13,10 +13,9 @@ import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /** Contains methods for rendering preview of a question. */
-public class QuestionPreview {
+public final class QuestionPreview {
 
   private static DivTag buildQuestionRenderer(
       QuestionType type, Messages messages, FileUploadViewStrategy fileUploadViewStrategy)
@@ -36,20 +35,14 @@ public class QuestionPreview {
     DivTag titleContainer =
         div()
             .withId("sample-render")
-            .withClasses(
-                Styles.TEXT_GRAY_800,
-                Styles.FONT_THIN,
-                Styles.TEXT_XL,
-                Styles.MX_AUTO,
-                Styles.W_MAX,
-                Styles.MY_4)
+            .withClasses("text-gray-800", "font-thin", "text-xl", "mx-auto", "w-max", "my-4")
             .withText("Sample Question of type: ")
             .with(
                 span()
                     .withText(type.getLabel())
-                    .withClasses(ReferenceClasses.QUESTION_TYPE, Styles.FONT_SEMIBOLD));
+                    .withClasses(ReferenceClasses.QUESTION_TYPE, "font-semibold"));
 
-    DivTag renderedQuestion = div();
+    DivTag renderedQuestion;
     try {
       renderedQuestion = buildQuestionRenderer(type, messages, fileUploadViewStrategy);
     } catch (UnsupportedQuestionTypeException e) {
@@ -57,15 +50,10 @@ public class QuestionPreview {
     }
 
     DivTag innerContentContainer =
-        div(renderedQuestion)
-            .withClasses(Styles.TEXT_3XL, Styles.PL_16, Styles.PT_20, Styles.W_FULL);
+        div(renderedQuestion).withClasses("text-3xl", "pl-16", "pt-20", "w-full");
     DivTag contentContainer = div(innerContentContainer).withId("sample-question");
 
     return div(titleContainer, contentContainer)
-        .withClasses(
-            Styles.W_3_5,
-            ApplicantStyles.BODY_BG_COLOR,
-            Styles.OVERFLOW_HIDDEN,
-            Styles.OVERFLOW_Y_AUTO);
+        .withClasses("w-3/5", ApplicantStyles.BODY_BG_COLOR, "overflow-hidden", "overflow-y-auto");
   }
 }

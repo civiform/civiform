@@ -46,7 +46,7 @@ import services.program.ProgramService;
  * <p>The plaintext secret is revealed to the admin user once after creation, after which it is not
  * recoverable from CiviForm.
  */
-public class ApiKeyService {
+public final class ApiKeyService {
 
   // The cache expiration time is intended to be long enough reduce database queries from
   // authenticating API calls while being short enough that if an admin retires a key or

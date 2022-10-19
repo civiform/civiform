@@ -9,7 +9,7 @@ import java.util.Map;
  * The semantic contents of a pagination token. This class holds the state needed to fetch the next
  * page of results from a paginated API.
  */
-public class ApiPaginationTokenPayload {
+public final class ApiPaginationTokenPayload {
   private final PageSpec pageSpec;
   private final ImmutableMap<String, String> requestSpec;
 
@@ -30,7 +30,7 @@ public class ApiPaginationTokenPayload {
   }
 
   /** Holds the generic state for defining a page of results. */
-  public static class PageSpec {
+  public static final class PageSpec {
     private final String offsetIdentifier;
     private final int pageSize;
 

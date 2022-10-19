@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /** Utility class for applying styles. */
-public class StyleUtils {
+public final class StyleUtils {
   public static String EVEN = "even";
   public static String FOCUS = "focus";
   public static String FOCUS_WITHIN = "focus-within";
@@ -112,5 +112,11 @@ public class StyleUtils {
 
   public static String joinStyles(String... styles) {
     return String.join(" ", styles);
+  }
+
+  public static String removeStyles(String style, String... stylesToRemove) {
+    return Stream.of(stylesToRemove)
+        .reduce(style, (acc, styleToRemove) -> acc.replace(styleToRemove, ""))
+        .trim();
   }
 }

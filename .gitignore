@@ -1,49 +1,64 @@
-/project/
+# System & editors
+.DS_Store
+.idea/
+.project
+.vscode
+*.iml
+*.swp
+diff_output/
+
+# Test artifacts
+.log
 flakes
 logs/
-server/code-coverage/*
-.log/
-target/
-RUNNING_PID
-.Dockerfile.swp
-.idea/
-*.swp
+
+# sbt artifacts
 .bsp/
-.DS_Store
-.secrets
-node_modules
-bundle.js
-tailwind.css
-.dockerlogs
 *.pem
-*.dump
+**/.ammonite/
+**/.bloop/
+**/.data
+**/.metals/
+**/metals.sbt
+*/.classpath
+/browser-test/sbt_cache/*
+!/browser-test/sbt_cache/.keep
+sbt_cache/*
+!sbt_cache/.keep
+target/
+test-support/sbt_cache/
+
+# top-level project folder from running sbt in the wrong location
+/project/
+
+# node packages
+bundle.js
+node_modules
+
+# Terraform & docker artifacts
+.dockerlogs
+.terraform.tfstate**
+*_override.tf
+*.pyc
 *.terraform
 *.terraform.lock.hcl
 *.tfvars
-cloud/**/backend_vars
-*civiform_config.sh
-*_override.tf
-!*example.auto.tfvars
-terraform.tfstate**
-.terraform.tfstate**
-*.pyc
+*_backend_vars
+backend_vars
 terraform_plan
-*.iml
+terraform.tfstate**
+!*example.auto.tfvars
 
-sbt_cache/*
-!sbt_cache/.keep
-/browser-test/sbt_cache/*
-!/browser-test/sbt_cache/.keep
-test-support/sbt_cache/
-diff_output/
+# secrets, run files, & exports
+.secrets
+*.bkp
+*.dump
+*civiform_config.sh
+civiform_config.sh
+gh-release-token.txt
+pom.xml
+RUNNING_PID
+server/code-coverage/*
 
-*/.classpath
-*/.vscode
-*/.project
-**/.data
-**/.metals/
-**/.bloop/
-**/.ammonite/
-**/metals.sbt
-**/pom.xml
-**/gh-release-token.txt
+# Compiled css
+tailwind.css

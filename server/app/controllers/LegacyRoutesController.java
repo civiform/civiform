@@ -10,7 +10,7 @@ import play.mvc.Result;
  * Class for handling legacy routes after they have been removed between release cycles. All the
  * routes in this class should eventually be deleted.
  */
-public class LegacyRoutesController {
+public final class LegacyRoutesController {
 
   public Result idcsLoginWithRedirect(Http.Request request, Optional<String> redirectTo) {
     return redirect(routes.LoginController.applicantLogin(redirectTo));

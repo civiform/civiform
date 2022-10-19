@@ -155,7 +155,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     requestChecker.throwIfProgramNotDraft(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
-    int newPosition = -1;
+    final int newPosition;
     try {
       newPosition =
           Integer.parseInt(requestData.get(ProgramBlockEditView.MOVE_QUESTION_POSITION_FIELD));

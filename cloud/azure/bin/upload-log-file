@@ -1,7 +1,0 @@
-#! /usr/bin/env bash
-
-set -e
-
-source "cloud/azure/bin/lib.sh"
-
-azure_log::upload_log_file "$@"

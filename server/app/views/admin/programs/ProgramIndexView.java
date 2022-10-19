@@ -9,6 +9,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
@@ -20,6 +21,7 @@ import controllers.admin.routes;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LiTag;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -38,12 +40,12 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 
 /** Renders a page so the admin can view all active programs and draft programs. */
 public final class ProgramIndexView extends BaseHtmlView {
@@ -82,25 +84,25 @@ public final class ProgramIndexView extends BaseHtmlView {
     Modal demographicsCsvModal = renderDemographicsCsvModal();
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_4)
+            .withClasses("px-4")
             .with(
                 div()
-                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)
+                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
                     .with(
                         h1(pageTitle),
-                        div().withClass(Styles.FLEX_GROW),
+                        div().withClass("flex-grow"),
                         demographicsCsvModal
                             .getButton()
-                            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2),
+                            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-2"),
                         renderNewProgramButton(),
                         maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
                 div()
-                    .withClasses(Styles.MT_10, Styles.FLEX)
+                    .withClasses("mt-10", "flex")
                     .with(
-                        div().withClass(Styles.FLEX_GROW),
-                        p("Sorting my most recently updated").withClass(Styles.TEXT_SM)),
+                        div().withClass("flex-grow"),
+                        p("Sorting by most recently updated").withClass("text-sm")),
                 div()
-                    .withClass(Styles.MT_6)
+                    .withClass("mt-6")
                     .with(
                         each(
                             programs.getProgramNames().stream()
@@ -138,7 +140,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     String downloadActionText = "Download Exported Data (CSV)";
     DivTag downloadDemographicCsvModalContent =
         div()
-            .withClasses(Styles.PX_8)
+            .withClasses("px-8")
             .with(
                 form()
                     .withMethod("GET")
@@ -151,25 +153,25 @@ public final class ProgramIndexView extends BaseHtmlView {
                                 + " below to select a date range for the exported data. If you"
                                 + " select a large date range or leave it blank, the data could"
                                 + " be slow to export.")
-                            .withClass(Styles.TEXT_SM),
+                            .withClass("text-sm"),
                         fieldset()
-                            .withClasses(Styles.MT_4, Styles.PT_1, Styles.PB_2, Styles.BORDER)
+                            .withClasses("mt-4", "pt-1", "pb-2", "border")
                             .with(
-                                legend("Applications submitted").withClass(Styles.ML_3),
+                                legend("Applications submitted").withClass("ml-3"),
                                 // The field names below should be kept in sync with
                                 // AdminApplicationController.downloadDemographics.
                                 FieldWithLabel.date()
                                     .setFieldName("fromDate")
                                     .setLabelText("From:")
                                     .getDateTag()
-                                    .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
+                                    .withClasses("ml-3", "inline-flex"),
                                 FieldWithLabel.date()
                                     .setFieldName("untilDate")
                                     .setLabelText("Until:")
                                     .getDateTag()
-                                    .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
+                                    .withClasses("ml-3", "inline-flex")),
                         makeSvgTextButton(downloadActionText, Icons.DOWNLOAD)
-                            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MT_6)
+                            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "mt-6")
                             .withType("submit")));
     return Modal.builder(modalId, downloadDemographicCsvModalContent)
         .setModalTitle(downloadActionText)
@@ -197,42 +199,37 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     DivTag publishAllModalContent =
         div()
-            .withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6)
+            .withClasses("p-6", "flex-row", "space-y-6")
             .with(
                 p("Please be aware that due to the nature of shared questions and versioning,"
                         + " all questions and programs will need to be published together.")
-                    .withClass(Styles.TEXT_SM),
+                    .withClass("text-sm"),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
                     .with(
                         p(String.format("Draft questions (%d):", sortedDraftQuestions.size()))
-                            .withClass(Styles.FONT_SEMIBOLD))
-                    .condWith(sortedDraftQuestions.isEmpty(), p("None").withClass(Styles.PL_5))
+                            .withClass("font-semibold"))
+                    .condWith(sortedDraftQuestions.isEmpty(), p("None").withClass("pl-5"))
                     .condWith(
                         !sortedDraftQuestions.isEmpty(),
-                        ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                        ul().withClasses("list-disc", "list-inside")
                             .with(
-                                each(
-                                    sortedDraftQuestions,
-                                    draftQuestion -> li(draftQuestion.getName())))),
+                                each(sortedDraftQuestions, this::renderPublishModalQuestionItem))),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_PROGRAM)
                     .with(
                         p(String.format("Draft programs (%d):", sortedDraftPrograms.size()))
-                            .withClass(Styles.FONT_SEMIBOLD))
-                    .condWith(sortedDraftPrograms.isEmpty(), p("None").withClass(Styles.PL_5))
+                            .withClass("font-semibold"))
+                    .condWith(sortedDraftPrograms.isEmpty(), p("None").withClass("pl-5"))
                     .condWith(
                         !sortedDraftPrograms.isEmpty(),
-                        ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
-                            .with(
-                                each(
-                                    sortedDraftPrograms,
-                                    draftProgram -> li(draftProgram.adminName())))),
+                        ul().withClasses("list-disc", "list-inside")
+                            .with(each(sortedDraftPrograms, this::renderPublishModalProgramItem))),
                 p("Would you like to publish all draft questions and programs now?"),
                 div()
-                    .withClasses(Styles.FLEX, Styles.FLEX_ROW)
+                    .withClasses("flex", "flex-row")
                     .with(
-                        div().withClass(Styles.FLEX_GROW),
+                        div().withClass("flex-grow"),
                         button("Cancel")
                             .withClasses(
                                 ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
@@ -242,7 +239,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                             request)));
     ButtonTag publishAllButton =
         makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
-            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MY_2);
+            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "my-2");
     Modal publishAllModal =
         Modal.builder("publish-all-programs-modal", publishAllModalContent)
             .setModalTitle("All draft programs will be published")
@@ -251,12 +248,44 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of(publishAllModal);
   }
 
+  private LiTag renderPublishModalProgramItem(ProgramDefinition program) {
+    String visibilityText = "";
+    switch (program.displayMode()) {
+      case HIDDEN_IN_INDEX:
+        visibilityText = "Hidden from applicants";
+        break;
+      case PUBLIC:
+        visibilityText = "Publicly visible";
+        break;
+      default:
+        break;
+    }
+    return li().with(
+            span(program.localizedName().getDefault()).withClasses("font-medium"),
+            span(" - " + visibilityText + " "),
+            new LinkElement()
+                .setText("Edit")
+                .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
+                .asAnchorText());
+  }
+
+  private LiTag renderPublishModalQuestionItem(QuestionDefinition question) {
+    return li().with(
+            span(question.getQuestionText().getDefault()).withClasses("font-medium"),
+            span(" - "),
+            new LinkElement()
+                .setText("Edit")
+                .setHref(
+                    controllers.admin.routes.AdminQuestionController.edit(question.getId()).url())
+                .asAnchorText());
+  }
+
   private ButtonTag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
     ButtonTag button =
         makeSvgTextButton("Create new program", Icons.ADD)
             .withId("new-program-button")
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-2");
     return asRedirectElement(button, link);
   }
 
@@ -294,7 +323,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> activeRowActions = Lists.newArrayList();
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
       Optional<ButtonTag> applicationsLink =
-          maybeRenderViewApplicationsLink(activeProgram.get(), profile);
+          maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (!draftProgram.isPresent()) {
         activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
@@ -364,7 +393,9 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(
-      ProgramDefinition activeProgram, Optional<CiviFormProfile> maybeUserProfile) {
+      ProgramDefinition activeProgram,
+      Optional<CiviFormProfile> maybeUserProfile,
+      Http.Request request) {
     if (maybeUserProfile.isEmpty()) {
       return Optional.empty();
     }
@@ -373,7 +404,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // necessary.
     boolean userIsAuthorized;
     try {
-      userProfile.checkProgramAuthorization(activeProgram.adminName()).join();
+      userProfile.checkProgramAuthorization(activeProgram.adminName(), request).join();
       userIsAuthorized = true;
     } catch (CompletionException e) {
       userIsAuthorized = false;

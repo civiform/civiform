@@ -172,15 +172,6 @@ public final class Block {
   }
 
   /**
-   * Return true if any of this blocks questions are required but were skipped and left unanswered
-   * while filling out the current program.
-   */
-  public boolean hasRequiredQuestionsThatAreSkippedInCurrentProgram() {
-    return getQuestions().stream()
-        .anyMatch(ApplicantQuestion::isRequiredButWasSkippedInCurrentProgram);
-  }
-
-  /**
    * Checks whether the block is answered - that is, {@link ApplicantData} has values at all the
    * paths for all questions in this block and there are no errors. Note: this cannot be memoized,
    * since we need to reflect internal changes to ApplicantData.

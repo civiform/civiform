@@ -36,7 +36,7 @@ import views.applicant.TrustedIntermediaryDashboardView;
  * Controller for handling methods for an trusted intermediary managing their clients and applying
  * to programs on behalf of them.
  */
-public class TrustedIntermediaryController {
+public final class TrustedIntermediaryController {
 
   private static final int PAGE_SIZE = 10;
   private final TrustedIntermediaryDashboardView tiDashboardView;

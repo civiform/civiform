@@ -52,6 +52,7 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
@@ -428,6 +429,28 @@ public final class ApplicantService {
     }
   }
 
+  /** Return the name of the given applicant id. If not available, returns the email. */
+  public CompletionStage<Optional<String>> getNameOrEmail(long applicantId) {
+    return userRepository
+        .lookupApplicant(applicantId)
+        .thenApplyAsync(
+            applicant -> {
+              if (applicant.isEmpty()) {
+                return Optional.empty();
+              }
+              Optional<String> name = applicant.get().getApplicantData().getApplicantName();
+              if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
+                return name;
+              }
+              String emailAddress = applicant.get().getAccount().getEmailAddress();
+              if (!Strings.isNullOrEmpty(emailAddress)) {
+                return Optional.of(emailAddress);
+              }
+              return Optional.empty();
+            },
+            httpExecutionContext.current());
+  }
+
   /** Return the name of the given applicant id. */
   public CompletionStage<Optional<String>> getName(long applicantId) {
     return userRepository
@@ -551,14 +574,32 @@ public final class ApplicantService {
               maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
             inProgressPrograms.add(
-                ApplicantProgramData.create(
-                    maybeDraftApp.get().getProgram().getProgramDefinition(),
-                    latestSubmittedApplicationTime));
+                ApplicantProgramData.builder()
+                    .setProgram(maybeDraftApp.get().getProgram().getProgramDefinition())
+                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
+                    .build());
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
-            ProgramDefinition programDef = activeProgramNames.get(programName);
+            // When extracting the application status, the definitions associated with the program
+            // version at the time of submission are used. However, when clicking "reapply", we use
+            // the latest program version below.
+            ProgramDefinition applicationProgramVersion =
+                maybeSubmittedApp.get().getProgram().getProgramDefinition();
+            Optional<String> maybeLatestStatus = maybeSubmittedApp.get().getLatestStatus();
+            Optional<StatusDefinitions.Status> maybeCurrentStatus =
+                maybeLatestStatus.isPresent()
+                    ? applicationProgramVersion.statusDefinitions().getStatuses().stream()
+                        .filter(
+                            programStatus ->
+                                programStatus.statusText().equals(maybeLatestStatus.get()))
+                        .findFirst()
+                    : Optional.empty();
             submittedPrograms.add(
-                ApplicantProgramData.create(programDef, latestSubmittedApplicationTime));
+                ApplicantProgramData.builder()
+                    .setProgram(activeProgramNames.get(programName))
+                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
+                    .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
+                    .build());
             programNamesWithApplications.add(programName);
           }
         });
@@ -568,7 +609,9 @@ public final class ApplicantService {
     unappliedActivePrograms.forEach(
         programName -> {
           unappliedPrograms.add(
-              ApplicantProgramData.create(activeProgramNames.get(programName), Optional.empty()));
+              ApplicantProgramData.builder()
+                  .setProgram(activeProgramNames.get(programName))
+                  .build());
         });
 
     // Ensure each list is ordered by database ID for consistent ordering.
@@ -632,10 +675,21 @@ public final class ApplicantService {
 
     public abstract Optional<Instant> latestSubmittedApplicationTime();
 
-    static ApplicantProgramData create(
-        ProgramDefinition program, Optional<Instant> latestSubmittedApplicationTime) {
-      return new AutoValue_ApplicantService_ApplicantProgramData(
-          program, latestSubmittedApplicationTime);
+    public abstract Optional<StatusDefinitions.Status> latestSubmittedApplicationStatus();
+
+    static Builder builder() {
+      return new AutoValue_ApplicantService_ApplicantProgramData.Builder();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+      abstract Builder setProgram(ProgramDefinition v);
+
+      abstract Builder setLatestSubmittedApplicationTime(Optional<Instant> v);
+
+      abstract Builder setLatestSubmittedApplicationStatus(Optional<StatusDefinitions.Status> v);
+
+      abstract ApplicantProgramData build();
     }
   }
 

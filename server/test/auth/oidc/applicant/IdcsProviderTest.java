@@ -34,9 +34,9 @@ public class IdcsProviderTest extends ResetPostgres {
         ConfigFactory.parseMap(
             ImmutableMap.of(
                 "idcs.client_id",
-                "foo",
+                "idcs-fake-oidc-client",
                 "idcs.secret",
-                "bar",
+                "idcs-fake-oidc-secret",
                 "idcs.discovery_uri",
                 DISCOVERY_URI,
                 "base_url",
@@ -55,10 +55,10 @@ public class IdcsProviderTest extends ResetPostgres {
     ProfileCreator adaptor = idcsProvider.getProfileAdapter(client_config, client);
 
     String clientId = idcsProvider.getClientID();
-    assertThat(clientId).isEqualTo("foo");
+    assertThat(clientId).isEqualTo("idcs-fake-oidc-client");
 
-    String clientSecret = idcsProvider.getClientSecret();
-    assertThat(clientSecret).isEqualTo("bar");
+    String clientSecret = idcsProvider.getClientSecret().get();
+    assertThat(clientSecret).isEqualTo("idcs-fake-oidc-secret");
 
     String discoveryUri = idcsProvider.getDiscoveryURI();
     assertThat(discoveryUri).isEqualTo(DISCOVERY_URI);

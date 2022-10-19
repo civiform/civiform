@@ -1,12 +1,18 @@
 {
   "extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
-    "lib": ["es6", "es2017", "dom"],
-    "paths": {
-      "*": ["*", "node_modules/@types/node/*"]
-    },
+    "lib": ["es2019", "dom"],
+    // While we support only latest browsers (chrome, firefox, safari, edge)
+    // we can't use ES2015+ or above because it breaks unit tests. We have
+    // security unit tests which use webdriver which in turn uses HtmlUnitDriver
+    // to evalute html and that thing doesn't support modern JS.
+    "target": "es5",
     "sourceMap": true,
-    "mapRoot": "/assets",
-    "sourceRoot": "/assets"
-  }
+    "mapRoot": "/assets/javascripts",
+    "sourceRoot": "/assets/javascripts",
+    "baseUrl": "./",
+    // TODO(#3361): fix and reenable strict checks.
+    "strict": false
+  },
+  "include": ["app/assets/javascripts/*"]
 }

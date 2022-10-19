@@ -12,14 +12,14 @@ import tasks.DatabaseSeedTask;
  * Binds the {@link DatabaseSeedScheduler} as an eager singleton, which causes it to run at server
  * start time.
  */
-public class DatabaseSeedModule extends AbstractModule {
+public final class DatabaseSeedModule extends AbstractModule {
 
   @Override
   protected void configure() {
     bind(DatabaseSeedScheduler.class).asEagerSingleton();
   }
 
-  public static class DatabaseSeedScheduler {
+  public static final class DatabaseSeedScheduler {
 
     @Inject
     public DatabaseSeedScheduler(
@@ -29,7 +29,11 @@ public class DatabaseSeedModule extends AbstractModule {
       actorSystem
           .scheduler()
           .scheduleOnce(
-              Duration.ofMillis(10), () -> databaseSeedTaskProvider.get().run(), executionContext);
+              // schedule seed task for 5 sec from now. There is a race condition
+              // with Play evolutions. Evolutions must run before we seed database.
+              // It doesn't seem to be a way to run code after evolutions so just
+              // give them few sec to run.
+              Duration.ofSeconds(5), () -> databaseSeedTaskProvider.get().run(), executionContext);
     }
   }
 }

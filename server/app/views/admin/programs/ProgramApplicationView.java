@@ -53,7 +53,6 @@ import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
@@ -61,6 +60,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private static final String PROGRAM_ID = "programId";
   private static final String APPLICATION_ID = "applicationId";
   public static final String SEND_EMAIL = "sendEmail";
+  public static final String CURRENT_STATUS = "currentStatus";
   public static final String NEW_STATUS = "newStatus";
   public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
@@ -109,23 +109,27 @@ public final class ProgramApplicationView extends BaseHtmlView {
     DivTag contentDiv =
         div()
             .withId("application-view")
-            .withClasses(Styles.PX_20)
+            .withClasses("px-20")
             .with(
-                h2("Program: " + programName).withClasses(Styles.MY_4),
+                h2("Program: " + programName).withClasses("my-4"),
                 div()
-                    .withClasses(Styles.FLEX)
+                    .withClasses("flex")
                     .with(
                         p(applicantNameWithApplicationId)
                             .withClasses(
-                                Styles.MY_4, Styles.TEXT_BLACK, Styles.TEXT_2XL, Styles.MB_2),
+                                "my-4",
+                                "text-black",
+                                "text-2xl",
+                                "mb-2",
+                                ReferenceClasses.BT_APPLICATION_ID),
                         // Spread out the items, so the following are right
                         // aligned.
-                        p().withClasses(Styles.FLEX_GROW))
+                        p().withClasses("flex-grow"))
                     // Status options if configured on the program.
                     .condWith(
                         !statusDefinitions.getStatuses().isEmpty(),
                         div()
-                            .withClasses(Styles.FLEX, Styles.MR_4, Styles.SPACE_X_2)
+                            .withClasses("flex", "mr-4", "space-x-2")
                             .with(
                                 renderStatusOptionsSelector(application, statusDefinitions),
                                 updateNoteModal.getButton()))
@@ -143,8 +147,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addMainContent(contentDiv)
             // The body and main styles are necessary for modals to appear since they use fixed
             // sizing.
-            .addBodyStyles(Styles.FLEX)
-            .addMainStyles(Styles.W_SCREEN)
+            .addBodyStyles("flex")
+            .addMainStyles("w-screen")
             .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
@@ -166,31 +170,21 @@ public final class ProgramApplicationView extends BaseHtmlView {
       long programId, Block block, Collection<AnswerData> answers) {
     DivTag topContent =
         div()
-            .withClasses(Styles.FLEX)
+            .withClasses("flex")
             .with(
-                div(
-                    div(block.getName())
-                        .withClasses(
-                            Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)))
-            .with(p().withClasses(Styles.FLEX_GROW))
-            .with(p(block.getDescription()).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC));
+                div(div(block.getName()).withClasses("text-black", "font-bold", "text-xl", "mb-2")))
+            .with(p().withClasses("flex-grow"))
+            .with(p(block.getDescription()).withClasses("text-gray-700", "italic"));
 
     DivTag mainContent =
-        div()
-            .withClasses(Styles.W_FULL)
-            .with(each(answers, answer -> renderAnswer(programId, answer)));
+        div().withClasses("w-full").with(each(answers, answer -> renderAnswer(programId, answer)));
 
     DivTag innerDiv =
         div(topContent, mainContent)
-            .withClasses(
-                Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
+            .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4");
 
     return div(innerDiv)
-        .withClasses(
-            ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD,
-            Styles.W_FULL,
-            Styles.SHADOW_LG,
-            Styles.MB_4);
+        .withClasses(ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
   private DivTag renderAnswer(long programId, AnswerData answerData) {
@@ -206,21 +200,19 @@ public final class ProgramApplicationView extends BaseHtmlView {
       answerContent = div(answerData.answerText());
     }
     return div()
-        .withClasses(Styles.FLEX)
+        .withClasses("flex")
         .with(
             div()
-                .withClasses(Styles.MB_8)
+                .withClasses("mb-8")
                 .with(
                     div(answerData.questionDefinition().getName())
-                        .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, Styles.LINE_CLAMP_3)))
-        .with(p().withClasses(Styles.W_8))
-        .with(
-            answerContent.withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.LINE_CLAMP_3))
-        .with(p().withClasses(Styles.FLEX_GROW))
+                        .withClasses("text-gray-400", "text-base", "line-clamp-3")))
+        .with(p().withClasses("w-8"))
+        .with(answerContent.withClasses("text-gray-700", "text-base", "line-clamp-3"))
+        .with(p().withClasses("flex-grow"))
         .with(
             div("Answered on " + date)
-                .withClasses(
-                    Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS));
+                .withClasses("flex-auto", "text-right", "font-light", "text-xs"));
   }
 
   private DivTag renderStatusOptionsSelector(
@@ -228,23 +220,23 @@ public final class ProgramApplicationView extends BaseHtmlView {
     final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
     DivTag container =
         div()
-            .withClasses(Styles.FLEX, ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
-            .with(label("Status:").withClasses(Styles.SELF_CENTER).withFor(SELECTOR_ID));
+            .withClasses("flex", ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
+            .with(label("Status:").withClasses("self-center").withFor(SELECTOR_ID));
 
     SelectTag dropdownTag =
         select()
             .withId(SELECTOR_ID)
             .withClasses(
-                Styles.OUTLINE_NONE,
-                Styles.PX_3,
-                Styles.PY_1,
-                Styles.ML_3,
-                Styles.MY_4,
-                Styles.BORDER,
-                Styles.BORDER_GRAY_500,
-                Styles.ROUNDED_FULL,
-                Styles.BG_WHITE,
-                Styles.TEXT_XS,
+                "outline-none",
+                "px-3",
+                "py-1",
+                "ml-3",
+                "my-4",
+                "border",
+                "border-gray-500",
+                "rounded-full",
+                "bg-white",
+                "text-xs",
                 StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
 
     // Add the options available to the admin.
@@ -277,9 +269,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     // and calls postMessage rather than attempting a submission. The main frame is responsible for
     // constructing a form to update the note.
     FormTag modalContent =
-        form()
-            .withId(formId)
-            .withClasses(Styles.PX_6, Styles.PY_2, "cf-program-admin-edit-note-form");
+        form().withId(formId).withClasses("px-6", "py-2", "cf-program-admin-edit-note-form");
     modalContent.with(
         input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
         input().withName(APPLICATION_ID).withValue(Long.toString(application.id)).isHidden(),
@@ -290,9 +280,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .setRows(OptionalLong.of(8))
             .getTextareaTag(),
         div()
-            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+            .withClasses("flex", "mt-5", "space-x-2")
             .with(
-                div().withClass(Styles.FLEX_GROW),
+                div().withClass("flex-grow"),
                 button("Cancel")
                     .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
                 submitButton("Save").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
@@ -309,13 +299,16 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Application application,
       String applicantNameWithApplicationId,
       StatusDefinitions.Status status) {
-    String previousStatus = application.getLatestStatus().orElse("Unset");
+    // The previous status as it should be displayed and passed as data in the
+    // update.
+    String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
+    String previousStatusData = application.getLatestStatus().orElse("");
     // No form action or content is rendered since admin_application_view.ts extracts the values
     // and calls postMessage rather than attempting a submission. The main frame is responsible for
     // constructing a form to update the status.
     FormTag modalContent =
         form()
-            .withClasses(Styles.PX_6, Styles.PY_2, "cf-program-admin-status-update-form")
+            .withClasses("px-6", "py-2", "cf-program-admin-status-update-form")
             .with(
                 input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
                 input()
@@ -324,16 +317,17 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     .isHidden(),
                 p().with(
                         span("Status Change: "),
-                        span(previousStatus).withClass(Styles.FONT_SEMIBOLD),
-                        span(" -> ").withClass(Styles.FONT_SEMIBOLD),
-                        span(status.statusText()).withClass(Styles.FONT_SEMIBOLD),
+                        span(previousStatusDisplay).withClass("font-semibold"),
+                        span(" -> ").withClass("font-semibold"),
+                        span(status.statusText()).withClass("font-semibold"),
                         span(" (visible to applicant)")),
                 p().with(
                         span("Applicant: "),
-                        span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD)),
-                p().with(span("Program: "), span(programName).withClass(Styles.FONT_SEMIBOLD)),
+                        span(applicantNameWithApplicationId)
+                            .withClasses("font-semibold", ReferenceClasses.BT_APPLICATION_ID)),
+                p().with(span("Program: "), span(programName).withClass("font-semibold")),
                 div()
-                    .withClasses(Styles.MT_4)
+                    .withClasses("mt-4")
                     // Add the new status to the form hidden.
                     .with(
                         input()
@@ -341,20 +335,29 @@ public final class ProgramApplicationView extends BaseHtmlView {
                             .withType("text")
                             .withName(NEW_STATUS)
                             .withValue(status.statusText()))
+                    // Add the original status to the form hidden so that we can
+                    // detect if the data has changed since this UI was
+                    // generated.
+                    .with(
+                        input()
+                            .isHidden()
+                            .withType("text")
+                            .withName(CURRENT_STATUS)
+                            .withValue(previousStatusData))
                     .with(
                         renderStatusUpdateConfirmationModalEmailSection(
                             applicantNameWithApplicationId, application, status)),
                 div()
-                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                    .withClasses("flex", "mt-5", "space-x-2")
                     .with(
-                        div().withClass(Styles.FLEX_GROW),
+                        div().withClass("flex-grow"),
                         button("Cancel")
                             .withClasses(
                                 ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     ButtonTag triggerButton =
         button("")
-            .withClasses(Styles.HIDDEN)
+            .withClasses("hidden")
             .withData("status-update-confirm-for-status", status.statusText());
     return Modal.builder(Modal.randomModalId(), modalContent)
         .setModalTitle("Change the status of this application?")
@@ -376,7 +379,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
           .with(
               sendEmailInput.isHidden(),
               p().with(
-                      span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+                      span(applicantNameWithApplicationId)
+                          .withClasses("font-semibold", ReferenceClasses.BT_APPLICATION_ID),
                       span(
                           " will not receive an email because there is no email content set for"
                               + " this status. Connect with your CiviForm Admin to add an email to"
@@ -386,7 +390,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
           .with(
               sendEmailInput.isHidden(),
               p().with(
-                      span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+                      span(applicantNameWithApplicationId).withClass("font-semibold"),
                       span(
                           " will not receive an email for this change since they have not provided"
                               + " an email address.")));
@@ -396,8 +400,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             // Check by default when visible.
             sendEmailInput.isChecked(),
             span("Notify "),
-            span(applicantNameWithApplicationId).withClass(Styles.FONT_SEMIBOLD),
+            span(applicantNameWithApplicationId).withClass("font-semibold"),
             span(" of this change at "),
-            span(maybeApplicantEmail.orElse("")).withClass(Styles.FONT_SEMIBOLD));
+            span(maybeApplicantEmail.orElse("")).withClass("font-semibold"));
   }
 }

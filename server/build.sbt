@@ -1,4 +1,5 @@
-import sbt.internal.io.{Source, WatchState}
+import TypescriptBuilder.autoImport.compileTypescript
+import sbt.internal.io.Source
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
 import com.typesafe.sbt.web.Import.pipelineStages
@@ -12,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.10",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       // Provides in-memory caching via the Play cache interface.
@@ -28,14 +29,14 @@ lazy val root = (project in file("."))
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
-      "com.j2html" % "j2html" % "1.5.0",
+      "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.17.263",
-      "software.amazon.awssdk" % "ses" % "2.17.263",
+      "software.amazon.awssdk" % "s3" % "2.17.290",
+      "software.amazon.awssdk" % "ses" % "2.17.290",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.5.5",
+      "com.azure" % "azure-identity" % "1.6.1",
       "com.azure" % "azure-storage-blob" % "12.19.1",
 
       // Database and database testing libraries
@@ -50,7 +51,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
-      "org.mockito" % "mockito-inline" % "4.7.0",
+      "org.mockito" % "mockito-inline" % "4.8.1",
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
@@ -81,7 +82,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly (),
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.15.0",
+      "com.google.errorprone" % "error_prone_core" % "2.16",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",
@@ -119,10 +120,10 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
-    pipelineStages := Seq(digest, gzip), // plugins to use for assets
+    pipelineStages := Seq(compileTypescript, digest, gzip), // plugins to use for assets
     // Enable digest for local dev so that files can be served çached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages := Seq(digest, gzip),
+    Assets / pipelineStages := Seq(compileTypescript, digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(
@@ -203,11 +204,10 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.4",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.4.2",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.13.4",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.4"
 )
-resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
 Global / onChangedBuildSource := ReloadOnSourceChanges

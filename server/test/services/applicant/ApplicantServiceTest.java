@@ -15,6 +15,7 @@ import java.util.concurrent.CompletionException;
 import models.Account;
 import models.Applicant;
 import models.Application;
+import models.ApplicationEvent;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.Program;
@@ -33,9 +34,12 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
+import services.application.ApplicationEventDetails;
+import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.StatusDefinitions;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.CheckboxQuestionDefinition;
@@ -78,11 +82,7 @@ public class ApplicantServiceTest extends ResetPostgres {
       throws Exception {
     // We make the question optional since it's not valid to stage empty updates
     // for a required question.
-    programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
-            .withBlock()
-            .withOptionalQuestion(questionDefinition)
-            .buildDefinition();
+    createProgramWithOptionalQuestion(questionDefinition);
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of())
@@ -104,11 +104,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void stageAndUpdateIfValid_withUpdatesWithEmptyStrings_deletesJsonData() {
     // We make the question optional since it's not valid to update a required
     // question with an empty string (done below).
-    programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
-            .withBlock()
-            .withOptionalQuestion(questionDefinition)
-            .buildDefinition();
+    createProgramWithOptionalQuestion(questionDefinition);
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path questionPath = Path.create("applicant.name");
 
@@ -148,7 +144,9 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_withEmptyUpdatesForMultiSelect_deletesMultiSelectJsonData() {
-    createProgram(testQuestionBank.applicantKitchenTools().getQuestionDefinition());
+    // We make the question optional since it's not valid to stage empty updates
+    createProgramWithOptionalQuestion(
+        testQuestionBank.applicantKitchenTools().getQuestionDefinition());
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path questionPath = Path.create("applicant.kitchen_tools");
 
@@ -239,11 +237,9 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void
       stageAndUpdateIfValid_forEnumeratorBlock_putsMetadataWithEmptyUpdate_andCanPutRealRepeatedEntitiesInAfter() {
-    programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
-            .buildDefinition();
+    // We make the question optional since it's not valid to stage empty updates
+    createProgramWithOptionalQuestion(
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(
@@ -428,7 +424,9 @@ public class ApplicantServiceTest extends ResetPostgres {
                         QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
                         QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse")))))
             .getResult();
-    createProgram(multiSelectQuestion);
+
+    // We make the question optional since it's not valid to stage empty updates
+    createProgramWithOptionalQuestion(multiSelectQuestion);
 
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
@@ -518,7 +516,9 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void stageAndUpdateIfValid_enumeratorNotAnswered_stillWritesPathToApplicantData() {
     QuestionDefinition enumeratorQuestionDefinition =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
-    createProgram(enumeratorQuestionDefinition);
+
+    // We make the question optional since it's not valid to stage empty updates
+    createProgramWithOptionalQuestion(enumeratorQuestionDefinition);
 
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
@@ -841,6 +841,38 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getNameOrEmail_namedApplicantId() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
+    applicant.getApplicantData().setUserName("Hello World");
+    applicant.save();
+
+    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("World, Hello"));
+  }
+
+  @Test
+  public void getNameOrEmail_noName() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
+    applicant.save();
+
+    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("test@example.com"));
+  }
+
+  @Test
+  public void getNameOrEmail_noNameNoEmail() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccount();
+    applicant.setAccount(account);
+    applicant.save();
+    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join()).isEmpty();
+  }
+
+  @Test
   public void getName_invalidApplicantId_doesNotFail() {
     assertThat(subject.getName(9999L).toCompletableFuture().join()).isEmpty();
   }
@@ -913,7 +945,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantPrograms() {
+  public void relevantProgramsForApplicant() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
@@ -942,14 +974,58 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);
+    assertThat(result.inProgress().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.empty());
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(programForSubmitted.id);
+    assertThat(result.submitted().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.empty());
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programForUnapplied.id);
+    assertThat(result.unapplied().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.empty());
   }
 
   @Test
-  public void relevantPrograms_withNewerProgramVersion() {
+  public void relevantProgramsForApplicant_otherApplicant() {
+    Applicant primaryApplicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant otherApplicant = subject.createApplicant(2L).toCompletableFuture().join();
+    Program programForDraft =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
+
+    applicationRepository
+        .createOrUpdateDraft(primaryApplicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(primaryApplicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(otherApplicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(
+            programForDraft.id, programForUnapplied.id, programForSubmitted.id);
+    assertThat(result.unapplied().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.empty(), Optional.empty(), Optional.empty());
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_withNewerProgramVersion() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     // Create a draft based on the original version of a program.
@@ -1004,7 +1080,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantPrograms_hiddenFromIndex() {
+  public void relevantProgramsForApplicant_hiddenFromIndex() {
     // This ensures that the applicant can always see that draft
     // applications for a given program, even if a newer version of the
     // program is hidden from the index.
@@ -1058,7 +1134,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(originalProgramForDraftApp.id);
-    // TODO(#2573): Determine if already submitted applications for hidden
+    // TODO(#3477): Determine if already submitted applications for hidden
     // programs should show in the index, similar to draft applications.
     assertThat(result.submitted()).isEmpty();
     // As part of test setup, a "test program" is initialized.
@@ -1069,7 +1145,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantPrograms_submittedTimestamp() {
+  public void relevantProgramsForApplicant_submittedTimestamp() {
     // Creates an app + draft app for a program as well as
     // an application for another program and ensures that
     // the submitted timestamp is present.
@@ -1118,7 +1194,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantPrograms_multipleActiveAndDraftApplications() {
+  public void relevantProgramsForApplicant_multipleActiveAndDraftApplications() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
@@ -1195,6 +1271,107 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsExactly(programDefinition.id());
   }
 
+  private static final StatusDefinitions.Status APPROVED_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Approved")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.of(
+                      Locale.US, "I'm a US email!",
+                      Locale.FRENCH, "I'm a FRENCH email!")))
+          .build();
+
+  @Test
+  public void relevantProgramsForApplicant_withApplicationStatus() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+
+    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Application submittedApplication =
+        applicationRepository
+            .submitApplication(applicant.id, program.id, Optional.empty())
+            .toCompletableFuture()
+            .join()
+            .get();
+    addStatusEvent(submittedApplication, APPROVED_STATUS, adminAccount);
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted().stream().map(p -> p.program().id())).containsExactly(program.id);
+    assertThat(result.submitted().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.of(APPROVED_STATUS));
+    assertThat(result.unapplied()).isEmpty();
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_withApplicationStatusAndOlderProgramVersion() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Program originalProgram =
+        ProgramBuilder.newObsoleteProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+
+    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Application submittedApplication =
+        applicationRepository
+            .submitApplication(applicant.id, originalProgram.id, Optional.empty())
+            .toCompletableFuture()
+            .join()
+            .get();
+    addStatusEvent(submittedApplication, APPROVED_STATUS, adminAccount);
+
+    // Publish a new program that has an updated set of status configurations that doesn't include
+    // the application's status. The displayed status definition configuration should be pulled
+    // from the program version associated with the application.
+    StatusDefinitions.Status updatedStatus =
+        APPROVED_STATUS.toBuilder()
+            .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Updated email content"))
+            .build();
+    assertThat(updatedStatus).isNotEqualTo(APPROVED_STATUS);
+    Program updatedProgram =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(updatedStatus)))
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(updatedProgram.id);
+    assertThat(result.submitted().stream().map(p -> p.latestSubmittedApplicationStatus()))
+        .containsExactly(Optional.of(APPROVED_STATUS));
+    assertThat(result.unapplied()).isEmpty();
+  }
+
+  private static void addStatusEvent(
+      Application application, StatusDefinitions.Status status, Account actorAccount) {
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(
+                StatusEvent.builder()
+                    .setStatusText(status.statusText())
+                    .setEmailSent(false)
+                    .build())
+            .build();
+    ApplicationEvent event = new ApplicationEvent(application, actorAccount, details);
+    event.save();
+    application.refresh();
+  }
+
   private void createQuestions() {
     questionDefinition =
         questionService
@@ -1217,6 +1394,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.copyOf(questions))
+            .buildDefinition();
+  }
+
+  private void createProgramWithOptionalQuestion(QuestionDefinition question) {
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withOptionalQuestion(question)
             .buildDefinition();
   }
 }

@@ -11,10 +11,10 @@ import services.applicant.question.TextQuestion;
 import views.components.FieldWithLabel;
 
 /** Renders a text question. */
-public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
+public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
   public TextQuestionRenderer(ApplicantQuestion question) {
-    super(question, InputFieldType.SINGLE);
+    super(question);
   }
 
   @Override
@@ -23,11 +23,10 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected DivTag renderTag(
+  protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds,
-      boolean hasQuestionErrors) {
+      ImmutableList<String> ariaDescribedByIds) {
     TextQuestion textQuestion = question.createTextQuestion();
 
     FieldWithLabel textField =
@@ -40,7 +39,7 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setAriaDescribedByIds(ariaDescribedByIds)
             .setScreenReaderText(question.getQuestionText());
 
-    if (hasQuestionErrors) {
+    if (!validationErrors.isEmpty()) {
       textField.forceAriaInvalid();
     }
 

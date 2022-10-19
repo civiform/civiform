@@ -12,19 +12,20 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.ul;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
-import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -48,19 +49,22 @@ import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
 
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
+  private final ViewUtils viewUtils;
 
   @Inject
   public QuestionsListView(
-      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
+      AdminLayoutFactory layoutFactory,
+      TranslationLocales translationLocales,
+      ViewUtils viewUtils) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
+    this.viewUtils = checkNotNull(viewUtils);
   }
 
   /** Renders a page with a list view of all questions. */
@@ -72,21 +76,22 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_4)
+            .withClasses("px-4")
             .with(
                 div()
-                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER, Styles.SPACE_X_4, Styles.MT_12)
+                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
                     .with(
                         h1(title),
-                        div().withClass(Styles.FLEX_GROW),
+                        div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index().url())),
+                            controllers.admin.routes.AdminQuestionController.index().url(),
+                            /* isPrimaryButton= */ true)),
                 div()
-                    .withClasses(Styles.MT_10, Styles.FLEX)
+                    .withClasses("mt-10", "flex")
                     .with(
-                        div().withClass(Styles.FLEX_GROW),
-                        p("Sorting my most recently updated").withClass(Styles.TEXT_SM)))
-            .with(div().withClass(Styles.MT_6).with(questionRowsAndModals.getLeft()))
+                        div().withClass("flex-grow"),
+                        p("Sorting by most recently updated").withClass("text-sm")))
+            .with(div().withClass("mt-6").with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
         layout
@@ -112,7 +117,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // where we have a single entry for a question that is active and has a draft.
     return div(String.format(
             "Total Questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
-        .withClasses(Styles.FLOAT_RIGHT, Styles.TEXT_BASE, Styles.PX_4, Styles.MY_2);
+        .withClasses("float-right", "text-base", "px-4", "my-2");
   }
 
   private static QuestionDefinition getDisplayQuestion(QuestionCardData cardData) {
@@ -192,11 +197,11 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag row =
         div()
-            .withClasses(Styles.FLEX)
+            .withClasses("flex")
             .with(renderInfoCell(latestDefinition))
             .with(referencingProgramAndModal.getLeft());
 
-    DivTag draftAndActiveRows = div().withClasses(Styles.FLEX_GROW);
+    DivTag draftAndActiveRows = div().withClasses("flex-grow");
     if (cardData.draftQuestion().isPresent()) {
       Pair<DivTag, ImmutableList<Modal>> draftRow =
           renderActiveOrDraftRow(
@@ -221,19 +226,23 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag adminNote =
         div()
-            .withClasses(Styles.PY_7)
-            .with(span("Admin note: ").withClasses(Styles.FONT_BOLD))
-            .with(span(latestDefinition.getName()), br(), span(latestDefinition.getDescription()));
+            .withClasses("py-7")
+            .with(
+                span("Admin ID: ").withClasses("font-bold"),
+                span(latestDefinition.getName()),
+                br(),
+                span("Admin note: ").withClasses("font-bold"),
+                span(latestDefinition.getDescription()));
 
     DivTag rowWithAdminNote =
         div()
             .withClasses(
-                Styles.W_FULL,
-                Styles.MY_4,
-                Styles.PL_6,
-                Styles.BORDER_GRAY_300,
-                Styles.ROUNDED_LG,
-                Styles.BORDER,
+                "w-full",
+                "my-4",
+                "pl-6",
+                "border-gray-300",
+                "rounded-lg",
+                "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .with(row)
             .with(adminNote);
@@ -259,21 +268,25 @@ public final class QuestionsListView extends BaseHtmlView {
     PTag badge =
         ViewUtils.makeBadge(
             isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
-            Styles.ML_2,
-            StyleUtils.responsiveXLarge(Styles.ML_8));
+            "ml-2",
+            StyleUtils.responsiveXLarge("ml-8"));
 
     DivTag row =
         div()
             .withClasses(
-                Styles.PY_7,
-                Styles.FLEX,
-                Styles.FLEX_ROW,
-                Styles.ITEMS_CENTER,
-                StyleUtils.hover(Styles.BG_GRAY_100),
-                Styles.CURSOR_POINTER,
-                isSecondRow ? Styles.BORDER_T : "")
+                "py-7",
+                "flex",
+                "flex-row",
+                "items-center",
+                StyleUtils.hover("bg-gray-100"),
+                "cursor-pointer",
+                isSecondRow ? "border-t" : "")
             .with(badge)
-            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(div().withClasses("flex-grow"))
+            .with(
+                div()
+                    .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
+                    .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime())))
             .with(actionsCellAndModal.getLeft());
 
     asRedirectElement(
@@ -285,28 +298,21 @@ public final class QuestionsListView extends BaseHtmlView {
   private DivTag renderInfoCell(QuestionDefinition definition) {
     DivTag questionText =
         div()
-            .withClasses(
-                Styles.FONT_BOLD,
-                Styles.TEXT_BLACK,
-                Styles.FLEX,
-                Styles.FLEX_ROW,
-                Styles.ITEMS_CENTER)
+            .withClasses("font-bold", "text-black", "flex", "flex-row", "items-center")
             .with(
                 Icons.questionTypeSvg(definition.getQuestionType())
-                    .withClasses(Styles.W_6, Styles.H_6, Styles.FLEX_SHRINK_0))
+                    .withClasses("w-6", "h-6", "shrink-0"))
             .with(
                 div(definition.getQuestionText().getDefault())
-                    .withClasses(
-                        ReferenceClasses.ADMIN_QUESTION_TITLE, Styles.PL_4, Styles.TEXT_XL));
+                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
     DivTag questionDescription =
         div(
             div(definition.getQuestionHelpText().isEmpty()
                     ? ""
                     : definition.getQuestionHelpText().getDefault())
-                .withClasses(Styles.PL_10));
+                .withClasses("pl-10"));
     return div()
-        .withClasses(
-            Styles.PY_7, Styles.W_1_4, Styles.FLEX, Styles.FLEX_COL, Styles.JUSTIFY_BETWEEN)
+        .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
         .with(div().with(questionText).with(questionDescription));
   }
 
@@ -320,108 +326,178 @@ public final class QuestionsListView extends BaseHtmlView {
         activeAndDraftQuestions.getReferencingPrograms(questionName);
     Collection<ProgramDefinition> activePrograms = referencingPrograms.activeReferences();
     Collection<ProgramDefinition> draftPrograms = referencingPrograms.draftReferences();
+    GroupedReferencingPrograms groupedReferencingPrograms =
+        createReferencingPrograms(activePrograms, draftPrograms);
+
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
-            questionName, activePrograms, draftPrograms, /* modalHeader= */ Optional.empty());
-
-    ArrayList<String> parts = new ArrayList<>();
-    if (!activePrograms.isEmpty()) {
-      parts.add(String.format("%d active", activePrograms.size()));
-    }
-    if (activeAndDraftQuestions.draftVersionHasAnyEdits() && !draftPrograms.isEmpty()) {
-      parts.add(String.format("%d draft", draftPrograms.size()));
-    }
-    if (parts.isEmpty()) {
-      parts.add("0");
-    }
-    SpanTag referencingProgramsCount =
-        span(Joiner.on(" & ").join(parts)).with(span(" programs")).withClass(Styles.FONT_SEMIBOLD);
+            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty());
 
     DivTag tag =
         div()
             .withClasses(
                 ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS,
-                Styles.ML_4,
-                StyleUtils.responsiveXLarge(Styles.ML_10),
-                Styles.PY_7,
-                Styles.W_1_3)
-            .with(span("Used across "), referencingProgramsCount);
+                "ml-4",
+                StyleUtils.responsiveXLarge("ml-10"),
+                "py-7",
+                "w-1/4");
+    if (groupedReferencingPrograms.isEmpty()) {
+      tag.with(p("Used in 0 programs."));
+    } else {
+      if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
+        int numPrograms = groupedReferencingPrograms.usedPrograms().size();
+        tag.with(p("Used in " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+      }
+      if (!groupedReferencingPrograms.addedPrograms().isEmpty()) {
+        int numPrograms = groupedReferencingPrograms.addedPrograms().size();
+        tag.with(p("Added to " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+      }
+      if (!groupedReferencingPrograms.removedPrograms().isEmpty()) {
+        int numPrograms = groupedReferencingPrograms.removedPrograms().size();
+        tag.with(p("Removed from " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+      }
+    }
     if (maybeReferencingProgramsModal.isPresent()) {
       tag.with(
-          span(" "),
           a().withId(maybeReferencingProgramsModal.get().getTriggerButtonId())
               .withClasses(
-                  Styles.CURSOR_POINTER,
-                  Styles.FONT_SEMIBOLD,
-                  Styles.UNDERLINE,
+                  "cursor-pointer",
+                  "font-medium",
+                  "underline",
                   BaseStyles.TEXT_SEATTLE_BLUE,
-                  StyleUtils.hover(Styles.TEXT_BLACK))
+                  StyleUtils.hover("text-black"))
               .withText("See list"));
     }
     return Pair.of(
         tag, maybeReferencingProgramsModal.map(ImmutableList::of).orElse(ImmutableList.of()));
   }
 
+  @AutoValue
+  abstract static class GroupedReferencingPrograms {
+    abstract ImmutableList<ProgramDefinition> usedPrograms();
+
+    abstract ImmutableList<ProgramDefinition> addedPrograms();
+
+    abstract ImmutableList<ProgramDefinition> removedPrograms();
+
+    static Builder builder() {
+      return new AutoValue_QuestionsListView_GroupedReferencingPrograms.Builder();
+    }
+
+    boolean isEmpty() {
+      return usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+      abstract Builder setUsedPrograms(ImmutableList<ProgramDefinition> usedPrograms);
+
+      abstract Builder setAddedPrograms(ImmutableList<ProgramDefinition> addedPrograms);
+
+      abstract Builder setRemovedPrograms(ImmutableList<ProgramDefinition> removedPrograms);
+
+      abstract GroupedReferencingPrograms build();
+    }
+  }
+
+  private GroupedReferencingPrograms createReferencingPrograms(
+      Collection<ProgramDefinition> activePrograms, Collection<ProgramDefinition> draftPrograms) {
+    ImmutableMap<String, ProgramDefinition> activeProgramsMap =
+        activePrograms.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+    ImmutableMap<String, ProgramDefinition> draftProgramsMap =
+        draftPrograms.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    // Use set operations to collect programs into 3 sets.
+    Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
+    Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
+    Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
+
+    ImmutableList<ProgramDefinition> usedPrograms =
+        usedSet.stream()
+            .map((adminName) -> draftProgramsMap.get(adminName))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> addedPrograms =
+        addedSet.stream()
+            .map((adminName) -> draftProgramsMap.get(adminName))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramDefinition> removedPrograms =
+        removedSet.stream()
+            .map((adminName) -> activeProgramsMap.get(adminName))
+            .sorted(Comparator.comparing(ProgramDefinition::adminName))
+            .collect(ImmutableList.toImmutableList());
+    return GroupedReferencingPrograms.builder()
+        .setUsedPrograms(usedPrograms)
+        .setAddedPrograms(addedPrograms)
+        .setRemovedPrograms(removedPrograms)
+        .build();
+  }
+
   private Optional<Modal> makeReferencingProgramsModal(
       String questionName,
-      Collection<ProgramDefinition> activePrograms,
-      Collection<ProgramDefinition> draftPrograms,
+      GroupedReferencingPrograms referencingPrograms,
       Optional<DomContent> modalHeader) {
-    ImmutableList<ProgramDefinition> activeProgramReferences =
-        activePrograms.stream()
-            .sorted(Comparator.comparing(ProgramDefinition::adminName))
-            .collect(ImmutableList.toImmutableList());
-    ImmutableList<ProgramDefinition> draftProgramReferences =
-        draftPrograms.stream()
-            .sorted(Comparator.comparing(ProgramDefinition::adminName))
-            .collect(ImmutableList.toImmutableList());
-
-    if (activeProgramReferences.isEmpty() && draftProgramReferences.isEmpty()) {
+    if (referencingPrograms.isEmpty()) {
       return Optional.empty();
     }
 
-    DivTag referencingProgramModalContent =
-        div().withClasses(Styles.P_6, Styles.FLEX_ROW, Styles.SPACE_Y_6);
+    DivTag referencingProgramModalContent = div().withClasses("p-6", "flex-row", "space-y-6");
     if (modalHeader.isPresent()) {
       referencingProgramModalContent.with(modalHeader.get());
     }
-    referencingProgramModalContent.with(
-        div()
-            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE)
-            .with(referencingProgramList("Active programs:", activePrograms)),
-        div()
-            .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT)
-            .with(referencingProgramList("Draft programs:", draftPrograms)),
-        p("Note: This list does not automatically refresh. If edits are made to a program"
-                + " in a separate tab, they won't be reflected until the page has been"
-                + " refreshed.")
-            .withClass(Styles.TEXT_SM));
+    referencingProgramModalContent
+        .condWith(
+            !referencingPrograms.usedPrograms().isEmpty(),
+            div()
+                .with(
+                    referencingProgramList(
+                        "This question is used in:", referencingPrograms.usedPrograms()))
+                .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED))
+        .condWith(
+            !referencingPrograms.addedPrograms().isEmpty(),
+            div()
+                .with(
+                    referencingProgramList(
+                        "This question is added to:", referencingPrograms.addedPrograms()))
+                .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ADDED))
+        .condWith(
+            !referencingPrograms.removedPrograms().isEmpty(),
+            div()
+                .with(
+                    referencingProgramList(
+                        "This question is removed from:", referencingPrograms.removedPrograms()))
+                .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_REMOVED))
+        .with(
+            p("Note: This list does not automatically refresh. If edits are made to a program"
+                    + " in a separate tab, they won't be reflected until the page has been"
+                    + " refreshed.")
+                .withClass("text-sm"));
+
     return Optional.of(
         Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
-            .setModalTitle(String.format("Programs including %s", questionName))
+            .setModalTitle(String.format("Programs referencing %s", questionName))
             .setWidth(Width.HALF)
             .build());
   }
 
   private DivTag referencingProgramList(
-      String title, Collection<ProgramDefinition> referencingPrograms) {
+      String title, ImmutableList<ProgramDefinition> referencingPrograms) {
     // TODO(#3162): Add ability to view a published program. Then add
     // links to the specific block that references the question.
-    ImmutableList<ProgramDefinition> sortedReferencingPrograms =
-        referencingPrograms.stream()
-            .sorted(Comparator.comparing(ProgramDefinition::adminName))
-            .collect(ImmutableList.toImmutableList());
     return div()
-        .with(p(title).withClass(Styles.FONT_SEMIBOLD))
-        .condWith(sortedReferencingPrograms.isEmpty(), p("None").withClass(Styles.PL_5))
-        .condWith(
-            !sortedReferencingPrograms.isEmpty(),
+        .with(p(title).withClass("font-semibold"))
+        .with(
             div()
                 .with(
-                    ul().withClasses(Styles.LIST_DISC, Styles.LIST_INSIDE)
+                    ul().withClasses("list-disc", "list-inside")
                         .with(
                             each(
-                                sortedReferencingPrograms,
+                                referencingPrograms,
                                 programReference -> {
                                   return li(programReference.adminName());
                                 }))));
@@ -431,7 +507,7 @@ public final class QuestionsListView extends BaseHtmlView {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     return asRedirectElement(
         makeSvgTextButton("Edit", Icons.EDIT)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : Styles.INVISIBLE),
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : "invisible"),
         link);
   }
 
@@ -490,29 +566,29 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(
                 AdminStyles.TERTIARY_BUTTON_STYLES,
                 ReferenceClasses.WITH_DROPDOWN,
-                Styles.H_12,
-                extraActions.build().isEmpty() ? Styles.INVISIBLE : "");
+                "h-12",
+                extraActions.build().isEmpty() ? "invisible" : "");
     DivTag result =
         div()
-            .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.PR_6, Styles.FONT_MEDIUM)
+            .withClasses("flex", "space-x-2", "pr-6", "font-medium")
             .with(renderQuestionEditLink(question, isEditable))
             .with(
                 div()
-                    .withClass(Styles.RELATIVE)
+                    .withClass("relative")
                     .with(
                         extraActionsButton,
                         div()
                             .withId(extraActionsButtonId + "-dropdown")
                             .withClasses(
-                                Styles.HIDDEN,
-                                Styles.FLEX,
-                                Styles.FLEX_COL,
-                                Styles.BORDER,
-                                Styles.BG_WHITE,
-                                Styles.ABSOLUTE,
-                                Styles.RIGHT_0,
-                                Styles.W_56,
-                                Styles.Z_50)
+                                "hidden",
+                                "flex",
+                                "flex-col",
+                                "border",
+                                "bg-white",
+                                "absolute",
+                                "right-0",
+                                "w-56",
+                                "z-50")
                             .with(extraActions.build())));
 
     return Pair.of(result, modals.build());
@@ -556,26 +632,20 @@ public final class QuestionsListView extends BaseHtmlView {
       default:
         DivTag modalHeader =
             div()
-                .withClasses(
-                    Styles.P_2,
-                    Styles.BORDER,
-                    Styles.BORDER_GRAY_400,
-                    Styles.BG_GRAY_200,
-                    Styles.TEXT_SM)
+                .withClasses("p-2", "border", "border-gray-400", "bg-gray-200", "text-sm")
                 .with(
                     span(
                         "This question cannot be archived since there are still programs"
-                            + " referencing  it. Please remove all references from the below"
+                            + " using it. Please remove all usages from the below"
                             + " programs before attempting to archive."));
 
         ActiveAndDraftQuestions.ReferencingPrograms programs =
             activeAndDraftQuestions.getReferencingPrograms(definition.getName());
+        GroupedReferencingPrograms referencingPrograms =
+            createReferencingPrograms(programs.activeReferences(), programs.draftReferences());
         Optional<Modal> maybeModal =
             makeReferencingProgramsModal(
-                definition.getName(),
-                programs.activeReferences(),
-                programs.draftReferences(),
-                Optional.of(modalHeader));
+                definition.getName(), referencingPrograms, Optional.of(modalHeader));
         ButtonTag cantArchiveButton =
             makeSvgTextButton("Archive", Icons.ARCHIVE)
                 .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES)

@@ -6,6 +6,7 @@ import {
   logout,
   selectApplicantLanguage,
   testUserDisplayName,
+  validateScreenshot,
 } from './support'
 
 describe('create and edit predicates', () => {
@@ -48,8 +49,9 @@ describe('create and edit predicates', () => {
       'hide me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is hidden if hide-predicate-q\'s text is equal to "hide me"',
+      'Screen 2 is hidden if question with an admin ID of "hide-predicate-q"\'s text is equal to "hide me"',
     )
+    await validateScreenshot(page, 'hide-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -137,8 +139,9 @@ describe('create and edit predicates', () => {
       'show me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is shown if show-predicate-q\'s text is equal to "show me"',
+      'Screen 2 is shown if question with an admin ID of "show-predicate-q"\'s text is equal to "show me"',
     )
+    await validateScreenshot(page, 'show-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)

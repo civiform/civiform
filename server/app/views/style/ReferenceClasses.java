@@ -21,10 +21,12 @@ public final class ReferenceClasses {
   public static final String ADMIN_QUESTION_TITLE = "cf-question-title";
   public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS =
       "cf-admin-question-program-reference-counts";
-  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_DRAFT =
-      "cf-admin-question-program-reference-counts-draft";
-  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ACTIVE =
-      "cf-admin-question-program-reference-counts-active";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED =
+      "cf-admin-question-program-reference-counts-used";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ADDED =
+      "cf-admin-question-program-reference-counts-added";
+  public static final String ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_REMOVED =
+      "cf-admin-question-program-reference-counts-removed";
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String DEBOUNCED_FORM = "cf-debounced-form";
@@ -65,7 +67,9 @@ public final class ReferenceClasses {
   public static final String APPLICANT_QUESTION_ERRORS = "cf-applicant-question-errors";
   public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
   public static final String APPLICATION_CARD = "cf-application-card";
+  public static final String APPLICATION_CARD_TITLE = "cf-application-card-title";
   public static final String APPLICATION_CARD_DESCRIPTION = "cf-application-card-description";
+  public static final String APPLICATION_PROGRAM_SECTION = "cf-application-program-section";
 
   public static final String APPLY_BUTTON = "cf-apply-button";
   public static final String CONTINUE_BUTTON = "cf-continue-button";
@@ -124,4 +128,8 @@ public final class ReferenceClasses {
   public static final String MODAL = "cf-modal";
   public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
+  // These classes mark fields that need dynamic replacement by browser tests when
+  // taking a screenshot (e.g. dates, application IDs).
+  public static final String BT_DATE = "cf-bt-date";
+  public static final String BT_APPLICATION_ID = "cf-application-id";
 }

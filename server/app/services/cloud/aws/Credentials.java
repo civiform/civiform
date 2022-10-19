@@ -10,7 +10,7 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
  * https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/credentials.html#credentials-chain
  * for more details.
  */
-public class Credentials {
+public final class Credentials {
 
   private static final DefaultCredentialsProvider credentialsProvider =
       DefaultCredentialsProvider.create();
