@@ -6,7 +6,7 @@ labels:
 assignees: ''
 ---
 
-The Oncall is responsible for releasing a new version of CiviForm at the start of their rotation and general upkeep through their rotation.  This is an aid for each rotation, but the docs are the source of truth.
+The Oncall is responsible for releasing a new version of CiviForm at the start of their rotation and general upkeep through their rotation. This is an aid for each rotation, but the docs are the source of truth.
 
 Rotations begin each Wednesday.
 
@@ -20,14 +20,15 @@ Resources:
 # Task list:
 
 ## Release
+
 - [ ] Create a Draft Release by 12 PT Wed
 - [ ] Contact Matthew Sprenke for QA on Slack
 - [ ] If Matthew is unavailable have the general team attempt a best-effort QA.
 - [ ] After QA, publish the release
 - [ ] Email release notes
 
-## General 
+## General
+
 - [ ] Create an Oncall issue for the next rotation
 - [ ] Check Security lists daily
 - [ ] Check Dependency updates once
-
