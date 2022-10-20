@@ -7,6 +7,7 @@ import {
 
 module.exports = async () => {
   const {browser, page} = await startSession()
+  page.setDefaultTimeout(5000)
   await dropTables(page)
   await seedCanonicalQuestions(page)
 

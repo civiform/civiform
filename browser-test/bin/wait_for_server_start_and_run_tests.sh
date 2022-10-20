@@ -13,7 +13,11 @@ export TEST_USER_AUTH_STRATEGY=fake-oidc
 export TEST_USER_LOGIN=testuser
 export TEST_USER_PASSWORD=anotsecretpassword
 # The display name returned by test_oidc_provider.js is <username>@example.com.
-export TEST_USER_DISPLAY_NAME=testuser@example.com
+export TEST_USER_DISPLAY_NAME=test@example.com
+
+export TEST_USER_AUTH_STRATEGY=aws-staging
+export TEST_USER_LOGIN=test@example.com
+export TEST_USER_PASSWORD=test@example.com12345
 
 if ! output="$(node -v)"; then
   echo output

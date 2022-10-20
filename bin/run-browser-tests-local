@@ -7,7 +7,7 @@ source bin/lib.sh
 # machine which can be different from the browser used by browser-test docker
 # image and produce different screenshots.
 export DISABLE_SCREENSHOTS=true
-export BASE_URL=http://localhost:9999
+export BASE_URL=https://staging-aws.civiform.dev
 
 cd browser-test
 bin/wait_for_server_start_and_run_tests.sh "$@"
