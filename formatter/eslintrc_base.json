@@ -17,7 +17,10 @@
   "rules": {
     "require-jsdoc": "off",
     "valid-jsdoc": "warn",
-    "@typescript-eslint/no-unused-vars": "off", // overlaps with standard eslint no-unused-vars.
+    // default JS no-unused-vars causes false-positives on TS code. For example
+    // enums.
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
 
     // TODO(#3361): fix and reenable
     "@typescript-eslint/no-unsafe-member-access": "off",
