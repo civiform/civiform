@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
@@ -54,6 +55,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
   private final FeatureFlags featureFlags;
+  private final String civicEntityShortName;
 
   @Inject
   public ProgramIndexView(
@@ -67,6 +69,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
     this.featureFlags = checkNotNull(featureFlags);
+    this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
   }
 
   public Content render(
@@ -78,7 +81,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       layout.setOnlyProgramAdminType();
     }
 
-    String pageTitle = "All programs";
+    String pageTitle = "Program Dashboard";
+    String pageExplanation = "Create, edit and publish programs in " + civicEntityShortName;
     Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, questions, request);
 
     Modal demographicsCsvModal = renderDemographicsCsvModal();
@@ -96,6 +100,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-2"),
                         renderNewProgramButton(),
                         maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
+                div()
+                  .withClasses("flex", "items-center", "space-x-4", "mt-12")
+                    .with( h2(pageExplanation)),
+
                 div()
                     .withClasses("mt-10", "flex")
                     .with(
