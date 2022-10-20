@@ -49,14 +49,18 @@ export const isLocalDevEnvironment = () => {
   )
 }
 
+/* eslint-disable no-unused-vars */
 /**
- * Different auth strategies that are being exercised in this test.
+ * Different auth strategies that are being exercised in this test. Each strategy
+ * requires different logic for login (which fields to fill and button to click on
+ * login page) and logout (some logout flows require confirmation).
  */
 export enum AuthStrategy {
   FAKE_OIDC = 'fake-oidc',
   AWS_STAGING = 'aws-staging',
   SEATTLE_STAGING = 'seattle-staging',
 }
+/* eslint-enable no-unused-vars */
 
 function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   if (process.env.RECORD_VIDEO) {
