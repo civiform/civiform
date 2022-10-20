@@ -45,7 +45,7 @@ export class AdminPrograms {
   }
 
   async expectAdminProgramsPage() {
-    expect(await this.page.innerText('h1')).toEqual('All programs')
+    expect(await this.page.innerText('h1')).toEqual('Program dashboard')
   }
 
   async expectProgramExist(programName: string, description: string) {

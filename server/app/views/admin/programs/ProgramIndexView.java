@@ -81,7 +81,9 @@ public final class ProgramIndexView extends BaseHtmlView {
       layout.setOnlyProgramAdminType();
     }
 
-    String pageTitle = "Program Dashboard";
+    String pageTitle = "Program dashboard";
+
+    // Revisit if we introduce internationalization because the word order could change in other languages.
     String pageExplanation = "Create, edit and publish programs in " + civicEntityShortName;
     Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, questions, request);
 
