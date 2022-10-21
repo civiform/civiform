@@ -63,13 +63,15 @@ class QuestionBankController {
     )
     for (const element of closeQuestionBankElements) {
       element.addEventListener('click', () => {
-        questionBankContainer.querySelector('.cf-question-bank-panel').addEventListener(
-          'transitionend',
-          () => {
-            questionBankContainer.classList.add('hidden')
-          },
-          {once: true},
-        )
+        questionBankContainer
+          .querySelector('.cf-question-bank-panel')
+          .addEventListener(
+            'transitionend',
+            () => {
+              questionBankContainer.classList.add('hidden')
+            },
+            {once: true},
+          )
         questionBankContainer.classList.add(
           QuestionBankController.QUESTION_BANK_HIDDEN,
         )
