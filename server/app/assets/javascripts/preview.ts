@@ -7,7 +7,6 @@ class PreviewController {
     'question-enumerator-select'
   private static readonly QUESTION_ENTITY_TYPE_INPUT_ID =
     'enumerator-question-entity-type-input'
-  private static readonly QUESTION_ADD_OPTION_ID = 'add-new-option'
   private static readonly QUESTION_SETTINGS_ID = 'question-settings'
   private static readonly QUESTION_ENTITY_TYPE_BUTTON_ID =
     'enumerator-field-add-button'
@@ -64,7 +63,7 @@ class PreviewController {
     if (textInput) {
       textInput.addEventListener(
         'input',
-        (ev) => {
+        () => {
           PreviewController.updateFromNewQuestionText(textInput.value)
         },
         false,
@@ -77,7 +76,7 @@ class PreviewController {
     if (helpTextInput) {
       helpTextInput.addEventListener(
         'input',
-        (ev) => {
+        () => {
           PreviewController.updateFromNewQuestionHelpText(helpTextInput.value)
         },
         false,
@@ -90,7 +89,7 @@ class PreviewController {
     if (enumeratorSelector) {
       enumeratorSelector.addEventListener(
         'input',
-        (ev) => {
+        () => {
           PreviewController.updateFromNewEnumeratorSelector(
             enumeratorSelector.value,
           )
@@ -107,7 +106,7 @@ class PreviewController {
     if (entityTypeInput) {
       entityTypeInput.addEventListener(
         'input',
-        (ev) => {
+        () => {
           PreviewController.updateFromNewEntityType(entityTypeInput.value)
         },
         false,
@@ -439,5 +438,5 @@ class PreviewController {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const previewController = new PreviewController()
