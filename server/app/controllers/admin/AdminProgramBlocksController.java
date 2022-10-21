@@ -8,6 +8,7 @@ import controllers.CiviFormController;
 import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.Program;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -121,6 +122,40 @@ public final class AdminProgramBlocksController extends CiviFormController {
       return renderEditViewWithMessage(request, program, block, maybeToastMessage);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
+    }
+  }
+
+  /** POST endpoint for creating a new draft version of the program. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result newVersionFrom(Request request, long id, long blockId) {
+    try {
+      // // If there's already a draft then use that, likely the client is out of date and unaware a
+      // // draft exists.
+      // // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
+      // Optional<Program> existingDraft =
+      //   versionRepository
+      //     .getDraftVersion()
+      //     .getProgramByName(programService.getProgramDefinition(id).adminName());
+      // final Long idToEdit;
+      // if (existingDraft.isPresent()) {
+      //   idToEdit = existingDraft.get().id;
+      // } else {
+      //   // Make a new draft from the provided id.
+      //   idToEdit = programService.newDraftOf(id).id();
+      // }
+
+      // Make a new draft from the provided id.
+      final Long idToEdit = programService.newDraftOf(id).id();
+
+      ProgramDefinition program = programService.getProgramDefinition(idToEdit);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      Optional<ToastMessage> maybeToastMessage =
+        request.flash().get("success").map(ToastMessage::success);
+      return renderEditViewWithMessage(request, program, block, maybeToastMessage);
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (Exception e) {
+      return badRequest(e.toString());
     }
   }
 

@@ -358,6 +358,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     String editLink = controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), 1).url();
     String editLinkId = "program-edit-link-" + program.id();
     if (isActive) {
+      editLink = controllers.admin.routes.AdminProgramBlocksController.newVersionFrom(program.id(), 1).url();
       editLinkId = "program-new-version-link-" + program.id();
     }
 

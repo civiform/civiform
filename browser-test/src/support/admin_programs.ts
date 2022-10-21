@@ -465,9 +465,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     //await this.page.click('text=Edit program details')
-    await this.page.click(
-      `#edit-program-details`,
-    )
+    await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
 
     await this.page.click('#program-update-button')
