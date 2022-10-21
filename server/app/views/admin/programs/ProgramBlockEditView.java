@@ -126,10 +126,13 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                                     questions,
                                     blockDefinition.isEnumerator(),
                                     csrfTag,
-                                    blockDescriptionEditModal.getButton()))
-                            .with(
-                                questionBankPanel(
-                                    questions, programDefinition, blockDefinition, csrfTag))))
+                                    blockDescriptionEditModal.getButton()))),
+                questionBankPanel(
+                    questions,
+                    programDefinition,
+                    blockDefinition,
+                    csrfTag,
+                    QuestionBank.shouldShowQuestionBank(request)))
             .addModals(blockDescriptionEditModal);
 
     // Add toast messages
@@ -307,7 +310,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         div()
             .with(div(blockForm.getName()).withClasses("text-xl", "font-bold", "py-2"))
             .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
-            .withClasses("m-4");
+            .withClasses("my-4");
 
     DivTag predicateDisplay =
         renderPredicate(
@@ -318,7 +321,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             allQuestions);
 
     // Add buttons to change the block.
-    DivTag buttons = div().withClasses("mx-4", "flex", "flex-row", "gap-4");
+    DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
     buttons.with(blockDescriptionModalButton);
     if (blockDefinitionIsEnumerator) {
       buttons.with(
@@ -364,9 +367,16 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                       blockQuestions.size()));
             });
 
+    ButtonTag addQuestion =
+        makeSvgTextButton("Add a question", Icons.ADD)
+            .withClasses(
+                AdminStyles.PRIMARY_BUTTON_STYLES,
+                ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                "my-4");
+
     return div()
-        .withClasses("w-7/12", "py-6")
-        .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions);
+        .withClasses("w-7/12", "py-6", "px-4")
+        .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions, addQuestion);
   }
 
   private DivTag renderPredicate(
@@ -385,7 +395,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
             .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
     return div()
-        .withClasses("m-4")
+        .withClasses("my-4")
         .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
         .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"))
         .with(
@@ -407,7 +417,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         div()
             .withClasses(
                 ReferenceClasses.PROGRAM_QUESTION,
-                "mx-4",
                 "my-2",
                 "border",
                 "border-gray-200",
@@ -608,12 +617,18 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       ImmutableList<QuestionDefinition> questionDefinitions,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
-      InputTag csrfTag) {
+      InputTag csrfTag,
+      boolean isQuestionBankVisible) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
             .url();
 
+    String redirectUrl =
+        QuestionBank.addShowQuestionBankParam(
+            controllers.admin.routes.AdminProgramBlocksController.edit(
+                    program.id(), blockDefinition.id())
+                .url());
     QuestionBank qb =
         new QuestionBank(
             QuestionBank.QuestionBankParams.builder()
@@ -622,12 +637,9 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 .setQuestions(questionDefinitions)
                 .setProgram(program)
                 .setBlockDefinition(blockDefinition)
-                .setQuestionCreateRedirectUrl(
-                    controllers.admin.routes.AdminProgramBlocksController.edit(
-                            program.id(), blockDefinition.id())
-                        .url())
+                .setQuestionCreateRedirectUrl(redirectUrl)
                 .build());
-    return div().withClasses("w-3/12").with(qb.getContainer());
+    return qb.getContainer(isQuestionBankVisible);
   }
 
   private Modal blockDescriptionModal(

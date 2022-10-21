@@ -274,7 +274,7 @@ export class AdminPrograms {
         await this.page.innerText('[for=block-description-textarea]')
       ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
-    expect(await this.page.innerText('h1')).toContain('Add Question')
+    expect(await this.page.innerText('h1')).toContain('Add a question')
   }
 
   // Removes questions from given block in program.
@@ -312,11 +312,26 @@ export class AdminPrograms {
     }
   }
 
+  async openQuestionBank() {
+    await this.page.click('button:has-text("Add a question")')
+    // wait for animation to finish
+    await this.page.waitForTimeout(1000)
+  }
+
+  async closeQuestionBank() {
+    await this.page.click('svg.cf-close-question-bank-button')
+    // wait for animation to finish
+    await this.page.waitForTimeout(1000)
+  }
+
   async addQuestionFromQuestionBank(questionName: string) {
+    await this.openQuestionBank()
     await this.page.click(
-      `.cf-question-bank-element:has-text("Admin ID: ${questionName}")`,
+      `.cf-question-bank-element:has-text("Admin ID: ${questionName}") button:has-text("Add")`,
     )
     await waitForPageJsLoad(this.page)
+    // After question was added question bank is still open. Close it first.
+    await this.closeQuestionBank()
     // Make sure the question is successfully added to the screen.
     await this.page.waitForSelector(
       `div.cf-program-question p:text("Admin ID: ${questionName}")`,

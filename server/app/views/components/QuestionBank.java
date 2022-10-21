@@ -1,6 +1,7 @@
 package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -10,7 +11,6 @@ import static j2html.TagCreator.p;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -33,13 +34,10 @@ import views.style.StyleUtils;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public final class QuestionBank {
-  private static final SvgTag PLUS_ICON =
-      Icons.svg(Icons.PLUS)
-          .withClasses("shrink-0", "h-12", "w-5")
-          .attr("fill", "currentColor")
-          .attr("stroke-width", "2")
-          .attr("stroke-linecap", "round")
-          .attr("stroke-linejoin", "round");
+
+  // Url parameter used to force question bank open upon initial rendering
+  // of program edit page.
+  private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
 
   private final QuestionBankParams params;
   private Optional<Long> enumeratorQuestionId;
@@ -48,8 +46,29 @@ public final class QuestionBank {
     this.params = checkNotNull(params);
   }
 
-  public FormTag getContainer() {
-    return questionBankPanel();
+  public DivTag getContainer(boolean isQuestionBankVisible) {
+    return div()
+        .withId(ReferenceClasses.QUESTION_BANK_CONTAINER)
+        // For explanation of why we need two different hidden classes see
+        // initToggleQuestionBankButtons() in questionBank.ts
+        .withClasses(
+            isQuestionBankVisible ? "" : ReferenceClasses.QUESTION_BANK_HIDDEN,
+            isQuestionBankVisible ? "" : "hidden",
+            "absolute",
+            "w-full",
+            "h-full")
+        .with(
+            div()
+                .withClasses(
+                    "bg-gray-400",
+                    "opacity-75",
+                    "h-full",
+                    "w-full",
+                    "cursor-pointer",
+                    "transition-opacity",
+                    ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON,
+                    ReferenceClasses.QUESTION_BANK_GLASSPANE))
+        .with(questionBankPanel());
   }
 
   private FormTag questionBankPanel() {
@@ -57,15 +76,39 @@ public final class QuestionBank {
         form()
             .withMethod(HttpVerbs.POST)
             .withAction(params.questionAction())
-            .with(params.csrfTag());
+            .with(params.csrfTag())
+            .withClasses(
+                ReferenceClasses.QUESTION_BANK_PANEL,
+                "h-full",
+                "bg-white",
+                "w-1/2",
+                "overflow-y-auto",
+                "absolute",
+                "right-0",
+                "top-0",
+                "transition-transform");
 
-    DivTag innerDiv = div().withClasses("shadow-lg", "h-full");
-    questionForm.with(innerDiv);
-    DivTag contentDiv = div().withClasses("relative", "grid", "gap-6", "px-5", "py-6");
-    innerDiv.with(contentDiv);
+    // We set pb-12 (padding bottom 12) to account for the fact that question
+    // bank height is screen size while it's effective space is screen-height minus header-height.
+    // That pushes question bank below the header and the bottom part is below the visible part of
+    // the screen.
+    // Because of that we add pb-12 so that invisible part is empty and question are not partly cut.
+    DivTag contentDiv = div().withClasses("relative", "grid", "gap-6", "px-5", "pt-6", "pb-12");
+    questionForm.with(contentDiv);
 
-    H1Tag headerDiv = h1("Add Question").withClasses("mx-2", "-mb-3", "text-xl");
-    contentDiv.with(div().with(headerDiv));
+    H1Tag headerDiv = h1("Add a question").withClasses("mx-2", "text-xl");
+    contentDiv.with(
+        div()
+            .withClasses("flex", "items-center")
+            .with(
+                Icons.svg(Icons.CLOSE)
+                    .withClasses(
+                        "w-6",
+                        "h-6",
+                        "cursor-pointer",
+                        "mr-2",
+                        ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON))
+            .with(headerDiv));
 
     InputTag filterInput =
         input()
@@ -127,24 +170,20 @@ public final class QuestionBank {
             .withClasses(
                 ReferenceClasses.QUESTION_BANK_ELEMENT,
                 "relative",
-                "-m-3",
                 "p-3",
+                "pr-0",
                 "flex",
-                "items-start",
-                "rounded-lg",
-                "border",
-                "border-transparent",
-                "transition-all",
-                "transform",
-                StyleUtils.hover("scale-105", "text-gray-800", "border", "border-gray-100"));
+                "items-center",
+                "border-b",
+                "border-gray-300");
 
     ButtonTag addButton =
-        TagCreator.button()
+        button("Add")
             .withType("submit")
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
+            .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.SECONDARY_BUTTON_STYLES);
 
     SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-12", "w-6");
@@ -154,15 +193,15 @@ public final class QuestionBank {
             : definition.getQuestionHelpText().getDefault();
     DivTag content =
         div()
-            .withClasses("ml-4")
+            .withClasses("ml-4", "grow")
             .with(
                 p(definition.getQuestionText().getDefault())
-                    .withClass(ReferenceClasses.ADMIN_QUESTION_TITLE),
+                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold"),
                 p(questionHelpText).withClasses("mt-1", "text-sm", "line-clamp-2"),
                 p(String.format("Admin ID: %s", definition.getName()))
-                    .withClasses("mt-1", "text-sm"),
-                addButton);
-    return questionDiv.with(PLUS_ICON, icon, content);
+                    .withClasses("mt-1", "text-sm"));
+
+    return questionDiv.with(icon, content, addButton);
   }
 
   /**
@@ -247,6 +286,19 @@ public final class QuestionBank {
       }
     }
     return enumeratorQuestionId;
+  }
+
+  /**
+   * Question bank is hidden by default when user opens program edit page. But some actions, like
+   * adding question from the bank, lead to page reload and after such reload question bank should
+   * stay open as that matches user expectations.
+   */
+  public static String addShowQuestionBankParam(String url) {
+    return url + (url.contains("?") ? "&" : "?") + QuestionBank.SHOW_QUESTION_BANK_PARAM + "=true";
+  }
+
+  public static boolean shouldShowQuestionBank(Http.Request request) {
+    return request.queryString(QuestionBank.SHOW_QUESTION_BANK_PARAM).orElse("").equals("true");
   }
 
   @AutoValue

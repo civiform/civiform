@@ -46,4 +46,15 @@
   input[type='number'] {
     -moz-appearance: textfield;
   }
+
+  /**
+   * For explanation of why we need two different hidden classes see
+   * initToggleQuestionBankButtons() in questionBank.ts
+   */
+  .cf-question-bank-hidden .cf-question-bank-panel {
+    @apply translate-x-full;
+  }
+  .cf-question-bank-hidden .cf-question-bank-glasspane {
+    @apply opacity-0;
+  }
 }

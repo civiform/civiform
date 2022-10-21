@@ -19,12 +19,11 @@ services:
     volumes: *sbt-volumes
     stdin_open: true # docker run -i
     tty: true # docker run -t
-    restart: always
     ports:
       - 9000:9000
       - 8457:8457
     # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
-    command: -jvm-debug "*:8457" ~run -Dsbt.offline -Dconfig.file=conf/application.dev.conf
+    command: -jvm-debug "*:8457" -Dsbt.offline # ~run -Dsbt.offline -Dconfig.file=conf/application.dev.conf
 
   civiform-shell:
     image: civiform-dev
@@ -54,6 +53,7 @@ services:
       # isolate and persist dev database.
       - project-data:/project
       - db-data:/var/lib/postgresql/data
+      - ./init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
 
   pgadmin:
     profiles: ['pgadmin']
