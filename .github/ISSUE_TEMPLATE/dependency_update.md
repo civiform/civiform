@@ -4,7 +4,6 @@ about: Keep dependencies up to date
 title: ''
 labels: dependencies, tech-debt
 assignees: ''
-
 ---
 
 **Notes on the dependency**
