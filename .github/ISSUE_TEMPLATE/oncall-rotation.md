@@ -4,7 +4,6 @@ about: Weekly oncall rotation checklist and log
 title: 'Oncall: 2022-XX-XX'
 labels: ''
 assignees: ''
-
 ---
 
 The Oncall is responsible for releasing a new version of CiviForm at the start of their rotation and general upkeep through their rotation. This is an aid for each rotation, but the docs are the source of truth.
