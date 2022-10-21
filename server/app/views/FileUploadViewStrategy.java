@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.p;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -13,8 +14,10 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
+import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
@@ -130,7 +133,8 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return form()
         .withId(BLOCK_FORM_ID)
         .withEnctype("multipart/form-data")
-        .withMethod(HttpVerbs.POST);
+        .withMethod(HttpVerbs.POST)
+        .with(requiredFieldsExplanationContent(params.messages()));
   }
 
   protected ImmutableList<ScriptTag> extraScriptTags() {
@@ -276,5 +280,10 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
       ret.with(maybeContinueButton.get());
     }
     return ret;
+  }
+
+  private PTag requiredFieldsExplanationContent(Messages messages) {
+    return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
+        .withClasses("text-sm", "text-gray-600", "mb-2");
   }
 }
