@@ -102,7 +102,7 @@ public final class ApplicantStyles {
   public static final String BUTTON_PROGRAM_APPLY =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-sm", "mx-auto");
   public static final String BUTTON_TI_DASHBOARD =
-    StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-xl");
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-xl");
   public static final String BUTTON_BLOCK_NEXT =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-base");
   public static final String BUTTON_BLOCK_PREVIOUS =
