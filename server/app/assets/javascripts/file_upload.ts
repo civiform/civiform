@@ -32,6 +32,10 @@ function validateFileUploadQuestions(formEl: Element): boolean {
     if (errorDiv) {
       // Toggle the error div if invalid.
       errorDiv.classList.toggle('hidden', isValid)
+      if (!isValid) {
+        // Add ariaLive label so error is announced to screen reader.
+        errorDiv.ariaLive = 'polite'
+      }
     }
     if (errorDiv && !isValid && !wasSetInvalid) {
       // Add extra aria attributes to input if there is an error.
