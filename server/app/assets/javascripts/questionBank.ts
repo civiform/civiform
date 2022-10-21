@@ -40,7 +40,6 @@ class QuestionBankController {
     const questionBankContainer = document.getElementById(
       QuestionBankController.QUESTION_BANK_CONTAINER,
     )
-    const form = questionBankContainer.querySelector('form')
 
     const openQuestionBankElements = Array.from(
       document.getElementsByClassName(
@@ -64,7 +63,7 @@ class QuestionBankController {
     )
     for (const element of closeQuestionBankElements) {
       element.addEventListener('click', () => {
-        form.addEventListener(
+        questionBankContainer.querySelector('.cf-question-bank-panel').addEventListener(
           'transitionend',
           () => {
             questionBankContainer.classList.add('hidden')
