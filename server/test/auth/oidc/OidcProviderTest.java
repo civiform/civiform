@@ -40,9 +40,9 @@ public class OidcProviderTest extends ResetPostgres {
         ConfigFactory.parseMap(
             ImmutableMap.of(
                 "idcs.client_id",
-                "foo",
+                "idcs-fake-oidc-client",
                 "idcs.secret",
-                "bar",
+                "idcs-fake-oidc-secret",
                 "idcs.discovery_uri",
                 DISCOVERY_URI,
                 "base_url",
@@ -57,10 +57,10 @@ public class OidcProviderTest extends ResetPostgres {
   @Test
   public void Test_getConfigurationValues() {
     String client_id = oidcProvider.getClientID();
-    assertThat(client_id).isEqualTo("foo");
+    assertThat(client_id).isEqualTo("idcs-fake-oidc-client");
 
     String client_secret = oidcProvider.getClientSecret().get();
-    assertThat(client_secret).isEqualTo("bar");
+    assertThat(client_secret).isEqualTo("idcs-fake-oidc-secret");
   }
 
   static ImmutableList<Object[]> provideConfigsForGet() {
@@ -70,9 +70,9 @@ public class OidcProviderTest extends ResetPostgres {
           "id_token",
           ImmutableMap.of(
               "idcs.client_id",
-              "foo",
+              "idcs-fake-oidc-client",
               "idcs.secret",
-              "bar",
+              "idcs-fake-oidc-secret",
               "idcs.discovery_uri",
               DISCOVERY_URI,
               "base_url",
@@ -83,9 +83,9 @@ public class OidcProviderTest extends ResetPostgres {
           "id_token",
           ImmutableMap.of(
               "idcs.client_id",
-              "foo",
+              "idcs-fake-oidc-client",
               "idcs.secret",
-              "bar",
+              "idcs-fake-oidc-secret",
               "idcs.provider_name",
               "Provider Name here",
               "idcs.response_mode",
@@ -136,7 +136,7 @@ public class OidcProviderTest extends ResetPostgres {
               "idcs.client_id",
               "",
               "idcs.secret",
-              "bar",
+              "idcs-fake-oidc-secret",
               "idcs.discovery_uri",
               DISCOVERY_URI,
               "base_url",
@@ -145,15 +145,20 @@ public class OidcProviderTest extends ResetPostgres {
         new Object[] {
           "missing base_url",
           ImmutableMap.of(
-              "idcs.client_id", "foo", "idcs.secret", "bar", "idcs.discovery_uri", DISCOVERY_URI)
+              "idcs.client_id",
+              "idcs-fake-oidc-client",
+              "idcs.secret",
+              "idcs-fake-oidc-secret",
+              "idcs.discovery_uri",
+              DISCOVERY_URI)
         },
         new Object[] {
           "blank discovery uri",
           ImmutableMap.of(
               "idcs.client_id",
-              "foo",
+              "idcs-fake-oidc-client",
               "idcs.secret",
-              "bar",
+              "idcs-fake-oidc-secret",
               "idcs.discovery_uri",
               "",
               "base_url",

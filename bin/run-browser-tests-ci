@@ -10,16 +10,10 @@ export RECORD_VIDEO=1
 source bin/lib.sh
 docker::set_project_name_browser_tests
 
-docker volume create browser-tests-node-modules
 # The display name returned by test_oidc_provider.js is <username>@example.com.
 docker run \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
-  -v "browser-tests-node-modules:/usr/src/civiform-browser-tests/node_modules" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
-  -e TEST_USER_AUTH_STRATEGY="fake-oidc" \
-  -e TEST_USER_LOGIN="testuser" \
-  -e TEST_USER_PASSWORD="anotsecretpassword" \
-  -e TEST_USER_DISPLAY_NAME="testuser@example.com" \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform-browser-test:latest \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \

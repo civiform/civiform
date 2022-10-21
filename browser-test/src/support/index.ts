@@ -49,6 +49,19 @@ export const isLocalDevEnvironment = () => {
   )
 }
 
+/* eslint-disable no-unused-vars */
+/**
+ * Different auth strategies that are being exercised in this test. Each strategy
+ * requires different logic for login (which fields to fill and button to click on
+ * login page) and logout (some logout flows require confirmation).
+ */
+export enum AuthStrategy {
+  FAKE_OIDC = 'fake-oidc',
+  AWS_STAGING = 'aws-staging',
+  SEATTLE_STAGING = 'seattle-staging',
+}
+/* eslint-enable no-unused-vars */
+
 function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   if (process.env.RECORD_VIDEO) {
     // https://playwright.dev/docs/videos
@@ -231,6 +244,17 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 
 export const logout = async (page: Page) => {
   await page.click('text=Logout')
+  // If the user logged in through OIDC previously - during logout they are
+  // redirected to fake-idcs:PORT/session/end page. There they need to confirm
+  // logout.
+  if (page.url().match('fake-idcs.*/session/end')) {
+    const pageContent = await page.textContent('html')
+    if (pageContent!.includes('Do you want to sign-out from')) {
+      // OIDC central provider confirmation page
+      await page.click('button:has-text("Yes")')
+    }
+  }
+
   // Logout is handled by the play framework so it doesn't land on a
   // page with civiform js where we should waitForPageJsLoad. Because
   // the process goes through a sequence of redirects we need to wait
@@ -265,13 +289,13 @@ export const setLangEsUS = async (page: Page) => {
 
 export const loginAsTestUser = async (page: Page) => {
   switch (TEST_USER_AUTH_STRATEGY) {
-    case 'fake-oidc':
+    case AuthStrategy.FAKE_OIDC:
       await loginAsTestUserFakeOidc(page)
       break
-    case 'aws-staging':
+    case AuthStrategy.AWS_STAGING:
       await loginAsTestUserAwsStaging(page)
       break
-    case 'seattle-staging':
+    case AuthStrategy.SEATTLE_STAGING:
       await loginAsTestUserSeattleStaging(page)
       break
     default:
@@ -451,7 +475,7 @@ export const validateScreenshot = async (
     await normalizeElements(frame)
   }
 
-  expect(screenshotFileName).toMatch(/[a-z0-9-]+/)
+  expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
       ...screenshotOptions,

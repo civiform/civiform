@@ -49,7 +49,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           PLATFORM: ${{ matrix.platform }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_USERNAME: civiform
         run: ${{ matrix.script }}
 
   build_dependancies:
@@ -122,5 +122,5 @@ jobs:
           DOCKER_BUILDKIT: 1
           PLATFORM: ${{ matrix.platform }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_USERNAME: civiform
         run: ${{ matrix.script }}

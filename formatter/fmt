@@ -54,6 +54,7 @@ cd server
 npm install --silent
 npx eslint --fix "app/assets/javascripts/**/*.ts"
 cd ../browser-test
+# Remove --force once fixed https://github.com/civiform/civiform/issues/3678
 npm install --force --silent
 npx eslint --fix "src/**/*.ts"
 cd ..

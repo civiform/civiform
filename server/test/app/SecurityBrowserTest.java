@@ -9,6 +9,7 @@ import controllers.routes;
 import java.util.Optional;
 import models.Applicant;
 import org.fluentlenium.core.domain.FluentWebElement;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
@@ -33,7 +34,12 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     userRepository = app.injector().instanceOf(UserRepository.class);
   }
 
-  private void loginWithSimulatedIdcs() {
+  @After
+  public void ensureLogout() {
+    logout();
+  }
+
+  protected void loginWithSimulatedIdcs() {
     goTo(routes.LoginController.applicantLogin(Optional.empty()));
     // If we are not cookied, enter a username and password.
     // Otherwise, since the fake provider uses the "web" flow, we're automatically sent to the
@@ -48,6 +54,10 @@ public class SecurityBrowserTest extends BaseBrowserTest {
       // Log in.
       browser.$(".login-submit").click();
       // Bypass consent screen.
+      browser.$(".login-submit").click();
+    } else if (browser.pageSource().contains("Authorize")) {
+      // If we are not cookied, but we are logged into the idp,
+      // we need to authorize the request.
       browser.$(".login-submit").click();
     }
   }
@@ -117,15 +127,15 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     loginWithSimulatedIdcs();
     goTo(routes.HomeController.securePlayIndex());
     assertThat(browser.pageSource()).contains("You are logged in.");
-    logout();
+    goTo(org.pac4j.play.routes.LogoutController.logout());
     assertThat(browser.url())
         .contains(
-            "session/end?post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A19001%2F&client_id=foo")
+            "session/end?post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A19001%2F&client_id=idcs-fake-oidc-client")
         .as("redirects to login provider");
     assertThat(browser.pageSource().contains("Do you want to sign-out from"))
         .as("Confirm logout from dev-oidc");
-    FluentWebElement continueButton = browser.$("button").last();
-    assertThat(continueButton.textContent()).contains("No");
+    FluentWebElement continueButton = browser.$("button[name='logout']").first();
+    assertThat(continueButton.textContent()).contains("Yes, sign me out");
     continueButton.click();
     assertThat(browser.url()).contains("loginForm");
 

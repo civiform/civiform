@@ -100,7 +100,8 @@ public final class QuestionBank {
                             .with(
                                 div().withClass("flex-grow"),
                                 CreateQuestionButton.renderCreateQuestionButton(
-                                    params.questionCreateRedirectUrl())))));
+                                    params.questionCreateRedirectUrl(),
+                                    /* isPrimaryButton= */ false)))));
 
     ImmutableList<QuestionDefinition> questions =
         filterQuestions()

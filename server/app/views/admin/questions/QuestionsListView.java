@@ -84,7 +84,8 @@ public final class QuestionsListView extends BaseHtmlView {
                         h1(title),
                         div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index().url())),
+                            controllers.admin.routes.AdminQuestionController.index().url(),
+                            /* isPrimaryButton= */ true)),
                 div()
                     .withClasses("mt-10", "flex")
                     .with(

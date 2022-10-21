@@ -289,7 +289,7 @@ export class AdminPrograms {
       await this.page.click(
         this.withinQuestionCardSelectorInProgramEditor(
           questionName,
-          'button:text("DELETE")',
+          'button:has-text("Delete")',
         ),
       )
     }
