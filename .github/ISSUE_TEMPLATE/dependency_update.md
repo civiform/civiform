@@ -2,7 +2,7 @@
 name: Dependency Update
 about: Keep dependencies up to date
 title: ''
-labels: tech-debt, dependency
+labels: dependencies, tech-debt
 assignees: ''
 ---
 
