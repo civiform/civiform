@@ -124,25 +124,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
-  /** POST endpoint for creating a new draft version of the program. */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result newVersionFrom(Request request, long id, long blockId) {
-    try {
-      // Make a new draft from the provided id.
-      final Long idToEdit = programService.newDraftOf(id).id();
-
-      ProgramDefinition program = programService.getProgramDefinition(idToEdit);
-      BlockDefinition block = program.getBlockDefinition(blockId);
-      Optional<ToastMessage> maybeToastMessage =
-          request.flash().get("success").map(ToastMessage::success);
-      return renderEditViewWithMessage(request, program, block, maybeToastMessage);
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
-    } catch (Exception e) {
-      return badRequest(e.toString());
-    }
-  }
-
   /** POST endpoint for updating a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockId) {

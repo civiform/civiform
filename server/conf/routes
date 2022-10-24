@@ -45,7 +45,6 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId           controlle
 POST    /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/move      controllers.admin.AdminProgramBlocksController.move(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/newVersion                   controllers.admin.AdminProgramBlocksController.newVersionFrom(request: Request, programId: Long, blockDefinitionId: Long)
 
 # A controller for pages for an admin to configure show/hide logic on blocks for a program
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/edit    controllers.admin.AdminProgramBlockPredicatesController.edit(request: Request, programId: Long, blockDefinitionId: Long)
