@@ -15,7 +15,7 @@ export class TIDashboard {
   }
 
   async gotoTIDashboardPage(page: Page) {
-    await page.click('text="Trusted intermediary dashboard"')
+    await page.click('text="View and Add Clients"')
   }
 
   async createClient(client: ClientInformation) {
