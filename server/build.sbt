@@ -65,13 +65,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.4.5",
+      "org.pac4j" % "pac4j-core" % "5.6.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.4.5",
+      "org.pac4j" % "pac4j-http" % "5.6.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.4.5",
+      "org.pac4j" % "pac4j-oidc" % "5.6.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.4.5",
+      "org.pac4j" % "pac4j-saml" % "5.6.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.10.0",
@@ -97,7 +97,11 @@ lazy val root = (project in file("."))
       "commons-net" % "commons-net" % "3.8.0",
 
       // Url detector for program descriptions.
-      "com.linkedin.urls" % "url-detector" % "0.1.17"
+      "com.linkedin.urls" % "url-detector" % "0.1.17",
+
+      // Override defaul Play logback version. We need to use logback
+      // compatible with sl4j 2.0 because the latter pulled in by pac4j.
+      "ch.qos.logback" % "logback-classic" % "1.3.4"
     ),
     javacOptions ++= Seq(
       "-encoding",
