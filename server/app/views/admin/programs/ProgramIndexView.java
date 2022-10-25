@@ -83,7 +83,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     String pageTitle = "Program dashboard";
 
-    // Revisit if we introduce internationalization because the word order could change in other languages.
+    // Revisit if we introduce internationalization because the word order could change in other
+    // languages.
     String pageExplanation = "Create, edit and publish programs in " + civicEntityShortName;
     Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, questions, request);
 
