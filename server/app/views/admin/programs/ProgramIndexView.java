@@ -104,9 +104,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                         renderNewProgramButton(),
                         maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
                 div()
-                  .withClasses("flex", "items-center", "space-x-4", "mt-12")
-                  .with(h2(pageExplanation)),
-
+                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
+                    .with(h2(pageExplanation)),
                 div()
                     .withClasses("mt-10", "flex")
                     .with(
