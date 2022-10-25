@@ -304,16 +304,20 @@ export class AdminPrograms {
     }
   }
 
+  private async waitForQuestionBankAnimationToFinish() {
+    // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
+    // https://tailwindcss.com/docs/transition-property
+    await this.page.waitForTimeout(1000)
+  }
+
   async openQuestionBank() {
     await this.page.click('button:has-text("Add a question")')
-    // wait for animation to finish
-    await this.page.waitForTimeout(1000)
+    await this.waitForQuestionBankAnimationToFinish()
   }
 
   async closeQuestionBank() {
     await this.page.click('svg.cf-close-question-bank-button')
-    // wait for animation to finish
-    await this.page.waitForTimeout(1000)
+    await this.waitForQuestionBankAnimationToFinish()
   }
 
   async addQuestionFromQuestionBank(questionName: string) {
