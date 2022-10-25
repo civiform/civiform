@@ -294,7 +294,13 @@ public final class QuestionBank {
    * stay open as that matches user expectations.
    */
   public static String addShowQuestionBankParam(String url) {
-    return url + (url.contains("?") ? "&" : "?") + QuestionBank.SHOW_QUESTION_BANK_PARAM + "=true";
+import org.apache.http.client.utils.URIBuilder;
+...
+    try {
+      return new URIBuilder(url).addParameter(QuestionBank.SHOW_QUESTION_BANK_PARAM, "true").build();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+     }
   }
 
   public static boolean shouldShowQuestionBank(Http.Request request) {
