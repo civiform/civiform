@@ -159,7 +159,7 @@ class AdminApplicationView {
     // Remember the original value here since neither the 'change/input' events provide the
     // previous selected value. We need to reset the value when the confirmation is rejected.
     const originalSelectedValue = statusSelector.value
-    statusSelector.addEventListener('change', (event) => {
+    statusSelector.addEventListener('change', () => {
       // Upon confirmation the model is responsible for reloading the page with the new status, so
       // don't await it and pro-actively reset the selection to the previous value for when the
       // user cancels the confirmation.

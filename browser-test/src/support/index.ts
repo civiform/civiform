@@ -49,6 +49,19 @@ export const isLocalDevEnvironment = () => {
   )
 }
 
+/* eslint-disable no-unused-vars */
+/**
+ * Different auth strategies that are being exercised in this test. Each strategy
+ * requires different logic for login (which fields to fill and button to click on
+ * login page) and logout (some logout flows require confirmation).
+ */
+export enum AuthStrategy {
+  FAKE_OIDC = 'fake-oidc',
+  AWS_STAGING = 'aws-staging',
+  SEATTLE_STAGING = 'seattle-staging',
+}
+/* eslint-enable no-unused-vars */
+
 function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   if (process.env.RECORD_VIDEO) {
     // https://playwright.dev/docs/videos
@@ -276,13 +289,13 @@ export const setLangEsUS = async (page: Page) => {
 
 export const loginAsTestUser = async (page: Page) => {
   switch (TEST_USER_AUTH_STRATEGY) {
-    case 'fake-oidc':
+    case AuthStrategy.FAKE_OIDC:
       await loginAsTestUserFakeOidc(page)
       break
-    case 'aws-staging':
+    case AuthStrategy.AWS_STAGING:
       await loginAsTestUserAwsStaging(page)
       break
-    case 'seattle-staging':
+    case AuthStrategy.SEATTLE_STAGING:
       await loginAsTestUserSeattleStaging(page)
       break
     default:
@@ -367,13 +380,6 @@ export const testUserDisplayName = () => {
     )
   }
   return TEST_USER_DISPLAY_NAME
-}
-
-export const testUserEmail = () => {
-  if (!TEST_USER_LOGIN) {
-    throw new Error('Empty or unset TEST_USER_LOGIN environment variable')
-  }
-  return TEST_USER_LOGIN + '@example.com'
 }
 
 export const supportsEmailInspection = () => {
