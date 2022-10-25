@@ -266,7 +266,7 @@ export class AdminPrograms {
         await this.page.innerText('[for=block-description-textarea]')
       ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
-    expect(await this.page.innerText('h1')).toContain('Add Question')
+    expect(await this.page.innerText('h1')).toContain('Add a question')
   }
 
   // Removes questions from given block in program.
@@ -304,11 +304,30 @@ export class AdminPrograms {
     }
   }
 
+  private async waitForQuestionBankAnimationToFinish() {
+    // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
+    // https://tailwindcss.com/docs/transition-property
+    await this.page.waitForTimeout(1000)
+  }
+
+  async openQuestionBank() {
+    await this.page.click('button:has-text("Add a question")')
+    await this.waitForQuestionBankAnimationToFinish()
+  }
+
+  async closeQuestionBank() {
+    await this.page.click('svg.cf-close-question-bank-button')
+    await this.waitForQuestionBankAnimationToFinish()
+  }
+
   async addQuestionFromQuestionBank(questionName: string) {
+    await this.openQuestionBank()
     await this.page.click(
-      `.cf-question-bank-element:has-text("Admin ID: ${questionName}")`,
+      `.cf-question-bank-element:has-text("Admin ID: ${questionName}") button:has-text("Add")`,
     )
     await waitForPageJsLoad(this.page)
+    // After question was added question bank is still open. Close it first.
+    await this.closeQuestionBank()
     // Make sure the question is successfully added to the screen.
     await this.page.waitForSelector(
       `div.cf-program-question p:text("Admin ID: ${questionName}")`,
