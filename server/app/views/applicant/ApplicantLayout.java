@@ -169,7 +169,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
-      String tiDashboardText = "Trusted intermediary dashboard";
+      String tiDashboardText = "View and Add Clients";
       String tiDashboardLink =
           controllers.ti.routes.TrustedIntermediaryController.dashboard(
                   /* nameQuery= */ Optional.empty(),
@@ -181,11 +181,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
               .withId("ti-dashboard-link")
               .withHref(tiDashboardLink)
               .withClasses(
-                  "px-3",
-                  "text-sm",
                   "opacity-75",
                   StyleUtils.hover("opacity-100"),
-                  ApplicantStyles.BUTTON_PROGRAM_APPLY),
+                  ApplicantStyles.BUTTON_TI_DASHBOARD),
           div("(applying as: " + userName + ")")
               .withClasses("text-sm", "text-black", "text-center"));
     }
