@@ -618,7 +618,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      boolean isQuestionBankVisible) {
+      QuestionBank.Visibility questionBankVisibility) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
@@ -639,7 +639,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 .setBlockDefinition(blockDefinition)
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build());
-    return qb.getContainer(isQuestionBankVisible);
+    return qb.getContainer(questionBankVisibility);
   }
 
   private Modal blockDescriptionModal(

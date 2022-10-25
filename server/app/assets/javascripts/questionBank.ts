@@ -7,6 +7,7 @@ class QuestionBankController {
   static readonly CLOSE_QUESTION_BANK_BUTTON = 'cf-close-question-bank-button'
   static readonly QUESTION_BANK_CONTAINER = 'cf-question-bank-container'
   static readonly QUESTION_BANK_HIDDEN = 'cf-question-bank-hidden'
+  static readonly BANK_SHOWN_URL_PARAM = 'sqb'
 
   constructor() {
     const questionBankFilter = document.getElementById(
@@ -48,12 +49,7 @@ class QuestionBankController {
     )
     for (const element of openQuestionBankElements) {
       element.addEventListener('click', () => {
-        questionBankContainer.classList.remove('hidden')
-        window.requestAnimationFrame(() => {
-          questionBankContainer.classList.remove(
-            QuestionBankController.QUESTION_BANK_HIDDEN,
-          )
-        })
+        QuestionBankController.showQuestionBank(questionBankContainer)
       })
     }
     const closeQuestionBankElements = Array.from(
@@ -63,20 +59,33 @@ class QuestionBankController {
     )
     for (const element of closeQuestionBankElements) {
       element.addEventListener('click', () => {
-        questionBankContainer
-          .querySelector('.cf-question-bank-panel')
-          .addEventListener(
-            'transitionend',
-            () => {
-              questionBankContainer.classList.add('hidden')
-            },
-            {once: true},
-          )
-        questionBankContainer.classList.add(
-          QuestionBankController.QUESTION_BANK_HIDDEN,
-        )
+        QuestionBankController.hideQuestionBank(questionBankContainer)
       })
     }
+  }
+
+  static showQuestionBank(container: HTMLElement) {
+    container.classList.remove('hidden')
+    window.requestAnimationFrame(() => {
+      container.classList.remove(QuestionBankController.QUESTION_BANK_HIDDEN)
+    })
+    const url = new URL(location.href)
+    url.searchParams.set(QuestionBankController.BANK_SHOWN_URL_PARAM, 'true')
+    window.history.replaceState({}, '', url.toString())
+  }
+
+  static hideQuestionBank(container: HTMLElement) {
+    container.querySelector('.cf-question-bank-panel').addEventListener(
+      'transitionend',
+      () => {
+        container.classList.add('hidden')
+      },
+      {once: true},
+    )
+    container.classList.add(QuestionBankController.QUESTION_BANK_HIDDEN)
+    const url = new URL(location.href)
+    url.searchParams.delete(QuestionBankController.BANK_SHOWN_URL_PARAM)
+    window.history.replaceState({}, '', url.toString())
   }
 
   /**

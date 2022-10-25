@@ -16,11 +16,13 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import services.program.BlockDefinition;
@@ -42,18 +44,30 @@ public final class QuestionBank {
   private final QuestionBankParams params;
   private Optional<Long> enumeratorQuestionId;
 
+  /**
+   * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
+   * user clicking "Add question" button. BUt in some cases, like returning to the program edit page
+   * after adding a question - we want to render it visible.
+   */
+  public enum Visibility {
+    VISIBLE,
+    HIDDEN;
+  }
+
   public QuestionBank(QuestionBankParams params) {
     this.params = checkNotNull(params);
   }
 
-  public DivTag getContainer(boolean isQuestionBankVisible) {
+  public DivTag getContainer(QuestionBank.Visibility questionBankVisibility) {
     return div()
         .withId(ReferenceClasses.QUESTION_BANK_CONTAINER)
         // For explanation of why we need two different hidden classes see
         // initToggleQuestionBankButtons() in questionBank.ts
         .withClasses(
-            isQuestionBankVisible ? "" : ReferenceClasses.QUESTION_BANK_HIDDEN,
-            isQuestionBankVisible ? "" : "hidden",
+            questionBankVisibility == Visibility.HIDDEN
+                ? ReferenceClasses.QUESTION_BANK_HIDDEN
+                : "",
+            questionBankVisibility == Visibility.HIDDEN ? "hidden" : "",
             "absolute",
             "w-full",
             "h-full")
@@ -294,17 +308,20 @@ public final class QuestionBank {
    * stay open as that matches user expectations.
    */
   public static String addShowQuestionBankParam(String url) {
-import org.apache.http.client.utils.URIBuilder;
-...
     try {
-      return new URIBuilder(url).addParameter(QuestionBank.SHOW_QUESTION_BANK_PARAM, "true").build();
+      return new URIBuilder(url)
+          .setParameter(QuestionBank.SHOW_QUESTION_BANK_PARAM, "true")
+          .build()
+          .toString();
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
-     }
+    }
   }
 
-  public static boolean shouldShowQuestionBank(Http.Request request) {
-    return request.queryString(QuestionBank.SHOW_QUESTION_BANK_PARAM).orElse("").equals("true");
+  public static Visibility shouldShowQuestionBank(Http.Request request) {
+    return request.queryString(QuestionBank.SHOW_QUESTION_BANK_PARAM).orElse("").equals("true")
+        ? Visibility.VISIBLE
+        : Visibility.HIDDEN;
   }
 
   @AutoValue
