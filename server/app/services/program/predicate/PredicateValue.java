@@ -83,6 +83,9 @@ public abstract class PredicateValue {
    * multiOptionValueQuestion} as it contains the human-readable strings.
    */
   public String toDisplayString(Optional<QuestionDefinition> multiOptionValueQuestion) {
+
+    /* Special handling of "simple" question types, EG non-multivalued questions. */
+
     // Convert to a human-readable date.
     if (type() == OperatorRightHandType.DATE) {
       return Instant.ofEpochMilli(Long.parseLong(value()))
@@ -91,7 +94,7 @@ public abstract class PredicateValue {
           .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
-    // For other non-multivalued question data use the stored string directly.
+    // For all other "simple" questions use the stored value directly.
     if (multiOptionValueQuestion.isEmpty()
         || !multiOptionValueQuestion.get().getQuestionType().isMultiOptionType()) {
       return value();
