@@ -68,6 +68,15 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
+  /**
+   * Renders the Predicate editor.
+   *
+   * <p>The UI presents options to set (/update handler) new predicates that are valid for {@code
+   * blockDefinition}, and remove (/destroy handler) existing predicates.
+   *
+   * <p>Only one predicate can exist on a block so the UI does a full replace operation when
+   * setting/updating a predicate.
+   */
   public Content render(
       Http.Request request,
       ProgramDefinition programDefinition,
@@ -82,7 +91,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                 programDefinition.id(), blockDefinition.id())
             .url();
     ImmutableList<Modal> modals =
-        predicateFormModals(
+        createPredicateUpdateFormModals(
             blockDefinition.name(), potentialPredicateQuestions, predicateUpdateUrl, csrfTag);
 
     String removePredicateUrl =
@@ -100,6 +109,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                     .withForm(removePredicateFormId)
                     .withCondDisabled(blockDefinition.visibilityPredicate().isEmpty()));
 
+    // Link back to the block editor.
     String editBlockUrl =
         routes.AdminProgramBlocksController.edit(programDefinition.id(), blockDefinition.id())
             .url();
@@ -107,6 +117,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     DivTag content =
         div()
             .withClasses("mx-6", "my-10", "flex", "flex-col", "gap-6")
+            // Link back to the editor for this predicate's block.
             .with(
                 div()
                     .withClasses("flex", "flex-row")
@@ -117,6 +128,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                             .setHref(editBlockUrl)
                             .setText(String.format("Return to edit %s", blockDefinition.name()))
                             .asAnchorText()))
+            // Show the current predicate.
             .with(
                 div()
                     .with(
@@ -130,7 +142,9 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                                         blockDefinition.name(), potentialPredicateQuestions)
                                 : TEXT_NO_VISIBILITY_CONDITIONS)
                             .withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
+            // Show the control to remove the current precicate.
             .with(removePredicateForm)
+            // Show all available predicates for this block.
             .with(
                 div()
                     .with(h2(H2_NEW_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
@@ -160,19 +174,27 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ImmutableList<Modal> predicateFormModals(
+  private ImmutableList<Modal> createPredicateUpdateFormModals(
       String blockName,
       ImmutableList<QuestionDefinition> questionDefinitions,
       String predicateUpdateUrl,
       InputTag csrfTag) {
     ImmutableList.Builder<Modal> builder = ImmutableList.builder();
     for (QuestionDefinition qd : questionDefinitions) {
-      builder.add(predicateFormModal(blockName, qd, predicateUpdateUrl, csrfTag));
+      builder.add(
+          createQuestionViewAndPredicateUpdateFormModal(
+              blockName, qd, predicateUpdateUrl, csrfTag));
     }
     return builder.build();
   }
 
-  private Modal predicateFormModal(
+  /**
+   * Creates a display of the {@code questionDefinition} with a button that presents a predicate
+   * editor for the question.
+   *
+   * <p>The predicate editor will POST to {@code predicateUpdateUrl} upon submit.
+   */
+  private Modal createQuestionViewAndPredicateUpdateFormModal(
       String blockName,
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
@@ -201,7 +223,9 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     DivTag modalContent =
         div()
             .withClasses("m-4")
-            .with(renderPredicateForm(blockName, questionDefinition, predicateUpdateUrl, csrfTag));
+            .with(
+                renderPredicateUpdateForm(
+                    blockName, questionDefinition, predicateUpdateUrl, csrfTag));
 
     return Modal.builder(
             String.format("predicate-modal-%s", questionDefinition.getId()), modalContent)
@@ -211,7 +235,11 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
         .build();
   }
 
-  private FormTag renderPredicateForm(
+  /**
+   * Renders a form to configure a predicate for {@code questionDefinition} and submit it to {@code
+   * predicateUpdateUrl}.
+   */
+  private FormTag renderPredicateUpdateForm(
       String blockName,
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
