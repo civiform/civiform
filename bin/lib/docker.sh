@@ -18,26 +18,6 @@ function docker::compose_dev() {
   docker compose -f docker-compose.yml -f docker-compose.dev.yml "$@"
 }
 
-#######################################
-# Runs docker compose with the unit test settings.
-# Arguments:
-#   @: arguments for compose
-#######################################
-function docker::compose_unit_test() {
-  docker compose -f test-support/unit-test-docker-compose.yml "$@"
-}
-
-#######################################
-# Runs docker compose with the unit test local development settings.
-# Arguments:
-#   @: arguments for compose
-#######################################
-function docker::compose_unit_test_dev() {
-  docker compose \
-    -f test-support/unit-test-docker-compose.yml \
-    -f test-support/unit-test-docker-compose.dev.yml \
-    "$@"
-}
 
 #######################################
 # Runs docker compose with the browser test settings.
