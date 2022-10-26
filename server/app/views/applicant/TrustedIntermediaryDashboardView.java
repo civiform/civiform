@@ -213,7 +213,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setLabelText("Email Address")
             .setValue(request.flash().get("providedEmail").orElse(""))
             .setPlaceholderText(
-                "Email address (if provided, applicant can access account by logging in)");
+                "Email address of the client");
     return div()
         .with(
             formTag.with(
