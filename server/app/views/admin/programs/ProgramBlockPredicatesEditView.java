@@ -71,8 +71,14 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   /**
    * Renders the Predicate editor.
    *
-   * <p>The UI presents options to set (/update handler) new predicates that are valid for {@code
-   * blockDefinition}, and remove (/destroy handler) existing predicates.
+   * <p>The UI:
+   *
+   * <ul>
+   *   <li>Shows the current predicate
+   *   <li>Allows for removing (/destroy handler) the existing predicate.
+   *   <li>Presents options to set (/update handler) a new predicate for each question in {@code
+   *       predicateQuestions}.
+   * </ul>
    *
    * <p>Only one predicate can exist on a block so the UI does a full replace operation when
    * setting/updating a predicate.
@@ -81,7 +87,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       Http.Request request,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
-      ImmutableList<QuestionDefinition> potentialPredicateQuestions) {
+      ImmutableList<QuestionDefinition> predicateQuestions) {
 
     String title = String.format("Visibility condition for %s", blockDefinition.name());
     InputTag csrfTag = makeCsrfTokenInputTag(request);
@@ -92,7 +98,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             .url();
     ImmutableList<Modal> modals =
         createPredicateUpdateFormModals(
-            blockDefinition.name(), potentialPredicateQuestions, predicateUpdateUrl, csrfTag);
+            blockDefinition.name(), predicateQuestions, predicateUpdateUrl, csrfTag);
 
     String removePredicateUrl =
         routes.AdminProgramBlockPredicatesController.destroy(
@@ -133,18 +139,20 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                 div()
                     .with(
                         h2(H2_CURRENT_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
-                    .with(
-                        div(blockDefinition.visibilityPredicate().isPresent()
-                                ? blockDefinition
-                                    .visibilityPredicate()
-                                    .get()
-                                    .toDisplayString(
-                                        blockDefinition.name(), potentialPredicateQuestions)
-                                : TEXT_NO_VISIBILITY_CONDITIONS)
+                    .condWith(
+                        blockDefinition.visibilityPredicate().isPresent(),
+                        div(blockDefinition
+                                .visibilityPredicate()
+                                .get()
+                                .toDisplayString(blockDefinition.name(), predicateQuestions))
+                            .withClasses(ReferenceClasses.PREDICATE_DISPLAY))
+                    .condWith(
+                        blockDefinition.visibilityPredicate().isEmpty(),
+                        div(TEXT_NO_VISIBILITY_CONDITIONS)
                             .withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
-            // Show the control to remove the current precicate.
+            // Show the control to remove the current predicate.
             .with(removePredicateForm)
-            // Show all available predicates for this block.
+            // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()
                     .with(h2(H2_NEW_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
@@ -190,7 +198,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
 
   /**
    * Creates a display of the {@code questionDefinition} with a button that presents a predicate
-   * editor for the question.
+   * creator for the question.
    *
    * <p>The predicate editor will POST to {@code predicateUpdateUrl} upon submit.
    */
