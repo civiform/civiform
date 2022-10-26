@@ -5,8 +5,8 @@ import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.OidcProfileAdapter;
 import com.google.common.collect.ImmutableSet;
-import com.nimbusds.jose.shaded.json.JSONArray;
 import com.typesafe.config.Config;
+import java.util.List;
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
@@ -65,11 +65,12 @@ public class AdfsProfileAdapter extends OidcProfileAdapter {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private boolean isGlobalAdmin(OidcProfile profile) {
-    JSONArray groups = (JSONArray) null;
-    if (profile.containsAttribute(this.ad_groups_attribute_name)) {
-      groups = profile.getAttribute(this.ad_groups_attribute_name, JSONArray.class);
-    }
+    List<Object> groups =
+        profile.containsAttribute(this.ad_groups_attribute_name)
+            ? profile.getAttribute(this.ad_groups_attribute_name, List.class)
+            : null;
 
     if (groups == null) {
       logger.error("Missing group claim in ADFS OIDC profile.");
