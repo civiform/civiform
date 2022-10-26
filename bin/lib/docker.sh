@@ -18,7 +18,6 @@ function docker::compose_dev() {
   docker compose -f docker-compose.yml -f docker-compose.dev.yml "$@"
 }
 
-
 #######################################
 # Runs docker compose with the browser test settings.
 # Arguments:
