@@ -4,7 +4,7 @@ whoami
 echo "USER $USER"
 npm install
 ls -l public
-rm -r public/stylesheets
+touch public/stylesheets/tailwind.css
 
 #npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css
 # sbt "$@"
