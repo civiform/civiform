@@ -41,8 +41,8 @@ public class ProfileMergeTest extends ResetPostgres {
   public void setupFactory() {
     profileFactory = instanceOf(ProfileFactory.class);
     userRepository = instanceOf(UserRepository.class);
-    OidcClient client = CfTestHelpers.getOidcClient("oidc", 3380);
-    OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("oidc", 3380);
+    OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
+    OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
     idcsProfileAdapter =
         new IdcsProfileAdapter(

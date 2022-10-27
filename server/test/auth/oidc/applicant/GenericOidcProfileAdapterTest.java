@@ -36,8 +36,8 @@ public class GenericOidcProfileAdapterTest extends ResetPostgres {
   public void setup() {
     userRepository = instanceOf(UserRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
-    OidcClient client = CfTestHelpers.getOidcClient("oidc", 3380);
-    OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("oidc", 3380);
+    OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
+    OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
     oidcProfileAdapter =
         new GenericOidcProfileAdapter(
