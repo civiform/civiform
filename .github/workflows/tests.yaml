@@ -46,7 +46,7 @@ jobs:
           path: /tmp/
       - name: Load Docker image
         run: |
-          docker load --input /tmp/containers/civiform-dev.tar
+          docker load --input /tmp/images/civiform-dev.tar
           docker image ls -a
       - name: Build dev-oidc
         env:
