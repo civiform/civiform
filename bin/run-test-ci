@@ -6,7 +6,10 @@
 source bin/lib.sh
 docker::set_project_name_dev
 
-docker::compose_dev up -d
+echo "Run 1"
+docker::compose_dev up -d >.dockerlogs 2>&1 &
+echo "Run 2"
+
 docker::compose_dev exec civiform sbt jacoco
 # Upon a successful test run (exit code zero), we also
 # assert that SBT actually ran the test suite by evaluating
