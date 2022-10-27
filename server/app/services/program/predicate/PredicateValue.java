@@ -75,7 +75,7 @@ public abstract class PredicateValue {
    * <ul>
    *   <li>Dates: yyyy-MM-dd
    *   <li>User entered strings: Always quoted, including in lists
-   *   <li>Question defined strings: as defined in the default locale, unquoted.
+   *   <li>Question defined strings: as defined in the default locale, unquoted
    *   <li>Lists: bracketed - [1, 2, 3] ["Charles", "Jane"] [Option1, Option2]
    * </ul>
    *
