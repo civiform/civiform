@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_PASSWORD: example
     volumes:
-    - ../init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
+      - ../init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
 
   oidc:
     image: civiform/oidc-provider
