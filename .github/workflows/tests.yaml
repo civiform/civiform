@@ -35,6 +35,7 @@ jobs:
           fail_ci_if_error: true
 
   run_browser_tests_aws:
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -92,6 +93,7 @@ jobs:
         run: cat .dockerlogs
 
   run_browser_tests_azure:
+    if: false
     strategy:
       fail-fast: false
       matrix:
