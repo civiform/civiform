@@ -341,6 +341,9 @@ public final class VersionRepository {
         return PredicateExpressionNode.create(
             leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
     }
+    // ErrorProne will require the switch handle all types since there isn't a default, we should
+    // never get here.
+    throw new AssertionError("Predicate type is unhandled and must be %s", node.getType());
   }
 
   /**
