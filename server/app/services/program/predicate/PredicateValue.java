@@ -79,7 +79,7 @@ public abstract class PredicateValue {
    *   <li>Lists: bracketed - [1, 2, 3] ["Charles", "Jane"] [Option1, Option2]
    * </ul>
    *
-   * <p>If this represents a multi option questions' value, the question must be specified as {@code
+   * <p>If this represents a multi option question's value, the question must be specified as {@code
    * multiOptionValueQuestion} as it contains the human-readable strings.
    */
   public String toDisplayString(Optional<QuestionDefinition> multiOptionValueQuestion) {
