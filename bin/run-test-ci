@@ -6,11 +6,8 @@
 source bin/lib.sh
 docker::set_project_name_dev
 
-echo "Run 1"
-docker::compose_dev up
-echo "Run 2"
-
-docker::compose_dev exec civiform sbt jacoco
+docker::compose up -d
+docker::compose exec civiform sbt jacoco
 # Upon a successful test run (exit code zero), we also
 # assert that SBT actually ran the test suite by evaluating
 # whether a well-known test name exists in the set of
@@ -20,5 +17,5 @@ docker::compose_dev exec civiform sbt jacoco
 # This serves as a regression test for
 # https://github.com/seattle-uat/civiform/pull/2459.
 echo "[$(date)] Searching for MessageKeyTest in defined tests..."
-docker::compose_dev exec civiform sbt "show Test/definedTestNames" | grep -iq "services.MessageKeyTest"
-docker::compose_dev down
+docker::compose exec civiform sbt "show Test/definedTestNames" | grep -iq "services.MessageKeyTest"
+docker::compose down
