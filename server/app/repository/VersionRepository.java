@@ -344,7 +344,7 @@ public final class VersionRepository {
     // ErrorProne will require the switch handle all types since there isn't a default, we should
     // never get here.
     throw new AssertionError(
-        String.format("Predicate type is unhandled and must be %s", node.getType()));
+        String.format("Predicate type is unhandled and must be: %s", node.getType()));
   }
 
   /**
