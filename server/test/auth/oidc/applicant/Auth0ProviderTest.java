@@ -75,7 +75,7 @@ public class Auth0ProviderTest extends ResetPostgres {
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
     assertThat(logoutUri)
         // host and path come from DISCOVERY_URI
-        .hasHost("oidc")
+        .hasHost("dev-oidc")
         .hasPath("/v2/logout")
         .hasParameter("client_id", CLIENT_ID)
         .hasParameter("returnTo", afterLogoutUri);
