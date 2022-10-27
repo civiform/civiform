@@ -69,7 +69,23 @@ public abstract class PredicateValue {
   @JsonProperty("type")
   public abstract OperatorRightHandType type();
 
-  public String toDisplayString(Optional<QuestionDefinition> question) {
+  /**
+   * Returns the value in a human-readable format.
+   *
+   * <ul>
+   *   <li>Dates: yyyy-MM-dd
+   *   <li>User entered strings: Always quoted, including in lists
+   *   <li>Question defined strings: as defined in the default locale, unquoted
+   *   <li>Lists: bracketed - [1, 2, 3] ["Charles", "Jane"] [Option1, Option2]
+   * </ul>
+   *
+   * <p>If this represents a multi option question's value, the question must be specified as {@code
+   * multiOptionValueQuestion} as it contains the human-readable strings.
+   */
+  public String toDisplayString(Optional<QuestionDefinition> multiOptionValueQuestion) {
+
+    /* Special handling of "simple" question types, EG non-multivalued questions. */
+
     // Convert to a human-readable date.
     if (type() == OperatorRightHandType.DATE) {
       return Instant.ofEpochMilli(Long.parseLong(value()))
@@ -78,23 +94,28 @@ public abstract class PredicateValue {
           .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
-    // We store the multi-option IDs, rather than the human-readable option text.
-    if (question.isPresent() && question.get().getQuestionType().isMultiOptionType()) {
-      MultiOptionQuestionDefinition multiOptionQuestion =
-          (MultiOptionQuestionDefinition) question.get();
-      // Convert the quote-escaped string IDs to their corresponding default option text.
-      // If an ID is not valid, show "<obsolete>". An obsolete ID does not affect evaluation.
-      if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
-        return Splitter.on(", ")
-            .splitToStream(value().substring(1, value().length() - 1))
-            .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
-            .collect(toImmutableList())
-            .toString();
-      }
-      return parseMultiOptionIdToText(multiOptionQuestion, value());
+    // For all other "simple" questions use the stored value directly.
+    if (multiOptionValueQuestion.isEmpty()
+        || !multiOptionValueQuestion.get().getQuestionType().isMultiOptionType()) {
+      return value();
     }
 
-    return value();
+    // For multi option questions the value ids are stored in the database, so we need to convert
+    // them to the human-readable strings.
+    // We return the readable values in the default locale.
+    // If an ID is not valid for the question, show "<obsolete>"; An obsolete ID does not affect
+    // evaluation.
+    MultiOptionQuestionDefinition multiOptionQuestion =
+        (MultiOptionQuestionDefinition) multiOptionValueQuestion.get();
+    if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
+      return Splitter.on(", ")
+          // Un quote-escape each value.
+          .splitToStream(value().substring(1, value().length() - 1))
+          .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
+          .collect(toImmutableList())
+          .toString();
+    }
+    return parseMultiOptionIdToText(multiOptionQuestion, value());
   }
 
   private static String parseMultiOptionIdToText(
