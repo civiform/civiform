@@ -1,4 +1,6 @@
 #! /bin/bash
 
+echo $USER
 npm install
-sbt "$@"
+npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css
+# sbt "$@"

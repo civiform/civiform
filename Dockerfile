@@ -46,7 +46,7 @@ RUN mkdir -p "${PROJECT_LOC}"
 WORKDIR "${PROJECT_LOC}"
 
 # SBT downloads a lot at run-time.
-RUN sbt update
+# RUN sbt update
 
 ########################################################
 ### Install dependancies and build the server,       ###
@@ -65,7 +65,7 @@ RUN npm install
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 
 # We need to save the build assets to a seperate directory (pushRemoteCache)
-RUN sbt update compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
+# RUN sbt update compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
 
 ########################################################
 ### Get the volumes and startup commands set up       ###
