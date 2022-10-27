@@ -28,6 +28,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
+        name: images
         path: /tmp/images
 
   run_junit_tests:
@@ -41,7 +42,8 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          path: /tmp/images
+          name: images
+          path: /tmp/
       - name: Load Docker image
         run: |
           docker load --input /tmp/containers/civiform-dev.tar
