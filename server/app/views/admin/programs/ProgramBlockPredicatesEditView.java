@@ -139,16 +139,14 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                 div()
                     .with(
                         h2(H2_CURRENT_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
-                    .condWith(
-                        blockDefinition.visibilityPredicate().isPresent(),
+                    .with(
                         div(blockDefinition
                                 .visibilityPredicate()
-                                .get()
-                                .toDisplayString(blockDefinition.name(), predicateQuestions))
-                            .withClasses(ReferenceClasses.PREDICATE_DISPLAY))
-                    .condWith(
-                        blockDefinition.visibilityPredicate().isEmpty(),
-                        div(TEXT_NO_VISIBILITY_CONDITIONS)
+                                .map(
+                                    pred ->
+                                        pred.toDisplayString(
+                                            blockDefinition.name(), predicateQuestions))
+                                .orElse(TEXT_NO_VISIBILITY_CONDITIONS))
                             .withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
