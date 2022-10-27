@@ -29,7 +29,7 @@ public class OidcProviderTest extends ResetPostgres {
   private OidcProvider oidcProvider;
   private ProfileFactory profileFactory;
   private static UserRepository userRepository;
-  private static String DISCOVERY_URI = "http://dev-oidc:3380/.well-known/openid-configuration";
+  private static String DISCOVERY_URI = "http://dev-oidc:3390/.well-known/openid-configuration";
   private static String BASE_URL = String.format("http://localhost:%d", Helpers.testServerPort());
 
   @Before

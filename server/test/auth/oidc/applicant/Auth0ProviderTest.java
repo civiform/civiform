@@ -27,7 +27,7 @@ import support.CfTestHelpers;
 public class Auth0ProviderTest extends ResetPostgres {
   private Auth0Provider auth0Provider;
   private static final String DISCOVERY_URI =
-      "http://dev-oidc:3380/.well-known/openid-configuration";
+      "http://dev-oidc:3390/.well-known/openid-configuration";
   private static final String BASE_URL =
       String.format("http://localhost:%d", Helpers.testServerPort());
   private static final String CLIENT_ID = "someFakeClientId";
