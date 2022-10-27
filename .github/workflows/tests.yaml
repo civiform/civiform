@@ -26,7 +26,7 @@ jobs:
           DOCKER_BUILDKIT: 1
         run: bin/build-dev-oidc
       - name: Run tests
-        run: echo $USER; bin/run-test-ci
+        run: bin/run-test-ci
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -35,7 +35,6 @@ jobs:
           fail_ci_if_error: true
 
   run_browser_tests_aws:
-    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -93,7 +92,6 @@ jobs:
         run: cat .dockerlogs
 
   run_browser_tests_azure:
-    if: false
     strategy:
       fail-fast: false
       matrix:
