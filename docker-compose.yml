@@ -47,10 +47,6 @@ services:
     expose:
       - '9000'
       - '8457'
-    volumes:
-      # Needed for unit tests running in github actions to upload coverage
-      # when tests finish.
-      - ./server/code-coverage:/usr/src/server/code-coverage
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
