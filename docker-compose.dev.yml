@@ -16,7 +16,7 @@ services:
 
   civiform:
     build: .
-    volumes: *sbt-volumes
+#    volumes: *sbt-volumes
     stdin_open: true # docker run -i
     tty: true # docker run -t
     restart: always
