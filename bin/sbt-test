@@ -8,4 +8,4 @@ docker::set_project_name_dev
 bin/pull-image
 
 #docker::compose_dev up -d --wait
-docker::compose_dev exec -it civiform sbt -jvm-debug "*:8459" "$@"
+docker::compose_dev exec -it civiform sbt -jvm-debug "*:8459" "$@" >.dockerlogs 2>&1 &
