@@ -41,9 +41,14 @@ public final class ReferenceClasses {
   public static final String PREDICATE_VALUE_COMMA_HELP_TEXT = "cf-predicate-value-comma-help-text";
 
   public static final String QUESTION_BANK_ELEMENT = "cf-question-bank-element";
-
+  public static final String QUESTION_BANK_HIDDEN = "cf-question-bank-hidden";
   public static final String ADD_QUESTION_BUTTON = "cf-add-question-button";
   public static final String REMOVE_QUESTION_BUTTON = "cf-remove-question-button";
+  public static final String OPEN_QUESTION_BANK_BUTTON = "cf-open-question-bank-button";
+  public static final String QUESTION_BANK_CONTAINER = "cf-question-bank-container";
+  public static final String CLOSE_QUESTION_BANK_BUTTON = "cf-close-question-bank-button";
+  public static final String QUESTION_BANK_GLASSPANE = "cf-question-bank-glasspane";
+  public static final String QUESTION_BANK_PANEL = "cf-question-bank-panel";
 
   public static final String DOWNLOAD_ALL_BUTTON = "cf-download-all-button";
   public static final String DOWNLOAD_BUTTON = "cf-download-button";

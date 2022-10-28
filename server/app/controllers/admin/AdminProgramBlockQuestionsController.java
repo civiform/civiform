@@ -25,6 +25,7 @@ import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
 import views.admin.programs.ProgramBlockEditView;
+import views.components.QuestionBank;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
@@ -84,7 +85,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
               "Some Question IDs %s already exist in Program ID %d", latestQuestionIds, programId));
     }
 
-    return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
+    return redirect(
+        QuestionBank.addShowQuestionBankParam(
+            controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
   }
 
   /** POST endpoint for removing a question from a screen. */
