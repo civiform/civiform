@@ -36,6 +36,8 @@ services:
       - '5432'
     environment:
       POSTGRES_PASSWORD: example
+    volumes:
+      - ./init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
 
   civiform:
     image: civiform-dev

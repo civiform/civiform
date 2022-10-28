@@ -54,6 +54,7 @@ services:
       # isolate and persist dev database.
       - project-data:/project
       - db-data:/var/lib/postgresql/data
+      - ./init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
 
   pgadmin:
     profiles: ['pgadmin']

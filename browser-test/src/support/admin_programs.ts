@@ -45,7 +45,10 @@ export class AdminPrograms {
   }
 
   async expectAdminProgramsPage() {
-    expect(await this.page.innerText('h1')).toEqual('All programs')
+    expect(await this.page.innerText('h1')).toEqual('Program dashboard')
+    expect(await this.page.innerText('h2')).toEqual(
+      'Create, edit and publish programs in Seattle',
+    )
   }
 
   async expectProgramExist(programName: string, description: string) {
@@ -119,20 +122,6 @@ export class AdminPrograms {
     return this.programCardSelector(programName, lifecycle) + ' ' + selector
   }
 
-  async gotoDraftProgramEditPage(programName: string) {
-    await this.gotoAdminProgramsPage()
-    await this.expectDraftProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'Draft',
-        'button :text("Edit")',
-      ),
-    )
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramEditPage(programName)
-  }
-
   async gotoDraftProgramManageStatusesPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -186,9 +175,15 @@ export class AdminPrograms {
   }
 
   async goToManageQuestionsPage(programName: string) {
-    await this.gotoDraftProgramEditPage(programName)
-
-    await this.page.click('text=Manage Questions')
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        'Draft',
+        'button :text("Edit")',
+      ),
+    )
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
   }
@@ -274,7 +269,7 @@ export class AdminPrograms {
         await this.page.innerText('[for=block-description-textarea]')
       ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
-    expect(await this.page.innerText('h1')).toContain('Add Question')
+    expect(await this.page.innerText('h1')).toContain('Add a question')
   }
 
   // Removes questions from given block in program.
@@ -312,11 +307,30 @@ export class AdminPrograms {
     }
   }
 
+  private async waitForQuestionBankAnimationToFinish() {
+    // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
+    // https://tailwindcss.com/docs/transition-property
+    await this.page.waitForTimeout(1000)
+  }
+
+  async openQuestionBank() {
+    await this.page.click('button:has-text("Add a question")')
+    await this.waitForQuestionBankAnimationToFinish()
+  }
+
+  async closeQuestionBank() {
+    await this.page.click('svg.cf-close-question-bank-button')
+    await this.waitForQuestionBankAnimationToFinish()
+  }
+
   async addQuestionFromQuestionBank(questionName: string) {
+    await this.openQuestionBank()
     await this.page.click(
-      `.cf-question-bank-element:has-text("Admin ID: ${questionName}")`,
+      `.cf-question-bank-element:has-text("Admin ID: ${questionName}") button:has-text("Add")`,
     )
     await waitForPageJsLoad(this.page)
+    // After question was added question bank is still open. Close it first.
+    await this.closeQuestionBank()
     // Make sure the question is successfully added to the screen.
     await this.page.waitForSelector(
       `div.cf-program-question p:text("Admin ID: ${questionName}")`,
@@ -471,6 +485,10 @@ export class AdminPrograms {
       this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
     await waitForPageJsLoad(this.page)
+
+    await this.page.click('button:has-text("Edit program details")')
+    await waitForPageJsLoad(this.page)
+
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
     await this.expectDraftProgram(programName)
