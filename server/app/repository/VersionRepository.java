@@ -302,41 +302,49 @@ public final class VersionRepository {
       PredicateDefinition oldPredicate = block.visibilityPredicate().get();
       updatedBlock.setVisibilityPredicate(
           PredicateDefinition.create(
-              updatePredicateNode(oldPredicate.rootNode()), oldPredicate.action()));
+              updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action()));
     }
     if (block.optionalPredicate().isPresent()) {
       PredicateDefinition oldPredicate = block.optionalPredicate().get();
       updatedBlock.setOptionalPredicate(
           Optional.of(
               PredicateDefinition.create(
-                  updatePredicateNode(oldPredicate.rootNode()), oldPredicate.action())));
+                  updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action())));
     }
     return updatedBlock.build();
   }
 
-  // Update the referenced question IDs in all leaf nodes. Since nodes are immutable, we
-  // recursively recreate the tree with updated leaf nodes.
+  /**
+   * Updates the referenced question IDs in all leaf nodes of {@code node} to the latest versions.
+   *
+   * <p>Since nodes are immutable, we recursively recreate the tree with updated leaf nodes and
+   * return it.
+   */
   @VisibleForTesting
-  PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
-    switch (current.getType()) {
+  PredicateExpressionNode updatePredicateNodeVersions(PredicateExpressionNode node) {
+    switch (node.getType()) {
       case AND:
-        AndNode and = current.getAndNode();
+        AndNode and = node.getAndNode();
         ImmutableSet<PredicateExpressionNode> updatedAndChildren =
-            and.children().stream().map(this::updatePredicateNode).collect(toImmutableSet());
+            and.children().stream()
+                .map(this::updatePredicateNodeVersions)
+                .collect(toImmutableSet());
         return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
       case OR:
-        OrNode or = current.getOrNode();
+        OrNode or = node.getOrNode();
         ImmutableSet<PredicateExpressionNode> updatedOrChildren =
-            or.children().stream().map(this::updatePredicateNode).collect(toImmutableSet());
+            or.children().stream().map(this::updatePredicateNodeVersions).collect(toImmutableSet());
         return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
       case LEAF_OPERATION:
-        LeafOperationExpressionNode leaf = current.getLeafNode();
+        LeafOperationExpressionNode leaf = node.getLeafNode();
         Optional<Question> updated = getLatestVersionOfQuestion(leaf.questionId());
         return PredicateExpressionNode.create(
             leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
-      default:
-        return current;
     }
+    // ErrorProne will require the switch handle all types since there isn't a default, we should
+    // never get here.
+    throw new AssertionError(
+        String.format("Predicate type is unhandled and must be: %s", node.getType()));
   }
 
   /**
