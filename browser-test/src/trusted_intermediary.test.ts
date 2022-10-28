@@ -105,7 +105,7 @@ describe('Trusted intermediaries', () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
     expect(await page.innerText('#ti-dashboard-link')).toContain(
-      'TRUSTED INTERMEDIARY DASHBOARD',
+      'VIEW AND ADD CLIENTS',
     )
   })
 })

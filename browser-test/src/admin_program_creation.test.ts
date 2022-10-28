@@ -87,7 +87,7 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
-    await takeScreenshot(page, 'program-creation-question-bank-initial')
+    await validateScreenshot(page, 'program-creation-question-bank-initial')
 
     for (const question of [movie, color, song]) {
       await adminPrograms.addQuestionFromQuestionBank(question)
@@ -113,7 +113,7 @@ describe('program creation', () => {
     )
     await expectQuestionsOrderWithinBlock(page, [color, song, movie])
 
-    await takeScreenshot(page, 'program-creation')
+    await validateScreenshot(page, 'program-creation')
   })
 
   it('create question from question bank', async () => {
@@ -123,6 +123,8 @@ describe('program creation', () => {
     const programName = 'apc-program-3'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToManageQuestionsPage(programName)
+    await adminPrograms.openQuestionBank()
+    await validateScreenshot(page, 'question-bank-empty')
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -136,6 +138,7 @@ describe('program creation', () => {
       helpText: 'Question help text',
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
+    await validateScreenshot(page, 'question-bank-with-created-question')
 
     await adminPrograms.expectSuccessToast(`question ${questionName} created`)
     await adminPrograms.expectProgramBlockEditPage(programName)
@@ -146,14 +149,6 @@ describe('program creation', () => {
       questionName,
     ])
   })
-
-  async function takeScreenshot(page: Page, screenshotName: string) {
-    // Questions in the question bank use animation. And it causes flakiness
-    // as buttons have very brief animation upon initial rendering and it can
-    // capturef by screenshot. So delay taking screenshot.
-    await page.waitForTimeout(2000)
-    await validateScreenshot(page, screenshotName)
-  }
 
   async function expectQuestionsOrderWithinBlock(
     page: Page,
