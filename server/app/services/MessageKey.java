@@ -17,6 +17,8 @@ public enum MessageKey {
   ADDRESS_VALIDATION_NO_PO_BOX("validation.noPoBox"),
   ADDRESS_VALIDATION_STATE_REQUIRED("validation.stateRequired"),
   ADDRESS_VALIDATION_STREET_REQUIRED("validation.streetRequired"),
+  ARIA_LABEL_BEGIN("ariaLabel.begin"),
+  ARIA_LABEL_CONTINUE("ariaLabel.continue"),
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_SR("button.applySr"),
