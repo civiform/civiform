@@ -319,7 +319,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     PredicateExpressionNode and =
         PredicateExpressionNode.create(AndNode.create(ImmutableSet.of(leafOne, or)));
 
-    PredicateExpressionNode updated = versionRepository.updatePredicateNode(and);
+    PredicateExpressionNode updated = versionRepository.updatePredicateNodeVersions(and);
 
     // The tree should have the same structure, just with question IDs for the draft version.
     PredicateExpressionNode expectedLeafOne =
