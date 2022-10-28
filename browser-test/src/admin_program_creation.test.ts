@@ -150,6 +150,37 @@ describe('program creation', () => {
     ])
   })
 
+  it('filter questions in question bank', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+
+    await adminPrograms.addProgram('test-program')
+    await adminPrograms.editProgramBlock('test-program')
+    await adminPrograms.openQuestionBank()
+    expect(await adminPrograms.questionBankNames()).toEqual([
+      'second question',
+      'first question',
+    ])
+    await page.locator('#question-bank-filter').fill('fi')
+    expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+    await page.locator('#question-bank-filter').fill('se')
+    expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
+    await page.locator('#question-bank-filter').fill('')
+    expect(await adminPrograms.questionBankNames()).toEqual([
+      'second question',
+      'first question',
+    ])
+  })
+
   async function expectQuestionsOrderWithinBlock(
     page: Page,
     expectedQuestions: string[],
