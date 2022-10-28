@@ -103,7 +103,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     FormTag form = form();
 
     if (params.block().hasErrors()
-        && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(params.errorDisplayMode())) {
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
+            params.errorDisplayMode())) {
       form.with(
           div()
               .withText(params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName()))
