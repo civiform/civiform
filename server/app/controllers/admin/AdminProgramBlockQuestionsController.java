@@ -87,7 +87,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     return redirect(
         QuestionBank.addShowQuestionBankParam(
-            controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
+            controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url(),
+            blockId));
   }
 
   /** POST endpoint for removing a question from a screen. */

@@ -373,6 +373,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 AdminStyles.PRIMARY_BUTTON_STYLES,
                 ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
                 "my-4");
+    QuestionBank.setCurrentBlockAttribute(addQuestion, blockDefinition.id());
 
     return div()
         .withClasses("w-7/12", "py-6", "px-4")
@@ -628,7 +629,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         QuestionBank.addShowQuestionBankParam(
             controllers.admin.routes.AdminProgramBlocksController.edit(
                     program.id(), blockDefinition.id())
-                .url());
+                .url(),
+            blockDefinition.id());
     QuestionBank qb =
         new QuestionBank(
             QuestionBank.QuestionBankParams.builder()
@@ -636,10 +638,10 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 .setCsrfTag(csrfTag)
                 .setQuestions(questionDefinitions)
                 .setProgram(program)
-                .setBlockDefinition(blockDefinition)
+                .setVisibility(questionBankVisibility)
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build());
-    return qb.getContainer(questionBankVisibility);
+    return qb.getContainer();
   }
 
   private Modal blockDescriptionModal(
