@@ -115,7 +115,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
-        .with(requiredFieldsExplanationContent(params.messages()))
+        .with(ApplicationBaseView.requiredFieldsExplanationContent(params.messages()))
         .with(
             each(
                 params.block().getQuestions(),
@@ -145,10 +145,5 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
-  }
-
-  private PTag requiredFieldsExplanationContent(Messages messages) {
-    return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
-        .withClasses("text-sm", "text-gray-600", "mb-2");
   }
 }

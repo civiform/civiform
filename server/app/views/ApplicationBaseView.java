@@ -1,10 +1,12 @@
 package views;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.p;
 
 import com.google.auto.value.AutoValue;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.PTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -123,5 +125,15 @@ public class ApplicationBaseView extends BaseHtmlView {
         return autoBuild();
       }
     }
+  }
+
+  /**
+   * Renders "Note: Fields marked with a * are required."
+   * @param messages the localized {@link Messages} for the current applicant
+   * @return PTag containing requiredness text.
+   */
+  public static PTag requiredFieldsExplanationContent(Messages messages) {
+    return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
+        .withClasses("text-sm", "text-gray-600", "mb-2");
   }
 }

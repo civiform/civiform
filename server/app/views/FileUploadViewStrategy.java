@@ -27,6 +27,7 @@ import services.cloud.StorageUploadRequest;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
+import views.style.ApplicationBaseView;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -134,7 +135,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         .withId(BLOCK_FORM_ID)
         .withEnctype("multipart/form-data")
         .withMethod(HttpVerbs.POST)
-        .with(requiredFieldsExplanationContent(params.messages()));
+        .with(ApplicationBaseView.requiredFieldsExplanationContent(params.messages()));
   }
 
   protected ImmutableList<ScriptTag> extraScriptTags() {
@@ -280,10 +281,5 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
       ret.with(maybeContinueButton.get());
     }
     return ret;
-  }
-
-  private PTag requiredFieldsExplanationContent(Messages messages) {
-    return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
-        .withClasses("text-sm", "text-gray-600", "mb-2");
   }
 }
