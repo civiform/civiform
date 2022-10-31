@@ -5,13 +5,13 @@
 source bin/lib.sh
 
 read -p "Are you sure you want to destroy ALL containers, volumes, and networks? [y/n] " -r
-if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+if ! [[ "${REPLY}" =~ ^[Yy]$ ]]; then
   exit 0
 fi
 
 if [[ $(docker container ls -q | wc -c) -ne 0 ]]; then
   echo "Killing running containers"
-  docker kill $(docker container ls -q);
+  docker kill $(docker container ls -q)
 fi
 
 if [[ $(docker volume ls -q | wc -c) -ne 0 ]]; then
@@ -20,10 +20,10 @@ if [[ $(docker volume ls -q | wc -c) -ne 0 ]]; then
 fi
 
 echo "Pruning all containers"
-yes | docker container prune > /dev/null
+yes | docker container prune >/dev/null
 
 echo "Pruning all volumes"
-yes | docker volume prune > /dev/null
+yes | docker volume prune >/dev/null
 
 echo "Pruning all networks"
-yes | docker network prune > /dev/null
+yes | docker network prune >/dev/null
