@@ -55,7 +55,7 @@ public final class ProgramBlockValidation {
     if (block.isEnumerator() || block.isFileUpload()) {
       return AddQuestionResult.BLOCK_IS_SINGLE_QUESTION;
     }
-    if (block.getQuestionCount() > 1 && ProgramBlockValidation.isSingleBlockQuestion(question)) {
+    if (block.getQuestionCount() > 0 && ProgramBlockValidation.isSingleBlockQuestion(question)) {
       return AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK;
     }
     if (!question

@@ -58,12 +58,12 @@ public class ProgramBlockValidationTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
-            .withRequiredQuestionDefinition(fileQuestion)
+            .withRequiredQuestionDefinition(nameQuestion)
             .buildDefinition();
     assertThat(
             ProgramBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), nameQuestion))
-        .isEqualTo(AddQuestionResult.BLOCK_IS_SINGLE_QUESTION);
+                program, program.getLastBlockDefinition(), fileQuestion))
+        .isEqualTo(AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK);
   }
 
   @Test
