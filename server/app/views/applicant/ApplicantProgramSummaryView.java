@@ -173,11 +173,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     // Maybe link to block containing specific question.
     if (data.isAnswered() || isFirstUnanswered) {
       String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
+      String ariaLabel = messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText());
       if (!data.isAnswered()) {
-        editText =
-            inReview
-                ? messages.at(MessageKey.BUTTON_CONTINUE.getKeyName())
-                : messages.at(MessageKey.LINK_BEGIN.getKeyName());
+        if (inReview) {
+          editText = messages.at(MessageKey.BUTTON_CONTINUE.getKeyName());
+          ariaLabel = messages.at(MessageKey.ARIA_LABEL_CONTINUE.getKeyName(), data.questionText());
+        } else {
+          editText = messages.at(MessageKey.LINK_BEGIN.getKeyName());
+          ariaLabel = messages.at(MessageKey.ARIA_LABEL_BEGIN.getKeyName(), data.questionText());
+        }
       }
       String editLink =
           (!data.isAnswered() && !inReview)
@@ -194,9 +198,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
               .setText(editText)
               .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"))
               .asAnchorText()
-              .attr(
-                  "aria-label",
-                  messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText()));
+              .attr("aria-label", ariaLabel);
       DivTag editContent =
           div(editAction)
               .withClasses(
