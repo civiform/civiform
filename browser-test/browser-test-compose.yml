@@ -10,18 +10,12 @@ services:
     ports:
       - 10000:10000
 
-  fake-idcs:
-    image: civiform/oidc-provider
-    restart: always
-    ports:
-      - 8033:3380
-
   civiform:
     image: civiform-dev
     restart: always
     links:
       - 'db:database'
-      - 'fake-idcs'
+      - 'dev-oidc'
     ports:
       - 9999:9000
     environment:
@@ -29,7 +23,7 @@ services:
       - APPLICANT_OIDC_PROVIDER_LOGOUT=true
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
-      - IDCS_DISCOVERY_URI=http://fake-idcs:3380/.well-known/openid-configuration
+      - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=http://civiform:9000
       - LOCALSTACK_URL=http://localstack:4566
