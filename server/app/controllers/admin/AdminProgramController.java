@@ -170,6 +170,6 @@ public final class AdminProgramController extends CiviFormController {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(editView.render(request, programDefinition, programData, Optional.of(message)));
     }
-    return redirect(routes.AdminProgramController.index().url());
+    return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
 }
