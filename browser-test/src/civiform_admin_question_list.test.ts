@@ -102,7 +102,9 @@ describe('Most recently updated question is at top of list.', () => {
     if (!expectedQuestions) {
       throw new Error('expected at least one question')
     }
-    const questionBankNames = await adminPrograms.questionBankNames(programName)
+    await adminPrograms.goToManageQuestionsPage(programName)
+    await adminPrograms.openQuestionBank()
+    const questionBankNames = await adminPrograms.questionBankNames()
     expect(questionBankNames).toEqual(expectedQuestions)
   }
 })

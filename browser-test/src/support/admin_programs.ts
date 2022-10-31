@@ -337,10 +337,9 @@ export class AdminPrograms {
     )
   }
 
-  async questionBankNames(programName: string): Promise<string[]> {
-    await this.goToManageQuestionsPage(programName)
+  async questionBankNames(): Promise<string[]> {
     const titles = this.page.locator(
-      '.cf-question-bank-element .cf-question-title',
+      '.cf-question-bank-element:visible .cf-question-title',
     )
     return titles.allTextContents()
   }
