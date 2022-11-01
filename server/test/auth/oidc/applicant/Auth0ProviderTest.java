@@ -26,7 +26,8 @@ import support.CfTestHelpers;
 @RunWith(JUnitParamsRunner.class)
 public class Auth0ProviderTest extends ResetPostgres {
   private Auth0Provider auth0Provider;
-  private static final String DISCOVERY_URI = "http://oidc:3380/.well-known/openid-configuration";
+  private static final String DISCOVERY_URI =
+      "http://dev-oidc:3390/.well-known/openid-configuration";
   private static final String BASE_URL =
       String.format("http://localhost:%d", Helpers.testServerPort());
   private static final String CLIENT_ID = "someFakeClientId";
@@ -74,7 +75,7 @@ public class Auth0ProviderTest extends ResetPostgres {
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
     assertThat(logoutUri)
         // host and path come from DISCOVERY_URI
-        .hasHost("oidc")
+        .hasHost("dev-oidc")
         .hasPath("/v2/logout")
         .hasParameter("client_id", CLIENT_ID)
         .hasParameter("returnTo", afterLogoutUri);
