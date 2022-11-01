@@ -6,7 +6,7 @@ import {
   waitForAnyModal,
   waitForPageJsLoad,
 } from './wait'
-import {BASE_URL} from './config'
+import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 
 /**
@@ -47,7 +47,7 @@ export class AdminPrograms {
   async expectAdminProgramsPage() {
     expect(await this.page.innerText('h1')).toEqual('Program dashboard')
     expect(await this.page.innerText('h2')).toEqual(
-      'Create, edit and publish programs in Seattle',
+      'Create, edit and publish programs in ' + TEST_CIVIC_ENTITY_SHORT_NAME,
     )
   }
 
