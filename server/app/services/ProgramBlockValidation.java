@@ -13,8 +13,8 @@ public final class ProgramBlockValidation {
   private ProgramBlockValidation() {}
 
   /**
-   * Result of checking whether a question can be added to a specific blocks. Only ELIGIBLE means
-   * that question can be adde. All other states indicate that question is not eligible for the
+   * Result of checking whether a question can be added to a specific block. Only ELIGIBLE means
+   * that question can be added. All other states indicate that question is not eligible for the
    * given block.
    */
   public enum AddQuestionResult {
@@ -33,15 +33,17 @@ public final class ProgramBlockValidation {
     // non-empty block. These questions must be an only question in a block.
     CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK,
 
-    // Cannot add question to the block because either block is a child of enumerator
-    // block and can contain only questions that themselves children of the enumerator and
-    // provided question is not. Or provided question is a child of enumerator question while
+    // Cannot add question to the block because either block is a child of an enumerator
+    // block and can contain only questions that themselves are children of the enumerator and
+    // provided question is not; or the provided question is a child of an enumerator question while
     // the block is a regular block.
     ENUMERATOR_MISMATCH
   }
 
   /**
-   * Check whether given question can be added to the provided block. This should be checked both
+   * Check whether given question can be added to the provided block.
+   *
+   * <pr>This should be checked both
    * during rendering to make sure admins don't see ineligible questions when creating blocks. Also
    * it should be checked during the actual server-side block creating to ensure that no one can
    * maliciously mess up data by sending specially crafted request (or in case we mess up
