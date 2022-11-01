@@ -94,4 +94,22 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 program, program.getLastBlockDefinition(), nameQuestion))
         .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
+
+  @Test
+  public void canAddQuestion_canAddEmuratorQuestionToEnumeratorBlock() throws Exception {
+    QuestionDefinition householdMemberQuestion =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition householdMemberNameQuestion =
+        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredQuestionDefinition(householdMemberQuestion)
+            .withRepeatedBlock()
+            .buildDefinition();
+    assertThat(
+            ProgramBlockValidation.canAddQuestion(
+                program, program.getLastBlockDefinition(), householdMemberNameQuestion))
+        .isEqualTo(AddQuestionResult.ELIGIBLE);
+  }
 }

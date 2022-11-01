@@ -43,11 +43,10 @@ public final class ProgramBlockValidation {
   /**
    * Check whether given question can be added to the provided block.
    *
-   * <pr>This should be checked both
-   * during rendering to make sure admins don't see ineligible questions when creating blocks. Also
-   * it should be checked during the actual server-side block creating to ensure that no one can
-   * maliciously mess up data by sending specially crafted request (or in case we mess up
-   * client-side checks).
+   * <p>This should be checked both during rendering to make sure admins don't see ineligible
+   * questions when creating blocks. Also it should be checked during the actual server-side block
+   * creating to ensure that no one can maliciously mess up data by sending specially crafted
+   * request (or in case we mess up client-side checks).
    */
   public static AddQuestionResult canAddQuestion(
       ProgramDefinition program, BlockDefinition block, QuestionDefinition question) {
