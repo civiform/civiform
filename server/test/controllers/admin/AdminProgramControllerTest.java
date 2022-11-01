@@ -9,6 +9,7 @@ import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import models.DisplayMode;
 import models.Program;
 import org.junit.Before;
@@ -121,7 +122,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_includesNewAndExistingProgramsInList() {
+  public void create_includesNewAndExistingProgramsInList()
+    throws ExecutionException, InterruptedException {
     ProgramBuilder.newActiveProgram("Existing One").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
@@ -142,7 +144,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
+    long programId = programRepository.getForSlug("internal-program-name").get().id;
+    assertThat(result.redirectLocation()).hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
     Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(contentAsString(redirectResult)).contains("Existing One");
@@ -261,7 +264,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
 
     Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(contentAsString(redirectResult))
