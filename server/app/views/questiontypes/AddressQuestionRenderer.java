@@ -1,11 +1,9 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.div;
-
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
-import java.util.Optional;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -13,7 +11,12 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import views.components.FieldWithLabel;
+import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
+
+import java.util.Optional;
+
+import static j2html.TagCreator.div;
 
 /** Renders an address question. */
 public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer {
@@ -69,8 +72,18 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 validationErrors.getOrDefault(addressQuestion.getCityPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_CITY);
 
-    FieldWithLabel stateField =
-        FieldWithLabel.input()
+    SelectWithLabel stateField =
+      (SelectWithLabel) new SelectWithLabel()
+        .setFieldName(addressQuestion.getStatePath().toString())
+        .setValue(addressQuestion.getStateValue().orElse(""))
+        .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
+        .setOptionGroups(ImmutableList.of(SelectWithLabel.OptionGroup.builder().setLabel("Pick your State").setOptions(stateOptions()).build()))
+        .setFieldErrors(
+           messages,
+           validationErrors.getOrDefault(addressQuestion.getStatePath(), ImmutableSet.of()))
+        .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
+
+         /*   FieldWithLabel.input()
             .setFieldName(addressQuestion.getStatePath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
             .setAutocomplete(Optional.of("address-level1"))
@@ -78,7 +91,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(addressQuestion.getStatePath(), ImmutableSet.of()))
-            .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
+            .addReferenceClass(ReferenceClasses.ADDRESS_STATE);*/
 
     FieldWithLabel zipField =
         FieldWithLabel.input()
@@ -107,10 +120,19 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 addressOptionalField.getInputTag(),
                 /** Third line of address entry: City, State, Zip */
                 div()
-                    .withClasses("grid", "grid-cols-3", "gap-2")
+                    .withClasses("grid", "grid-cols-3", "gap-3")
                     .with(
-                        cityField.getInputTag(), stateField.getInputTag(), zipField.getInputTag()));
+                        cityField.getInputTag(), stateField.getSelectTag(), zipField.getInputTag()));
 
     return addressQuestionFormContent;
+  }
+
+  private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
+    return ImmutableList.of(
+      SelectWithLabel.OptionValue.builder().setLabel("Arkansas").setValue("AK").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("Texas").setValue("TX").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("Oregon").setValue("OR").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("Washington").setValue("WA").build());
+
   }
 }
