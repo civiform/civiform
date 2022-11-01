@@ -16,7 +16,7 @@ public class CantAddQuestionToBlockException extends Exception {
             reason, program.id(), block.id(), question.getId()));
   }
 
-  /** Message that can be returned in error page that doesn't contain internal info. */
+  /** Returns a message that can be returned in error pages and doesn't contain internal info. */
   public String externalMessage() {
     // Message doesn't contain any private info. Program, block, question ids are not sensitive.
     return this.getMessage();
