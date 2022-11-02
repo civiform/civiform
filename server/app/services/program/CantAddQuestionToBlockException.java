@@ -11,8 +11,8 @@ public class CantAddQuestionToBlockException extends Exception {
       ProgramBlockValidation.AddQuestionResult reason) {
     super(
         String.format(
-            "Can't add question to the block. Error: %s. Check comments in AddQuestionResult enum."
-                + " Program ID %d, block ID %d, question ID %d",
+            "Can't add question to the block. Error: %s. Program ID %d, block ID %d, question ID"
+                + " %d",
             reason, program.id(), block.id(), question.getId()));
   }
 
