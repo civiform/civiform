@@ -77,6 +77,13 @@ public class FieldWithLabelTest {
   }
 
   @Test
+  public void createInput_setsMaxLength() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    // Check that we set the max length.
+    assertThat(fieldWithLabel.getInputTag().render()).contains("maxlength=\"10000\"");
+  }
+
+  @Test
   public void createNumber_setsRandomId() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number();
     // Check that we do not have an empty id.
