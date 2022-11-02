@@ -330,6 +330,34 @@ public final class ProgramIndexView extends BaseHtmlView {
       programData.with(externalLink);
     }
 
+    if (cardData.autoFillCount().isPresent()) {
+        int count = cardData.autoFillCount().getAsInt();
+        String autoFillText = count > 1 ? messages.at(MessageKey.TITLE_AUTO_FILLED.getKeyName()) : messages.at(MessageKey.TITLE_AUTO_FILLED_SINGLE.getKeyName());
+        DivTag autoFillCount = div()
+            .withId(baseId + "-autofillcount")
+            .withClasses("flex", "my-2")
+            .with(
+                div()
+                .with(
+                    Icons.svg(Icons.MAGIC)
+                        .attr("role", "img")
+                        .withClasses(
+                          "shrink-0", "h-5", "w-auto", "inline", "ml-1", "mr-2")
+                )
+                .withText(count + " " + autoFillText)
+                .withClasses(
+                    "text-xs",
+                    "text-seattle-blue",
+                    "rounded-full",
+                    "border",
+                    "border-transparent",
+                    "px-2",
+                    "py-1",
+                    "bg-sky-100")
+            );
+        programData.with(autoFillCount);
+    }
+
     if (cardData.latestSubmittedApplicationTime().isPresent()) {
       programData.with(
           programCardSubmittedDate(messages, cardData.latestSubmittedApplicationTime().get()));

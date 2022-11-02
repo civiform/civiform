@@ -106,6 +106,8 @@ public enum MessageKey {
   TITLE_PROGRAM_PREVIEW("title.programPreview"),
   TITLE_PROGRAM_REVIEW("title.programReview"),
   TITLE_PROGRAMS_SUBMITTED("title.submittedPrograms"),
+  TITLE_AUTO_FILLED_SINGLE("title.autoFilledSingle"),
+  TITLE_AUTO_FILLED("title.autoFilled"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
