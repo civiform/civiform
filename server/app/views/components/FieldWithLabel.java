@@ -432,13 +432,12 @@ public class FieldWithLabel {
 
   private LabelTag genLabelTag() {
 
-    LabelTag label = label()
+    return label()
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
         .withClass(labelText.isEmpty() ? "sr-only" : BaseStyles.INPUT_LABEL)
         .withText(labelText.isEmpty() ? screenReaderText : labelText);
-    return label;
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
