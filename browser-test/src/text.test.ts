@@ -139,7 +139,6 @@ describe('Text question for applicant flow', () => {
         ['second-text-q'],
         'first-text-q', // optional
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

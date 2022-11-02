@@ -286,7 +286,6 @@ describe('address applicant flow', () => {
         ['address-test-required-q'],
         'address-test-optional-q',
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

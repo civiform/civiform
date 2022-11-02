@@ -31,7 +31,6 @@ describe('applicant program index page', () => {
 
     await adminPrograms.addProgram(otherProgramName)
 
-    await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.publishAllPrograms()
     await logout(page)
   })

@@ -148,7 +148,6 @@ describe('Id question for applicant flow', () => {
         ['my-id-q'],
         'your-id-q', // optional
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

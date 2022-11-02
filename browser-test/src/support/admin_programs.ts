@@ -433,6 +433,7 @@ export class AdminPrograms {
   }
 
   async publishAllPrograms() {
+    await this.gotoAdminProgramsPage()
     const modal = await this.openPublishAllProgramsModal()
     const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
     await confirmHandle.click()
