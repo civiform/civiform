@@ -11,6 +11,7 @@ import static j2html.TagCreator.p;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -20,8 +21,6 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
@@ -34,15 +33,23 @@ import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-/** Contains methods for rendering question bank for an admin to add questions to a program. */
+/**
+ * Contains methods for rendering question bank for an admin to add questions to a program. Question
+ * bank contains questions for all blocks in a given program while admin interacts with the question
+ * bank within context of a specific block. Questions for the block filtered client-side that allows
+ * to switch between blocks client-side without reloading page.
+ */
 public final class QuestionBank {
 
   // Url parameter used to force question bank open upon initial rendering
   // of program edit page.
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
 
+  // Attribute set on buttons that trigger display of question bank. See
+  // usage of that attribute in questionBank.ts.
+  private static final String CURRENT_BLOCK_ID_ATTRIBUTE = "data-block-id";
+
   private final QuestionBankParams params;
-  private Optional<Long> enumeratorQuestionId;
 
   /**
    * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
@@ -58,16 +65,14 @@ public final class QuestionBank {
     this.params = checkNotNull(params);
   }
 
-  public DivTag getContainer(QuestionBank.Visibility questionBankVisibility) {
+  public DivTag getContainer() {
     return div()
         .withId(ReferenceClasses.QUESTION_BANK_CONTAINER)
         // For explanation of why we need two different hidden classes see
         // initToggleQuestionBankButtons() in questionBank.ts
         .withClasses(
-            questionBankVisibility == Visibility.HIDDEN
-                ? ReferenceClasses.QUESTION_BANK_HIDDEN
-                : "",
-            questionBankVisibility == Visibility.HIDDEN ? "hidden" : "",
+            params.visibility() == Visibility.HIDDEN ? ReferenceClasses.QUESTION_BANK_HIDDEN : "",
+            params.visibility() == Visibility.HIDDEN ? "hidden" : "",
             "absolute",
             "w-full",
             "h-full")
@@ -161,7 +166,7 @@ public final class QuestionBank {
                                     /* isPrimaryButton= */ false)))));
 
     ImmutableList<QuestionDefinition> questions =
-        filterQuestions()
+        params.questions().stream()
             .sorted(
                 Comparator.<QuestionDefinition, Instant>comparing(
                         qdef -> qdef.getLastModifiedTime().orElse(Instant.EPOCH))
@@ -178,11 +183,16 @@ public final class QuestionBank {
   }
 
   private DivTag renderQuestionDefinition(QuestionDefinition definition) {
+    ImmutableSet<Long> eligibleBlocks = getBlocksThatQuestionEligibleFor(definition);
+    if (eligibleBlocks.isEmpty()) {
+      return null;
+    }
     DivTag questionDiv =
         div()
             .withId("add-question-" + definition.getId())
             .withClasses(
                 ReferenceClasses.QUESTION_BANK_ELEMENT,
+                "hidden",
                 "relative",
                 "p-3",
                 "pr-0",
@@ -190,6 +200,9 @@ public final class QuestionBank {
                 "items-center",
                 "border-b",
                 "border-gray-300");
+    for (long blockId : eligibleBlocks) {
+      questionDiv.attr(QuestionBank.getQuestionEligibleForBlockAttribute(blockId));
+    }
 
     ButtonTag addButton =
         button("Add")
@@ -219,50 +232,65 @@ public final class QuestionBank {
   }
 
   /**
-   * Used to filter questions in the question bank.
+   * Returns DOM attribute that is added on question DOM elements. If a question contains attribute
+   * - it means it is eligible for the given block and can be added to it.
+   */
+  public static String getQuestionEligibleForBlockAttribute(long blockId) {
+    return "data-block-" + blockId;
+  }
+
+  /**
+   * This functions used on for elements that trigger displaying question bank. Upon showing
+   * question bank has to know for which block it was triggered. That information passed through a
+   * data attribute on the button that triggered showing the bank. This method sets that attribute.
+   */
+  public static void setCurrentBlockAttribute(ButtonTag element, long blockId) {
+    element.attr(
+        QuestionBank.CURRENT_BLOCK_ID_ATTRIBUTE,
+        QuestionBank.getQuestionEligibleForBlockAttribute(blockId));
+  }
+
+  /**
+   * Used to check whether given question can be added to the given block.
    *
    * <p>Questions that are filtered out:
    *
    * <ul>
-   *   <li>If there is at least one question in the current block, all single-block questions are
-   *       filtered.
-   *   <li>If there is a single block question in the current block, all questions are filtered.
+   *   <li>If there is at least one question in the block, all single-block questions are filtered.
+   *   <li>If there is a single block question in the block, all questions are filtered.
    *   <li>If this is a repeated block, only the appropriate repeated questions are showed.
    *   <li>Questions already in the program are filtered.
    * </ul>
    */
-  private Stream<QuestionDefinition> filterQuestions() {
-    if (containsSingleBlockQuestion()) {
-      return Stream.empty();
+  private boolean canAddQuestionToBlock(QuestionDefinition question, BlockDefinition block) {
+    if (containsSingleBlockQuestion(block)) {
+      return false;
     }
+    if (block.getQuestionCount() > 0 && singleBlockQuestion(question)) {
+      return false;
+    }
+    if (params.program().hasQuestion(question)) {
+      return false;
+    }
+    // if question is not related to an enumerator - its enumerator id will be
+    // empty Optional, same as getEnumberatorQuestionId for block.
+    return question.getEnumeratorId().equals(getEnumeratorQuestionId(block));
+  }
 
-    Predicate<QuestionDefinition> filter =
-        params.blockDefinition().getQuestionCount() > 0
-            ? this::nonEmptyBlockFilter
-            : this::questionFilter;
-    return params.questions().stream().filter(filter);
+  /**
+   * Get list of blocks to which the given question can be added. See {@code
+   * canAddQuestionToBlock()} for conditions.
+   */
+  private ImmutableSet<Long> getBlocksThatQuestionEligibleFor(QuestionDefinition question) {
+    return params.program().blockDefinitions().stream()
+        .filter(b -> this.canAddQuestionToBlock(question, b))
+        .map(BlockDefinition::id)
+        .collect(ImmutableSet.toImmutableSet());
   }
 
   /** If a block already contains a single-block question, no more questions can be added. */
-  private boolean containsSingleBlockQuestion() {
-    return params.blockDefinition().isEnumerator() || params.blockDefinition().isFileUpload();
-  }
-
-  /**
-   * An block can add questions with the appropriate enumerator id that aren't already in this
-   * program.
-   */
-  private boolean questionFilter(QuestionDefinition questionDefinition) {
-    return questionDefinition.getEnumeratorId().equals(getEnumeratorQuestionId())
-        && !params.program().hasQuestion(questionDefinition);
-  }
-
-  /**
-   * A non-empty block cannot add single-block questions, in addition to {@link
-   * QuestionBank#questionFilter}.
-   */
-  private boolean nonEmptyBlockFilter(QuestionDefinition questionDefinition) {
-    return !singleBlockQuestion(questionDefinition) && questionFilter(questionDefinition);
+  private boolean containsSingleBlockQuestion(BlockDefinition block) {
+    return block.isEnumerator() || block.isFileUpload();
   }
 
   private boolean singleBlockQuestion(QuestionDefinition questionDefinition) {
@@ -279,27 +307,21 @@ public final class QuestionBank {
    * Follow the {@link BlockDefinition#enumeratorId()} reference to the enumerator block definition,
    * and return the id of its {@link EnumeratorQuestionDefinition}.
    */
-  private Optional<Long> getEnumeratorQuestionId() {
-    if (enumeratorQuestionId == null) {
-      enumeratorQuestionId = Optional.empty();
-      Optional<Long> enumeratorBlockId = params.blockDefinition().enumeratorId();
-      if (enumeratorBlockId.isPresent()) {
-        try {
-          BlockDefinition enumeratorBlockDefinition =
-              params.program().getBlockDefinition(enumeratorBlockId.get());
-          enumeratorQuestionId =
-              Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId());
-        } catch (ProgramBlockDefinitionNotFoundException e) {
-          String errorMessage =
-              String.format(
-                  "BlockDefinition %d has a broken enumerator block reference to id %d",
-                  params.blockDefinition().id(), enumeratorBlockId.get());
-          throw new RuntimeException(errorMessage, e);
-        }
-        ;
-      }
+  private Optional<Long> getEnumeratorQuestionId(BlockDefinition block) {
+    if (block.enumeratorId().isEmpty()) {
+      return Optional.empty();
     }
-    return enumeratorQuestionId;
+    try {
+      BlockDefinition enumeratorBlockDefinition =
+          params.program().getBlockDefinition(block.enumeratorId().get());
+      return Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId());
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      String errorMessage =
+          String.format(
+              "BlockDefinition %d has a broken enumerator block reference to id %d",
+              block.id(), block.enumeratorId().get());
+      throw new RuntimeException(errorMessage, e);
+    }
   }
 
   /**
@@ -307,10 +329,12 @@ public final class QuestionBank {
    * adding question from the bank, lead to page reload and after such reload question bank should
    * stay open as that matches user expectations.
    */
-  public static String addShowQuestionBankParam(String url) {
+  public static String addShowQuestionBankParam(String url, long blockId) {
     try {
       return new URIBuilder(url)
-          .setParameter(QuestionBank.SHOW_QUESTION_BANK_PARAM, "true")
+          .setParameter(
+              QuestionBank.SHOW_QUESTION_BANK_PARAM,
+              QuestionBank.getQuestionEligibleForBlockAttribute(blockId))
           .build()
           .toString();
     } catch (URISyntaxException e) {
@@ -319,7 +343,7 @@ public final class QuestionBank {
   }
 
   public static Visibility shouldShowQuestionBank(Http.Request request) {
-    return request.queryString(QuestionBank.SHOW_QUESTION_BANK_PARAM).orElse("").equals("true")
+    return request.queryString(QuestionBank.SHOW_QUESTION_BANK_PARAM).isPresent()
         ? Visibility.VISIBLE
         : Visibility.HIDDEN;
   }
@@ -328,7 +352,7 @@ public final class QuestionBank {
   public abstract static class QuestionBankParams {
     abstract ProgramDefinition program();
 
-    abstract BlockDefinition blockDefinition();
+    abstract Visibility visibility();
 
     abstract String questionCreateRedirectUrl();
 
@@ -346,7 +370,7 @@ public final class QuestionBank {
     public abstract static class Builder {
       public abstract Builder setProgram(ProgramDefinition v);
 
-      public abstract Builder setBlockDefinition(BlockDefinition v);
+      public abstract Builder setVisibility(Visibility visibility);
 
       public abstract Builder setQuestionCreateRedirectUrl(String v);
 
