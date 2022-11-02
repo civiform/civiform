@@ -693,8 +693,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void
-      addQuestionsToBlock_withDuplicatedQuestions_throwsDuplicateProgramQuestionException() {
+  public void addQuestionsToBlock_withDuplicatedQuestions_throwsCantAddQuestionToBlockException() {
     QuestionDefinition questionA = nameQuestion;
 
     Program program =
@@ -705,11 +704,12 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     assertThatThrownBy(
             () -> ps.addQuestionsToBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
-        .isInstanceOf(DuplicateProgramQuestionException.class)
+        .isInstanceOf(CantAddQuestionToBlockException.class)
         .hasMessage(
             String.format(
-                "Question (ID %d) already exists in Program (ID %d)",
-                questionA.getId(), program.id));
+                "Can't add question to the block. Error: DUPLICATE. Program ID %d, block ID %d,"
+                    + " question ID %d",
+                program.id, 1L, questionA.getId()));
     ;
   }
 

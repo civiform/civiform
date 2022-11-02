@@ -19,16 +19,13 @@ import j2html.tags.specialized.InputTag;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
+import services.ProgramBlockValidation;
 import services.program.BlockDefinition;
-import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
-import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
@@ -42,7 +39,6 @@ public final class QuestionBank {
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
 
   private final QuestionBankParams params;
-  private Optional<Long> enumeratorQuestionId;
 
   /**
    * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
@@ -232,74 +228,11 @@ public final class QuestionBank {
    * </ul>
    */
   private Stream<QuestionDefinition> filterQuestions() {
-    if (containsSingleBlockQuestion()) {
-      return Stream.empty();
-    }
-
-    Predicate<QuestionDefinition> filter =
-        params.blockDefinition().getQuestionCount() > 0
-            ? this::nonEmptyBlockFilter
-            : this::questionFilter;
-    return params.questions().stream().filter(filter);
-  }
-
-  /** If a block already contains a single-block question, no more questions can be added. */
-  private boolean containsSingleBlockQuestion() {
-    return params.blockDefinition().isEnumerator() || params.blockDefinition().isFileUpload();
-  }
-
-  /**
-   * An block can add questions with the appropriate enumerator id that aren't already in this
-   * program.
-   */
-  private boolean questionFilter(QuestionDefinition questionDefinition) {
-    return questionDefinition.getEnumeratorId().equals(getEnumeratorQuestionId())
-        && !params.program().hasQuestion(questionDefinition);
-  }
-
-  /**
-   * A non-empty block cannot add single-block questions, in addition to {@link
-   * QuestionBank#questionFilter}.
-   */
-  private boolean nonEmptyBlockFilter(QuestionDefinition questionDefinition) {
-    return !singleBlockQuestion(questionDefinition) && questionFilter(questionDefinition);
-  }
-
-  private boolean singleBlockQuestion(QuestionDefinition questionDefinition) {
-    switch (questionDefinition.getQuestionType()) {
-      case ENUMERATOR:
-      case FILEUPLOAD:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  /**
-   * Follow the {@link BlockDefinition#enumeratorId()} reference to the enumerator block definition,
-   * and return the id of its {@link EnumeratorQuestionDefinition}.
-   */
-  private Optional<Long> getEnumeratorQuestionId() {
-    if (enumeratorQuestionId == null) {
-      enumeratorQuestionId = Optional.empty();
-      Optional<Long> enumeratorBlockId = params.blockDefinition().enumeratorId();
-      if (enumeratorBlockId.isPresent()) {
-        try {
-          BlockDefinition enumeratorBlockDefinition =
-              params.program().getBlockDefinition(enumeratorBlockId.get());
-          enumeratorQuestionId =
-              Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId());
-        } catch (ProgramBlockDefinitionNotFoundException e) {
-          String errorMessage =
-              String.format(
-                  "BlockDefinition %d has a broken enumerator block reference to id %d",
-                  params.blockDefinition().id(), enumeratorBlockId.get());
-          throw new RuntimeException(errorMessage, e);
-        }
-        ;
-      }
-    }
-    return enumeratorQuestionId;
+    return params.questions().stream()
+        .filter(
+            q ->
+                ProgramBlockValidation.canAddQuestion(params.program(), params.blockDefinition(), q)
+                    == ProgramBlockValidation.AddQuestionResult.ELIGIBLE);
   }
 
   /**
