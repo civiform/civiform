@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -21,10 +22,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
@@ -518,13 +521,13 @@ public final class ApplicantService {
     return applicationsFuture.thenApplyAsync(
         applications -> {
           logDuplicateDrafts(applications);
-          return relevantProgramsForApplicant(activePrograms, applications);
+          return relevantProgramsForApplicant(activePrograms, applications, applicantId);
         },
         httpExecutionContext.current());
   }
 
   private ApplicationPrograms relevantProgramsForApplicant(
-      ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
+      ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications, long applicantId) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -573,9 +576,12 @@ public final class ApplicantService {
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
+            int autoFillCount = getAutoFillCount(maybeDraftApp.get());
+
             inProgressPrograms.add(
                 ApplicantProgramData.builder()
                     .setProgram(maybeDraftApp.get().getProgram().getProgramDefinition())
+                    .setAutoFillCount(autoFillCount)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .build());
             programNamesWithApplications.add(programName);
@@ -608,9 +614,12 @@ public final class ApplicantService {
         Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
     unappliedActivePrograms.forEach(
         programName -> {
+          int autoFillCount = getAutoFillCount(applicantId, activeProgramNames.get(programName).id());
+
           unappliedPrograms.add(
               ApplicantProgramData.builder()
                   .setProgram(activeProgramNames.get(programName))
+                  .setAutoFillCount(autoFillCount)
                   .build());
         });
 
@@ -665,6 +674,22 @@ public final class ApplicantService {
     }
   }
 
+  private int getAutoFillCount(ReadOnlyApplicantProgramService roApplicantService) {
+    return roApplicantService.getSummaryData().stream().filter(data -> data.isPreviousResponse()).collect(ImmutableList.toImmutableList()).size();
+  }
+
+  private int getAutoFillCount(Application application) {
+    ReadOnlyApplicantProgramService roApplicantService = getReadOnlyApplicantProgramService(application).toCompletableFuture().join();
+
+    return getAutoFillCount(roApplicantService);
+  }
+
+  private int getAutoFillCount(long applicantId, long programId) {
+    ReadOnlyApplicantProgramService roApplicantService = getReadOnlyApplicantProgramService(applicantId, programId).toCompletableFuture().join();
+
+    return getAutoFillCount(roApplicantService);
+  }
+
   /**
    * Relevant program data to be shown to the applicant, including the time at which the applicant
    * most recently submitted an application for some version of the program.
@@ -672,6 +697,8 @@ public final class ApplicantService {
   @AutoValue
   public abstract static class ApplicantProgramData {
     public abstract ProgramDefinition program();
+
+    public abstract OptionalInt autoFillCount();
 
     public abstract Optional<Instant> latestSubmittedApplicationTime();
 
@@ -684,6 +711,8 @@ public final class ApplicantService {
     @AutoValue.Builder
     abstract static class Builder {
       abstract Builder setProgram(ProgramDefinition v);
+
+      abstract Builder setAutoFillCount(int v);
 
       abstract Builder setLatestSubmittedApplicationTime(Optional<Instant> v);
 

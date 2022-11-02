@@ -7,9 +7,12 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import java.beans.Transient;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import models.Account;
@@ -1354,6 +1357,64 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.submitted().stream().map(p -> p.latestSubmittedApplicationStatus()))
         .containsExactly(Optional.of(APPROVED_STATUS));
     assertThat(result.unapplied()).isEmpty();
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_withAutoFillCount() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Question emailQuestion = testQuestionBank.applicantEmail();
+    Path emailPath = applicantPathForQuestion(emailQuestion).join(Scalar.EMAIL);
+    Question nameQuestion = testQuestionBank.applicantName();
+    Path firstNamePath = applicantPathForQuestion(nameQuestion).join(Scalar.FIRST_NAME);
+    Path lastNamePath = applicantPathForQuestion(nameQuestion).join(Scalar.LAST_NAME);
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(emailQuestion)
+            .withRequiredQuestion(nameQuestion)
+            .build();
+    System.out.println(programForSubmitted.getProgramDefinition());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(emailPath.toString(), "user@test.com")
+            .put(firstNamePath.toString(), "Jane")
+            .put(lastNamePath.toString(), "Doe")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    Program programForDraft = 
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(emailQuestion)
+            .build();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    Program programForUnapplied = 
+        ProgramBuilder.newActiveProgram("program_for_unapplied")
+            .withBlock()
+            .withRequiredQuestion(emailQuestion)
+            .withRequiredQuestion(nameQuestion)
+            .build();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    System.out.println(result);
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraft.id);
+    assertThat(result.inProgress().stream().map(p -> p.autoFillCount()))
+        .containsExactly(OptionalInt.of(1));
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programForUnapplied.id);
+    assertThat(result.unapplied().stream().map(p -> p.autoFillCount()))
+        .containsExactly(OptionalInt.of(2));
   }
 
   private static void addStatusEvent(
