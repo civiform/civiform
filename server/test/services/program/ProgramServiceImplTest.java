@@ -707,8 +707,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
         .isInstanceOf(CantAddQuestionToBlockException.class)
         .hasMessage(
             String.format(
-                "Can't add question to the block. Error: DUPLICATE. Check comments in"
-                    + " AddQuestionResult enum. Program ID %d, block ID %d, question ID %d",
+                "Can't add question to the block. Error: DUPLICATE. Program ID %d, block ID %d,"
+                    + " question ID %d",
                 program.id, 1L, questionA.getId()));
     ;
   }
