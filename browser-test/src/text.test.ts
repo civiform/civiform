@@ -152,7 +152,7 @@ describe('Text question for applicant flow', () => {
       // Scroll to bottom so end of text is in view.
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
 
-      //Should display answered question with "x"s cut off from the end.
+      // Should display answered question with "x"s cut off from the end.
       await validateScreenshot(page, 'text-max')
 
       // Form should submit with partial text entry.
