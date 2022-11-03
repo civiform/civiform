@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
@@ -34,7 +32,6 @@ public class ApplicantData extends CfJsonDocumentContext {
   public static final Path APPLICANT_PATH = Path.create(APPLICANT);
   private static final String EMPTY_APPLICANT_DATA_JSON =
       String.format("{ \"%s\": {} }", APPLICANT);
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private Optional<Locale> preferredLocale;
 
   private Optional<ImmutableMap<Path, String>> failedUpdates;
