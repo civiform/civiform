@@ -1,5 +1,6 @@
 package services.program.predicate;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -17,7 +18,7 @@ import services.question.types.QuestionDefinition;
 @AutoValue
 public abstract class OrNode implements ConcretePredicateExpressionNode {
 
-  @JsonIgnore
+  @JsonCreator
   public static OrNode create(
       @JsonProperty("children") ImmutableSet<PredicateExpressionNode> children) {
     return new AutoValue_OrNode(children);

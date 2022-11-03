@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
 import io.ebean.DB;
 import java.util.Arrays;
@@ -32,8 +33,10 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
+import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
+import services.program.predicate.OrNode;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
@@ -796,16 +799,34 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .withBlock()
             .build();
 
+    var cityPredicate =
+        PredicateExpressionNode.create(
+            LeafOperationExpressionNode.create(
+                question.id, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("")));
+    var statePredicate =
+        PredicateExpressionNode.create(
+            LeafOperationExpressionNode.create(
+                question.id, Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("")));
+    var zipPredicate =
+        PredicateExpressionNode.create(
+            LeafOperationExpressionNode.create(
+                question.id, Scalar.ZIP, Operator.EQUAL_TO, PredicateValue.of("")));
+    // Exercise all node types.
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
-                LeafOperationExpressionNode.create(
-                    question.id, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                OrNode.create(
+                    ImmutableSet.of(
+                        cityPredicate,
+                        PredicateExpressionNode.create(
+                            AndNode.create(ImmutableSet.of(statePredicate, zipPredicate)))))),
             PredicateAction.HIDE_BLOCK);
+
     ps.setBlockPredicate(program.id, 2L, predicate);
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
+    // Verify serialization and deserialization.
     assertThat(found.blockDefinitions().get(1).visibilityPredicate()).hasValue(predicate);
   }
 
