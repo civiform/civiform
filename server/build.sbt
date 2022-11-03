@@ -218,3 +218,13 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 // uncomment to show debug logging.
 //logLevel := Level.Debug
 //Compile / compile / logLevel := Level.Debug
+
+// Register commands that run server in different modes from sbt shell.
+addCommandAlias(
+  "runDevServer",
+  ";eval System.setProperty(\"config.file\", \"conf/application.dev.conf\");run"
+)
+addCommandAlias(
+  "runBrowserTestsServer",
+  ";eval System.setProperty(\"config.file\", \"conf/application.dev-browser-tests.conf\");run"
+)
