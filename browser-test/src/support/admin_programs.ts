@@ -59,6 +59,10 @@ export class AdminPrograms {
     expect(tableInnerText).toContain(description)
   }
 
+  /**
+   * Creates program with given name. At the end of this method the current
+   * page is going to be block edit page.
+   */
   async addProgram(
     programName: string,
     description = 'program description',
@@ -83,10 +87,7 @@ export class AdminPrograms {
 
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
-
-    await this.expectAdminProgramsPage()
-
-    await this.expectProgramExist(programName, description)
+    await this.expectProgramBlockEditPage(programName)
   }
 
   async programNames() {
@@ -432,6 +433,7 @@ export class AdminPrograms {
   }
 
   async publishAllPrograms() {
+    await this.gotoAdminProgramsPage()
     const modal = await this.openPublishAllProgramsModal()
     const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
     await confirmHandle.click()
@@ -490,21 +492,7 @@ export class AdminPrograms {
 
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
-    await this.expectDraftProgram(programName)
-  }
-
-  async createPublicVersion(programName: string) {
     await this.gotoAdminProgramsPage()
-    await this.expectActiveProgram(programName)
-
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
-    )
-    await waitForPageJsLoad(this.page)
-    await this.page.check(`label:has-text("Public")`)
-    await this.page.click('#program-update-button')
-    await waitForPageJsLoad(this.page)
-
     await this.expectDraftProgram(programName)
   }
 

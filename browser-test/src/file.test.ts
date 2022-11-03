@@ -137,7 +137,6 @@ describe('file upload applicant flow', () => {
         [],
         'file-upload-test-optional-q',
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

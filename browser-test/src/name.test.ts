@@ -205,7 +205,6 @@ describe('name applicant flow', () => {
         ['name-test-required-q'],
         'name-test-optional-q',
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

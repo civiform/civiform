@@ -44,7 +44,6 @@ describe('view program references from question view', () => {
     })
 
     // Publish.
-    await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.publishAllPrograms()
 
     // Add a reference from a new program in the draft version.
