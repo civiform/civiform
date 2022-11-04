@@ -74,7 +74,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains(
-            String.format("Manage program translations: Internal program name"),
+            String.format("Manage program translations: %s", ENGLISH_DISPLAY_NAME),
             "Spanish",
             SPANISH_DISPLAY_NAME,
             SPANISH_DESCRIPTION);
@@ -103,7 +103,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains(
-            String.format("Manage program translations: Internal program name"),
+            String.format("Manage program translations: %s", ENGLISH_DISPLAY_NAME),
             "Spanish",
             SPANISH_DISPLAY_NAME,
             SPANISH_DESCRIPTION);
@@ -231,7 +231,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains(
-            String.format("Manage program translations: Internal program name"),
+            String.format("Manage program translations: %s", ENGLISH_DISPLAY_NAME),
             "program display name cannot be blank",
             "program display description cannot be blank",
             "new first status text",
