@@ -76,7 +76,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     if ('expect' in global && expect.getState() != null) {
       const testPath = expect.getState().testPath
       if (testPath == null) {
-        throw new Error('testPath cannot be null');
+        throw new Error('testPath cannot be null')
       }
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
       dirs.push(testFile)
