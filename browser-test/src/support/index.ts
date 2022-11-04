@@ -75,13 +75,17 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     const dirs = ['tmp/videos']
     if ('expect' in global && expect.getState() != null) {
       const testPath = expect.getState().testPath
+      if (testPath == null) {
+        throw new Error('testPath cannot be null');
+      }
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
       dirs.push(testFile)
       // Some test initialize context in beforeAll at which point test name is
       // not set.
-      if (expect.getState().currentTestName) {
+      const testName = expect.getState().currentTestName
+      if (testName) {
         // remove special characters
-        dirs.push(expect.getState().currentTestName.replace(/[:"<>|*?]/g, ''))
+        dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
       }
     }
     return browser.newContext({
