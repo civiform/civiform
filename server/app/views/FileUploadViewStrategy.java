@@ -4,7 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.p;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -14,10 +13,8 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
-import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
-import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
@@ -27,8 +24,8 @@ import services.cloud.StorageUploadRequest;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
-import views.style.ApplicationBaseView;
 import views.style.ApplicantStyles;
+import views.style.ApplicationBaseView;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 

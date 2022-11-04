@@ -129,6 +129,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
   /**
    * Renders "Note: Fields marked with a * are required."
+   *
    * @param messages the localized {@link Messages} for the current applicant
    * @return PTag containing requiredness text.
    */
