@@ -222,12 +222,12 @@ public interface ProgramService {
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
    * @throws QuestionNotFoundException when questionIds does not correspond to real Questions.
-   * @throws DuplicateProgramQuestionException if the block already contains any of the Questions.
+   * @throws CantAddQuestionToBlockException if one of the questions can't be added to the block.
    */
   ProgramDefinition addQuestionsToBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          QuestionNotFoundException, DuplicateProgramQuestionException;
+          QuestionNotFoundException, CantAddQuestionToBlockException;
 
   /**
    * Update a {@link BlockDefinition} to remove questions.

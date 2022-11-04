@@ -7,7 +7,11 @@ import services.question.types.QuestionDefinition;
 
 /** Common methods that all predicate node types need to implement. */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = LeafOperationExpressionNode.class, name = "leaf")})
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = AndNode.class, name = "and"),
+  @JsonSubTypes.Type(value = LeafOperationExpressionNode.class, name = "leaf"),
+  @JsonSubTypes.Type(value = OrNode.class, name = "or")
+})
 public interface ConcretePredicateExpressionNode {
 
   /** Returns the type of this node, as a {@link PredicateExpressionNodeType}. */

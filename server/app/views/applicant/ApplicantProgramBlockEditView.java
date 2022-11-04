@@ -10,6 +10,7 @@ import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
@@ -98,6 +99,20 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     if (params.block().isFileUpload()) {
       return fileUploadStrategy.renderFileUploadBlock(params, applicantQuestionRendererFactory);
     }
+
+    FormTag form = form();
+
+    if (params.block().hasErrors()
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
+            params.errorDisplayMode())) {
+      form.with(
+          div()
+              .withText(params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName()))
+              .attr("role", "status")
+              .attr("aria-live", "polite")
+              .withClasses("sr-only"));
+    }
+
     String formAction =
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
@@ -108,8 +123,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
-    return form()
-        .withId(BLOCK_FORM_ID)
+    return form.withId(BLOCK_FORM_ID)
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))

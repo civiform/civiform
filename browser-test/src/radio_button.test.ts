@@ -144,7 +144,6 @@ describe('Radio button question for applicant flow', () => {
         ['fave-ice-cream-q'],
         'fave-vacation-q', // optional
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

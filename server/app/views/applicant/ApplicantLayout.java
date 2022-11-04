@@ -38,6 +38,7 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
+import views.components.LinkElement;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
@@ -65,15 +66,19 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
+    ATag emailAction =
+        new LinkElement()
+            .setText(supportEmail)
+            .setHref("mailto:" + supportEmail)
+            .opensInNewTab()
+            .asAnchorText();
+
     DivTag supportLink =
         div()
             .with(
                 text(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName())),
                 text(" "),
-                a(supportEmail)
-                    .withHref("mailto:" + supportEmail)
-                    .withTarget("_blank")
-                    .withClasses("text-blue-800"))
+                emailAction)
             .withClasses("mx-auto", "max-w-screen-sm", "w-5/6");
 
     bundle.addFooterContent(supportLink);

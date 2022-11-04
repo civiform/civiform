@@ -122,7 +122,6 @@ describe('program creation', () => {
     await loginAsAdmin(page)
     const programName = 'apc-program-3'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.goToManageQuestionsPage(programName)
     await adminPrograms.openQuestionBank()
     await validateScreenshot(page, 'question-bank-empty')
     await page.click('#create-question-button')
@@ -147,6 +146,37 @@ describe('program creation', () => {
     // Ensure the question can be added from the question bank.
     await adminPrograms.editProgramBlock(programName, 'dummy description', [
       questionName,
+    ])
+  })
+
+  it('filter questions in question bank', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+
+    await adminPrograms.addProgram('test-program')
+    await adminPrograms.editProgramBlock('test-program')
+    await adminPrograms.openQuestionBank()
+    expect(await adminPrograms.questionBankNames()).toEqual([
+      'second question',
+      'first question',
+    ])
+    await page.locator('#question-bank-filter').fill('fi')
+    expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+    await page.locator('#question-bank-filter').fill('se')
+    expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
+    await page.locator('#question-bank-filter').fill('')
+    expect(await adminPrograms.questionBankNames()).toEqual([
+      'second question',
+      'first question',
     ])
   })
 

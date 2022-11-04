@@ -142,7 +142,6 @@ describe('Dropdown question for applicant flow', () => {
         ['dropdown-fave-color-q'],
         'dropdown-fave-vacation-q', // optional
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)
