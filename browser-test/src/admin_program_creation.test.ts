@@ -162,8 +162,9 @@ describe('program creation', () => {
       questionText: 'second question',
     })
 
-    await adminPrograms.addProgram('test-program')
-    await adminPrograms.editProgramBlock('test-program')
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName)
     await adminPrograms.openQuestionBank()
     expect(await adminPrograms.questionBankNames()).toEqual([
       'second question',

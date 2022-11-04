@@ -23,14 +23,14 @@ describe('view program references from question view', () => {
 
     // Add a reference to the question in the second block. We'll later assert
     // that the links in the modal takes us to the correct block.
-    const firstProgramName = 'first-program'
+    const firstProgramName = 'First program'
     await adminPrograms.addProgram(firstProgramName)
     await adminPrograms.addProgramBlock(firstProgramName, 'first block', [])
     await adminPrograms.addProgramBlock(firstProgramName, 'second block', [
       questionName,
     ])
 
-    const secondProgramName = 'second-program'
+    const secondProgramName = 'Second program'
     await adminPrograms.addProgram(secondProgramName)
     await adminPrograms.addProgramBlock(secondProgramName, 'first block', [
       questionName,
@@ -47,7 +47,7 @@ describe('view program references from question view', () => {
     await adminPrograms.publishAllPrograms()
 
     // Add a reference from a new program in the draft version.
-    const thirdProgramName = 'third-program'
+    const thirdProgramName = 'Third program'
     await adminPrograms.addProgram(thirdProgramName)
     await adminPrograms.addProgramBlock(thirdProgramName, 'first block', [
       questionName,
