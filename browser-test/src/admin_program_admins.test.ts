@@ -8,7 +8,7 @@ describe('manage program admins', () => {
 
     await loginAsAdmin(page)
 
-    const programName = 'add-program-admins'
+    const programName = 'Add program admins'
     await adminPrograms.addProgram(programName)
 
     // Add two program admins and save

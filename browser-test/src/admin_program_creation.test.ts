@@ -27,7 +27,7 @@ describe('program creation', () => {
       enumeratorName: 'apc-enumerator',
     })
 
-    const programName = 'apc-program'
+    const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
@@ -83,7 +83,7 @@ describe('program creation', () => {
       await adminQuestions.addTextQuestion({questionName: question})
     }
 
-    const programName = 'apc-program-2'
+    const programName = 'Apc program 2'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'apc program description')
 
@@ -120,7 +120,7 @@ describe('program creation', () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    const programName = 'apc-program-3'
+    const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
     await adminPrograms.openQuestionBank()
     await validateScreenshot(page, 'question-bank-empty')

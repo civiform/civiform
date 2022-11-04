@@ -105,7 +105,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
         div()
             .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-10")
             .with(
-                h1(String.format("Manage application statuses for %s", program.adminName())),
+                h1(
+                    String.format(
+                        "Manage application statuses for %s",
+                        program.localizedName().getDefault())),
                 div().withClass("flex-grow"));
 
     Optional<ButtonTag> maybeManageTranslationsLink = renderManageTranslationsLink(program);
