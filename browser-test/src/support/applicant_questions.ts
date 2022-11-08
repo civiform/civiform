@@ -38,7 +38,6 @@ export class ApplicantQuestions {
     await this.page.waitForSelector('.cf-address-street-1 input')
     await this.page.waitForSelector('.cf-address-street-2 input')
     await this.page.waitForSelector('.cf-address-city input')
-    await this.page.waitForSelector('.cf-address-state input')
     await this.page.waitForSelector('.cf-address-zip input')
 
     // Check values are equal to expected
