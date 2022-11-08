@@ -81,7 +81,7 @@ describe('Applicant navigation flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'Washington - WA',
         '54321',
       )
       await applicantQuestions.clickNext()
@@ -92,7 +92,7 @@ describe('Applicant navigation flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'Washington - WA',
         '54321',
       )
 
@@ -184,7 +184,7 @@ describe('Applicant navigation flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'Washington - WA',
         '54321',
       )
       await applicantQuestions.clickNext()
@@ -212,7 +212,7 @@ describe('Applicant navigation flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'Washington - WA',
         '54321',
       )
       await applicantQuestions.clickNext()
