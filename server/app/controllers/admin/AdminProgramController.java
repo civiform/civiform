@@ -102,7 +102,7 @@ public final class AdminProgramController extends CiviFormController {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(newOneView.render(request, program, Optional.of(message)));
     }
-    return redirect(routes.AdminProgramController.index().url());
+    return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
   }
 
   /** Return a HTML page containing a form to edit a draft program. */
@@ -170,6 +170,6 @@ public final class AdminProgramController extends CiviFormController {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(editView.render(request, programDefinition, programData, Optional.of(message)));
     }
-    return redirect(routes.AdminProgramController.index().url());
+    return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
 }

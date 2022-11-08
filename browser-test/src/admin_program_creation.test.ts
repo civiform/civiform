@@ -122,7 +122,6 @@ describe('program creation', () => {
     await loginAsAdmin(page)
     const programName = 'apc-program-3'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.goToManageQuestionsPage(programName)
     await adminPrograms.openQuestionBank()
     await validateScreenshot(page, 'question-bank-empty')
     await page.click('#create-question-button')

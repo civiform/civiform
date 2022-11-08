@@ -35,6 +35,7 @@ describe('modify program statuses', () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
+      await adminPrograms.gotoAdminProgramsPage()
     })
 
     beforeEach(async () => {

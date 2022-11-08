@@ -28,7 +28,4 @@ services:
       - BASE_URL=http://civiform:9000
       - LOCALSTACK_URL=http://localstack:4566
       - CIVIFORM_TIME_ZONE_ID
-      # The default value is true, we set it to false here because we do not know
-      # the IP address that will be used to call the API in the browser tests.
-      - CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET=false
-    command: ~run -Dconfig.file=conf/application.dev-browser-tests.conf
+    command: ~runBrowserTestsServer

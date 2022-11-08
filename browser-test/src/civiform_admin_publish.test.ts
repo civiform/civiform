@@ -47,7 +47,6 @@ describe('publishing all draft questions and programs', () => {
     )
 
     // Publish.
-    await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.publishAllPrograms()
 
     // Make an edit to the program with no questions.

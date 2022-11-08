@@ -94,7 +94,6 @@ describe('Email question for applicant flow', () => {
         ['my-email-q'],
         'your-email-q', // optional
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

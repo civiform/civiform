@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.span;
 
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -14,9 +15,17 @@ import views.style.AdminStyles;
 abstract class ProgramBlockView extends BaseHtmlView {
   /** Renders a div with internal/admin program information. */
   protected final DivTag renderProgramInfo(ProgramDefinition programDefinition) {
-    DivTag programTitle =
-        div(programDefinition.adminName()).withId("program-title").withClasses("text-3xl", "pb-3");
-    DivTag programDescription = div(programDefinition.adminDescription()).withClasses("text-sm");
+    DivTag title =
+        div(programDefinition.localizedName().getDefault())
+            .withId("program-title")
+            .withClasses("text-3xl", "pb-3");
+    DivTag description =
+        div(programDefinition.localizedDescription().getDefault()).withClasses("text-sm");
+    DivTag adminNote =
+        div()
+            .withClasses("text-sm")
+            .with(span("Admin note: ").withClasses("font-semibold"))
+            .with(span(programDefinition.adminDescription()));
 
     ButtonTag editDetailsButton =
         ViewUtils.makeSvgTextButton("Edit program details", Icons.EDIT)
@@ -27,8 +36,9 @@ abstract class ProgramBlockView extends BaseHtmlView {
 
     return div(
             ViewUtils.makeBadge(BadgeStatus.DRAFT),
-            programTitle,
-            programDescription,
+            title,
+            description,
+            adminNote,
             editDetailsButton)
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }

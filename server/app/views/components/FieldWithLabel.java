@@ -72,6 +72,8 @@ public class FieldWithLabel {
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
   private ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
 
+  private static final String MAX_INPUT_TEXT_LENGTH = "10000";
+
   private static final class FieldErrorsInfo {
     public String fieldErrorsId;
     public boolean hasFieldErrors;
@@ -511,6 +513,7 @@ public class FieldWithLabel {
     fieldTag.condAttr(!ariaIds.isEmpty(), "aria-describedby", StringUtils.join(ariaIds, " "));
     fieldTag.condAttr(
         shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
+    fieldTag.attr("maxlength", MAX_INPUT_TEXT_LENGTH);
 
     generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
 
@@ -535,7 +538,6 @@ public class FieldWithLabel {
     // Apply attributes
     FieldErrorsInfo fieldErrorsInfo = applyAttrsGenFieldErrorsInfo(fieldTag);
     LabelTag labelTag = genLabelTag();
-
     // Generate label / container
     return buildBaseContainer(fieldTag, labelTag, fieldErrorsInfo.fieldErrorsId);
   }
