@@ -12,12 +12,16 @@ import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 import views.style.ReferenceClasses;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /** Utility class for rendering a select input field with an optional label. */
 public final class SelectWithLabel extends FieldWithLabel {
 
   private ImmutableList<OptionGroup> optionGroups = ImmutableList.of();
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();
 
+  private Set<String> selectClasses = new HashSet<>();
   @Override
   public SelectWithLabel addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
@@ -88,6 +92,11 @@ public final class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
+  public SelectWithLabel addSelectClass(String className){
+    selectClasses.add(className);
+    return this;
+  }
+
   @Override
   public SelectWithLabel setAriaDescribedByIds(ImmutableList<String> ariaDescribedByIds) {
     super.setAriaDescribedByIds(ariaDescribedByIds);
@@ -116,6 +125,10 @@ public final class SelectWithLabel extends FieldWithLabel {
       fieldTag.with(optionGroups.stream().map(this::renderOptionGroup));
     }
 
+    for(String style : selectClasses)
+    {
+      fieldTag.withClasses(style);
+    }
     return applyAttrsAndGenLabel(fieldTag);
   }
 

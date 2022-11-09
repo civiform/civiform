@@ -1,21 +1,30 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.div;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
+
+import j2html.tags.specialized.SelectTag;
+import models.Application;
+import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.program.StatusDefinitions;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
+import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
+
+import static j2html.TagCreator.*;
+import static j2html.TagCreator.option;
 
 /** Renders an address question. */
 public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer {
@@ -72,23 +81,24 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
             .addReferenceClass(ReferenceClasses.ADDRESS_CITY);
 
     SelectWithLabel stateField =
-        (SelectWithLabel)
-            new SelectWithLabel()
-                .setFieldName(addressQuestion.getStatePath().toString())
-                .setValue(addressQuestion.getStateValue().orElse(""))
-                .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
-                .setOptionGroups(
-                    ImmutableList.of(
-                        SelectWithLabel.OptionGroup.builder()
-                            .setLabel(
-                                messages.at(MessageKey.ADDRESS_LABEL_STATE_SELECT.getKeyName()))
-                            .setOptions(stateOptions())
-                            .build()))
-                .setFieldErrors(
-                    messages,
-                    validationErrors.getOrDefault(
-                        addressQuestion.getStatePath(), ImmutableSet.of()))
-                .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
+      (SelectWithLabel) new SelectWithLabel().addSelectClass("py-3")
+          .setFieldName(addressQuestion.getStatePath().toString())
+          .setValue(addressQuestion.getStateValue().orElse(""))
+          .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
+          .setOptionGroups(
+              ImmutableList.of(
+                  SelectWithLabel.OptionGroup.builder()
+                      .setLabel(
+                          messages.at(MessageKey.ADDRESS_LABEL_STATE_SELECT.getKeyName()))
+                      .setOptions(stateOptions())
+                      .build()))
+          .setFieldErrors(
+              messages,
+              validationErrors.getOrDefault(
+                  addressQuestion.getStatePath(), ImmutableSet.of()))
+          .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
+
+    //stateField.getSelectTag().withClasses("py-3");
 
     FieldWithLabel zipField =
         FieldWithLabel.input()
@@ -120,7 +130,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                     .withClasses("grid", "grid-cols-3", "gap-3")
                     .with(
                         cityField.getInputTag(),
-                        stateField.getSelectTag(),
+                      stateField.getSelectTag(),
                         zipField.getInputTag()));
 
     return addressQuestionFormContent;
