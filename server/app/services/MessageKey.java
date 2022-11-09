@@ -5,6 +5,7 @@ public enum MessageKey {
   ADDRESS_LABEL_CITY("label.city"),
   ADDRESS_LABEL_LINE_2("label.addressLine2"),
   ADDRESS_LABEL_STATE("label.state"),
+  ADDRESS_LABEL_STATE_SELECT("label.selectState"),
   ADDRESS_LABEL_STREET("label.street"),
   ADDRESS_LABEL_ZIPCODE("label.zipcode"),
   ADDRESS_PLACEHOLDER_CITY("placeholder.city"),

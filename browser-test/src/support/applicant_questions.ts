@@ -47,9 +47,7 @@ export class ApplicantQuestions {
     await this.validateDropdownValue(state, '.cf-address-state')
     await this.validateInputValue(zip, '.cf-address-zip input')
   }
-  async validateDropdownValue(value: string, dropdownId: string) {
-    expect(await this.page.innerText(dropdownId)).toContain(value)
-  }
+
   async answerNameQuestion(
     firstName: string,
     lastName: string,
@@ -164,6 +162,10 @@ export class ApplicantQuestions {
 
   async validateInputTypePresent(type: string) {
     await this.page.waitForSelector(`input[type="${type}"]`)
+  }
+
+  async validateDropdownValue(value: string, dropdownId: string) {
+    expect(await this.page.innerText(dropdownId)).toContain(value)
   }
 
   async validateInputValue(value: string, element = 'input') {
