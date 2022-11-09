@@ -128,88 +128,88 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
   /** Provides a list of State options as mentioned in https://pe.usps.com/text/pub28/28apb.htm */
   private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
     return ImmutableList.of(
-        SelectWithLabel.OptionValue.builder().setLabel("Alabama  - AL").setValue("AL").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Alaska - AK").setValue("AK").build(),
-        SelectWithLabel.OptionValue.builder()
-            .setLabel("American Samoa - AS")
-            .setValue("AS")
-            .build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Arizona - AZ").setValue("AZ").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Arkansas - AR").setValue("AR").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("California - CA").setValue("CA").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Colorado - CO").setValue("CO").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Connecticut - CT").setValue("CT").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Delaware - DE").setValue("DE").build(),
-        SelectWithLabel.OptionValue.builder()
-            .setLabel("District of Columbia - DC")
-            .setValue("DC")
-            .build(),
-        SelectWithLabel.OptionValue.builder()
-            .setLabel("Federated States of Micronesia - FM")
-            .setValue("FM")
-            .build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Florida - FL").setValue("FL").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Georgia - GA").setValue("GA").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Guam - GU").setValue("GU").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Hawaii - HI").setValue("HI").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Idaho - ID").setValue("ID").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Illinois - IL").setValue("IL").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Indiana - IN").setValue("IN").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Iowa - IA").setValue("IA").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Kansas - KS").setValue("KS").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Kentucky - KY").setValue("KY").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Louisiana - LA").setValue("LA").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Maine - ME").setValue("ME").build(),
-        SelectWithLabel.OptionValue.builder()
-            .setLabel("Marshall Islands - MH")
-            .setValue("MH")
-            .build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Maryland - MD").setValue("MD").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Massachusetts - MA").setValue("MA").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Michigan - MI").setValue("MI").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Minnesota - MN").setValue("MN").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Mississippi - MS").setValue("MS").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Missouri - MO").setValue("MO").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Montana - MT").setValue("MT").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Nebraska - NE").setValue("NE").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Nevada - NV").setValue("NV").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("New Hampshire - NH").setValue("NH").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("New Jersey - NJ").setValue("NJ").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("New Mexico - NM").setValue("NM").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("New York - NY").setValue("NY").build(),
-        SelectWithLabel.OptionValue.builder()
-            .setLabel("North Carolina - NC")
-            .setValue("NC")
-            .build(),
-        SelectWithLabel.OptionValue.builder().setLabel("North Dakota - ND").setValue("ND").build(),
-        SelectWithLabel.OptionValue.builder()
-            .setLabel("Northern Mariana Islands - MP")
-            .setValue("MP")
-            .build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Ohio - OH").setValue("OH").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Oklahoma - OK").setValue("OK").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Oregon - OR").setValue("OR").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Palau - PW").setValue("PW").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Pennsylvania - PA").setValue("PA").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Puerto Rico - PR").setValue("PR").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Rhode Island - RI").setValue("RI").build(),
-        SelectWithLabel.OptionValue.builder()
-            .setLabel("South Carolina - SC")
-            .setValue("SC")
-            .build(),
-        SelectWithLabel.OptionValue.builder().setLabel("South Dakota - SD").setValue("SD").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Tennessee - TN").setValue("TN").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Texas - TX").setValue("TX").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Utah - UT").setValue("UT").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Vermont - VT").setValue("VT").build(),
-        SelectWithLabel.OptionValue.builder()
-            .setLabel("Virgin Islands - VI")
-            .setValue("VI")
-            .build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Virginia - VA").setValue("VA").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Washington - WA").setValue("WA").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("West Virginia - WV").setValue("WV").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Wisconsin - WI").setValue("WI").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Wyoming - WY").setValue("WY").build());
+      SelectWithLabel.OptionValue.builder().setLabel("AL").setValue("AL").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("AK").setValue("AK").build(),
+      SelectWithLabel.OptionValue.builder()
+        .setLabel("AS")
+        .setValue("AS")
+        .build(),
+      SelectWithLabel.OptionValue.builder().setLabel("AZ").setValue("AZ").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("AR").setValue("AR").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("CA").setValue("CA").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("CO").setValue("CO").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("CT").setValue("CT").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("DE").setValue("DE").build(),
+      SelectWithLabel.OptionValue.builder()
+        .setLabel("DC")
+        .setValue("DC")
+        .build(),
+      SelectWithLabel.OptionValue.builder()
+        .setLabel("FM")
+        .setValue("FM")
+        .build(),
+      SelectWithLabel.OptionValue.builder().setLabel("FL").setValue("FL").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("GA").setValue("GA").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("GU").setValue("GU").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("HI").setValue("HI").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("ID").setValue("ID").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("IL").setValue("IL").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("IN").setValue("IN").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("IA").setValue("IA").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("KS").setValue("KS").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("KY").setValue("KY").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("LA").setValue("LA").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("ME").setValue("ME").build(),
+      SelectWithLabel.OptionValue.builder()
+        .setLabel("MH")
+        .setValue("MH")
+        .build(),
+      SelectWithLabel.OptionValue.builder().setLabel("MD").setValue("MD").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("MA").setValue("MA").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("MI").setValue("MI").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("MN").setValue("MN").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("MS").setValue("MS").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("MO").setValue("MO").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("MT").setValue("MT").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("NE").setValue("NE").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("NV").setValue("NV").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("NH").setValue("NH").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("NJ").setValue("NJ").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("NM").setValue("NM").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("NY").setValue("NY").build(),
+      SelectWithLabel.OptionValue.builder()
+        .setLabel("NC")
+        .setValue("NC")
+        .build(),
+      SelectWithLabel.OptionValue.builder().setLabel("ND").setValue("ND").build(),
+      SelectWithLabel.OptionValue.builder()
+        .setLabel("MP")
+        .setValue("MP")
+        .build(),
+      SelectWithLabel.OptionValue.builder().setLabel("OH").setValue("OH").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("OK").setValue("OK").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("OR").setValue("OR").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("PW").setValue("PW").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("PA").setValue("PA").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("PR").setValue("PR").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("RI").setValue("RI").build(),
+      SelectWithLabel.OptionValue.builder()
+        .setLabel("SC")
+        .setValue("SC")
+        .build(),
+      SelectWithLabel.OptionValue.builder().setLabel("SD").setValue("SD").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("TN").setValue("TN").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("TX").setValue("TX").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("UT").setValue("UT").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("VT").setValue("VT").build(),
+      SelectWithLabel.OptionValue.builder()
+        .setLabel("VI")
+        .setValue("VI")
+        .build(),
+      SelectWithLabel.OptionValue.builder().setLabel("VA").setValue("VA").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("WA").setValue("WA").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("WV").setValue("WV").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("WI").setValue("WI").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("WY").setValue("WY").build());
   }
 }
