@@ -210,7 +210,7 @@ resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.4.2",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.14.0",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.4"
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.14.0"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
