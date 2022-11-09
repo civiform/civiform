@@ -125,6 +125,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
     return addressQuestionFormContent;
   }
 
+  /** Provides a list of State options as mentioned in https://pe.usps.com/text/pub28/28apb.htm */
   private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
     return ImmutableList.of(
         SelectWithLabel.OptionValue.builder().setLabel("Alabama  - AL").setValue("AL").build(),
