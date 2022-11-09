@@ -31,10 +31,10 @@ jobs:
         uses: trilom/file-changes-action@v1.2.4
         with:
           output: 'json'
-      - uses: axel-op/googlejavaformat-action@master
+      - uses: axel-op/googlejavaformat-action@v3
         with:
           version: 1.9
-          skipCommit: true
+          skip-commit: true
 
       - name: show diff
         run: git add .; git diff --exit-code HEAD
