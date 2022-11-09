@@ -60,7 +60,8 @@ public final class ProgramTranslationView extends TranslationFormView {
         renderTranslationForm(
             request, locale, formAction, formFields(request, program, translationForm));
 
-    String title = String.format("Manage program translations: %s", program.adminName());
+    String title =
+        String.format("Manage program translations: %s", program.localizedName().getDefault());
 
     HtmlBundle htmlBundle =
         layout

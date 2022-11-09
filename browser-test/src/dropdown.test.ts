@@ -12,7 +12,7 @@ describe('Dropdown question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single dropdown question', () => {
-    const programName = 'test-program-for-single-dropdown'
+    const programName = 'Test program for single dropdown'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -120,7 +120,7 @@ describe('Dropdown question for applicant flow', () => {
   })
 
   describe('multiple dropdown questions', () => {
-    const programName = 'test-program-for-multiple-dropdowns'
+    const programName = 'Test program for multiple dropdowns'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
