@@ -10,8 +10,8 @@ import {
 describe('applicant program index page', () => {
   const ctx = createTestContext()
 
-  const primaryProgramName = 'application-index-primary-program'
-  const otherProgramName = 'application-index-other-program'
+  const primaryProgramName = 'Application index primary program'
+  const otherProgramName = 'Application index other program'
 
   beforeAll(async () => {
     const {page, adminPrograms, adminQuestions} = ctx

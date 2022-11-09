@@ -11,7 +11,7 @@ describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('navigation with four blocks', () => {
-    const programName = 'test-program-for-navigation-flows'
+    const programName = 'Test program for navigation flows'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx

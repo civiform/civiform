@@ -28,7 +28,7 @@ describe('normal application flow', () => {
 
     await loginAsAdmin(page)
 
-    const programName = 'test-program-for-export'
+    const programName = 'Test program for export'
     await adminQuestions.addDropdownQuestion({
       questionName: 'dropdown-csv-download',
       options: ['op1', 'op2', 'op3'],
@@ -121,7 +121,10 @@ describe('normal application flow', () => {
 
     const postEditJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(postEditJsonContent.length).toEqual(3)
-    expect(postEditJsonContent[0].program_name).toEqual(programName)
+    // program name used in JSON export is the admin name. Which we slugified for this test.
+    expect(postEditJsonContent[0].program_name).toEqual(
+      'test-program-for-export',
+    )
     expect(postEditJsonContent[0].language).toEqual('en-US')
     expect(
       postEditJsonContent[0].application.csvcurrency.currency_dollars,
