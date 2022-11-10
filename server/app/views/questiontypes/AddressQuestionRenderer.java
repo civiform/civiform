@@ -74,8 +74,6 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
     SelectWithLabel stateField =
         (SelectWithLabel)
             new SelectWithLabel()
-                .addSelectClass("py-6")
-                .addSelectClass("h-5")
                 .setFieldName(addressQuestion.getStatePath().toString())
                 .setValue(addressQuestion.getStateValue().orElse(""))
                 .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
@@ -91,8 +89,6 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                     validationErrors.getOrDefault(
                         addressQuestion.getStatePath(), ImmutableSet.of()))
                 .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
-
-    // stateField.getSelectTag().withClasses("py-3");
 
     FieldWithLabel zipField =
         FieldWithLabel.input()
