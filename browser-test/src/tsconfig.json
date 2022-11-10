@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "strict": true,
     "module": "commonjs",
     "noEmit": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "sourceMap": true
   },
   "include": ["."]
 }
