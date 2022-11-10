@@ -271,11 +271,6 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickUpload() {
-    await this.page.click('text="Upload"')
-    await waitForPageJsLoad(this.page)
-  }
-
   async deleteEnumeratorEntity(entityName: string) {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()

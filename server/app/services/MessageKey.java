@@ -36,7 +36,6 @@ public enum MessageKey {
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_SUBMIT("button.submit"),
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
-  BUTTON_UPLOAD("button.upload"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTENT_ADMIN_LOGIN_PROMPT("content.adminLoginPrompt"),
   CONTENT_CIVIFORM_DESCRIPTION_1("content.description1"),
