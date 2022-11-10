@@ -120,7 +120,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                     .withClasses("grid", "grid-cols-3", "gap-3")
                     .with(
                         cityField.getInputTag(),
-                        // UI alignment issue fix tracked here at
+                        // TODO UI alignment issue fix tracked here at
                         // https://github.com/civiform/civiform/issues/3792
                         stateField.getSelectTag(),
                         zipField.getInputTag()));
