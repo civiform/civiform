@@ -92,9 +92,6 @@ button.review=Revisar
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Omitir
 
-# The text on the button an applicant clicks to upload a file and continue to the next screen.
-button.upload=Subir
-
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo al inglés.
 
