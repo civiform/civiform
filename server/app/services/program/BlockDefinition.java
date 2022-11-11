@@ -1,6 +1,8 @@
 package services.program;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
@@ -119,6 +121,11 @@ public abstract class BlockDefinition {
   @JsonProperty("hidePredicate")
   public abstract Optional<PredicateDefinition> visibilityPredicate();
 
+  /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
+  @JsonInclude(Include.NON_EMPTY)
+  @JsonProperty("eligibilityDefinition")
+  public abstract Optional<EligibilityDefinition> eligibilityDefinition();
+
   /**
    * A {@link PredicateDefinition} that determines whether this is optional or required.
    *
@@ -169,6 +176,13 @@ public abstract class BlockDefinition {
 
     public Builder setVisibilityPredicate(PredicateDefinition predicate) {
       return this.setVisibilityPredicate(Optional.of(predicate));
+    }
+
+    @JsonProperty("eligibilityDefinition")
+    public abstract Builder setEligibilityDefinition(Optional<EligibilityDefinition> def);
+
+    public Builder setEligibilityDefinition(EligibilityDefinition def) {
+      return this.setEligibilityDefinition(Optional.of(def));
     }
 
     @JsonProperty("optionalPredicate")
