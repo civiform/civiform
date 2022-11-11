@@ -12,7 +12,7 @@ describe('Radio button question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single radio button question', () => {
-    const programName = 'test-program-for-single-radio-button'
+    const programName = 'Test program for single radio button'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -121,7 +121,7 @@ describe('Radio button question for applicant flow', () => {
   })
 
   describe('multiple radio button questions', () => {
-    const programName = 'test-program-for-multiple-radio-button-qs'
+    const programName = 'Test program for multiple radio button qs'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx

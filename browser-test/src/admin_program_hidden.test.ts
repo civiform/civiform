@@ -15,7 +15,7 @@ describe('Hide a program that should not be public yet', () => {
     await loginAsAdmin(page)
 
     // Create a hidden program
-    const programName = 'hidden-program'
+    const programName = 'Hidden program'
     const programDescription = 'Description'
     await adminPrograms.addProgram(programName, programDescription, '', true)
     await adminPrograms.publishAllPrograms()
@@ -39,7 +39,7 @@ describe('Hide a program that should not be public yet', () => {
     await loginAsAdmin(page)
 
     // Create a hidden program
-    const programName = 'public-program'
+    const programName = 'Public program'
     const programDescription = 'Description'
     await adminPrograms.addProgram(programName, programDescription, '', false)
     await adminPrograms.publishAllPrograms()

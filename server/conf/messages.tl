@@ -85,9 +85,6 @@ button.review=Pagsusuri
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Laktawan
 
-# The text on the button an applicant clicks to upload a file and continue to the next screen.
-button.upload=Mag-upload
-
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=Ikinalulungkot namin, Ang programa na ito ay hindi lubos na naisalin sa inyong ninanais na wika.
 

@@ -228,12 +228,12 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses("hidden");
   }
 
-  private ButtonTag renderUploadButton(Params params) {
+  private ButtonTag renderNextButton(Params params) {
     String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
     if (hasUploadedFile(params)) {
       styles = ApplicantStyles.BUTTON_REVIEW;
     }
-    return submitButton(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
+    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withForm(BLOCK_FORM_ID)
         .withClasses(styles)
         .withId(FILEUPLOAD_SUBMIT_FORM_ID);
@@ -273,7 +273,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());
     }
-    ret.with(renderUploadButton(params));
+    ret.with(renderNextButton(params));
     if (maybeContinueButton.isPresent()) {
       ret.with(maybeContinueButton.get());
     }

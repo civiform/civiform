@@ -15,7 +15,7 @@ describe('currency applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single currency question', () => {
-    const programName = 'test-program-for-single-currency'
+    const programName = 'Test program for single currency'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -83,7 +83,7 @@ describe('currency applicant flow', () => {
   })
 
   describe('multiple currency questions', () => {
-    const programName = 'test-program-for-multiple-currencies'
+    const programName = 'Test program for multiple currencies'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx

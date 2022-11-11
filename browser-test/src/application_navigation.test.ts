@@ -11,7 +11,7 @@ describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('navigation with four blocks', () => {
-    const programName = 'test-program-for-navigation-flows'
+    const programName = 'Test program for navigation flows'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -81,7 +81,7 @@ describe('Applicant navigation flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
       )
       await applicantQuestions.clickNext()
@@ -92,7 +92,7 @@ describe('Applicant navigation flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
       )
 
@@ -184,7 +184,7 @@ describe('Applicant navigation flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
       )
       await applicantQuestions.clickNext()
@@ -212,7 +212,7 @@ describe('Applicant navigation flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
       )
       await applicantQuestions.clickNext()

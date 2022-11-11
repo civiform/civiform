@@ -80,13 +80,13 @@ public class LoginController extends Controller {
       idp = AuthIdentityProviderName.IDCS_APPLICANT.toString();
     }
 
-    boolean isIDCS = idp.equals(AuthIdentityProviderName.IDCS_APPLICANT.toString());
+    boolean isIDCS = idp.equals(AuthIdentityProviderName.IDCS_APPLICANT.getValue());
 
     // Because this is only being called when we know IDCS is available, this route should
     // technically
     // never happen.
     if (!isIDCS) {
-      logger.warn("Attempted to do IDCS registration with other provider");
+      logger.warn("Attempted to do IDCS registration with provider " + idp);
       return login(request, applicantClient);
     }
 

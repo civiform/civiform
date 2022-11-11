@@ -15,7 +15,7 @@ describe('Admin can manage translations', () => {
 
     await loginAsAdmin(page)
 
-    const programName = 'program-to-be-translated-no-statuses'
+    const programName = 'Program to be translated no statuses'
     await adminPrograms.addProgram(programName)
 
     // Go to manage translations page.
@@ -61,7 +61,7 @@ describe('Admin can manage translations', () => {
 
     await loginAsAdmin(page)
 
-    const programName = 'program-to-be-translated-with-statuses'
+    const programName = 'Program to be translated with statuses'
     await adminPrograms.addProgram(programName)
 
     // Add two statuses, one with a configured email and another without
@@ -173,7 +173,7 @@ describe('Admin can manage translations', () => {
     )
 
     // Add the question to a program and publish
-    const programName = 'spanish-question-program'
+    const programName = 'Spanish question program'
     await adminPrograms.addProgram(
       programName,
       'program description',
@@ -231,7 +231,7 @@ describe('Admin can manage translations', () => {
     ])
 
     // Add the question to a program and publish
-    const programName = 'spanish-question-multi-option-program'
+    const programName = 'Spanish question multi option program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'block', [questionName])
     await adminPrograms.publishProgram(programName)
@@ -270,7 +270,7 @@ describe('Admin can manage translations', () => {
     ])
 
     // Add the question to a program and publish
-    const programName = 'spanish-question-enumerator-program'
+    const programName = 'Spanish question enumerator program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'block', [questionName])
     await adminPrograms.publishProgram(programName)
@@ -350,7 +350,7 @@ describe('Admin can manage translations', () => {
     // Add a new program with one non-translated question
     await loginAsAdmin(page)
 
-    const programName = 'toast-program'
+    const programName = 'Toast program'
     await adminPrograms.addProgram(programName)
 
     await adminQuestions.addNameQuestion({questionName: 'name-english'})
