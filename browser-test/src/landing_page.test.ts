@@ -1,4 +1,4 @@
-import {createTestContext, validateScreenshot} from './support'
+import {createTestContext, validateAccessibility, validateScreenshot} from './support'
 
 describe('the landing page', () => {
   const ctx = createTestContext()
@@ -7,5 +7,6 @@ describe('the landing page', () => {
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
     expect(await ctx.page.textContent('html')).toContain('Create account')
     await validateScreenshot(ctx.page, 'landing-page')
+    await validateAccessibility(ctx.page)
   })
 })
