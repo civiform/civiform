@@ -5,6 +5,7 @@ describe('the landing page', () => {
 
   it('it has login options', async () => {
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
+    expect(await ctx.page.textContent('html')).toContain('Create account')
     await validateScreenshot(ctx.page, 'landing-page')
   })
 })
