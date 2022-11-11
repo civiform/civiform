@@ -152,7 +152,7 @@ describe('Program admin review of submitted applications', () => {
       '1234 St',
       'Unit B',
       'Sim',
-      'Ames',
+      'WA',
       '54321',
     )
     await applicantQuestions.clickNext()

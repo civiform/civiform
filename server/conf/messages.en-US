@@ -206,6 +206,7 @@ content.pleaseCreateAccount=If you sign into a city account now, your informatio
 label.addressLine2=Unit/Apartment Number
 label.city=City
 label.state=State
+label.selectState=Select State
 label.street=Address line 1
 label.zipcode=ZIP Code
 

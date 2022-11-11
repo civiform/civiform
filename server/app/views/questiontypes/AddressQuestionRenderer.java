@@ -1,7 +1,8 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.div;
+import static j2html.TagCreator.*;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -13,6 +14,7 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import views.components.FieldWithLabel;
+import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders an address question. */
@@ -69,16 +71,24 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 validationErrors.getOrDefault(addressQuestion.getCityPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_CITY);
 
-    FieldWithLabel stateField =
-        FieldWithLabel.input()
-            .setFieldName(addressQuestion.getStatePath().toString())
-            .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
-            .setAutocomplete(Optional.of("address-level1"))
-            .setValue(addressQuestion.getStateValue().orElse(""))
-            .setFieldErrors(
-                messages,
-                validationErrors.getOrDefault(addressQuestion.getStatePath(), ImmutableSet.of()))
-            .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
+    SelectWithLabel stateField =
+        (SelectWithLabel)
+            new SelectWithLabel()
+                .setFieldName(addressQuestion.getStatePath().toString())
+                .setValue(addressQuestion.getStateValue().orElse(""))
+                .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
+                .setOptionGroups(
+                    ImmutableList.of(
+                        SelectWithLabel.OptionGroup.builder()
+                            .setLabel(
+                                messages.at(MessageKey.ADDRESS_LABEL_STATE_SELECT.getKeyName()))
+                            .setOptions(stateOptions())
+                            .build()))
+                .setFieldErrors(
+                    messages,
+                    validationErrors.getOrDefault(
+                        addressQuestion.getStatePath(), ImmutableSet.of()))
+                .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
 
     FieldWithLabel zipField =
         FieldWithLabel.input()
@@ -107,10 +117,78 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 addressOptionalField.getInputTag(),
                 /** Third line of address entry: City, State, Zip */
                 div()
-                    .withClasses("grid", "grid-cols-3", "gap-2")
+                    .withClasses("grid", "grid-cols-3", "gap-3")
                     .with(
-                        cityField.getInputTag(), stateField.getInputTag(), zipField.getInputTag()));
+                        cityField.getInputTag(),
+                        // TODO UI alignment issue fix tracked here at
+                        // https://github.com/civiform/civiform/issues/3792
+                        stateField.getSelectTag(),
+                        zipField.getInputTag()));
 
     return addressQuestionFormContent;
+  }
+
+  /** Provides a list of State options as mentioned in https://pe.usps.com/text/pub28/28apb.htm */
+  private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
+    return ImmutableList.of(
+        SelectWithLabel.OptionValue.builder().setLabel("AL").setValue("AL").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("AK").setValue("AK").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("AS").setValue("AS").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("AZ").setValue("AZ").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("AR").setValue("AR").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("CA").setValue("CA").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("CO").setValue("CO").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("CT").setValue("CT").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("DE").setValue("DE").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("DC").setValue("DC").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("FM").setValue("FM").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("FL").setValue("FL").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("GA").setValue("GA").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("GU").setValue("GU").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("HI").setValue("HI").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("ID").setValue("ID").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("IL").setValue("IL").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("IN").setValue("IN").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("IA").setValue("IA").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("KS").setValue("KS").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("KY").setValue("KY").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("LA").setValue("LA").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("ME").setValue("ME").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("MH").setValue("MH").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("MD").setValue("MD").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("MA").setValue("MA").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("MI").setValue("MI").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("MN").setValue("MN").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("MS").setValue("MS").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("MO").setValue("MO").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("MT").setValue("MT").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("NE").setValue("NE").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("NV").setValue("NV").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("NH").setValue("NH").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("NJ").setValue("NJ").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("NM").setValue("NM").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("NY").setValue("NY").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("NC").setValue("NC").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("ND").setValue("ND").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("MP").setValue("MP").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("OH").setValue("OH").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("OK").setValue("OK").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("OR").setValue("OR").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("PW").setValue("PW").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("PA").setValue("PA").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("PR").setValue("PR").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("RI").setValue("RI").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("SC").setValue("SC").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("SD").setValue("SD").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("TN").setValue("TN").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("TX").setValue("TX").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("UT").setValue("UT").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("VT").setValue("VT").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("VI").setValue("VI").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("VA").setValue("VA").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("WA").setValue("WA").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("WV").setValue("WV").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("WI").setValue("WI").build(),
+        SelectWithLabel.OptionValue.builder().setLabel("WY").setValue("WY").build());
   }
 }
