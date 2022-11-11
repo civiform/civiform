@@ -25,7 +25,6 @@ import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
-import views.style.ApplicationBaseView;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -132,7 +131,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         .withId(BLOCK_FORM_ID)
         .withEnctype("multipart/form-data")
         .withMethod(HttpVerbs.POST)
-        .with(ApplicationBaseView.requiredFieldsExplanationContent(params.messages()));
+        .with(this.requiredFieldsExplanationContent(params.messages()));
   }
 
   protected ImmutableList<ScriptTag> extraScriptTags() {

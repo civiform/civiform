@@ -133,7 +133,7 @@ public class ApplicationBaseView extends BaseHtmlView {
    * @param messages the localized {@link Messages} for the current applicant
    * @return PTag containing requiredness text.
    */
-  public static PTag requiredFieldsExplanationContent(Messages messages) {
+  public PTag requiredFieldsExplanationContent(Messages messages) {
     return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
         .withClasses("text-sm", "text-gray-600", "mb-2");
   }
