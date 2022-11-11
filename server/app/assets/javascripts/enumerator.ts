@@ -1,9 +1,5 @@
   // Javascript handling for enumerators
 
-// DO NOT SUBMIT: need to attach using:
-//   .addFooterScripts(layout.viewUtils.makeLocalJsTag("enumerator"));
-// but I'm having trouble finding a good spot to identify whether enumerator is on page
-
   window.addEventListener('load', () => {
     // Configure the button on the enumerator question form to add more enumerator field options
     const enumeratorOptionButton = document.getElementById(
