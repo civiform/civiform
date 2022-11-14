@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -517,16 +518,16 @@ public final class ApplicantService {
             .map(Program::getProgramDefinition)
             .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
             .collect(ImmutableList.toImmutableList());
-
+  
     return applicationsFuture.thenApplyAsync(
         applications -> {
           logDuplicateDrafts(applications);
-          return relevantProgramsForApplicant(activePrograms, applications, applicantId);
+          return relevantProgramsForApplicant(activePrograms, applications, applicantId).toCompletableFuture().join();
         },
         httpExecutionContext.current());
   }
 
-  private ApplicationPrograms relevantProgramsForApplicant(
+  private CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(
       ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications, long applicantId) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
@@ -576,7 +577,7 @@ public final class ApplicantService {
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
-            int autoFillCount = getAutoFillCount(maybeDraftApp.get());
+            OptionalInt autoFillCount = getAutoFillCount(maybeDraftApp.get()).toCompletableFuture().join();
 
             inProgressPrograms.add(
                 ApplicantProgramData.builder()
@@ -614,7 +615,7 @@ public final class ApplicantService {
         Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
     unappliedActivePrograms.forEach(
         programName -> {
-          int autoFillCount = getAutoFillCount(applicantId, activeProgramNames.get(programName).id());
+          OptionalInt autoFillCount = getAutoFillCount(applicantId, activeProgramNames.get(programName).id()).toCompletableFuture().join();
 
           unappliedPrograms.add(
               ApplicantProgramData.builder()
@@ -624,11 +625,11 @@ public final class ApplicantService {
         });
 
     // Ensure each list is ordered by database ID for consistent ordering.
-    return ApplicationPrograms.builder()
-        .setInProgress(sortByProgramId(inProgressPrograms.build()))
-        .setSubmitted(sortByProgramId(submittedPrograms.build()))
-        .setUnapplied(sortByProgramId(unappliedPrograms.build()))
-        .build();
+    return CompletableFuture.supplyAsync(() -> ApplicationPrograms.builder()
+    .setInProgress(sortByProgramId(inProgressPrograms.build()))
+    .setSubmitted(sortByProgramId(submittedPrograms.build()))
+    .setUnapplied(sortByProgramId(unappliedPrograms.build()))
+    .build());
   }
 
   private ImmutableList<ApplicantProgramData> sortByProgramId(
@@ -674,20 +675,20 @@ public final class ApplicantService {
     }
   }
 
-  private int getAutoFillCount(ReadOnlyApplicantProgramService roApplicantService) {
-    return roApplicantService.getSummaryData().stream().filter(data -> data.isPreviousResponse()).collect(ImmutableList.toImmutableList()).size();
+  private OptionalInt getAutoFillCount(ReadOnlyApplicantProgramService roApplicantService) {
+    int count = roApplicantService.getSummaryData().stream().filter(data -> data.isPreviousResponse()).collect(ImmutableList.toImmutableList()).size();
+
+    return count == 0 ? OptionalInt.empty() : OptionalInt.of(count);
   }
 
-  private int getAutoFillCount(Application application) {
-    ReadOnlyApplicantProgramService roApplicantService = getReadOnlyApplicantProgramService(application).toCompletableFuture().join();
-
-    return getAutoFillCount(roApplicantService);
+  private CompletionStage<OptionalInt> getAutoFillCount(Application application) {
+    return getReadOnlyApplicantProgramService(application)
+        .thenApplyAsync(roApplicantService -> getAutoFillCount(roApplicantService), httpExecutionContext.current());
   }
 
-  private int getAutoFillCount(long applicantId, long programId) {
-    ReadOnlyApplicantProgramService roApplicantService = getReadOnlyApplicantProgramService(applicantId, programId).toCompletableFuture().join();
-
-    return getAutoFillCount(roApplicantService);
+  private CompletionStage<OptionalInt> getAutoFillCount(long applicantId, long programId) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenApplyAsync(roApplicantService -> getAutoFillCount(roApplicantService), httpExecutionContext.current());
   }
 
   /**
@@ -712,7 +713,7 @@ public final class ApplicantService {
     abstract static class Builder {
       abstract Builder setProgram(ProgramDefinition v);
 
-      abstract Builder setAutoFillCount(int v);
+      abstract Builder setAutoFillCount(OptionalInt v);
 
       abstract Builder setLatestSubmittedApplicationTime(Optional<Instant> v);
 
