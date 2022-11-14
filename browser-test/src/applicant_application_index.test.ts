@@ -29,7 +29,11 @@ describe('applicant program index page', () => {
       'second-q',
     ])
 
+    // Add first-q so we can check autofill count
     await adminPrograms.addProgram(otherProgramName)
+    await adminPrograms.addProgramBlock(otherProgramName, 'first block', [
+      'first-q',
+    ])
 
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.publishAllPrograms()
@@ -53,6 +57,9 @@ describe('applicant program index page', () => {
       wantSubmittedPrograms: [],
     })
 
+    await applicantQuestions.expectPrgoramAutoFillCount(primaryProgramName, 0)
+    await applicantQuestions.expectPrgoramAutoFillCount(otherProgramName, 0)
+
     // Fill out first application block and confirm that the program appears in the "In progress"
     // section.
     await applicantQuestions.applyProgram(primaryProgramName)
@@ -64,6 +71,9 @@ describe('applicant program index page', () => {
       wantInProgressPrograms: [primaryProgramName],
       wantSubmittedPrograms: [],
     })
+
+    await applicantQuestions.expectPrgoramAutoFillCount(primaryProgramName, 0)
+    await applicantQuestions.expectPrgoramAutoFillCount(otherProgramName, 1)
 
     // Finish the application and confirm that the program appears in the "Submitted" section.
     await applicantQuestions.applyProgram(primaryProgramName)

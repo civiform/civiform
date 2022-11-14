@@ -203,6 +203,22 @@ export class ApplicantQuestions {
     expect(tableInnerText).not.toContain(programName)
   }
 
+  async expectPrgoramAutoFillCount(programName: string, count: number) {
+    const programLocator = await this.page.locator(
+      `.cf-application-card`,
+      { has: this.page.locator(`:text("${programName}")`) }
+    )
+    const innerHtml = await programLocator.innerHTML();
+
+    if (count === 0) {
+      expect(innerHtml).not.toContain('cf-application-card-autofillcount')
+    } else if (count === 1) {
+      expect(innerHtml).toContain('1 question autofilled')
+    } else {
+      expect(innerHtml).toContain(`${count} questions autofilled`)
+    }
+  }
+
   async gotoApplicantHomePage() {
     await this.page.goto(BASE_URL)
     await waitForPageJsLoad(this.page)

@@ -342,7 +342,13 @@ public final class ProgramIndexView extends BaseHtmlView {
                     Icons.svg(Icons.MAGIC)
                         .attr("role", "img")
                         .withClasses(
-                          "shrink-0", "h-5", "w-auto", "inline", "ml-1", "mr-2")
+                            ReferenceClasses.APPLICATION_CARD_AUTOFILLCOUNT,
+                            "shrink-0",
+                            "h-5",
+                            "w-auto",
+                            "inline",
+                            "ml-1",
+                            "mr-2")
                 )
                 .withText(count + " " + autoFillText)
                 .withClasses(

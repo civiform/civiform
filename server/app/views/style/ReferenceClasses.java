@@ -75,6 +75,7 @@ public final class ReferenceClasses {
   public static final String APPLICATION_CARD_TITLE = "cf-application-card-title";
   public static final String APPLICATION_CARD_DESCRIPTION = "cf-application-card-description";
   public static final String APPLICATION_PROGRAM_SECTION = "cf-application-program-section";
+  public static final String APPLICATION_CARD_AUTOFILLCOUNT = "cf-application-card-autofillcount";
 
   public static final String APPLY_BUTTON = "cf-apply-button";
   public static final String CONTINUE_BUTTON = "cf-continue-button";
