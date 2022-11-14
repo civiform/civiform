@@ -98,7 +98,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
-            !question.isOptional() ? question.getQuestionText() + "*" : question.getQuestionText(),
+            question.isOptional() ? question.getQuestionText() : question.getQuestionText() + "*" ,
             TextFormatter.UrlOpenAction.NewTab);
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
