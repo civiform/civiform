@@ -48,6 +48,9 @@ validation.errorAnnouncementSr=There are errors in the form. Please fix before c
 # Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
 
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=On your phone? “Choose File” also allows you to use your phone camera to upload documents.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
