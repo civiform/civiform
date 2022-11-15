@@ -189,7 +189,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (data.isAnswered()) {
       editElement.setIcon(Icons.EDIT);
     } else {
-      editElement.setIcon(Icons.ARROW_FORWARD);
+      editElement.setIcon(Icons.ARROW_FORWARD).setIconPosition(LinkElement.IconPosition.END);
     }
     DivTag editContent = div()
         .with(editElement.asAnchorText().attr("aria-label", ariaLabel))

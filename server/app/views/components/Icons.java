@@ -87,7 +87,7 @@ public enum Icons {
   // Used in Answer ->
   ARROW_FORWARD(
       20,
-      "m24 40-2.1-2.15L34.25 25.5H8v-3h26.25L21.9 10.15 24 8l16 16Z"),
+      "m10 16-1.062-1.062 4.187-4.188H4v-1.5h9.125L8.938 5.062 10 4l6 6Z"),
   // Email
   EMAIL(
       24,
