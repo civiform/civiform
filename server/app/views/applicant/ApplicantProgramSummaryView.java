@@ -188,9 +188,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
     if (data.isAnswered()) {
       editElement.setIcon(Icons.EDIT);
+    } else {
+      editElement.setIcon(Icons.ARROW_FORWARD);
     }
     DivTag editContent = div()
-              .with(editElement.asAnchorText().attr("aria-label", ariaLabel))
+        .with(editElement.asAnchorText().attr("aria-label", ariaLabel))
         .withClasses(
             "font-medium",
             "break-normal",
