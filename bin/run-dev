@@ -65,13 +65,7 @@ done &
 
 echo "Civiform starting locally at http://localhost:9000/loginForm"
 
-# Attach to the civiform container.
-docker::compose_dev up civiform \
-  --force-recreate \
-  --no-deps \
-  --wait \
-  -d
-
-docker attach "${COMPOSE_PROJECT_NAME}-civiform-1"
+# -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
+docker exec -it "${COMPOSE_PROJECT_NAME}-civiform-1" ./entrypoint.sh -jvm-debug "*:8457" -Dsbt.offline runDevServer
 
 docker::compose_dev stop civiform
