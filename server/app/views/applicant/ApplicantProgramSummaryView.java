@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
-import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -28,6 +27,7 @@ import services.applicant.RepeatedEntity;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
@@ -182,13 +182,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                 applicantId, data.programId(), data.blockId())
                 .url();
 
-    ATag editAction = new LinkElement()
+    LinkElement editElement = new LinkElement()
         .setHref(editLink)
         .setText(editText)
-        .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"))
-        .asAnchorText()
-        .attr("aria-label", ariaLabel);
-    DivTag editContent = div(editAction)
+        .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
+    if (data.isAnswered()) {
+      editElement.setIcon(Icons.EDIT);
+    }
+    DivTag editContent = div()
+              .with(editElement.asAnchorText().attr("aria-label", ariaLabel))
         .withClasses(
             "font-medium",
             "break-normal",
