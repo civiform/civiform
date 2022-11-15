@@ -121,7 +121,7 @@ public final class LinkElement {
 
   public ATag asAnchorText() {
     ATag tag = a();
-    this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2")));
+    this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2", "w-5", "h-5")));
     tag.withText(this.text);
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withCondHref(!Strings.isNullOrEmpty(href), href)
