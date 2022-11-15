@@ -136,6 +136,7 @@ describe('Applicant navigation flow', () => {
     it('verify program list page', async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
+      // create second program that has an external link.
       const programWithExternalLink = 'Program with external link'
       await adminPrograms.addProgram(
         programWithExternalLink,
