@@ -297,7 +297,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ATag infoLink =
         new LinkElement()
             .setId(baseId + "-info-link")
-            .setStyles("block", "my-2", "text-sm", "underline")
+            .setStyles("mb-2", "text-sm", "underline")
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
             .setHref(infoUrl)
             .asAnchorText()
@@ -306,14 +306,14 @@ public final class ProgramIndexView extends BaseHtmlView {
                 messages.at(
                     MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
                     program.localizedName().getOrDefault(preferredLocale)));
-    programData.with(infoLink);
+    programData.with(div(infoLink));
 
     // Add external link if it is set.
     if (!program.externalLink().isEmpty()) {
       ATag externalLink =
           new LinkElement()
               .setId(baseId + "-external-link")
-              .setStyles("block", "my-2", "text-sm", "underline")
+              .setStyles("mb-2", "text-sm", "underline")
               .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
               .setHref(program.externalLink())
               .opensInNewTab()
@@ -327,7 +327,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                       .withClasses(
                           "shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top"));
 
-      programData.with(externalLink);
+      programData.with(div(externalLink));
     }
 
     if (cardData.latestSubmittedApplicationTime().isPresent()) {
