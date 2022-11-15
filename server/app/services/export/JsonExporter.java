@@ -16,6 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import play.libs.F;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
+import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
 import services.Path;
@@ -38,13 +39,16 @@ public final class JsonExporter {
   private final ApplicantService applicantService;
   private final ProgramService programService;
   private final FeatureFlags featureFlags;
+  private final DateConverter dateConverter;
 
   @Inject
   JsonExporter(
-      ApplicantService applicantService, ProgramService programService, FeatureFlags featureFlags) {
+      ApplicantService applicantService, ProgramService programService, FeatureFlags featureFlags,
+    DateConverter dateConverter) {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
     this.featureFlags = checkNotNull(featureFlags);
+    this.dateConverter = dateConverter;
   }
 
   public Pair<String, PaginationResult<Application>> export(
@@ -91,16 +95,17 @@ public final class JsonExporter {
     jsonApplication.putString(
         Path.create("language"),
         roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag());
-    jsonApplication.putString(Path.create("create_time"), application.getCreateTime().toString());
+    jsonApplication.putString(Path.create("create_time"),
+      dateConverter.renderDateTimeDataOnly(application.getCreateTime()));
     jsonApplication.putString(
         Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
 
     Path submitTimePath = Path.create("submit_time");
+    String submitTimeData = dateConverter.renderDateTimeDataOnly(application.getSubmitTime());
     Optional.ofNullable(application.getSubmitTime())
-        .map(Instant::toString)
-        .ifPresentOrElse(
-            submitTime -> jsonApplication.putString(submitTimePath, submitTime),
-            () -> jsonApplication.putNull(submitTimePath));
+      .ifPresentOrElse(
+        submitTime -> jsonApplication.putString(submitTimePath, submitTimeData),
+        () -> jsonApplication.putNull(submitTimePath));
 
     if (featureFlags.isStatusTrackingEnabled()) {
       Path statusPath = Path.create("status");

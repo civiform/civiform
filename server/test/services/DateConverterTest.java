@@ -11,7 +11,7 @@ import org.junit.Test;
 
 public class DateConverterTest {
 
-  private DateConverter dateConverter = new DateConverter(ZoneId.of("UTC"));
+  private final DateConverter dateConverter = new DateConverter(ZoneId.of("UTC"));
 
   @Test
   public void workingWith_Iso8601_dates() {
@@ -42,5 +42,19 @@ public class DateConverterTest {
     LocalDate date = LocalDate.of(2020, 1, 1);
     String result = dateConverter.formatIso8601Date(date);
     assertThat(expectedResult).isEqualTo(result);
+  }
+  @Test
+  public void renderDatTime_isCorrect() {
+    Instant instant = Instant.parse("2022-04-09T10:15:30.00Z");
+    // Should fail right
+    // Todo: don't use UTC to test for real
+    assertThat(dateConverter.renderDateTime(instant)).isEqualTo(
+      "2022/04/09 at 10:15 AM UTC");
+  }
+  @Test
+  public void renderDateTimeDataOnly_isCorrect(){
+    Instant instant = Instant.parse("2022-04-09T10:15:30.00Z");
+    assertThat(dateConverter.renderDateTimeDataOnly(instant)).isEqualTo(
+      "2022/04/09 10:15:30 AM UTC");
   }
 }

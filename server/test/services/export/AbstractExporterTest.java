@@ -2,6 +2,9 @@ package services.export;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
@@ -31,6 +34,12 @@ import support.QuestionAnswerer;
  */
 public abstract class AbstractExporterTest extends ResetPostgres {
   public static final String STATUS_VALUE = "approved";
+
+  // Instant in UTC, the month is chosen so that the create time translates to a PDT time
+  // and the creation time to a PST time to test both cases.
+  public static final Instant FAKE_CREATE_TIME = Instant.parse("2022-04-09T10:15:30.00Z");
+  public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2022-12-09T10:30:30.00Z");
+
   private ProgramAdminApplicationService programAdminApplicationService;
 
   protected Program fakeProgramWithEnumerator;
@@ -145,9 +154,16 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantOne.save();
     applicantTwo.save();
 
-    applicationOne =
-        new Application(applicantOne, fakeProgram, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    applicationOne = new Application(applicantOne, fakeProgram, LifecycleStage.ACTIVE);
     applicationOne.save();
+
+    // CreateTime of an application is set through @onCreate to Instant.now(). To change
+    // the value, manually set createTime and save and refresh the application.
+    applicationOne.setCreateTimeForTest(FAKE_CREATE_TIME);
+    applicationOne.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+    applicationOne.save();
+    applicationOne.refresh();
+
     programAdminApplicationService.setStatus(
         applicationOne,
         StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),

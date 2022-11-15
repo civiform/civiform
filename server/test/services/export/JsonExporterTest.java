@@ -3,6 +3,10 @@ package services.export;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import featureflags.FeatureFlags;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import models.Application;
 import models.Program;
@@ -10,6 +14,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
+import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
 import services.applicant.ApplicantService;
@@ -17,6 +22,8 @@ import services.program.ProgramService;
 
 public class JsonExporterTest extends AbstractExporterTest {
   private static final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
+
+  private final DateConverter dateConverter = new DateConverter(ZoneId.of("UTC"));
 
   @Test
   public void testAllQuestionTypesWithoutEnumerators() throws Exception {
@@ -93,6 +100,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(0, ".applicant_name.last_name", "Baker");
   }
 
+
   @Test
   public void testQuestionTypesWithEnumerators() throws Exception {
     createFakeProgramWithEnumerator();
@@ -145,7 +153,7 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     JsonExporter exporter =
         new JsonExporter(
-            instanceOf(ApplicantService.class), instanceOf(ProgramService.class), featureFlags);
+            instanceOf(ApplicantService.class), instanceOf(ProgramService.class), featureFlags, dateConverter);
 
     String resultJsonString =
         exporter
@@ -171,6 +179,13 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].application_id", application.id);
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].language", "en-US");
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].submitter_email", "Applicant");
+
+    resultAsserter.assertValueAtPath("$[0].create_time", "2022/04/09 3:15:30 AM PDT");
+
+//    resultAsserter.assertValueAtPath(0, ".create_time", "2022/04/09 3:15:30 AM PDT");
+    //resultAsserter.assertValueAtPath("$[" + resultIndex + "].submit_time", "2022/12/09 2:30:30 AM PST");
+
+
   }
 
   private static class ResultAsserter {

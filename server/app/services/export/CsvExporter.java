@@ -13,6 +13,7 @@ import models.Application;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import services.DateConverter;
 import services.Path;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.Column;
@@ -31,12 +32,15 @@ public final class CsvExporter implements AutoCloseable {
   private final ImmutableList<Column> columns;
   private final String secret;
   private final CSVPrinter printer;
+  private final DateConverter  dateConverter;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
-  public CsvExporter(ImmutableList<Column> columns, String secret, Writer writer)
+  public CsvExporter(ImmutableList<Column> columns, String secret, Writer writer,
+    DateConverter dateConverter)
       throws IOException {
     this.columns = checkNotNull(columns);
     this.secret = checkNotNull(secret);
+    this.dateConverter = dateConverter;
 
     CSVFormat format =
         CSVFormat.DEFAULT
@@ -70,13 +74,14 @@ public final class CsvExporter implements AutoCloseable {
           printer.print(application.getApplicantData().preferredLocale().toLanguageTag());
           break;
         case CREATE_TIME:
-          printer.print(application.getCreateTime().toString());
+          printer.print(dateConverter.renderDateTimeDataOnly(application.getCreateTime()));
           break;
         case SUBMIT_TIME:
-          printer.print(
-              application.getSubmitTime() != null
-                  ? application.getSubmitTime().toString()
-                  : EMPTY_VALUE);
+          if (application.getSubmitTime() == null) {
+            printer.print(EMPTY_VALUE);
+            break;
+          }
+          printer.print(dateConverter.renderDateTimeDataOnly(application.getSubmitTime()));
           break;
         case SUBMITTER_EMAIL_OPAQUE:
           if (secret.isBlank()) {
