@@ -134,12 +134,12 @@ public final class LinkElement {
 
   public ATag asAnchorText() {
     ATag tag = a();
-    if (this.iconPosition != IconPosition.END) {
-      this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2", "w-5", "h-5")));
+    if (this.iconPosition == IconPosition.END) {
       tag.withText(this.text);
+      this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2", "w-5", "h-5")));
     } else {
-      tag.withText(this.text);
       this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2", "w-5", "h-5")));
+      tag.withText(this.text);
     }
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withCondHref(!Strings.isNullOrEmpty(href), href)

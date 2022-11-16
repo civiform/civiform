@@ -336,7 +336,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     String actionUrl =
-        controllers.applicant.routes.ApplicantProgramReviewController.preview(
+        controllers.applicant.routes.ApplicantProgramReviewController.review(
                 applicantId, program.id())
             .url();
     ATag actionButton =
