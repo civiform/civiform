@@ -306,6 +306,7 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.deleteEnumeratorEntity('Bugs')
     // Submit the answers by clicking next, and then go to review page.
     await applicantQuestions.clickNext()
+    await applicantQuestions.clickReview()
 
     // Make sure that the removed enumerator is not present in the review page
     expect(await page.innerText('#application-summary')).toContain('Porky Pig')
@@ -323,7 +324,7 @@ describe('End to end enumerator test', () => {
     )
     await waitForPageJsLoad(page)
     await applicantQuestions.addEnumeratorAnswer('Tweety')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickNext() // this goes to Daffy because it was filled out in this application
     await applicantQuestions.answerNameQuestion('Tweety', 'Bird')
     await applicantQuestions.clickNext()
     await applicantQuestions.clickReview()
