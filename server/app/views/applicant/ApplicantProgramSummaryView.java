@@ -188,9 +188,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           ariaLabel = messages.at(MessageKey.ARIA_LABEL_BEGIN.getKeyName(), data.questionText());
         }
       }
-      String editLink = routes.ApplicantProgramBlocksController.edit(
-                      applicantId, data.programId(), data.blockId())
-                  .url();
+      String editLink =
+          routes.ApplicantProgramBlocksController.edit(
+                  applicantId, data.programId(), data.blockId())
+              .url();
 
       LinkElement editElement =
           new LinkElement()

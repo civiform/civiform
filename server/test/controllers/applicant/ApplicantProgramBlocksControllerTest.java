@@ -125,12 +125,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 fakeRequest(
-                    routes.ApplicantProgramBlocksController.previous(
-                        applicant.id, program.id, 0, true)))
+                    routes.ApplicantProgramBlocksController.previous(applicant.id, program.id, 0)))
             .build();
 
     Result result =
-        subject.previous(request, applicant.id, program.id, 0, true).toCompletableFuture().join();
+        subject.previous(request, applicant.id, program.id, 0).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -141,13 +140,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    badApplicantId, program.id, /* blockId = */ "1", /* inReview = */ false))
+                    badApplicantId, program.id, /* blockId = */ "1"))
             .build();
 
     Result result =
         subject
-            .update(
-                request, badApplicantId, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .update(request, badApplicantId, program.id, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
@@ -160,13 +158,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id, badProgramId, /* blockId = */ "1", /* inReview = */ false))
+                    applicant.id, badProgramId, /* blockId = */ "1"))
             .build();
 
     Result result =
         subject
-            .update(
-                request, applicant.id, badProgramId, /* blockId = */ "1", /* inReview = */ false)
+            .update(request, applicant.id, badProgramId, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
@@ -179,14 +176,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id, program.id, badBlockId, /* inReview = */ false))
+                    applicant.id, program.id, badBlockId))
             .build();
 
     Result result =
-        subject
-            .update(request, applicant.id, program.id, badBlockId, /* inReview = */ false)
-            .toCompletableFuture()
-            .join();
+        subject.update(request, applicant.id, program.id, badBlockId).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
@@ -196,13 +190,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
+                    applicant.id, program.id, /* blockId = */ "1"))
             .bodyForm(ImmutableMap.of("fake.path", "value"))
             .build();
 
     Result result =
         subject
-            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
@@ -215,13 +209,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
+                    applicant.id, program.id, /* blockId = */ "1"))
             .bodyForm(ImmutableMap.of(reservedPath, "value"))
             .build();
 
     Result result =
         subject
-            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
@@ -234,7 +228,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 fakeRequest(
                         routes.ApplicantProgramBlocksController.update(
-                            applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
+                            applicant.id, program.id, /* blockId = */ "1"))
                     .bodyForm(
                         ImmutableMap.of(
                             Path.create("applicant.applicant_name")
@@ -249,7 +243,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
@@ -270,7 +264,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
+                    applicant.id, program.id, /* blockId = */ "1"))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -281,7 +275,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
@@ -303,7 +297,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequest(
                 routes.ApplicantProgramBlocksController.update(
-                    applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false))
+                    applicant.id, program.id, /* blockId = */ "1"))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -314,7 +308,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .update(request, applicant.id, program.id, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
@@ -332,17 +326,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequest(
             routes.ApplicantProgramBlocksController.updateFile(
-                badApplicantId, program.id, /* blockId = */ "2", /* inReview = */ false));
+                badApplicantId, program.id, /* blockId = */ "2"));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
-                request.build(),
-                badApplicantId,
-                program.id,
-                /* blockId = */ "2",
-                /* inReview = */ false)
+            .updateFile(request.build(), badApplicantId, program.id, /* blockId = */ "2")
             .toCompletableFuture()
             .join();
 
@@ -355,17 +344,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequest(
             routes.ApplicantProgramBlocksController.updateFile(
-                applicant.id, badProgramId, /* blockId = */ "2", /* inReview = */ false));
+                applicant.id, badProgramId, /* blockId = */ "2"));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
-                request.build(),
-                applicant.id,
-                badProgramId,
-                /* blockId = */ "2",
-                /* inReview = */ false)
+            .updateFile(request.build(), applicant.id, badProgramId, /* blockId = */ "2")
             .toCompletableFuture()
             .join();
 
@@ -378,13 +362,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequest(
             routes.ApplicantProgramBlocksController.updateFile(
-                applicant.id, program.id, badBlockId, /* inReview = */ false));
+                applicant.id, program.id, badBlockId));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
-                request.build(), applicant.id, program.id, badBlockId, /* inReview = */ false)
+            .updateFile(request.build(), applicant.id, program.id, badBlockId)
             .toCompletableFuture()
             .join();
 
@@ -397,13 +380,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequest(
             routes.ApplicantProgramBlocksController.updateFile(
-                applicant.id, program.id, badBlockId, /* inReview = */ false));
+                applicant.id, program.id, badBlockId));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
-                request.build(), applicant.id, program.id, badBlockId, /* inReview = */ false)
+            .updateFile(request.build(), applicant.id, program.id, badBlockId)
             .toCompletableFuture()
             .join();
 
@@ -415,16 +397,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequest(
             routes.ApplicantProgramBlocksController.updateFile(
-                applicant.id, program.id, /* blockId = */ "2", /* inReview = */ false));
+                applicant.id, program.id, /* blockId = */ "2"));
 
     Result result =
         subject
-            .updateFile(
-                request.build(),
-                applicant.id,
-                program.id,
-                /* blockId = */ "2",
-                /* inReview = */ false)
+            .updateFile(request.build(), applicant.id, program.id, /* blockId = */ "2")
             .toCompletableFuture()
             .join();
 
@@ -443,17 +420,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequest(
             routes.ApplicantProgramBlocksController.updateFile(
-                applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false));
+                applicant.id, program.id, /* blockId = */ "1"));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
-                request.build(),
-                applicant.id,
-                program.id,
-                /* blockId = */ "1",
-                /* inReview = */ false)
+            .updateFile(request.build(), applicant.id, program.id, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
@@ -475,17 +447,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequest(
             routes.ApplicantProgramBlocksController.updateFile(
-                applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false));
+                applicant.id, program.id, /* blockId = */ "1"));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
-                request.build(),
-                applicant.id,
-                program.id,
-                /* blockId = */ "1",
-                /* inReview = */ false)
+            .updateFile(request.build(), applicant.id, program.id, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
@@ -519,17 +486,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     RequestBuilder request =
         fakeRequest(
             routes.ApplicantProgramBlocksController.updateFile(
-                applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false));
+                applicant.id, program.id, /* blockId = */ "1"));
     addQueryString(request, ImmutableMap.of("key", fileKey, "bucket", "fake-bucket"));
 
     Result result =
         subject
-            .updateFile(
-                request.build(),
-                applicant.id,
-                program.id,
-                /* blockId = */ "1",
-                /* inReview = */ false)
+            .updateFile(request.build(), applicant.id, program.id, /* blockId = */ "1")
             .toCompletableFuture()
             .join();
 
