@@ -36,7 +36,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     if (previousBlockIndex >= 0) {
       redirectUrl =
           routes.ApplicantProgramBlocksController.previous(
-                  params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
+                  params.applicantId(), params.programId(), previousBlockIndex)
               .url();
     } else {
       redirectUrl =
@@ -54,8 +54,6 @@ public class ApplicationBaseView extends BaseHtmlView {
     public static Builder builder() {
       return new AutoValue_ApplicationBaseView_Params.Builder();
     }
-
-    public abstract boolean inReview();
 
     public abstract Http.Request request();
 
@@ -86,8 +84,6 @@ public class ApplicationBaseView extends BaseHtmlView {
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
-
-      public abstract Builder setInReview(boolean inReview);
 
       public abstract Builder setMessages(Messages messages);
 

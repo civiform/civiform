@@ -93,10 +93,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     String onSuccessRedirectUrl =
         params.baseUrl()
             + routes.ApplicantProgramBlocksController.updateFile(
-                    params.applicantId(),
-                    params.programId(),
-                    params.block().getId(),
-                    params.inReview())
+                    params.applicantId(), params.programId(), params.block().getId())
                 .url();
 
     String key =
@@ -195,7 +192,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   private DivTag renderDeleteAndContinueFileUploadForms(Params params) {
     String formAction =
         routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+                params.applicantId(), params.programId(), params.block().getId())
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()

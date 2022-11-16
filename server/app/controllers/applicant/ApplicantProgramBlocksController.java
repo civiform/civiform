@@ -92,9 +92,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /**
    * This method renders all questions in the block of the program and presents to the applicant.
    *
-   * <p>The difference between `edit` and `review` is the next block the applicant will see after
-   * submitting the answers.
-   *
    * <p>`edit` takes the applicant to the next in-progress block, see {@link
    * ReadOnlyApplicantProgramService#getInProgressBlocks()}. If there are no more blocks, summary
    * page is shown.
@@ -102,28 +99,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> edit(
       Request request, long applicantId, long programId, String blockId) {
-    return editOrReview(request, applicantId, programId, blockId, false);
-  }
-
-  /**
-   * This method renders all questions in the block of the program and presents to the applicant.
-   *
-   * <p>The difference between `edit` and `review` is the next block the applicant will see after
-   * submitting the answers.
-   *
-   * <p>`review` takes the applicant to the first incomplete block. If there are no more blocks,
-   * summary page is shown.
-   */
-  @Secure
-  public CompletionStage<Result> review(
-      Request request, long applicantId, long programId, String blockId) {
-    return editOrReview(request, applicantId, programId, blockId, true);
+    return editInternal(request, applicantId, programId, blockId);
   }
 
   /** This method navigates to the previous page of the application. */
   @Secure
   public CompletionStage<Result> previous(
-      Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
+      Request request, long applicantId, long programId, int previousBlockIndex) {
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     CompletableFuture<Void> applicantAuthCompletableFuture =
@@ -159,7 +141,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             applicantId,
                             programId,
                             blockId,
-                            inReview,
                             roApplicantProgramService,
                             block.get(),
                             applicantName,
@@ -186,8 +167,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   @Secure
-  private CompletionStage<Result> editOrReview(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+  private CompletionStage<Result> editInternal(
+      Request request, long applicantId, long programId, String blockId) {
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
@@ -210,7 +191,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             applicantId,
                             programId,
                             blockId,
-                            inReview,
                             roApplicantProgramService,
                             block.get(),
                             applicantName,
@@ -244,7 +224,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> updateFile(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+      Request request, long applicantId, long programId, String blockId) {
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
@@ -310,7 +290,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     programId,
                     blockId,
                     applicantStage.toCompletableFuture().join(),
-                    inReview,
                     roApplicantProgramService),
             httpExecutionContext.current())
         .exceptionally(ex -> handleUpdateExceptions(ex));
@@ -318,7 +297,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> update(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+      Request request, long applicantId, long programId, String blockId) {
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
@@ -342,7 +321,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     programId,
                     blockId,
                     applicantStage.toCompletableFuture().join(),
-                    inReview,
                     roApplicantProgramService),
             httpExecutionContext.current())
         .exceptionally(ex -> handleUpdateExceptions(ex));
@@ -354,7 +332,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       Optional<String> applicantName,
-      boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getBlock(blockId);
     if (thisBlockUpdatedMaybe.isEmpty()) {
@@ -373,38 +350,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           applicantId,
                           programId,
                           blockId,
-                          inReview,
                           roApplicantProgramService,
                           thisBlockUpdated,
                           applicantName,
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
-    if (inReview) {
-      Optional<String> nextBlockIdMaybe =
-          roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId);
-      return nextBlockIdMaybe.isEmpty()
-          ? supplyAsync(
-              () ->
-                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
-          : supplyAsync(
-              () ->
-                  redirect(
-                      routes.ApplicantProgramBlocksController.review(
-                          applicantId, programId, nextBlockIdMaybe.get())));
-    } else {
-      Optional<String> nextBlockIdMaybe =
-          roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
-      return nextBlockIdMaybe.isEmpty()
-          ? supplyAsync(
-              () ->
-                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
-          : supplyAsync(
-              () ->
-                  redirect(
-                      routes.ApplicantProgramBlocksController.edit(
-                          applicantId, programId, nextBlockIdMaybe.get())));
-    }
+    Optional<String> nextBlockIdMaybe =
+        roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+    logger.warn("Next block id: " + nextBlockIdMaybe.toString());
+    return nextBlockIdMaybe.isEmpty()
+        ? supplyAsync(
+            () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
+        : supplyAsync(
+            () ->
+                redirect(
+                    routes.ApplicantProgramBlocksController.edit(
+                        applicantId, programId, nextBlockIdMaybe.get())));
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {
@@ -418,7 +380,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
       Optional<String> applicantName,
@@ -430,7 +391,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setProgramTitle(roApplicantProgramService.getProgramTitle())
         .setProgramId(programId)
         .setBlock(block)
-        .setInReview(inReview)
         .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
         .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
         .setApplicantName(applicantName)

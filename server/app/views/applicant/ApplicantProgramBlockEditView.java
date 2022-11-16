@@ -115,7 +115,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
     String formAction =
         routes.ApplicantProgramBlocksController.update(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+                params.applicantId(), params.programId(), params.block().getId())
             .url();
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
