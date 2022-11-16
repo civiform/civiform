@@ -42,6 +42,7 @@ until $(curl --output /dev/null --silent --head --fail --max-time 2 "${BASE_URL}
     echo "Deadline exceeded waiting for server start"
     exit 1
   fi
+  sleep 5
 done
 
 echo "Detected server start"

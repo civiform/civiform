@@ -51,7 +51,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
-      "org.mockito" % "mockito-inline" % "4.8.1",
+      "org.mockito" % "mockito-inline" % "4.9.0",
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
@@ -77,9 +77,9 @@ lazy val root = (project in file("."))
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.10.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.9",
-      "com.google.auto.value" % "auto-value" % "1.9",
-      "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly (),
+      "com.google.auto.value" % "auto-value-annotations" % "1.10",
+      "com.google.auto.value" % "auto-value" % "1.10",
+      "com.google.auto.value" % "auto-value-parent" % "1.10" pomOnly (),
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.16",
@@ -112,7 +112,7 @@ lazy val root = (project in file("."))
       "-XDcompilePolicy=simple",
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF",
+      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode",
       "-implicit:class",
       "-Werror"
     ),

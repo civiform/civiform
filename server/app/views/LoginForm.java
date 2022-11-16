@@ -29,8 +29,7 @@ import views.style.BaseStyles;
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
-  private final boolean useIdcsApplicantRegistration;
-  private final boolean applicantAuthIsDisabled;
+  private final boolean renderCreateAccountButton;
   private final AuthIdentityProviderName applicantIdp;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
@@ -50,21 +49,7 @@ public class LoginForm extends BaseHtmlView {
     this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
     this.fakeAdminClient = checkNotNull(fakeAdminClient);
-
-    // Adjust UI for applicant-provider specific settings.
-    switch (applicantIdp) {
-      case DISABLED_APPLICANT:
-        this.applicantAuthIsDisabled = true;
-        this.useIdcsApplicantRegistration = false;
-        break;
-      case IDCS_APPLICANT:
-        this.applicantAuthIsDisabled = false;
-        this.useIdcsApplicantRegistration = config.hasPath("idcs.register_uri");
-        break;
-      default:
-        this.applicantAuthIsDisabled = false;
-        this.useIdcsApplicantRegistration = false;
-    }
+    this.renderCreateAccountButton = config.hasPath("auth.register_uri");
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
@@ -119,7 +104,7 @@ public class LoginForm extends BaseHtmlView {
                 "w-full",
                 "place-items-center");
 
-    if (applicantAuthIsDisabled) {
+    if (applicantIdp == AuthIdentityProviderName.DISABLED_APPLICANT) {
       String loginDisabledMessage =
           messages.at(MessageKey.CONTENT_LOGIN_DISABLED_PROMPT.getKeyName());
       content.with(applicantAccountLogin.with(p(loginDisabledMessage)));
@@ -132,17 +117,14 @@ public class LoginForm extends BaseHtmlView {
       content.with(p(alternativeMessage).withClasses("text-lg"));
     }
 
-    DivTag alternativeLoginButtons =
-        div().withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
-    if (useIdcsApplicantRegistration) {
+    DivTag alternativeLoginButtons = div();
+    if (renderCreateAccountButton) {
       String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
-      alternativeLoginButtons
-          .with(createAccountButton(messages))
-          .with(p(or))
-          .with(guestButton(messages));
-    } else {
-      alternativeLoginButtons.with(guestButton(messages));
+      alternativeLoginButtons.with(createAccountButton(messages)).with(p(or));
     }
+    alternativeLoginButtons
+        .with(guestButton(messages))
+        .withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
     content.with(alternativeLoginButtons);
 
     String adminPrompt = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
