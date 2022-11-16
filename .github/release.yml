@@ -8,7 +8,7 @@ changelog:
   categories:
     - title: Features
       labels:
-        - '*'
+        - feature
 
     - title: Bug fixes
       labels:
@@ -17,3 +17,7 @@ changelog:
     - title: Dependencies
       labels:
         - dependencies
+
+    - title: Other changes
+      labels:
+        - '*'
