@@ -122,7 +122,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     CSVRecord firstApplicationRecord = parser.getRecords().get(0);
 
     assertThat(firstApplicationRecord.get("Create time")).isEqualTo("2022/04/09 3:15:30 AM PDT");
-    //assertThat(firstApplicationRecord.get("Submit time")).isEqualTo("2022/12/09 2:30:30 AM PST");
+    assertThat(firstApplicationRecord.get("Submit time")).isEqualTo("2022/12/09 2:30:30 AM PST");
   }
 
   @Test
@@ -175,7 +175,6 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Test
   public void demographicsCsv_withRepeatedEntities() throws Exception {
-
     createFakeQuestions();
     createFakeProgram();
     createFakeApplications();

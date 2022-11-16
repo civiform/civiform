@@ -101,10 +101,10 @@ public final class JsonExporter {
         Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
 
     Path submitTimePath = Path.create("submit_time");
-    String submitTimeData = dateConverter.renderDateTimeDataOnly(application.getSubmitTime());
     Optional.ofNullable(application.getSubmitTime())
       .ifPresentOrElse(
-        submitTime -> jsonApplication.putString(submitTimePath, submitTimeData),
+        submitTime -> jsonApplication.putString(
+          submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
         () -> jsonApplication.putNull(submitTimePath));
 
     if (featureFlags.isStatusTrackingEnabled()) {

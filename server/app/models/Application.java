@@ -42,8 +42,7 @@ public class Application extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
-  @WhenCreated
-  private Instant createTime = Instant.now();
+  @WhenCreated private Instant createTime;
 
   @Constraints.Required @DbJson private String object;
 
@@ -111,7 +110,9 @@ public class Application extends BaseModel {
     return this.submitTime;
   }
 
-  public Instant getCreateTime() { return this.createTime; }
+  public Instant getCreateTime() {
+    return this.createTime;
+  }
 
   public Application setLifecycleStage(LifecycleStage stage) {
     this.lifecycleStage = stage;

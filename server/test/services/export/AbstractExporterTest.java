@@ -2,12 +2,12 @@ package services.export;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
+import javax.validation.constraints.Null;
+import junitparams.converters.Nullable;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -154,43 +154,32 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantOne.save();
     applicantTwo.save();
 
-    applicationOne = new Application(applicantOne, fakeProgram, LifecycleStage.ACTIVE);
-    applicationOne.save();
+    applicationOne = createFakeApplication(applicantOne, admin, fakeProgram, LifecycleStage.ACTIVE, STATUS_VALUE);
+    applicationTwo = createFakeApplication(applicantOne, admin, fakeProgram, LifecycleStage.OBSOLETE, STATUS_VALUE);
+    applicationThree = createFakeApplication(applicantOne, admin, fakeProgram, LifecycleStage.DRAFT, STATUS_VALUE);
+    applicationFour = createFakeApplication(applicantTwo, null, fakeProgram, LifecycleStage.ACTIVE, null);
+  }
+
+  private Application createFakeApplication(Applicant applicant, @Nullable Account admin, Program program,
+    LifecycleStage lifecycleStage, @Nullable String status) throws Exception {
+    Application application = new Application(applicant, program, lifecycleStage);
+    application.save();
 
     // CreateTime of an application is set through @onCreate to Instant.now(). To change
     // the value, manually set createTime and save and refresh the application.
-    applicationOne.setCreateTimeForTest(FAKE_CREATE_TIME);
-    applicationOne.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
-    applicationOne.save();
-    applicationOne.refresh();
+    application.setCreateTimeForTest(FAKE_CREATE_TIME);
+    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+    application.save();
 
-    programAdminApplicationService.setStatus(
-        applicationOne,
-        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
+    if (status != null && admin != null) {
+      programAdminApplicationService.setStatus(
+        application,
+        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE)
+          .build(),
         admin);
-    applicationOne.refresh();
-
-    applicationTwo =
-        new Application(applicantOne, fakeProgram, LifecycleStage.OBSOLETE).setSubmitTimeToNow();
-    applicationTwo.save();
-    programAdminApplicationService.setStatus(
-        applicationTwo,
-        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
-        admin);
-    applicationTwo.refresh();
-
-    applicationThree =
-        new Application(applicantOne, fakeProgram, LifecycleStage.DRAFT).setSubmitTimeToNow();
-    applicationThree.save();
-    programAdminApplicationService.setStatus(
-        applicationThree,
-        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
-        admin);
-    applicationThree.refresh();
-
-    applicationFour =
-        new Application(applicantTwo, fakeProgram, LifecycleStage.ACTIVE).setSubmitTimeToNow();
-    applicationFour.save();
+    }
+    application.refresh();
+    return application;
   }
 
   protected void createFakeQuestions() {

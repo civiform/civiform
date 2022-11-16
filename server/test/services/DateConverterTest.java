@@ -44,10 +44,8 @@ public class DateConverterTest {
     assertThat(expectedResult).isEqualTo(result);
   }
   @Test
-  public void renderDatTime_isCorrect() {
+  public void renderDateTime_isCorrect() {
     Instant instant = Instant.parse("2022-04-09T10:15:30.00Z");
-    // Should fail right
-    // Todo: don't use UTC to test for real
     assertThat(dateConverter.renderDateTime(instant)).isEqualTo(
       "2022/04/09 at 10:15 AM UTC");
   }
