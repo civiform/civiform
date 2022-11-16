@@ -6,6 +6,7 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -119,6 +120,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
         h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
+        requiredFieldsExplanationContent(),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
@@ -131,6 +133,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       Messages messages,
       long applicantId) {
     DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
+    if (!data.applicantQuestion().isOptional()) {
+      questionPrompt.with(span(" *").withClasses("text-red-600"));
+    }
     DivTag questionContent = div(questionPrompt).withClasses("pr-2");
 
     // Add existing answer.
