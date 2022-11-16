@@ -32,11 +32,11 @@ public final class CsvExporter implements AutoCloseable {
   private final ImmutableList<Column> columns;
   private final String secret;
   private final CSVPrinter printer;
-  private final DateConverter  dateConverter;
+  private final DateConverter dateConverter;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
-  public CsvExporter(ImmutableList<Column> columns, String secret, Writer writer,
-    DateConverter dateConverter)
+  public CsvExporter(
+      ImmutableList<Column> columns, String secret, Writer writer, DateConverter dateConverter)
       throws IOException {
     this.columns = checkNotNull(columns);
     this.secret = checkNotNull(secret);

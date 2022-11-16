@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
-import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import models.Question;
@@ -118,7 +116,7 @@ public class CsvExporterTest extends AbstractExporterTest {
 
     CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
-      CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY),DEFAULT_FORMAT);
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
     CSVRecord firstApplicationRecord = parser.getRecords().get(0);
 
     assertThat(firstApplicationRecord.get("Create time")).isEqualTo("2022/04/09 3:15:30 AM PDT");

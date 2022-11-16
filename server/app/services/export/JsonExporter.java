@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
 import featureflags.FeatureFlags;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -43,8 +42,10 @@ public final class JsonExporter {
 
   @Inject
   JsonExporter(
-      ApplicantService applicantService, ProgramService programService, FeatureFlags featureFlags,
-    DateConverter dateConverter) {
+      ApplicantService applicantService,
+      ProgramService programService,
+      FeatureFlags featureFlags,
+      DateConverter dateConverter) {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
     this.featureFlags = checkNotNull(featureFlags);
@@ -95,17 +96,19 @@ public final class JsonExporter {
     jsonApplication.putString(
         Path.create("language"),
         roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag());
-    jsonApplication.putString(Path.create("create_time"),
-      dateConverter.renderDateTimeDataOnly(application.getCreateTime()));
+    jsonApplication.putString(
+        Path.create("create_time"),
+        dateConverter.renderDateTimeDataOnly(application.getCreateTime()));
     jsonApplication.putString(
         Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
 
     Path submitTimePath = Path.create("submit_time");
     Optional.ofNullable(application.getSubmitTime())
-      .ifPresentOrElse(
-        submitTime -> jsonApplication.putString(
-          submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
-        () -> jsonApplication.putNull(submitTimePath));
+        .ifPresentOrElse(
+            submitTime ->
+                jsonApplication.putString(
+                    submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
+            () -> jsonApplication.putNull(submitTimePath));
 
     if (featureFlags.isStatusTrackingEnabled()) {
       Path statusPath = Path.create("status");

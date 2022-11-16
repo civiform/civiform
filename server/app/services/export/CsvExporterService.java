@@ -147,8 +147,10 @@ public final class CsvExporterService {
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
       try (CsvExporter csvExporter =
           new CsvExporter(
-              exportConfig.columns(), config.getString("play.http.secret.key"),
-            writer, dateConverter)) {
+              exportConfig.columns(),
+              config.getString("play.http.secret.key"),
+              writer,
+              dateConverter)) {
         // Cache Program data which doesn't change, so we only look it up once rather than on every
         // exported row.
         // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.

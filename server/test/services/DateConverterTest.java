@@ -43,16 +43,17 @@ public class DateConverterTest {
     String result = dateConverter.formatIso8601Date(date);
     assertThat(expectedResult).isEqualTo(result);
   }
+
   @Test
   public void renderDateTime_isCorrect() {
     Instant instant = Instant.parse("2022-04-09T10:15:30.00Z");
-    assertThat(dateConverter.renderDateTime(instant)).isEqualTo(
-      "2022/04/09 at 10:15 AM UTC");
+    assertThat(dateConverter.renderDateTime(instant)).isEqualTo("2022/04/09 at 10:15 AM UTC");
   }
+
   @Test
-  public void renderDateTimeDataOnly_isCorrect(){
+  public void renderDateTimeDataOnly_isCorrect() {
     Instant instant = Instant.parse("2022-04-09T10:15:30.00Z");
-    assertThat(dateConverter.renderDateTimeDataOnly(instant)).isEqualTo(
-      "2022/04/09 10:15:30 AM UTC");
+    assertThat(dateConverter.renderDateTimeDataOnly(instant))
+        .isEqualTo("2022/04/09 10:15:30 AM UTC");
   }
 }

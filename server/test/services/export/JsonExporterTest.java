@@ -3,7 +3,6 @@ package services.export;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import featureflags.FeatureFlags;
-import java.time.ZoneId;
 import java.util.Optional;
 import models.Application;
 import models.Program;
@@ -20,7 +19,7 @@ import services.program.ProgramService;
 public class JsonExporterTest extends AbstractExporterTest {
   private static final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
 
-  private final DateConverter dateConverter = instanceOf (DateConverter.class);
+  private final DateConverter dateConverter = instanceOf(DateConverter.class);
 
   @Test
   public void testAllQuestionTypesWithoutEnumerators() throws Exception {
@@ -106,12 +105,12 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-      exporter
-        .export(
-          fakeProgram.getProgramDefinition(),
-          IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-          SubmittedApplicationFilter.EMPTY)
-        .getLeft();
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtPath("$[0].create_time", "2022/04/09 3:15:30 AM PDT");
@@ -170,7 +169,10 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     JsonExporter exporter =
         new JsonExporter(
-            instanceOf(ApplicantService.class), instanceOf(ProgramService.class), featureFlags, dateConverter);
+            instanceOf(ApplicantService.class),
+            instanceOf(ProgramService.class),
+            featureFlags,
+            dateConverter);
 
     String resultJsonString =
         exporter
@@ -185,8 +187,6 @@ public class JsonExporterTest extends AbstractExporterTest {
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationOne, 2);
     resultAsserter.assertDoesNotHavePath("$[0].status");
   }
-
-
 
   private void testApplicationTopLevelAnswers(
       Program program, ResultAsserter resultAsserter, Application application, int resultIndex) {
