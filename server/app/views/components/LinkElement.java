@@ -85,7 +85,7 @@ public final class LinkElement {
   private Optional<Icons> icon = Optional.empty();
 
   public enum IconPosition {
-    NONE,
+    UNSET,
     START,
     END
   }
@@ -122,12 +122,8 @@ public final class LinkElement {
     return this;
   }
 
-  public LinkElement setIcon(Icons icon) {
+  public LinkElement setIcon(Icons icon, IconPosition position) {
     this.icon = Optional.of(checkNotNull(icon));
-    return this;
-  }
-
-  public LinkElement setIconPosition(IconPosition position) {
     this.iconPosition = position;
     return this;
   }

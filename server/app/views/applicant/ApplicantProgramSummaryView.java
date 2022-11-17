@@ -173,8 +173,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                       applicantId, data.programId(), data.blockId())
                   .url())
           .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
-          .setIcon(Icons.EDIT)
-          .setIconPosition(LinkElement.IconPosition.START);
+          .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
     } else {
       editElement
           .setHref(
@@ -182,8 +181,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                       applicantId, data.programId(), data.blockId())
                   .url())
           .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
-          .setIcon(Icons.ARROW_FORWARD)
-          .setIconPosition(LinkElement.IconPosition.END);
+          .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);
     }
     DivTag editContent =
         div()
