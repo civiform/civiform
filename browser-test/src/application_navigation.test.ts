@@ -184,7 +184,7 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(page, 'program-preview')
     })
 
-    it('can answer third question directly', async() => {
+    it('can answer third question directly', async () => {
       const {page, applicantQuestions} = ctx
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
@@ -193,7 +193,9 @@ describe('Applicant navigation flow', () => {
         '.cf-applicant-summary-row:has(div:has-text("address question text")) a:has-text("Answer")',
       )
       await waitForPageJsLoad(page)
-      expect(await page.innerText('.cf-applicant-question-text')).toContain('address question text')
+      expect(await page.innerText('.cf-applicant-question-text')).toContain(
+        'address question text',
+      )
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
         'Unit B',
@@ -229,7 +231,9 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
 
       // Verify we are on program review page.
-      expect(await page.innerText('h2')).toContain('Program application summary')
+      expect(await page.innerText('h2')).toContain(
+        'Program application summary',
+      )
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-review')
     })
