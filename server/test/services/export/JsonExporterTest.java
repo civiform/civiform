@@ -113,7 +113,7 @@ public class JsonExporterTest extends AbstractExporterTest {
             .getLeft();
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
-    resultAsserter.assertValueAtPath("$[0].create_time", "2022/04/09 3:15:30 AM PDT");
+    resultAsserter.assertValueAtPath("$[0].create_time", "2022/04/09 3:07:02 AM PDT");
     resultAsserter.assertValueAtPath("$[0].submit_time", "2022/12/09 2:30:30 AM PST");
   }
 

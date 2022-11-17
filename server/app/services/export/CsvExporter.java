@@ -79,9 +79,9 @@ public final class CsvExporter implements AutoCloseable {
         case SUBMIT_TIME:
           if (application.getSubmitTime() == null) {
             printer.print(EMPTY_VALUE);
-            break;
+          } else {
+            printer.print(dateConverter.renderDateTimeDataOnly(application.getSubmitTime()));
           }
-          printer.print(dateConverter.renderDateTimeDataOnly(application.getSubmitTime()));
           break;
         case SUBMITTER_EMAIL_OPAQUE:
           if (secret.isBlank()) {

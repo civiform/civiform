@@ -64,7 +64,7 @@ public final class DateConverter {
   /** Formats an {@link Instant} to a human-readable date and time in the local time zone. */
   public String renderDateTime(Instant time) {
     ZonedDateTime dateTime = time.atZone(zoneId);
-    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:m a z"));
+    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
   }
 
   /**
@@ -73,7 +73,7 @@ public final class DateConverter {
    */
   public String renderDateTimeDataOnly(Instant time) {
     ZonedDateTime dateTime = time.atZone(zoneId);
-    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd h:m:s a z"));
+    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd h:mm:ss a z"));
   }
 
   /** Formats an {@link Instant} to a date in the local time zone. */

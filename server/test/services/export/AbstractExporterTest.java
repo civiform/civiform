@@ -36,7 +36,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
   // Instant in UTC, the month is chosen so that the create time translates to a PDT time
   // and the creation time to a PST time to test both cases.
-  public static final Instant FAKE_CREATE_TIME = Instant.parse("2022-04-09T10:15:30.00Z");
+  public static final Instant FAKE_CREATE_TIME = Instant.parse("2022-04-09T10:07:02.00Z");
   public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2022-12-09T10:30:30.00Z");
 
   private ProgramAdminApplicationService programAdminApplicationService;
