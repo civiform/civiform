@@ -317,12 +317,11 @@ public final class ProgramIndexView extends BaseHtmlView {
               .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
               .setHref(program.externalLink())
               .opensInNewTab()
-              .setIcon(Icons.OPEN_IN_NEW,
-                  LinkElement.IconPosition.END)
-              .asAnchorText().attr("role", "img")
-                      .attr(
-                          "aria-label",
-                          messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()));
+              .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
+              .asAnchorText()
+              .attr(
+                  "aria-label",
+                  messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()));
 
       programData.with(div(externalLink));
     }
