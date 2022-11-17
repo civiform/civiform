@@ -53,8 +53,7 @@ jobs:
 
       - name: Run ESLint on browser tests
         working-directory: browser-test
-        # Remove --force once fixed https://github.com/civiform/civiform/issues/3678
-        run: npm install --force && npx eslint . --ext .ts
+        run: npm install && npx eslint . --ext .ts
 
       - name: Run ESLint on server
         working-directory: server
