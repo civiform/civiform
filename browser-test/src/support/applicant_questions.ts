@@ -295,7 +295,7 @@ export class ApplicantQuestions {
   async downloadSingleQuestionFromReviewPage() {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h2')).toContain(
-      'Program application review',
+      'Program application summary',
     )
 
     const [downloadEvent] = await Promise.all([
@@ -324,18 +324,7 @@ export class ApplicantQuestions {
   async submitFromReviewPage() {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h2')).toContain(
-      'Program application review',
-    )
-
-    // Click on submit button.
-    await this.page.click('text="Submit"')
-    await waitForPageJsLoad(this.page)
-  }
-
-  async submitFromPreviewPage() {
-    // Assert that we're on the preview page.
-    expect(await this.page.innerText('h2')).toContain(
-      'Program application preview',
+      'Program application summary',
     )
 
     // Click on submit button.
