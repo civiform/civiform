@@ -1,4 +1,5 @@
 // Javascript handling for enumerators
+// This file requires that main.ts is also added to the page.
 
 window.addEventListener('load', () => {
   // Configure the button on the enumerator question form to add more enumerator field options
@@ -10,6 +11,7 @@ window.addEventListener('load', () => {
   }
 
   // Configure existing enumerator entity remove buttons
+  // This function is defined in main.js, which is expected to be bundled into the page.
   addEventListenerToElements(
     '.cf-enumerator-delete-button',
     'click',
