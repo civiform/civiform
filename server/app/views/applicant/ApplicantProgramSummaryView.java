@@ -6,13 +6,13 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
-import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -28,6 +28,7 @@ import services.applicant.RepeatedEntity;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
@@ -121,6 +122,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
         h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
+        requiredFieldsExplanationContent(),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
@@ -135,6 +137,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       boolean inReview,
       boolean isFirstUnanswered) {
     DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
+    if (!data.applicantQuestion().isOptional()) {
+      questionPrompt.with(span(" *").withClasses("text-red-600"));
+    }
     DivTag questionContent = div(questionPrompt).withClasses("pr-2");
 
     // Add existing answer.
@@ -192,15 +197,17 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                       applicantId, data.programId(), data.blockId())
                   .url();
 
-      ATag editAction =
+      LinkElement editElement =
           new LinkElement()
               .setHref(editLink)
               .setText(editText)
-              .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"))
-              .asAnchorText()
-              .attr("aria-label", ariaLabel);
+              .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
+      if (data.isAnswered()) {
+        editElement.setIcon(Icons.EDIT);
+      }
       DivTag editContent =
-          div(editAction)
+          div()
+              .with(editElement.asAnchorText().attr("aria-label", ariaLabel))
               .withClasses(
                   "font-medium",
                   "break-normal",

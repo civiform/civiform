@@ -390,17 +390,9 @@ public enum Icons {
    * classes like any other element.
    */
   public static SvgTag svg(Icons icon) {
-    // Setting the viewBox to a specific height/width is insufficient to
-    // actually cause the SVG's bounds to match. Here, the width / height
-    // of the SVG element are explicitly set, which is more consistent
-    // with what one would expect given the method signature.
     return svg()
         .with(path(icon.path))
-        .attr("viewBox", String.format("0 0 %1$d %2$d", icon.size, icon.size))
-        // TODO(#3148): don't set width/height on the element. Callers should
-        // style element themselves using tailwind's classes.
-        .withWidth(String.valueOf(icon.size))
-        .withHeight(String.valueOf(icon.size));
+        .attr("viewBox", String.format("0 0 %1$d %2$d", icon.size, icon.size));
   }
 
   private static SvgTag svg() {

@@ -2,6 +2,7 @@ import {
   createTestContext,
   loginAsAdmin,
   loginAsGuest,
+  logout,
   selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
@@ -133,12 +134,25 @@ describe('Applicant navigation flow', () => {
     })
 
     it('verify program list page', async () => {
-      const {page} = ctx
+      const {page, adminPrograms} = ctx
+      await loginAsAdmin(page)
+      // create second program that has an external link.
+      const programWithExternalLink = 'Program with external link'
+      await adminPrograms.addProgram(
+        programWithExternalLink,
+        'Program description',
+        'https://external.com',
+      )
+      await adminPrograms.publishProgram(programWithExternalLink)
+      await logout(page)
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       // Verify we are on program list page.
       expect(await page.innerText('h1')).toContain('Get benefits')
+      expect(
+        await page.locator('a:has-text("External site")').getAttribute('href'),
+      ).toEqual('https://external.com')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-list-page')
     })
