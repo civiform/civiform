@@ -130,7 +130,8 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return form()
         .withId(BLOCK_FORM_ID)
         .withEnctype("multipart/form-data")
-        .withMethod(HttpVerbs.POST);
+        .withMethod(HttpVerbs.POST)
+        .with(this.requiredFieldsExplanationContent(params.messages()));
   }
 
   protected ImmutableList<ScriptTag> extraScriptTags() {
