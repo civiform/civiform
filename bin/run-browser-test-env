@@ -155,4 +155,6 @@ for i in {1..60}; do
   fi
 done &
 
-docker attach "${COMPOSE_PROJECT_NAME}-civiform-1"
+if truth::is_disabled continuous_integration; then
+  docker attach "${COMPOSE_PROJECT_NAME}-civiform-1"
+fi
