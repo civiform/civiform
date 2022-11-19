@@ -29,7 +29,7 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
   /** The optional post-logout redirection URI. */
   private final URI postLogoutRedirectURI;
 
-  /** Otional extra query params to add to the URL. */
+  /** Optional extra query params to add to the URL. */
   private final ImmutableMap<String, String> extraParams;
 
   /**
