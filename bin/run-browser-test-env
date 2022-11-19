@@ -144,7 +144,6 @@ if truth::is_enabled continuous_integration; then
 else
   compose_browser_test "${use_dev}" --profile ${cloud_provider} up --no-recreate --wait -d
 fi
-echo "Running now, starting load loop"
 
 # Start a warmup request loop so that when the subsequent server startup is ready, we trigger lazy
 # loading its edit-refresh resources so save developer time.
