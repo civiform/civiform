@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.pac4j.core.exception.TechnicalException;
 
 /**
  * Custom Logout Request that allows for divergence from the [oidc
@@ -85,8 +87,8 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
     if (getEndpointURI().getRawFragment() != null) {
       try {
         return new URI(uri + "#" + getEndpointURI().getRawFragment());
-      } catch (Exception e) {
-        throw new RuntimeException(e);
+      } catch (URISyntaxException e) {
+        throw new TechnicalException(e);
       }
     }
     return uri;
