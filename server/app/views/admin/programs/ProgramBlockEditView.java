@@ -326,10 +326,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
             .withClasses("my-4");
 
-    if (!editable) {
-     // return blockInfoDisplay
-;    }
-
     DivTag predicateDisplay =
         renderPredicate(
             program.id(),
