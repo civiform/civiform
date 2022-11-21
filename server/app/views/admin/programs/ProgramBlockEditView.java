@@ -14,6 +14,7 @@ import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.BlockForm;
 import j2html.TagCreator;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -46,7 +47,10 @@ import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-/** Renders a page for an admin to edit the configuration for a single block of a program. */
+/**
+ * Renders a page for an admin to edit the configuration for a single block of a program.
+ * A block is a synonym for a Screen.
+ **/
 public final class ProgramBlockEditView extends ProgramBlockView {
 
   private final AdminLayout layout;
@@ -90,8 +94,10 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
+
+    boolean editable = true;
     InputTag csrfTag = makeCsrfTokenInputTag(request);
-    String title = String.format("Edit %s", blockDefinition.name());
+    String title = String.format("View %s", blockDefinition.name());
 
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(
@@ -116,7 +122,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                         renderProgramInfo(programDefinition),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
-                            .with(blockOrderPanel(request, programDefinition, blockId))
+                            .with(blockOrderPanel(request, programDefinition, blockId, editable))
                             .with(
                                 blockEditPanel(
                                     programDefinition,
@@ -126,14 +132,17 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                                     questions,
                                     blockDefinition.isEnumerator(),
                                     csrfTag,
-                                    blockDescriptionEditModal.getButton()))),
+                                    blockDescriptionEditModal.getButton(),
+                                    false))),
                 questionBankPanel(
                     questions,
                     programDefinition,
                     blockDefinition,
                     csrfTag,
-                    QuestionBank.shouldShowQuestionBank(request)))
-            .addModals(blockDescriptionEditModal);
+                    QuestionBank.shouldShowQuestionBank(request)));
+    if (editable) {
+      htmlBundle.addModals(blockDescriptionEditModal);
+    }
 
     // Add toast messages
     request
@@ -179,18 +188,22 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm).withClasses("hidden");
   }
 
-  private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
+  private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId,
+    boolean editable) {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
         renderBlockList(
             request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
 
-    ret.with(
+    if (editable) {
+      ret.with(
         ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
-            .withType("submit")
-            .withId("add-block-button")
-            .withForm(CREATE_BLOCK_FORM_ID));
+          .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
+          .withType("submit")
+          .withId("add-block-button")
+          .withForm(CREATE_BLOCK_FORM_ID));
+    }
+
     return ret;
   }
 
@@ -300,7 +313,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       ImmutableList<QuestionDefinition> allQuestions,
       boolean blockDefinitionIsEnumerator,
       InputTag csrfTag,
-      ButtonTag blockDescriptionModalButton) {
+      ButtonTag blockDescriptionModalButton,
+      boolean editable) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete =
@@ -312,13 +326,18 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
             .withClasses("my-4");
 
+    if (!editable) {
+     // return blockInfoDisplay
+;    }
+
     DivTag predicateDisplay =
         renderPredicate(
             program.id(),
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
             blockDefinition.name(),
-            allQuestions);
+            allQuestions,
+            editable);
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
@@ -364,7 +383,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                       canDelete,
                       question.optional(),
                       index,
-                      blockQuestions.size()));
+                      blockQuestions.size(),
+                    false));
             });
 
     ButtonTag addQuestion =
@@ -374,9 +394,16 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
                 "my-4");
 
-    return div()
-        .withClasses("w-7/12", "py-6", "px-4")
-        .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions, addQuestion);
+    DomContent[] editableContent ={blockInfoDisplay, buttons, predicateDisplay, programQuestions, addQuestion};
+    DomContent[] viewOnlyContent ={blockInfoDisplay, predicateDisplay, programQuestions};
+    DivTag returnValue = div()
+        .withClasses("w-7/12", "py-6", "px-4");
+    if (editable) {
+      return returnValue.with(editableContent);
+    } else {
+      return returnValue.with(viewOnlyContent);
+    }
+
   }
 
   private DivTag renderPredicate(
@@ -384,7 +411,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       long blockId,
       Optional<PredicateDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions) {
+      ImmutableList<QuestionDefinition> questions, boolean editable) {
     String currentBlockStatus =
         predicate.isEmpty()
             ? "This screen is always shown."
@@ -394,11 +421,16 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
             .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
-    return div()
+    DivTag returnDiv = div()
         .withClasses("my-4")
         .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
-        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"))
-        .with(
+        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
+
+    if (!editable) {
+      return returnDiv;
+    }
+
+    return returnDiv.with(
             asRedirectElement(
                 editScreenButton,
                 routes.AdminProgramBlockPredicatesController.edit(programId, blockId).url()));
@@ -412,7 +444,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       boolean canRemove,
       boolean isOptional,
       int questionIndex,
-      int questionsCount) {
+      int questionsCount,
+      boolean isEditable) {
     DivTag ret =
         div()
             .withClasses(
@@ -442,26 +475,34 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 p(questionHelpText).withClasses("mt-1", "text-sm"),
                 p(String.format("Admin ID: %s", questionDefinition.getName()))
                     .withClasses("mt-1", "text-sm"));
-
-    Optional<FormTag> maybeOptionalToggle =
-        optionalToggle(
-            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional);
-
     ret.with(icon, content);
-    if (maybeOptionalToggle.isPresent()) {
-      ret.with(maybeOptionalToggle.get());
-    }
-    ret.with(
+
+    if (isEditable) {
+
+      Optional<FormTag> maybeOptionalToggle =
+        optionalToggle(
+          csrfTag, programDefinitionId, blockDefinitionId, questionDefinition,
+          isOptional);
+
+      if (maybeOptionalToggle.isPresent()) {
+        ret.with(maybeOptionalToggle.get());
+      }
+
+      ret.with(
         this.createMoveQuestionButtonsSection(
-            csrfTag,
-            programDefinitionId,
-            blockDefinitionId,
-            questionDefinition,
-            questionIndex,
-            questionsCount));
-    return ret.with(
+          csrfTag,
+          programDefinitionId,
+          blockDefinitionId,
+          questionDefinition,
+          questionIndex,
+          questionsCount));
+      return ret.with(
         deleteQuestionForm(
-            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
+          csrfTag, programDefinitionId, blockDefinitionId, questionDefinition,
+          canRemove));
+
+    }
+    return ret;
   }
 
   private DivTag createMoveQuestionButtonsSection(
@@ -588,7 +629,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       QuestionDefinition questionDefinition,
       boolean canRemove) {
     ButtonTag removeButton =
-        ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
+        ViewUtils.makeSvgTextButton("Remove this button", Icons.DELETE)
             .withType("submit")
             .withId("block-question-" + questionDefinition.getId())
             .withName("questionDefinitionId")
@@ -642,6 +683,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     return qb.getContainer(questionBankVisibility);
   }
 
+  /** Modal dialog shown when the admin edits the screen name and description **/
   private Modal blockDescriptionModal(
       InputTag csrfTag, BlockForm blockForm, String blockUpdateAction) {
     String modalTitle = "Screen name and description";
