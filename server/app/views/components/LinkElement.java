@@ -85,7 +85,6 @@ public final class LinkElement {
   private Optional<Icons> icon = Optional.empty();
 
   public enum IconPosition {
-    UNSET,
     START,
     END
   }
@@ -130,7 +129,7 @@ public final class LinkElement {
 
   public ATag asAnchorText() {
     ATag tag = a();
-    if (this.iconPosition == IconPosition.END) {
+    if (IconPosition.END.equals(this.iconPosition)) {
       tag.withText(this.text);
       this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2", "w-5", "h-5")));
     } else {
