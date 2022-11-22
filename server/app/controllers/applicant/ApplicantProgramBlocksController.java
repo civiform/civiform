@@ -398,7 +398,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
     // No next block so go to the program review page.
     if (nextBlockIdMaybe.isEmpty()) {
-      supplyAsync(
+      return supplyAsync(
           () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)));
     }
 
@@ -409,6 +409,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   routes.ApplicantProgramBlocksController.review(
                       applicantId, programId, nextBlockIdMaybe.get())));
     }
+
     return supplyAsync(
         () ->
             redirect(
