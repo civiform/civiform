@@ -57,6 +57,8 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
 
   private final AdminLayout layout;
   private final boolean featureFlagOptionalQuestions;
+  private final ArrayList<Modal> modals;
+
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
@@ -68,6 +70,7 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
   public ProgramBlockViewOnlyView(AdminLayoutFactory layoutFactory, Config config) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
+    this.modals = new ArrayList<>();
   }
 
   public Content render(
@@ -125,11 +128,6 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
     ImmutableList<QuestionDefinition> questions)  {
 
     InputTag csrfTag = makeCsrfTokenInputTag(request);
-    String blockUpdateAction =
-      controllers.admin.routes.AdminProgramBlocksController.update(
-          programDefinition.id(), blockId)
-        .url();
-    Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
 
     HtmlBundle htmlBundle =
       layout
@@ -153,28 +151,73 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
                   blockPanel(
                     programDefinition,
                     blockDefinition,
+                    blockId,
                     blockForm,
                     blockQuestions,
                     questions,
                     blockDefinition.isEnumerator(),
-                    csrfTag,
-                    blockDescriptionEditModal.getButton()))),
+                    csrfTag))),
           questionBankPanel(
             questions,
             programDefinition,
             blockDefinition,
             csrfTag,
             QuestionBank.shouldShowQuestionBank(request)));
-   // if (editable) {
-     return  htmlBundle.addModals(blockDescriptionEditModal);
-   // }
+     return  htmlBundle.addModals(modals);
+    }
+
+  protected HtmlBundle getHtmlBundle2(
+    String title,
+    Request request,
+    ProgramDefinition programDefinition,
+    long blockId,
+    BlockForm blockForm,
+    BlockDefinition blockDefinition,
+    ImmutableList <ProgramQuestionDefinition> blockQuestions,
+    Optional<ToastMessage> message,
+    ImmutableList<QuestionDefinition> questions)  {
+
+    InputTag csrfTag = makeCsrfTokenInputTag(request);
+
+    HtmlBundle htmlBundle =
+      layout
+        .getBundle()
+        .setTitle(title)
+        .addMainContent(
+          div()
+            .withClasses(
+              "flex",
+              "flex-grow",
+              "flex-col",
+              "px-2",
+              StyleUtils.responsive2XLarge("px-16"))
+            .with(
+              addFormEndpoints(csrfTag, programDefinition.id(), blockId),
+              renderProgramInfo(programDefinition),
+              div()
+                .withClasses("flex", "flex-grow", "-mx-2")
+                .with(blockOrderPanel(request, programDefinition, blockId))
+                .with(
+                  blockPanel(
+                    programDefinition,
+                    blockDefinition,
+                    blockId,
+                    blockForm,
+                    blockQuestions,
+                    questions,
+                    blockDefinition.isEnumerator(),
+                    csrfTag))),
+          questionBankPanel(
+            questions,
+            programDefinition,
+            blockDefinition,
+            csrfTag,
+            QuestionBank.shouldShowQuestionBank(request)));
+    // if (editable) {
+    return  htmlBundle.addModals(modals);
+    // }
 
   }
-
-  // protected HtmlBundle getHtmlBundle2() {
-  //
-  //   return getHtmlBundle();
-  // }
 
   /** Define the String that will be shown on the Edit button **/
   @Override
@@ -339,12 +382,12 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
   private ArrayList<DomContent> prepareContentForBlockPanel(
       ProgramDefinition program,
       BlockDefinition blockDefinition,
+      long blockId,
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       ImmutableList<QuestionDefinition> allQuestions,
       boolean blockDefinitionIsEnumerator,
-      InputTag csrfTag,
-      ButtonTag blockDescriptionModalButton) {
+      InputTag csrfTag) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete =
@@ -384,15 +427,26 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
     return new ArrayList<DomContent>(Arrays.asList(blockInfoDisplay, predicateDisplay, programQuestions) );
   }
 
+  // Create the modal button when the content is actually created
+  // keep track of the modal to add it to bundle.
+
   private ArrayList<DomContent>  prepareContentForBlockPanel2(
     ProgramDefinition program,
     BlockDefinition blockDefinition,
+    long blockId,
     BlockForm blockForm,
     ImmutableList<ProgramQuestionDefinition> blockQuestions,
     ImmutableList<QuestionDefinition> allQuestions,
     boolean blockDefinitionIsEnumerator,
-    InputTag csrfTag,
-    ButtonTag blockDescriptionModalButton) {
+    InputTag csrfTag) {
+
+    String blockUpdateAction =
+      controllers.admin.routes.AdminProgramBlocksController.update(
+          program.id(), blockId)
+        .url();
+    Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
+
+    modals.add(blockDescriptionEditModal);
 
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
@@ -401,7 +455,7 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
-    buttons.with(blockDescriptionModalButton);
+    buttons.with(blockDescriptionEditModal.getButton());
     if (blockDefinitionIsEnumerator) {
       buttons.with(
         button("Create repeated screen")
@@ -437,9 +491,9 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
           "my-4");
 
 
-    ArrayList<DomContent>  content = prepareContentForBlockPanel(program,
-      blockDefinition, blockForm, blockQuestions, allQuestions,
-      blockDefinitionIsEnumerator, csrfTag, blockDescriptionModalButton);
+    ArrayList<DomContent> content = prepareContentForBlockPanel(program,
+      blockDefinition, blockId, blockForm, blockQuestions, allQuestions,
+      blockDefinitionIsEnumerator, csrfTag);
 
     content.add(1, buttons);
     content.add(addQuestion);
@@ -450,15 +504,15 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
   private DivTag blockPanel(
     ProgramDefinition program,
     BlockDefinition blockDefinition,
+    long blockId,
     BlockForm blockForm,
     ImmutableList<ProgramQuestionDefinition> blockQuestions,
     ImmutableList<QuestionDefinition> allQuestions,
     boolean blockDefinitionIsEnumerator,
-    InputTag csrfTag,
-    ButtonTag blockDescriptionModalButton) {
+    InputTag csrfTag) {
 
-    ArrayList<DomContent> content = prepareContentForBlockPanel(program, blockDefinition, blockForm, blockQuestions,
-      allQuestions,blockDefinitionIsEnumerator, csrfTag, blockDescriptionModalButton);
+    ArrayList<DomContent> content = prepareContentForBlockPanel(program, blockDefinition, blockId, blockForm, blockQuestions,
+      allQuestions,blockDefinitionIsEnumerator, csrfTag);
     return div()
         .withClasses("w-7/12", "py-6", "px-4")
         .with(content);
