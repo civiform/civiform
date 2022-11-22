@@ -26,6 +26,7 @@ import models.QuestionTag;
 import play.libs.F;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
+import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
@@ -57,6 +58,7 @@ public final class CsvExporterService {
   private final ApplicantService applicantService;
   private final FeatureFlags featureFlags;
   private final Config config;
+  private final DateConverter dateConverter;
 
   private static final String HEADER_SPACER_ENUM = " - ";
   private static final String HEADER_SPACER_SCALAR = " ";
@@ -73,12 +75,14 @@ public final class CsvExporterService {
       QuestionService questionService,
       ApplicantService applicantService,
       FeatureFlags featureFlags,
-      Config config) {
+      Config config,
+      DateConverter dateConverter) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.applicantService = checkNotNull(applicantService);
     this.featureFlags = checkNotNull(featureFlags);
     this.config = checkNotNull(config);
+    this.dateConverter = dateConverter;
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
@@ -143,7 +147,10 @@ public final class CsvExporterService {
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
       try (CsvExporter csvExporter =
           new CsvExporter(
-              exportConfig.columns(), config.getString("play.http.secret.key"), writer)) {
+              exportConfig.columns(),
+              config.getString("play.http.secret.key"),
+              writer,
+              dateConverter)) {
         // Cache Program data which doesn't change, so we only look it up once rather than on every
         // exported row.
         // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.

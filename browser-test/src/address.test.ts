@@ -60,7 +60,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
       )
       let error = page.locator('.cf-address-street-1-error')
@@ -83,7 +83,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
       )
       await applicantQuestions.clickNext()
@@ -120,7 +120,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         'notazipcode',
       )
       await applicantQuestions.clickNext()
@@ -161,7 +161,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         0,
       )
@@ -169,7 +169,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         1,
       )
@@ -189,7 +189,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         1,
       )
@@ -226,7 +226,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         0,
       )
@@ -301,7 +301,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         1,
       )
@@ -328,7 +328,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         1,
       )

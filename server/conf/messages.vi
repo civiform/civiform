@@ -90,9 +90,6 @@ button.review=Xem lại
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Bỏ qua
 
-# The text on the button an applicant clicks to upload a file and continue to the next screen.
-button.upload=Tải lên
-
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hết sang tiếng Việt.
 

@@ -5,12 +5,9 @@ import static play.mvc.Results.redirect;
 
 import auth.AdminAuthClient;
 import auth.ApplicantAuthClient;
-import auth.AuthIdentityProviderName;
 import auth.CiviFormHttpActionAdapter;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -72,38 +69,11 @@ public class LoginController extends Controller {
   }
 
   public Result register(Http.Request request) {
-    String idp;
-    try {
-      idp = config.getString("auth.applicant_idp");
-    } catch (ConfigException.Missing e) {
-      // Default to IDCS.
-      idp = AuthIdentityProviderName.IDCS_APPLICANT.toString();
-    }
-
-    boolean isIDCS = idp.equals(AuthIdentityProviderName.IDCS_APPLICANT.toString());
-
-    // Because this is only being called when we know IDCS is available, this route should
-    // technically
-    // never happen.
-    if (!isIDCS) {
-      logger.warn("Attempted to do IDCS registration with other provider");
+    String registerUrl =
+        config.hasPath("auth.register_uri") ? config.getString("auth.register_uri") : "";
+    if (registerUrl.isBlank()) {
+      logger.warn("Register uri is expected, but not set in the config.");
       return login(request, applicantClient);
-    }
-
-    return idcsRegister(request);
-  }
-
-  // IDCS has specific register behavior that is different from other IDPs, which have the register
-  // option on the same screen as the login page.
-  private Result idcsRegister(Http.Request request) {
-    String registerUrl = null;
-    try {
-      registerUrl = config.getString("idcs.register_uri");
-    } catch (ConfigException.Missing e) {
-      // leave it as null / empty.
-    }
-    if (Strings.isNullOrEmpty(registerUrl)) {
-      return badRequest("Registration is not enabled.");
     }
     // Redirect to the registration URL - then, when the user visits the site again, automatically
     // log them in.

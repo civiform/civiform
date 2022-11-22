@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
+import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
 import services.applicant.ApplicantService;
@@ -17,6 +18,8 @@ import services.program.ProgramService;
 
 public class JsonExporterTest extends AbstractExporterTest {
   private static final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
+
+  private final DateConverter dateConverter = instanceOf(DateConverter.class);
 
   @Test
   public void testAllQuestionTypesWithoutEnumerators() throws Exception {
@@ -94,6 +97,27 @@ public class JsonExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void testCreateAndSubmitTime_exported() throws Exception {
+    createFakeQuestions();
+    createFakeProgram();
+    createFakeApplications();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("$[0].create_time", "2022/04/09 3:07:02 AM PDT");
+    resultAsserter.assertValueAtPath("$[0].submit_time", "2022/12/09 2:30:30 AM PST");
+  }
+
+  @Test
   public void testQuestionTypesWithEnumerators() throws Exception {
     createFakeProgramWithEnumerator();
     JsonExporter exporter = instanceOf(JsonExporter.class);
@@ -145,7 +169,10 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     JsonExporter exporter =
         new JsonExporter(
-            instanceOf(ApplicantService.class), instanceOf(ProgramService.class), featureFlags);
+            instanceOf(ApplicantService.class),
+            instanceOf(ProgramService.class),
+            featureFlags,
+            dateConverter);
 
     String resultJsonString =
         exporter

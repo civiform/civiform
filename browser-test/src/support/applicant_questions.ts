@@ -21,7 +21,9 @@ export class ApplicantQuestions {
     await this.page.fill(`.cf-address-street-1 input >> nth=${index}`, street)
     await this.page.fill(`.cf-address-street-2 input >> nth=${index}`, line2)
     await this.page.fill(`.cf-address-city input >> nth=${index}`, city)
-    await this.page.fill(`.cf-address-state input >> nth=${index}`, state)
+    await this.page.selectOption(`.cf-address-state select >> nth=${index}`, {
+      label: state,
+    })
     await this.page.fill(`.cf-address-zip input >> nth=${index}`, zip)
   }
 
@@ -36,14 +38,13 @@ export class ApplicantQuestions {
     await this.page.waitForSelector('.cf-address-street-1 input')
     await this.page.waitForSelector('.cf-address-street-2 input')
     await this.page.waitForSelector('.cf-address-city input')
-    await this.page.waitForSelector('.cf-address-state input')
     await this.page.waitForSelector('.cf-address-zip input')
 
     // Check values are equal to expected
     await this.validateInputValue(street, '.cf-address-street-1 input')
     await this.validateInputValue(line2, '.cf-address-street-2 input')
     await this.validateInputValue(city, '.cf-address-city input')
-    await this.validateInputValue(state, '.cf-address-state input')
+    await this.validateDropdownValue(state, '.cf-address-state')
     await this.validateInputValue(zip, '.cf-address-zip input')
   }
 
@@ -163,6 +164,10 @@ export class ApplicantQuestions {
     await this.page.waitForSelector(`input[type="${type}"]`)
   }
 
+  async validateDropdownValue(value: string, dropdownId: string) {
+    expect(await this.page.innerText(dropdownId)).toContain(value)
+  }
+
   async validateInputValue(value: string, element = 'input') {
     await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
@@ -268,11 +273,6 @@ export class ApplicantQuestions {
 
   async clickReview() {
     await this.page.click('text="Review"')
-    await waitForPageJsLoad(this.page)
-  }
-
-  async clickUpload() {
-    await this.page.click('text="Upload"')
     await waitForPageJsLoad(this.page)
   }
 

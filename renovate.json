@@ -8,7 +8,7 @@
     },
     {
       "groupName": "jackson",
-      "matchPackagePrefixes": ["com.fasterxml.jackson:"]
+      "matchPackagePrefixes": ["com.fasterxml.jackson"]
     },
     {
       "groupName": "jupiter",

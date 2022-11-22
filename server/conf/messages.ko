@@ -90,9 +90,6 @@ button.review=검토
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=건너뛰기
 
-# The text on the button an applicant clicks to upload a file and continue to the next screen.
-button.upload=업로드
-
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=이 프로그램은 영어로 완전히 번역되어 있지 않습니다.
 

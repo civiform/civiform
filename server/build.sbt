@@ -23,9 +23,9 @@ lazy val root = (project in file("."))
       javaJdbc,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.7.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.4",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.4",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.4",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.14.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.14.0",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -36,8 +36,8 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "ses" % "2.17.295",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.6.1",
-      "com.azure" % "azure-storage-blob" % "12.20.0",
+      "com.azure" % "azure-identity" % "1.7.0",
+      "com.azure" % "azure-storage-blob" % "12.20.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.5.0",
@@ -51,7 +51,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
-      "org.mockito" % "mockito-inline" % "4.8.1",
+      "org.mockito" % "mockito-inline" % "4.9.0",
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
@@ -77,9 +77,9 @@ lazy val root = (project in file("."))
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.10.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.9",
-      "com.google.auto.value" % "auto-value" % "1.9",
-      "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly (),
+      "com.google.auto.value" % "auto-value-annotations" % "1.10",
+      "com.google.auto.value" % "auto-value" % "1.10",
+      "com.google.auto.value" % "auto-value-parent" % "1.10" pomOnly (),
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.16",
@@ -112,7 +112,7 @@ lazy val root = (project in file("."))
       "-XDcompilePolicy=simple",
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF",
+      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode",
       "-implicit:class",
       "-Werror"
     ),
@@ -208,9 +208,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.4.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.4",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.4"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.14.0",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.14.0"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

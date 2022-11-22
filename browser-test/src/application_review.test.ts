@@ -152,7 +152,7 @@ describe('Program admin review of submitted applications', () => {
       '1234 St',
       'Unit B',
       'Sim',
-      'Ames',
+      'WA',
       '54321',
     )
     await applicantQuestions.clickNext()
@@ -166,7 +166,7 @@ describe('Program admin review of submitted applications', () => {
 
     // fill 3rd application block.
     await applicantQuestions.answerFileUploadQuestion('file key')
-    await applicantQuestions.clickUpload()
+    await applicantQuestions.clickNext()
 
     // fill 4th application block.
     await applicantQuestions.answerCheckboxQuestion(['clowns'])

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import models.Question;
@@ -13,6 +14,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
 import org.mockito.Mockito;
 import repository.TimeFilter;
+import services.DateConverter;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.question.ApplicantQuestion;
@@ -28,6 +30,8 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
   private static final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
+
+  private final DateConverter dateConverter = new DateConverter(ZoneId.of("UTC"));
 
   private ApplicantQuestion getApplicantQuestion(QuestionDefinition questionDefinition) {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
@@ -104,6 +108,22 @@ public class CsvExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void createAndSubmitTimes_presentAndInPST() throws Exception {
+
+    createFakeQuestions();
+    createFakeProgram();
+    createFakeApplications();
+
+    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
+    CSVParser parser =
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
+    CSVRecord firstApplicationRecord = parser.getRecords().get(0);
+
+    assertThat(firstApplicationRecord.get("Create time")).isEqualTo("2022/04/09 3:07:02 AM PDT");
+    assertThat(firstApplicationRecord.get("Submit time")).isEqualTo("2022/12/09 2:30:30 AM PST");
+  }
+
+  @Test
   public void programCsv_noEntities() throws Exception {
     createFakeQuestions();
     createFakeProgram();
@@ -136,7 +156,8 @@ public class CsvExporterTest extends AbstractExporterTest {
             instanceOf(QuestionService.class),
             instanceOf(ApplicantService.class),
             featureFlags,
-            instanceOf(Config.class));
+            instanceOf(Config.class),
+            dateConverter);
 
     CSVParser parser =
         CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
