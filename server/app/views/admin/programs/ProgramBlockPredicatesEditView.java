@@ -25,6 +25,7 @@ import j2html.tags.specialized.OptionTag;
 import java.util.Arrays;
 import javax.inject.Inject;
 import play.mvc.Http;
+import play.mvc.Result;
 import play.twirl.api.Content;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
@@ -178,6 +179,18 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     }
 
     return layout.renderCentered(htmlBundle);
+  }
+
+  /** Define the String that will be shown on the Edit button **/
+  @Override
+  protected String getEditButtonText() {
+    return "Edit program details";
+      };
+
+  /** Define the navigation destination for the Edit button **/
+  @Override
+  protected String getNavigationUrl(ProgramDefinition programDefinition) {
+     return routes.AdminProgramController.edit(programDefinition.id()).url();
   }
 
   private ImmutableList<Modal> createPredicateUpdateFormModals(

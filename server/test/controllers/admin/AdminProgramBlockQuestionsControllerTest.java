@@ -24,7 +24,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
-import views.admin.programs.ProgramBlockEditView;
+import views.admin.programs.ProgramBlockViewOnlyView;
 
 public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
@@ -117,7 +117,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
                 controllers.admin.routes.AdminProgramBlockQuestionsController.move(
                     program.id, block.id(), nameQuestion.getId()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
-            .bodyForm(ImmutableMap.of(ProgramBlockEditView.MOVE_QUESTION_POSITION_FIELD, "1"))
+            .bodyForm(ImmutableMap.of(ProgramBlockViewOnlyView.MOVE_QUESTION_POSITION_FIELD, "1"))
             .build();
     Result result = controller.move(request, program.id, block.id(), nameQuestion.getId());
 
@@ -161,7 +161,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
                 controllers.admin.routes.AdminProgramBlockQuestionsController.move(
                     program.id, block.id(), nameQuestion.getId()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
-            .bodyForm(ImmutableMap.of(ProgramBlockEditView.MOVE_QUESTION_POSITION_FIELD, "foobar"))
+            .bodyForm(ImmutableMap.of(ProgramBlockViewOnlyView.MOVE_QUESTION_POSITION_FIELD, "foobar"))
             .build();
     assertThatThrownBy(
             () ->

@@ -24,7 +24,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
-import views.admin.programs.ProgramBlockEditView;
+import views.admin.programs.ProgramBlockViewOnlyView;
 import views.components.QuestionBank;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
@@ -159,7 +159,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     final int newPosition;
     try {
       newPosition =
-          Integer.parseInt(requestData.get(ProgramBlockEditView.MOVE_QUESTION_POSITION_FIELD));
+          Integer.parseInt(requestData.get(ProgramBlockViewOnlyView.MOVE_QUESTION_POSITION_FIELD));
     } catch (NumberFormatException e) {
       throw InvalidQuestionPositionException.missingPositionArgument();
     }

@@ -19,6 +19,8 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
@@ -95,54 +97,9 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
 
-    boolean editable = true;
-    InputTag csrfTag = makeCsrfTokenInputTag(request);
     String title = String.format("View %s", blockDefinition.name());
 
-    String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(
-                programDefinition.id(), blockId)
-            .url();
-    Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
-
-    HtmlBundle htmlBundle =
-        layout
-            .getBundle()
-            .setTitle(title)
-            .addMainContent(
-                div()
-                    .withClasses(
-                        "flex",
-                        "flex-grow",
-                        "flex-col",
-                        "px-2",
-                        StyleUtils.responsive2XLarge("px-16"))
-                    .with(
-                        addFormEndpoints(csrfTag, programDefinition.id(), blockId),
-                        renderProgramInfo(programDefinition),
-                        div()
-                            .withClasses("flex", "flex-grow", "-mx-2")
-                            .with(blockOrderPanel(request, programDefinition, blockId, editable))
-                            .with(
-                                blockEditPanel(
-                                    programDefinition,
-                                    blockDefinition,
-                                    blockForm,
-                                    blockQuestions,
-                                    questions,
-                                    blockDefinition.isEnumerator(),
-                                    csrfTag,
-                                    blockDescriptionEditModal.getButton(),
-                                    false))),
-                questionBankPanel(
-                    questions,
-                    programDefinition,
-                    blockDefinition,
-                    csrfTag,
-                    QuestionBank.shouldShowQuestionBank(request)));
-    if (editable) {
-      htmlBundle.addModals(blockDescriptionEditModal);
-    }
+    HtmlBundle htmlBundle = getHtmlBundle(title, request, programDefinition, blockId, blockForm, blockDefinition, blockQuestions, message, questions);
 
     // Add toast messages
     request
@@ -155,6 +112,69 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
 
     return layout.render(htmlBundle);
   }
+
+  protected HtmlBundle getHtmlBundle(
+    String title,
+    Request request,
+    ProgramDefinition programDefinition,
+    long blockId,
+    BlockForm blockForm,
+    BlockDefinition blockDefinition,
+    ImmutableList <ProgramQuestionDefinition> blockQuestions,
+    Optional<ToastMessage> message,
+    ImmutableList<QuestionDefinition> questions)  {
+
+    InputTag csrfTag = makeCsrfTokenInputTag(request);
+    String blockUpdateAction =
+      controllers.admin.routes.AdminProgramBlocksController.update(
+          programDefinition.id(), blockId)
+        .url();
+    Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
+
+    HtmlBundle htmlBundle =
+      layout
+        .getBundle()
+        .setTitle(title)
+        .addMainContent(
+          div()
+            .withClasses(
+              "flex",
+              "flex-grow",
+              "flex-col",
+              "px-2",
+              StyleUtils.responsive2XLarge("px-16"))
+            .with(
+              addFormEndpoints(csrfTag, programDefinition.id(), blockId),
+              renderProgramInfo(programDefinition),
+              div()
+                .withClasses("flex", "flex-grow", "-mx-2")
+                .with(blockOrderPanel(request, programDefinition, blockId))
+                .with(
+                  blockPanel(
+                    programDefinition,
+                    blockDefinition,
+                    blockForm,
+                    blockQuestions,
+                    questions,
+                    blockDefinition.isEnumerator(),
+                    csrfTag,
+                    blockDescriptionEditModal.getButton()))),
+          questionBankPanel(
+            questions,
+            programDefinition,
+            blockDefinition,
+            csrfTag,
+            QuestionBank.shouldShowQuestionBank(request)));
+   // if (editable) {
+     return  htmlBundle.addModals(blockDescriptionEditModal);
+   // }
+
+  }
+
+  // protected HtmlBundle getHtmlBundle2() {
+  //
+  //   return getHtmlBundle();
+  // }
 
   /** Define the String that will be shown on the Edit button **/
   @Override
@@ -200,23 +220,20 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
     return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm).withClasses("hidden");
   }
 
-  private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId,
-    boolean editable) {
+  private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
-    ret.with(
-        renderBlockList(
-            request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+    return ret.with(
+        renderBlockList(request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+  }
 
-    if (editable) {
-      ret.with(
+  private DivTag blockOrderPanel2(Request request, ProgramDefinition program, long focusedBlockId) {
+    return blockOrderPanel(request,  program,  focusedBlockId)
+      .with(
         ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
           .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
           .withType("submit")
           .withId("add-block-button")
           .withForm(CREATE_BLOCK_FORM_ID));
-    }
-
-    return ret;
   }
 
   private DivTag renderBlockList(
@@ -317,7 +334,9 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
     return moveButtons;
   }
 
-  private DivTag blockEditPanel(
+
+  // EDIT Here jhummel
+  private ArrayList<DomContent> prepareContentForBlockPanel(
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       BlockForm blockForm,
@@ -325,8 +344,7 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
       ImmutableList<QuestionDefinition> allQuestions,
       boolean blockDefinitionIsEnumerator,
       InputTag csrfTag,
-      ButtonTag blockDescriptionModalButton,
-      boolean editable) {
+      ButtonTag blockDescriptionModalButton) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete =
@@ -344,38 +362,7 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
             blockDefinition.name(),
-            allQuestions,
-            editable);
-
-    // Add buttons to change the block.
-    DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
-    buttons.with(blockDescriptionModalButton);
-    if (blockDefinitionIsEnumerator) {
-      buttons.with(
-          button("Create repeated screen")
-              .withType("submit")
-              .withId("create-repeated-block-button")
-              .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
-    }
-    // TODO: Maybe add alpha variants to button color on hover over so we do not have
-    //  to hard-code what the color will be when button is in hover state?
-    if (program.blockDefinitions().size() > 1) {
-      buttons.with(div().withClass("flex-grow"));
-      buttons.with(
-          ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
-              .withType("submit")
-              .withId("delete-block-button")
-              .withForm(DELETE_BLOCK_FORM_ID)
-              .withCondDisabled(!canDelete)
-              .withCondTitle(
-                  !canDelete, "A screen can only be deleted when it has no repeated screens.")
-              .withClasses(
-                  AdminStyles.SECONDARY_BUTTON_STYLES,
-                  "mx-4",
-                  "my-1",
-                  StyleUtils.disabled("opacity-50")));
-    }
+            allQuestions);
 
     DivTag programQuestions = div();
     IntStream.range(0, blockQuestions.size())
@@ -391,27 +378,90 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
                       canDelete,
                       question.optional(),
                       index,
-                      blockQuestions.size(),
-                    false));
+                      blockQuestions.size()));
             });
 
-    ButtonTag addQuestion =
-        makeSvgTextButton("Add a question", Icons.ADD)
-            .withClasses(
-                AdminStyles.PRIMARY_BUTTON_STYLES,
-                ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                "my-4");
+    return new ArrayList<DomContent>(Arrays.asList(blockInfoDisplay, predicateDisplay, programQuestions) );
+  }
 
-    DomContent[] editableContent ={blockInfoDisplay, buttons, predicateDisplay, programQuestions, addQuestion};
-    DomContent[] viewOnlyContent ={blockInfoDisplay, predicateDisplay, programQuestions};
-    DivTag returnValue = div()
-        .withClasses("w-7/12", "py-6", "px-4");
-    if (editable) {
-      return returnValue.with(editableContent);
-    } else {
-      return returnValue.with(viewOnlyContent);
+  private ArrayList<DomContent>  prepareContentForBlockPanel2(
+    ProgramDefinition program,
+    BlockDefinition blockDefinition,
+    BlockForm blockForm,
+    ImmutableList<ProgramQuestionDefinition> blockQuestions,
+    ImmutableList<QuestionDefinition> allQuestions,
+    boolean blockDefinitionIsEnumerator,
+    InputTag csrfTag,
+    ButtonTag blockDescriptionModalButton) {
+
+    // A block can only be deleted when it has no repeated blocks. Same is true for removing the
+    // enumerator question from the block.
+    final boolean canDelete =
+      !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockDefinition.id());
+
+    // Add buttons to change the block.
+    DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
+    buttons.with(blockDescriptionModalButton);
+    if (blockDefinitionIsEnumerator) {
+      buttons.with(
+        button("Create repeated screen")
+          .withType("submit")
+          .withId("create-repeated-block-button")
+          .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
+          .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
+    }
+    // TODO: Maybe add alpha variants to button color on hover over so we do not have
+    //  to hard-code what the color will be when button is in hover state?
+    if (program.blockDefinitions().size() > 1) {
+      buttons.with(div().withClass("flex-grow"));
+      buttons.with(
+        ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
+          .withType("submit")
+          .withId("delete-block-button")
+          .withForm(DELETE_BLOCK_FORM_ID)
+          .withCondDisabled(!canDelete)
+          .withCondTitle(
+            !canDelete, "A screen can only be deleted when it has no repeated screens.")
+          .withClasses(
+            AdminStyles.SECONDARY_BUTTON_STYLES,
+            "mx-4",
+            "my-1",
+            StyleUtils.disabled("opacity-50")));
     }
 
+    ButtonTag addQuestion =
+      makeSvgTextButton("Add a question", Icons.ADD)
+        .withClasses(
+          AdminStyles.PRIMARY_BUTTON_STYLES,
+          ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+          "my-4");
+
+
+    ArrayList<DomContent>  content = prepareContentForBlockPanel(program,
+      blockDefinition, blockForm, blockQuestions, allQuestions,
+      blockDefinitionIsEnumerator, csrfTag, blockDescriptionModalButton);
+
+    content.add(1, buttons);
+    content.add(addQuestion);
+
+    return content;
+  }
+
+  private DivTag blockPanel(
+    ProgramDefinition program,
+    BlockDefinition blockDefinition,
+    BlockForm blockForm,
+    ImmutableList<ProgramQuestionDefinition> blockQuestions,
+    ImmutableList<QuestionDefinition> allQuestions,
+    boolean blockDefinitionIsEnumerator,
+    InputTag csrfTag,
+    ButtonTag blockDescriptionModalButton) {
+
+    ArrayList<DomContent> content = prepareContentForBlockPanel(program, blockDefinition, blockForm, blockQuestions,
+      allQuestions,blockDefinitionIsEnumerator, csrfTag, blockDescriptionModalButton);
+    return div()
+        .withClasses("w-7/12", "py-6", "px-4")
+        .with(content);
   }
 
   private DivTag renderPredicate(
@@ -419,29 +469,35 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
       long blockId,
       Optional<PredicateDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions, boolean editable) {
+      ImmutableList<QuestionDefinition> questions) {
     String currentBlockStatus =
         predicate.isEmpty()
             ? "This screen is always shown."
             : predicate.get().toDisplayString(blockName, questions);
 
-    ButtonTag editScreenButton =
-        ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
-            .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
-    DivTag returnDiv = div()
+    return div()
         .withClasses("my-4")
         .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
         .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
+  }
 
-    if (!editable) {
-      //return returnDiv;
-    }
+  private DivTag renderPredicate2(
+    long programId,
+    long blockId,
+    Optional<PredicateDefinition> predicate,
+    String blockName,
+    ImmutableList<QuestionDefinition> questions) {
 
-    return returnDiv.with(
-            asRedirectElement(
-                editScreenButton,
-                routes.AdminProgramBlockPredicatesController.edit(programId, blockId).url()));
+    ButtonTag editScreenButton =
+      ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
+        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+        .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
+
+    return renderPredicate(programId, blockId, predicate, blockName, questions)
+      .with(
+        asRedirectElement(
+          editScreenButton,
+          routes.AdminProgramBlockPredicatesController.edit(programId, blockId).url()));
   }
 
   private DivTag renderQuestion(
@@ -452,8 +508,7 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
       boolean canRemove,
       boolean isOptional,
       int questionIndex,
-      int questionsCount,
-      boolean isEditable) {
+      int questionsCount) {
     DivTag ret =
         div()
             .withClasses(
@@ -483,9 +538,21 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
                 p(questionHelpText).withClasses("mt-1", "text-sm"),
                 p(String.format("Admin ID: %s", questionDefinition.getName()))
                     .withClasses("mt-1", "text-sm"));
-    ret.with(icon, content);
+    return ret.with(icon, content);
+  }
 
-    if (isEditable) {
+  private DivTag renderQuestion2(
+    InputTag csrfTag,
+    long programDefinitionId,
+    long blockDefinitionId,
+    QuestionDefinition questionDefinition,
+    boolean canRemove,
+    boolean isOptional,
+    int questionIndex,
+    int questionsCount) {
+
+    DivTag ret = renderQuestion(csrfTag, programDefinitionId, blockDefinitionId,
+      questionDefinition, canRemove, isOptional, questionIndex, questionsCount);
 
       Optional<FormTag> maybeOptionalToggle =
         optionalToggle(
@@ -508,9 +575,6 @@ public final class ProgramBlockViewOnlyView extends ProgramBlockView {
         deleteQuestionForm(
           csrfTag, programDefinitionId, blockDefinitionId, questionDefinition,
           canRemove));
-
-    }
-    return ret;
   }
 
   private DivTag createMoveQuestionButtonsSection(
