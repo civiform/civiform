@@ -325,7 +325,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *   <li>If there are errors renders the edit page for the same block with the errors.
    *   <li>If {@code inReview} then the next incomplete block is shown.
    *   <li>If not {@code inReview} the next visible block is shown.
-   *   <li>If there is no next block the review page is shown.
+   *   <li>If there is no next block the program review page is shown.
    * </ul>
    */
   @Secure
