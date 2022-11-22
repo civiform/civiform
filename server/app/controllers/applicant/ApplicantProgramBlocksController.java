@@ -316,6 +316,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .exceptionally(ex -> handleUpdateExceptions(ex));
   }
 
+  /**
+   * Accepts, validates and saves submission of applicant data for {@code blockId}.
+   *
+   * <p>Returns the applicable next step in the flow:
+   *
+   * <ul>
+   *   <li>If there are errors renders the edit page for the same block with the errors.
+   *   <li>If {@code inReview} then the next incomplete block is shown.
+   *   <li>If not {@code inReview} the next visible block is shown.
+   *   <li>If there is no next block the program review page is shown.
+   * </ul>
+   */
   @Secure
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
@@ -380,31 +392,29 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
-    if (inReview) {
-      Optional<String> nextBlockIdMaybe =
-          roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId);
-      return nextBlockIdMaybe.isEmpty()
-          ? supplyAsync(
-              () ->
-                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
-          : supplyAsync(
-              () ->
-                  redirect(
-                      routes.ApplicantProgramBlocksController.review(
-                          applicantId, programId, nextBlockIdMaybe.get())));
-    } else {
-      Optional<String> nextBlockIdMaybe =
-          roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
-      return nextBlockIdMaybe.isEmpty()
-          ? supplyAsync(
-              () ->
-                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
-          : supplyAsync(
-              () ->
-                  redirect(
-                      routes.ApplicantProgramBlocksController.edit(
-                          applicantId, programId, nextBlockIdMaybe.get())));
+    Optional<String> nextBlockIdMaybe =
+        inReview
+            ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
+            : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+    // No next block so go to the program review page.
+    if (nextBlockIdMaybe.isEmpty()) {
+      return supplyAsync(
+          () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)));
     }
+
+    if (inReview) {
+      return supplyAsync(
+          () ->
+              redirect(
+                  routes.ApplicantProgramBlocksController.review(
+                      applicantId, programId, nextBlockIdMaybe.get())));
+    }
+
+    return supplyAsync(
+        () ->
+            redirect(
+                routes.ApplicantProgramBlocksController.edit(
+                    applicantId, programId, nextBlockIdMaybe.get())));
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {
