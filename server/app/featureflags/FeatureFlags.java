@@ -23,6 +23,8 @@ public final class FeatureFlags {
       "application_status_tracking_enabled";
   public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
       "allow_civiform_admin_access_programs";
+  public static final String FEATURE_FLAG_ADDRESS_VALIDATION_ENABLED =
+      "feature_flag.address_validation_enabled";
   private final Config config;
 
   @Inject
@@ -53,10 +55,15 @@ public final class FeatureFlags {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
 
+  public boolean isAddressValidationEnabled(Request request) {
+    return getFlagEnabled(request, FEATURE_FLAG_ADDRESS_VALIDATION_ENABLED);
+  }
+
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
     return ImmutableMap.of(
         ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, allowCiviformAdminAccessPrograms(request),
-        APPLICATION_STATUS_TRACKING_ENABLED, isStatusTrackingEnabled(request));
+        APPLICATION_STATUS_TRACKING_ENABLED, isStatusTrackingEnabled(request),
+        FEATURE_FLAG_ADDRESS_VALIDATION_ENABLED, isAddressValidationEnabled(request));
   }
 
   /**
