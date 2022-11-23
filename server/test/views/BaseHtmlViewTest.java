@@ -8,13 +8,6 @@ import org.junit.Test;
 
 public class BaseHtmlViewTest {
 
-  private TestImpl testImpl;
-
-  @Before
-  public void setUp() {
-    testImpl = new TestImpl();
-  }
-
   @Test
   public void submitButton_rendersAFormSubmitButton() {
     ButtonTag result = BaseHtmlView.submitButton("text contents");
