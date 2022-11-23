@@ -272,9 +272,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   }
 
   private DivTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
-    return div()
-        .withClasses("flex", "flex-col", "gap-2")
-        .with(each(modals, Modal::getButton));
+    return div().withClasses("flex", "flex-col", "gap-2").with(each(modals, Modal::getButton));
   }
 
   private DivTag renderQuestionDefinitionBox(QuestionDefinition questionDefinition) {

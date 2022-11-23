@@ -975,18 +975,19 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);
-    assertThat(result.inProgress().stream().map(
-      ApplicantProgramData::latestSubmittedApplicationStatus))
+    assertThat(
+            result.inProgress().stream()
+                .map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(programForSubmitted.id);
-    assertThat(result.submitted().stream().map(
-      ApplicantProgramData::latestSubmittedApplicationStatus))
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programForUnapplied.id);
-    assertThat(result.unapplied().stream().map(
-      ApplicantProgramData::latestSubmittedApplicationStatus))
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
   }
 
@@ -1024,8 +1025,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(
             programForDraft.id, programForUnapplied.id, programForSubmitted.id);
-    assertThat(result.unapplied().stream().map(
-      ApplicantProgramData::latestSubmittedApplicationStatus))
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty(), Optional.empty());
   }
 
@@ -1189,13 +1190,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraftApp.id);
-    assertThat(result.inProgress().stream().map(
-      ApplicantProgramData::latestSubmittedApplicationTime))
+    assertThat(
+            result.inProgress().stream().map(ApplicantProgramData::latestSubmittedApplicationTime))
         .containsExactly(Optional.of(firstAppSubmitTime));
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(programForSubmittedApp.id);
-    assertThat(result.submitted().stream().map(
-      ApplicantProgramData::latestSubmittedApplicationTime))
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationTime))
         .containsExactly(Optional.of(secondAppSubmitTime));
     assertThat(result.unapplied()).isEmpty();
   }
@@ -1267,8 +1268,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(programForSubmitted.id);
-    assertThat(result.submitted().stream().map(
-      ApplicantProgramData::latestSubmittedApplicationTime))
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationTime))
         .containsExactly(Optional.of(submittedLater));
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(firstDraft.getProgram().id);
@@ -1314,8 +1315,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted().stream().map(p -> p.program().id())).containsExactly(program.id);
-    assertThat(result.submitted().stream().map(
-      ApplicantProgramData::latestSubmittedApplicationStatus))
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.of(APPROVED_STATUS));
     assertThat(result.unapplied()).isEmpty();
   }
@@ -1360,8 +1361,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(updatedProgram.id);
-    assertThat(result.submitted().stream().map(
-      ApplicantProgramData::latestSubmittedApplicationStatus))
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.of(APPROVED_STATUS));
     assertThat(result.unapplied()).isEmpty();
   }

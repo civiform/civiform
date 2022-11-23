@@ -168,7 +168,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         tiGroup.getTrustedIntermediaries().stream()
                             .sorted(Comparator.comparing(Account::getApplicantName))
                             .collect(Collectors.toList()),
-                      this::renderTIRow))));
+                        this::renderTIRow))));
   }
 
   private DivTag renderAddNewForm(TrustedIntermediaryGroup tiGroup, Http.Request request) {

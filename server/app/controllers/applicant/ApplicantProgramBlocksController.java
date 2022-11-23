@@ -289,9 +289,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   new ImmutableMap.Builder<>();
               fileUploadQuestionFormData.put(
                   fileUploadQuestion.getFileKeyPath().toString(), key.get());
-              originalFileName.ifPresent(s -> fileUploadQuestionFormData.put(
-                fileUploadQuestion.getOriginalFileNamePath().toString(),
-                s));
+              originalFileName.ifPresent(
+                  s ->
+                      fileUploadQuestionFormData.put(
+                          fileUploadQuestion.getOriginalFileNamePath().toString(), s));
 
               return ensureFileRecord(key.get(), originalFileName)
                   .thenComposeAsync(

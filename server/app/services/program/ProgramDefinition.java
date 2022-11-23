@@ -185,13 +185,9 @@ public abstract class ProgramDefinition {
     // At this point, insertIndex is AFTER the last repeated or nested repeated block of the
     // enumerator. This might be off the end of the list.
     ImmutableList.Builder<BlockDefinition> newBlockDefinitionsBuilder = ImmutableList.builder();
-    blockDefinitions().stream()
-        .limit(insertIndex)
-        .forEach(newBlockDefinitionsBuilder::add);
+    blockDefinitions().stream().limit(insertIndex).forEach(newBlockDefinitionsBuilder::add);
     newBlockDefinitionsBuilder.add(newBlockDefinition);
-    blockDefinitions().stream()
-        .skip(insertIndex)
-        .forEach(newBlockDefinitionsBuilder::add);
+    blockDefinitions().stream().skip(insertIndex).forEach(newBlockDefinitionsBuilder::add);
 
     return toBuilder().setBlockDefinitions(newBlockDefinitionsBuilder.build()).build();
   }
