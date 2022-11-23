@@ -36,7 +36,7 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "ses" % "2.17.295",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.7.0",
+      "com.azure" % "azure-identity" % "1.7.1",
       "com.azure" % "azure-storage-blob" % "12.20.1",
 
       // Database and database testing libraries
@@ -77,9 +77,9 @@ lazy val root = (project in file("."))
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.10.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.10",
-      "com.google.auto.value" % "auto-value" % "1.10",
-      "com.google.auto.value" % "auto-value-parent" % "1.10" pomOnly (),
+      "com.google.auto.value" % "auto-value-annotations" % "1.10.1",
+      "com.google.auto.value" % "auto-value" % "1.10.1",
+      "com.google.auto.value" % "auto-value-parent" % "1.10.1" pomOnly (),
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.16",
@@ -101,7 +101,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.4"
+      "ch.qos.logback" % "logback-classic" % "1.4.5"
     ),
     javacOptions ++= Seq(
       "-encoding",

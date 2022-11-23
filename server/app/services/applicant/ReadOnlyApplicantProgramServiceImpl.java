@@ -94,10 +94,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public int getActiveAndCompletedInProgramBlockCount() {
-    return getAllActiveBlocks().stream()
-        .filter(block -> block.isCompletedInProgramWithoutErrors())
-        .mapToInt(b -> 1)
-        .sum();
+    return Math.toIntExact(
+        getAllActiveBlocks().stream().filter(Block::isCompletedInProgramWithoutErrors).count());
   }
 
   @Override
@@ -276,7 +274,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                         enumeratorQuestionDefinition,
                         block.getVisibilityPredicate(),
                         applicantData));
-        // For each repeated entity, recursively build blocks for all of the repeated blocks of this
+        // For each repeated entity, recursively build blocks for all the repeated blocks of this
         // enumerator block.
         ImmutableList<BlockDefinition> repeatedBlockDefinitions =
             programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id());
@@ -297,13 +295,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   private boolean showBlock(Block block) {
     if (block.getRepeatedEntity().isPresent()) {
-      // In repeated blocks, test if this block's parent's are visible.
+      // In repeated blocks, test if this block's parents are visible.
       ImmutableList<PredicateDefinition> nestedVisibility =
           block.getRepeatedEntity().get().nestedVisibility();
-      for (int i = 0; i < nestedVisibility.size(); i++) {
-        if (!this.evaluateVisibility(block, nestedVisibility.get(i))) {
-          return false;
-        }
+      if (nestedVisibility.stream()
+          .filter(predicate -> !evaluateVisibility(block, predicate))
+          .findAny()
+          .isPresent()) {
+        return false;
       }
     }
     if (block.getVisibilityPredicate().isEmpty()) {
