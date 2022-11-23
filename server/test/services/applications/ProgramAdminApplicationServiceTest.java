@@ -201,8 +201,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
-            eq(String.format(
-              ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programDisplayName)),
+            eq(
+                String.format(
+                    ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT,
+                    programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
 
@@ -256,8 +258,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
-            eq(String.format(
-              ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programDisplayName)),
+            eq(
+                String.format(
+                    ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT,
+                    programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_MULTI_LANGUAGE_EMAIL.localizedEmailBodyText().get().getDefault()));
   }
@@ -303,8 +307,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
-            eq(String.format(
-              ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programDisplayName)),
+            eq(
+                String.format(
+                    ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT,
+                    programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
   }

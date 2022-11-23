@@ -493,22 +493,18 @@ public class QuestionDefinitionTest {
                   + " choices allowed")
         },
         new Object[] {
-          OptionalInt.of(0),
-          OptionalInt.of(0),
-          Optional.of("Cannot require exactly 0 choices")
+          OptionalInt.of(0), OptionalInt.of(0), Optional.of("Cannot require exactly 0 choices")
         },
         // Note: In the test code, we configure two options.
         new Object[] {
           OptionalInt.empty(),
           OptionalInt.of(3),
-          Optional.of(
-              "Maximum number of choices allowed cannot exceed the number of options")
+          Optional.of("Maximum number of choices allowed cannot exceed the number of options")
         },
         new Object[] {
           OptionalInt.of(3),
           OptionalInt.empty(),
-          Optional.of(
-              "Minimum number of choices required cannot exceed the number of options")
+          Optional.of("Minimum number of choices required cannot exceed the number of options")
         });
   }
 
