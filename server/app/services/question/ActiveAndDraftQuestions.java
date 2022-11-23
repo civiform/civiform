@@ -31,7 +31,6 @@ public final class ActiveAndDraftQuestions {
 
   private final ImmutableList<QuestionDefinition> activeQuestions;
   private final ImmutableList<QuestionDefinition> draftQuestions;
-  ;
   private final ImmutableMap<
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;

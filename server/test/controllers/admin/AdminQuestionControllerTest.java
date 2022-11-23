@@ -79,7 +79,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(newQuestion.getQuestionDefinition().getEnumeratorId()).isEqualTo(Optional.empty());
     assertThat(newQuestion.getQuestionDefinition().getQuestionType()).isEqualTo(QuestionType.TEXT);
     assertThat(newQuestion.getQuestionTags())
-        .isEqualTo(ImmutableList.<QuestionTag>of(QuestionTag.NON_DEMOGRAPHIC));
+        .isEqualTo(ImmutableList.of(QuestionTag.NON_DEMOGRAPHIC));
   }
 
   @Test
@@ -110,7 +110,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(newQuestion.getQuestionDefinition().getEnumeratorId()).isEqualTo(Optional.empty());
     assertThat(newQuestion.getQuestionDefinition().getQuestionType()).isEqualTo(QuestionType.TEXT);
     assertThat(newQuestion.getQuestionTags())
-        .isEqualTo(ImmutableList.<QuestionTag>of(QuestionTag.DEMOGRAPHIC_PII));
+        .isEqualTo(ImmutableList.of(QuestionTag.DEMOGRAPHIC_PII));
   }
 
   @Test
@@ -143,7 +143,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .isEqualTo(Optional.of(enumeratorQuestion.id));
     assertThat(newQuestion.getQuestionDefinition().getQuestionType()).isEqualTo(QuestionType.TEXT);
     assertThat(newQuestion.getQuestionTags())
-        .isEqualTo(ImmutableList.<QuestionTag>of(QuestionTag.NON_DEMOGRAPHIC));
+        .isEqualTo(ImmutableList.of(QuestionTag.NON_DEMOGRAPHIC));
   }
 
   @Test
@@ -348,7 +348,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(updatedNameQuestion.getQuestionDefinition().getDescription())
         .isEqualTo("a new description");
     assertThat(updatedNameQuestion.getQuestionTags())
-        .isEqualTo(ImmutableList.<QuestionTag>of(QuestionTag.DEMOGRAPHIC_PII));
+        .isEqualTo(ImmutableList.of(QuestionTag.DEMOGRAPHIC_PII));
   }
 
   @Test

@@ -28,7 +28,7 @@ import services.question.types.QuestionDefinition;
  */
 public class ProgramBuilder {
 
-  private static BlockDefinition EMPTY_FIRST_BLOCK =
+  private static final BlockDefinition EMPTY_FIRST_BLOCK =
       BlockDefinition.builder()
           .setId(1)
           .setName("Screen 1")
@@ -228,7 +228,7 @@ public class ProgramBuilder {
    */
   public static class BlockBuilder {
 
-    private ProgramBuilder programBuilder;
+    private final ProgramBuilder programBuilder;
     private BlockDefinition.Builder blockDefBuilder;
 
     private BlockBuilder(ProgramBuilder programBuilder) {

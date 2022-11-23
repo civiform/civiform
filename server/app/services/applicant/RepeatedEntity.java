@@ -118,7 +118,7 @@ public abstract class RepeatedEntity {
     return Stream.concat(
             parent()
                 .map(RepeatedEntity::nestedVisibility)
-                .orElse(ImmutableList.<PredicateDefinition>of())
+                .orElse(ImmutableList.of())
                 .stream(),
             this.visibility().stream())
         .collect(ImmutableList.toImmutableList());

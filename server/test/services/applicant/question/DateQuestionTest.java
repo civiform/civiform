@@ -79,7 +79,7 @@ public class DateQuestionTest extends ResetPostgres {
 
     assertThat(dateQuestion.getValidationErrors())
         .isEqualTo(
-            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+            ImmutableMap.of(
                 dateQuestion.getDatePath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MISFORMATTED))));

@@ -621,7 +621,7 @@ public abstract class ProgramDefinition {
 
   public enum Direction {
     UP,
-    DOWN;
+    DOWN
   }
 
   @AutoValue

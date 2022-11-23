@@ -77,7 +77,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     Optional<Long> enumeratorId =
         Optional.ofNullable(
-                formFactory.form().bindFromRequest(request).get(editView.ENUMERATOR_ID_FORM_FIELD))
+                formFactory.form().bindFromRequest(request).get(
+                    ProgramBlockEditView.ENUMERATOR_ID_FORM_FIELD))
             .map(Long::valueOf);
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;

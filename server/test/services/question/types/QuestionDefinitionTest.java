@@ -478,36 +478,36 @@ public class QuestionDefinitionTest {
         new Object[] {
           OptionalInt.of(-1),
           OptionalInt.empty(),
-          Optional.<String>of("Minimum number of choices required cannot be negative")
+          Optional.of("Minimum number of choices required cannot be negative")
         },
         new Object[] {
           OptionalInt.empty(),
           OptionalInt.of(-1),
-          Optional.<String>of("Maximum number of choices allowed cannot be negative")
+          Optional.of("Maximum number of choices allowed cannot be negative")
         },
         new Object[] {
           OptionalInt.of(2),
           OptionalInt.of(1),
-          Optional.<String>of(
+          Optional.of(
               "Minimum number of choices required must be less than or equal to the maximum"
                   + " choices allowed")
         },
         new Object[] {
           OptionalInt.of(0),
           OptionalInt.of(0),
-          Optional.<String>of("Cannot require exactly 0 choices")
+          Optional.of("Cannot require exactly 0 choices")
         },
         // Note: In the test code, we configure two options.
         new Object[] {
           OptionalInt.empty(),
           OptionalInt.of(3),
-          Optional.<String>of(
+          Optional.of(
               "Maximum number of choices allowed cannot exceed the number of options")
         },
         new Object[] {
           OptionalInt.of(3),
           OptionalInt.empty(),
-          Optional.<String>of(
+          Optional.of(
               "Minimum number of choices required cannot exceed the number of options")
         });
   }

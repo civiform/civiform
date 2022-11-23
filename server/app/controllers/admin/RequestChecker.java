@@ -7,7 +7,7 @@ import repository.VersionRepository;
 
 /** Utility class for checking Request parameters. */
 final class RequestChecker {
-  private VersionRepository versionRepository;
+  private final VersionRepository versionRepository;
 
   @Inject
   public RequestChecker(VersionRepository versionRepository) {

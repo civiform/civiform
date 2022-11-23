@@ -713,7 +713,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "Can't add question to the block. Error: DUPLICATE. Program ID %d, block ID %d,"
                     + " question ID %d",
                 program.id, 1L, questionA.getId()));
-    ;
   }
 
   @Test
@@ -745,7 +744,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
         .hasMessage(
             String.format(
                 "Question (ID %d) not found in Program (ID %d)", questionA.getId(), program.id));
-    ;
   }
 
   @Test

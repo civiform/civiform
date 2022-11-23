@@ -95,7 +95,7 @@ public class CurrencyQuestionTest {
 
     assertThat(currencyQuestion.getValidationErrors())
         .isEqualTo(
-            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+            ImmutableMap.of(
                 currencyQuestion.getCurrencyPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.CURRENCY_VALIDATION_MISFORMATTED))));

@@ -17,7 +17,7 @@ public class BaseHtmlViewTest {
 
   @Test
   public void submitButton_rendersAFormSubmitButton() {
-    ButtonTag result = testImpl.submitButton("text contents");
+    ButtonTag result = BaseHtmlView.submitButton("text contents");
 
     assertThat(result.render()).isEqualTo("<button type=\"submit\">text contents</button>");
   }

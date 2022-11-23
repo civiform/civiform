@@ -166,7 +166,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
     assertThat(numberQuestion.getValidationErrors())
         .isEqualTo(
-            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+            ImmutableMap.of(
                 numberQuestion.getNumberPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER))));
