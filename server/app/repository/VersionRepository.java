@@ -103,7 +103,7 @@ public final class VersionRepository {
           // side of the relationship rather than the Program side in order to prevent the
           // save causing the "updated" timestamp to be changed for a Program. We intend for
           // that timestamp only to be updated for actual changes to the program.
-          .forEach(activeProgramNotInDraft -> draft.addProgram(activeProgramNotInDraft));
+          .forEach(draft::addProgram);
 
       // Associate any active questions that aren't present in the draft with the draft.
       active.getQuestions().stream()
@@ -119,7 +119,7 @@ public final class VersionRepository {
           // side of the relationship rather than the Question side in order to prevent the
           // save causing the "updated" timestamp to be changed for a Question. We intend for
           // that timestamp only to be updated for actual changes to the question.
-          .forEach(activeQuestionNotInDraft -> draft.addQuestion(activeQuestionNotInDraft));
+          .forEach(draft::addQuestion);
 
       // Remove any questions / programs both added and archived in the current version.
       draft.getQuestions().stream()
@@ -366,6 +366,6 @@ public final class VersionRepository {
                 getDraftVersion()
                     .getProgramByName(program.getProgramDefinition().adminName())
                     .isEmpty())
-        .forEach(program -> programRepository.createOrUpdateDraft(program));
+        .forEach(programRepository::createOrUpdateDraft);
   }
 }

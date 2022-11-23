@@ -57,7 +57,7 @@ public class ApplicantQuestionTest {
             new ApplicantData(),
             Optional.empty());
 
-    assertThatThrownBy(() -> enumerationApplicantQuestion.getContextualizedScalars())
+    assertThatThrownBy(enumerationApplicantQuestion::getContextualizedScalars)
         .isInstanceOf(RuntimeException.class)
         .hasCauseInstanceOf(InvalidQuestionTypeException.class);
   }

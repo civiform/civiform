@@ -270,7 +270,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     Optional<Application> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
-    if (!applicationMaybe.isPresent()) {
+    if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
     Application application = applicationMaybe.get();
@@ -302,7 +302,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     Optional<Application> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
-    if (!applicationMaybe.isPresent()) {
+    if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
     Application application = applicationMaybe.get();
@@ -359,7 +359,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     Optional<Application> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
-    if (!applicationMaybe.isPresent()) {
+    if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
     Application application = applicationMaybe.get();
@@ -440,7 +440,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     Optional<Application> applicationMaybe =
         programAdminApplicationService.getApplication(applicationId, program);
-    if (!applicationMaybe.isPresent()) {
+    if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
     Application application = applicationMaybe.get();

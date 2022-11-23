@@ -74,7 +74,7 @@ public final class ProgramAdminManagementController {
               programId, ImmutableSet.copyOf(manageAdminForm.getAdminEmails()));
       Result result = redirect(routes.AdminProgramController.index());
 
-      if (!maybeError.isPresent()) {
+      if (maybeError.isEmpty()) {
         return result;
       }
 

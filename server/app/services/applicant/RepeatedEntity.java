@@ -116,10 +116,7 @@ public abstract class RepeatedEntity {
   /** Gets visibility for this and all parents of the repeated entity. */
   public ImmutableList<PredicateDefinition> nestedVisibility() {
     return Stream.concat(
-            parent()
-                .map(RepeatedEntity::nestedVisibility)
-                .orElse(ImmutableList.<PredicateDefinition>of())
-                .stream(),
+            parent().map(RepeatedEntity::nestedVisibility).orElse(ImmutableList.of()).stream(),
             this.visibility().stream())
         .collect(ImmutableList.toImmutableList());
   }

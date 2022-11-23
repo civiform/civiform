@@ -31,7 +31,6 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
     Applicant applicant = createApplicantWithMockedProfile();
     HomeController controller = instanceOf(HomeController.class);
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
-    ;
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantInformationController.edit(applicant.id).url());

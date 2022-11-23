@@ -13,7 +13,7 @@ public class GuestClient extends IndirectClient {
 
   public static final String CLIENT_NAME = "GuestClient";
 
-  private ProfileFactory profileFactory;
+  private final ProfileFactory profileFactory;
 
   @Inject
   public GuestClient(ProfileFactory profileFactory) {

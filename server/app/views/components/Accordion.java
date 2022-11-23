@@ -15,7 +15,7 @@ import views.style.ReferenceClasses;
  */
 public final class Accordion {
   private String title = "";
-  private ArrayList<DomContent> content = new ArrayList<>();
+  private final ArrayList<DomContent> content = new ArrayList<>();
 
   public Accordion setTitle(String title) {
     this.title = title;
