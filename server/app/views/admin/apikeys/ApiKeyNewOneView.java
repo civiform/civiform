@@ -143,7 +143,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
 
   private FieldWithLabel setStateIfPresent(
       FieldWithLabel field, Optional<DynamicForm> maybeForm, String key) {
-    if (!maybeForm.isPresent()) {
+    if (maybeForm.isEmpty()) {
       return field;
     }
 

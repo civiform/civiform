@@ -755,7 +755,7 @@ public final class ProgramServiceImpl implements ProgramService {
     // move question to the new position
     Optional<ProgramQuestionDefinition> toMove =
         questions.stream().filter(q -> q.id() == questionDefinitionId).findFirst();
-    if (!toMove.isPresent()) {
+    if (toMove.isEmpty()) {
       throw new ProgramQuestionDefinitionNotFoundException(
           programId, blockDefinitionId, questionDefinitionId);
     }

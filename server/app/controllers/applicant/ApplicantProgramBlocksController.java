@@ -258,7 +258,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             (roApplicantProgramService) -> {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
-              if (!block.isPresent() || !block.get().isFileUpload()) {
+              if (block.isEmpty() || !block.get().isFileUpload()) {
                 return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
               }
 
@@ -273,7 +273,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               // This is only really needed for Azure blob storage.
               Optional<String> originalFileName = request.queryString("originalFileName");
 
-              if (!bucket.isPresent() || !key.isPresent()) {
+              if (bucket.isEmpty() || key.isEmpty()) {
                 return failedFuture(
                     new IllegalArgumentException("missing file key and bucket names"));
               }
@@ -289,11 +289,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   new ImmutableMap.Builder<>();
               fileUploadQuestionFormData.put(
                   fileUploadQuestion.getFileKeyPath().toString(), key.get());
-              if (originalFileName.isPresent()) {
-                fileUploadQuestionFormData.put(
-                    fileUploadQuestion.getOriginalFileNamePath().toString(),
-                    originalFileName.get());
-              }
+              originalFileName.ifPresent(s -> fileUploadQuestionFormData.put(
+                fileUploadQuestion.getOriginalFileNamePath().toString(),
+                s));
 
               return ensureFileRecord(key.get(), originalFileName)
                   .thenComposeAsync(
@@ -313,7 +311,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     inReview,
                     roApplicantProgramService),
             httpExecutionContext.current())
-        .exceptionally(ex -> handleUpdateExceptions(ex));
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   /**
@@ -357,7 +355,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     inReview,
                     roApplicantProgramService),
             httpExecutionContext.current())
-        .exceptionally(ex -> handleUpdateExceptions(ex));
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   private CompletionStage<Result> renderErrorOrRedirectToNextBlock(

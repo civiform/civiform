@@ -65,7 +65,7 @@ public class AdminApiKeysController extends CiviFormController {
   public Result retire(Http.Request request, Long apiKeyId) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
-    if (!profile.isPresent()) {
+    if (profile.isEmpty()) {
       throw new RuntimeException("Unable to resolve profile.");
     }
 
@@ -83,7 +83,7 @@ public class AdminApiKeysController extends CiviFormController {
   public Result create(Http.Request request) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
-    if (!profile.isPresent()) {
+    if (profile.isEmpty()) {
       throw new RuntimeException("Unable to resolve profile.");
     }
 
