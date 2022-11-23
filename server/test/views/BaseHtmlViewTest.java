@@ -3,7 +3,6 @@ package views;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import j2html.tags.specialized.ButtonTag;
-import org.junit.Before;
 import org.junit.Test;
 
 public class BaseHtmlViewTest {
