@@ -2,6 +2,7 @@ package featureflags;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -50,6 +51,12 @@ public final class FeatureFlags {
 
   public boolean allowCiviformAdminAccessPrograms(Request request) {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
+  }
+
+  public ImmutableMap<String, Boolean> getAllFlags(Request request) {
+    return ImmutableMap.of(
+        ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, allowCiviformAdminAccessPrograms(request),
+        APPLICATION_STATUS_TRACKING_ENABLED, isStatusTrackingEnabled(request));
   }
 
   /**
