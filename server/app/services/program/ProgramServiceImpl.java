@@ -111,7 +111,7 @@ public final class ProgramServiceImpl implements ProgramService {
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
     if (isActiveOrDraftProgram(program)) {
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
-          .thenApply(programDefinition -> programDefinition.orderBlockDefinitions());
+          .thenApply(ProgramDefinition::orderBlockDefinitions);
     }
 
     // Any version that the program is in has all the questions the program has.

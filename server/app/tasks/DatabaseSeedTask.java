@@ -123,7 +123,7 @@ public final class DatabaseSeedTask {
         inSerializableTransaction(
             () -> {
               Optional<QuestionDefinition> question = createQuestion(questionDefinition);
-              question.ifPresent((q) -> questionDefinitions.add(q));
+              question.ifPresent(questionDefinitions::add);
             },
             1);
       }

@@ -187,11 +187,11 @@ public abstract class ProgramDefinition {
     ImmutableList.Builder<BlockDefinition> newBlockDefinitionsBuilder = ImmutableList.builder();
     blockDefinitions().stream()
         .limit(insertIndex)
-        .forEach(blockDefinition -> newBlockDefinitionsBuilder.add(blockDefinition));
+        .forEach(newBlockDefinitionsBuilder::add);
     newBlockDefinitionsBuilder.add(newBlockDefinition);
     blockDefinitions().stream()
         .skip(insertIndex)
-        .forEach(blockDefinition -> newBlockDefinitionsBuilder.add(blockDefinition));
+        .forEach(newBlockDefinitionsBuilder::add);
 
     return toBuilder().setBlockDefinitions(newBlockDefinitionsBuilder.build()).build();
   }
@@ -525,7 +525,7 @@ public abstract class ProgramDefinition {
     Optional<Long> maybeEnumeratorId = blockDefinition.enumeratorId();
     ImmutableList<BlockDefinition> siblingBlockDefinitions =
         maybeEnumeratorId
-            .map(enumeratorBlockId -> this.getBlockDefinitionsForEnumerator(enumeratorBlockId))
+            .map(this::getBlockDefinitionsForEnumerator)
             .orElse(getNonRepeatedBlockDefinitions());
 
     ImmutableList.Builder<BlockDefinition> builder = ImmutableList.builder();

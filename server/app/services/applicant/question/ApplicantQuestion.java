@@ -167,7 +167,8 @@ public final class ApplicantQuestion {
           .stream()
           .collect(
               ImmutableMap.toImmutableMap(
-                  scalar -> getContextualizedPath().join(scalar), scalar -> scalar.toScalarType()));
+                  scalar -> getContextualizedPath().join(scalar),
+                Scalar::toScalarType));
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }

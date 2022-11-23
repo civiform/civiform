@@ -479,7 +479,7 @@ public class BlockTest {
                             .getValidationErrors()
                             .get(q.getContextualizedPath())
                             .stream()
-                            .anyMatch(e -> e.isRequiredError())))
+                            .anyMatch(ValidationErrorMessage::isRequiredError)))
         .isTrue();
   }
 

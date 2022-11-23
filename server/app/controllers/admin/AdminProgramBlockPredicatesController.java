@@ -214,7 +214,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             ImmutableList<String> listOfStrings =
                 Splitter.on(",")
                     .splitToStream(value)
-                    .map(s -> s.trim())
+                    .map(String::trim)
                     .collect(ImmutableList.toImmutableList());
             return PredicateValue.listOfStrings(listOfStrings);
           default: // EQUAL_TO, NOT_EQUAL_TO

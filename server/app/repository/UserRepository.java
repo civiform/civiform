@@ -72,7 +72,7 @@ public final class UserRepository {
   private Applicant getOrCreateApplicant(Account account) {
     Optional<Applicant> applicantOpt =
         account.getApplicants().stream()
-            .max(Comparator.comparing(compared -> compared.getWhenCreated()));
+            .max(Comparator.comparing(Applicant::getWhenCreated));
     return applicantOpt.orElseGet(() -> new Applicant().setAccount(account).saveAndReturn());
   }
 

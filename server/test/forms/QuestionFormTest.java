@@ -40,13 +40,13 @@ public class QuestionFormTest {
   public void getRedirectUrl_absoluteUrl_throws() {
     TestQuestionForm form = new TestQuestionForm();
     form.setRedirectUrl("https://www.example.com");
-    assertThatThrownBy(() -> form.getRedirectUrl()).hasMessageContaining("Invalid absolute URL.");
+    assertThatThrownBy(form::getRedirectUrl).hasMessageContaining("Invalid absolute URL.");
   }
 
   @Test
   public void getRedirectUrl_otherSchemeUrl_throws() {
     TestQuestionForm form = new TestQuestionForm();
     form.setRedirectUrl("file://foo/bar");
-    assertThatThrownBy(() -> form.getRedirectUrl()).hasMessageContaining("Invalid absolute URL.");
+    assertThatThrownBy(form::getRedirectUrl).hasMessageContaining("Invalid absolute URL.");
   }
 }

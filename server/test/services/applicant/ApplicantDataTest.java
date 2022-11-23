@@ -61,7 +61,7 @@ public class ApplicantDataTest {
     data.setFailedUpdates(ImmutableMap.of(samplePath, "invalid_value"));
 
     assertThat(data.getFailedUpdates()).isEqualTo(ImmutableMap.of(samplePath, "invalid_value"));
-    assertThatThrownBy(() -> data.asJsonString()).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(data::asJsonString).isInstanceOf(IllegalStateException.class);
   }
 
   @Test

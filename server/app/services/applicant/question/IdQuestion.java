@@ -41,7 +41,7 @@ public final class IdQuestion extends Question {
 
   private ImmutableSet<ValidationErrorMessage> validateId() {
     IdQuestionDefinition definition = getQuestionDefinition();
-    int idLength = getIdValue().map(s -> s.length()).orElse(0);
+    int idLength = getIdValue().map(String::length).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (definition.getMinLength().isPresent()) {

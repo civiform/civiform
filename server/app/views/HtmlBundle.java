@@ -202,7 +202,7 @@ public final class HtmlBundle {
     // TODO: Sort toastMessages by priority before displaying.
     HeaderTag headerTag =
         header()
-            .with(each(toastMessages, toastMessage -> toastMessage.getContainerTag()))
+            .with(each(toastMessages, ToastMessage::getContainerTag))
             .with(headerContent);
 
     if (headerStyles.size() > 0) {

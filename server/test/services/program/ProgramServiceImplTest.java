@@ -978,7 +978,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   private void assertQuestionsOrder(ProgramDefinition program, QuestionDefinition... expectedOrder)
       throws Exception {
-    var expectedQuestionNames = Arrays.stream(expectedOrder).map(q -> q.getName());
+    var expectedQuestionNames = Arrays.stream(expectedOrder).map(
+      QuestionDefinition::getName);
     var actualQuestionNames =
         program.getLastBlockDefinition().programQuestionDefinitions().stream()
             .map(q -> q.getQuestionDefinition().getName());

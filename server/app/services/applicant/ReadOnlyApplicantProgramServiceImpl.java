@@ -95,7 +95,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public int getActiveAndCompletedInProgramBlockCount() {
     return getAllActiveBlocks().stream()
-        .filter(block -> block.isCompletedInProgramWithoutErrors())
+        .filter(Block::isCompletedInProgramWithoutErrors)
         .mapToInt(b -> 1)
         .sum();
   }
