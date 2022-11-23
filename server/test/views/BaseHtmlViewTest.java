@@ -13,6 +13,4 @@ public class BaseHtmlViewTest {
 
     assertThat(result.render()).isEqualTo("<button type=\"submit\">text contents</button>");
   }
-
-  private static class TestImpl extends BaseHtmlView {}
 }
