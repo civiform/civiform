@@ -209,10 +209,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
           editView.render(
               request,
               program,
-              blockId,
               blockForm,
               blockDefinition,
-              blockDefinition.programQuestionDefinitions(),
               message,
               roQuestionService.getUpToDateQuestions()));
     } catch (ProgramBlockDefinitionNotFoundException e) {

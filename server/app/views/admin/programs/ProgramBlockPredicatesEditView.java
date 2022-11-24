@@ -38,6 +38,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
+import views.ViewUtils.BadgeStatus;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -192,6 +193,12 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   protected String getNavigationUrl(ProgramDefinition programDefinition) {
      return routes.AdminProgramController.edit(programDefinition.id()).url();
   }
+
+  @Override
+  protected BadgeStatus getBadgeStatus() {
+    return BadgeStatus.DRAFT;
+  }
+
 
   private ImmutableList<Modal> createPredicateUpdateFormModals(
       String blockName,
