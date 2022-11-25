@@ -27,14 +27,14 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
-import views.admin.programs.ProgramBlockViewOnlyView;
+import views.admin.programs.ProgramBlockEditView;
 import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {
 
   private final ProgramService programService;
-  private final ProgramBlockViewOnlyView editView;
+  private final ProgramBlockEditView editView;
   private final QuestionService questionService;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
@@ -43,7 +43,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public AdminProgramBlocksController(
       ProgramService programService,
       QuestionService questionService,
-      ProgramBlockViewOnlyView editView,
+      ProgramBlockEditView editView,
       FormFactory formFactory,
       RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);

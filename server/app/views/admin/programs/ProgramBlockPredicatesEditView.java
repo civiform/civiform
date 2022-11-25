@@ -190,7 +190,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
 
   /** Define the navigation destination for the Edit button **/
   @Override
-  protected String getNavigationUrl(ProgramDefinition programDefinition) {
+  protected String getButtonUrl(ProgramDefinition programDefinition) {
      return routes.AdminProgramController.edit(programDefinition.id()).url();
   }
 

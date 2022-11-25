@@ -13,56 +13,38 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.BlockForm;
-import j2html.TagCreator;
 import j2html.tags.DomContent;
-import j2html.tags.Tag;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.InputTag;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.stream.IntStream;
-import models.Program;
-import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.applicant.question.Question;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.StaticContentQuestionDefinition;
 import views.HtmlBundle;
-import views.ViewUtils;
 import views.ViewUtils.BadgeStatus;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.components.FieldWithLabel;
 import views.components.Icons;
-import views.components.Modal;
-import views.components.QuestionBank;
 import views.components.SvgTag;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 /**
- * Renders a page for an admin to edit the configuration for a single block of a
- * program. A block is a synonym for a Screen.
+ * Renders a view only page for an admin to see the details of an active program,
+ * including a list of all screens and details about the block they select.
+ * A block is a synonym for a screen.
  **/
 public class ProgramBlockViewOnlyView extends ProgramBlockView {
 
   private final AdminLayout layout;
-  private final ArrayList<Modal> modals;
-
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
 
@@ -70,8 +52,6 @@ public class ProgramBlockViewOnlyView extends ProgramBlockView {
   public ProgramBlockViewOnlyView(AdminLayoutFactory layoutFactory,
     Config config) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    // this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
-    this.modals = new ArrayList<>();
   }
 
   public Content render(
@@ -97,15 +77,7 @@ public class ProgramBlockViewOnlyView extends ProgramBlockView {
     Optional<ToastMessage> message,
     ImmutableList<QuestionDefinition> questions) {
 
-    String title = String.format("View %s", blockDefinition.name());
-
-    HtmlBundle htmlBundle =
-      layout
-        .getBundle()
-        .setTitle(title)
-        .addMainContent(mainContent(request, programDefinition, blockForm, blockDefinition, questions).toArray(new Tag[0]))
-        .addModals(modals);
-
+    HtmlBundle htmlBundle = createHtmlBundle(request, programDefinition, blockForm, blockDefinition, questions);
     // Add toast messages
     request
       .flash()
@@ -118,13 +90,8 @@ public class ProgramBlockViewOnlyView extends ProgramBlockView {
     return layout.render(htmlBundle);
   }
 
-  protected ArrayList<Tag> mainContent(
-    Request request,
-    ProgramDefinition programDefinition,
-    BlockForm blockForm,
-    BlockDefinition blockDefinition,
-    ImmutableList<QuestionDefinition> questions) {
-
+  protected HtmlBundle createHtmlBundle(Request request, ProgramDefinition programDefinition, BlockForm blockForm,
+    BlockDefinition blockDefinition,  ImmutableList<QuestionDefinition> questions) {
     DivTag mainContent =
       div()
         .withClasses(
@@ -140,94 +107,48 @@ public class ProgramBlockViewOnlyView extends ProgramBlockView {
             .with(blockOrderPanel(request, programDefinition, blockDefinition.id()))
             .with(
               blockPanel(
+                programDefinition,
                 blockDefinition,
                 blockForm,
                 questions )));
-    return new ArrayList<>(Arrays.asList(mainContent));
+
+    return layout
+      .getBundle()
+      .setTitle(String.format("View %s", blockDefinition.name()))
+      .addMainContent(mainContent);
   }
 
-  /**
-   * Define the String that will be shown on the Edit button
-   **/
-  @Override
-  protected String getEditButtonText() {
-    return "Edit program";
-  }
-
-  @Override
-  protected BadgeStatus getBadgeStatus() {
-    return BadgeStatus.ACTIVE;
-  }
-
-  // TODO(jhummel) adapt the url to lead to edit page
-
-  /**
-   * Define the navigation destination for the Edit button
-   **/
-  @Override
-  protected String getNavigationUrl(ProgramDefinition programDefinition) {
-    return routes.AdminProgramController.edit(programDefinition.id()).url();
-  }
-
-  private DivTag blockOrderPanel(Request request, ProgramDefinition program,
+  /*
+  * Creates the panel that shows a list of all screens and allows reordering them as well as
+  * selecting one to see the details of the screen definition.
+   */
+  protected DivTag blockOrderPanel(Request request, ProgramDefinition programDefinition,
     long focusedBlockId) {
-    DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r",
-      "border-gray-200");
-    return ret.with(
-      renderBlockList(request, program,
-        program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+    return div()
+      .withClasses("shadow-lg", "pt-6", "w-2/12", "border-r",
+      "border-gray-200")
+      .with(blockList(request, programDefinition, programDefinition.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
   }
 
-
-  // TODO(jhummel) remove the move buttons
-  private DivTag renderBlockList(
+  /*
+  * Recursively renders a list of all blocks of a given program to be shown in the block
+  * order panel.
+   */
+  private DivTag blockList(
     Request request,
     ProgramDefinition programDefinition,
     ImmutableList<BlockDefinition> blockDefinitions,
     long focusedBlockId,
     int level) {
     DivTag container = div().withClass("pl-" + level * 2);
+    int index = 0;
     for (BlockDefinition blockDefinition : blockDefinitions) {
-      String editBlockLink =
-        controllers.admin.routes.AdminProgramBlocksController.edit(
-            programDefinition.id(), blockDefinition.id())
-          .url();
-
-      // TODO: Not i18n safe.
-      int numQuestions = blockDefinition.getQuestionCount();
-      String questionCountText = String.format("Question count: %d",
-        numQuestions);
-      String blockName = blockDefinition.name();
-
-      DivTag moveButtons =
-        blockMoveButtons(request, programDefinition.id(), blockDefinitions,
-          blockDefinition);
-      String selectedClasses =
-        blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
-      DivTag blockTag =
-        div()
-          .withClasses(
-            "flex",
-            "flex-row",
-            "gap-2",
-            "py-2",
-            "px-4",
-            "border",
-            "border-white",
-            StyleUtils.hover("border-gray-300"),
-            selectedClasses)
-          .with(
-            a().withClasses("flex-grow", "overflow-hidden")
-              .withHref(editBlockLink)
-              .with(p(blockName), p(questionCountText).withClasses("text-sm")))
-          .with(moveButtons);
-
-      container.with(blockTag);
+      container.with(blockTag(blockDefinitions, index++, programDefinition, focusedBlockId));
 
       // Recursively add repeated blocks indented under their enumerator block
       if (blockDefinition.isEnumerator()) {
         container.with(
-          renderBlockList(
+          blockList(
             request,
             programDefinition,
             programDefinition.getBlockDefinitionsForEnumerator(
@@ -239,67 +160,66 @@ public class ProgramBlockViewOnlyView extends ProgramBlockView {
     return container;
   }
 
-  private DivTag blockMoveButtons(
-    Request request,
-    long programId,
-    ImmutableList<BlockDefinition> blockDefinitions,
-    BlockDefinition blockDefinition) {
+  /*
+  * Creates a Div that represents an individual block in the  list of blocks shown in the
+  * block order panel.
+   */
+  protected DivTag blockTag (ImmutableList<BlockDefinition>  blockDefinitions,
+    int blockIndex, ProgramDefinition programDefinition /* needed for subclasses */,
+    long focusedBlockId) {
+     //
+    BlockDefinition blockDefinition =blockDefinitions.get(blockIndex);
+    int numQuestions = blockDefinition.getQuestionCount();
+    String selectionColoring =
+      blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
+    String questionCountText = String.format("Question count: %d", numQuestions);
 
-    String moveUpFormAction =
-      routes.AdminProgramBlocksController.move(programId, blockDefinition.id())
+    String blockLink =
+      controllers.admin.routes.AdminProgramBlocksController.edit(
+          programDefinition.id(), blockDefinition.id())
         .url();
-    // Move up button is invisible for the first block
-    String moveUpInvisible =
-      blockDefinition.id() == blockDefinitions.get(0).id() ? "invisible" : "";
-    DivTag moveUp =
-      div()
-        .withClass(moveUpInvisible)
-        .with(
-          form()
-            .withAction(moveUpFormAction)
-            .withMethod(HttpVerbs.POST)
-            .with(makeCsrfTokenInputTag(request))
-            .with(input().isHidden().withName("direction")
-              .withValue(Direction.UP.name()))
-            .with(
-              submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
 
-    String moveDownFormAction =
-      routes.AdminProgramBlocksController.move(programId, blockDefinition.id())
-        .url();
-    // Move down button is invisible for the last block
-    String moveDownInvisible =
-      blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1)
-        .id()
-        ? "invisible"
-        : "";
-    DivTag moveDown =
+    DivTag blockTag =
       div()
-        .withClasses("transform", "rotate-180", moveDownInvisible)
+        .withClasses(
+          "flex",
+          "flex-row",
+          "gap-2",
+          "py-2",
+          "px-4",
+          "border",
+          "border-white",
+          StyleUtils.hover("border-gray-300"),
+          selectionColoring)
         .with(
-          form()
-            .withAction(moveDownFormAction)
-            .withMethod(HttpVerbs.POST)
-            .with(makeCsrfTokenInputTag(request))
-            .with(input().isHidden().withName("direction")
-              .withValue(Direction.DOWN.name()))
-            .with(
-              submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
-    DivTag moveButtons =
-      div().withClasses("flex", "flex-col", "self-center")
-        .with(moveUp, moveDown);
-    return moveButtons;
+          a().withClasses("flex-grow", "overflow-hidden")
+            .withHref(blockLink)
+            .with(p(blockDefinition.name()), p(questionCountText).withClasses("text-sm")));
+      return blockTag;
   }
 
-
-  private ArrayList<DomContent> prepareContentForBlockPanel(
-    // ProgramDefinition program,
+  private DivTag blockPanel(
+    ProgramDefinition programDefinition,
     BlockDefinition blockDefinition,
     BlockForm blockForm,
-    ImmutableList<QuestionDefinition> allQuestions
-  ) {
+    ImmutableList<QuestionDefinition> allQuestions) {
+    ArrayList<DomContent> content = prepareContentForBlockPanel(programDefinition, blockDefinition,
+      blockForm,
+      allQuestions);
+    return div()
+      .withClasses("w-7/12", "py-6", "px-4")
+      .with(content);
+  }
 
-    ImmutableList<ProgramQuestionDefinition> blockQuestions = blockDefinition.programQuestionDefinitions();
+  /**
+   * Creates a list of elements that will be shown in the block panel.
+   * The list format allows subclasses to add elements to the list at various indices before the content is added to the UI.
+   */
+  protected ArrayList<DomContent> prepareContentForBlockPanel(
+    ProgramDefinition program,
+    BlockDefinition blockDefinition,
+    BlockForm blockForm,
+    ImmutableList<QuestionDefinition> allQuestions) {
 
     DivTag blockInfoDisplay =
       div()
@@ -311,45 +231,25 @@ public class ProgramBlockViewOnlyView extends ProgramBlockView {
 
     DivTag predicateDisplay =
       renderPredicate(
-        //program.id(),
         blockDefinition,
         allQuestions);
 
+    ImmutableList<ProgramQuestionDefinition> blockQuestions = blockDefinition.programQuestionDefinitions();
     DivTag programQuestions = div();
     IntStream.range(0, blockQuestions.size())
       .forEach(
-        index -> {
-          var question = blockQuestions.get(index);
+        questionIndex -> {
           programQuestions.with(
             renderQuestion(
-              // program,
-              question
-              // index,
-              // blockQuestions.size()
-            ));
+              program,
+              blockDefinition,
+              questionIndex));
         });
-
     return new ArrayList<DomContent>(
       Arrays.asList(blockInfoDisplay, predicateDisplay, programQuestions));
   }
 
-  private DivTag blockPanel(
-    // ProgramDefinition program,
-    BlockDefinition blockDefinition,
-    BlockForm blockForm,
-    ImmutableList<QuestionDefinition> allQuestions
-  ) {
-    //
-    ArrayList<DomContent> content = prepareContentForBlockPanel(blockDefinition,
-      blockForm,
-      allQuestions);
-    return div()
-      .withClasses("w-7/12", "py-6", "px-4")
-      .with(content);
-  }
-
   private DivTag renderPredicate(
-    // long programId,
     BlockDefinition blockDefinition,
     ImmutableList<QuestionDefinition> questions) {
 
@@ -366,14 +266,15 @@ public class ProgramBlockViewOnlyView extends ProgramBlockView {
       .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
   }
 
-  // ps
-
-  private DivTag renderQuestion(
-    // ProgramDefinition programDefinition,
-    ProgramQuestionDefinition question
-    // int questionIndex,
-//     int questionsCount
-  ) {
+  /**
+   * Renders an individual question to be shown in the Block panel.
+   */
+  protected DivTag renderQuestion(
+    ProgramDefinition programDefinition /* needed for subclasses */,
+    BlockDefinition blockDefinition,
+    int questionIndex) {
+    ImmutableList<ProgramQuestionDefinition> blockQuestions = blockDefinition.programQuestionDefinitions();
+    ProgramQuestionDefinition question = blockQuestions.get(questionIndex);
 
     QuestionDefinition questionDefinition = question.getQuestionDefinition();
     DivTag ret =
@@ -406,5 +307,22 @@ public class ProgramBlockViewOnlyView extends ProgramBlockView {
           p(String.format("Admin ID: %s", questionDefinition.getName()))
             .withClasses("mt-1", "text-sm"));
     return ret.with(icon, content);
+  }
+
+  @Override
+  protected String getEditButtonText() {
+    return "Edit program";
+  }
+
+  // TODO when the ProgramBlockViewOnlyView is used, clicking the button should lead to the
+  // ProgramBlockEditView.
+  @Override
+  protected String getButtonUrl(ProgramDefinition programDefinition) {
+    return null;
+   }
+
+  @Override
+  protected BadgeStatus getBadgeStatus() {
+    return BadgeStatus.ACTIVE;
   }
 }

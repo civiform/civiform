@@ -3,24 +3,14 @@ package views.admin.programs;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
-import com.google.common.collect.ImmutableList;
-import forms.BlockForm;
-import j2html.tags.Tag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import java.util.ArrayList;
-import java.util.Arrays;
-import play.mvc.Http.Request;
-import play.mvc.Result;
-import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.ViewUtils.BadgeStatus;
 import views.components.Icons;
 import views.style.AdminStyles;
-import views.style.StyleUtils;
 
 abstract class ProgramBlockView extends BaseHtmlView {
 
@@ -43,7 +33,7 @@ abstract class ProgramBlockView extends BaseHtmlView {
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-5");
     asRedirectElement(
         editDetailsButton,
-        getNavigationUrl(programDefinition));
+        getButtonUrl(programDefinition));
 
     return div(
             ViewUtils.makeBadge(getBadgeStatus()),
@@ -58,7 +48,8 @@ abstract class ProgramBlockView extends BaseHtmlView {
   protected abstract String getEditButtonText();
 
   /** Define the navigation destination for the Edit button **/
-  protected abstract String getNavigationUrl(ProgramDefinition programDefinition);
+  protected abstract String getButtonUrl(ProgramDefinition programDefinition);
 
+  /* The Status badge that will be shown at the top of the page */
   protected abstract BadgeStatus getBadgeStatus();
 }
