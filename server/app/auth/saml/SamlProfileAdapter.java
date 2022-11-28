@@ -29,8 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
-// TODO(#3856): Update with a non deprecated saml impl.
-@SuppressWarnings("deprecation")
 public class SamlProfileAdapter extends AuthenticatorProfileCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(SamlProfileAdapter.class);
@@ -38,8 +36,12 @@ public class SamlProfileAdapter extends AuthenticatorProfileCreator {
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final SAML2Configuration saml2Configuration;
+  // TODO(#3856): Update with a non deprecated saml impl.
+  @SuppressWarnings("deprecation")
   protected SAML2Client saml2Client;
 
+  // TODO(#3856): Update with a non deprecated saml impl.
+  @SuppressWarnings("deprecation")
   public SamlProfileAdapter(
       SAML2Configuration configuration,
       SAML2Client client,
