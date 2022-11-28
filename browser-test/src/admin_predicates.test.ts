@@ -332,7 +332,7 @@ describe('create and edit predicates', () => {
     await applicantQuestions.clickNext()
     await applicantQuestions.answerNumberQuestion('123')
     await applicantQuestions.clickNext()
-    await applicantQuestions.answerNumberQuestion('100.02')
+    await applicantQuestions.answerCurrencyQuestion('100.02')
     await applicantQuestions.clickNext()
     await applicantQuestions.answerDateQuestion('1998-09-04')
     await applicantQuestions.clickNext()
