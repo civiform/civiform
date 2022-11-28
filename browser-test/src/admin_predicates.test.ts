@@ -210,7 +210,9 @@ describe('create and edit predicates', () => {
     await adminQuestions.addTextQuestion({questionName: 'list of strings'})
     await adminQuestions.addNumberQuestion({questionName: 'single-long'})
     await adminQuestions.addNumberQuestion({questionName: 'list of longs'})
-    await adminQuestions.addCurrencyQuestion({questionName: 'predicate-currency'})
+    await adminQuestions.addCurrencyQuestion({
+      questionName: 'predicate-currency',
+    })
     await adminQuestions.addDateQuestion({questionName: 'predicate-date'})
     await adminQuestions.addCheckboxQuestion({
       questionName: 'both sides are lists',
@@ -232,7 +234,9 @@ describe('create and edit predicates', () => {
     await adminPrograms.addProgramBlock(programName, 'list of longs', [
       'list of longs',
     ])
-    await adminPrograms.addProgramBlock(programName, 'currency', ['predicate-currency'])
+    await adminPrograms.addProgramBlock(programName, 'currency', [
+      'predicate-currency',
+    ])
     await adminPrograms.addProgramBlock(programName, 'date', ['predicate-date'])
     await adminPrograms.addProgramBlock(programName, 'two lists', [
       'both sides are lists',
