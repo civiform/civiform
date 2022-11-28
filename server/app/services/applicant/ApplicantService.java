@@ -1,7 +1,6 @@
 package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -27,7 +26,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
@@ -517,17 +515,21 @@ public final class ApplicantService {
             .map(Program::getProgramDefinition)
             .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
             .collect(ImmutableList.toImmutableList());
-  
+
     return applicationsFuture.thenApplyAsync(
         applications -> {
           logDuplicateDrafts(applications);
-          return relevantProgramsForApplicant(activePrograms, applications, applicantId).toCompletableFuture().join();
+          return relevantProgramsForApplicant(activePrograms, applications, applicantId)
+              .toCompletableFuture()
+              .join();
         },
         httpExecutionContext.current());
   }
 
   private CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(
-      ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications, long applicantId) {
+      ImmutableList<ProgramDefinition> activePrograms,
+      ImmutableSet<Application> applications,
+      long applicantId) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -563,8 +565,10 @@ public final class ApplicantService {
                                 .thenComparing(Application::getCreateTime)))));
 
     ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
-    ImmutableList.Builder<CompletableFuture<ApplicantProgramData>> inProgressProgramFutures = ImmutableList.builder();
-    ImmutableList.Builder<CompletableFuture<ApplicantProgramData>> unappliedProgramFutures = ImmutableList.builder();
+    ImmutableList.Builder<CompletableFuture<ApplicantProgramData>> inProgressProgramFutures =
+        ImmutableList.builder();
+    ImmutableList.Builder<CompletableFuture<ApplicantProgramData>> unappliedProgramFutures =
+        ImmutableList.builder();
 
     Set<String> programNamesWithApplications = Sets.newHashSet();
     mostRecentApplicationsByProgram.forEach(
@@ -577,13 +581,16 @@ public final class ApplicantService {
               maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
             inProgressProgramFutures.add(
-              getAutoFillCount(maybeDraftApp.get())
-                  .thenApplyAsync(autoFillCount -> ApplicantProgramData.builder()
-                      .setProgram(maybeDraftApp.get().getProgram().getProgramDefinition())
-                      .setAutoFillCount(autoFillCount)
-                      .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
-                      .build(),
-                      httpExecutionContext.current()).toCompletableFuture());
+                getAutoFillCount(maybeDraftApp.get())
+                    .thenApplyAsync(
+                        autoFillCount ->
+                            ApplicantProgramData.builder()
+                                .setProgram(maybeDraftApp.get().getProgram().getProgramDefinition())
+                                .setAutoFillCount(autoFillCount)
+                                .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
+                                .build(),
+                        httpExecutionContext.current())
+                    .toCompletableFuture());
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
             // When extracting the application status, the definitions associated with the program
@@ -616,38 +623,42 @@ public final class ApplicantService {
         programName -> {
           unappliedProgramFutures.add(
               getAutoFillCount(applicantId, activeProgramNames.get(programName).id())
-                  .thenApplyAsync(autoFillCounts -> ApplicantProgramData.builder()
-                      .setProgram(activeProgramNames.get(programName))
-                      .setAutoFillCount(autoFillCounts)
-                      .build(),
-                      httpExecutionContext.current()).toCompletableFuture());
+                  .thenApplyAsync(
+                      autoFillCounts ->
+                          ApplicantProgramData.builder()
+                              .setProgram(activeProgramNames.get(programName))
+                              .setAutoFillCount(autoFillCounts)
+                              .build(),
+                      httpExecutionContext.current())
+                  .toCompletableFuture());
         });
 
-    CompletableFuture<Void> inProgressProgramFuturesRes = CompletableFuture.allOf(inProgressProgramFutures.build().toArray(new CompletableFuture[0]));
-    CompletableFuture<Void> unappliedProgramFuturesRes = CompletableFuture.allOf(unappliedProgramFutures.build().toArray(new CompletableFuture[0]));
+    CompletableFuture<Void> inProgressProgramFuturesRes =
+        CompletableFuture.allOf(inProgressProgramFutures.build().toArray(new CompletableFuture[0]));
+    CompletableFuture<Void> unappliedProgramFuturesRes =
+        CompletableFuture.allOf(unappliedProgramFutures.build().toArray(new CompletableFuture[0]));
 
+    return CompletableFuture.allOf(inProgressProgramFuturesRes, unappliedProgramFuturesRes)
+        .thenApplyAsync(
+            (v) -> {
+              ImmutableList<ApplicantProgramData> inProgressPrograms =
+                  inProgressProgramFutures.build().stream()
+                      .map(completableFuture -> completableFuture.join())
+                      .collect(ImmutableList.toImmutableList());
 
-    return CompletableFuture.allOf(inProgressProgramFuturesRes, unappliedProgramFuturesRes).thenApplyAsync((v) -> {
-      ImmutableList<ApplicantProgramData> inProgressPrograms = inProgressProgramFutures
-          .build()
-          .stream()
-          .map(completableFuture -> completableFuture.join())
-          .collect(ImmutableList.toImmutableList());
+              ImmutableList<ApplicantProgramData> unappliedPrograms =
+                  unappliedProgramFutures.build().stream()
+                      .map(completableFuture -> completableFuture.join())
+                      .collect(ImmutableList.toImmutableList());
 
-      ImmutableList<ApplicantProgramData> unappliedPrograms = unappliedProgramFutures
-          .build()
-          .stream()
-          .map(completableFuture -> completableFuture.join())
-          .collect(ImmutableList.toImmutableList());
-      
-      // Ensure each list is ordered by database ID for consistent ordering.
-      return ApplicationPrograms
-          .builder()
-          .setInProgress(sortByProgramId(inProgressPrograms))
-          .setSubmitted(sortByProgramId(submittedPrograms.build()))
-          .setUnapplied(sortByProgramId(unappliedPrograms))
-          .build();
-    }, httpExecutionContext.current());
+              // Ensure each list is ordered by database ID for consistent ordering.
+              return ApplicationPrograms.builder()
+                  .setInProgress(sortByProgramId(inProgressPrograms))
+                  .setSubmitted(sortByProgramId(submittedPrograms.build()))
+                  .setUnapplied(sortByProgramId(unappliedPrograms))
+                  .build();
+            },
+            httpExecutionContext.current());
   }
 
   private ImmutableList<ApplicantProgramData> sortByProgramId(
@@ -694,19 +705,27 @@ public final class ApplicantService {
   }
 
   private OptionalInt getAutoFillCount(ReadOnlyApplicantProgramService roApplicantService) {
-    int count = roApplicantService.getSummaryData().stream().filter(data -> data.isPreviousResponse()).collect(ImmutableList.toImmutableList()).size();
+    int count =
+        roApplicantService.getSummaryData().stream()
+            .filter(data -> data.isPreviousResponse())
+            .collect(ImmutableList.toImmutableList())
+            .size();
 
     return count == 0 ? OptionalInt.empty() : OptionalInt.of(count);
   }
 
   private CompletionStage<OptionalInt> getAutoFillCount(Application application) {
     return getReadOnlyApplicantProgramService(application)
-        .thenApplyAsync(roApplicantService -> getAutoFillCount(roApplicantService), httpExecutionContext.current());
+        .thenApplyAsync(
+            roApplicantService -> getAutoFillCount(roApplicantService),
+            httpExecutionContext.current());
   }
 
   private CompletionStage<OptionalInt> getAutoFillCount(long applicantId, long programId) {
     return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenApplyAsync(roApplicantService -> getAutoFillCount(roApplicantService), httpExecutionContext.current());
+        .thenApplyAsync(
+            roApplicantService -> getAutoFillCount(roApplicantService),
+            httpExecutionContext.current());
   }
 
   /**

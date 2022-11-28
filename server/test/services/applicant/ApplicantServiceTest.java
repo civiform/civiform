@@ -7,8 +7,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
-import java.beans.Transient;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -1388,7 +1386,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
         .toCompletableFuture()
         .join();
-    Program programForDraft = 
+    Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
             .withRequiredQuestion(emailQuestion)
@@ -1397,7 +1395,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .createOrUpdateDraft(applicant.id, programForDraft.id)
         .toCompletableFuture()
         .join();
-    Program programForUnapplied = 
+    Program programForUnapplied =
         ProgramBuilder.newActiveProgram("program_for_unapplied")
             .withBlock()
             .withRequiredQuestion(emailQuestion)

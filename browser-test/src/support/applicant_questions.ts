@@ -204,11 +204,10 @@ export class ApplicantQuestions {
   }
 
   async expectPrgoramAutoFillCount(programName: string, count: number) {
-    const programLocator = await this.page.locator(
-      `.cf-application-card`,
-      { has: this.page.locator(`:text("${programName}")`) }
-    )
-    const innerHtml = await programLocator.innerHTML();
+    const programLocator = this.page.locator(`.cf-application-card`, {
+      has: this.page.locator(`:text("${programName}")`),
+    })
+    const innerHtml = await programLocator.innerHTML()
 
     if (count === 0) {
       expect(innerHtml).not.toContain('cf-application-card-autofillcount')
