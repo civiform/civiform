@@ -41,7 +41,7 @@ public class PredicateValueTest {
         testQuestionBank.applicantMonthlyIncome().getQuestionDefinition();
     PredicateValue value = PredicateValue.of(10001);
 
-    assertThat(value.value()).isEqualTo(10010);
+    assertThat(value.value()).isEqualTo(10001);
     assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01");
   }
 
