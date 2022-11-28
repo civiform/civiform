@@ -562,9 +562,9 @@ public final class ApplicantService {
                                     })
                                 .thenComparing(Application::getCreateTime)))));
 
-    ImmutableList.Builder<ApplicantProgramData> inProgressPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
-    ImmutableList.Builder<ApplicantProgramData> unappliedPrograms = ImmutableList.builder();
+    ImmutableList.Builder<CompletableFuture<ApplicantProgramData>> inProgressProgramFutures = ImmutableList.builder();
+    ImmutableList.Builder<CompletableFuture<ApplicantProgramData>> unappliedProgramFutures = ImmutableList.builder();
 
     Set<String> programNamesWithApplications = Sets.newHashSet();
     mostRecentApplicationsByProgram.forEach(
@@ -576,14 +576,14 @@ public final class ApplicantService {
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
-            OptionalInt autoFillCount = getAutoFillCount(maybeDraftApp.get()).toCompletableFuture().join();
-
-            inProgressPrograms.add(
-                ApplicantProgramData.builder()
-                    .setProgram(maybeDraftApp.get().getProgram().getProgramDefinition())
-                    .setAutoFillCount(autoFillCount)
-                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
-                    .build());
+            inProgressProgramFutures.add(
+              getAutoFillCount(maybeDraftApp.get())
+                  .thenApplyAsync(autoFillCount -> ApplicantProgramData.builder()
+                      .setProgram(maybeDraftApp.get().getProgram().getProgramDefinition())
+                      .setAutoFillCount(autoFillCount)
+                      .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
+                      .build(),
+                      httpExecutionContext.current()).toCompletableFuture());
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
             // When extracting the application status, the definitions associated with the program
@@ -614,21 +614,40 @@ public final class ApplicantService {
         Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
     unappliedActivePrograms.forEach(
         programName -> {
-          OptionalInt autoFillCount = getAutoFillCount(applicantId, activeProgramNames.get(programName).id()).toCompletableFuture().join();
-
-          unappliedPrograms.add(
-              ApplicantProgramData.builder()
-                  .setProgram(activeProgramNames.get(programName))
-                  .setAutoFillCount(autoFillCount)
-                  .build());
+          unappliedProgramFutures.add(
+              getAutoFillCount(applicantId, activeProgramNames.get(programName).id())
+                  .thenApplyAsync(autoFillCounts -> ApplicantProgramData.builder()
+                      .setProgram(activeProgramNames.get(programName))
+                      .setAutoFillCount(autoFillCounts)
+                      .build(),
+                      httpExecutionContext.current()).toCompletableFuture());
         });
 
-    // Ensure each list is ordered by database ID for consistent ordering.
-    return CompletableFuture.supplyAsync(() -> ApplicationPrograms.builder()
-    .setInProgress(sortByProgramId(inProgressPrograms.build()))
-    .setSubmitted(sortByProgramId(submittedPrograms.build()))
-    .setUnapplied(sortByProgramId(unappliedPrograms.build()))
-    .build());
+    CompletableFuture<Void> inProgressProgramFuturesRes = CompletableFuture.allOf(inProgressProgramFutures.build().toArray(new CompletableFuture[0]));
+    CompletableFuture<Void> unappliedProgramFuturesRes = CompletableFuture.allOf(unappliedProgramFutures.build().toArray(new CompletableFuture[0]));
+
+
+    return CompletableFuture.allOf(inProgressProgramFuturesRes, unappliedProgramFuturesRes).thenApplyAsync((v) -> {
+      ImmutableList<ApplicantProgramData> inProgressPrograms = inProgressProgramFutures
+          .build()
+          .stream()
+          .map(completableFuture -> completableFuture.join())
+          .collect(ImmutableList.toImmutableList());
+
+      ImmutableList<ApplicantProgramData> unappliedPrograms = unappliedProgramFutures
+          .build()
+          .stream()
+          .map(completableFuture -> completableFuture.join())
+          .collect(ImmutableList.toImmutableList());
+      
+      // Ensure each list is ordered by database ID for consistent ordering.
+      return ApplicationPrograms
+          .builder()
+          .setInProgress(sortByProgramId(inProgressPrograms))
+          .setSubmitted(sortByProgramId(submittedPrograms.build()))
+          .setUnapplied(sortByProgramId(unappliedPrograms))
+          .build();
+    }, httpExecutionContext.current());
   }
 
   private ImmutableList<ApplicantProgramData> sortByProgramId(
