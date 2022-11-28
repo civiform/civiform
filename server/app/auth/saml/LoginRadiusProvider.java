@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
+// TODO(#3856): Update with a non deprecated saml impl.
+@SuppressWarnings("deprecation")
 public class LoginRadiusProvider implements Provider<SAML2Client> {
 
   private static final Logger logger = LoggerFactory.getLogger(LoginRadiusProvider.class);
@@ -36,6 +38,8 @@ public class LoginRadiusProvider implements Provider<SAML2Client> {
     this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
   }
 
+  // TODO(#3856): Update with a non deprecated saml impl.
+  @SuppressWarnings("deprecation")
   @Override
   public SAML2Client get() {
     if (!configuration.hasPath("login_radius.keystore_password")
@@ -57,6 +61,8 @@ public class LoginRadiusProvider implements Provider<SAML2Client> {
     config.setKeystorePassword(configuration.getString("login_radius.keystore_password"));
     config.setPrivateKeyPassword(configuration.getString("login_radius.private_key_password"));
     config.setIdentityProviderMetadataResourceUrl(metadataResourceUrl);
+    // TODO(#3856): Update with a non deprecated saml impl.
+    @SuppressWarnings("deprecation")
     SAML2Client client = new SAML2Client(config);
 
     client.setProfileCreator(
