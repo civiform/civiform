@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
+// TODO(#3856): Update with a non deprecated saml impl.
+@SuppressWarnings("deprecation")
 public class LoginRadiusProvider implements Provider<SAML2Client> {
 
   private static final Logger logger = LoggerFactory.getLogger(LoginRadiusProvider.class);
