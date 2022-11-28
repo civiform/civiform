@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
-import java.util.Optional;
 import org.junit.Test;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
@@ -37,26 +36,40 @@ public class PredicateValueTest {
   }
 
   @Test
+  public void toDisplayString_currency() {
+    QuestionDefinition currencyDef =
+        testQuestionBank.applicantMonthlyIncome().getQuestionDefinition();
+    PredicateValue value = PredicateValue.of(10001);
+
+    assertThat(value.value()).isEqualTo(10010);
+    assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01");
+  }
+
+  @Test
   public void toDisplayString_date() {
+    QuestionDefinition dateDef = testQuestionBank.applicantDate().getQuestionDefinition();
     PredicateValue value = PredicateValue.of(LocalDate.ofYearDay(2021, 1));
 
     assertThat(value.value()).isEqualTo("1609459200000");
-    assertThat(value.toDisplayString(Optional.empty())).isEqualTo("2021-01-01");
+    assertThat(value.toDisplayString(dateDef)).isEqualTo("2021-01-01");
   }
 
   @Test
   public void toDisplayString_listOfLongs() {
+    QuestionDefinition longDef = testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
     PredicateValue value = PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L));
 
     assertThat(value.value()).isEqualTo("[1, 2, 3]");
-    assertThat(value.toDisplayString(Optional.empty())).isEqualTo("[1, 2, 3]");
+    assertThat(value.toDisplayString(longDef)).isEqualTo("[1, 2, 3]");
   }
 
   @Test
   public void toDisplayString_simpleList() {
+    QuestionDefinition stringDef =
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("kangaroo", "turtle"));
 
-    assertThat(value.toDisplayString(Optional.empty())).isEqualTo("[\"kangaroo\", \"turtle\"]");
+    assertThat(value.toDisplayString(stringDef)).isEqualTo("[\"kangaroo\", \"turtle\"]");
   }
 
   @Test
@@ -65,8 +78,7 @@ public class PredicateValueTest {
 
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("1", "2"));
 
-    assertThat(value.toDisplayString(Optional.of(multiOption)))
-        .isEqualTo("[chocolate, strawberry]");
+    assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, strawberry]");
   }
 
   @Test
@@ -76,7 +88,7 @@ public class PredicateValueTest {
 
     PredicateValue value = PredicateValue.of("1");
 
-    assertThat(value.toDisplayString(Optional.of(multiOption))).isEqualTo("toaster");
+    assertThat(value.toDisplayString(multiOption)).isEqualTo("toaster");
   }
 
   @Test
@@ -86,7 +98,6 @@ public class PredicateValueTest {
     PredicateValue value =
         PredicateValue.listOfStrings(ImmutableList.of("1", "100")); // 100 is not a valid ID
 
-    assertThat(value.toDisplayString(Optional.of(multiOption)))
-        .isEqualTo("[chocolate, <obsolete>]");
+    assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, <obsolete>]");
   }
 }
