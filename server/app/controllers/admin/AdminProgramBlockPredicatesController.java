@@ -5,6 +5,7 @@ import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
@@ -173,7 +174,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    *
    * <p>If value is the empty string, then parses the list of values instead.
    */
-  private PredicateValue parsePredicateValue(
+  @VisibleForTesting
+  static PredicateValue parsePredicateValue(
       Scalar scalar, Operator operator, String value, List<String> values) {
 
     // If the scalar is SELECTION or SELECTIONS then this is a multi-option question predicate, and
@@ -184,6 +186,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
 
     switch (scalar.toScalarType()) {
+      case CURRENCY_CENTS:
+        // Currency is inputted as dollars and cents but stored as cents.
+        Float cents = Float.parseFloat(value) * 100;
+        return PredicateValue.of(cents.longValue());
+
       case DATE:
         LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         return PredicateValue.of(localDate);
