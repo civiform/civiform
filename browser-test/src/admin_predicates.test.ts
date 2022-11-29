@@ -376,7 +376,7 @@ describe('create and edit predicates', () => {
     await applicantQuestions.clickNext()
     await applicantQuestions.expectReviewPage()
     await page.goBack()
-    await applicantQuestions.answerDateQuestion('1998-09-04')
+    await applicantQuestions.answerDateQuestion('2020-12-31')
     await applicantQuestions.clickNext()
 
     // "dog" or "cat" are allowed.
