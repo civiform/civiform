@@ -86,7 +86,7 @@ public abstract class PredicateValue {
 
     /* Special handling of "simple" question types, EG non-multivalued questions. */
 
-    // Cents are stored, display as dollars/cents with 2 cent digits.
+    // Currency is stored as cents and displayed as dollars/cents with 2 cent digits.
     if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
       long storedCents = Long.parseLong(value());
       long dollars = storedCents / 100;
