@@ -3,9 +3,9 @@
  * that are used by applicants and trusted intermediaries.
  */
 
-import './main';
-import './accordion';
-import './enumerator';
-import './radio';
-import './toast';
-import './modal';
+import './main'
+import './accordion'
+import './enumerator'
+import './radio'
+import './toast'
+import './modal'

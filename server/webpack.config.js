@@ -22,4 +22,4 @@ module.exports = {
     sourceMapFilename: '[name].bundle.js.map',
     iife: true,
   },
-};
+}
