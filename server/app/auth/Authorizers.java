@@ -27,7 +27,7 @@ public enum Authorizers {
 
   private final String label;
 
-  private Authorizers(String label) {
+  Authorizers(String label) {
     this.label = label;
   }
 

@@ -210,6 +210,9 @@ describe('create and edit predicates', () => {
     await adminQuestions.addTextQuestion({questionName: 'list of strings'})
     await adminQuestions.addNumberQuestion({questionName: 'single-long'})
     await adminQuestions.addNumberQuestion({questionName: 'list of longs'})
+    await adminQuestions.addCurrencyQuestion({
+      questionName: 'predicate-currency',
+    })
     await adminQuestions.addDateQuestion({questionName: 'predicate-date'})
     await adminQuestions.addCheckboxQuestion({
       questionName: 'both sides are lists',
@@ -230,6 +233,9 @@ describe('create and edit predicates', () => {
     await adminPrograms.addProgramBlock(programName, 'long', ['single-long'])
     await adminPrograms.addProgramBlock(programName, 'list of longs', [
       'list of longs',
+    ])
+    await adminPrograms.addProgramBlock(programName, 'currency', [
+      'predicate-currency',
     ])
     await adminPrograms.addProgramBlock(programName, 'date', ['predicate-date'])
     await adminPrograms.addProgramBlock(programName, 'two lists', [
@@ -279,8 +285,18 @@ describe('create and edit predicates', () => {
       '123, 456',
     )
 
-    // Date predicate
+    // Currency predicate
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 6')
+    await adminPredicates.addPredicate(
+      'predicate-currency',
+      'shown if',
+      'currency',
+      'is greater than',
+      '100.01',
+    )
+
+    // Date predicate
+    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 7')
     await adminPredicates.addPredicate(
       'predicate-date',
       'shown if',
@@ -290,7 +306,7 @@ describe('create and edit predicates', () => {
     )
 
     // Lists of strings on both sides (multi-option question checkbox)
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 7')
+    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 8')
     await adminPredicates.addPredicate(
       'both sides are lists',
       'shown if',
@@ -315,6 +331,8 @@ describe('create and edit predicates', () => {
     await applicantQuestions.answerNumberQuestion('42')
     await applicantQuestions.clickNext()
     await applicantQuestions.answerNumberQuestion('123')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.answerCurrencyQuestion('100.02')
     await applicantQuestions.clickNext()
     await applicantQuestions.answerDateQuestion('1998-09-04')
     await applicantQuestions.clickNext()

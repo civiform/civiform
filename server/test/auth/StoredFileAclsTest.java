@@ -10,9 +10,9 @@ import support.ProgramBuilder;
 
 public class StoredFileAclsTest extends ResetPostgres {
 
-  private ProgramDefinition programOne =
+  private final ProgramDefinition programOne =
       ProgramBuilder.newDraftProgram("program-one").buildDefinition();
-  private ProgramDefinition programTwo =
+  private final ProgramDefinition programTwo =
       ProgramBuilder.newDraftProgram("program-two").buildDefinition();
 
   @Test

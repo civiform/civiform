@@ -26,10 +26,7 @@ public class DevController extends Controller {
       return true;
     }
     // Allow staging to use some dev features for testing purpose.
-    if (isStaging()) {
-      return true;
-    }
-    return false;
+    return isStaging();
   }
 
   public boolean isStaging() {

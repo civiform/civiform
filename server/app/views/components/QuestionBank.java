@@ -47,7 +47,7 @@ public final class QuestionBank {
    */
   public enum Visibility {
     VISIBLE,
-    HIDDEN;
+    HIDDEN
   }
 
   public QuestionBank(QuestionBankParams params) {

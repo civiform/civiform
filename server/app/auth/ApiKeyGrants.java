@@ -20,7 +20,7 @@ public final class ApiKeyGrants {
   /** Enumerates the abilities an ApiKey may have with respect to a resource. */
   public enum Permission {
     WRITE,
-    READ;
+    READ
   }
 
   @JsonProperty("programGrants")

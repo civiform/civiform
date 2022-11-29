@@ -104,7 +104,7 @@ public class AddressQuestionTest {
 
     assertThat(addressQuestion.getValidationErrors())
         .isEqualTo(
-            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+            ImmutableMap.of(
                 addressQuestion.getStreetPath(),
                     ImmutableSet.of(
                         ValidationErrorMessage.create(
@@ -140,7 +140,7 @@ public class AddressQuestionTest {
 
     assertThat(addressQuestion.getValidationErrors())
         .isEqualTo(
-            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+            ImmutableMap.of(
                 addressQuestion.getZipPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE))));

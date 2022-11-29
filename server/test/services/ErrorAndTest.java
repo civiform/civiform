@@ -21,7 +21,7 @@ public class ErrorAndTest {
   @Test
   public void canBeCreatedWithOnlyErrors() {
     ErrorAnd<String, String> errorAndResult = ErrorAnd.error(ImmutableSet.of("error 1", "error 2"));
-    Throwable thrown = catchThrowable(() -> errorAndResult.getResult());
+    Throwable thrown = catchThrowable(errorAndResult::getResult);
 
     assertThat(thrown).isInstanceOf(RuntimeException.class);
     assertThat(thrown).hasMessage("There is no result");

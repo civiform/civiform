@@ -830,7 +830,7 @@ public final class ApplicantService {
       ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ArrayList<Path> visitedPaths = new ArrayList<>();
-    ImmutableMap.Builder<Path, String> failedUpdatesBuilder = ImmutableMap.<Path, String>builder();
+    ImmutableMap.Builder<Path, String> failedUpdatesBuilder = ImmutableMap.builder();
     for (Update update : updates) {
       Path currentPath = update.path();
 

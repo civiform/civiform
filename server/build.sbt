@@ -23,9 +23,9 @@ lazy val root = (project in file("."))
       javaJdbc,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.7.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.14.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.14.0",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.14.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.14.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.1",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -40,7 +40,7 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.20.1",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.5.0",
+      "org.postgresql" % "postgresql" % "42.5.1",
       "com.h2database" % "h2" % "2.1.214" % Test,
 
       // Metrics collection and export for Prometheus
@@ -65,13 +65,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.6.1",
+      "org.pac4j" % "pac4j-core" % "5.7.0",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.6.1",
+      "org.pac4j" % "pac4j-http" % "5.7.0",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.6.1",
+      "org.pac4j" % "pac4j-oidc" % "5.7.0",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.6.1",
+      "org.pac4j" % "pac4j-saml" % "5.7.0",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.10.0",
@@ -208,9 +208,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.0",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.14.0",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.14.0"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.14.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.14.1"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

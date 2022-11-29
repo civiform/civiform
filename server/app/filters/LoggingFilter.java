@@ -49,7 +49,7 @@ public class LoggingFilter extends EssentialFilter {
                       requestCookies.append(
                           String.format("key: %s, value: %s\n", cookie.name(), cookie.value()));
                     }
-                    log.trace("request cookies: {}", requestCookies.toString());
+                    log.trace("request cookies: {}", requestCookies);
                     log.trace("response headers: {}", result.headers().toString());
                     if (result.body() instanceof HttpEntity.Strict) {
                       log.trace(
@@ -64,7 +64,7 @@ public class LoggingFilter extends EssentialFilter {
                       responseCookies.append(
                           String.format("key: %s, value: %s\n", cookie.name(), cookie.value()));
                     }
-                    log.trace("response cookies: {}", responseCookies.toString());
+                    log.trace("response cookies: {}", responseCookies);
                     return result.withHeader("RequestTime", String.valueOf(time));
                   },
                   exec);

@@ -252,7 +252,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return params.block().getQuestions().stream()
         .map(ApplicantQuestion::createFileUploadQuestion)
         .map(FileUploadQuestion::getFileKeyValue)
-        .anyMatch(maybeValue -> maybeValue.isPresent());
+        .anyMatch(Optional::isPresent);
   }
 
   private boolean hasAtLeastOneRequiredQuestion(Params params) {
