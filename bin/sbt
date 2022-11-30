@@ -8,5 +8,5 @@ docker::set_project_name_dev
 bin/pull-image
 
 docker::compose_dev up --wait -d
-docker exec -it "${COMPOSE_PROJECT_NAME}-civiform-1" ./entrypoint.sh -jvm-debug "*:8457" -Dsbt.offline
+docker::dev_server_sbt_command
 docker::compose_dev stop civiform
