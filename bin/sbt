@@ -7,6 +7,6 @@ docker::set_project_name_dev
 
 bin/pull-image
 
-docker::run_shell_container
-docker::run_shell_command sbt "$@"
-docker::stop_shell_container
+docker::compose_dev up --wait -d
+docker::dev_server_sbt_command
+docker::compose_dev stop civiform

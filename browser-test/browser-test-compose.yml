@@ -30,3 +30,4 @@ services:
       - LOCALSTACK_URL=http://localstack:4566
       - CIVIFORM_TIME_ZONE_ID
     command: ~runBrowserTestsServer
+    entrypoint: ./entrypoint.sh
