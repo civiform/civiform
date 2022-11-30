@@ -48,9 +48,11 @@ import views.style.StyleUtils;
  * A block is a synonym for a Screen. The ProgramBlockEditView is very similar to the ProgramBlockViewOnlyView,
  * but specifically adds all UI functionality that is needed for editing.
  **/
-  // TODO(jhummel) make existing tests pass again
   // TODO(jhummel) new tests and browser tests
-  // TODO(jhummel) manual testing
+  // TODO(jhummel) tests for viewonlyview
+// TODO(jhummel) tests for editView
+
+
 public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
 
    private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
