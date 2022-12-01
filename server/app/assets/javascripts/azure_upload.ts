@@ -9,9 +9,11 @@ class AzureUploadController {
     const blockForm = document.getElementById(
       AzureUploadController.FILEUPLOAD_FORM_ID,
     )
-    blockForm.addEventListener('submit', (event) => {
-      this.attemptUpload(event, blockForm)
-    })
+    if (blockForm) {
+      blockForm.addEventListener('submit', (event) => {
+        this.attemptUpload(event, blockForm)
+      })
+    }
   }
 
   getValueFromInputLabel(label: string): string {
