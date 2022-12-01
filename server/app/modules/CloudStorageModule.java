@@ -9,7 +9,6 @@ import com.typesafe.config.ConfigException;
 import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
-import views.AwsFileUploadViewStrategy;
 import views.AzureFileUploadViewStrategy;
 import views.BaseHtmlView;
 import views.FileUploadViewStrategy;
@@ -66,7 +65,7 @@ public class CloudStorageModule extends AbstractModule {
         return;
       case AWS_S3:
       default:
-        bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
+        bind(FileUploadViewStrategy.class).to(AzureFileUploadViewStrategy.class);
     }
   }
 

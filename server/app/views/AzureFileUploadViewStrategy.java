@@ -30,21 +30,21 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     if (request.isEmpty()) {
       return ImmutableList.of();
     }
-    BlobStorageUploadRequest signedRequest = castStorageRequest(request.get());
+    // BlobStorageUploadRequest signedRequest = castStorageRequest(request.get());
     ImmutableList.Builder<InputTag> builder = ImmutableList.builder();
     builder.add(
-        input().withType("hidden").withName("fileName").withValue(signedRequest.fileName()),
-        input().withType("hidden").withName("sasToken").withValue(signedRequest.sasToken()),
-        input().withType("hidden").withName("blobUrl").withValue(signedRequest.blobUrl()),
-        input()
-            .withType("hidden")
-            .withName("containerName")
-            .withValue(signedRequest.containerName()),
-        input().withType("hidden").withName("accountName").withValue(signedRequest.accountName()),
-        input()
-            .withType("hidden")
-            .withName("successActionRedirect")
-            .withValue(signedRequest.successActionRedirect()),
+        // input().withType("hidden").withName("fileName").withValue(signedRequest.fileName()),
+        // input().withType("hidden").withName("sasToken").withValue(signedRequest.sasToken()),
+        // input().withType("hidden").withName("blobUrl").withValue(signedRequest.blobUrl()),
+        // input()
+        //     .withType("hidden")
+        //     .withName("containerName")
+        //     .withValue(signedRequest.containerName()),
+        // input().withType("hidden").withName("accountName").withValue(signedRequest.accountName()),
+        // input()
+        //     .withType("hidden")
+        //     .withName("successActionRedirect")
+        //     .withValue(signedRequest.successActionRedirect()),
         input()
             .withId(fileInputId)
             .condAttr(hasErrors, "aria-invalid", "true")
@@ -58,7 +58,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     return builder.build();
   }
 
-  private BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {
+  public BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {
     if (!(request instanceof BlobStorageUploadRequest)) {
       throw new RuntimeException(
           "Tried to upload a file to Azure Blob storage using incorrect request type");
@@ -72,5 +72,10 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
         viewUtils.makeAzureBlobStoreScriptTag(),
         viewUtils.makeLocalJsTag("azure_upload"),
         viewUtils.makeLocalJsTag("azure_delete"));
+  }
+
+  @Override
+  protected String getUploadFormClass() {
+    return "azure-upload";
   }
 }

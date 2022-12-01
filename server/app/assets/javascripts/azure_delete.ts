@@ -3,8 +3,12 @@
  */
 class AzureDeleteController {
   private static FILEUPLOAD_DELETE_ID = 'fileupload-delete-button'
+  private static AZURE_UPLOAD = 'azure-upload'
 
   constructor() {
+    if (document.querySelector(AzureDeleteController.AZURE_UPLOAD) == null) {
+      return
+    }
     const deleteContainer = document.getElementById(
       AzureDeleteController.FILEUPLOAD_DELETE_ID,
     )

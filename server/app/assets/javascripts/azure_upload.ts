@@ -3,9 +3,13 @@
  */
 
 class AzureUploadController {
-  static FILEUPLOAD_FORM_ID = 'cf-block-form'
+  private static FILEUPLOAD_FORM_ID = 'cf-block-form'
+  private static AZURE_UPLOAD = '.azure-upload'
 
   constructor() {
+    if (document.querySelector(AzureUploadController.AZURE_UPLOAD) == null) {
+      return
+    }
     const blockForm = document.getElementById(
       AzureUploadController.FILEUPLOAD_FORM_ID,
     )
