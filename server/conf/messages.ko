@@ -35,7 +35,7 @@ validation.isRequired=이 질문은 필수입니다.
 validation.invalidInput=유효한 내용을 입력하세요.
 
 # Error message announced to screen reader when there are errors on the current page.
-validation.errorAnnouncementSr=양식에 오류가 있습니다. Please fix before continuing.
+validation.errorAnnouncementSr=양식에 오류가 있습니다.
 
 # Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
