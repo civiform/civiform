@@ -97,10 +97,9 @@ public class BaseHtmlLayout {
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME));
 
     // Add Google analytics scripts.
-    measurementId.ifPresent(
-        (id) -> {
-          bundle.addFooterScripts(getAnalyticsScripts(id).toArray(new ScriptTag[0]));
-        });
+    measurementId
+        .map(id -> getAnalyticsScripts(id).toArray(new ScriptTag[0]))
+        .ifPresent(bundle::addFooterScripts);
 
     // Add default scripts.
     for (String source : FOOTER_SCRIPTS) {
