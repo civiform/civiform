@@ -363,6 +363,18 @@ function attachRedirectToPageListeners() {
   })
 }
 
+/**
+ * Adds listeners to buttons with 'form' attributes. These buttons trigger form
+ * submission without JS. But we still need to stop propagation of events
+ * because it's possible that some other button up-stream in ancestor chain
+ * contains click listener as we have nested clickable elements.
+ */
+function attachListenersOnFormButtons() {
+  addEventListenerToElements('button[form]', 'click', (e: Event) => {
+    e.stopPropagation()
+  })
+}
+
 window.addEventListener('load', () => {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
@@ -432,6 +444,7 @@ window.addEventListener('load', () => {
   attachFormDebouncers()
 
   attachRedirectToPageListeners()
+  attachListenersOnFormButtons()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
