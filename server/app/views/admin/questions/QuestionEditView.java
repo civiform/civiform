@@ -321,16 +321,18 @@ public final class QuestionEditView extends BaseHtmlView {
             .setPlaceholderText("The question text displayed to the applicant")
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
-            .getTextareaTag(),
-        FieldWithLabel.textArea()
-            .setId("question-help-text-textarea")
-            .setFieldName("questionHelpText")
-            .setLabelText("Question help text")
-            .setPlaceholderText("The question help text displayed to the applicant")
-            .setDisabled(!submittable)
-            .setValue(questionForm.getQuestionHelpText())
-            .getTextareaTag()
-            .withCondClass(questionType.equals(QuestionType.STATIC), "hidden"));
+            .getTextareaTag());
+    if (!questionType.equals(QuestionType.STATIC)) {
+      formTag.with(
+          FieldWithLabel.textArea()
+              .setId("question-help-text-textarea")
+              .setFieldName("questionHelpText")
+              .setLabelText("Question help text")
+              .setPlaceholderText("The question help text displayed to the applicant")
+              .setDisabled(!submittable)
+              .setValue(questionForm.getQuestionHelpText())
+              .getTextareaTag());
+    }
 
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, hidden fields to pass enumerator and name data are added.

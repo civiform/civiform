@@ -30,6 +30,7 @@ import {AdminPredicates} from './admin_predicates'
 import {AdminTranslations} from './admin_translations'
 import {TIDashboard} from './ti_dashboard'
 import {AdminTIGroups} from './admin_ti_groups'
+import {BrowserErrorWatcher} from './browser_error_watcher'
 
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -131,6 +132,7 @@ export interface TestContext {
    * Methods: https://playwright.dev/docs/api/class-page
    */
   page: Page
+  browserErrorWatcher: BrowserErrorWatcher
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
@@ -186,10 +188,12 @@ export const createTestContext = (clearDb = true): TestContext => {
   // we'll get one huge video for all tests.
   async function resetContext() {
     if (browserContext != null) {
+      ctx.browserErrorWatcher.failIfContainsErrors()
       await browserContext.close()
     }
     browserContext = await makeBrowserContext(browser)
     ctx.page = await browserContext.newPage()
+    ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
     // Default timeout is 30s. It's too long given that civiform is not JS
     // heavy and all elements render quite quickly. Setting it to 5 sec so that
     // tests fail fast.
