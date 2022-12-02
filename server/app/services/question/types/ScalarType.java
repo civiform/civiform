@@ -11,5 +11,5 @@ public enum ScalarType {
   DATE,
   LIST_OF_STRINGS,
   LONG,
-  STRING;
+  STRING
 }

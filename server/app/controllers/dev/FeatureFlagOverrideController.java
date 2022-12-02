@@ -1,6 +1,7 @@
 package controllers.dev;
 
 import auth.Authorizers.Labels;
+import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
 import javax.inject.Inject;
@@ -29,12 +30,20 @@ public final class FeatureFlagOverrideController extends DevController {
 
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
+    ImmutableMap<String, Boolean> flags = featureFlags.getAllFlags(request);
+
+    var flagSettingsString = new StringBuilder();
+    for (String key : flags.keySet()) {
+      flagSettingsString.append(String.format("    %s: %s\n", key, flags.get(key)));
+    }
+
     return ok(
         String.format(
             "Overrides are allowed if all are true:\n"
                 + "Server environment: %s\n"
-                + "Configuration: %s",
-            isDevOrStagingEnvironment(), featureFlags.areOverridesEnabled()));
+                + "Configuration: %s\n\n"
+                + "Current flags:\n%s",
+            isDevOrStagingEnvironment(), featureFlags.areOverridesEnabled(), flagSettingsString));
   }
 
   @Secure(authorizers = Labels.ANY_ADMIN)

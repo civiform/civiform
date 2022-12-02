@@ -319,7 +319,7 @@ public enum Icons {
   public final String path;
   private final int size;
 
-  private Icons(int size, String path) {
+  Icons(int size, String path) {
     this.size = size;
     this.path = path;
   }

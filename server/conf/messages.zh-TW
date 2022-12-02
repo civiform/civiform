@@ -34,6 +34,12 @@ validation.isRequired=這是必答問題。
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=請輸入有效內容。
 
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=表單中出現錯誤，請修正錯誤再繼續。
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=注意：標有 * 的欄位為必填欄位。
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -112,6 +118,10 @@ button.apply=申請
 button.applySr=申請「{0}」
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=編輯
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=編輯已提交的「{0}」申請資料
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=繼續申請「{0}」
 
 # Text describing the date the application was last submitted.
 content.submittedDate=提交於 {0}
@@ -132,6 +142,9 @@ link.programDetailsSr=「{0}」計畫詳情
 
 # Link text to an external site to read more about a program.
 link.externalLink=外部網站
+
+# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
+link.externalLinkOpensInNewTab=在新分頁中開啟
 
 # The title of the page for the list of programs.
 title.programs=計畫與服務
@@ -320,3 +333,10 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=多選題不得留空。
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=我們找不到你嘗試前往的頁面
+error.notFoundDescription='請返回上一頁或'
+error.notFoundDescriptionLink=首頁

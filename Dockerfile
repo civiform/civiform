@@ -71,8 +71,7 @@ RUN sbt update compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
 ### Get the volumes and startup commands set up       ###
 ########################################################
 
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash"]
 
 # Save build results to anonymous volumes for reuse
 # We do this first, so they don't get shadowed by the

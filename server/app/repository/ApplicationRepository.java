@@ -144,7 +144,7 @@ public final class ApplicationRepository {
               return new ApplicationArguments(programMaybe.get(), applicantMaybe.get());
             })
         .thenApplyAsync(fn)
-        .thenApplyAsync(application -> Optional.of(application))
+        .thenApplyAsync(Optional::of)
         .exceptionally(
             exception -> {
               logger.error(exception.toString());

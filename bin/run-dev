@@ -65,13 +65,6 @@ done &
 
 echo "Civiform starting locally at http://localhost:9000/loginForm"
 
-# Attach to the civiform container.
-docker::compose_dev up civiform \
-  --force-recreate \
-  --no-deps \
-  --wait \
-  -d
-
-docker attach "${COMPOSE_PROJECT_NAME}-civiform-1"
+docker::dev_server_sbt_command runDevServer
 
 docker::compose_dev stop civiform

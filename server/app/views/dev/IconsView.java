@@ -35,7 +35,7 @@ public final class IconsView extends BaseHtmlView {
         table()
             .with(
                 tr().with(th("Icon name"), th("Icon"), th("Width"), th("Height")),
-                each(ImmutableList.copyOf(Icons.values()), icon -> renderIconRow(icon)));
+                each(ImmutableList.copyOf(Icons.values()), this::renderIconRow));
     HtmlBundle bundle =
         layout
             .getBundle()

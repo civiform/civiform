@@ -65,10 +65,7 @@ public class ValidAccountFilter extends EssentialFilter {
     if (uri.startsWith("/dev")) {
       return true;
     }
-    if (isLogoutRequest(uri)) {
-      return true;
-    }
-    return false;
+    return isLogoutRequest(uri);
   }
 
   /** Return true if the request is to the logout endpoint. */

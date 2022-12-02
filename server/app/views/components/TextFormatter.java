@@ -146,7 +146,7 @@ public final class TextFormatter {
   private static DivTag buildAccordion(String title, String accordionContent) {
     Accordion accordion = new Accordion().setTitle(title);
     ImmutableList<DomContent> contentTags = TextFormatter.formatText(accordionContent, true);
-    contentTags.stream().forEach(tag -> accordion.addContent(tag));
+    contentTags.stream().forEach(accordion::addContent);
     return accordion.getContainer();
   }
 

@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.pac4j.core.exception.TechnicalException;
 
 /**
  * Custom Logout Request that allows for divergence from the [oidc
@@ -29,14 +31,14 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
   /** The optional post-logout redirection URI. */
   private final URI postLogoutRedirectURI;
 
-  /** Pptional extra query params to add to the URL. */
+  /** Optional extra query params to add to the URL. */
   private final ImmutableMap<String, String> extraParams;
 
   /**
    * Create new OIDC logout request with a optional redirect url, optional client id, and other
    * params. If the OIDC provider requires the optional state param for logout (see
    * https://openid.net/specs/openid-connect-rpinitiated-1_0.html), include it here. Note that the
-   * state here is not saved and validated by the client, so it does not achive the goal of
+   * state here is not saved and validated by the client, so it does not achieve the goal of
    * "maintain state between the logout request and the callback" as specified by the spec.
    */
   public CustomOidcLogoutRequest(
@@ -56,49 +58,13 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
     }
   }
 
-  /** Creates a new OIDC logout request without a state. */
-  public CustomOidcLogoutRequest(
-      final URI uri,
-      final String postLogoutRedirectParam,
-      final URI postLogoutRedirectURI,
-      final ImmutableMap<String, String> extraParams) {
-    this(uri, postLogoutRedirectParam, postLogoutRedirectURI, extraParams, /*state*/ null);
-  }
-
-  /** Creates a new OIDC logout request without extra params or a custom postLogoutRedirectParam. */
-  public CustomOidcLogoutRequest(final URI uri, final URI postLogoutRedirectURI) {
-
-    this(uri, /* postLogoutRedirectParam */ null, postLogoutRedirectURI, /* extraParams */ null);
-  }
-
-  /** Creates a new OIDC logout request without a post-logout redirection. */
-  public CustomOidcLogoutRequest(final URI uri, final ImmutableMap<String, String> extraParams) {
-
-    this(uri, /* postLogoutRedirectParam */ null, /* postLogoutRedirectURI */ null, extraParams);
-  }
-
-  /** Creates a new OIDC logout request without extra params. */
-  public CustomOidcLogoutRequest(
-      final URI uri, final String postLogoutRedirectParam, final URI postLogoutRedirectURI) {
-
-    this(uri, postLogoutRedirectParam, postLogoutRedirectURI, /* extraParams */ null);
-  }
-
-  /** Creates a new OIDC logout request without a post-logout redirection or extra params. */
-  public CustomOidcLogoutRequest(final URI uri) {
-
-    this(
-        uri, /* postLogoutRedirectParam */ null, /* postLogoutRedirectURI */ null, /* extraParams */
-        null);
-  }
-
   /** Returns the URI query parameters for this logout request. */
   @Override
   public Map<String, List<String>> toParameters() {
 
     Map<String, List<String>> params = new LinkedHashMap<>();
 
-    if (postLogoutRedirectURI != null) {
+    if (postLogoutRedirectURI != null && !postLogoutRedirectParam.isEmpty()) {
       params.put(
           postLogoutRedirectParam, Collections.singletonList(postLogoutRedirectURI.toString()));
     }
@@ -109,5 +75,22 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
     extraParams.forEach((key, value) -> params.put(key, Collections.singletonList(value)));
 
     return params;
+  }
+
+  @Override
+  public URI toURI() {
+    URI uri = super.toURI();
+    // default behavior of LogoutRequest.toURI() removes fragment from the URI.
+    // For some usecases (e.g. IDCS on Seattle) they use logout URI that contains
+    // fragment and read it client-side. Here we add fragment back if it was
+    // present in the original logout URI.
+    if (getEndpointURI().getRawFragment() != null) {
+      try {
+        return new URI(uri + "#" + getEndpointURI().getRawFragment());
+      } catch (URISyntaxException e) {
+        throw new TechnicalException(e);
+      }
+    }
+    return uri;
   }
 }

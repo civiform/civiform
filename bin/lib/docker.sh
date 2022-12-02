@@ -157,3 +157,17 @@ function docker::do_dockerhub_login() {
       --username $DOCKER_HUB_USERNAME \
       --password-stdin docker.io
 }
+
+#######################################
+# Runs sbt command inside dev civiform container. The container should be
+# already running.
+# Arguments:
+#   The function takes optional param - the command to run. If no argument is
+#   passed then sbt starts in interactive shell mode.
+# Globals:
+#   COMPOSE_PROJECT_NAME
+#######################################
+function docker::dev_server_sbt_command() {
+  # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
+  docker exec -it "${COMPOSE_PROJECT_NAME}-civiform-1" ./entrypoint.sh -jvm-debug "*:8457" -Dsbt.offline $1
+}

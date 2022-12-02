@@ -335,7 +335,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ButtonTag> applicationsLink =
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
-      if (!draftProgram.isPresent()) {
+      if (draftProgram.isEmpty()) {
         activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }

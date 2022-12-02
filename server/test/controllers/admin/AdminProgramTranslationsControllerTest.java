@@ -27,22 +27,22 @@ import support.ProgramBuilder;
 
 public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
-  private static Locale ES_LOCALE = Locale.forLanguageTag("es-US");
+  private static final Locale ES_LOCALE = Locale.forLanguageTag("es-US");
 
-  private static String ENGLISH_DISPLAY_NAME = "english program display name";
-  private static String ENGLISH_DESCRIPTION = "english program description";
-  private static String SPANISH_DISPLAY_NAME = "spanish program display name";
-  private static String SPANISH_DESCRIPTION = "spanish program description";
+  private static final String ENGLISH_DISPLAY_NAME = "english program display name";
+  private static final String ENGLISH_DESCRIPTION = "english program description";
+  private static final String SPANISH_DISPLAY_NAME = "spanish program display name";
+  private static final String SPANISH_DESCRIPTION = "spanish program description";
 
-  private static String ENGLISH_FIRST_STATUS_TEXT = "english first status text";
-  private static String ENGLISH_FIRST_STATUS_EMAIL = "english first status email";
-  private static String ENGLISH_SECOND_STATUS_TEXT = "english second status text";
-  private static String ENGLISH_SECOND_STATUS_EMAIL = "english second status email";
+  private static final String ENGLISH_FIRST_STATUS_TEXT = "english first status text";
+  private static final String ENGLISH_FIRST_STATUS_EMAIL = "english first status email";
+  private static final String ENGLISH_SECOND_STATUS_TEXT = "english second status text";
+  private static final String ENGLISH_SECOND_STATUS_EMAIL = "english second status email";
 
-  private static String SPANISH_FIRST_STATUS_TEXT = "spanish first status text";
-  private static String SPANISH_FIRST_STATUS_EMAIL = "spanish first status email";
-  private static String SPANISH_SECOND_STATUS_TEXT = "spanish second status text";
-  private static String SPANISH_SECOND_STATUS_EMAIL = "spanish second status email";
+  private static final String SPANISH_FIRST_STATUS_TEXT = "spanish first status text";
+  private static final String SPANISH_FIRST_STATUS_EMAIL = "spanish first status email";
+  private static final String SPANISH_SECOND_STATUS_TEXT = "spanish second status text";
+  private static final String SPANISH_SECOND_STATUS_EMAIL = "spanish second status email";
 
   private ProgramRepository programRepository;
   private AdminProgramTranslationsController controller;

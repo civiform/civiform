@@ -418,17 +418,17 @@ public final class QuestionsListView extends BaseHtmlView {
 
     ImmutableList<ProgramDefinition> usedPrograms =
         usedSet.stream()
-            .map((adminName) -> draftProgramsMap.get(adminName))
+            .map(draftProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
     ImmutableList<ProgramDefinition> addedPrograms =
         addedSet.stream()
-            .map((adminName) -> draftProgramsMap.get(adminName))
+            .map(draftProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
     ImmutableList<ProgramDefinition> removedPrograms =
         removedSet.stream()
-            .map((adminName) -> activeProgramsMap.get(adminName))
+            .map(activeProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
     return GroupedReferencingPrograms.builder()

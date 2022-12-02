@@ -190,7 +190,7 @@ public final class LinkElement {
             .withCondId(!Strings.isNullOrEmpty(id), id);
     hiddenFormValues.entrySet().stream()
         .map(entry -> input().isHidden().withName(entry.getKey()).withValue(entry.getValue()))
-        .forEach(tag -> form.with(tag));
+        .forEach(form::with);
     return form;
   }
 

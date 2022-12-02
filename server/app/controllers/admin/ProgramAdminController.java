@@ -36,7 +36,7 @@ public class ProgramAdminController extends CiviFormController {
   public Result index(Http.Request request) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
-    if (!profile.isPresent()) {
+    if (profile.isEmpty()) {
       throw new RuntimeException("No profile found for program admin");
     }
 

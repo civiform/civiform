@@ -88,9 +88,9 @@ public final class ViewUtils {
             span(buttonText).withClass("text-left"));
   }
 
-  public static enum BadgeStatus {
+  public enum BadgeStatus {
     ACTIVE,
-    DRAFT;
+    DRAFT
   }
 
   /**
