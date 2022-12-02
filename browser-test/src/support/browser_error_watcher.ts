@@ -14,6 +14,7 @@ interface ErrorOnPage {
 export class BrowserErrorWatcher {
   private readonly errors: ErrorOnPage[] = []
   private readonly downloadUrls = new Set<string>()
+  private readonly urlsToIgnore: RegExp[] = []
 
   constructor(page: Page) {
     // Catch JS errors on page.
@@ -52,9 +53,13 @@ export class BrowserErrorWatcher {
   }
 
   failIfContainsErrors() {
-    const errorsToReport = this.errors.filter(
-      (error) => !this.downloadUrls.has(error.url),
-    )
+    const errorsToReport = this.errors
+      .filter((error) => !this.downloadUrls.has(error.url))
+      .filter((error) => {
+        return (
+          this.urlsToIgnore.some((regexp) => regexp.test(error.url)) == null
+        )
+      })
     if (errorsToReport.length === 0) {
       return
     }
@@ -64,5 +69,9 @@ export class BrowserErrorWatcher {
     throw new Error(
       `Detected ${errorsToReport.length} errors in browser during test run:\n\n${errorMessages}`,
     )
+  }
+
+  ignoreErrorsFromUrl(regexp: RegExp) {
+    this.urlsToIgnore.push(regexp)
   }
 }
