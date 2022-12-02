@@ -1,11 +1,13 @@
 import {Page} from 'playwright'
 import {BASE_URL} from './config'
+import {TestContext} from './index'
 
 export class NotFoundPage {
-  public page!: Page
+  public ctx: TestContext
 
-  constructor(page: Page) {
-    this.page = page
+  constructor(ctx: TestContext) {
+    this.ctx = ctx
+    ctx.browserErrorWatcher.ignoreErrorsFromUrl(/.*\/ezbezzdebashiboozook/)
   }
 
   async gotoNonExistentPage(page: Page) {
@@ -14,11 +16,11 @@ export class NotFoundPage {
 
   async checkPageHeader(lang = 'en-US') {
     if (lang === 'es-US') {
-      expect(await this.page.innerText('h1')).toContain(
+      expect(await this.ctx.page.innerText('h1')).toContain(
         'No Pudimos encontrar la página que intentó visitar',
       )
     } else {
-      expect(await this.page.innerText('h1')).toContain(
+      expect(await this.ctx.page.innerText('h1')).toContain(
         'We were unable to find the page you tried to visit',
       )
     }

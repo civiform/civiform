@@ -56,9 +56,7 @@ export class BrowserErrorWatcher {
     const errorsToReport = this.errors
       .filter((error) => !this.downloadUrls.has(error.url))
       .filter((error) => {
-        return (
-          this.urlsToIgnore.some((regexp) => regexp.test(error.url)) == null
-        )
+        return !this.urlsToIgnore.some((regexp) => regexp.test(error.url))
       })
     if (errorsToReport.length === 0) {
       return
