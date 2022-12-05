@@ -323,7 +323,7 @@ export class ApplicantQuestions {
 
   async expectReviewPage() {
     expect(await this.page.innerText('h2')).toContain(
-      'Program application review',
+      'Program application summary',
     )
   }
 
