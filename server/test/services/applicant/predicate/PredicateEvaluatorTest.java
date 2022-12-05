@@ -39,7 +39,7 @@ public class PredicateEvaluatorTest {
   }
 
   @Test
-  public void evalLeafNode_correctlyEvaluatesValidPredicate() {
+  public void evaluate_leafNode_correctlyEvaluatesValidPredicate() {
     LeafOperationExpressionNode leafNode =
         LeafOperationExpressionNode.create(
             addressQuestion.getId(),
@@ -57,7 +57,7 @@ public class PredicateEvaluatorTest {
   }
 
   @Test
-  public void evalLeafNode_returnsFalseForInvalidPredicate() {
+  public void evaluate_leafNode_returnsFalseForInvalidPredicate() {
     LeafOperationExpressionNode leafNode =
         LeafOperationExpressionNode.create(
             addressQuestion.getId() + 1, // Invalid question ID
@@ -73,7 +73,7 @@ public class PredicateEvaluatorTest {
   }
 
   @Test
-  public void evalAndNode_returnsTrue() {
+  public void evaluate_andNode_returnsTrue() {
     LeafOperationExpressionNode city =
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
@@ -93,7 +93,7 @@ public class PredicateEvaluatorTest {
   }
 
   @Test
-  public void evalAndNode_oneFalse_returnsFalse() {
+  public void evaluate_andNode_oneFalse_returnsFalse() {
     LeafOperationExpressionNode city =
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
@@ -113,7 +113,7 @@ public class PredicateEvaluatorTest {
   }
 
   @Test
-  public void evalOrNode_oneTrue_returnsTrue() {
+  public void evaluate_orNode_oneTrue_returnsTrue() {
     LeafOperationExpressionNode city =
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
@@ -133,7 +133,7 @@ public class PredicateEvaluatorTest {
   }
 
   @Test
-  public void evalOrNode_allFalse_returnsFalse() {
+  public void evaluate_orNode_allFalse_returnsFalse() {
     LeafOperationExpressionNode city =
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
@@ -150,5 +150,91 @@ public class PredicateEvaluatorTest {
                 PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
 
     assertThat(evaluator.evaluate(PredicateExpressionNode.create(orNode))).isFalse();
+  }
+
+  @Test
+  public void evaluate_andOrTree_returnsTrue() {
+    var city =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
+    var state =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
+    var zip =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.ZIP, Operator.EQUAL_TO, PredicateValue.of("55555"));
+
+    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Spokane");
+    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
+    applicantData.putString(applicantQuestion.createAddressQuestion().getZipPath(), "55555");
+
+    OrNode orNode =
+        OrNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
+    AndNode andNode =
+        AndNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(orNode), PredicateExpressionNode.create(zip)));
+
+    assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isTrue();
+  }
+
+  @Test
+  public void evaluate_andOrTree_andFails_returnsFalse() {
+    var city =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
+    var state =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
+    var zip =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.ZIP, Operator.EQUAL_TO, PredicateValue.of("55555"));
+
+    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Spokane");
+    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
+    // Mismatched AND data.
+    applicantData.putString(applicantQuestion.createAddressQuestion().getZipPath(), "NOT 55555");
+
+    OrNode orNode =
+        OrNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
+    AndNode andNode =
+        AndNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(orNode), PredicateExpressionNode.create(zip)));
+
+    assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isFalse();
+  }
+
+  @Test
+  public void evaluate_andOrTree_orFails_returnsFalse() {
+    var city =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
+    var state =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
+    var zip =
+        LeafOperationExpressionNode.create(
+            addressQuestion.getId(), Scalar.ZIP, Operator.EQUAL_TO, PredicateValue.of("55555"));
+
+    // Mismatched Or data.
+    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "NOT Spokane");
+    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "NOT WA");
+    applicantData.putString(applicantQuestion.createAddressQuestion().getZipPath(), "55555");
+
+    OrNode orNode =
+        OrNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
+    AndNode andNode =
+        AndNode.create(
+            ImmutableSet.of(
+                PredicateExpressionNode.create(orNode), PredicateExpressionNode.create(zip)));
+
+    assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isFalse();
   }
 }

@@ -31,5 +31,5 @@ Resources:
 
 - [ ] Create an Oncall issue for the next rotation
 - [ ] Check Security lists daily
-- [ ] Check #deployment-bot Slack channel daily to monitor failed pushes
+- [ ] Check #ci Slack channel daily to monitor failed pushes
 - [ ] Check Dependency updates once

@@ -166,7 +166,7 @@ public class BlobStorage implements StorageClient {
 
     private final BlobServiceClient blobServiceClient;
     private UserDelegationKey userDelegationKey;
-    private ZoneId zoneId;
+    private final ZoneId zoneId;
 
     AzureBlobClient(Config config, ZoneId zoneId) {
       this.zoneId = checkNotNull(zoneId);

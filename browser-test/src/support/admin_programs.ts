@@ -6,7 +6,7 @@ import {
   waitForAnyModal,
   waitForPageJsLoad,
 } from './wait'
-import {BASE_URL} from './config'
+import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 
 /**
@@ -31,6 +31,13 @@ export interface DownloadedApplication {
   }
 }
 
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^a-zA-Z0-9-]/g, '')
+}
+
 export class AdminPrograms {
   public page!: Page
 
@@ -45,7 +52,10 @@ export class AdminPrograms {
   }
 
   async expectAdminProgramsPage() {
-    expect(await this.page.innerText('h1')).toEqual('All programs')
+    expect(await this.page.innerText('h1')).toEqual('Program dashboard')
+    expect(await this.page.innerText('h2')).toEqual(
+      'Create, edit and publish programs in ' + TEST_CIVIC_ENTITY_SHORT_NAME,
+    )
   }
 
   async expectProgramExist(programName: string, description: string) {
@@ -56,18 +66,24 @@ export class AdminPrograms {
     expect(tableInnerText).toContain(description)
   }
 
+  /**
+   * Creates program with given name. At the end of this method the current
+   * page is going to be block edit page.
+   */
   async addProgram(
     programName: string,
     description = 'program description',
     externalLink = '',
     hidden = false,
+    adminDescription = 'admin description',
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
     await waitForPageJsLoad(this.page)
 
-    await this.page.fill('#program-name-input', programName)
-    await this.page.fill('#program-description-textarea', description)
+    // program name must be in url-compatible form so we slugify it
+    await this.page.fill('#program-name-input', slugify(programName))
+    await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill('#program-display-description-textarea', description)
     await this.page.fill('#program-external-link-input', externalLink)
@@ -80,10 +96,7 @@ export class AdminPrograms {
 
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
-
-    await this.expectAdminProgramsPage()
-
-    await this.expectProgramExist(programName, description)
+    await this.expectProgramBlockEditPage(programName)
   }
 
   async programNames() {
@@ -266,7 +279,7 @@ export class AdminPrograms {
         await this.page.innerText('[for=block-description-textarea]')
       ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
-    expect(await this.page.innerText('h1')).toContain('Add Question')
+    expect(await this.page.innerText('h1')).toContain('Add a question')
   }
 
   // Removes questions from given block in program.
@@ -304,21 +317,39 @@ export class AdminPrograms {
     }
   }
 
+  private async waitForQuestionBankAnimationToFinish() {
+    // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
+    // https://tailwindcss.com/docs/transition-property
+    await this.page.waitForTimeout(1000)
+  }
+
+  async openQuestionBank() {
+    await this.page.click('button:has-text("Add a question")')
+    await this.waitForQuestionBankAnimationToFinish()
+  }
+
+  async closeQuestionBank() {
+    await this.page.click('svg.cf-close-question-bank-button')
+    await this.waitForQuestionBankAnimationToFinish()
+  }
+
   async addQuestionFromQuestionBank(questionName: string) {
+    await this.openQuestionBank()
     await this.page.click(
-      `.cf-question-bank-element:has-text("Admin ID: ${questionName}")`,
+      `.cf-question-bank-element:has-text("Admin ID: ${questionName}") button:has-text("Add")`,
     )
     await waitForPageJsLoad(this.page)
+    // After question was added question bank is still open. Close it first.
+    await this.closeQuestionBank()
     // Make sure the question is successfully added to the screen.
     await this.page.waitForSelector(
       `div.cf-program-question p:text("Admin ID: ${questionName}")`,
     )
   }
 
-  async questionBankNames(programName: string): Promise<string[]> {
-    await this.goToManageQuestionsPage(programName)
+  async questionBankNames(): Promise<string[]> {
     const titles = this.page.locator(
-      '.cf-question-bank-element .cf-question-title',
+      '.cf-question-bank-element:visible .cf-question-title',
     )
     return titles.allTextContents()
   }
@@ -411,6 +442,7 @@ export class AdminPrograms {
   }
 
   async publishAllPrograms() {
+    await this.gotoAdminProgramsPage()
     const modal = await this.openPublishAllProgramsModal()
     const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
     await confirmHandle.click()
@@ -469,21 +501,7 @@ export class AdminPrograms {
 
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
-    await this.expectDraftProgram(programName)
-  }
-
-  async createPublicVersion(programName: string) {
     await this.gotoAdminProgramsPage()
-    await this.expectActiveProgram(programName)
-
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
-    )
-    await waitForPageJsLoad(this.page)
-    await this.page.check(`label:has-text("Public")`)
-    await this.page.click('#program-update-button')
-    await waitForPageJsLoad(this.page)
-
     await this.expectDraftProgram(programName)
   }
 

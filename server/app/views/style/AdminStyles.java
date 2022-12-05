@@ -34,6 +34,7 @@ public final class AdminStyles {
   public static final String NAV_HEIGHT = "h-12";
   public static final String NAV_FIXED = StyleUtils.joinStyles("fixed", "top-0", "w-screen");
   public static final String NAV_PADDING = StyleUtils.joinStyles("px-4", "py-3");
+  public static final String NAV_PADDING_STATE_DROPDOWN = StyleUtils.joinStyles("pt-10");
   public static final String NAV_STYLES =
       StyleUtils.joinStyles(
           "shadow", NAV_BACKGROUND_COLOR, NAV_TEXT_COLOR, NAV_HEIGHT, NAV_FIXED, NAV_PADDING);

@@ -34,6 +34,12 @@ validation.isRequired=이 질문은 필수입니다.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=유효한 내용을 입력하세요.
 
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=양식에 오류가 있습니다.
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -90,9 +96,6 @@ button.review=검토
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=건너뛰기
 
-# The text on the button an applicant clicks to upload a file and continue to the next screen.
-button.upload=업로드
-
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=이 프로그램은 영어로 완전히 번역되어 있지 않습니다.
 
@@ -115,6 +118,10 @@ button.apply=신청
 button.applySr={0} 신청
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=편집
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr={0}에 제출된 신청서 편집
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr={0} 신청 계속하기
 
 # Text describing the date the application was last submitted.
 content.submittedDate=제출 날짜: {0}
@@ -135,6 +142,9 @@ link.programDetailsSr={0}의 프로그램 세부정보
 
 # Link text to an external site to read more about a program.
 link.externalLink=외부 사이트
+
+# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
+link.externalLinkOpensInNewTab=새 탭에서 열기
 
 # The title of the page for the list of programs.
 title.programs=프로그램 및 서비스
@@ -323,3 +333,10 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
+error.notFoundDescription='뒤로 가거나 다음으로 돌아가세요'
+error.notFoundDescriptionLink=홈페이지

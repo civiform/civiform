@@ -12,7 +12,7 @@ describe('Id question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single id question', () => {
-    const programName = 'test-program-for-single-id'
+    const programName = 'Test program for single id'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -128,7 +128,7 @@ describe('Id question for applicant flow', () => {
   })
 
   describe('multiple id questions', () => {
-    const programName = 'test-program-for-multiple-ids'
+    const programName = 'Test program for multiple ids'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -148,7 +148,6 @@ describe('Id question for applicant flow', () => {
         ['my-id-q'],
         'your-id-q', // optional
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

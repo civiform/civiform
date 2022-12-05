@@ -24,7 +24,7 @@ describe('navigating to a deep link', () => {
       questionText,
     })
 
-    const programName = 'test-deep-link'
+    const programName = 'Test deep link'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'first description', [
       'Test address question',
@@ -45,7 +45,7 @@ describe('navigating to a deep link', () => {
 
     // Assert
     await page.click('#continue-application-button')
-    expect(await page.innerText('.cf-applicant-question-text')).toEqual(
+    expect(await page.innerText('.cf-applicant-question-text')).toContain(
       questionText,
     )
 
@@ -59,7 +59,7 @@ describe('navigating to a deep link', () => {
 
     // Assert
     await page.click('#continue-application-button')
-    expect(await page.innerText('.cf-applicant-question-text')).toEqual(
+    expect(await page.innerText('.cf-applicant-question-text')).toContain(
       questionText,
     )
   })

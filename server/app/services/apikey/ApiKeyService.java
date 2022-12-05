@@ -131,7 +131,7 @@ public final class ApiKeyService {
   public ApiKey retireApiKey(Long apiKeyId, CiviFormProfile profile) {
     Optional<ApiKey> maybeApiKey = repository.lookupApiKey(apiKeyId).toCompletableFuture().join();
 
-    if (!maybeApiKey.isPresent()) {
+    if (maybeApiKey.isEmpty()) {
       throw new RuntimeException(new ApiKeyNotFoundException(apiKeyId));
     }
 

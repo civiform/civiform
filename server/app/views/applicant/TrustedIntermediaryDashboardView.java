@@ -168,7 +168,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         tiGroup.getTrustedIntermediaries().stream()
                             .sorted(Comparator.comparing(Account::getApplicantName))
                             .collect(Collectors.toList()),
-                        account -> renderTIRow(account)))));
+                        this::renderTIRow))));
   }
 
   private DivTag renderAddNewForm(TrustedIntermediaryGroup tiGroup, Http.Request request) {
@@ -212,8 +212,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setFieldName("emailAddress")
             .setLabelText("Email Address")
             .setValue(request.flash().get("providedEmail").orElse(""))
-            .setPlaceholderText(
-                "Email address (if provided, applicant can access account by logging in)");
+            .setPlaceholderText("Applicant email address (Required)");
     return div()
         .with(
             formTag.with(
@@ -259,7 +258,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .get()
             .getApplicantData()
             .getDateOfBirth()
-            .map(localDate -> this.dateConverter.formatIso8601Date(localDate))
+            .map(this.dateConverter::formatIso8601Date)
             .orElse("");
     return td().withClasses(BaseStyles.TABLE_CELL_STYLES, "font-semibold")
         .with(

@@ -1,7 +1,8 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.div;
+import static j2html.TagCreator.*;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
@@ -13,10 +14,21 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import views.components.FieldWithLabel;
+import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders an address question. */
 public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer {
+
+  // 50 states, DC and 8 territories as sourced from https://pe.usps.com/text/pub28/28apb.htm
+  private static final ImmutableList<String> STATE_ABBREVIATIONS =
+      ImmutableList.sortedCopyOf(
+          ImmutableList.of(
+              "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "FM", "GA", "GU",
+              "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MH", "MI", "MN",
+              "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK",
+              "OR", "PA", "PR", "PW", "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VI", "VT", "WA",
+              "WI", "WV", "WY"));
 
   public AddressQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -69,16 +81,24 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 validationErrors.getOrDefault(addressQuestion.getCityPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_CITY);
 
-    FieldWithLabel stateField =
-        FieldWithLabel.input()
-            .setFieldName(addressQuestion.getStatePath().toString())
-            .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
-            .setAutocomplete(Optional.of("address-level1"))
-            .setValue(addressQuestion.getStateValue().orElse(""))
-            .setFieldErrors(
-                messages,
-                validationErrors.getOrDefault(addressQuestion.getStatePath(), ImmutableSet.of()))
-            .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
+    SelectWithLabel stateField =
+        (SelectWithLabel)
+            new SelectWithLabel()
+                .setFieldName(addressQuestion.getStatePath().toString())
+                .setValue(addressQuestion.getStateValue().orElse(""))
+                .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
+                .setOptionGroups(
+                    ImmutableList.of(
+                        SelectWithLabel.OptionGroup.builder()
+                            .setLabel(
+                                messages.at(MessageKey.ADDRESS_LABEL_STATE_SELECT.getKeyName()))
+                            .setOptions(stateOptions())
+                            .build()))
+                .setFieldErrors(
+                    messages,
+                    validationErrors.getOrDefault(
+                        addressQuestion.getStatePath(), ImmutableSet.of()))
+                .addReferenceClass(ReferenceClasses.ADDRESS_STATE);
 
     FieldWithLabel zipField =
         FieldWithLabel.input()
@@ -107,10 +127,21 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 addressOptionalField.getInputTag(),
                 /** Third line of address entry: City, State, Zip */
                 div()
-                    .withClasses("grid", "grid-cols-3", "gap-2")
+                    .withClasses("grid", "grid-cols-3", "gap-3")
                     .with(
-                        cityField.getInputTag(), stateField.getInputTag(), zipField.getInputTag()));
+                        cityField.getInputTag(),
+                        // TODO UI alignment issue fix tracked here at
+                        // https://github.com/civiform/civiform/issues/3792
+                        stateField.getSelectTag(),
+                        zipField.getInputTag()));
 
     return addressQuestionFormContent;
+  }
+
+  /** Returns a list of State options as mentioned in https://pe.usps.com/text/pub28/28apb.htm */
+  private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
+    return STATE_ABBREVIATIONS.stream()
+        .map(state -> SelectWithLabel.OptionValue.builder().setLabel(state).setValue(state).build())
+        .collect(ImmutableList.toImmutableList());
   }
 }

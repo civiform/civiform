@@ -145,8 +145,8 @@ public final class PdfExporter {
   }
 
   public static final class InMemoryPdf {
-    private byte[] byteArray;
-    private String fileName;
+    private final byte[] byteArray;
+    private final String fileName;
 
     InMemoryPdf(byte[] byteArray, String fileName) {
       this.byteArray = byteArray;

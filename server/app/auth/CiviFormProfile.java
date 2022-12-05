@@ -26,10 +26,10 @@ import repository.DatabaseExecutionContext;
  * contain only server-local information, like execution contexts, database connections, etc.
  */
 public class CiviFormProfile {
-  private DatabaseExecutionContext dbContext;
-  private HttpExecutionContext httpContext;
-  private CiviFormProfileData profileData;
-  private FeatureFlags featureFlags;
+  private final DatabaseExecutionContext dbContext;
+  private final HttpExecutionContext httpContext;
+  private final CiviFormProfileData profileData;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public CiviFormProfile(
@@ -49,7 +49,7 @@ public class CiviFormProfile {
         .thenApplyAsync(
             (a) ->
                 a.getApplicants().stream()
-                    .sorted(Comparator.comparing((applicant) -> applicant.getWhenCreated()))
+                    .sorted(Comparator.comparing(Applicant::getWhenCreated))
                     .findFirst()
                     .orElseThrow(),
             httpContext.current());

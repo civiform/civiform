@@ -201,7 +201,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
-            eq(String.format(service.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programDisplayName)),
+            eq(
+                String.format(
+                    ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT,
+                    programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
 
@@ -255,7 +258,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
-            eq(String.format(service.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programDisplayName)),
+            eq(
+                String.format(
+                    ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT,
+                    programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_MULTI_LANGUAGE_EMAIL.localizedEmailBodyText().get().getDefault()));
   }
@@ -301,7 +307,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
-            eq(String.format(service.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programDisplayName)),
+            eq(
+                String.format(
+                    ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT,
+                    programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
   }
@@ -326,7 +335,6 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     assertThrows(
         StatusNotFoundException.class, () -> service.setStatus(application, event, account));
     application.refresh();
-    ;
     assertThat(application.getApplicationEvents()).isEmpty();
   }
 
@@ -353,7 +361,6 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     assertThrows(
         StatusEmailNotFoundException.class, () -> service.setStatus(application, event, account));
     application.refresh();
-    ;
     assertThat(application.getApplicationEvents()).isEmpty();
   }
 
@@ -379,7 +386,6 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     assertThrows(
         AccountHasNoEmailException.class, () -> service.setStatus(application, event, account));
     application.refresh();
-    ;
     assertThat(application.getApplicationEvents()).isEmpty();
   }
 

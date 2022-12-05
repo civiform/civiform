@@ -88,9 +88,9 @@ public final class ViewUtils {
             span(buttonText).withClass("text-left"));
   }
 
-  public static enum BadgeStatus {
+  public enum BadgeStatus {
     ACTIVE,
-    DRAFT;
+    DRAFT
   }
 
   /**
@@ -127,7 +127,7 @@ public final class ViewUtils {
             Joiner.on(" ").join(extraClasses))
         .withStyle("width: 100px")
         .with(
-            Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses("inline-block", "ml-3.5"),
+            Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses("inline-block", "ml-3.5", "w-5", "h-5"),
             span(badgeText).withClass("mr-4"));
   }
 

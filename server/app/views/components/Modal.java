@@ -78,7 +78,7 @@ public final class Modal {
   public static String randomModalId() {
     // We prepend a "uuid-" since element IDs must start with an alphabetic character, whereas UUIDs
     // can start with a numeric character.
-    return "uuid-" + UUID.randomUUID().toString();
+    return "uuid-" + UUID.randomUUID();
   }
 
   public static ModalBuilder builder(String modalId, ContainerTag<?> content) {
@@ -87,8 +87,8 @@ public final class Modal {
 
   public static final class ModalBuilder {
 
-    private String modalId;
-    private ContainerTag<?> content;
+    private final String modalId;
+    private final ContainerTag<?> content;
     private String buttonStyles = BaseStyles.MODAL_BUTTON;
 
     // Optional fields. See #setOptionalFields().

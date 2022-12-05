@@ -22,7 +22,7 @@ public class AuthIdentityProviderNameTest {
         ConfigFactory.parseMap(
             ImmutableMap.of(
                 AuthIdentityProviderName.AUTH_APPLICANT_CONFIG_PATH,
-                AuthIdentityProviderName.GENERIC_OIDC_APPLICANT.getString()));
+                AuthIdentityProviderName.GENERIC_OIDC_APPLICANT.getValue()));
     assertThat(AuthIdentityProviderName.fromConfig(config))
         .isEqualTo(AuthIdentityProviderName.GENERIC_OIDC_APPLICANT);
   }

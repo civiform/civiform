@@ -35,7 +35,6 @@ public class HomeControllerTest extends ResetPostgres {
         .as("Result status should 302 redirect")
         .isEqualTo(HttpConstants.FOUND);
     assertThat(result.redirectLocation().isPresent()).as("Should have redirect location").isTrue();
-    ;
     assertThat(result.redirectLocation().get())
         .as("Should redirect to set favicon")
         .contains("civiform.us");

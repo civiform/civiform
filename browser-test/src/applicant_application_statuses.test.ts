@@ -14,7 +14,7 @@ import {
 describe('with program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  const programName = 'applicant-with-statuses-program'
+  const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
 
   beforeAll(async () => {

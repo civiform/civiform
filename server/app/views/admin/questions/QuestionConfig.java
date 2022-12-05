@@ -37,7 +37,7 @@ public final class QuestionConfig {
 
   private static final String OUTER_DIV_CLASSES = StyleUtils.joinStyles("w-full", "pt-0", "-mt-4");
 
-  private DivTag content = div();
+  private final DivTag content = div();
 
   private QuestionConfig() {}
 

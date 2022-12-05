@@ -13,9 +13,8 @@ describe('publishing all draft questions and programs', () => {
   let adminPrograms: AdminPrograms
   let adminQuestions: AdminQuestions
 
-  const hiddenProgramNoQuestions = 'publish-test-program-hidden-no-questions'
-  const visibleProgramWithQuestion =
-    'publish-test-program-visible-with-question'
+  const hiddenProgramNoQuestions = 'Public test program hidden no questions'
+  const visibleProgramWithQuestion = 'Public test program visible with question'
   const questionName = 'publish-test-address-q'
   const questionText = 'publish-test-address-q'
   // CreateNewVersion implicitly updates the question text to be suffixed with " new version".
@@ -47,7 +46,6 @@ describe('publishing all draft questions and programs', () => {
     )
 
     // Publish.
-    await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.publishAllPrograms()
 
     // Make an edit to the program with no questions.

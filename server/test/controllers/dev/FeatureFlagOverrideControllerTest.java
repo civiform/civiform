@@ -2,7 +2,9 @@ package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.NOT_FOUND;
+import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import java.util.Optional;
@@ -75,6 +77,19 @@ public class FeatureFlagOverrideControllerTest {
     // Verify
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.session().get(FLAG_NAME)).hasValue("true");
+  }
+
+  @Test
+  public void index() {
+    // Setup
+    setupControllerInMode(Mode.DEV);
+
+    // Execute
+    var result = controller.index(fakeRequest().build());
+
+    // Verify
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).startsWith("Overrides are allowed");
   }
 
   private void setupControllerInMode(Mode mode) {

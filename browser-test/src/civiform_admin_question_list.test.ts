@@ -25,7 +25,7 @@ describe('Most recently updated question is at top of list.', () => {
 
     // A question cannot be published in isolation. In order to allow making created questions
     // active, create a fake program.
-    const programName = 'question-list-test-program'
+    const programName = 'Question list test program'
     await adminPrograms.addProgram(programName)
 
     // Most recently added question is on top.
@@ -102,7 +102,9 @@ describe('Most recently updated question is at top of list.', () => {
     if (!expectedQuestions) {
       throw new Error('expected at least one question')
     }
-    const questionBankNames = await adminPrograms.questionBankNames(programName)
+    await adminPrograms.goToManageQuestionsPage(programName)
+    await adminPrograms.openQuestionBank()
+    const questionBankNames = await adminPrograms.questionBankNames()
     expect(questionBankNames).toEqual(expectedQuestions)
   }
 })

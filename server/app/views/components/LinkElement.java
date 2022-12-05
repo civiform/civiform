@@ -1,5 +1,6 @@
 package views.components;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
@@ -17,6 +18,7 @@ import j2html.tags.attributes.ITarget;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import java.util.Optional;
 import play.filters.csrf.CSRF;
 import play.mvc.Http;
 import scala.Option;
@@ -60,7 +62,8 @@ public final class LinkElement {
           StyleUtils.focus("outline-none", "ring-2"));
 
   private static final String DEFAULT_LINK_STYLES =
-      StyleUtils.joinStyles(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
+      StyleUtils.joinStyles(
+          BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, "inline-flex", "items-center");
 
   private static final String BUTTON_LOOKS_LIKE_LINK_STYLES =
       StyleUtils.joinStyles(
@@ -79,6 +82,7 @@ public final class LinkElement {
   private String styles = "";
   private String onsubmit = "";
   private boolean doesOpenInNewTab = false;
+  private Optional<Icons> icon = Optional.empty();
 
   public LinkElement setId(String id) {
     this.id = id;
@@ -110,8 +114,15 @@ public final class LinkElement {
     return this;
   }
 
+  public LinkElement setIcon(Icons icon) {
+    this.icon = Optional.of(checkNotNull(icon));
+    return this;
+  }
+
   public ATag asAnchorText() {
-    ATag tag = a(text);
+    ATag tag = a();
+    this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2", "w-5", "h-5")));
+    tag.withText(this.text);
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withCondHref(!Strings.isNullOrEmpty(href), href)
         .withCondTarget(doesOpenInNewTab, "_blank")
@@ -179,7 +190,7 @@ public final class LinkElement {
             .withCondId(!Strings.isNullOrEmpty(id), id);
     hiddenFormValues.entrySet().stream()
         .map(entry -> input().isHidden().withName(entry.getKey()).withValue(entry.getValue()))
-        .forEach(tag -> form.with(tag));
+        .forEach(form::with);
     return form;
   }
 

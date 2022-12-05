@@ -12,7 +12,7 @@ describe('Checkbox question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single checkbox question', () => {
-    const programName = 'test-program-for-single-checkbox'
+    const programName = 'Test program for single checkbox'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -151,7 +151,7 @@ describe('Checkbox question for applicant flow', () => {
   })
 
   describe('multiple checkbox questions', () => {
-    const programName = 'test-program-for-multiple-checkboxes'
+    const programName = 'Test program for multiple checkboxes'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -177,7 +177,6 @@ describe('Checkbox question for applicant flow', () => {
         ['checkbox-fave-color-q'],
         'checkbox-vacation-q', // optional
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

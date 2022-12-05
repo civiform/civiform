@@ -118,19 +118,29 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void edit_withProgram_OK()
       throws UnsupportedQuestionTypeException, InvalidUpdateException {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    Program program =
+        ProgramBuilder.newDraftProgram("Public name", "Public description")
+            // Override only admin name and description to distinguish from applicant-visible
+            // name/description.
+            .withName("Admin name")
+            .withDescription("Admin description")
+            .build();
     Question appName = testQuestionBank.applicantName();
     appName.save();
     Request request = addCSRFToken(fakeRequest()).build();
     Result result = controller.edit(request, program.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(Helpers.contentAsString(result))
-        .contains(appName.getQuestionDefinition().getQuestionText().getDefault());
-    assertThat(Helpers.contentAsString(result))
-        .contains(appName.getQuestionDefinition().getQuestionHelpText().getDefault());
-    assertThat(Helpers.contentAsString(result))
-        .contains("Admin ID: " + appName.getQuestionDefinition().getName());
+    String html = Helpers.contentAsString(result);
+    assertThat(html).contains(appName.getQuestionDefinition().getQuestionText().getDefault());
+    assertThat(html).contains(appName.getQuestionDefinition().getQuestionHelpText().getDefault());
+    assertThat(html).contains("Admin ID: " + appName.getQuestionDefinition().getName());
+    assertThat(html)
+        .contains("Public name")
+        .contains("Public description")
+        .contains("Admin description")
+        // Similar to program index page we don't show admin name.
+        .doesNotContain("Admin name");
 
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder(appName.getQuestionDefinition())

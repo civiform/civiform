@@ -16,8 +16,8 @@ import play.mvc.Http;
 
 /** A utility class for CiviForm profile. */
 public class ProfileUtils {
-  private SessionStore sessionStore;
-  private ProfileFactory profileFactory;
+  private final SessionStore sessionStore;
+  private final ProfileFactory profileFactory;
 
   @Inject
   public ProfileUtils(SessionStore sessionStore, ProfileFactory profileFactory) {

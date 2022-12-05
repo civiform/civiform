@@ -41,6 +41,10 @@ public final class CreateQuestionButton {
                 "absolute",
                 "ml-3",
                 "mt-1",
+                // add extra padding at the bottom to account for the fact
+                // that question bank is pushed down by the header and its
+                // lower part is always hidden
+                "pb-12",
                 "hidden");
 
     for (QuestionType type : QuestionType.values()) {

@@ -80,7 +80,7 @@ public class ApiAuthenticator implements Authenticator {
     // requests with the invalid key do not put pressure on the database.
     Optional<ApiKey> maybeApiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
 
-    if (!maybeApiKey.isPresent()) {
+    if (maybeApiKey.isEmpty()) {
       throwUnauthorized(context, "API key does not exist: " + keyId);
     }
 

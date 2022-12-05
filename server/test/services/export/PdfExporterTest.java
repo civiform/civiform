@@ -51,9 +51,9 @@ public class PdfExporterTest extends AbstractExporterTest {
       PdfDictionary pdfDictionary = pdfReader.getPageN(pageNum);
       PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
       PdfObject current = annots.getPdfObject(0);
-      PdfDictionary currentPdfDictionary = (PdfDictionary) pdfReader.getPdfObject(current);
+      PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
       assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
-      PdfDictionary AnnotationAction = (PdfDictionary) currentPdfDictionary.getAsDict(PdfName.A);
+      PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
       assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
       PdfString link = AnnotationAction.getAsString(PdfName.URI);
       assertThat(link.toString())
@@ -94,9 +94,9 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfDictionary pdfDictionary = pdfReader.getPageN(1);
     PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
     PdfObject current = annots.getPdfObject(0);
-    PdfDictionary currentPdfDictionary = (PdfDictionary) pdfReader.getPdfObject(current);
+    PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
     assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
-    PdfDictionary AnnotationAction = (PdfDictionary) currentPdfDictionary.getAsDict(PdfName.A);
+    PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
     assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
     PdfString link = AnnotationAction.getAsString(PdfName.URI);
     assertThat(link.toString())

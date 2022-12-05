@@ -20,7 +20,7 @@ import support.ProgramBuilder;
 public class FileControllerTest extends WithMockedProfiles {
 
   private FileController controller;
-  private Request request = fakeRequest().build();
+  private final Request request = fakeRequest().build();
 
   @Before
   public void setUp() {

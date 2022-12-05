@@ -12,7 +12,7 @@ describe('Text question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single text question', () => {
-    const programName = 'test-program-for-single-text-q'
+    const programName = 'Test program for single text q'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -114,8 +114,56 @@ describe('Text question for applicant flow', () => {
     })
   })
 
+  describe('no max text question', () => {
+    const programName = 'test-program-for-no-max-text-q'
+
+    beforeAll(async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
+      // As admin, create program with a free form text question.
+      await loginAsAdmin(page)
+
+      await adminQuestions.addTextQuestion({
+        questionName: 'no-max-text-q',
+        minNum: 5,
+      })
+
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['no-max-text-q'],
+        programName,
+      )
+
+      await logout(page)
+    })
+
+    it('text that is too long is cut off at 10k characters', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      let largeString = ''
+      for (let i = 0; i < 1000; i++) {
+        largeString += '1234567890'
+      }
+      await applicantQuestions.answerTextQuestion(
+        // 10k characters + extra characters that should be trimmed
+        largeString + 'xxxxxxx',
+      )
+      await applicantQuestions.clickNext()
+
+      // Scroll to bottom so end of text is in view.
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+
+      // Should display answered question with "x"s cut off from the end.
+      await validateScreenshot(page, 'text-max')
+
+      // Form should submit with partial text entry.
+      await applicantQuestions.submitFromReviewPage()
+    })
+  })
+
   describe('multiple text questions', () => {
-    const programName = 'test-program-for-multiple-text-qs'
+    const programName = 'Test program for multiple text qs'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -139,7 +187,6 @@ describe('Text question for applicant flow', () => {
         ['second-text-q'],
         'first-text-q', // optional
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

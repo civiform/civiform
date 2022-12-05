@@ -15,7 +15,7 @@ describe('name applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single required name question', () => {
-    const programName = 'test-program-for-single-name'
+    const programName = 'Test program for single name'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -94,7 +94,7 @@ describe('name applicant flow', () => {
   })
 
   describe('multiple name questions', () => {
-    const programName = 'test-program-for-multiple-names'
+    const programName = 'Test program for multiple names'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -186,7 +186,7 @@ describe('name applicant flow', () => {
 
   // One optional name followed by one required name.
   describe('optional name question', () => {
-    const programName = 'test-program-for-optional-name'
+    const programName = 'Test program for optional name'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -205,7 +205,6 @@ describe('name applicant flow', () => {
         ['name-test-required-q'],
         'name-test-optional-q',
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

@@ -16,7 +16,7 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
-import services.program.DuplicateProgramQuestionException;
+import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -25,6 +25,7 @@ import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
 import views.admin.programs.ProgramBlockEditView;
+import views.components.QuestionBank;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
@@ -78,13 +79,13 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
     } catch (QuestionNotFoundException e) {
       return notFound(String.format("Question IDs %s not found", latestQuestionIds));
-    } catch (DuplicateProgramQuestionException e) {
-      return notFound(
-          String.format(
-              "Some Question IDs %s already exist in Program ID %d", latestQuestionIds, programId));
+    } catch (CantAddQuestionToBlockException e) {
+      return notFound(e.externalMessage());
     }
 
-    return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
+    return redirect(
+        QuestionBank.addShowQuestionBankParam(
+            controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
   }
 
   /** POST endpoint for removing a question from a screen. */

@@ -5,6 +5,7 @@ import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
@@ -58,7 +59,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   }
 
   /**
-   * Return a HTML page containing current show-hide configurations and forms to edit the
+   * Return an HTML page containing current show-hide configurations and forms to edit the
    * configurations.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -99,54 +100,53 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return redirect(
               routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
           .flashing("error", errorMessageBuilder.toString());
-    } else {
-      // TODO(https://github.com/seattle-uat/civiform/issues/322): Implement complex predicates.
-      //  Right now we only support "leaf node" predicates (a single logical statement based on one
-      //  question). In the future we should support logical statements that combine multiple "leaf
-      //  node" predicates with ANDs and ORs.
-      BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
+    }
 
-      Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
-      Operator operator = Operator.valueOf(predicateForm.getOperator());
-      PredicateValue predicateValue =
-          parsePredicateValue(
-              scalar,
-              operator,
-              predicateForm.getPredicateValue(),
-              predicateForm.getPredicateValues());
+    // TODO(https://github.com/seattle-uat/civiform/issues/322): Implement complex predicates.
+    //  Right now we only support "leaf node" predicates (a single logical statement based on one
+    //  question). In the future we should support logical statements that combine multiple "leaf
+    //  node" predicates with ANDs and ORs.
+    BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
 
-      LeafOperationExpressionNode leafExpression =
-          LeafOperationExpressionNode.create(
-              predicateForm.getQuestionId(), scalar, operator, predicateValue);
-      PredicateAction action = PredicateAction.valueOf(predicateForm.getPredicateAction());
-      PredicateDefinition predicateDefinition =
-          PredicateDefinition.create(PredicateExpressionNode.create(leafExpression), action);
+    Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
+    Operator operator = Operator.valueOf(predicateForm.getOperator());
+    PredicateValue predicateValue =
+        parsePredicateValue(
+            scalar,
+            operator,
+            predicateForm.getPredicateValue(),
+            predicateForm.getPredicateValues());
 
-      try {
-        programService.setBlockPredicate(programId, blockDefinitionId, predicateDefinition);
-      } catch (ProgramNotFoundException e) {
-        return notFound(String.format("Program ID %d not found.", programId));
-      } catch (ProgramBlockDefinitionNotFoundException e) {
-        return notFound(
-            String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
-      } catch (IllegalPredicateOrderingException e) {
-        return redirect(
-                routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
-            .flashing("error", e.getLocalizedMessage());
-      }
+    LeafOperationExpressionNode leafExpression =
+        LeafOperationExpressionNode.create(
+            predicateForm.getQuestionId(), scalar, operator, predicateValue);
+    PredicateAction action = PredicateAction.valueOf(predicateForm.getPredicateAction());
+    PredicateDefinition predicateDefinition =
+        PredicateDefinition.create(PredicateExpressionNode.create(leafExpression), action);
 
-      ReadOnlyQuestionService roQuestionService =
-          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-
+    try {
+      programService.setBlockPredicate(programId, blockDefinitionId, predicateDefinition);
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    } catch (IllegalPredicateOrderingException e) {
       return redirect(
               routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
-          .flashing(
-              "success",
-              String.format(
-                  "Saved visibility condition: %s %s",
-                  action.toDisplayString(),
-                  leafExpression.toDisplayString(roQuestionService.getUpToDateQuestions())));
+          .flashing("error", e.getLocalizedMessage());
     }
+
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+    return redirect(routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+        .flashing(
+            "success",
+            String.format(
+                "Saved visibility condition: %s %s",
+                action.toDisplayString(),
+                leafExpression.toDisplayString(roQuestionService.getUpToDateQuestions())));
   }
 
   /** POST endpoint for deleting show-hide configurations. */
@@ -174,7 +174,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    *
    * <p>If value is the empty string, then parses the list of values instead.
    */
-  private PredicateValue parsePredicateValue(
+  @VisibleForTesting
+  static PredicateValue parsePredicateValue(
       Scalar scalar, Operator operator, String value, List<String> values) {
 
     // If the scalar is SELECTION or SELECTIONS then this is a multi-option question predicate, and
@@ -185,6 +186,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
 
     switch (scalar.toScalarType()) {
+      case CURRENCY_CENTS:
+        // Currency is inputted as dollars and cents but stored as cents.
+        Float cents = Float.parseFloat(value) * 100;
+        return PredicateValue.of(cents.longValue());
+
       case DATE:
         LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         return PredicateValue.of(localDate);
@@ -215,7 +221,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             ImmutableList<String> listOfStrings =
                 Splitter.on(",")
                     .splitToStream(value)
-                    .map(s -> s.trim())
+                    .map(String::trim)
                     .collect(ImmutableList.toImmutableList());
             return PredicateValue.listOfStrings(listOfStrings);
           default: // EQUAL_TO, NOT_EQUAL_TO

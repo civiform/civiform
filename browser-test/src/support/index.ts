@@ -75,13 +75,17 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     const dirs = ['tmp/videos']
     if ('expect' in global && expect.getState() != null) {
       const testPath = expect.getState().testPath
+      if (testPath == null) {
+        throw new Error('testPath cannot be null')
+      }
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
       dirs.push(testFile)
       // Some test initialize context in beforeAll at which point test name is
       // not set.
-      if (expect.getState().currentTestName) {
+      const testName = expect.getState().currentTestName
+      if (testName) {
         // remove special characters
-        dirs.push(expect.getState().currentTestName.replace(/[:"<>|*?]/g, ''))
+        dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
       }
     }
     return browser.newContext({
@@ -245,9 +249,9 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 export const logout = async (page: Page) => {
   await page.click('text=Logout')
   // If the user logged in through OIDC previously - during logout they are
-  // redirected to fake-idcs:PORT/session/end page. There they need to confirm
+  // redirected to dev-oidc:PORT/session/end page. There they need to confirm
   // logout.
-  if (page.url().match('fake-idcs.*/session/end')) {
+  if (page.url().match('dev-oidc.*/session/end')) {
     const pageContent = await page.textContent('html')
     if (pageContent!.includes('Do you want to sign-out from')) {
       // OIDC central provider confirmation page
@@ -504,13 +508,10 @@ export const validateScreenshot = async (
 const normalizeElements = async (page: Frame | Page) => {
   await page.evaluate(() => {
     for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
-      // Use regexp replacement instead of full replacement to make sure that format of the text
-      // matches what we expect. In case underlying format changes to "September 20, 2022" then
-      // regexp will break and it will show up in screenshots.
       date.textContent = date
         .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
         .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
-        .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
+        .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT')
     }
     // Process application id values.
     for (const applicationId of Array.from(

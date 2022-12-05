@@ -7,19 +7,23 @@ services:
       - '5432'
     environment:
       POSTGRES_PASSWORD: example
+    volumes:
+      - ../init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
 
-  oidc:
+  dev-oidc:
     image: civiform/oidc-provider
     restart: always
-    ports: # For debugging
-      - 3380:3380
+    expose:
+      - 3390
+    environment:
+      - OIDC_PORT=3390
 
   civiform:
     image: civiform-dev
     restart: always
     links:
       - 'db:database'
-      - 'oidc'
+      - 'dev-oidc'
     volumes:
       - ../server/code-coverage:/usr/src/server/code-coverage
     entrypoint: /bin/bash
@@ -31,7 +35,7 @@ services:
     environment:
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
-      - IDCS_DISCOVERY_URI=http://oidc:3380/.well-known/openid-configuration
+      - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=http://localhost:9000
       - CIVIFORM_TIME_ZONE_ID

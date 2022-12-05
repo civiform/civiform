@@ -20,7 +20,7 @@ describe('modify program statuses', () => {
     it('creates a new program and has no statuses', async () => {
       const {page, adminPrograms, adminProgramStatuses} = ctx
       // Add a draft program, no questions are needed.
-      const programName = 'test-program-without-statuses'
+      const programName = 'Test program without statuses'
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectNoStatuses()
@@ -29,12 +29,13 @@ describe('modify program statuses', () => {
   })
 
   describe('new status creation', () => {
-    const programName = 'test-program-create-statuses'
+    const programName = 'Test program create statuses'
 
     beforeAll(async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
+      await adminPrograms.gotoAdminProgramsPage()
     })
 
     beforeEach(async () => {
@@ -96,7 +97,7 @@ describe('modify program statuses', () => {
   })
 
   describe('edit existing statuses', () => {
-    const programName = 'test-program-edit-statuses'
+    const programName = 'Test program edit statuses'
     const firstStatusName = 'First status'
     const secondStatusName = 'Second status'
 
@@ -227,7 +228,7 @@ describe('modify program statuses', () => {
   })
 
   describe('delete existing status', () => {
-    const programName = 'test-program-delete-status'
+    const programName = 'Test program delete status'
     const firstStatusName = 'First status'
     const secondStatusName = 'Second status'
 

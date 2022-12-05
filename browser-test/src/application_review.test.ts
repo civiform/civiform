@@ -52,7 +52,7 @@ describe('Program admin review of submitted applications', () => {
     await adminQuestions.addStaticQuestion({questionName: 'first-static-q'})
     await adminQuestions.addStaticQuestion({questionName: 'second-static-q'})
 
-    const programName = 'a-shiny-new-program'
+    const programName = 'A shiny new program'
     await adminPrograms.addProgram(programName)
 
     await adminPrograms.editProgramBlock(programName, 'block description', [
@@ -152,7 +152,7 @@ describe('Program admin review of submitted applications', () => {
       '1234 St',
       'Unit B',
       'Sim',
-      'Ames',
+      'WA',
       '54321',
     )
     await applicantQuestions.clickNext()
@@ -166,7 +166,7 @@ describe('Program admin review of submitted applications', () => {
 
     // fill 3rd application block.
     await applicantQuestions.answerFileUploadQuestion('file key')
-    await applicantQuestions.clickUpload()
+    await applicantQuestions.clickNext()
 
     // fill 4th application block.
     await applicantQuestions.answerCheckboxQuestion(['clowns'])
@@ -250,7 +250,7 @@ describe('Program admin review of submitted applications', () => {
     await loginAsAdmin(page)
 
     await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'})
-    const programName = 'fruit-program'
+    const programName = 'Fruit program'
     await adminPrograms.addAndPublishProgramWithQuestions(
       ['fruit-text-q'],
       programName,

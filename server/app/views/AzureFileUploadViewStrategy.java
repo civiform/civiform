@@ -73,4 +73,9 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
         viewUtils.makeLocalJsTag("azure_upload"),
         viewUtils.makeLocalJsTag("azure_delete"));
   }
+
+  @Override
+  protected String getUploadFormClass() {
+    return "azure-upload";
+  }
 }

@@ -104,7 +104,7 @@ public class GenericOidcProvider extends OidcProvider {
   @Override
   protected ImmutableList<String> getExtraScopes() {
     Optional<String> extraScopesMaybe = getConfigurationValue(EXTRA_SCOPES_CONFIG_NAME);
-    if (!extraScopesMaybe.isPresent()) {
+    if (extraScopesMaybe.isEmpty()) {
       return ImmutableList.of();
     }
     return ImmutableList.copyOf(extraScopesMaybe.get().split(" "));

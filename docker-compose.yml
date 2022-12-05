@@ -30,12 +30,14 @@ services:
       - OIDC_PORT=3390
 
   db:
-    image: postgres:12.12
+    image: postgres:12.13
     restart: always
     expose:
       - '5432'
     environment:
       POSTGRES_PASSWORD: example
+    volumes:
+      - ./init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
 
   civiform:
     image: civiform-dev
@@ -69,6 +71,8 @@ services:
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
+      - IDCS_REGISTER_URI
+      - APPLICANT_REGISTER_URI
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - APPLICANT_OIDC_PROVIDER_LOGOUT=true
@@ -97,4 +101,4 @@ services:
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
       - FAVICON_URL
-    command: ~run -Dconfig.file=conf/application.dev.conf
+    entrypoint: /bin/bash

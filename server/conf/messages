@@ -104,9 +104,6 @@ button.review=Review
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Skip
 
-# The text on the button an applicant clicks to upload a file and continue to the next screen.
-button.upload=Upload
-
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
 
@@ -191,6 +188,14 @@ link.begin=Start here
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Edit
 
+# An aria-label for screen readers that helps provide context for the associated continue link. The link is for a specific
+# question, so this might say "Continue. What is your name?". The {0} variable is the question text.
+ariaLabel.continue=Continue. {0}
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Start here. {0}
+
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Edit {0}
@@ -225,6 +230,7 @@ content.pleaseCreateAccount=If you sign into a city account now, your informatio
 label.addressLine2=Unit/Apartment Number
 label.city=City
 label.state=State
+label.selectState=Select State
 label.street=Address line 1
 label.zipcode=ZIP Code
 

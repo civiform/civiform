@@ -61,10 +61,19 @@ public final class DateConverter {
     return parseIso8601DateToLocalDate(dateString).atStartOfDay(zoneId).toInstant();
   }
 
-  /** Formats an {@link Instant} to a date and time in the local time zone. */
+  /** Formats an {@link Instant} to a human-readable date and time in the local time zone. */
   public String renderDateTime(Instant time) {
     ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
+  }
+
+  /**
+   * Formats an {@link Instant} to a date and time in the local time zone for the purpose of data
+   * exports (with no filler words).
+   */
+  public String renderDateTimeDataOnly(Instant time) {
+    ZonedDateTime dateTime = time.atZone(zoneId);
+    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd h:mm:ss a z"));
   }
 
   /** Formats an {@link Instant} to a date in the local time zone. */

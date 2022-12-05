@@ -38,6 +38,8 @@ import services.ErrorAnd;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.ProgramBlockValidation;
+import services.ProgramBlockValidation.AddQuestionResult;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -109,7 +111,7 @@ public final class ProgramServiceImpl implements ProgramService {
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
     if (isActiveOrDraftProgram(program)) {
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
-          .thenApply(programDefinition -> programDefinition.orderBlockDefinitions());
+          .thenApply(ProgramDefinition::orderBlockDefinitions);
     }
 
     // Any version that the program is in has all the questions the program has.
@@ -600,40 +602,37 @@ public final class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition addQuestionsToBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
-      throws DuplicateProgramQuestionException, QuestionNotFoundException, ProgramNotFoundException,
+      throws CantAddQuestionToBlockException, QuestionNotFoundException, ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
-    for (long questionId : questionIds) {
-      if (programDefinition.hasQuestion(questionId)) {
-        throw new DuplicateProgramQuestionException(programId, questionId);
-      }
-    }
-
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
-    ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
-        blockDefinition.programQuestionDefinitions();
-
-    ImmutableList.Builder<ProgramQuestionDefinition> newQuestionListBuilder =
+    ImmutableList.Builder<ProgramQuestionDefinition> updatedBlockQuestions =
         ImmutableList.builder();
-    newQuestionListBuilder.addAll(programQuestionDefinitions);
+    // Add existing block questions.
+    updatedBlockQuestions.addAll(blockDefinition.programQuestionDefinitions());
 
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
-    for (long qid : questionIds) {
-      newQuestionListBuilder.add(
+    for (long questionId : questionIds) {
+      ProgramQuestionDefinition question =
           ProgramQuestionDefinition.create(
-              roQuestionService.getQuestionDefinition(qid), Optional.of(programId)));
+              roQuestionService.getQuestionDefinition(questionId), Optional.of(programId));
+      ProgramBlockValidation.AddQuestionResult canAddQuestion =
+          ProgramBlockValidation.canAddQuestion(
+              programDefinition, blockDefinition, question.getQuestionDefinition());
+      if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
+        throw new CantAddQuestionToBlockException(
+            programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);
+      }
+      updatedBlockQuestions.add(question);
     }
-
-    ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
-        newQuestionListBuilder.build();
 
     blockDefinition =
         blockDefinition.toBuilder()
-            .setProgramQuestionDefinitions(newProgramQuestionDefinitions)
+            .setProgramQuestionDefinitions(updatedBlockQuestions.build())
             .build();
     try {
       return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -756,7 +755,7 @@ public final class ProgramServiceImpl implements ProgramService {
     // move question to the new position
     Optional<ProgramQuestionDefinition> toMove =
         questions.stream().filter(q -> q.id() == questionDefinitionId).findFirst();
-    if (!toMove.isPresent()) {
+    if (toMove.isEmpty()) {
       throw new ProgramQuestionDefinitionNotFoundException(
           programId, blockDefinitionId, questionDefinitionId);
     }

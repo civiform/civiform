@@ -95,11 +95,7 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
   }
 
   private static void addQuestionsToVersion(Version version, ImmutableList<Question> questions) {
-    questions.stream()
-        .forEach(
-            q -> {
-              version.addQuestion(q);
-            });
+    questions.stream().forEach(version::addQuestion);
     version.save();
   }
 }

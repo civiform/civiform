@@ -12,7 +12,7 @@ describe('Email question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single email question', () => {
-    const programName = 'test-program-for-single-email'
+    const programName = 'Test program for single email'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -78,7 +78,7 @@ describe('Email question for applicant flow', () => {
   })
 
   describe('multiple email questions', () => {
-    const programName = 'test-program-for-multiple-emails'
+    const programName = 'Test program for multiple emails'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -94,7 +94,6 @@ describe('Email question for applicant flow', () => {
         ['my-email-q'],
         'your-email-q', // optional
       )
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
 
       await logout(page)

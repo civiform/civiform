@@ -258,7 +258,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             (roApplicantProgramService) -> {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
-              if (!block.isPresent() || !block.get().isFileUpload()) {
+              if (block.isEmpty() || !block.get().isFileUpload()) {
                 return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
               }
 
@@ -273,7 +273,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               // This is only really needed for Azure blob storage.
               Optional<String> originalFileName = request.queryString("originalFileName");
 
-              if (!bucket.isPresent() || !key.isPresent()) {
+              if (bucket.isEmpty() || key.isEmpty()) {
                 return failedFuture(
                     new IllegalArgumentException("missing file key and bucket names"));
               }
@@ -289,11 +289,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   new ImmutableMap.Builder<>();
               fileUploadQuestionFormData.put(
                   fileUploadQuestion.getFileKeyPath().toString(), key.get());
-              if (originalFileName.isPresent()) {
-                fileUploadQuestionFormData.put(
-                    fileUploadQuestion.getOriginalFileNamePath().toString(),
-                    originalFileName.get());
-              }
+              originalFileName.ifPresent(
+                  s ->
+                      fileUploadQuestionFormData.put(
+                          fileUploadQuestion.getOriginalFileNamePath().toString(), s));
 
               return ensureFileRecord(key.get(), originalFileName)
                   .thenComposeAsync(
@@ -313,9 +312,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     inReview,
                     roApplicantProgramService),
             httpExecutionContext.current())
-        .exceptionally(ex -> handleUpdateExceptions(ex));
+        .exceptionally(this::handleUpdateExceptions);
   }
 
+  /**
+   * Accepts, validates and saves submission of applicant data for {@code blockId}.
+   *
+   * <p>Returns the applicable next step in the flow:
+   *
+   * <ul>
+   *   <li>If there are errors renders the edit page for the same block with the errors.
+   *   <li>If {@code inReview} then the next incomplete block is shown.
+   *   <li>If not {@code inReview} the next visible block is shown.
+   *   <li>If there is no next block the program review page is shown.
+   * </ul>
+   */
   @Secure
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
@@ -345,7 +356,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     inReview,
                     roApplicantProgramService),
             httpExecutionContext.current())
-        .exceptionally(ex -> handleUpdateExceptions(ex));
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   private CompletionStage<Result> renderErrorOrRedirectToNextBlock(
@@ -380,31 +391,29 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
-    if (inReview) {
-      Optional<String> nextBlockIdMaybe =
-          roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId);
-      return nextBlockIdMaybe.isEmpty()
-          ? supplyAsync(
-              () ->
-                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
-          : supplyAsync(
-              () ->
-                  redirect(
-                      routes.ApplicantProgramBlocksController.review(
-                          applicantId, programId, nextBlockIdMaybe.get())));
-    } else {
-      Optional<String> nextBlockIdMaybe =
-          roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
-      return nextBlockIdMaybe.isEmpty()
-          ? supplyAsync(
-              () ->
-                  redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)))
-          : supplyAsync(
-              () ->
-                  redirect(
-                      routes.ApplicantProgramBlocksController.edit(
-                          applicantId, programId, nextBlockIdMaybe.get())));
+    Optional<String> nextBlockIdMaybe =
+        inReview
+            ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
+            : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+    // No next block so go to the program review page.
+    if (nextBlockIdMaybe.isEmpty()) {
+      return supplyAsync(
+          () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)));
     }
+
+    if (inReview) {
+      return supplyAsync(
+          () ->
+              redirect(
+                  routes.ApplicantProgramBlocksController.review(
+                      applicantId, programId, nextBlockIdMaybe.get())));
+    }
+
+    return supplyAsync(
+        () ->
+            redirect(
+                routes.ApplicantProgramBlocksController.edit(
+                    applicantId, programId, nextBlockIdMaybe.get())));
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {
