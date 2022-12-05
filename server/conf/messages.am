@@ -34,6 +34,12 @@ validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
 
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እባክዎ ከመቀጠልዎ በፊት ያስተካክሉ።
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -112,6 +118,10 @@ button.apply=አመልክት
 button.applySr=ወደ {0} አመልክት
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=አርትዕ
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=ወደ {0} ያስገቡትን ማመልከቻ ያርትዑ
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=ወደ {0} ማመልከትን ቀጥል
 
 # Text describing the date the application was last submitted.
 content.submittedDate={0} ገብቷል
@@ -132,6 +142,8 @@ link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
 
 # Link text to an external site to read more about a program.
 link.externalLink=ውጫዊ ጣቢያ
+# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
+link.externalLinkOpensInNewTab=በአዲስ ትር ውስጥ ይከፍታል
 
 # The title of the page for the list of programs.
 title.programs=ፕሮግራሞች እና አገልግሎቶች
@@ -320,3 +332,10 @@ validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበ�
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
+error.notFoundDescription=«እባክዎ ወደኋላ ይሂዱ ወይም ይመለሱ ወደ »
+error.notFoundDescriptionLink=መነሻ ገጽ

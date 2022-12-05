@@ -26,7 +26,7 @@ class AdminApplications {
     )
 
     if (frame == null) {
-      throw new Error('Application display frame not found!')
+      return
     }
 
     this.displayFrame = frame
