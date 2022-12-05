@@ -323,8 +323,13 @@ export class ApplicantQuestions {
 
   async expectReviewPage() {
     expect(await this.page.innerText('h2')).toContain(
-      'Program application summary',
+      'Program application review',
     )
+  }
+
+  async submitFromReviewPage() {
+    // Assert that we're on the review page.
+    await this.expectReviewPage()
 
     // Click on submit button.
     await this.page.click('text="Submit"')
