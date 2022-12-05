@@ -15,15 +15,13 @@ WORKDIR $PROJECT_DIR
 # get re-downloaded every time code changes.
 COPY package.json ${PROJECT_DIR}
 COPY package-lock.json ${PROJECT_DIR}
-# Remove --force once fixed https://github.com/civiform/civiform/issues/3678
-RUN npm install --force
+RUN npm install
 RUN npx playwright install
 
 COPY . ${PROJECT_DIR}
 
 # Re-run, to install from cache after overriting it.
-# Remove --force once fixed https://github.com/civiform/civiform/issues/3678
-RUN npm install --force
+RUN npm install
 RUN npx playwright install
 
 ENTRYPOINT ["/bin/bash"]

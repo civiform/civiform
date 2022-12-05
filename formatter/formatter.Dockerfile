@@ -39,8 +39,7 @@ RUN mkdir -p $BROWSER_TEST_DIR
 COPY browser-test/package.json $BROWSER_TEST_DIR
 COPY browser-test/package-lock.json $BROWSER_TEST_DIR
 WORKDIR $BROWSER_TEST_DIR
-# Remove --force once fixed https://github.com/civiform/civiform/issues/3678
-RUN npm install --force
+RUN npm install
 
 # Fetch node js dependencies for `server` directory.
 ENV SERVER_DIR /code/server

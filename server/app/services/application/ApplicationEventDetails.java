@@ -69,7 +69,7 @@ public abstract class ApplicationEventDetails {
     // A note was set.
     NOTE_CHANGE,
     // The Status Tracking status was changed.
-    STATUS_CHANGE;
+    STATUS_CHANGE
   }
 
   @AutoValue

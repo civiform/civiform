@@ -70,7 +70,7 @@ public class FieldWithLabel {
   private boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
-  private ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
+  private final ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
 
   private static final String MAX_INPUT_TEXT_LENGTH = "10000";
 

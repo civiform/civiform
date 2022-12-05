@@ -2,9 +2,9 @@
 
 Please explain the changes you made here.
 
-## Release notes:
+## Release notes
 
-Describe the change as it should be communicated to partners in the release notes.
+The title of the pull request will be used as the default release notes description. If more detail is needed to communicate to partners the scope of the PR's changes, use this release notes section.
 
 ### Checklist
 

@@ -30,7 +30,7 @@ public class WithMockedProfiles {
 
   private static final ProfileUtils MOCK_UTILS = Mockito.mock(ProfileUtils.class);
 
-  private static TestQuestionBank testQuestionBank = new TestQuestionBank(true);
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 
   private static Injector injector;
   private static ResourceCreator resourceCreator;

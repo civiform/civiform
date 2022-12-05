@@ -12,9 +12,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 
 /**
  * Represents the value on the right side of a JsonPath (https://github.com/json-path/JsonPath)
@@ -73,18 +73,26 @@ public abstract class PredicateValue {
    * Returns the value in a human-readable format.
    *
    * <ul>
+   *   <li>Currency: $1000.23, $3.00
    *   <li>Dates: yyyy-MM-dd
    *   <li>User entered strings: Always quoted, including in lists
    *   <li>Question defined strings: as defined in the default locale, unquoted
    *   <li>Lists: bracketed - [1, 2, 3] ["Charles", "Jane"] [Option1, Option2]
    * </ul>
    *
-   * <p>If this represents a multi option question's value, the question must be specified as {@code
-   * multiOptionValueQuestion} as it contains the human-readable strings.
+   * @param question the question the predicate is applied to.
    */
-  public String toDisplayString(Optional<QuestionDefinition> multiOptionValueQuestion) {
+  public String toDisplayString(QuestionDefinition question) {
 
     /* Special handling of "simple" question types, EG non-multivalued questions. */
+
+    // Currency is stored as cents and displayed as dollars/cents with 2 cent digits.
+    if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
+      long storedCents = Long.parseLong(value());
+      long dollars = storedCents / 100;
+      long cents = storedCents % 100;
+      return String.format("$%d.%02d", dollars, cents);
+    }
 
     // Convert to a human-readable date.
     if (type() == OperatorRightHandType.DATE) {
@@ -95,8 +103,7 @@ public abstract class PredicateValue {
     }
 
     // For all other "simple" questions use the stored value directly.
-    if (multiOptionValueQuestion.isEmpty()
-        || !multiOptionValueQuestion.get().getQuestionType().isMultiOptionType()) {
+    if (!question.getQuestionType().isMultiOptionType()) {
       return value();
     }
 
@@ -105,8 +112,7 @@ public abstract class PredicateValue {
     // We return the readable values in the default locale.
     // If an ID is not valid for the question, show "<obsolete>"; An obsolete ID does not affect
     // evaluation.
-    MultiOptionQuestionDefinition multiOptionQuestion =
-        (MultiOptionQuestionDefinition) multiOptionValueQuestion.get();
+    MultiOptionQuestionDefinition multiOptionQuestion = (MultiOptionQuestionDefinition) question;
     if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
       return Splitter.on(", ")
           // Un quote-escape each value.

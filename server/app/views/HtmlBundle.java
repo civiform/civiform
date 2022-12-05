@@ -42,19 +42,19 @@ public final class HtmlBundle {
   private String language = "en";
   private Optional<String> faviconURL = Optional.empty();
 
-  private ArrayList<String> bodyStyles = new ArrayList<>();
-  private ArrayList<Tag> footerContent = new ArrayList<>();
-  private ArrayList<ScriptTag> footerScripts = new ArrayList<>();
-  private ArrayList<String> footerStyles = new ArrayList<>();
-  private ArrayList<ScriptTag> headScripts = new ArrayList<>();
-  private ArrayList<Tag> headerContent = new ArrayList<>();
-  private ArrayList<String> headerStyles = new ArrayList<>();
-  private ArrayList<Tag> mainContent = new ArrayList<>();
-  private ArrayList<String> mainStyles = new ArrayList<>();
-  private ArrayList<MetaTag> metadata = new ArrayList<>();
-  private ArrayList<Modal> modals = new ArrayList<>();
-  private ArrayList<LinkTag> stylesheets = new ArrayList<>();
-  private ArrayList<ToastMessage> toastMessages = new ArrayList<>();
+  private final ArrayList<String> bodyStyles = new ArrayList<>();
+  private final ArrayList<Tag> footerContent = new ArrayList<>();
+  private final ArrayList<ScriptTag> footerScripts = new ArrayList<>();
+  private final ArrayList<String> footerStyles = new ArrayList<>();
+  private final ArrayList<ScriptTag> headScripts = new ArrayList<>();
+  private final ArrayList<Tag> headerContent = new ArrayList<>();
+  private final ArrayList<String> headerStyles = new ArrayList<>();
+  private final ArrayList<Tag> mainContent = new ArrayList<>();
+  private final ArrayList<String> mainStyles = new ArrayList<>();
+  private final ArrayList<MetaTag> metadata = new ArrayList<>();
+  private final ArrayList<Modal> modals = new ArrayList<>();
+  private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
+  private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
 
   public HtmlBundle addBodyStyles(String... styles) {
     bodyStyles.addAll(Arrays.asList(styles));
@@ -201,9 +201,7 @@ public final class HtmlBundle {
   private HeaderTag renderHeader() {
     // TODO: Sort toastMessages by priority before displaying.
     HeaderTag headerTag =
-        header()
-            .with(each(toastMessages, toastMessage -> toastMessage.getContainerTag()))
-            .with(headerContent);
+        header().with(each(toastMessages, ToastMessage::getContainerTag)).with(headerContent);
 
     if (headerStyles.size() > 0) {
       headerTag.withClasses(headerStyles.toArray(new String[0]));

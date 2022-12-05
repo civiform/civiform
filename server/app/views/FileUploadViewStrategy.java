@@ -86,6 +86,12 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
       boolean hasErrors);
 
   /**
+   * Returns strategy-specific class to add to the <form> element. It helps to distinguish
+   * client-side different strategies (AWS or Azure).
+   */
+  protected abstract String getUploadFormClass();
+
+  /**
    * Method to render the UI for uploading a file.
    *
    * @param params the information needed to render a file upload view
@@ -134,7 +140,9 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return form()
         .withId(BLOCK_FORM_ID)
         .withEnctype("multipart/form-data")
-        .withMethod(HttpVerbs.POST);
+        .withMethod(HttpVerbs.POST)
+        .withClasses(getUploadFormClass())
+        .with(this.requiredFieldsExplanationContent(params.messages()));
   }
 
   protected ImmutableList<ScriptTag> extraScriptTags() {
@@ -255,7 +263,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return params.block().getQuestions().stream()
         .map(ApplicantQuestion::createFileUploadQuestion)
         .map(FileUploadQuestion::getFileKeyValue)
-        .anyMatch(maybeValue -> maybeValue.isPresent());
+        .anyMatch(Optional::isPresent);
   }
 
   private boolean hasAtLeastOneRequiredQuestion(Params params) {

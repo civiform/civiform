@@ -87,6 +87,6 @@ public final class IdcsProvider extends OidcProvider {
 
   @Override
   protected ImmutableList<String> getExtraScopes() {
-    return ImmutableList.<String>of();
+    return ImmutableList.of();
   }
 }

@@ -70,6 +70,9 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     if (params.block().isFileUpload()) {
       bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("file_upload"));
     }
+    if (params.block().isEnumerator()) {
+      bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("enumerator"));
+    }
 
     return layout.renderWithNav(
         params.request(), params.applicantName(), params.messages(), bundle);
@@ -127,6 +130,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
+        .with(this.requiredFieldsExplanationContent(params.messages()))
         .with(
             each(
                 params.block().getQuestions(),

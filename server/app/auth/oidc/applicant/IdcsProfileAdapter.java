@@ -120,7 +120,7 @@ public final class IdcsProfileAdapter extends OidcApplicantProfileAdapter {
       logger.debug("Attempting to fetch {}", url.toString());
       try {
         if (resources.containsKey(url.toURI())) {
-          logger.debug("Cached: {}", url.toString());
+          logger.debug("Cached: {}", url);
           return resources.get(url.toURI());
         }
       } catch (URISyntaxException e) {

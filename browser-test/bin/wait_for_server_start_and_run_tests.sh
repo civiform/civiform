@@ -32,8 +32,7 @@ fi
 
 # Install any new packages not built into the image
 # Also saves any package-lock.json changes back to your local filesystem.
-# Remove --force once fixed https://github.com/civiform/civiform/issues/3678
-npm install --force --quiet
+npm install --quiet
 
 echo "Polling to check server start. Server url: ${BASE_URL}"
 
@@ -42,6 +41,7 @@ until $(curl --output /dev/null --silent --head --fail --max-time 2 "${BASE_URL}
     echo "Deadline exceeded waiting for server start"
     exit 1
   fi
+  sleep 5
 done
 
 echo "Detected server start"

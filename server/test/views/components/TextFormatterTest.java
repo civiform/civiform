@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
+import j2html.tags.Renderable;
 import j2html.tags.Text;
 import org.junit.Test;
 
@@ -145,7 +146,7 @@ public class TextFormatterTest {
 
     assertThat(content).hasSize(3);
 
-    String[] contentStrings = content.stream().map(line -> line.render()).toArray(String[]::new);
+    String[] contentStrings = content.stream().map(Renderable::render).toArray(String[]::new);
 
     assertThat(contentStrings[0]).isEqualTo("<div>Cheesecake Recipe</div>");
 
@@ -192,7 +193,7 @@ public class TextFormatterTest {
     assertThat(preservedBlanks).hasSize(6);
 
     String[] preservedContent =
-        preservedBlanks.stream().map(line -> line.render()).toArray(String[]::new);
+        preservedBlanks.stream().map(Renderable::render).toArray(String[]::new);
 
     assertThat(preservedContent[0]).isEqualTo("<div>This is the first line of content.</div>");
     assertThat(preservedContent[1]).isEqualTo("<div class=\"h-6\"></div>");
@@ -207,7 +208,7 @@ public class TextFormatterTest {
     assertThat(nonPresercedBlanks).hasSize(3);
 
     String[] nonPreservedContent =
-        nonPresercedBlanks.stream().map(line -> line.render()).toArray(String[]::new);
+        nonPresercedBlanks.stream().map(Renderable::render).toArray(String[]::new);
 
     assertThat(nonPreservedContent[0]).isEqualTo("<div>This is the first line of content.</div>");
     assertThat(nonPreservedContent[1])
