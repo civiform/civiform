@@ -67,12 +67,12 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
     Optional<QuestionDefinition> question =
         questions.stream().filter(q -> q.getId() == questionId()).findFirst();
+    String displayValue =
+        question
+            .map(q -> comparedValue().toDisplayString(q))
+            .orElseGet(() -> comparedValue().value());
     String phrase =
-        Joiner.on(' ')
-            .join(
-                scalar().toDisplayString(),
-                operator().toDisplayString(),
-                comparedValue().toDisplayString(question));
+        Joiner.on(' ').join(scalar().toDisplayString(), operator().toDisplayString(), displayValue);
     return question.isEmpty()
         ? phrase
         : String.format(

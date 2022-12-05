@@ -713,7 +713,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "Can't add question to the block. Error: DUPLICATE. Program ID %d, block ID %d,"
                     + " question ID %d",
                 program.id, 1L, questionA.getId()));
-    ;
   }
 
   @Test
@@ -745,7 +744,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
         .hasMessage(
             String.format(
                 "Question (ID %d) not found in Program (ID %d)", questionA.getId(), program.id));
-    ;
   }
 
   @Test
@@ -980,7 +978,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   private void assertQuestionsOrder(ProgramDefinition program, QuestionDefinition... expectedOrder)
       throws Exception {
-    var expectedQuestionNames = Arrays.stream(expectedOrder).map(q -> q.getName());
+    var expectedQuestionNames = Arrays.stream(expectedOrder).map(QuestionDefinition::getName);
     var actualQuestionNames =
         program.getLastBlockDefinition().programQuestionDefinitions().stream()
             .map(q -> q.getQuestionDefinition().getName());

@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -31,7 +32,6 @@ public final class ActiveAndDraftQuestions {
 
   private final ImmutableList<QuestionDefinition> activeQuestions;
   private final ImmutableList<QuestionDefinition> draftQuestions;
-  ;
   private final ImmutableMap<
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
@@ -142,7 +142,7 @@ public final class ActiveAndDraftQuestions {
     }
     return result.entrySet().stream()
         .collect(
-            ImmutableMap.toImmutableMap(e -> e.getKey(), e -> ImmutableSet.copyOf(e.getValue())));
+            ImmutableMap.toImmutableMap(Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
   }
 
   public ImmutableList<QuestionDefinition> getActiveQuestions() {

@@ -185,13 +185,9 @@ public abstract class ProgramDefinition {
     // At this point, insertIndex is AFTER the last repeated or nested repeated block of the
     // enumerator. This might be off the end of the list.
     ImmutableList.Builder<BlockDefinition> newBlockDefinitionsBuilder = ImmutableList.builder();
-    blockDefinitions().stream()
-        .limit(insertIndex)
-        .forEach(blockDefinition -> newBlockDefinitionsBuilder.add(blockDefinition));
+    blockDefinitions().stream().limit(insertIndex).forEach(newBlockDefinitionsBuilder::add);
     newBlockDefinitionsBuilder.add(newBlockDefinition);
-    blockDefinitions().stream()
-        .skip(insertIndex)
-        .forEach(blockDefinition -> newBlockDefinitionsBuilder.add(blockDefinition));
+    blockDefinitions().stream().skip(insertIndex).forEach(newBlockDefinitionsBuilder::add);
 
     return toBuilder().setBlockDefinitions(newBlockDefinitionsBuilder.build()).build();
   }
@@ -525,7 +521,7 @@ public abstract class ProgramDefinition {
     Optional<Long> maybeEnumeratorId = blockDefinition.enumeratorId();
     ImmutableList<BlockDefinition> siblingBlockDefinitions =
         maybeEnumeratorId
-            .map(enumeratorBlockId -> this.getBlockDefinitionsForEnumerator(enumeratorBlockId))
+            .map(this::getBlockDefinitionsForEnumerator)
             .orElse(getNonRepeatedBlockDefinitions());
 
     ImmutableList.Builder<BlockDefinition> builder = ImmutableList.builder();
@@ -621,7 +617,7 @@ public abstract class ProgramDefinition {
 
   public enum Direction {
     UP,
-    DOWN;
+    DOWN
   }
 
   @AutoValue

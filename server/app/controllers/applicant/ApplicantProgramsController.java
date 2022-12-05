@@ -18,6 +18,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
+import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -105,7 +106,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                           relevantPrograms.submitted(),
                           relevantPrograms.unapplied())
                       .flatMap(ImmutableList::stream)
-                      .map(p -> p.program())
+                      .map(ApplicantProgramData::program)
                       .filter(program -> program.id() == programId)
                       .findFirst();
 

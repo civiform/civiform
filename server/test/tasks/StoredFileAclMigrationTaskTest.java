@@ -20,7 +20,7 @@ public class StoredFileAclMigrationTaskTest extends ResetPostgres {
 
   private ApplicationRepository applicationRepository;
   private StoredFileAclMigrationTask storedFileAclMigrationTask;
-  private static String fileKey = "file-key";
+  private static final String fileKey = "file-key";
 
   @Before
   public void setUp() {

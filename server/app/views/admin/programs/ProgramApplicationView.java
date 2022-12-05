@@ -245,7 +245,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     dropdownTag.with(
         option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .isDisabled()
-            .withCondSelected(!application.getLatestStatus().isPresent()));
+            .withCondSelected(application.getLatestStatus().isEmpty()));
 
     // Add statuses in the order they're provided.
     String latestStatusText = application.getLatestStatus().orElse("");
@@ -374,7 +374,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         input().withType("checkbox").withName(SEND_EMAIL).withClasses(BaseStyles.CHECKBOX);
     Optional<String> maybeApplicantEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
-    if (!status.localizedEmailBodyText().isPresent()) {
+    if (status.localizedEmailBodyText().isEmpty()) {
       return div()
           .with(
               sendEmailInput.isHidden(),
