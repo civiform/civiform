@@ -44,139 +44,149 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 /**
- * Renders a page for an admin to edit the configuration for program, including a single block of a program.
- * A block is a synonym for a Screen. The ProgramBlockEditView is very similar to the ProgramBlockViewOnlyView,
- * but specifically adds all UI functionality that is needed for editing.
- **/
-  // TODO(jhummel) new tests and browser tests
-  // TODO(jhummel) tests for viewonlyview
+ * Renders a page for an admin to edit the configuration for program, including a single block of a
+ * program. A block is a synonym for a Screen. The ProgramBlockEditView is very similar to the
+ * ProgramBlockViewOnlyView, but specifically adds all UI functionality that is needed for editing.
+ */
+// TODO(jhummel) new tests and browser tests
+// TODO(jhummel) tests for viewonlyview
 // TODO(jhummel) tests for editView
-
 
 public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
 
-   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
-   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
-   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
+  private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
+  private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
+  private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   private final boolean featureFlagOptionalQuestions;
   private InputTag csrfTag;
   private ArrayList<Modal> modals;
 
-   @Inject
-   public ProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
-     super(layoutFactory, config);
-     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
-     this.modals = new ArrayList<>();
-   }
+  @Inject
+  public ProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
+    super(layoutFactory, config);
+    this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
+    this.modals = new ArrayList<>();
+  }
 
   @Override
   public Content render(
-    Request request,
-    ProgramDefinition programDefinition,
-    BlockForm blockForm,
-    BlockDefinition blockDefinition,
-    Optional<ToastMessage> message,
-    ImmutableList<QuestionDefinition> questions) {
+      Request request,
+      ProgramDefinition programDefinition,
+      BlockForm blockForm,
+      BlockDefinition blockDefinition,
+      Optional<ToastMessage> message,
+      ImmutableList<QuestionDefinition> questions) {
 
-     csrfTag = makeCsrfTokenInputTag(request);
-     modals = new ArrayList<>();
+    csrfTag = makeCsrfTokenInputTag(request);
+    modals = new ArrayList<>();
 
-     return super.render(request, programDefinition, blockForm, blockDefinition, message, questions);
+    return super.render(request, programDefinition, blockForm, blockDefinition, message, questions);
   }
 
   @Override
-  protected HtmlBundle createHtmlBundle(Request request, ProgramDefinition programDefinition, BlockForm blockForm,
-    BlockDefinition blockDefinition,  ImmutableList<QuestionDefinition> questions) {
-  return super.createHtmlBundle(request, programDefinition, blockForm, blockDefinition, questions)
-    .addMainContent(questionBankPanel(
-      questions,
-      programDefinition,
-      blockDefinition,
-      QuestionBank.shouldShowQuestionBank(request)))
-    .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()))
-    .addModals(modals);
+  protected HtmlBundle createHtmlBundle(
+      Request request,
+      ProgramDefinition programDefinition,
+      BlockForm blockForm,
+      BlockDefinition blockDefinition,
+      ImmutableList<QuestionDefinition> questions) {
+    return super.createHtmlBundle(request, programDefinition, blockForm, blockDefinition, questions)
+        .addMainContent(
+            questionBankPanel(
+                questions,
+                programDefinition,
+                blockDefinition,
+                QuestionBank.shouldShowQuestionBank(request)))
+        .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()))
+        .addModals(modals);
   }
 
   @Override
-  protected DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
-    return super.blockOrderPanel(request,  program,  focusedBlockId)
-      .with(
-        ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
-          .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
-          .withType("submit")
-          .withId("add-block-button")
-          .withForm(CREATE_BLOCK_FORM_ID));
+  protected DivTag blockOrderPanel(
+      Request request, ProgramDefinition program, long focusedBlockId) {
+    return super.blockOrderPanel(request, program, focusedBlockId)
+        .with(
+            ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
+                .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
+                .withType("submit")
+                .withId("add-block-button")
+                .withForm(CREATE_BLOCK_FORM_ID));
   }
 
   @Override
-  protected DivTag blockTag (ImmutableList<BlockDefinition>  blockDefinitions, int blockIndex, ProgramDefinition programDefinition, long focusedBlockId) {
-    super.blockTag( blockDefinitions, blockIndex, programDefinition, focusedBlockId);
-    DivTag blockTag = super.blockTag(blockDefinitions, blockIndex, programDefinition, focusedBlockId);
+  protected DivTag blockTag(
+      ImmutableList<BlockDefinition> blockDefinitions,
+      int blockIndex,
+      ProgramDefinition programDefinition,
+      long focusedBlockId) {
+    super.blockTag(blockDefinitions, blockIndex, programDefinition, focusedBlockId);
+    DivTag blockTag =
+        super.blockTag(blockDefinitions, blockIndex, programDefinition, focusedBlockId);
 
     BlockDefinition blockDefinition = blockDefinitions.get(blockIndex);
-    DivTag moveButtons = blockMoveButtons(programDefinition.id(), blockDefinitions, blockDefinition);
+    DivTag moveButtons =
+        blockMoveButtons(programDefinition.id(), blockDefinitions, blockDefinition);
     return blockTag.with(moveButtons);
   }
 
   @Override
   protected ArrayList<DomContent> prepareContentForBlockPanel(
-    ProgramDefinition program,
-    BlockDefinition blockDefinition,
-    BlockForm blockForm,
-    ImmutableList<QuestionDefinition> allQuestions) {
+      ProgramDefinition program,
+      BlockDefinition blockDefinition,
+      BlockForm blockForm,
+      ImmutableList<QuestionDefinition> allQuestions) {
     String blockUpdateAction =
-      controllers.admin.routes.AdminProgramBlocksController.update(
-          program.id(), blockDefinition.id())
-        .url();
+        controllers.admin.routes.AdminProgramBlocksController.update(
+                program.id(), blockDefinition.id())
+            .url();
     Modal blockDescriptionEditModal = blockDescriptionModal(blockForm, blockUpdateAction);
     modals.add(blockDescriptionEditModal);
 
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete =
-      !blockDefinition.isEnumerator() || hasNoRepeatedBlocks(program, blockDefinition.id());
+        !blockDefinition.isEnumerator() || hasNoRepeatedBlocks(program, blockDefinition.id());
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
     buttons.with(blockDescriptionEditModal.getButton());
     if (blockDefinition.isEnumerator()) {
       buttons.with(
-        button("Create repeated screen")
-          .withType("submit")
-          .withId("create-repeated-block-button")
-          .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-          .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
+          button("Create repeated screen")
+              .withType("submit")
+              .withId("create-repeated-block-button")
+              .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
+              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
     }
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?
     if (program.blockDefinitions().size() > 1) {
       buttons.with(div().withClass("flex-grow"));
       buttons.with(
-        ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
-          .withType("submit")
-          .withId("delete-block-button")
-          .withForm(DELETE_BLOCK_FORM_ID)
-          .withCondDisabled(!canDelete)
-          .withCondTitle(
-            !canDelete, "A screen can only be deleted when it has no repeated screens.")
-          .withClasses(
-            AdminStyles.SECONDARY_BUTTON_STYLES,
-            "mx-4",
-            "my-1",
-            StyleUtils.disabled("opacity-50")));
+          ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
+              .withType("submit")
+              .withId("delete-block-button")
+              .withForm(DELETE_BLOCK_FORM_ID)
+              .withCondDisabled(!canDelete)
+              .withCondTitle(
+                  !canDelete, "A screen can only be deleted when it has no repeated screens.")
+              .withClasses(
+                  AdminStyles.SECONDARY_BUTTON_STYLES,
+                  "mx-4",
+                  "my-1",
+                  StyleUtils.disabled("opacity-50")));
     }
 
     ButtonTag addQuestion =
-      makeSvgTextButton("Add a question", Icons.ADD)
-        .withClasses(
-          AdminStyles.PRIMARY_BUTTON_STYLES,
-          ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-          "my-4");
+        makeSvgTextButton("Add a question", Icons.ADD)
+            .withClasses(
+                AdminStyles.PRIMARY_BUTTON_STYLES,
+                ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                "my-4");
 
-
-    ArrayList<DomContent> content = super.prepareContentForBlockPanel(program,
-      blockDefinition, blockForm, allQuestions);
+    ArrayList<DomContent> content =
+        super.prepareContentForBlockPanel(program, blockDefinition, blockForm, allQuestions);
 
     content.add(1, buttons);
     content.add(addQuestion);
@@ -185,49 +195,69 @@ public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
   }
 
   @Override
-  protected DivTag renderQuestion(
-    ProgramDefinition programDefinition,
-    BlockDefinition blockDefinition,
-    int questionIndex) {
+  protected DivTag renderPredicate(
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition,
+      ImmutableList<QuestionDefinition> questions) {
+    DivTag ret = super.renderPredicate(programDefinition, blockDefinition, questions);
 
-    ImmutableList<ProgramQuestionDefinition> blockQuestions = blockDefinition.programQuestionDefinitions();
+    ButtonTag editScreenButton =
+        ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+            .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
+
+    return ret.with(
+        asRedirectElement(
+            editScreenButton,
+            routes.AdminProgramBlockPredicatesController.edit(
+                    programDefinition.id(), blockDefinition.id())
+                .url()));
+  }
+
+  @Override
+  protected DivTag renderQuestion(
+      ProgramDefinition programDefinition, BlockDefinition blockDefinition, int questionIndex) {
+
+    ImmutableList<ProgramQuestionDefinition> blockQuestions =
+        blockDefinition.programQuestionDefinitions();
     ProgramQuestionDefinition question = blockQuestions.get(questionIndex);
     int questionsCount = blockQuestions.size();
 
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canRemove =
-      !blockDefinition.isEnumerator() || hasNoRepeatedBlocks(programDefinition, blockDefinition.id());
+        !blockDefinition.isEnumerator()
+            || hasNoRepeatedBlocks(programDefinition, blockDefinition.id());
 
     QuestionDefinition questionDefinition = question.getQuestionDefinition();
 
     DivTag ret = super.renderQuestion(programDefinition, blockDefinition, questionIndex);
 
     Optional<FormTag> maybeOptionalToggle =
-      optionalToggle(programDefinition.id(), blockDefinition.id(), questionDefinition,
-        question.optional());
+        optionalToggle(
+            programDefinition.id(), blockDefinition.id(), questionDefinition, question.optional());
 
     if (maybeOptionalToggle.isPresent()) {
       ret.with(maybeOptionalToggle.get());
     }
 
     ret.with(
-      this.createMoveQuestionButtonsSection(
-        programDefinition.id(),
-        blockDefinition.id(),
-        questionDefinition,
-        questionIndex,
-        questionsCount));
+        this.createMoveQuestionButtonsSection(
+            programDefinition.id(),
+            blockDefinition.id(),
+            questionDefinition,
+            questionIndex,
+            questionsCount));
     return ret.with(
-      deleteQuestionForm(programDefinition.id(), blockDefinition.id(), questionDefinition,
-        canRemove));
+        deleteQuestionForm(
+            programDefinition.id(), blockDefinition.id(), questionDefinition, canRemove));
   }
 
   /*
-* Creates an invisible form used for html request building.
-* TODO: There may be better ways to generate the request than using an invisible form
- */
-private DivTag addFormEndpoints(long programId, long blockId) {
+   * Creates an invisible form used for html request building.
+   * TODO: There may be better ways to generate the request than using an invisible form
+   */
+  private DivTag addFormEndpoints(long programId, long blockId) {
     String blockCreateAction =
         controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
     FormTag createBlockForm =
@@ -260,53 +290,45 @@ private DivTag addFormEndpoints(long programId, long blockId) {
   }
 
   private DivTag blockMoveButtons(
-    long programId,
-    ImmutableList<BlockDefinition> blockDefinitions,
-    BlockDefinition blockDefinition) {
+      long programId,
+      ImmutableList<BlockDefinition> blockDefinitions,
+      BlockDefinition blockDefinition) {
 
     String moveUpFormAction =
-      routes.AdminProgramBlocksController.move(programId, blockDefinition.id())
-        .url();
+        routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
     // Move up button is invisible for the first block
     String moveUpInvisible =
-      blockDefinition.id() == blockDefinitions.get(0).id() ? "invisible" : "";
+        blockDefinition.id() == blockDefinitions.get(0).id() ? "invisible" : "";
     DivTag moveUp =
-      div()
-        .withClass(moveUpInvisible)
-        .with(
-          form()
-            .withAction(moveUpFormAction)
-            .withMethod(HttpVerbs.POST)
-            .with(csrfTag)
-            .with(input().isHidden().withName("direction")
-              .withValue(Direction.UP.name()))
+        div()
+            .withClass(moveUpInvisible)
             .with(
-              submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+                form()
+                    .withAction(moveUpFormAction)
+                    .withMethod(HttpVerbs.POST)
+                    .with(csrfTag)
+                    .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
+                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
 
     String moveDownFormAction =
-      routes.AdminProgramBlocksController.move(programId, blockDefinition.id())
-        .url();
+        routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
     // Move down button is invisible for the last block
     String moveDownInvisible =
-      blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1)
-        .id()
-        ? "invisible"
-        : "";
+        blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id()
+            ? "invisible"
+            : "";
     DivTag moveDown =
-      div()
-        .withClasses("transform", "rotate-180", moveDownInvisible)
-        .with(
-          form()
-            .withAction(moveDownFormAction)
-            .withMethod(HttpVerbs.POST)
-            .with(csrfTag)
-            .with(input().isHidden().withName("direction")
-              .withValue(Direction.DOWN.name()))
+        div()
+            .withClasses("transform", "rotate-180", moveDownInvisible)
             .with(
-              submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+                form()
+                    .withAction(moveDownFormAction)
+                    .withMethod(HttpVerbs.POST)
+                    .with(csrfTag)
+                    .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
+                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
     DivTag moveButtons =
-      div().withClasses("flex", "flex-col", "self-center")
-        .with(moveUp, moveDown);
+        div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
     return moveButtons;
   }
 
@@ -452,9 +474,9 @@ private DivTag addFormEndpoints(long programId, long blockId) {
         .withMethod(HttpVerbs.POST)
         .withAction(deleteQuestionAction)
         .with(removeButton);
-   }
+  }
 
-   private DivTag questionBankPanel(
+  private DivTag questionBankPanel(
       ImmutableList<QuestionDefinition> questionDefinitions,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
@@ -482,7 +504,7 @@ private DivTag addFormEndpoints(long programId, long blockId) {
     return qb.getContainer(questionBankVisibility);
   }
 
-  /** Modal dialog shown when the admin edits the screen name and description **/
+  /** Modal dialog shown when the admin edits the screen name and description * */
   private Modal blockDescriptionModal(BlockForm blockForm, String blockUpdateAction) {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
@@ -528,7 +550,8 @@ private DivTag addFormEndpoints(long programId, long blockId) {
   @Override
   protected String getEditButtonText() {
     return "Edit program details";
-  };
+  }
+  ;
 
   @Override
   protected String getButtonUrl(ProgramDefinition programDefinition) {

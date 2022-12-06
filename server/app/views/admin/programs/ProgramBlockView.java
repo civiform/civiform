@@ -31,23 +31,17 @@ abstract class ProgramBlockView extends BaseHtmlView {
     ButtonTag editDetailsButton =
         ViewUtils.makeSvgTextButton(getEditButtonText(), Icons.EDIT)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-5");
-    asRedirectElement(
-        editDetailsButton,
-        getButtonUrl(programDefinition));
+    asRedirectElement(editDetailsButton, getButtonUrl(programDefinition));
 
     return div(
-            ViewUtils.makeBadge(getBadgeStatus()),
-            title,
-            description,
-            adminNote,
-            editDetailsButton)
+            ViewUtils.makeBadge(getBadgeStatus()), title, description, adminNote, editDetailsButton)
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
 
-  /** Define the String that will be shown on the Edit button **/
+  /** Define the String that will be shown on the Edit button * */
   protected abstract String getEditButtonText();
 
-  /** Define the navigation destination for the Edit button **/
+  /** Define the navigation destination for the Edit button * */
   protected abstract String getButtonUrl(ProgramDefinition programDefinition);
 
   /* The Status badge that will be shown at the top of the page */
