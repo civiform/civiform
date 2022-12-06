@@ -48,10 +48,6 @@ import views.style.StyleUtils;
  * program. A block is a synonym for a Screen. The ProgramBlockEditView is very similar to the
  * ProgramBlockViewOnlyView, but specifically adds all UI functionality that is needed for editing.
  */
-// TODO(jhummel) new tests and browser tests
-// TODO(jhummel) tests for viewonlyview
-// TODO(jhummel) tests for editView
-
 public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
 
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
@@ -221,28 +217,25 @@ public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
     ImmutableList<ProgramQuestionDefinition> blockQuestions =
         blockDefinition.programQuestionDefinitions();
     ProgramQuestionDefinition question = blockQuestions.get(questionIndex);
+    QuestionDefinition questionDefinition = question.getQuestionDefinition();
     int questionsCount = blockQuestions.size();
-
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canRemove =
         !blockDefinition.isEnumerator()
             || hasNoRepeatedBlocks(programDefinition, blockDefinition.id());
 
-    QuestionDefinition questionDefinition = question.getQuestionDefinition();
-
     DivTag ret = super.renderQuestion(programDefinition, blockDefinition, questionIndex);
 
     Optional<FormTag> maybeOptionalToggle =
         optionalToggle(
             programDefinition.id(), blockDefinition.id(), questionDefinition, question.optional());
-
     if (maybeOptionalToggle.isPresent()) {
       ret.with(maybeOptionalToggle.get());
     }
 
     ret.with(
-        this.createMoveQuestionButtonsSection(
+        this.moveQuestionButtonsSection(
             programDefinition.id(),
             blockDefinition.id(),
             questionDefinition,
@@ -255,7 +248,7 @@ public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
 
   /*
    * Creates an invisible form used for html request building.
-   * TODO: There may be better ways to generate the request than using an invisible form
+   * TODO: There may be better ways to generate the request than using an invisible form?
    */
   private DivTag addFormEndpoints(long programId, long blockId) {
     String blockCreateAction =
@@ -332,7 +325,7 @@ public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
     return moveButtons;
   }
 
-  private DivTag createMoveQuestionButtonsSection(
+  private DivTag moveQuestionButtonsSection(
       long programDefinitionId,
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
@@ -340,7 +333,7 @@ public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
       int questionsCount) {
 
     FormTag moveUp =
-        this.createMoveQuestionButton(
+        this.moveQuestionButton(
             programDefinitionId,
             blockDefinitionId,
             questionDefinition,
@@ -349,7 +342,7 @@ public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
             /* label= */ "move up",
             /* isInvisible= */ questionIndex == 0);
     FormTag moveDown =
-        this.createMoveQuestionButton(
+        this.moveQuestionButton(
             programDefinitionId,
             blockDefinitionId,
             questionDefinition,
@@ -360,7 +353,7 @@ public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
     return div().with(moveUp, moveDown);
   }
 
-  private FormTag createMoveQuestionButton(
+  private FormTag moveQuestionButton(
       long programDefinitionId,
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
@@ -551,7 +544,6 @@ public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
   protected String getEditButtonText() {
     return "Edit program details";
   }
-  ;
 
   @Override
   protected String getButtonUrl(ProgramDefinition programDefinition) {
