@@ -82,4 +82,9 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     }
     return (SignedS3UploadRequest) request;
   }
+
+  @Override
+  protected String getUploadFormClass() {
+    return "aws-upload";
+  }
 }
