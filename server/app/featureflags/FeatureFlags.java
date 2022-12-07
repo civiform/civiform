@@ -55,8 +55,8 @@ public final class FeatureFlags {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
 
-  // If the UI that allows viewing a view only view of a program rather than
-  // going directly to the edit view.
+  // If the UI can show a view only view of a program. Without this flag the
+  // only way to view a program is to start editing it.
   public boolean isViewOnlyProgramViewEnabled() {
     return config.getBoolean(PROGRAM_VIEW_ONLY_VIEW_ENABLED);
   }
