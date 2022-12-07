@@ -16,7 +16,6 @@ import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.DateConverter;
-import services.Path;
 import support.CfTestHelpers;
 
 public class ApplicationRepositoryTest extends ResetPostgres {
@@ -61,17 +60,15 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         .isEqualTo(LifecycleStage.OBSOLETE);
     assertThat(appOne.getSubmitTime()).isEqualTo(initialSubmitTime);
 
-    assertThat(
-            repo.getApplication(appTwoDraft.id)
-                .toCompletableFuture()
-                .join()
-                .get()
-                .getLifecycleStage())
-        .isEqualTo(LifecycleStage.ACTIVE);
+    Application appTwoSubmitted =
+        repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get();
+    assertThat(appTwoSubmitted.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+
+    assertThat(appTwoSubmitted.getApplicantData().getApplicantName().get()).isEqualTo("Alice");
   }
 
   @Test
-  public void submitApplication_doesNotUpdateOtherApplications() {
+  public void submitApplication_doesNotUpdateOtherProgramApplications() {
     Applicant applicant1 = saveApplicant("Alice");
     Applicant applicant2 = saveApplicant("Bob");
 
@@ -102,6 +99,9 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     assertThat(appDraft1.id).isEqualTo(appDraft2.id);
     // Since this is a draft application, it shouldn't have a submit time set.
     assertThat(appDraft2.getSubmitTime()).isNull();
+    // Applicant data is not saved in the application until it is submitted.
+    assertThat(appDraft1.getApplicantData().getApplicantName()).isEmpty();
+    assertThat(appDraft2.getApplicantData().getApplicantName()).isEmpty();
   }
 
   @Test
@@ -311,7 +311,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant.getApplicantData().setUserName(name);
     applicant.save();
     return applicant;
   }
