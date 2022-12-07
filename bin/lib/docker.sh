@@ -169,5 +169,5 @@ function docker::do_dockerhub_login() {
 #######################################
 function docker::dev_server_sbt_command() {
   # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
-  docker exec -it "${COMPOSE_PROJECT_NAME}-civiform-1" ./entrypoint.sh -jvm-debug "*:8457" -Dsbt.offline $1
+  docker exec -it "${COMPOSE_PROJECT_NAME}-civiform-1" ./entrypoint.sh -jvm-debug "localhost:8457" -Dsbt.offline $1
 }
