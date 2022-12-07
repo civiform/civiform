@@ -84,6 +84,54 @@ public class FeatureFlagsTest {
   }
 
   @Test
+  public void programViewOnlyViewEnabled_withNoConfig_withNoOverride_isNotEnabled() {
+    FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
+    assertThat(featureFlags.isViewOnlyProgramViewEnabled(fakeRequest().build())).isFalse();
+  }
+
+  @Test
+  public void  programViewOnlyViewEnabled_withOverridesDisabled_withOverride_isNotEnabled() {
+    FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
+    // Overrides only apply if the config is present.
+    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isFalse();
+  }
+
+  @Test
+  public void  programViewOnlyViewEnabled_withFeatureEnabled_withNoOverride_isEnabled() {
+    FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
+    assertThat(featureFlags.isViewOnlyProgramViewEnabled(fakeRequest().build())).isTrue();
+  }
+
+  @Test
+  public void
+  programViewOnlyViewEnabled_withFeatureUnset_withOverridesEnabled_withOverride_isNotEnabled() {
+    // A flag not in the config can not be overriden.
+    FeatureFlags featureFlags = new FeatureFlags(overridesEnabledConfig);
+    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isFalse();
+  }
+
+  @Test
+  public void
+  programViewOnlyViewEnabled_withFeatureEnabled_withOverridesDisabled_withDisabledOverride_isEnabled() {
+    FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
+    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesDisabledRequest)).isTrue();
+  }
+
+  @Test
+  public void
+  programViewOnlyViewEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideFalse_isNotEnabled() {
+    FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
+    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesDisabledRequest)).isFalse();
+  }
+
+  @Test
+  public void
+  programViewOnlyViewEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideTrue_isTrue() {
+    FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
+    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isTrue();
+  }
+
+  @Test
   public void allowCiviformAdminAccessPrograms_isTrue() {
     FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
     assertThat(featureFlags.allowCiviformAdminAccessPrograms(fakeRequest().build())).isTrue();

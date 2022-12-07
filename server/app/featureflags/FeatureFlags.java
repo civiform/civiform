@@ -21,6 +21,8 @@ public final class FeatureFlags {
   private static final String FEATURE_FLAG_OVERRIDES_ENABLED = "feature_flag_overrides_enabled";
   public static final String APPLICATION_STATUS_TRACKING_ENABLED =
       "application_status_tracking_enabled";
+  public static final String PROGRAM_VIEW_ONLY_VIEW_ENABLED =
+    "program_view_only_view_enabled";
   public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
       "allow_civiform_admin_access_programs";
   private final Config config;
@@ -51,6 +53,16 @@ public final class FeatureFlags {
 
   public boolean allowCiviformAdminAccessPrograms(Request request) {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
+  }
+
+  // If the UI that allows viewing a view only view of a program rather than
+  // going directly to the edit view.
+  public boolean isViewOnlyProgramViewEnabled() {
+    return config.getBoolean(PROGRAM_VIEW_ONLY_VIEW_ENABLED);
+  }
+
+  public boolean isViewOnlyProgramViewEnabled(Request request) {
+    return getFlagEnabled(request, PROGRAM_VIEW_ONLY_VIEW_ENABLED);
   }
 
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
