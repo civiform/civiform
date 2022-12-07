@@ -181,7 +181,7 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     DivTag formContent =
         buildQuestionContainer(title, QuestionFormBuilder.create(questionDefinition))
-            .with(buildViewOnlyQuestionForm(questionForm, enumeratorOption));
+            .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption));
 
     return renderWithPreview(formContent, questionType, title);
   }
@@ -197,12 +197,13 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private FormTag buildSubmittableQuestionForm(
       QuestionForm questionForm, SelectWithLabel enumeratorOptions, boolean forCreate) {
-    return buildQuestionForm(questionForm, enumeratorOptions, true, forCreate);
+    return buildQuestionForm(questionForm, enumeratorOptions, /* submittable= */ true, forCreate);
   }
 
-  private FormTag buildViewOnlyQuestionForm(
+  private FormTag buildReadOnlyQuestionForm(
       QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
-    return buildQuestionForm(questionForm, enumeratorOptions, false, false);
+    return buildQuestionForm(
+        questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false);
   }
 
   private DivTag buildQuestionContainer(String title, QuestionForm questionForm) {
