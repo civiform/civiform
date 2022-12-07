@@ -23,6 +23,8 @@ services:
     ports:
       - 9000:9000
       - 8457:8457
+    environment:
+      CIVIFORM_ADMIN_REPORTING_UI_ENABLED: true
 
   civiform-shell:
     image: civiform-dev

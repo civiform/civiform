@@ -92,8 +92,8 @@ GET     /admin/programs/:programId/applications/allJson                   contro
 GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
 GET     /admin/programs/:programId/applications/singleVersion             controllers.admin.AdminApplicationController.downloadSingleVersion(request: Request, programId: Long)
 GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
-POST     /admin/programs/:programId/applications/:applicationId/updateStatus            controllers.admin.AdminApplicationController.updateStatus(request: Request, programId: Long, applicationId: Long)
-POST     /admin/programs/:programId/applications/:applicationId/updateNote            controllers.admin.AdminApplicationController.updateNote(request: Request, programId: Long, applicationId: Long)
+POST    /admin/programs/:programId/applications/:applicationId/updateStatus            controllers.admin.AdminApplicationController.updateStatus(request: Request, programId: Long, applicationId: Long)
+POST    /admin/programs/:programId/applications/:applicationId/updateNote            controllers.admin.AdminApplicationController.updateNote(request: Request, programId: Long, applicationId: Long)
 GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
 GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics(request: Request, fromDate: java.util.Optional[String], untilDate: java.util.Optional[String])
 
@@ -102,6 +102,9 @@ GET     /admin/apiKeys                              controllers.admin.AdminApiKe
 GET     /admin/apiKeys/new                          controllers.admin.AdminApiKeysController.newOne(request: Request)
 POST    /admin/apiKeys                              controllers.admin.AdminApiKeysController.create(request: Request)
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
+
+# Admin reporting
+GET     /admin/reporting                           controllers.admin.AdminReportingController.index()
 
 # Admin data migrations
 GET     /admin/migrateStoredFileAcls                controllers.admin.DataMigrationsController.migrateStoredFileAcls()

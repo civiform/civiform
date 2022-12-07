@@ -23,6 +23,7 @@ public final class FeatureFlags {
       "application_status_tracking_enabled";
   public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
       "allow_civiform_admin_access_programs";
+  public static final String ADMIN_REPORTING_UI_ENABLED = "admin_reporting_ui_enabled";
   private final Config config;
 
   @Inject
@@ -47,6 +48,11 @@ public final class FeatureFlags {
   /** If the Status Tracking feature is enabled in the system configuration. */
   public boolean isStatusTrackingEnabled() {
     return config.getBoolean(APPLICATION_STATUS_TRACKING_ENABLED);
+  }
+
+  /** If the reporting view in the admin UI is enabled */
+  public boolean isAdminReportingUiEnabled() {
+    return config.getBoolean(ADMIN_REPORTING_UI_ENABLED);
   }
 
   public boolean allowCiviformAdminAccessPrograms(Request request) {

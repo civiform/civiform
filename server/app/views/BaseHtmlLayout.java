@@ -8,6 +8,7 @@ import static j2html.TagCreator.script;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ScriptTag;
 import java.net.URI;
 import java.util.Optional;
@@ -35,14 +36,16 @@ public class BaseHtmlLayout {
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
+  private final FeatureFlags featureFlags;
   private final Optional<String> measurementId;
   private final String hostName;
   private final boolean isStaging;
 
   @Inject
-  public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
+  public BaseHtmlLayout(ViewUtils viewUtils, Config configuration, FeatureFlags featureFlags) {
     checkNotNull(configuration);
     this.viewUtils = checkNotNull(viewUtils);
+    this.featureFlags = checkNotNull(featureFlags);
     this.measurementId =
         configuration.hasPath("measurement_id")
             ? Optional.of(configuration.getString("measurement_id"))
@@ -60,6 +63,11 @@ public class BaseHtmlLayout {
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
   public HtmlBundle getBundle() {
     return getBundle(new HtmlBundle());
+  }
+
+  /** Get the application feature flags. */
+  public FeatureFlags getFeatureFlags() {
+    return featureFlags;
   }
 
   /**
