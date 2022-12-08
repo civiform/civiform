@@ -6,17 +6,20 @@ import jobs.DurableJobName;
 import jobs.DurableJobRegistry;
 import jobs.OldJobCleanupJob;
 import jobs.RecurringJobSchedulers;
+import repository.PersistedDurableJobRepository;
 
-public class DurableJobModule extends AbstractModule {
+public final class DurableJobModule extends AbstractModule {
 
   @Provides
-  public DurableJobRegistry provideDurableJobRegistry() {
+  public DurableJobRegistry provideDurableJobRegistry(
+      PersistedDurableJobRepository persistedDurableJobRepository) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
         DurableJobName.OLD_JOB_CLEANUP,
-        persistedDurableJob -> new OldJobCleanupJob(persistedDurableJob),
-        RecurringJobSchedulers::weekly);
+        persistedDurableJob ->
+            new OldJobCleanupJob(persistedDurableJobRepository, persistedDurableJob),
+        RecurringJobSchedulers::everySundayAt2Am);
 
     return durableJobRegistry;
   }

@@ -1,19 +1,29 @@
 package repository;
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import io.ebean.DB;
 import io.ebean.Database;
-import java.time.Instant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.inject.Inject;
+import models.PersistedDurableJob;
 
 public final class PersistedDurableJobRepository {
-  private static final Logger logger = LoggerFactory.getLogger(PersistedDurableJobRepository.class);
 
   private final Database database;
 
-  public PersistedDurableJobRepository(Database database) {
-    this.database = Preconditions.checkNotNull(database);
+  @Inject
+  public PersistedDurableJobRepository() {
+    this.database = DB.getDefault();
   }
 
-  public void deleteJobsOlderThan(Instant cullingCutoff) {}
+  public ImmutableList<PersistedDurableJob> listJobs() {
+    return ImmutableList.copyOf(database.find(PersistedDurableJob.class).findList());
+  }
+
+  public int deleteJobsOlderThanSixMonths() {
+    return database
+        .sqlUpdate(
+            "DELETE FROM persisted_durable_jobs WHERE persisted_durable_jobs.execution_time <"
+                + " CURRENT_DATE - INTERVAL '6 months'")
+        .execute();
+  }
 }

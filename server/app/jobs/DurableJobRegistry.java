@@ -35,7 +35,9 @@ public final class DurableJobRegistry {
   /** Register a factory for a given job name. */
   public void register(DurableJobName jobName, DurableJobFactory durableJobFactory) {
     registeredJobs.put(
-        jobName.getJobName(), RegisteredJob.create(durableJobFactory, jobName, Optional.empty()));
+        jobName.getJobName(),
+        RegisteredJob.create(
+            durableJobFactory, jobName, /* recurringJobExecutionTimeResolver */ Optional.empty()));
   }
 
   /**
