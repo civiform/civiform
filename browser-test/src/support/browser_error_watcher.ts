@@ -6,8 +6,8 @@ interface ErrorOnPage {
 }
 
 /**
- * Class that watches for various errors that can happen within browser
- * controlled by Playwright. During test run this class accumulates errors
+ * Class that watches for various errors that can happen within a browser
+ * controlled by Playwright. During a test run this class accumulates errors
  * and at the end of the test (in afterEach) it will fail the test if at least
  * one error was collectd.
  */
