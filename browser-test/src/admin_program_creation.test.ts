@@ -181,6 +181,11 @@ describe('program creation', () => {
     ])
   })
 
+  /**
+   * There was a bug where if you deleted the first block
+   * and then go to edit the program, it would error
+   * because it would go to the block with ID == 1
+   */
   it('delete first block and edit', async () => {
     const {page, adminPrograms} = ctx
 
@@ -190,6 +195,18 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 1')
+    await adminPrograms.goToManageQuestionsPage(programName)
+  })
+
+  it('delete last block and edit', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Test program 6'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.addProgramBlock(programName)
+    await adminPrograms.removeProgramBlock(programName, 'Screen 2')
     await adminPrograms.goToManageQuestionsPage(programName)
   })
 
