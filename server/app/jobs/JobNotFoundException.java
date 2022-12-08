@@ -1,5 +1,6 @@
 package jobs;
 
+/** Thrown when no {@link DurableJob} is found for a given {@link DurableJobName}. */
 public class JobNotFoundException extends Exception {
 
   public JobNotFoundException(String jobName) {

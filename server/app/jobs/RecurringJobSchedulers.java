@@ -7,14 +7,23 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
+/**
+ * {@code RecurringJobSchedulers} holds implementations of {@link
+ * RecurringJobExecutionTimeResolver}. A {@link DurableJob} is a recurring job if it is registered
+ * with a {@link RecurringJobExecutionTimeResolver}.
+ */
 public final class RecurringJobSchedulers {
 
   /** Every Sunday at 2am local time. */
-  public static Instant everySundayAt2Am(Clock clock) {
-    return LocalDate.now(clock)
-        .with(TemporalAdjusters.next(DayOfWeek.SUNDAY))
-        .atStartOfDay(clock.getZone())
-        .plus(2, ChronoUnit.HOURS)
-        .toInstant();
+  public static final class EverySunday2Am implements RecurringJobExecutionTimeResolver {
+
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      return LocalDate.now(clock)
+          .with(TemporalAdjusters.next(DayOfWeek.SUNDAY))
+          .atStartOfDay(clock.getZone())
+          .plus(2, ChronoUnit.HOURS)
+          .toInstant();
+    }
   }
 }

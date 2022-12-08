@@ -8,6 +8,13 @@ import jobs.OldJobCleanupJob;
 import jobs.RecurringJobSchedulers;
 import repository.PersistedDurableJobRepository;
 
+/**
+ * Configures {@link jobs.DurableJob}s with their {@link DurableJobName} and, if they are recurring,
+ * their {@link jobs.RecurringJobExecutionTimeResolver}.
+ *
+ * <p>NOTE: THIS SYSTEM IS STILL UNDER DEVELOPMENT AND THIS MODULE IS NOT CURRENTLY ENABLED IN
+ * application.conf
+ */
 public final class DurableJobModule extends AbstractModule {
 
   @Provides
@@ -19,7 +26,7 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.OLD_JOB_CLEANUP,
         persistedDurableJob ->
             new OldJobCleanupJob(persistedDurableJobRepository, persistedDurableJob),
-        RecurringJobSchedulers::everySundayAt2Am);
+        new RecurringJobSchedulers.EverySunday2Am());
 
     return durableJobRegistry;
   }

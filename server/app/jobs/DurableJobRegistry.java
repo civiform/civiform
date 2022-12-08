@@ -5,6 +5,12 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Optional;
 
+/**
+ * Provides the means of looking up a {@link DurableJob} by its {@link DurableJobName}. This is
+ * necessary because all {@link DurableJob}s are persisted by {@link models.PersistedDurableJob}
+ * records. Also provides the means of retrieving a list of all recurring jobs with their associated
+ * {@link RecurringJobExecutionTimeResolver}.
+ */
 public final class DurableJobRegistry {
 
   private final HashMap<String, RegisteredJob> registeredJobs = new HashMap<>();

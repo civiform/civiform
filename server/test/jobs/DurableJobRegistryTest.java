@@ -33,7 +33,7 @@ public class DurableJobRegistryTest {
     registry.register(
         DurableJobName.OLD_JOB_CLEANUP,
         new FakeJobFactory(),
-        RecurringJobSchedulers::everySundayAt2Am);
+        new RecurringJobSchedulers.EverySunday2Am());
 
     assertThat(registry.getRecurringJobs().size()).isEqualTo(1);
   }

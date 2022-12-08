@@ -6,7 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.PersistedDurableJobRepository;
 
-public final class OldJobCleanupJob implements DurableJob {
+/**
+ * A job that deletes {@link PersistedDurableJob} records from the database when their execution
+ * time is older than six months.
+ */
+public final class OldJobCleanupJob extends DurableJob {
   Logger logger = LoggerFactory.getLogger(OldJobCleanupJob.class);
 
   private final PersistedDurableJobRepository persistedDurableJobRepository;

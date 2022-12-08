@@ -6,6 +6,7 @@ import io.ebean.Database;
 import javax.inject.Inject;
 import models.PersistedDurableJob;
 
+/** Implements queries related to {@link PersistedDurableJob}. */
 public final class PersistedDurableJobRepository {
 
   private final Database database;
