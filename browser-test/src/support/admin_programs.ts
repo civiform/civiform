@@ -317,6 +317,13 @@ export class AdminPrograms {
     }
   }
 
+  async removeProgramBlock(programName: string, blockName: string) {
+    await this.goToBlockInProgram(programName, blockName)
+    await this.page.click('#delete-block-button')
+    await waitForPageJsLoad(this.page)
+    await this.gotoAdminProgramsPage()
+  }
+
   private async waitForQuestionBankAnimationToFinish() {
     // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
     // https://tailwindcss.com/docs/transition-property
