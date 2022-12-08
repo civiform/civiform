@@ -369,7 +369,7 @@ function attachRedirectToPageListeners() {
  * because it's possible that some other button up-stream in ancestor chain
  * contains click listener as we have nested clickable elements.
  */
-function attachListenersOnFormButtons() {
+function attachStopPropogationListenerOnFormButtons() {
   addEventListenerToElements('button[form]', 'click', (e: Event) => {
     e.stopPropagation()
   })
@@ -444,7 +444,7 @@ window.addEventListener('load', () => {
   attachFormDebouncers()
 
   attachRedirectToPageListeners()
-  attachListenersOnFormButtons()
+  attachStopPropogationListenerOnFormButtons()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'

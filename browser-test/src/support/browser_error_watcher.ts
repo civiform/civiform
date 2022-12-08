@@ -69,6 +69,14 @@ export class BrowserErrorWatcher {
     )
   }
 
+  /**
+   * Instructs BrowserErrorWatcher to ignore errors coming from all urls that
+   * match the provided regexp. The url doesn't have to fully match the regexp,
+   * even if the regexp matches only part of the url - that url will be ignored.
+   *
+   * Ignore list is reset between tests. So if you need to ignore errors for
+   * multiple/all tests - use `beforeEach`.
+   */
   ignoreErrorsFromUrl(regexp: RegExp) {
     this.urlsToIgnore.push(regexp)
   }
