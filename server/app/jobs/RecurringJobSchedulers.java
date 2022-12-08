@@ -11,6 +11,9 @@ import java.time.temporal.TemporalAdjusters;
  * {@code RecurringJobSchedulers} holds implementations of {@link
  * RecurringJobExecutionTimeResolver}. A {@link DurableJob} is a recurring job if it is registered
  * with a {@link RecurringJobExecutionTimeResolver}.
+ *
+ * <p>All implementations of {@link RecurringJobExecutionTimeResolver} MUST use the parameter {@link
+ * Clock} for resolving execution times to ensure the local time zone is accounted for.
  */
 public final class RecurringJobSchedulers {
 
