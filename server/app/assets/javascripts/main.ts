@@ -367,7 +367,7 @@ function attachRedirectToPageListeners() {
  * Adds listeners to buttons with 'form' attributes. These buttons trigger form
  * submission without JS. But we still need to stop propagation of events
  * because it's possible that some other button up-stream in the ancestor chain
- * contains click listener as we have nested clickable elements.
+ * contains a click listener as we have nested clickable elements.
  */
 function attachStopPropogationListenerOnFormButtons() {
   addEventListenerToElements('button[form]', 'click', (e: Event) => {
