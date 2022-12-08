@@ -46,9 +46,9 @@ import views.style.StyleUtils;
 /**
  * Renders a page for an admin to edit the configuration for program, including a single block of a
  * program. A block is a synonym for a Screen. The ProgramBlockEditView is very similar to the
- * ProgramBlockViewOnlyView, but specifically adds all UI functionality that is needed for editing.
+ * ProgramBlockReadOnlyView, but specifically adds all UI functionality that is needed for editing.
  */
-public final class ProgramBlockEditView extends ProgramBlockViewOnlyView {
+public final class ProgramBlockEditView extends ProgramBlockReadOnlyView {
 
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";

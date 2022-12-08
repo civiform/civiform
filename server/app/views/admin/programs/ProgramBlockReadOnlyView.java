@@ -37,14 +37,14 @@ import views.style.StyleUtils;
  * Renders a view only page for an admin to see the details of an active program, including a list
  * of all screens and details about the block they select. A block is a synonym for a screen.
  */
-public class ProgramBlockViewOnlyView extends ProgramBlockView {
+public class ProgramBlockReadOnlyView extends ProgramBlockView {
 
   private final AdminLayout layout;
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
 
   @Inject
-  public ProgramBlockViewOnlyView(AdminLayoutFactory layoutFactory, Config config) {
+  public ProgramBlockReadOnlyView(AdminLayoutFactory layoutFactory, Config config) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
@@ -298,7 +298,7 @@ public class ProgramBlockViewOnlyView extends ProgramBlockView {
     return "Edit program";
   }
 
-  // TODO when the ProgramBlockViewOnlyView is used, clicking the button should lead to the
+  // TODO when the ProgramBlockReadOnlyView is used, clicking the button should lead to the
   // ProgramBlockEditView.
   @Override
   protected String getButtonUrl(ProgramDefinition programDefinition) {
