@@ -181,6 +181,18 @@ describe('program creation', () => {
     ])
   })
 
+  it('delete first block and edit', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Test program 5'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.addProgramBlock(programName)
+    await adminPrograms.removeProgramBlock(programName, 'Screen 1')
+    await adminPrograms.goToManageQuestionsPage(programName)
+  })
+
   async function expectQuestionsOrderWithinBlock(
     page: Page,
     expectedQuestions: string[],
