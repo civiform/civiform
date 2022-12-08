@@ -84,51 +84,51 @@ public class FeatureFlagsTest {
   }
 
   @Test
-  public void programViewOnlyViewEnabled_withNoConfig_withNoOverride_isNotEnabled() {
+  public void programReadOnlyViewEnabled_withNoConfig_withNoOverride_isNotEnabled() {
     FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
-    assertThat(featureFlags.isViewOnlyProgramViewEnabled(fakeRequest().build())).isFalse();
+    assertThat(featureFlags.isReadOnlyProgramViewEnabled(fakeRequest().build())).isFalse();
   }
 
   @Test
-  public void programViewOnlyViewEnabled_withOverridesDisabled_withOverride_isNotEnabled() {
+  public void programReadOnlyViewEnabled_withOverridesDisabled_withOverride_isNotEnabled() {
     FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
     // Overrides only apply if the config is present.
-    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isFalse();
+    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isFalse();
   }
 
   @Test
-  public void programViewOnlyViewEnabled_withFeatureEnabled_withNoOverride_isEnabled() {
+  public void programReadOnlyViewEnabled_withFeatureEnabled_withNoOverride_isEnabled() {
     FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
-    assertThat(featureFlags.isViewOnlyProgramViewEnabled(fakeRequest().build())).isTrue();
+    assertThat(featureFlags.isReadOnlyProgramViewEnabled(fakeRequest().build())).isTrue();
   }
 
   @Test
   public void
-      programViewOnlyViewEnabled_withFeatureUnset_withOverridesEnabled_withOverride_isNotEnabled() {
+      programReadOnlyViewEnabled_withFeatureUnset_withOverridesEnabled_withOverride_isNotEnabled() {
     // A flag not in the config can not be overriden.
     FeatureFlags featureFlags = new FeatureFlags(overridesEnabledConfig);
-    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isFalse();
+    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isFalse();
   }
 
   @Test
   public void
-      programViewOnlyViewEnabled_withFeatureEnabled_withOverridesDisabled_withDisabledOverride_isEnabled() {
+      programReadOnlyViewEnabled_withFeatureEnabled_withOverridesDisabled_withDisabledOverride_isEnabled() {
     FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
-    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesDisabledRequest)).isTrue();
+    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesDisabledRequest)).isTrue();
   }
 
   @Test
   public void
-      programViewOnlyViewEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideFalse_isNotEnabled() {
+      programReadOnlyViewEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideFalse_isNotEnabled() {
     FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
-    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesDisabledRequest)).isFalse();
+    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesDisabledRequest)).isFalse();
   }
 
   @Test
   public void
-      programViewOnlyViewEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideTrue_isTrue() {
+      programReadOnlyViewEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideTrue_isTrue() {
     FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
-    assertThat(featureFlags.isViewOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isTrue();
+    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isTrue();
   }
 
   @Test
