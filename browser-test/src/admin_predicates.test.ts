@@ -371,12 +371,14 @@ describe('create and edit predicates', () => {
     await applicantQuestions.clickNext()
 
     // Earlier than 2021-01-01 is allowed
-    // TODO(#3859): 2021-01-01 evaluates as earlier, but it shouldn't.
     await applicantQuestions.answerDateQuestion('2021-01-02')
     await applicantQuestions.clickNext()
     await applicantQuestions.expectReviewPage()
     await page.goBack()
     await applicantQuestions.answerDateQuestion('2020-12-31')
+    await applicantQuestions.clickNext()
+    await page.goBack()
+    await applicantQuestions.answerDateQuestion('2020-01-01')
     await applicantQuestions.clickNext()
 
     // "dog" or "cat" are allowed.
