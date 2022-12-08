@@ -21,8 +21,15 @@ describe('file upload applicant flow', () => {
     await page.goto(BASE_URL)
   })
 
+  beforeEach(() => {
+    // TODO(#3896): fix and remove this exclusion
+    ctx.browserErrorWatcher.ignoreErrorsFromUrl(
+      /applicants\/\d+\/programs\/\d+\/blocks\/\d+\/edit/,
+    )
+  })
+
   describe('single file upload question', () => {
-    const programName = 'test-program-for-single-file-upload'
+    const programName = 'Test program for single file upload'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -55,7 +62,7 @@ describe('file upload applicant flow', () => {
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickUpload()
+      await applicantQuestions.clickNext()
 
       await validateScreenshot(page, 'file-errors')
     })
@@ -88,7 +95,7 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
       await applicantQuestions.answerFileUploadQuestion(fileContent)
-      await applicantQuestions.clickUpload()
+      await applicantQuestions.clickNext()
 
       const downloadedFileContent =
         await applicantQuestions.downloadSingleQuestionFromReviewPage()
@@ -102,7 +109,7 @@ describe('file upload applicant flow', () => {
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickUpload()
+      await applicantQuestions.clickNext()
 
       const error = await page.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
@@ -121,7 +128,7 @@ describe('file upload applicant flow', () => {
 
   // Optional file upload.
   describe('optional file upload question', () => {
-    const programName = 'test-program-for-optional-file-upload'
+    const programName = 'Test program for optional file upload'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -151,7 +158,7 @@ describe('file upload applicant flow', () => {
       // Initially clicking upload with no file provided generates
       // an error. Then we click skip to ensure that the question
       // is optional.
-      await applicantQuestions.clickUpload()
+      await applicantQuestions.clickNext()
       const error = await page.$('.cf-fileupload-error')
       expect(await error?.isHidden()).toEqual(false)
       await applicantQuestions.clickSkip()

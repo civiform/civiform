@@ -28,12 +28,12 @@ import services.question.types.QuestionDefinition;
 
 public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
-  private static Locale ES_LOCALE = Locale.forLanguageTag("es-US");
+  private static final Locale ES_LOCALE = Locale.forLanguageTag("es-US");
 
-  private static String ENGLISH_QUESTION_TEXT = "english question text";
-  private static String ENGLISH_QUESTION_HELP_TEXT = "english question help text";
-  private static String SPANISH_QUESTION_TEXT = "spanish question text";
-  private static String SPANISH_QUESTION_HELP_TEXT = "spanish question help text";
+  private static final String ENGLISH_QUESTION_TEXT = "english question text";
+  private static final String ENGLISH_QUESTION_HELP_TEXT = "english question help text";
+  private static final String SPANISH_QUESTION_TEXT = "spanish question text";
+  private static final String SPANISH_QUESTION_HELP_TEXT = "spanish question help text";
 
   private Version draftVersion;
   private QuestionRepository questionRepository;

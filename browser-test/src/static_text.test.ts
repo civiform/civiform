@@ -9,7 +9,7 @@ import {
 
 describe('Static text question for applicant flow', () => {
   const staticText = 'Hello, I am some static text!'
-  const programName = 'test-program-for-static-text'
+  const programName = 'Test program for static text'
   const ctx = createTestContext(/* clearDb= */ false)
 
   beforeAll(async () => {

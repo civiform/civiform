@@ -111,7 +111,7 @@ public final class SelectWithLabel extends FieldWithLabel {
 
     // Either set the options to be custom options or create options from the (text, value) pairs.
     if (!customOptions.isEmpty()) {
-      customOptions.forEach(option -> fieldTag.with(option));
+      customOptions.forEach(fieldTag::with);
     } else {
       fieldTag.with(optionGroups.stream().map(this::renderOptionGroup));
     }

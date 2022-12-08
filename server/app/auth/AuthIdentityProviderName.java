@@ -29,13 +29,13 @@ public enum AuthIdentityProviderName {
     }
     String providerName = config.getString(AUTH_APPLICANT_CONFIG_PATH);
     for (var provider : AuthIdentityProviderName.values()) {
-      if (provider.getString().equals(providerName)) {
+      if (provider.getValue().equals(providerName)) {
         return provider;
       }
     }
     String supportedOptions =
         Arrays.stream(AuthIdentityProviderName.values())
-            .map(AuthIdentityProviderName::getString)
+            .map(AuthIdentityProviderName::getValue)
             .collect(Collectors.joining(", "));
     throw new IllegalArgumentException(
         "Unsupported auth.applicant_idp value: "
@@ -45,7 +45,7 @@ public enum AuthIdentityProviderName {
   }
 
   /** Returns the string value associated with the enum. */
-  public String getString() {
+  public String getValue() {
     return authIdentityProviderNameString;
   }
 }

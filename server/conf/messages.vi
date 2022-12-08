@@ -34,6 +34,12 @@ validation.isRequired=Đây là câu hỏi bắt buộc.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Vui lòng nhập thông tin hợp lệ.
 
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc phục trước khi tiếp tục.
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -90,9 +96,6 @@ button.review=Xem lại
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Bỏ qua
 
-# The text on the button an applicant clicks to upload a file and continue to the next screen.
-button.upload=Tải lên
-
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hết sang tiếng Việt.
 
@@ -115,6 +118,10 @@ button.apply=Đăng ký
 button.applySr=Đăng ký {0}
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Chỉnh sửa
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=Chỉnh sửa đơn đăng ký đã gửi cho {0}
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=Tiếp tục đăng ký {0}
 
 # Text describing the date the application was last submitted.
 content.submittedDate=Đã gửi {0}
@@ -135,6 +142,9 @@ link.programDetailsSr=Chi tiết chương trình {0}
 
 # Link text to an external site to read more about a program.
 link.externalLink=Trang web bên ngoài
+
+# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
+link.externalLinkOpensInNewTab=Mở trong thẻ mới
 
 # The title of the page for the list of programs.
 title.programs=Chương trình và dịch vụ
@@ -321,3 +331,10 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=Chúng tôi không tìm thấy trang mà bạn cố gắng truy cập
+error.notFoundDescription='Vui lòng quay lại hoặc trở về '
+error.notFoundDescriptionLink=trang chủ

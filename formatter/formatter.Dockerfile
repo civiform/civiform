@@ -3,7 +3,7 @@
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:11.0.16_8-jdk-alpine as amd64
+FROM eclipse-temurin:11.0.17_8-jdk-alpine as amd64
 FROM bellsoft/liberica-openjdk-alpine:11.0.17-7 as arm64
 
 FROM ${TARGETARCH}
@@ -39,8 +39,7 @@ RUN mkdir -p $BROWSER_TEST_DIR
 COPY browser-test/package.json $BROWSER_TEST_DIR
 COPY browser-test/package-lock.json $BROWSER_TEST_DIR
 WORKDIR $BROWSER_TEST_DIR
-# Remove --force once fixed https://github.com/civiform/civiform/issues/3678
-RUN npm install --force
+RUN npm install
 
 # Fetch node js dependencies for `server` directory.
 ENV SERVER_DIR /code/server

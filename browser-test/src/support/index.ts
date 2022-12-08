@@ -30,6 +30,7 @@ import {AdminPredicates} from './admin_predicates'
 import {AdminTranslations} from './admin_translations'
 import {TIDashboard} from './ti_dashboard'
 import {AdminTIGroups} from './admin_ti_groups'
+import {BrowserErrorWatcher} from './browser_error_watcher'
 
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -75,13 +76,17 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     const dirs = ['tmp/videos']
     if ('expect' in global && expect.getState() != null) {
       const testPath = expect.getState().testPath
+      if (testPath == null) {
+        throw new Error('testPath cannot be null')
+      }
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
       dirs.push(testFile)
       // Some test initialize context in beforeAll at which point test name is
       // not set.
-      if (expect.getState().currentTestName) {
+      const testName = expect.getState().currentTestName
+      if (testName) {
         // remove special characters
-        dirs.push(expect.getState().currentTestName.replace(/[:"<>|*?]/g, ''))
+        dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
       }
     }
     return browser.newContext({
@@ -127,6 +132,7 @@ export interface TestContext {
    * Methods: https://playwright.dev/docs/api/class-page
    */
   page: Page
+  browserErrorWatcher: BrowserErrorWatcher
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
@@ -182,10 +188,12 @@ export const createTestContext = (clearDb = true): TestContext => {
   // we'll get one huge video for all tests.
   async function resetContext() {
     if (browserContext != null) {
+      ctx.browserErrorWatcher.failIfContainsErrors()
       await browserContext.close()
     }
     browserContext = await makeBrowserContext(browser)
     ctx.page = await browserContext.newPage()
+    ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
     // Default timeout is 30s. It's too long given that civiform is not JS
     // heavy and all elements render quite quickly. Setting it to 5 sec so that
     // tests fail fast.
@@ -504,13 +512,10 @@ export const validateScreenshot = async (
 const normalizeElements = async (page: Frame | Page) => {
   await page.evaluate(() => {
     for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
-      // Use regexp replacement instead of full replacement to make sure that format of the text
-      // matches what we expect. In case underlying format changes to "September 20, 2022" then
-      // regexp will break and it will show up in screenshots.
       date.textContent = date
         .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
         .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
-        .replace(/\d{1,2}:\d{2} (PM|AM)/, '11:22 PM')
+        .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT')
     }
     // Process application id values.
     for (const applicationId of Array.from(

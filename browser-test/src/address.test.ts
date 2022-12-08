@@ -12,7 +12,7 @@ describe('address applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single required address question', () => {
-    const programName = 'test-program-for-single-address'
+    const programName = 'Test program for single address'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -60,7 +60,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
       )
       let error = page.locator('.cf-address-street-1-error')
@@ -83,7 +83,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
       )
       await applicantQuestions.clickNext()
@@ -120,7 +120,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         'notazipcode',
       )
       await applicantQuestions.clickNext()
@@ -131,7 +131,7 @@ describe('address applicant flow', () => {
   })
 
   describe('multiple address questions', () => {
-    const programName = 'test-program-for-multiple-addresses'
+    const programName = 'Test program for multiple addresses'
 
     beforeAll(async () => {
       const {page, adminPrograms, adminQuestions} = ctx
@@ -161,7 +161,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         0,
       )
@@ -169,7 +169,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         1,
       )
@@ -189,7 +189,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         1,
       )
@@ -226,7 +226,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         0,
       )
@@ -267,7 +267,7 @@ describe('address applicant flow', () => {
 
   // One optional address followed by one required address.
   describe('optional address question', () => {
-    const programName = 'test-program-for-optional-address'
+    const programName = 'Test program for optional address'
 
     beforeAll(async () => {
       const {page, adminPrograms, adminQuestions} = ctx
@@ -301,7 +301,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         1,
       )
@@ -328,7 +328,7 @@ describe('address applicant flow', () => {
         '1234 St',
         'Unit B',
         'Sim',
-        'Ames',
+        'WA',
         '54321',
         1,
       )

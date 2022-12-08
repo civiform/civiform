@@ -23,8 +23,8 @@ public class FakeAdminClient extends IndirectClient {
   public static final String DUAL_ADMIN = "DUAL";
   public static final String TRUSTED_INTERMEDIARY = "TRUSTED_INTERMEDIARY";
 
-  private ImmutableSet<String> acceptedHosts;
-  private ProfileFactory profileFactory;
+  private final ImmutableSet<String> acceptedHosts;
+  private final ProfileFactory profileFactory;
 
   @Inject
   public FakeAdminClient(ProfileFactory profileFactory, Config configuration) {

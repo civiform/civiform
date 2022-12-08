@@ -2,9 +2,11 @@ package services.export;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
+import junitparams.converters.Nullable;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -31,6 +33,12 @@ import support.QuestionAnswerer;
  */
 public abstract class AbstractExporterTest extends ResetPostgres {
   public static final String STATUS_VALUE = "approved";
+
+  // Instant in UTC, the month is chosen so that the create time translates to a PDT time
+  // and the creation time to a PST time to test both cases.
+  public static final Instant FAKE_CREATE_TIME = Instant.parse("2022-04-09T10:07:02.00Z");
+  public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2022-12-09T10:30:30.00Z");
+
   private ProgramAdminApplicationService programAdminApplicationService;
 
   protected Program fakeProgramWithEnumerator;
@@ -146,35 +154,42 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantTwo.save();
 
     applicationOne =
-        new Application(applicantOne, fakeProgram, LifecycleStage.ACTIVE).setSubmitTimeToNow();
-    applicationOne.save();
-    programAdminApplicationService.setStatus(
-        applicationOne,
-        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
-        admin);
-    applicationOne.refresh();
-
+        createFakeApplication(
+            applicantOne, admin, fakeProgram, LifecycleStage.ACTIVE, STATUS_VALUE);
     applicationTwo =
-        new Application(applicantOne, fakeProgram, LifecycleStage.OBSOLETE).setSubmitTimeToNow();
-    applicationTwo.save();
-    programAdminApplicationService.setStatus(
-        applicationTwo,
-        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
-        admin);
-    applicationTwo.refresh();
-
+        createFakeApplication(
+            applicantOne, admin, fakeProgram, LifecycleStage.OBSOLETE, STATUS_VALUE);
     applicationThree =
-        new Application(applicantOne, fakeProgram, LifecycleStage.DRAFT).setSubmitTimeToNow();
-    applicationThree.save();
-    programAdminApplicationService.setStatus(
-        applicationThree,
-        StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
-        admin);
-    applicationThree.refresh();
-
+        createFakeApplication(applicantOne, admin, fakeProgram, LifecycleStage.DRAFT, STATUS_VALUE);
     applicationFour =
-        new Application(applicantTwo, fakeProgram, LifecycleStage.ACTIVE).setSubmitTimeToNow();
-    applicationFour.save();
+        createFakeApplication(applicantTwo, null, fakeProgram, LifecycleStage.ACTIVE, null);
+  }
+
+  private Application createFakeApplication(
+      Applicant applicant,
+      @Nullable Account admin,
+      Program program,
+      LifecycleStage lifecycleStage,
+      @Nullable String status)
+      throws Exception {
+    Application application = new Application(applicant, program, lifecycleStage);
+    application.setApplicantData(applicant.getApplicantData());
+    application.save();
+
+    // CreateTime of an application is set through @onCreate to Instant.now(). To change
+    // the value, manually set createTime and save and refresh the application.
+    application.setCreateTimeForTest(FAKE_CREATE_TIME);
+    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+    application.save();
+
+    if (status != null && admin != null) {
+      programAdminApplicationService.setStatus(
+          application,
+          StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
+          admin);
+    }
+    application.refresh();
+    return application;
   }
 
   protected void createFakeQuestions() {
@@ -237,6 +252,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantFive.save();
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationFive.setSubmitTimeToNow());
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
     applicationFive.save();
     // Applicant six hasn't uploaded a file for the optional file upload question
     applicantSix = resourceCreator.insertApplicantWithAccount();
@@ -252,6 +268,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantSix.save();
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationSix.setSubmitTimeToNow());
+    applicationSix.setApplicantData(applicantSix.getApplicantData());
     applicationSix.save();
   }
   /**
@@ -328,6 +345,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantOne.save();
     applicationOne =
         new Application(applicantOne, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
+    applicationOne.setApplicantData(applicantOne.getApplicantData());
 
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationOne.setSubmitTimeToNow());
@@ -386,12 +404,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantTwo.save();
     applicationTwo =
         new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
+    applicationTwo.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-02-01T00:00:00Z", () -> applicationTwo.setSubmitTimeToNow());
     applicationTwo.save();
 
     applicationThree =
         new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.OBSOLETE);
+    applicationThree.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();

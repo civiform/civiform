@@ -4,7 +4,7 @@
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:11.0.16_8-jdk-alpine as amd64
+FROM eclipse-temurin:11.0.17_8-jdk-alpine as amd64
 FROM bellsoft/liberica-openjdk-alpine:11.0.17-7 as arm64
 
 FROM ${TARGETARCH}
@@ -71,8 +71,7 @@ RUN sbt update compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
 ### Get the volumes and startup commands set up       ###
 ########################################################
 
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash"]
 
 # Save build results to anonymous volumes for reuse
 # We do this first, so they don't get shadowed by the

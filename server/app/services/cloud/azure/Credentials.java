@@ -17,7 +17,7 @@ import play.Environment;
 @Singleton
 public final class Credentials {
 
-  private ChainedTokenCredential defaultAzureCredential;
+  private final ChainedTokenCredential defaultAzureCredential;
 
   @Inject
   public Credentials(Environment environment) {

@@ -206,7 +206,7 @@ public final class Block {
   private boolean isCompleteInProgram() {
     return getQuestions().isEmpty()
         || getQuestions().stream()
-            .allMatch(question -> question.isAnsweredOrSkippedOptionalInProgram());
+            .allMatch(ApplicantQuestion::isAnsweredOrSkippedOptionalInProgram);
   }
 
   /**

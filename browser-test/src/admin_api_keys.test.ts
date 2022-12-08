@@ -7,7 +7,7 @@ describe('Managing API keys', () => {
     const {page, adminApiKeys, adminPrograms} = ctx
     await loginAsAdmin(page)
 
-    const programName = 'api-using-program'
+    const programName = 'Api using program'
     const programDescription = 'This program uses the API.'
     await adminPrograms.addProgram(programName, programDescription, '', false)
     await adminPrograms.publishAllPrograms()

@@ -12,7 +12,7 @@ describe('Date question for applicant flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
   describe('single date question', () => {
-    const programName = 'test-program-for-single-date'
+    const programName = 'Test program for single date'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
@@ -79,7 +79,7 @@ describe('Date question for applicant flow', () => {
   })
 
   describe('multiple date questions', () => {
-    const programName = 'test-program-for-multiple-date-questions'
+    const programName = 'Test program for multiple date questions'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx

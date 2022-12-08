@@ -68,7 +68,7 @@ public final class ProgramAdminApplicationService {
   public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
     Optional<Application> maybeApplication =
         applicationRepository.getApplication(applicationId).toCompletableFuture().join();
-    if (!maybeApplication.isPresent()) {
+    if (maybeApplication.isEmpty()) {
       return Optional.empty();
     }
     Application application = maybeApplication.get();

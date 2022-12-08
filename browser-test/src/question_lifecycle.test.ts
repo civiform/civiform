@@ -244,7 +244,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.addNameQuestion({questionName: 'name-q'})
 
-    const programName = 'test-program'
+    const programName = 'Test program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishProgram(programName)
 

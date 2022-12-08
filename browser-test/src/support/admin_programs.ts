@@ -31,6 +31,13 @@ export interface DownloadedApplication {
   }
 }
 
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^a-zA-Z0-9-]/g, '')
+}
+
 export class AdminPrograms {
   public page!: Page
 
@@ -68,13 +75,15 @@ export class AdminPrograms {
     description = 'program description',
     externalLink = '',
     hidden = false,
+    adminDescription = 'admin description',
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
     await waitForPageJsLoad(this.page)
 
-    await this.page.fill('#program-name-input', programName)
-    await this.page.fill('#program-description-textarea', description)
+    // program name must be in url-compatible form so we slugify it
+    await this.page.fill('#program-name-input', slugify(programName))
+    await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill('#program-display-description-textarea', description)
     await this.page.fill('#program-external-link-input', externalLink)

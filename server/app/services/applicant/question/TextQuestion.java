@@ -40,7 +40,7 @@ public final class TextQuestion extends Question {
 
   private ImmutableSet<ValidationErrorMessage> validateText() {
     TextQuestionDefinition definition = getQuestionDefinition();
-    int textLength = getTextValue().map(s -> s.length()).orElse(0);
+    int textLength = getTextValue().map(String::length).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (definition.getMinLength().isPresent()) {

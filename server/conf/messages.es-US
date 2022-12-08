@@ -37,6 +37,12 @@ validation.isRequired=Esta pregunta es obligatoria.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Ingresa una entrada válida.
 
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes de continuar.
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -92,9 +98,6 @@ button.review=Revisar
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Omitir
 
-# The text on the button an applicant clicks to upload a file and continue to the next screen.
-button.upload=Subir
-
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo al inglés.
 
@@ -118,6 +121,10 @@ button.apply=Solicitar
 button.applySr=Solicitar {0}
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Editar
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=Editar la solicitud enviada a {0}
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=Continuar la solicitud para {0}
 
 # Text describing the date the application was last submitted.
 content.submittedDate=Enviada el {0}
@@ -139,6 +146,9 @@ link.programDetailsSr=Detalles del programa para {0}
 # Link text to an external site to read more about a program.
 link.externalLink=Sitio externo
 
+# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
+link.externalLinkOpensInNewTab=Se abre en una pestaña nueva
+
 # The title of the page for the list of programs.
 title.programs=Programas y servicios
 
@@ -147,9 +157,6 @@ title.inProgressProgramsUpdated=En curso
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Sin comenzar
-
-# Screen reader format string for program cards
-title.programCard=Programa {0} de {1} -- {2}
 
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Enviados

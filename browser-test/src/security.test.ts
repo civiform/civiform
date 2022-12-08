@@ -10,6 +10,9 @@ describe('applicant security', () => {
 
   it('applicant cannot access another applicant data', async () => {
     const {page} = ctx
+    // this test visits page that returns 401 which triggers BrowserErrorWatcher.
+    // Silencing error on that page.
+    ctx.browserErrorWatcher.ignoreErrorsFromUrl(/applicants\/1234\/programs/)
     await loginAsGuest(page)
     const response = await gotoEndpoint(page, '/applicants/1234/programs')
     expect(response!.status()).toBe(401)
@@ -17,6 +20,9 @@ describe('applicant security', () => {
 
   it('admin cannot access applicant pages', async () => {
     const {page} = ctx
+    // this test visits page that returns 401 which triggers BrowserErrorWatcher.
+    // Silencing error on that page.
+    ctx.browserErrorWatcher.ignoreErrorsFromUrl(/applicants\/1234567\/programs/)
     await loginAsAdmin(page)
     const response = await gotoEndpoint(page, '/applicants/1234567/programs')
     expect(response!.status()).toBe(401)

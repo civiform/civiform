@@ -24,8 +24,10 @@ services:
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
+      - APPLICANT_REGISTER_URI=http://dev-oidc:3390/
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=http://civiform:9000
       - LOCALSTACK_URL=http://localstack:4566
       - CIVIFORM_TIME_ZONE_ID
     command: ~runBrowserTestsServer
+    entrypoint: ./entrypoint.sh

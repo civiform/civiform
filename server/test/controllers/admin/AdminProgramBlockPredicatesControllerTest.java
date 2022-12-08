@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.fakeRequest;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import models.Program;
 import org.junit.Before;
@@ -16,6 +17,9 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
+import services.applicant.question.Scalar;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateValue;
 import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
@@ -323,5 +327,16 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Result redirectResult =
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always shown.");
+  }
+
+  @Test
+  public void testParsePredicateValue_currency() {
+    PredicateValue got =
+        AdminProgramBlockPredicatesController.parsePredicateValue(
+            Scalar.CURRENCY_CENTS, Operator.EQUAL_TO, "100.01", ImmutableList.of());
+
+    assertThat(
+            got.toDisplayString(testQuestionBank.applicantMonthlyIncome().getQuestionDefinition()))
+        .isEqualTo("$100.01");
   }
 }

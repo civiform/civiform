@@ -23,8 +23,6 @@ services:
     ports:
       - 9000:9000
       - 8457:8457
-    # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
-    command: -jvm-debug "*:8457" ~runDevServer -Dsbt.offline
 
   civiform-shell:
     image: civiform-dev
@@ -47,7 +45,7 @@ services:
       - 10000:10000
 
   db:
-    image: postgres:12.12
+    image: postgres:12.13
     stdin_open: true
     tty: true
     volumes:

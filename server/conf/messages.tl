@@ -35,6 +35,12 @@ validation.isRequired=Ang tanong na ito ay kinakailangan.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago magpatuloy.
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -57,6 +63,9 @@ button.createAccount=Gumawa ng account
 # The text on the button for guests to log in to their session.
 button.guestLogin=Magpatuloy bilang panauhin
 
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=Kasalukuyang naka-disable ang pag-log in sa account
+
 # The words leading up to the admin login anchor
 content.adminLoginPrompt=Naghahanap ng iba?
 
@@ -66,6 +75,9 @@ link.adminLogin=Admin login
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
+input.fileAlreadyUploaded=Na-upload na ang file: {0}
 
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Burahin
@@ -84,9 +96,6 @@ button.review=Pagsusuri
 
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Laktawan
-
-# The text on the button an applicant clicks to upload a file and continue to the next screen.
-button.upload=Mag-upload
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=Ikinalulungkot namin, Ang programa na ito ay hindi lubos na naisalin sa inyong ninanais na wika.
@@ -108,6 +117,15 @@ link.createAccountOrSignIn=Gumawa ng account o magsign-in
 button.apply=Mag-aplay
 # The text read for screen readers.
 button.applySr=Mag-aplay sa {0}
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=I-edit
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=I-edit ang isinumiteng aplikasyon sa {0}
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
+
+# Text describing the date the application was last submitted.
+content.submittedDate=Isinumite noong {0}
 
 # "Get benefits" floating text
 content.benefits=Kumuha ng mga benepisyo
@@ -126,8 +144,20 @@ link.programDetailsSr=Mga detalya ng programa para sa {0}
 # Link text to an external site to read more about a program.
 link.externalLink=Panlabas na site
 
+# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
+link.externalLinkOpensInNewTab=Bubukas sa bagong tab
+
 # The title of the page for the list of programs.
 title.programs=Mga programa at mga serbisyo
+
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=Kasalukuyang ginagawa
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=Hindi sinimulan
+
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=Isinumite
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: Matagumpay na nai-save ang aplikasyon: ID ng aplikasyon {0}
@@ -306,3 +336,9 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
 
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
+error.notFoundDescription='Bumalik o pumunta sa '
+error.notFoundDescriptionLink=homepage
