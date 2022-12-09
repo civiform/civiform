@@ -375,6 +375,21 @@ function attachStopPropogationListenerOnFormButtons() {
   })
 }
 
+/**
+ * Disables default browser behavior where pressing Enter on any input in a form
+ * triggers form submission. See https://github.com/civiform/civiform/issues/3872
+ */
+function disableEnterToSubmitBehaviorOnForms() {
+  addEventListenerToElements('form', 'keydown', (e: KeyboardEvent) => {
+    const target = (e.target as HTMLElement).tagName.toLowerCase()
+    // if event originated from a button or link - it should proceed with
+    // default action.
+    if (target !== 'button' && target !== 'a' && e.key === 'Enter') {
+      e.preventDefault()
+    }
+  })
+}
+
 window.addEventListener('load', () => {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
@@ -445,6 +460,7 @@ window.addEventListener('load', () => {
 
   attachRedirectToPageListeners()
   attachStopPropogationListenerOnFormButtons()
+  disableEnterToSubmitBehaviorOnForms()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
