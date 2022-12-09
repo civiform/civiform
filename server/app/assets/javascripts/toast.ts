@@ -237,4 +237,7 @@ type ToastMessage = {
   type: string
 }
 
+// toastController is used from other JS files. They read it from the window object.
+// TODO(#3864): refactor to export instance of controller instead of setting
+// it on window object.
 window['toastController'] = new ToastController()
