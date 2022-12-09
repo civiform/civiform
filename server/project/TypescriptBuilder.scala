@@ -110,6 +110,7 @@ object TypescriptBuilder extends AutoPlugin {
         if (modifiedFiles.nonEmpty || !targetDir.exists()) {
           log.info("Typescript files changed. Recompiling...")
           compileTypescriptInternal(targetDir, log)
+          runWebpack(targetDir, log)
         }
         val compiledJsFiles: Seq[File] = targetDir.listFiles()
         // ignore opResults. We are not using full functionality of syncIncremental
@@ -143,10 +144,27 @@ object TypescriptBuilder extends AutoPlugin {
     )
     if (res != 0) {
       log.info(
-        "To debug TS code compilation can run the following command from 'server' folder:\n    " + compilationCommand
+        "To debug TS code compilation run the following command from 'server' folder:\n    " + compilationCommand
       )
       throw new sbt.MessageOnlyException(
         "TypeScript compilation failed. Check console to see compilation errors."
+      )
+    }
+  }
+
+  def runWebpack(targetDir: File, log: ManagedLogger) = {
+    val compilationCommand =
+      "npx webpack --no-stats --config webpack.config.js --output-path " + targetDir
+    val res = Process(compilationCommand) ! ProcessLogger(
+      line => log.error(line),
+      line => log.error(line)
+    )
+    if (res != 0) {
+      log.info(
+        "To debug Webpack compilation run the following command from 'server' folder:\n    " + compilationCommand
+      )
+      throw new sbt.MessageOnlyException(
+        "Webpack compilation failed. Check console to see compilation errors."
       )
     }
   }
