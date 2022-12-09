@@ -22,16 +22,30 @@ public class FeatureFlagsTest {
               FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
               "true",
               FeatureFlags.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
+              "true",
+              FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
               "true"));
   private static final Config featuresEnabledConfig =
       ConfigFactory.parseMap(
-          ImmutableMap.of(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "true"));
+          ImmutableMap.of(
+              FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
+              "true",
+              FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
+              "true"));
   private static final Map<String, String> allFeaturesEnabledMap =
-      Map.of(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "true");
+      Map.of(
+          FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
+          "true",
+          FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
+          "true");
   private static final Request allFeaturesEnabledRequest =
       fakeRequest().session(allFeaturesEnabledMap).build();
   private static final Map<String, String> allFeaturesDisabledMap =
-      Map.of(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "false");
+      Map.of(
+          FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
+          "false",
+          FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
+          "false");
   private static final Request allFeaturesDisabledRequest =
       fakeRequest().session(allFeaturesDisabledMap).build();
 
