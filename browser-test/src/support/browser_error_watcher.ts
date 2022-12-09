@@ -17,7 +17,8 @@ export class BrowserErrorWatcher {
   private readonly urlsToIgnore: RegExp[] = [
     // Some react JS errors on seattle login page.
     /qalogin\.seattle\.gov/,
-    // ERR_ABORTED errors coming from qalogin.seattle.gov
+    // ERR_ABORTED errors coming from qalogin.seattle.gov which tries to load
+    // google translate but redirect happens before resources are loaded.
     /www\.gstatic\.com/,
   ]
 
