@@ -14,7 +14,12 @@ interface ErrorOnPage {
 export class BrowserErrorWatcher {
   private readonly errors: ErrorOnPage[] = []
   private readonly downloadUrls = new Set<string>()
-  private readonly urlsToIgnore: RegExp[] = []
+  private readonly urlsToIgnore: RegExp[] = [
+    // Some react JS errors on seattle login page.
+    /qalogin\.seattle\.gov/,
+    // ERR_ABORTED errors coming from qalogin.seattle.gov
+    /www\.gstatic\.com/,
+  ]
 
   constructor(page: Page) {
     // Catch JS errors on page.
