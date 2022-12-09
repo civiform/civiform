@@ -21,6 +21,13 @@ describe('file upload applicant flow', () => {
     await page.goto(BASE_URL)
   })
 
+  beforeEach(() => {
+    // TODO(#3896): fix and remove this exclusion
+    ctx.browserErrorWatcher.ignoreErrorsFromUrl(
+      /applicants\/\d+\/programs\/\d+\/blocks\/\d+\/edit/,
+    )
+  })
+
   describe('single file upload question', () => {
     const programName = 'Test program for single file upload'
 

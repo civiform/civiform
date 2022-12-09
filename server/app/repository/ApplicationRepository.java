@@ -105,6 +105,7 @@ public final class ApplicationRepository {
           drafts.isEmpty()
               ? new Application(applicant, program, LifecycleStage.ACTIVE)
               : drafts.get(0);
+      application.setApplicantData(applicant.getApplicantData());
       application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();
       if (tiSubmitterEmail.isPresent()) {
@@ -198,8 +199,7 @@ public final class ApplicationRepository {
               .eq("lifecycle_stage", LifecycleStage.DRAFT)
               .findOneOrEmpty();
       Application application =
-          existingDraft.orElse(new Application(applicant, program, LifecycleStage.DRAFT));
-      application.setApplicantData(applicant.getApplicantData());
+          existingDraft.orElseGet(() -> new Application(applicant, program, LifecycleStage.DRAFT));
       application.save();
       database.commitTransaction();
       return application;
