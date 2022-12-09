@@ -14,10 +14,6 @@ export class TIDashboard {
     this.page = page
   }
 
-  async gotoTIDashboardPage(page: Page) {
-    await page.click('text="View and Add Clients"')
-  }
-
   async createClient(client: ClientInformation) {
     await this.page.fill('label:has-text("Email Address")', client.emailAddress)
     await this.page.fill('label:has-text("First Name")', client.firstName)

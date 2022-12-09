@@ -12,7 +12,6 @@ describe('Trusted intermediaries', () => {
   it('expect Client Date Of Birth to be Updated', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
-    await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client: ClientInformation = {
       emailAddress: 'test@sample.com',
@@ -37,8 +36,6 @@ describe('Trusted intermediaries', () => {
   it('expect Dashboard Contain New Client', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
-
-    await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client: ClientInformation = {
       emailAddress: 'fake@sample.com',
@@ -55,7 +52,6 @@ describe('Trusted intermediaries', () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
 
-    await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client1: ClientInformation = {
       emailAddress: 'fake@sample.com',
