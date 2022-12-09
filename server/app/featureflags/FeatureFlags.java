@@ -19,11 +19,13 @@ import play.mvc.Http.Request;
 public final class FeatureFlags {
   private static final Logger logger = LoggerFactory.getLogger(FeatureFlags.class);
   private static final String FEATURE_FLAG_OVERRIDES_ENABLED = "feature_flag_overrides_enabled";
+
+  public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
+    "allow_civiform_admin_access_programs";
   public static final String APPLICATION_STATUS_TRACKING_ENABLED =
       "application_status_tracking_enabled";
   public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
-  public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
-      "allow_civiform_admin_access_programs";
+
   private final Config config;
 
   @Inject
