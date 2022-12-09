@@ -18,6 +18,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
+import featureflags.FeatureFlags;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
@@ -65,11 +66,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
   public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
+  private final FeatureFlags featureFlags;
 
   @Inject
-  public ProgramApplicationView(BaseHtmlLayout layout, @EnUsLang Messages enUsMessages) {
+  public ProgramApplicationView(
+      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, FeatureFlags featureFlags) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -150,8 +154,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addBodyStyles("flex")
             .addMainStyles("w-screen")
             .addModals(updateNoteModal)
-            .addModals(statusUpdateConfirmationModals)
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
+            .addModals(statusUpdateConfirmationModals);
+    if (!featureFlags.isJsBundlingEnabled()) {
+      htmlBundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
+    }
     Optional<String> maybeSuccessMessage = request.flash().get("success");
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));

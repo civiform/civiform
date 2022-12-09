@@ -7,6 +7,7 @@ import static j2html.TagCreator.form;
 
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -32,15 +33,18 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final ApplicantLayout layout;
   private final FileUploadViewStrategy fileUploadStrategy;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
+  private final FeatureFlags featureFlags;
 
   @Inject
   ApplicantProgramBlockEditView(
       ApplicantLayout layout,
       FileUploadViewStrategy fileUploadStrategy,
-      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layout);
     this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
     this.applicantQuestionRendererFactory = applicantQuestionRendererFactory;
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(Params params) {
@@ -67,10 +71,10 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
               params.applicantId(), params.programId(), params.messages()));
     }
 
-    if (params.block().isFileUpload()) {
+    if (params.block().isFileUpload() && !featureFlags.isJsBundlingEnabled()) {
       bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("file_upload"));
     }
-    if (params.block().isEnumerator()) {
+    if (params.block().isEnumerator() && !featureFlags.isJsBundlingEnabled()) {
       bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("enumerator"));
     }
 
