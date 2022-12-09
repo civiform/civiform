@@ -137,4 +137,9 @@ public final class ReferenceClasses {
   // taking a screenshot (e.g. dates, application IDs).
   public static final String BT_DATE = "cf-bt-date";
   public static final String BT_APPLICATION_ID = "cf-application-id";
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Developer reference classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  public static final String DEV_ICONS = "cf-dev-icons";
 }

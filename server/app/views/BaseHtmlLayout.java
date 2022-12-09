@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import j2html.tags.specialized.ScriptTag;
 import java.net.URI;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.components.ToastMessage;
@@ -34,7 +35,7 @@ public class BaseHtmlLayout {
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
-  private final String measurementId;
+  private final Optional<String> measurementId;
   private final String hostName;
   private final boolean isStaging;
 
@@ -42,7 +43,10 @@ public class BaseHtmlLayout {
   public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
     checkNotNull(configuration);
     this.viewUtils = checkNotNull(viewUtils);
-    this.measurementId = configuration.getString("measurement_id");
+    this.measurementId =
+        configuration.hasPath("measurement_id")
+            ? Optional.of(configuration.getString("measurement_id"))
+            : Optional.empty();
 
     String baseUrl = configuration.getString("base_url");
     String stagingHostname = configuration.getString("staging_hostname");
@@ -93,7 +97,9 @@ public class BaseHtmlLayout {
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME));
 
     // Add Google analytics scripts.
-    bundle.addFooterScripts(getAnalyticsScripts(measurementId).toArray(new ScriptTag[0]));
+    measurementId
+        .map(id -> getAnalyticsScripts(id).toArray(new ScriptTag[0]))
+        .ifPresent(bundle::addFooterScripts);
 
     // Add default scripts.
     for (String source : FOOTER_SCRIPTS) {

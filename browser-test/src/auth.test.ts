@@ -70,6 +70,7 @@ describe('applicant auth', () => {
       await page.click('button:has-text("Yes")')
     }
 
+    await ctx.page.waitForURL(/.*\/loginForm/)
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
   })
 

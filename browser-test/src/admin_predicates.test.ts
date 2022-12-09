@@ -324,20 +324,69 @@ describe('create and edit predicates', () => {
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
+    // For each condition:
+    // - submit an invalid option
+    // - verify the other screens aren't show and the review page is shown
+    // - go back
+    // - enter an allowed value
+
+    // "hidden" first name is not allowed.
+    await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.expectReviewPage()
+    await page.goBack()
     await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
     await applicantQuestions.clickNext()
+
+    // "blue" or "green" are allowed.
+    await applicantQuestions.answerTextQuestion('red')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.expectReviewPage()
+    await page.goBack()
     await applicantQuestions.answerTextQuestion('blue')
     await applicantQuestions.clickNext()
+
+    // 42 is allowed.
+    await applicantQuestions.answerNumberQuestion('1')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.expectReviewPage()
+    await page.goBack()
     await applicantQuestions.answerNumberQuestion('42')
     await applicantQuestions.clickNext()
+
+    // 123 or 456 are allowed.
+    await applicantQuestions.answerNumberQuestion('11111')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.expectReviewPage()
+    await page.goBack()
     await applicantQuestions.answerNumberQuestion('123')
     await applicantQuestions.clickNext()
+
+    // Greater than 100.01 is allowed
+    await applicantQuestions.answerCurrencyQuestion('100.01')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.expectReviewPage()
+    await page.goBack()
     await applicantQuestions.answerCurrencyQuestion('100.02')
     await applicantQuestions.clickNext()
-    await applicantQuestions.answerDateQuestion('1998-09-04')
+
+    // Earlier than 2021-01-01 is allowed
+    // TODO(#3859): 2021-01-01 evaluates as earlier, but it shouldn't.
+    await applicantQuestions.answerDateQuestion('2021-01-02')
     await applicantQuestions.clickNext()
+    await applicantQuestions.expectReviewPage()
+    await page.goBack()
+    await applicantQuestions.answerDateQuestion('2020-12-31')
+    await applicantQuestions.clickNext()
+
+    // "dog" or "cat" are allowed.
+    await applicantQuestions.answerCheckboxQuestion(['rabbit'])
+    await applicantQuestions.clickNext()
+    await applicantQuestions.expectReviewPage()
+    await page.goBack()
     await applicantQuestions.answerCheckboxQuestion(['cat'])
     await applicantQuestions.clickNext()
+
     await applicantQuestions.answerTextQuestion('last one!')
     await applicantQuestions.clickNext()
 
