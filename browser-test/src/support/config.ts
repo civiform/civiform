@@ -7,4 +7,5 @@ export const {
   TEST_USER_DISPLAY_NAME = '',
   TEST_CIVIC_ENTITY_SHORT_NAME = 'TestCity',
   DISABLE_SCREENSHOTS = false,
+  DISABLE_BROWSER_ERROR_WATCHER = false,
 } = process.env
