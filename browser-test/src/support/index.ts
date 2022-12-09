@@ -20,6 +20,7 @@ import {
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
   TEST_USER_DISPLAY_NAME,
+  DISABLE_BROWSER_ERROR_WATCHER,
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
@@ -188,7 +189,9 @@ export const createTestContext = (clearDb = true): TestContext => {
   // we'll get one huge video for all tests.
   async function resetContext() {
     if (browserContext != null) {
-      ctx.browserErrorWatcher.failIfContainsErrors()
+      if (!DISABLE_BROWSER_ERROR_WATCHER) {
+        ctx.browserErrorWatcher.failIfContainsErrors()
+      }
       await browserContext.close()
     }
     browserContext = await makeBrowserContext(browser)
