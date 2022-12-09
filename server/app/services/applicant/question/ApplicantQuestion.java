@@ -130,6 +130,14 @@ public final class ApplicantQuestion {
   }
 
   /**
+   * Get the question text that should be used for screen readers. We add a styled asterisk, which should be read out
+   * to screen readers.
+   */
+  public String getQuestionTextForScreenReader() {
+    return isOptional()? getQuestionText() : getQuestionText() + " *";
+  }
+
+  /**
    * Get the question help text localized to the applicant's preferred locale, contextualized with
    * {@link RepeatedEntity}.
    */

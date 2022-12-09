@@ -178,14 +178,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     // Maybe link to block containing specific question.
     if (data.isAnswered() || isFirstUnanswered) {
       String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
-      String ariaLabel = messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText());
+      String ariaLabel = messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionTextForScreenReader());
       if (!data.isAnswered()) {
         if (inReview) {
           editText = messages.at(MessageKey.BUTTON_CONTINUE.getKeyName());
-          ariaLabel = messages.at(MessageKey.ARIA_LABEL_CONTINUE.getKeyName(), data.questionText());
+          ariaLabel = messages.at(MessageKey.ARIA_LABEL_CONTINUE.getKeyName(), data.questionTextForScreenReader());
         } else {
           editText = messages.at(MessageKey.LINK_BEGIN.getKeyName());
-          ariaLabel = messages.at(MessageKey.ARIA_LABEL_BEGIN.getKeyName(), data.questionText());
+          ariaLabel = messages.at(MessageKey.ARIA_LABEL_BEGIN.getKeyName(), data.questionTextForScreenReader());
         }
       }
       String editLink =

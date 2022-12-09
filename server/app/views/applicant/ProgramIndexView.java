@@ -273,7 +273,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.createLinksAndEscapeText(
             program.localizedDescription().getOrDefault(preferredLocale),
-            TextFormatter.UrlOpenAction.NewTab);
+            TextFormatter.UrlOpenAction.NewTab, false);
     DivTag description =
         div()
             .withId(baseId + "-description")
