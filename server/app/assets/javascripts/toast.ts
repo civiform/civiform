@@ -237,5 +237,4 @@ type ToastMessage = {
   type: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const toastController = new ToastController()
+window['toastController'] = new ToastController()
