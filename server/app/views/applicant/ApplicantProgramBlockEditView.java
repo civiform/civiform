@@ -111,7 +111,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       form.with(
           div()
               .withText(params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName()))
-              .attr("role", "status")
+              .attr("role", "alert")
               .attr("aria-live", "polite")
               .withClasses("sr-only"));
     }
