@@ -130,11 +130,11 @@ public final class ApplicantQuestion {
   }
 
   /**
-   * Get the question text that should be used for screen readers. We add a styled asterisk, which should be read out
-   * to screen readers.
+   * Get the question text that should be used for screen readers. We add a styled asterisk, which
+   * should be read out to screen readers.
    */
   public String getQuestionTextForScreenReader() {
-    return isOptional()? getQuestionText() : getQuestionText() + " *";
+    return isOptional() ? getQuestionText() : getQuestionText() + " *";
   }
 
   /**

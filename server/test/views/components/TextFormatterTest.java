@@ -54,8 +54,7 @@ public class TextFormatterTest {
 
     assertThat(content).hasSize(2);
     assertThat(content.get(0).render()).isEqualTo(new Text("Enter your full legal name.").render());
-    assertThat(content.get(1).render())
-        .isEqualTo("<span class=\"text-red-600\"> *</span>");
+    assertThat(content.get(1).render()).isEqualTo("<span class=\"text-red-600\"> *</span>");
   }
 
   private void assertIsExternalUrlWithIcon(String actualValue, String expectedValue) {
@@ -84,7 +83,8 @@ public class TextFormatterTest {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
             "Hello google.com, crawl (http://seattle.gov/); and http://mysite.com...!",
-            TextFormatter.UrlOpenAction.SameTab, false);
+            TextFormatter.UrlOpenAction.SameTab,
+            false);
 
     assertThat(content).hasSize(7);
     assertThat(content.get(0).render()).isEqualTo(new Text("Hello ").render());
