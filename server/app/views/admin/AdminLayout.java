@@ -87,7 +87,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     DivTag headerIcon =
-        div(span("C"), span("F").withClasses("font-thin")).withClasses(AdminStyles.ADMIN_NAV_BAR);
+        div(span("C"), span("F").withClasses("font-thin"))
+            .withClasses(AdminStyles.ADMIN_NAV_BAR_LOGO);
     DivTag headerTitle =
         div()
             .withClasses("font-normal", "text-xl", "inline", "pl-10", "py-0", "mr-4")
