@@ -486,9 +486,13 @@ export const validateScreenshot = async (
     await normalizeElements(frame)
   }
 
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
+      fullPage: true,
       ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
