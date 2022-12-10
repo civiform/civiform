@@ -101,11 +101,11 @@ class QuestionBankController {
     // and all other elements on the page should be non-scrollable.
     // Using https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior
     // doesn't work as body still scrollable when scrolling over glasspane.
-    document.body.style.overflowY = 'hidden'
+    document.body.classList.add('overflow-y-hidden')
   }
 
   static makeBodyScrollable() {
-    document.body.style.overflowY = ''
+    document.body.classList.remove('overflow-y-hidden')
   }
 
   /**

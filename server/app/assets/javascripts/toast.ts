@@ -35,6 +35,7 @@ class ToastController {
       'top-0',
       'transform',
       '-translate-x-1/2',
+      'z-20',
     )
     document.body.appendChild(this.toastContainer)
 

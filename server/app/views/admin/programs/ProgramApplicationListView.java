@@ -117,7 +117,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     DivTag applicationShowDiv =
         div()
-            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "w-full", "h-full")
+            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "w-full")
             .with(
                 iframe()
                     .withName("application-display-frame")
