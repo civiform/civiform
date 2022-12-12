@@ -272,6 +272,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
     QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
 
     long programDefinitionId = 123L;
+    // To aid readability and reduce errors the block names include the questions that are in them.
     BlockDefinition block1QAQB =
         BlockDefinition.builder()
             .setId(1L)
