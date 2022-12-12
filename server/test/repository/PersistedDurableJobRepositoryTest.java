@@ -19,7 +19,7 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   @Test
   public void deleteJobsOlderThanSixMonths() {
     Instant oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS);
-    Instant fiveMonthsAgo = Instant.now().minus(150, ChronoUnit.DAYS);
+    Instant fiveMonthsAgo = Instant.now().minus(5, ChronoUnit.MONTHS);
     var oneYearOldJob = new PersistedDurableJob("fake-name", fiveMonthsAgo);
     var sixMonthOldJob = new PersistedDurableJob("fake-name", oneYearAgo);
     oneYearOldJob.save();
