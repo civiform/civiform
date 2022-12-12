@@ -3,21 +3,20 @@ package services.program;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import java.util.Optional;
 import services.program.predicate.PredicateDefinition;
 
 /**
- * Defines eligibility data on questions in a program.
+ * Defines eligibility configuration on questions in a program.
  *
- * Eligibility rules use the {@code PredicationDefinition} format, and indicate
- * when an applicant is not eligible to submit an application based on their
- * answers so far.
+ * <p>Eligibility rules use the {@code PredicationDefinition} format, and indicate when an applicant
+ * is eligible to submit an application based on their answers so far.
  *
- * The structure is very similar to show/hide predicate data.
+ * <p>The {@link PredicateDefinition} condition structure is identical to how visibility predicate data is handled.
  */
 @JsonDeserialize(builder = AutoValue_EligibilityDefinition.Builder.class)
 @AutoValue
 public abstract class EligibilityDefinition {
+  // Note: While there is only one member currently, future iterations will add more which requires a wrapping class.
 
   public static Builder builder() {
     return new AutoValue_EligibilityDefinition.Builder();
