@@ -15,6 +15,7 @@ import auth.ProfileUtils;
 import auth.Roles;
 import com.typesafe.config.Config;
 import controllers.routes;
+import featureflags.FeatureFlags;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -58,8 +59,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ViewUtils viewUtils,
       Config configuration,
       ProfileUtils profileUtils,
-      LanguageSelector languageSelector) {
-    super(viewUtils, configuration);
+      LanguageSelector languageSelector,
+      FeatureFlags featureFlags) {
+    super(viewUtils, configuration, featureFlags);
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
     this.supportEmail = checkNotNull(configuration).getString("support_email_address");
