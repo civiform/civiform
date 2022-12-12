@@ -63,7 +63,9 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .getFilename()
             .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
 
-    DivTag result = div().with(div().withText(uploaded.orElse("")));
+    DivTag result = div().with(
+        div().withText(uploaded.orElse(""))
+            .attr("data-upload-text", params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName())));
     result.with(
         fileUploadFields(
             params.signedFileUploadRequest(), fileInputId, ariaDescribedByIds, hasErrors));
