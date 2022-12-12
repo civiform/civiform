@@ -4,6 +4,8 @@ import {
   loginAsAdmin,
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
+  selectApplicantLanguage,
+  validateScreenshot,
 } from './support'
 
 describe('Trusted intermediaries', () => {
@@ -49,6 +51,13 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
+  })
+
+  it('ti landing page is the TI Dashboard', async () => {
+    const {page} = ctx
+    await loginAsTrustedIntermediary(page)
+    await selectApplicantLanguage(page, 'English')
+    await validateScreenshot(page, 'ti')
   })
 
   it('search For Client In TI Dashboard', async () => {
