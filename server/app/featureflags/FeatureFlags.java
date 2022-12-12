@@ -23,6 +23,7 @@ public final class FeatureFlags {
       "application_status_tracking_enabled";
   public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
       "allow_civiform_admin_access_programs";
+  private static final String USE_JS_BUNDLES = "use_js_bundles";
   private final Config config;
 
   @Inject
@@ -51,6 +52,10 @@ public final class FeatureFlags {
 
   public boolean allowCiviformAdminAccessPrograms(Request request) {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
+  }
+
+  public boolean isJsBundlingEnabled() {
+    return config.getBoolean(USE_JS_BUNDLES);
   }
 
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
