@@ -42,7 +42,7 @@ public class HtmlBundleTest {
     assertThat(content.body())
         .contains(
             "<body><header></header><main></main><div id=\"modal-container\" class=\"hidden fixed"
-                + " h-screen w-screen\"><div id=\"modal-glass-pane\" class=\"fixed h-screen"
+                + " h-screen w-screen z-20\"><div id=\"modal-glass-pane\" class=\"fixed h-screen"
                 + " w-screen bg-gray-400 opacity-75\"></div></div><footer></footer></body>");
   }
 
