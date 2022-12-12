@@ -65,6 +65,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
 
     DivTag result = div().with(
         div().withText(uploaded.orElse(""))
+            // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side can render the translated text if it gets added
             .attr("data-upload-text", params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName())));
     result.with(
         fileUploadFields(
