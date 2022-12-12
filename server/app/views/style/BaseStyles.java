@@ -103,7 +103,7 @@ public final class BaseStyles {
 
   /** The modal container contains modals, and the glass pane, and covers the whole page. */
   public static final String MODAL_CONTAINER =
-      StyleUtils.joinStyles("hidden", "fixed", "h-screen", "w-screen");
+      StyleUtils.joinStyles("hidden", "fixed", "h-screen", "w-screen", "z-20");
   /** The modal container for the modal glass pane. */
   public static final String MODAL_GLASS_PANE =
       StyleUtils.joinStyles("fixed", "h-screen", "w-screen", "bg-gray-400", "opacity-75");
