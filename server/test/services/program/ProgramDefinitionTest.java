@@ -272,7 +272,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
     QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
 
     long programDefinitionId = 123L;
-    BlockDefinition blockA =
+    BlockDefinition block1QAQB =
         BlockDefinition.builder()
             .setId(1L)
             .setName("Screen Name")
@@ -282,7 +282,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addQuestion(
                 ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .build();
-    BlockDefinition blockB =
+    BlockDefinition block2QC =
         BlockDefinition.builder()
             .setId(2L)
             .setName("Screen Name")
@@ -290,7 +290,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addQuestion(
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .build();
-    BlockDefinition blockC =
+    BlockDefinition block3QD =
         BlockDefinition.builder()
             .setId(3L)
             .setName("Screen Name")
@@ -308,23 +308,32 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
-            .addBlockDefinition(blockA)
-            .addBlockDefinition(blockB)
-            .addBlockDefinition(blockC)
+            .addBlockDefinition(block1QAQB)
+            .addBlockDefinition(block2QC)
+            .addBlockDefinition(block3QD)
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .build();
 
-    // blockA
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(1L)).isEmpty();
-    // blockB
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(2L))
+    // block1
+    assertThat(
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block1QAQB.id()))
+        .isEmpty();
+    assertThat(
+            programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block1QAQB.id()))
         .containsExactly(questionA, questionB);
-    // blockC
-    // Doesn't include the file upload question.
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L))
+    // block2
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block2QC.id()))
         .containsExactly(questionA, questionB);
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block2QC.id()))
+        .containsExactly(questionA, questionB);
+    // block3
+    // Doesn't include the file upload question, which don't support predicates.
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block3QD.id()))
+        .containsExactly(questionA, questionB);
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block3QD.id()))
+        .containsExactly(questionA, questionB, questionD);
   }
 
   @Test
@@ -332,11 +341,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
       getAvailablePredicateQuestionDefinitions_withRepeatedBlocks_onlyIncludesQuestionsWithSameEnumeratorId()
           throws ProgramBlockDefinitionNotFoundException {
     QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB =
+    QuestionDefinition questionBEnum =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition questionC =
         testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
-    QuestionDefinition questionD =
+    QuestionDefinition questionDEnum =
         testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
     QuestionDefinition questionE =
         testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition();
@@ -350,13 +359,13 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
-    BlockDefinition blockB =
+    BlockDefinition blockBEnum =
         BlockDefinition.builder()
             .setId(2L)
             .setName("Screen Name")
             .setDescription("Screen Description")
             .addQuestion(
-                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
+                ProgramQuestionDefinition.create(questionBEnum, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockC =
         BlockDefinition.builder()
@@ -367,13 +376,13 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
             .build();
-    BlockDefinition blockD =
+    BlockDefinition blockDEnum =
         BlockDefinition.builder()
             .setId(4L)
             .setName("Screen Name")
             .setDescription("Screen Description")
             .addQuestion(
-                ProgramQuestionDefinition.create(questionD, Optional.of(programDefinitionId)))
+                ProgramQuestionDefinition.create(questionDEnum, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
             .build();
     BlockDefinition blockE =
@@ -399,26 +408,41 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
-            .addBlockDefinition(blockB)
+            .addBlockDefinition(blockBEnum)
             .addBlockDefinition(blockC)
-            .addBlockDefinition(blockD)
+            .addBlockDefinition(blockDEnum)
             .addBlockDefinition(blockE)
             .build();
 
     // blockA (applicantName)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(1L)).isEmpty();
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockA.id()))
+        .isEmpty();
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockA.id()))
+        .containsExactly(questionA);
     // blockB (applicantHouseholdMembers)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(2L))
+    assertThat(
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockBEnum.id()))
+        .containsExactly(questionA);
+    assertThat(
+            programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockBEnum.id()))
         .containsExactly(questionA);
     // blockC (applicantHouseholdMembers.householdMemberName)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L))
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockC.id()))
         .containsExactly(questionA);
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockC.id()))
+        .containsExactly(questionA, questionC);
     // blockD (applicantHouseholdMembers.householdMemberJobs)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(4L))
+    assertThat(
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockDEnum.id()))
+        .containsExactly(questionA, questionC);
+    assertThat(
+            programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockDEnum.id()))
         .containsExactly(questionA, questionC);
     // blockE (applicantHouseholdMembers.householdMemberJobs.householdMemberJobIncome)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(5L))
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockE.id()))
         .containsExactly(questionA, questionC);
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockE.id()))
+        .containsExactly(questionA, questionC, questionE);
   }
 
   @Test
