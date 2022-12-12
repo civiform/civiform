@@ -6,7 +6,7 @@
 source bin/lib.sh
 docker::set_project_name_dev
 
-docker::compose_dev up --wait -d
+docker::compose up --wait -d
 docker exec "${COMPOSE_PROJECT_NAME}-civiform-1" ./entrypoint.sh jacoco
 # Upon a successful test run (exit code zero), we also
 # assert that SBT actually ran the test suite by evaluating
@@ -18,4 +18,4 @@ docker exec "${COMPOSE_PROJECT_NAME}-civiform-1" ./entrypoint.sh jacoco
 # https://github.com/seattle-uat/civiform/pull/2459.
 echo "[$(date)] Searching for MessageKeyTest in defined tests..."
 docker exec "${COMPOSE_PROJECT_NAME}-civiform-1" ./entrypoint.sh jacoco "show Test/definedTestNames" | grep -iq "services.MessageKeyTest"
-docker::compose_dev down
+docker::compose down
