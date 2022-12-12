@@ -97,10 +97,10 @@ class QuestionBankController {
   }
 
   static makeBodyNonScrollable() {
-    // When question bank is visible, only the bank should be scrollable. Body
+    // When the question bank is visible, only the bank should be scrollable. Body
     // and all other elements on the page should be non-scrollable.
     // Using https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior
-    // doesn't work as body still scrollable when scrolling over glasspane.
+    // doesn't work as body is still scrollable when scrolling over glasspane.
     document.body.classList.add('overflow-y-hidden')
   }
 
