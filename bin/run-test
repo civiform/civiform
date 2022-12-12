@@ -3,9 +3,10 @@
 # DOC: Run the Java test suite in Docker.
 
 source bin/lib.sh
-docker::set_project_name_unit_tests
+docker::set_project_name_dev
 
 bin/pull-image
 
-bin/sbt-test test
-bin/remove-test-env
+docker::compose_dev up --wait -d
+docker::dev_server_sbt_command test
+docker::compose_dev down --remove-orphans
