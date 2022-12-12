@@ -318,15 +318,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .build();
 
     // block1
-    assertThat(
-            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block1QAQB.id()))
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(block1QAQB.id()))
         .isEmpty();
     // block2
-    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block2QC.id()))
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(block2QC.id()))
         .containsExactly(questionA, questionB);
     // block3
     // Doesn't include the file upload question, which don't support predicates.
-    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block3QD.id()))
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(block3QD.id()))
         .containsExactly(questionA, questionB);
   }
 
@@ -409,21 +408,18 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .build();
 
     // blockA (applicantName)
-    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockA.id()))
-        .isEmpty();
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(blockA.id())).isEmpty();
     // blockB (applicantHouseholdMembers)
-    assertThat(
-            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockBEnum.id()))
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(blockBEnum.id()))
         .containsExactly(questionA);
     // blockC (applicantHouseholdMembers.householdMemberName)
-    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockC.id()))
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(blockC.id()))
         .containsExactly(questionA);
     // blockD (applicantHouseholdMembers.householdMemberJobs)
-    assertThat(
-            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockDEnum.id()))
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(blockDEnum.id()))
         .containsExactly(questionA, questionC);
     // blockE (applicantHouseholdMembers.householdMemberJobs.householdMemberJobIncome)
-    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockE.id()))
+    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(blockE.id()))
         .containsExactly(questionA, questionC);
   }
 
