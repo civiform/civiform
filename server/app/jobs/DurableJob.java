@@ -19,6 +19,6 @@ public abstract class DurableJob {
     return getPersistedDurableJob().getJobName();
   }
 
-  /** Execute the job. */
+  /** Executes the job. */
   abstract void run();
 }
