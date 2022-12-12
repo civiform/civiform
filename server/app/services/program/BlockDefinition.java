@@ -121,7 +121,10 @@ public abstract class BlockDefinition {
   @JsonProperty("hidePredicate")
   public abstract Optional<PredicateDefinition> visibilityPredicate();
 
-  /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
+  /** An {@link EligibilityDefinition} that determines whether this block can be continued on from or not.
+   *
+   * <p>This contains a {@link PredicateDefinition} that determines if the applicant is eligible or not for the program as of this block.</p>
+  */
   @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("eligibilityDefinition")
   public abstract Optional<EligibilityDefinition> eligibilityDefinition();
@@ -179,10 +182,10 @@ public abstract class BlockDefinition {
     }
 
     @JsonProperty("eligibilityDefinition")
-    public abstract Builder setEligibilityDefinition(Optional<EligibilityDefinition> def);
+    public abstract Builder setEligibilityDefinition(Optional<EligibilityDefinition> eligibility);
 
-    public Builder setEligibilityDefinition(EligibilityDefinition def) {
-      return this.setEligibilityDefinition(Optional.of(def));
+    public Builder setEligibilityDefinition(EligibilityDefinition eligibility) {
+      return this.setEligibilityDefinition(Optional.of(eligibility));
     }
 
     @JsonProperty("optionalPredicate")
