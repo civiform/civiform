@@ -53,8 +53,8 @@ public class Application extends BaseModel {
 
   public Application(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
-    setApplicantData(applicant.getApplicantData());
     this.program = program;
+    this.object = "{}";
     this.lifecycleStage = lifecycleStage;
   }
 
