@@ -7,12 +7,14 @@ import static j2html.TagCreator.span;
 
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
+import views.JsBundle;
 import views.ViewUtils;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -39,8 +41,9 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
-  AdminLayout(ViewUtils viewUtils, Config configuration, NavPage activeNavPage) {
-    super(viewUtils, configuration);
+  AdminLayout(
+      ViewUtils viewUtils, Config configuration, NavPage activeNavPage, FeatureFlags featureFlags) {
+    super(viewUtils, configuration, featureFlags);
     this.activeNavPage = activeNavPage;
   }
 
@@ -66,8 +69,10 @@ public final class AdminLayout extends BaseHtmlLayout {
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
 
-    for (String source : FOOTER_SCRIPTS) {
-      bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
+    if (!featureFlags.isJsBundlingEnabled()) {
+      for (String source : FOOTER_SCRIPTS) {
+        bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
+      }
     }
 
     return super.render(bundle);
@@ -80,7 +85,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   @Override
   public HtmlBundle getBundle(HtmlBundle bundle) {
-    return super.getBundle(bundle).addHeaderContent(renderNavBar());
+    return super.getBundle(bundle).addHeaderContent(renderNavBar()).setJsBundle(JsBundle.ADMIN);
   }
 
   private NavTag renderNavBar() {

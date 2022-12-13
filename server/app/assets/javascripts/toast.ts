@@ -238,5 +238,7 @@ type ToastMessage = {
   type: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const toastController = new ToastController()
+// toastController is used from other JS files. They read it from the window object.
+// TODO(#3864): refactor to export instance of controller instead of setting
+// it on window object.
+window['toastController'] = new ToastController()
