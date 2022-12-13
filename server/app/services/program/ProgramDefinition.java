@@ -488,8 +488,8 @@ public abstract class ProgramDefinition {
   }
 
   /**
-   * Returns a list of the question definitions that may be used to define predicates on the block
-   * definition with the given ID.
+   * Returns a list of the question definitions that may be used to define show/hide predicates on
+   * the block definition with the id {@code blockId}.
    *
    * <p>The available question definitions for predicates satisfy ALL of the following:
    *
@@ -500,10 +500,30 @@ public abstract class ProgramDefinition {
    *   <li>Is not an enumerator.
    * </ul>
    */
-  public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
-      throws ProgramBlockDefinitionNotFoundException {
-    ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
+  public ImmutableList<QuestionDefinition> getAvailableVisibilityPredicateQuestionDefinitions(
+      long blockId) throws ProgramBlockDefinitionNotFoundException {
+    return getAvailablePredicateQuestionDefinitions(blockId - 1);
+  }
 
+  /**
+   * Returns a list of the question definitions that may be used to define eligibility predicates on
+   * the block definition with the id {@code blockId}.
+   *
+   * <p>This is the same as {@link #getAvailableVisibilityPredicateQuestionDefinitions} but it
+   * includes questions in the provided {@code blockId}.
+   */
+  public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
+      long blockId) throws ProgramBlockDefinitionNotFoundException {
+    return getAvailablePredicateQuestionDefinitions(blockId);
+  }
+
+  private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
+      throws ProgramBlockDefinitionNotFoundException {
+    if (blockId <= 0) {
+      return ImmutableList.of();
+    }
+
+    ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
     for (BlockDefinition blockDefinition :
         getAvailablePredicateBlockDefinitions(this.getBlockDefinition(blockId))) {
       builder.addAll(
@@ -536,10 +556,10 @@ public abstract class ProgramDefinition {
 
     // Only include sequentially earlier block definitions.
     for (BlockDefinition siblingBlockDefinition : siblingBlockDefinitions) {
-      // Stop adding block definitions once we reach this block.
-      if (siblingBlockDefinition.id() == blockDefinition.id()) break;
 
       builder.add(siblingBlockDefinition);
+      // Stop adding block definitions once we reach this block.
+      if (siblingBlockDefinition.id() == blockDefinition.id()) break;
     }
 
     return builder.build();
