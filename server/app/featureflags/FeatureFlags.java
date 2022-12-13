@@ -18,12 +18,20 @@ import play.mvc.Http.Request;
  */
 public final class FeatureFlags {
   private static final Logger logger = LoggerFactory.getLogger(FeatureFlags.class);
+  // Main control for any feature flags working.
   private static final String FEATURE_FLAG_OVERRIDES_ENABLED = "feature_flag_overrides_enabled";
-  public static final String APPLICATION_STATUS_TRACKING_ENABLED =
-      "application_status_tracking_enabled";
+
+  // Long lived feature flags.
   public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
       "allow_civiform_admin_access_programs";
+
+  // Launch Flags, these will eventually be removed.
+  public static final String APPLICATION_STATUS_TRACKING_ENABLED =
+      "application_status_tracking_enabled";
+  public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
+      "program_eligibility_conditions_enabled";
   private static final String USE_JS_BUNDLES = "use_js_bundles";
+
   private final Config config;
 
   @Inject
@@ -34,6 +42,20 @@ public final class FeatureFlags {
   public boolean areOverridesEnabled() {
     return config.hasPath(FEATURE_FLAG_OVERRIDES_ENABLED)
         && config.getBoolean(FEATURE_FLAG_OVERRIDES_ENABLED);
+  }
+
+  /**
+   * If the Eligibility Conditions feature is enabled.
+   *
+   * <p>Allows for overrides set in {@code request}.
+   */
+  public boolean isProgramEligibilityConditionsEnabled(Request request) {
+    return getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
+  }
+
+  /** If the Eligibility Conditions feature is enabled in the system configuration. */
+  public boolean isProgramEligibilityConditionsEnabled() {
+    return config.getBoolean(PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
   }
 
   /**
@@ -61,6 +83,7 @@ public final class FeatureFlags {
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
     return ImmutableMap.of(
         ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, allowCiviformAdminAccessPrograms(request),
+        PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED, isProgramEligibilityConditionsEnabled(request),
         APPLICATION_STATUS_TRACKING_ENABLED, isStatusTrackingEnabled(request));
   }
 
