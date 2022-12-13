@@ -4,6 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 import org.junit.Test;
+import services.applicant.question.Scalar;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
 
@@ -81,6 +88,39 @@ public class BlockDefinitionTest {
             .build();
 
     assertThat(blockDefinition.isFileUpload()).isTrue();
+  }
+
+  @Test
+  public void setAndGetVisibilityPredicate() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+    BlockDefinition blockDefinition =
+        makeBlockDefinitionWithQuestions().toBuilder().setVisibilityPredicate(predicate).build();
+
+    assertThat(blockDefinition.visibilityPredicate()).hasValue(predicate);
+  }
+
+  @Test
+  public void setAndGetEligibilityDefinition() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder().setPredicate(predicate).build();
+
+    BlockDefinition blockDefinition =
+        makeBlockDefinitionWithQuestions().toBuilder()
+            .setEligibilityDefinition(eligibility)
+            .build();
+
+    assertThat(blockDefinition.eligibilityDefinition()).hasValue(eligibility);
   }
 
   private BlockDefinition makeBlockDefinitionWithQuestions() {
