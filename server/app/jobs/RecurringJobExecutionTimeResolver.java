@@ -11,8 +11,8 @@ import java.time.Instant;
 public interface RecurringJobExecutionTimeResolver {
 
   /**
-   * Takes a {@link Clock} with the local time zone and returns an instant representing when the
-   * job should next execute.
+   * Takes a {@link Clock} with the local time zone and returns an instant representing when the job
+   * should next execute.
    */
   Instant resolveExecutionTime(Clock clock);
 }
