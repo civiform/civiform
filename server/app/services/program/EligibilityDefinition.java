@@ -8,7 +8,7 @@ import services.program.predicate.PredicateDefinition;
 /**
  * Defines eligibility configuration on questions in a program.
  *
- * <p>Eligibility rules use the {@code PredicateDefinition} format, and indicate when an applicant
+ * <p>Eligibility rules use the {@link PredicateDefinition} format, and indicate when an applicant
  * is eligible to submit an application based on their answers so far.
  *
  * <p>The {@link PredicateDefinition} condition structure is identical to how visibility predicate
