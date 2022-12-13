@@ -64,9 +64,9 @@ public final class QuestionBank {
                 ? ReferenceClasses.QUESTION_BANK_HIDDEN
                 : "",
             questionBankVisibility == Visibility.HIDDEN ? "hidden" : "",
-            "absolute",
+            "fixed",
             "w-full",
-            "h-full")
+            "h-screen")
         .with(
             div()
                 .withClasses(
