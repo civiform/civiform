@@ -536,6 +536,9 @@ const normalizeElements = async (page: Frame | Page) => {
         '1234',
       )
     }
+    for (const email of Array.from(document.querySelectorAll('.cf-bt-email'))) {
+      email.textContent = 'fake-email@example.com'
+    }
   })
 }
 export type LocalstackSesEmail = {
