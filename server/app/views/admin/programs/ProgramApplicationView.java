@@ -44,6 +44,7 @@ import services.program.StatusDefinitions;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.JsBundle;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
@@ -154,7 +155,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addBodyStyles("flex")
             .addMainStyles("w-screen")
             .addModals(updateNoteModal)
-            .addModals(statusUpdateConfirmationModals);
+            .addModals(statusUpdateConfirmationModals)
+            .setJsBundle(JsBundle.ADMIN);
     if (!featureFlags.isJsBundlingEnabled()) {
       htmlBundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
     }
