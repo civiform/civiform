@@ -40,12 +40,15 @@ public class FeatureFlagsTest {
           "true");
   private static final Request allFeaturesEnabledRequest =
       fakeRequest().session(allFeaturesEnabledMap).build();
+
   private static final Map<String, String> allFeaturesDisabledMap =
       Map.of(
           FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
           "false",
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
           "false");
+  private static final Config featuresDisabledConfig =
+      ConfigFactory.parseMap(allFeaturesDisabledMap);
   private static final Request allFeaturesDisabledRequest =
       fakeRequest().session(allFeaturesDisabledMap).build();
 
@@ -65,6 +68,14 @@ public class FeatureFlagsTest {
     assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesEnabledRequest)).isFalse();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesEnabledRequest))
         .isFalse();
+  }
+
+  @Test
+  public void isEnabled_withFeatureDisabled_withNoOverride_isDisables() {
+    FeatureFlags featureFlags = new FeatureFlags(featuresDisabledConfig);
+
+    assertThat(featureFlags.isStatusTrackingEnabled(fakeRequest().build())).isFalse();
+    assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isFalse();
   }
 
   @Test
