@@ -15,25 +15,25 @@ import support.TestQuestionBank;
 
 public class EligibilityDefinitionTest {
 
-  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */false);
+  private static final TestQuestionBank testQuestionBank =
+      new TestQuestionBank(/* canSave= */ false);
 
   @Test
   public void setAndGet() {
     Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
     PredicateDefinition predicate =
-      PredicateDefinition.create(
-        PredicateExpressionNode.create(
-          LeafOperationExpressionNode.create(
-            predicateQuestion.id,
-            Scalar.TEXT,
-            Operator.EQUAL_TO,
-            PredicateValue.of("yellow"))),
-        PredicateAction.SHOW_BLOCK);
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
 
-   EligibilityDefinition eligibilityDefinition = EligibilityDefinition.builder().setPredicate(predicate).build();
+    EligibilityDefinition eligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(predicate).build();
 
-   assertThat(eligibilityDefinition.predicate()).isEqualTo(predicate);
-
+    assertThat(eligibilityDefinition.predicate()).isEqualTo(predicate);
   }
-
 }

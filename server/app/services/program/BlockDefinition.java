@@ -121,10 +121,13 @@ public abstract class BlockDefinition {
   @JsonProperty("hidePredicate")
   public abstract Optional<PredicateDefinition> visibilityPredicate();
 
-  /** An {@link EligibilityDefinition} that determines whether this block can be continued on from or not.
+  /**
+   * An {@link EligibilityDefinition} that determines whether this block can be continued on from or
+   * not.
    *
-   * <p>This contains a {@link PredicateDefinition} that determines if the applicant is eligible or not for the program as of this block.</p>
-  */
+   * <p>This contains a {@link PredicateDefinition} that determines if the applicant is eligible or
+   * not for the program as of this block.
+   */
   @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("eligibilityDefinition")
   public abstract Optional<EligibilityDefinition> eligibilityDefinition();
