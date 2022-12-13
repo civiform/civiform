@@ -486,6 +486,9 @@ export const validateScreenshot = async (
     await normalizeElements(frame)
   }
 
+  // Some tests take screenshots while scroll position in the middle. That
+  // affects header which is position fixed and on final full-page screenshots
+  // overlaps part of the page.
   await page.evaluate(() => {
     window.scrollTo(0, 0)
   })
