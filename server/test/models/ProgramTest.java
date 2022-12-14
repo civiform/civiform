@@ -12,6 +12,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.StatusDefinitions;
@@ -163,6 +164,16 @@ public class ProgramTest extends ResetPostgres {
                     1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
             PredicateAction.HIDE_BLOCK);
 
+    EligibilityDefinition eligibilityDefinition =
+      EligibilityDefinition.builder()
+        .setPredicate(PredicateDefinition.create(
+          PredicateExpressionNode.create(
+            LeafOperationExpressionNode.create(
+              1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.ELIGIBILITY_BLOCK
+          ))
+        .build();
+
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(1L)
@@ -170,6 +181,7 @@ public class ProgramTest extends ResetPostgres {
             .setDescription("set hide and deprecated optional")
             .setProgramQuestionDefinitions(ImmutableList.of())
             .setVisibilityPredicate(predicate)
+            .setEligibilityDefinition(eligibilityDefinition)
             .build();
 
     ProgramDefinition definition =
@@ -192,6 +204,8 @@ public class ProgramTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().blockDefinitions()).hasSize(1);
     BlockDefinition block = found.getProgramDefinition().getBlockDefinition(1L);
     assertThat(block.visibilityPredicate()).hasValue(predicate);
+    assertThat(block.eligibilityDefinition()).hasValue(eligibilityDefinition);
+    assertThat(block.eligibilityDefinition().get().predicateFormat()).isEmpty();
     assertThat(block.optionalPredicate()).isEmpty();
   }
 
