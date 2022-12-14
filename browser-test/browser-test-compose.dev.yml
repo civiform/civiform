@@ -13,7 +13,7 @@ services:
     tty: true # docker run -t
     ports:
       - 9457:9457
-    command: -jvm-debug "*:9457" ~runBrowserTestsServer
+
 
 volumes:
   node_modules-data:

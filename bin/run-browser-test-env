@@ -145,6 +145,8 @@ else
   compose_browser_test "${use_dev}" --profile ${cloud_provider} up --no-recreate --wait -d
 fi
 
+docker::browser_test_env_sbt_command ~runBrowserTestsServer
+
 # Start a warmup request loop so that when the subsequent server startup is ready, we trigger lazy
 # loading its edit-refresh resources to save developer time.
 for i in {1..60}; do
@@ -155,7 +157,7 @@ for i in {1..60}; do
 done &
 
 if truth::is_disabled continuous_integration; then
-  docker attach "$SERVER_CONTAINER_NAME"
+  docker attach "${COMPOSE_PROJECT_NAME}-civiform-1"
 fi
 
 
