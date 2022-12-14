@@ -201,7 +201,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                     .with(div(text_new_condition).withClasses("mb-2"))
                     .with(
                         modals.isEmpty()
-                            ? text(TEXT_NO_AVAILABLE_QUESTIONS)
+                            ? text(text_no_available_questions)
                             : renderPredicateModalTriggerButtons(modals)));
 
     HtmlBundle htmlBundle =
