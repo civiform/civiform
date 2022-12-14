@@ -565,12 +565,12 @@ public abstract class ProgramDefinition {
     // If this block is repeated, recurse "upward". In other words, add all the available predicate
     // block definitions for its enumerator. Do this before adding its sibling block definitions to
     // maintain sequential order of the block definitions in the result.
-    if (blockDefinition.isRepeated()) {
+    if (maybeEnumeratorId.isPresent()) {
       builder.addAll(
           getAvailablePredicateBlockDefinitions(this.getBlockDefinition(maybeEnumeratorId.get())));
     }
 
-    // Only include sequentially earlier block definitions.
+    // Only include block definitions up through the specified block.
     for (BlockDefinition siblingBlockDefinition : siblingBlockDefinitions) {
       builder.add(siblingBlockDefinition);
       // Stop adding block definitions once we reach this block.
