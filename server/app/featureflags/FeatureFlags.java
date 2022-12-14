@@ -30,6 +30,8 @@ public final class FeatureFlags {
       "application_status_tracking_enabled";
   public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
       "program_eligibility_conditions_enabled";
+  public static final String PREDICATES_MULTIPLE_QUESTIONS_ENABLED =
+    "predicates_multiple_questions_enabled";
   private static final String USE_JS_BUNDLES = "use_js_bundles";
 
   private final Config config;
@@ -56,6 +58,15 @@ public final class FeatureFlags {
   /** If the Eligibility Conditions feature is enabled in the system configuration. */
   public boolean isProgramEligibilityConditionsEnabled() {
     return config.getBoolean(PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
+  }
+
+  /**
+   * If specifying multiple questions in a predicate is enabled.
+   *
+   * <p>Allows for overrides set in {@code request}.
+   */
+  public boolean isPredicatesMultipleQuestionsEnabled(Request request) {
+    return getFlagEnabled(request, PREDICATES_MULTIPLE_QUESTIONS_ENABLED);
   }
 
   /**
