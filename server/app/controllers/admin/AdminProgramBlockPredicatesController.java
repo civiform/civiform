@@ -74,7 +74,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               request,
               programDefinition,
               blockDefinition,
-              programDefinition.getAvailablePredicateQuestionDefinitions(blockDefinitionId)));
+              programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockDefinitionId)));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
