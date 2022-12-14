@@ -215,6 +215,12 @@ export class AdminPrograms {
     await this.expectEditPredicatePage(blockName)
   }
 
+  async goToProgramDescriptionPage(programName: string) {
+    await this.goToManageQuestionsPage(programName)
+    await this.page.click('button:has-text("Edit program details")')
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectDraftProgram(programName: string) {
     expect(
       await this.page.isVisible(this.programCardSelector(programName, 'Draft')),
