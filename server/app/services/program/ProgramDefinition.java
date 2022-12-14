@@ -488,7 +488,7 @@ public abstract class ProgramDefinition {
   }
 
   /**
-   * Returns a list of the question definitions that may be used to define show/hide predicates on
+   * Returns a list of the question definitions that may be used to define visibility predicates on
    * the block definition with the id {@code blockId}.
    *
    * <p>The available question definitions for predicates satisfy ALL of the following:
@@ -502,6 +502,8 @@ public abstract class ProgramDefinition {
    */
   public ImmutableList<QuestionDefinition> getAvailableVisibilityPredicateQuestionDefinitions(
       long blockId) throws ProgramBlockDefinitionNotFoundException {
+    // Questions through the block before this one are available for this block's visibility
+    // conditions.
     return getAvailablePredicateQuestionDefinitions(blockId - 1);
   }
 
@@ -514,9 +516,23 @@ public abstract class ProgramDefinition {
    */
   public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
       long blockId) throws ProgramBlockDefinitionNotFoundException {
+    // Questions through the block are available for this block's eligibility conditions.
     return getAvailablePredicateQuestionDefinitions(blockId);
   }
 
+  /**
+   * Returns a list of the question definitions that may be used to define predicates on the block
+   * definition with the id {@code blockId}.
+   *
+   * <p>The available question definitions for predicates satisfy ALL of the following:
+   *
+   * <ul>
+   *   <li>In a block definition that comes sequentially before the given block definition.
+   *   <li>In a block definition that either has the same enumerator ID as the given block
+   *       definition, or has the same enumerator ID as some "parent" of the given block definition.
+   *   <li>Is not an enumerator.
+   * </ul>
+   */
   private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
       throws ProgramBlockDefinitionNotFoundException {
     if (blockId <= 0) {
@@ -556,7 +572,6 @@ public abstract class ProgramDefinition {
 
     // Only include sequentially earlier block definitions.
     for (BlockDefinition siblingBlockDefinition : siblingBlockDefinitions) {
-
       builder.add(siblingBlockDefinition);
       // Stop adding block definitions once we reach this block.
       if (siblingBlockDefinition.id() == blockDefinition.id()) break;
