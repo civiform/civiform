@@ -692,10 +692,38 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition setBlockEligibilityDefinition(
+      long programId, long blockDefinitionId, @Nullable EligibilityDefinition eligibility)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+            .setEligibilityDefinition(Optional.ofNullable(eligibility))
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+  }
+
+  @Override
+  @Transactional
   public ProgramDefinition removeBlockPredicate(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     try {
       return setBlockPredicate(programId, blockDefinitionId, null);
+    } catch (IllegalPredicateOrderingException e) {
+      // Removing a predicate should never invalidate another.
+      throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition removeBlockEligibilityPredicate(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    try {
+      return setBlockEligibilityDefinition(programId, blockDefinitionId, null);
     } catch (IllegalPredicateOrderingException e) {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");

@@ -13,6 +13,7 @@ import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Question;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
@@ -72,10 +73,13 @@ public final class Block {
     return blockDefinition.description();
   }
 
+  public Optional<EligibilityDefinition> getEligibilityDefinition() {
+    return blockDefinition.eligibilityDefinition();
+  }
+
   public Optional<PredicateDefinition> getVisibilityPredicate() {
     return blockDefinition.visibilityPredicate();
   }
-
   /**
    * Returns the {@link RepeatedEntity} associated with this block, if this is a repeated block.
    * Otherwise, return empty.

@@ -23,6 +23,7 @@ import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
 import java.util.Arrays;
+import java.util.UUID;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -52,16 +53,13 @@ import views.style.ReferenceClasses;
 
 /** Renders a page for editing predicates of a block in a program. */
 public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
-  private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
-  private static final String H2_NEW_VISIBILITY_CONDITION = "New visibility condition";
-  private static final String TEXT_NO_VISIBILITY_CONDITIONS = "This screen is always shown.";
-  private static final String TEXT_NO_AVAILABLE_QUESTIONS =
-      "There are no available questions with which to set a visibility condition for this screen.";
-  private static final String TEXT_NEW_VISIBILITY_CONDITION =
-      "Apply a visibility condition using a question below. When you create a visibility"
-          + " condition, it replaces the present one.";
 
   private final AdminLayout layout;
+
+  public enum TYPE {
+    ELIGIBILITY,
+    VISIBILITY
+  }
 
   @Inject
   public ProgramBlockPredicatesEditView(AdminLayoutFactory layoutFactory) {
@@ -87,31 +85,77 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       Http.Request request,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
-      ImmutableList<QuestionDefinition> predicateQuestions) {
+      ImmutableList<QuestionDefinition> predicateQuestions,
+      TYPE type) {
 
-    String title = String.format("Visibility condition for %s", blockDefinition.name());
+    final String predicateTypeNameTitleCase;
+    final String h2_current_condition;
+    final String text_no_conditions;
+    final String h2_new_condition;
+    final String text_new_condition;
+    final String text_no_available_questions;
+    final String predicateUpdateUrl;
+    final String removePredicateUrl;
+    switch (type) {
+      case ELIGIBILITY:
+        predicateTypeNameTitleCase = "Eligibility";
+        h2_current_condition = "Current visibility condition";
+        text_no_conditions = "This screen is always shown.";
+        h2_new_condition = "New visibility condition";
+        text_new_condition =
+          "Apply a visibility condition using a question below. When you create a visibility"
+            + " condition, it replaces the present one.";
+        text_no_available_questions =
+          "There are no available questions with which to set a visibility condition for this screen.";
+        predicateUpdateUrl =
+            routes.AdminProgramBlockPredicatesController.updateEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        removePredicateUrl =
+            routes.AdminProgramBlockPredicatesController.destroyEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        break;
+      case VISIBILITY:
+        predicateTypeNameTitleCase = "Visibility";
+        h2_current_condition = "Current visibility condition";
+        text_no_conditions = "This screen is always shown.";
+        h2_new_condition = "New visibility condition";
+        text_new_condition =
+          "Apply a visibility condition using a question below. When you create a visibility"
+            + " condition, it replaces the present one.";
+        text_no_available_questions =
+          "There are no available questions with which to set a visibility condition for this screen.";
+        predicateUpdateUrl =
+            routes.AdminProgramBlockPredicatesController.update(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        removePredicateUrl =
+            routes.AdminProgramBlockPredicatesController.destroy(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        break;
+      default:
+        throw new IllegalArgumentException(
+            String.format("Predicate type %s is unsupported.", type));
+    }
     InputTag csrfTag = makeCsrfTokenInputTag(request);
-
-    String predicateUpdateUrl =
-        routes.AdminProgramBlockPredicatesController.update(
-                programDefinition.id(), blockDefinition.id())
-            .url();
     ImmutableList<Modal> modals =
         createPredicateUpdateFormModals(
             blockDefinition.name(), predicateQuestions, predicateUpdateUrl, csrfTag);
 
-    String removePredicateUrl =
-        routes.AdminProgramBlockPredicatesController.destroy(
-                programDefinition.id(), blockDefinition.id())
-            .url();
-    String removePredicateFormId = "visibility-predicate-form-remove";
+    String title =
+        String.format("%s condition for %s", predicateTypeNameTitleCase, blockDefinition.name());
+    String removePredicateFormId = UUID.randomUUID().toString();
     FormTag removePredicateForm =
         form(csrfTag)
             .withId(removePredicateFormId)
             .withMethod(POST)
             .withAction(removePredicateUrl)
             .with(
-                submitButton("Remove visibility condition")
+                submitButton(
+                        String.format(
+                            "Remove %s condition", predicateTypeNameTitleCase.toLowerCase()))
                     .withForm(removePredicateFormId)
                     .withCondDisabled(blockDefinition.visibilityPredicate().isEmpty()));
 
@@ -138,7 +182,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             .with(
                 div()
                     .with(
-                        h2(H2_CURRENT_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
+                        h2(h2_current_condition).withClasses("font-semibold", "text-lg"))
                     .with(
                         div(blockDefinition
                                 .visibilityPredicate()
@@ -146,15 +190,15 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                                     pred ->
                                         pred.toDisplayString(
                                             blockDefinition.name(), predicateQuestions))
-                                .orElse(TEXT_NO_VISIBILITY_CONDITIONS))
+                                .orElse(text_no_conditions))
                             .withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
             // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()
-                    .with(h2(H2_NEW_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
-                    .with(div(TEXT_NEW_VISIBILITY_CONDITION).withClasses("mb-2"))
+                    .with(h2(h2_new_condition).withClasses("font-semibold", "text-lg"))
+                    .with(div(text_new_condition).withClasses("mb-2"))
                     .with(
                         modals.isEmpty()
                             ? text(TEXT_NO_AVAILABLE_QUESTIONS)
@@ -250,7 +294,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
       InputTag csrfTag) {
-    String formId = String.format("visibility-predicate-form-%s", questionDefinition.getId());
+    String formId = UUID.randomUUID().toString();
 
     return form(csrfTag)
         .withId(formId)

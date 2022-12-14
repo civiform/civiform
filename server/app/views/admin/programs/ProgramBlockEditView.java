@@ -25,6 +25,7 @@ import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
@@ -46,7 +47,18 @@ import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-/** Renders a page for an admin to edit the configuration for a single block of a program. */
+/**
+ * Renders a page for an admin to edit the configuration for a single block of a program.
+ *
+ * <p>Contains elements to:
+ *
+ * <ul>
+ *   <li>Delete the block
+ *   <li>Edit the name and description
+ *   <li>View, add, delete and reorder questions
+ *   <li>View and navigate to the visibility criteria
+ * </ul>
+ */
 public final class ProgramBlockEditView extends ProgramBlockView {
 
   private final AdminLayout layout;
@@ -312,11 +324,19 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
             .withClasses("my-4");
 
-    DivTag predicateDisplay =
-        renderPredicate(
+    DivTag visibilityPredicateDisplay =
+        renderVisibilityPredicate(
             program.id(),
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
+            blockDefinition.name(),
+            allQuestions);
+
+    DivTag eligibilityPredicateDisplay =
+        renderEligibilityPredicate(
+            program.id(),
+            blockDefinition.id(),
+            blockDefinition.eligibilityDefinition(),
             blockDefinition.name(),
             allQuestions);
 
@@ -376,10 +396,16 @@ public final class ProgramBlockEditView extends ProgramBlockView {
 
     return div()
         .withClasses("w-7/12", "py-6", "px-4")
-        .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions, addQuestion);
+        .with(
+            blockInfoDisplay,
+            buttons,
+            visibilityPredicateDisplay,
+            eligibilityPredicateDisplay,
+            programQuestions,
+            addQuestion);
   }
 
-  private DivTag renderPredicate(
+  private DivTag renderVisibilityPredicate(
       long programId,
       long blockId,
       Optional<PredicateDefinition> predicate,
@@ -402,6 +428,34 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             asRedirectElement(
                 editScreenButton,
                 routes.AdminProgramBlockPredicatesController.edit(programId, blockId).url()));
+  }
+
+  private DivTag renderEligibilityPredicate(
+      long programId,
+      long blockId,
+      Optional<EligibilityDefinition> predicate,
+      String blockName,
+      ImmutableList<QuestionDefinition> questions) {
+    String currentBlockStatus =
+        predicate.isEmpty()
+            ? "You can add eligibility conditions to help you screen out applicants who do not"
+                + " meet the minimum requirements for a program early in the application"
+                + " process."
+            : predicate.get().predicate().toDisplayString(blockName, questions);
+
+    ButtonTag editScreenButton =
+        ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+            .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
+    return div()
+        .withClasses("my-4")
+        .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
+        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"))
+        .with(
+            asRedirectElement(
+                editScreenButton,
+                routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockId)
+                    .url()));
   }
 
   private DivTag renderQuestion(

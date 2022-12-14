@@ -21,6 +21,7 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
@@ -82,6 +83,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         .map(FileUploadQuestion::getFileKeyValue)
         .flatMap(Optional::stream)
         .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public boolean isBlockEligible(String blockId) {
+    Block block = getBlock(blockId).get();
+    Optional<PredicateDefinition> predicate =
+        block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
+    if (predicate.isEmpty()) {
+      return true;
+    }
+    return evaluateEligibility(block, predicate.get());
   }
 
   @Override
@@ -313,21 +325,28 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   private boolean evaluateVisibility(Block block, PredicateDefinition predicate) {
+    boolean evaluation = evaluatePredicate(block, predicate);
+    switch (predicate.action()) {
+      case HIDE_BLOCK:
+        return !evaluation;
+      case SHOW_BLOCK:
+        return evaluation;
+      default:
+        return true;
+    }
+  }
+
+  private boolean evaluateEligibility(Block block, PredicateDefinition predicate) {
+    return evaluatePredicate(block, predicate);
+  }
+
+  private boolean evaluatePredicate(Block block, PredicateDefinition predicate) {
     JsonPathPredicateGenerator predicateGenerator =
         new JsonPathPredicateGenerator(
             this.programDefinition.streamQuestionDefinitions().collect(toImmutableList()),
             block.getRepeatedEntity());
-    PredicateEvaluator predicateEvaluator =
-        new PredicateEvaluator(this.applicantData, predicateGenerator);
-
-    switch (predicate.action()) {
-      case HIDE_BLOCK:
-        return !predicateEvaluator.evaluate(predicate.rootNode());
-      case SHOW_BLOCK:
-        return predicateEvaluator.evaluate(predicate.rootNode());
-      default:
-        return true;
-    }
+    return new PredicateEvaluator(this.applicantData, predicateGenerator)
+        .evaluate(predicate.rootNode());
   }
 
   /**
