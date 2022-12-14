@@ -137,6 +137,7 @@ public final class ReferenceClasses {
   // taking a screenshot (e.g. dates, application IDs).
   public static final String BT_DATE = "cf-bt-date";
   public static final String BT_APPLICATION_ID = "cf-application-id";
+  public static final String BT_EMAIL = "cf-bt-email";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Developer reference classes

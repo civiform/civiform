@@ -486,9 +486,16 @@ export const validateScreenshot = async (
     await normalizeElements(frame)
   }
 
+  // Some tests take screenshots while scroll position in the middle. That
+  // affects header which is position fixed and on final full-page screenshots
+  // overlaps part of the page.
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
+      fullPage: true,
       ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
@@ -528,6 +535,9 @@ const normalizeElements = async (page: Frame | Page) => {
         /\d+/,
         '1234',
       )
+    }
+    for (const email of Array.from(document.querySelectorAll('.cf-bt-email'))) {
+      email.textContent = 'fake-email@example.com'
     }
   })
 }
