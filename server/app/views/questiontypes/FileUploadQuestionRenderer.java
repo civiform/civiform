@@ -63,7 +63,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
             fileUploadViewStrategy.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
         .with(
-            label().withFor(fileInputId).withText("Choose File").withClasses(ApplicantStyles.BUTTON_REVIEW, "w-44", "cursor-pointer")
+            label().withFor(fileInputId).withText("Choose File").withClasses(ApplicantStyles.BUTTON_UPLOAD, "w-44", "mt-2", "cursor-pointer")
         );
   }
 

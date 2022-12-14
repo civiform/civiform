@@ -125,4 +125,7 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-base");
   public static final String BUTTON_NOT_RIGHT_NOW =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, "text-base");
+  public static final String
+  BUTTON_UPLOAD =
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, "text-base");
 }
