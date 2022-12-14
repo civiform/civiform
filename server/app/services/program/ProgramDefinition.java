@@ -527,7 +527,7 @@ public abstract class ProgramDefinition {
    * <p>The available question definitions for predicates satisfy ALL of the following:
    *
    * <ul>
-   *   <li>In a block definition that comes sequentially before the given block definition.
+   *   <li>In the provided block definition or one that comes sequentially before it.
    *   <li>In a block definition that either has the same enumerator ID as the given block
    *       definition, or has the same enumerator ID as some "parent" of the given block definition.
    *   <li>Is not an enumerator.
