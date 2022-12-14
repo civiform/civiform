@@ -529,8 +529,8 @@ const normalizeElements = async (page: Frame | Page) => {
           .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT'),
       '.cf-application-id': (text) => text.replace(/\d+/, '1234'),
       '.cf-bt-email': () => 'fake-email@example.com',
-      '.cf-api-key-id': (text) => text.replace(/ID: .*/, 'ID: ####'),
-      '.cf-api-key-created-by': (text) =>
+      '.cf-bt-api-key-id': (text) => text.replace(/ID: .*/, 'ID: ####'),
+      '.cf-bt-api-key-created-by': (text) =>
         text.replace(/Created by .*/, 'Created by fake-admin-12345'),
     }
     for (const [selector, replacement] of Object.entries(replacements)) {
