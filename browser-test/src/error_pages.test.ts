@@ -11,7 +11,7 @@ describe('error pages', () => {
   it('test 404 page', async () => {
     const {page} = ctx
 
-    const notFound = new NotFoundPage(page)
+    const notFound = new NotFoundPage(ctx)
 
     await notFound.gotoNonExistentPage(page)
     await notFound.checkPageHeader()

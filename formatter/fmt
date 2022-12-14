@@ -65,7 +65,7 @@ else
   npx eslint --fix "app/assets/javascripts/**/*.ts"
   cd ../browser-test
   npm install --silent
-  npx eslint --fix
+  npx eslint --fix "src/**/*.ts"
   cd ..
   echo 'Done formatting with eslint'
 fi

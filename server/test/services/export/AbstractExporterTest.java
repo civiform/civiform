@@ -173,6 +173,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       @Nullable String status)
       throws Exception {
     Application application = new Application(applicant, program, lifecycleStage);
+    application.setApplicantData(applicant.getApplicantData());
     application.save();
 
     // CreateTime of an application is set through @onCreate to Instant.now(). To change
@@ -251,6 +252,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantFive.save();
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationFive.setSubmitTimeToNow());
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
     applicationFive.save();
     // Applicant six hasn't uploaded a file for the optional file upload question
     applicantSix = resourceCreator.insertApplicantWithAccount();
@@ -266,6 +268,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantSix.save();
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationSix.setSubmitTimeToNow());
+    applicationSix.setApplicantData(applicantSix.getApplicantData());
     applicationSix.save();
   }
   /**
@@ -342,6 +345,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantOne.save();
     applicationOne =
         new Application(applicantOne, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
+    applicationOne.setApplicantData(applicantOne.getApplicantData());
 
     CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z", () -> applicationOne.setSubmitTimeToNow());
@@ -400,12 +404,14 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicantTwo.save();
     applicationTwo =
         new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
+    applicationTwo.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-02-01T00:00:00Z", () -> applicationTwo.setSubmitTimeToNow());
     applicationTwo.save();
 
     applicationThree =
         new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.OBSOLETE);
+    applicationThree.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
