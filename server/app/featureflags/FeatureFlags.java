@@ -95,7 +95,8 @@ public final class FeatureFlags {
     return ImmutableMap.of(
         ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, allowCiviformAdminAccessPrograms(request),
         APPLICATION_STATUS_TRACKING_ENABLED, isStatusTrackingEnabled(request),
-        PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED, isProgramEligibilityConditionsEnabled(request));
+        PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED, isProgramEligibilityConditionsEnabled(request),
+      PREDICATES_MULTIPLE_QUESTIONS_ENABLED, isPredicatesMultipleQuestionsEnabled(request));
   }
 
   /**

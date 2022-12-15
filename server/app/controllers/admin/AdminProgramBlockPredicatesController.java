@@ -9,6 +9,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import forms.BlockVisibilityPredicateForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -37,27 +38,34 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockPredicatesEditView;
 import views.admin.programs.ProgramBlockPredicatesEditView.TYPE;
+import views.admin.programs.ProgramBlockPredicatesEditViewV2;
 
 /** Controller for admins editing and viewing program show-hide logic. */
 public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ProgramBlockPredicatesEditView predicatesEditView;
+  private final ProgramBlockPredicatesEditViewV2 predicatesEditViewV2;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public AdminProgramBlockPredicatesController(
       ProgramService programService,
       QuestionService questionService,
       ProgramBlockPredicatesEditView predicatesEditView,
+      ProgramBlockPredicatesEditViewV2 predicatesEditViewV2,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      FeatureFlags featureFlags) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.predicatesEditView = checkNotNull(predicatesEditView);
+    this.predicatesEditViewV2 = checkNotNull(predicatesEditViewV2);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /**
@@ -71,6 +79,19 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+      if (featureFlags.isPredicatesMultipleQuestionsEnabled(request)) {
+        return ok(
+          predicatesEditViewV2.render(
+            request,
+            programDefinition,
+            blockDefinition,
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
+              blockDefinitionId),
+            ProgramBlockPredicatesEditViewV2.TYPE.VISIBILITY));
+
+      }
+
       return ok(
           predicatesEditView.render(
               request,
@@ -98,6 +119,19 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+      if (featureFlags.isPredicatesMultipleQuestionsEnabled(request)) {
+        return ok(
+          predicatesEditViewV2.render(
+            request,
+            programDefinition,
+            blockDefinition,
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
+              blockDefinitionId),
+            ProgramBlockPredicatesEditViewV2.TYPE.VISIBILITY));
+
+      }
+
       return ok(
           predicatesEditView.render(
               request,
@@ -232,7 +266,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (IllegalPredicateOrderingException e) {
       return redirect(
-              routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+              routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId))
           .flashing("error", e.getLocalizedMessage());
     }
 
