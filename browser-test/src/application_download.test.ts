@@ -8,7 +8,8 @@ import {
   loginAsTestUser,
   logout,
   seedCanonicalQuestions,
-  selectApplicantLanguage, validateScreenshot,
+  selectApplicantLanguage,
+  validateScreenshot,
 } from './support'
 
 describe('normal application flow', () => {
