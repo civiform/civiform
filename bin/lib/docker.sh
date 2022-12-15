@@ -222,6 +222,8 @@ function docker::test_server_sbt_command() {
 #   COMPOSE_PROJECT_NAME
 #######################################
 function docker::browser_test_env_sbt_command() {
+  is_dev=${is_dev:-false}
+  
   docker::set_container_name_and_ip
   
   echo "---------------------" 

@@ -9,7 +9,6 @@ bin/pull-image
 
 docker::compose_unit_test_dev up -d --wait
 
-docker::set_container_name_and_ip
 docker::test_server_sbt_command
 
 
