@@ -129,7 +129,6 @@ function docker::set_project_name_dev() {
 #   COMPOSE_PROJECT_NAME
 #######################################
 function docker::set_project_name_browser_tests() {
-  echo "*** set_project_name"
   export COMPOSE_PROJECT_NAME="$(basename $(pwd))-browser-test"
   export DOCKER_NETWORK_NAME="${COMPOSE_PROJECT_NAME}_default"
 }
@@ -159,7 +158,7 @@ function docker::set_project_name_unit_tests() {
 
 function docker::set_container_name_and_ip() {
 
-   echo "*** -------SET_ container_name_and_ip ---------"
+   echo "jhummel -------SET_ container_name_and_ip ---------"
 
   export SERVER_CONTAINER_NAME="${COMPOSE_PROJECT_NAME}-civiform-1"
   export SERVER_CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $SERVER_CONTAINER_NAME)
@@ -222,17 +221,19 @@ function docker::test_server_sbt_command() {
 #   COMPOSE_PROJECT_NAME
 #######################################
 function docker::browser_test_env_sbt_command() {
-  is_dev=${is_dev:-false}
+  local is_dev=$1
+  echo "jummel--------------- is_dev"
+  echo "${is_dev}"
   
   docker::set_container_name_and_ip
   
-  echo "---------------------" 
-  echo $SERVER_CONTAINER_NAME
- 
-  echo $SERVER_CONTAINER_IP
-
-  
-  docker exec -it $SERVER_CONTAINER_NAME ./entrypoint.sh -jvm-debug "$SERVER_CONTAINER_IP:9457" -Dsbt.offline $1
+  if ${is_dev} == "true"; then
+    echo "jhummel ------setting up debugger" "$@"
+    docker exec -it $SERVER_CONTAINER_NAME sbt -jvm-debug "$SERVER_CONTAINER_IP:9457" -Dsbt.offline $2
+  else
+    echo "jhummel-------debugger setup skipped, running in none dev environment" "$@"
+    docker exec -it $SERVER_CONTAINER_NAME ./entrypoint.sh -Dsbt.offline $1
+  fi  
 }
 
 

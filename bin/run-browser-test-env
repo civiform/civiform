@@ -29,9 +29,9 @@ emulators::set_localstack_emulator_vars
 #   1: "$@" - full args array for the script
 #######################################
 function set_args() {
-  while [ "${1:-}" != "" ];
+  while [ "${1:-}" != "" ]; do
     case "$1" in
-      "--help")fsbt
+      "--help")
         cat <<-EOF
 Usage: bin/run-browser-test-env [options]
 
@@ -83,6 +83,8 @@ EOF
 #######################################
 function compose_browser_test() {
   local use_dev_env="$1"
+  echo "jhummel   ---------- variable format"
+  echo "$use_dev_env"
   shift 1
   if truth::is_enabled use_dev_env; then
     echo "docker::compose_browser_test_dev" "$@"
@@ -145,7 +147,10 @@ else
   compose_browser_test "${use_dev}" --profile ${cloud_provider} up --no-recreate --wait -d
 fi
 
-docker::browser_test_env_sbt_command 
+echo "jhummel ---------------------- use_dev"
+echo "${use_dev}"
+
+docker::browser_test_env_sbt_command "${use_dev}" runBrowserTestsServer
 
 # Start a warmup request loop so that when the subsequent server startup is ready, we trigger lazy
 # loading its edit-refresh resources to save developer time.
