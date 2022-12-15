@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import services.program.predicate.PredicateDefinition;
-
-import javax.annotation.Nullable;
 import java.util.Optional;
+import javax.annotation.Nullable;
+import services.program.predicate.PredicateDefinition;
 
 /**
  * Defines eligibility configuration on questions in a program.
@@ -22,8 +21,7 @@ import java.util.Optional;
 @AutoValue
 public abstract class EligibilityDefinition {
 
-  /** Indicates the shape of the predicate's AST so view code can render the appropriate
-   * UI. */
+  /** Indicates the shape of the predicate's AST so view code can render the appropriate UI. */
   public enum PredicateFormat {
     // A single leaf node
     SINGLE_QUESTION,
@@ -40,8 +38,7 @@ public abstract class EligibilityDefinition {
   @JsonProperty("predicate")
   public abstract PredicateDefinition predicate();
 
-  /** Indicates the shape of the predicate's AST so view code can render the appropriate
-   * UI. */
+  /** Indicates the shape of the predicate's AST so view code can render the appropriate UI. */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   @JsonProperty("predicateType")
   public abstract Optional<PredicateFormat> predicateFormat();

@@ -165,14 +165,14 @@ public class ProgramTest extends ResetPostgres {
             PredicateAction.HIDE_BLOCK);
 
     EligibilityDefinition eligibilityDefinition =
-      EligibilityDefinition.builder()
-        .setPredicate(PredicateDefinition.create(
-          PredicateExpressionNode.create(
-            LeafOperationExpressionNode.create(
-              1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-            PredicateAction.ELIGIBILITY_BLOCK
-          ))
-        .build();
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                    PredicateAction.ELIGIBILITY_BLOCK))
+            .build();
 
     BlockDefinition blockDefinition =
         BlockDefinition.builder()

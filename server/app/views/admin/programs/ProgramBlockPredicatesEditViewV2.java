@@ -1,5 +1,18 @@
 package views.admin.programs;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
+import static j2html.TagCreator.option;
+import static j2html.TagCreator.text;
+import static play.mvc.Http.HttpVerbs.POST;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
@@ -10,6 +23,9 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
+import java.util.Arrays;
+import java.util.UUID;
+import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.applicant.question.Scalar;
@@ -35,23 +51,6 @@ import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.UUID;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.input;
-import static j2html.TagCreator.label;
-import static j2html.TagCreator.option;
-import static j2html.TagCreator.text;
-import static play.mvc.Http.HttpVerbs.POST;
 
 /** Renders a page for editing predicates of a block in a program. */
 public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
@@ -98,6 +97,8 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
     final String text_no_available_questions;
     final String predicateUpdateUrl;
     final String removePredicateUrl;
+    final String configurePredicateUrl;
+
     switch (type) {
       case ELIGIBILITY:
         predicateTypeNameTitleCase = "Eligibility";
@@ -105,16 +106,21 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
         text_no_conditions = "This screen is always shown.";
         h2_new_condition = "New visibility condition";
         text_new_condition =
-          "Apply a visibility condition using a question below. When you create a visibility"
-            + " condition, it replaces the present one.";
+            "Apply a visibility condition using a question below. When you create a visibility"
+                + " condition, it replaces the present one.";
         text_no_available_questions =
-          "There are no available questions with which to set a visibility condition for this screen.";
+            "There are no available questions with which to set a visibility condition for this"
+                + " screen.";
         predicateUpdateUrl =
             routes.AdminProgramBlockPredicatesController.updateEligibility(
                     programDefinition.id(), blockDefinition.id())
                 .url();
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        configurePredicateUrl =
+            routes.AdminProgramBlockPredicatesController.configureNewEligibilityPredicate(
                     programDefinition.id(), blockDefinition.id())
                 .url();
         break;
@@ -124,16 +130,21 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
         text_no_conditions = "This screen is always shown.";
         h2_new_condition = "New visibility condition";
         text_new_condition =
-          "Apply a visibility condition using a question below. When you create a visibility"
-            + " condition, it replaces the present one.";
+            "Apply a visibility condition using a question below. When you create a visibility"
+                + " condition, it replaces the present one.";
         text_no_available_questions =
-          "There are no available questions with which to set a visibility condition for this screen.";
+            "There are no available questions with which to set a visibility condition for this"
+                + " screen.";
         predicateUpdateUrl =
             routes.AdminProgramBlockPredicatesController.update(
                     programDefinition.id(), blockDefinition.id())
                 .url();
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroy(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        configurePredicateUrl =
+            routes.AdminProgramBlockPredicatesController.configureNewVisibilityPredicate(
                     programDefinition.id(), blockDefinition.id())
                 .url();
         break;
@@ -183,8 +194,7 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
             // Show the current predicate.
             .with(
                 div()
-                    .with(
-                        h2(h2_current_condition).withClasses("font-semibold", "text-lg"))
+                    .with(h2(h2_current_condition).withClasses("font-semibold", "text-lg"))
                     .with(
                         div(blockDefinition
                                 .visibilityPredicate()
@@ -204,7 +214,14 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
                     .with(
                         modals.isEmpty()
                             ? text(text_no_available_questions)
-                            : each(predicateQuestions, this::renderPredicateQuestionCheckBoxRow)));
+                            : form(
+                                    makeCsrfTokenInputTag(request),
+                                    each(
+                                        predicateQuestions,
+                                        this::renderPredicateQuestionCheckBoxRow),
+                                    submitButton("Add condition"))
+                                .withAction(configurePredicateUrl)
+                                .withMethod(POST)));
 
     HtmlBundle htmlBundle =
         layout
@@ -227,26 +244,32 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
   }
 
   private LabelTag renderPredicateQuestionCheckBoxRow(QuestionDefinition questionDefinition) {
-    String questionHelpText = questionDefinition.getQuestionHelpText().isEmpty() ?
-      "" :questionDefinition.getQuestionHelpText().getDefault();
+    String questionHelpText =
+        questionDefinition.getQuestionHelpText().isEmpty()
+            ? ""
+            : questionDefinition.getQuestionHelpText().getDefault();
 
-    InputTag checkbox = input().withType("checkbox").withClasses("mx-2");
+    InputTag checkbox =
+        input()
+            .withType("checkbox")
+            .withClasses("mx-2")
+            .withName(String.format("question-%d", questionDefinition.getId()));
 
     return label()
-      .withClasses("my-4", "p-4", "flex", "flex-row", "gap-4", "border", "border-gray-300")
-      .with(checkbox)
-      .with(
-        div(Icons.questionTypeSvg(questionDefinition.getQuestionType())
-          .withClasses("shrink-0", "h-12", "w-6")).withClasses("flex", "items-center")
-        )
-      .with(
-        div()
-          .withClasses("text-left")
-          .with(
-            div(questionDefinition.getQuestionText().getDefault()).withClasses("font-bold"),
-            div(questionHelpText).withClasses("mt-1", "text-sm"),
-            div(String.format("Admin ID: %s", questionDefinition.getName()))
-              .withClasses("mt-1", "text-sm")));
+        .withClasses("my-4", "p-4", "flex", "flex-row", "gap-4", "border", "border-gray-300")
+        .with(checkbox)
+        .with(
+            div(Icons.questionTypeSvg(questionDefinition.getQuestionType())
+                    .withClasses("shrink-0", "h-12", "w-6"))
+                .withClasses("flex", "items-center"))
+        .with(
+            div()
+                .withClasses("text-left")
+                .with(
+                    div(questionDefinition.getQuestionText().getDefault()).withClasses("font-bold"),
+                    div(questionHelpText).withClasses("mt-1", "text-sm"),
+                    div(String.format("Admin ID: %s", questionDefinition.getName()))
+                        .withClasses("mt-1", "text-sm")));
   }
 
   private ImmutableList<Modal> createPredicateUpdateFormModals(

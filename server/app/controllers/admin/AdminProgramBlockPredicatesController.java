@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
@@ -36,6 +37,7 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import views.admin.programs.ProgramBlockPredicateConfigureView;
 import views.admin.programs.ProgramBlockPredicatesEditView;
 import views.admin.programs.ProgramBlockPredicatesEditView.TYPE;
 import views.admin.programs.ProgramBlockPredicatesEditViewV2;
@@ -46,6 +48,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final QuestionService questionService;
   private final ProgramBlockPredicatesEditView predicatesEditView;
   private final ProgramBlockPredicatesEditViewV2 predicatesEditViewV2;
+  private final ProgramBlockPredicateConfigureView predicatesConfigureView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final FeatureFlags featureFlags;
@@ -56,6 +59,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       QuestionService questionService,
       ProgramBlockPredicatesEditView predicatesEditView,
       ProgramBlockPredicatesEditViewV2 predicatesEditViewV2,
+      ProgramBlockPredicateConfigureView predicatesConfigureView,
       FormFactory formFactory,
       RequestChecker requestChecker,
       FeatureFlags featureFlags) {
@@ -63,6 +67,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.questionService = checkNotNull(questionService);
     this.predicatesEditView = checkNotNull(predicatesEditView);
     this.predicatesEditViewV2 = checkNotNull(predicatesEditViewV2);
+    this.predicatesConfigureView = checkNotNull(predicatesConfigureView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.featureFlags = checkNotNull(featureFlags);
@@ -82,14 +87,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       if (featureFlags.isPredicatesMultipleQuestionsEnabled(request)) {
         return ok(
-          predicatesEditViewV2.render(
-            request,
-            programDefinition,
-            blockDefinition,
-            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
-              blockDefinitionId),
-            ProgramBlockPredicatesEditViewV2.TYPE.VISIBILITY));
-
+            predicatesEditViewV2.render(
+                request,
+                programDefinition,
+                blockDefinition,
+                programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
+                    blockDefinitionId),
+                ProgramBlockPredicatesEditViewV2.TYPE.VISIBILITY));
       }
 
       return ok(
@@ -122,14 +126,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       if (featureFlags.isPredicatesMultipleQuestionsEnabled(request)) {
         return ok(
-          predicatesEditViewV2.render(
-            request,
-            programDefinition,
-            blockDefinition,
-            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
-              blockDefinitionId),
-            ProgramBlockPredicatesEditViewV2.TYPE.VISIBILITY));
-
+            predicatesEditViewV2.render(
+                request,
+                programDefinition,
+                blockDefinition,
+                programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
+                    blockDefinitionId),
+                ProgramBlockPredicatesEditViewV2.TYPE.VISIBILITY));
       }
 
       return ok(
@@ -213,6 +216,33 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 leafExpression.toDisplayString(roQuestionService.getUpToDateQuestions())));
   }
 
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result configureNewVisibilityPredicate(
+      Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+
+    try {
+      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+      return ok(
+          predicatesConfigureView.renderVisibility(
+              request, programDefinition, blockDefinition, form));
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result configureNewEligibilityPredicate(
+      Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    return ok();
+  }
+
   /** POST endpoint for updating show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateEligibility(Request request, long programId, long blockDefinitionId) {
@@ -266,7 +296,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (IllegalPredicateOrderingException e) {
       return redirect(
-              routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId))
+              routes.AdminProgramBlockPredicatesController.editEligibility(
+                  programId, blockDefinitionId))
           .flashing("error", e.getLocalizedMessage());
     }
 

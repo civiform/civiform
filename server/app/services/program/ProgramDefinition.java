@@ -487,13 +487,13 @@ public abstract class ProgramDefinition {
         .collect(ImmutableList.toImmutableList());
   }
 
-  public ImmutableList<QuestionDefinition> getAvailableVisibilityPredicateQuestionDefinitions(long blockId)
-    throws ProgramBlockDefinitionNotFoundException{
+  public ImmutableList<QuestionDefinition> getAvailableVisibilityPredicateQuestionDefinitions(
+      long blockId) throws ProgramBlockDefinitionNotFoundException {
     return getAvailablePredicateQuestionDefinitions(blockId - 1);
   }
 
-  public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(long blockId)
-    throws ProgramBlockDefinitionNotFoundException{
+  public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
+      long blockId) throws ProgramBlockDefinitionNotFoundException {
     return getAvailablePredicateQuestionDefinitions(blockId);
   }
 
