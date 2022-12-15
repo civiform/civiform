@@ -7,12 +7,13 @@ services:
       - ./server:/usr/src/server
       - target:/usr/src/server/target
       - node_modules-data:/usr/src/server/node_modules
-      - project-data:/usr/src/server/project/projectbr	
+      - project-data:/usr/src/server/project/project
       - project-target-data:/usr/src/server/project/target
     stdin_open: true # docker run -i
     tty: true # docker run -t
     ports:
       - 9457:9457
+    command: -jvm-debug "*:9457" ~runBrowserTestsServer
 
 
 volumes:

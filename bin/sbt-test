@@ -9,6 +9,4 @@ bin/pull-image
 
 docker::compose_unit_test_dev up -d --wait
 
-docker::test_server_sbt_command
-
-
+docker::dev_and_test_server_sbt_command "8459"

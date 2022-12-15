@@ -83,7 +83,6 @@ EOF
 #######################################
 function compose_browser_test() {
   local use_dev_env="$1"
-  echo "$use_dev_env"
   shift 1
   if truth::is_enabled use_dev_env; then
     echo "docker::compose_browser_test_dev" "$@"
@@ -158,6 +157,3 @@ done &
 if truth::is_disabled continuous_integration; then
   docker attach "${COMPOSE_PROJECT_NAME}-civiform-1"
 fi
-
-
-

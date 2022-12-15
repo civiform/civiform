@@ -145,26 +145,6 @@ function docker::set_project_name_unit_tests() {
   export DOCKER_NETWORK_NAME="${COMPOSE_PROJECT_NAME}_default"
 }
 
-#############################################
-# Set SERVER_CONTAINER_NAME and SERVER_CONTAINER_IP so that the debugger can be 
-# connected to a port on a specific ip address.
-# using *:<port-number> ) is less secure because by design it allows 
-# remote code execution on the developer's machine from any ip address.
-# Globals:
-#  SERVER_CONTAINER_NAME
-#  SERVER_CONTAINER_IP
-#
-############################################
-
-function docker::set_container_name_and_ip() {
-
-   echo "jhummel -------SET_ container_name_and_ip ---------"
-
-  export SERVER_CONTAINER_NAME="${COMPOSE_PROJECT_NAME}-civiform-1"
-  export SERVER_CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $SERVER_CONTAINER_NAME)
-   echo $SERVER_CONTAINER_NAME
-   echo $SERVER_CONTAINER_IP
-}
 
 #######################################
 # Login to Docker Hub.
@@ -183,57 +163,23 @@ function docker::do_dockerhub_login() {
 # Runs sbt command inside dev civiform container. The container should be
 # already running.
 # Arguments:
-#   The function takes optional param - the command to run. If no argument is
-#   passed then sbt starts in interactive shell mode.
+#   The function takes optional params
+#   1. The port to connect the debugger to
+#   2. The command to run. 
+# If no argument is passed then sbt starts in interactive shell mode.
 # Globals:
 #   COMPOSE_PROJECT_NAME
 #######################################
-function docker::dev_server_sbt_command() {
-  docker::set_container_name_and_ip
+function docker::dev_and_test_server_sbt_command() {
+  
+  local server_container_name="${COMPOSE_PROJECT_NAME}-civiform-1"
+  local server_container_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $server_container_name)
+
 
   # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
-  docker exec -it $SERVER_CONTAINER_NAME ./entrypoint.sh -jvm-debug "$SERVER_CONTAINER_IP:8457" -Dsbt.offline $1
+  docker exec -it $server_container_name ./entrypoint.sh -jvm-debug "$server_container_ip:$1" -Dsbt.offline $2
 }
 
-#######################################
-# Runs sbt command inside dev civiform container. The container should be
-# already running.
-# Arguments:
-#   The function takes optional param - the command to run. If no argument is
-#   passed then sbt starts in interactive shell mode.
-# Globals:
-#   COMPOSE_PROJECT_NAME
-#######################################
-function docker::test_server_sbt_command() {
-  docker::set_container_name_and_ip
-  
-  docker exec -it $SERVER_CONTAINER_NAME ./entrypoint.sh -jvm-debug "$SERVER_CONTAINER_IP:8459" -Dsbt.offline $1
 
-}
-
-#######################################
-# Runs sbt command inside dev civiform container. The container should be
-# already running.
-# Arguments:
-#   The function takes optional param - the command to run. If no argument is
-#   passed then sbt starts in interactive shell mode.
-# Globals:
-#   COMPOSE_PROJECT_NAME
-#######################################
-function docker::browser_test_env_sbt_command() {
-  local is_dev=$1
-  echo "jummel--------------- is_dev"
-  echo "${is_dev}"
-  
-  docker::set_container_name_and_ip
-  
-  if ${is_dev} == "true"; then
-    echo "jhummel ------setting up debugger" "$@"
-    docker exec -it $SERVER_CONTAINER_NAME sbt -jvm-debug "$SERVER_CONTAINER_IP:9457" -Dsbt.offline $2
-  else
-    echo "jhummel-------debugger setup skipped, running in none dev environment" "$@"
-    docker exec -it $SERVER_CONTAINER_NAME ./entrypoint.sh -Dsbt.offline $1
-  fi  
-}
 
 
