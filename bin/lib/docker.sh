@@ -145,7 +145,6 @@ function docker::set_project_name_unit_tests() {
   export DOCKER_NETWORK_NAME="${COMPOSE_PROJECT_NAME}_default"
 }
 
-
 #######################################
 # Login to Docker Hub.
 # Globals:
