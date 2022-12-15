@@ -1,6 +1,5 @@
 package views.admin.questions;
 
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 
 import com.google.common.base.Preconditions;
@@ -22,8 +21,11 @@ import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
+import views.ViewUtils;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.SelectWithLabel;
+import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -181,12 +183,20 @@ public final class QuestionConfig {
                 .getInputTag()
                 .withClasses("hidden");
     ButtonTag removeOptionButton =
-        button("Remove")
+        ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
             .withType("button")
-            .withClasses("flex", "ml-4", "multi-option-question-field-remove-button");
+            .withClasses(
+                AdminStyles.SECONDARY_BUTTON_STYLES,
+                "ml-4",
+                "multi-option-question-field-remove-button");
 
     return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "flex", "flex-row", "mb-4")
+        .withClasses(
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+            "flex",
+            "flex-row",
+            "mb-4",
+            "items-center")
         .with(optionInput, optionIndexInput, removeOptionButton);
   }
 
@@ -225,10 +235,10 @@ public final class QuestionConfig {
     content
         .with(optionsBuilder.build())
         .with(
-            button("Add answer option")
+            ViewUtils.makeSvgTextButton("Add answer option", Icons.PLUS)
                 .withType("button")
                 .withId("add-new-option")
-                .withClasses("m-2"));
+                .withClasses("m-2", AdminStyles.SECONDARY_BUTTON_STYLES));
     return this;
   }
 
