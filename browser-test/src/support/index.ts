@@ -20,6 +20,7 @@ import {
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
   TEST_USER_DISPLAY_NAME,
+  DISABLE_BROWSER_ERROR_WATCHER,
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
@@ -188,7 +189,9 @@ export const createTestContext = (clearDb = true): TestContext => {
   // we'll get one huge video for all tests.
   async function resetContext() {
     if (browserContext != null) {
-      ctx.browserErrorWatcher.failIfContainsErrors()
+      if (!DISABLE_BROWSER_ERROR_WATCHER) {
+        ctx.browserErrorWatcher.failIfContainsErrors()
+      }
       await browserContext.close()
     }
     browserContext = await makeBrowserContext(browser)
@@ -483,9 +486,16 @@ export const validateScreenshot = async (
     await normalizeElements(frame)
   }
 
+  // Some tests take screenshots while scroll position in the middle. That
+  // affects header which is position fixed and on final full-page screenshots
+  // overlaps part of the page.
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
+      fullPage: true,
       ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
@@ -511,20 +521,22 @@ export const validateScreenshot = async (
  */
 const normalizeElements = async (page: Frame | Page) => {
   await page.evaluate(() => {
-    for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
-      date.textContent = date
-        .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
-        .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
-        .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT')
+    const replacements: {[selector: string]: (text: string) => string} = {
+      '.cf-bt-date': (text) =>
+        text
+          .replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
+          .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
+          .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT'),
+      '.cf-application-id': (text) => text.replace(/\d+/, '1234'),
+      '.cf-bt-email': () => 'fake-email@example.com',
+      '.cf-bt-api-key-id': (text) => text.replace(/ID: .*/, 'ID: ####'),
+      '.cf-bt-api-key-created-by': (text) =>
+        text.replace(/Created by .*/, 'Created by fake-admin-12345'),
     }
-    // Process application id values.
-    for (const applicationId of Array.from(
-      document.querySelectorAll('.cf-application-id'),
-    )) {
-      applicationId.textContent = applicationId.textContent!.replace(
-        /\d+/,
-        '1234',
-      )
+    for (const [selector, replacement] of Object.entries(replacements)) {
+      for (const element of Array.from(document.querySelectorAll(selector))) {
+        element.textContent = replacement(element.textContent!)
+      }
     }
   })
 }

@@ -7,6 +7,7 @@ import static j2html.TagCreator.form;
 
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -32,15 +33,18 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final ApplicantLayout layout;
   private final FileUploadViewStrategy fileUploadStrategy;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
+  private final FeatureFlags featureFlags;
 
   @Inject
   ApplicantProgramBlockEditView(
       ApplicantLayout layout,
       FileUploadViewStrategy fileUploadStrategy,
-      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layout);
     this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
     this.applicantQuestionRendererFactory = applicantQuestionRendererFactory;
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(Params params) {
@@ -49,12 +53,20 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .with(div(renderBlockWithSubmitForm(params)).withClasses("my-8"))
             .withClasses("my-8", "m-auto");
 
+    String errorMessage = "";
+    if (params.block().hasErrors()
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
+            params.errorDisplayMode())) {
+      // Add error message to title for screen reader users.
+      errorMessage = " — " + params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName());
+    }
     HtmlBundle bundle =
         layout
             .getBundle()
             .setTitle(
                 layout.renderPageTitleWithBlockProgress(
-                    params.programTitle(), params.blockIndex(), params.totalBlockCount()))
+                        params.programTitle(), params.blockIndex(), params.totalBlockCount())
+                    + errorMessage)
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
@@ -67,10 +79,10 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
               params.applicantId(), params.programId(), params.messages()));
     }
 
-    if (params.block().isFileUpload()) {
+    if (params.block().isFileUpload() && !featureFlags.isJsBundlingEnabled()) {
       bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("file_upload"));
     }
-    if (params.block().isEnumerator()) {
+    if (params.block().isEnumerator() && !featureFlags.isJsBundlingEnabled()) {
       bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("enumerator"));
     }
 
@@ -111,7 +123,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       form.with(
           div()
               .withText(params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName()))
-              .attr("role", "status")
+              .attr("role", "alert")
               .attr("aria-live", "polite")
               .withClasses("sr-only"));
     }

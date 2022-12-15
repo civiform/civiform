@@ -77,8 +77,10 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     DivTag statsDiv =
         div()
             .with(
-                p("Created " + dateConverter.formatRfc1123(apiKey.getCreateTime())),
-                p("Created by " + apiKey.getCreatedBy()),
+                p("Created " + dateConverter.renderDateTime(apiKey.getCreateTime()))
+                    .withClasses(ReferenceClasses.BT_DATE),
+                p("Created by " + apiKey.getCreatedBy())
+                    .withClasses(ReferenceClasses.BT_API_KEY_CREATED_BY),
                 p(apiKey
                         .getLastCallIpAddress()
                         .map(ip -> "Last used by " + ip)
@@ -111,7 +113,9 @@ public final class ApiKeyIndexView extends BaseHtmlView {
             .with(
                 div(
                     div(
-                        p("ID: " + apiKey.getKeyId()).withClasses("text-gray-700", "text-sm"),
+                        p("ID: " + apiKey.getKeyId())
+                            .withClasses("text-gray-700", "text-sm")
+                            .withClasses(ReferenceClasses.BT_API_KEY_ID),
                         p("Allowed subnet: " + apiKey.getSubnet())
                             .withClasses("text-gray-700", "text-sm"))),
                 statsDiv)
