@@ -26,7 +26,7 @@ public class FeatureFlagsTest {
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
               "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
-            "true"));
+              "true"));
 
   private static final Config featuresEnabledConfig =
       ConfigFactory.parseMap(
@@ -34,17 +34,17 @@ public class FeatureFlagsTest {
               FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
               "true",
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-             "true",
+              "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
-            "true"));
+              "true"));
   private static final Map<String, String> allFeaturesEnabledMap =
       Map.of(
           FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
           "true",
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
           "true",
-        FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
-        "true");
+          FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
+          "true");
   private static final Request allFeaturesEnabledRequest =
       fakeRequest().session(allFeaturesEnabledMap).build();
 

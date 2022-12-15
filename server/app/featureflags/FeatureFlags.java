@@ -30,8 +30,7 @@ public final class FeatureFlags {
       "application_status_tracking_enabled";
   public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
       "program_eligibility_conditions_enabled";
-  public static final String PROGRAM_READ_ONLY_VIEW_ENABLED =
-    "program_read_only_view_enabled";
+  public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
   private static final String USE_JS_BUNDLES = "use_js_bundles";
 
   private final Config config;
@@ -94,10 +93,14 @@ public final class FeatureFlags {
 
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
     return ImmutableMap.of(
-        ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, allowCiviformAdminAccessPrograms(request),
-        APPLICATION_STATUS_TRACKING_ENABLED, isStatusTrackingEnabled(request),
-        PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED, isProgramEligibilityConditionsEnabled(request),
-      PROGRAM_READ_ONLY_VIEW_ENABLED, isReadOnlyProgramViewEnabled(request));
+        ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
+        allowCiviformAdminAccessPrograms(request),
+        APPLICATION_STATUS_TRACKING_ENABLED,
+        isStatusTrackingEnabled(request),
+        PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
+        isProgramEligibilityConditionsEnabled(request),
+        PROGRAM_READ_ONLY_VIEW_ENABLED,
+        isReadOnlyProgramViewEnabled(request));
   }
 
   /**
