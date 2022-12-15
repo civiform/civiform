@@ -15,7 +15,6 @@ services:
       - 9457:9457
     command: -jvm-debug "*:9457" ~runBrowserTestsServer
 
-
 volumes:
   node_modules-data:
     driver: local
