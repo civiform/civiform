@@ -170,7 +170,7 @@ public final class QuestionConfig {
                 ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
             .showFieldErrors(false)
             .getInputTag()
-            .withClasses("flex", "ml-2", "gap-x-3");
+            .withClasses("flex", "ml-2", "gap-x-3", ReferenceClasses.MULTI_OPTION_INPUT);
     DivTag optionIndexInput =
         isForNewOption
             ? div()
