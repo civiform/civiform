@@ -79,11 +79,10 @@ EOF
 # Chooses the dev or ci versions of broswertest
 # Arguments:
 #   1: if true, use developer mode
-#   2: the rest of the arguments for composefcompose
+#   2: the rest of the arguments for compose
 #######################################
 function compose_browser_test() {
   local use_dev_env="$1"
-  echo "jhummel   ---------- variable format"
   echo "$use_dev_env"
   shift 1
   if truth::is_enabled use_dev_env; then
@@ -129,7 +128,7 @@ echo "Waiting for the cloud emulator"
 if truth::is_enabled both_emulators; then
   echo "Starting localstack emulator as well"
   if truth::is_enabled continuous_integration; then
-    compose_browser_test "${use_dev}" --profile aws up --no-recreate -d localstack >.dockerlogs 2>&1 &  
+    compose_browser_test "${use_dev}" --profile aws up --no-recreate -d localstack >.dockerlogs 2>&1 &
   else
     compose_browser_test "${use_dev}" --profile aws up --no-recreate -d localstack
   fi
@@ -146,11 +145,6 @@ if truth::is_enabled continuous_integration; then
 else
   compose_browser_test "${use_dev}" --profile ${cloud_provider} up --no-recreate --wait -d
 fi
-
-echo "jhummel ---------------------- use_dev"
-echo "${use_dev}"
-
-docker::browser_test_env_sbt_command "${use_dev}" runBrowserTestsServer
 
 # Start a warmup request loop so that when the subsequent server startup is ready, we trigger lazy
 # loading its edit-refresh resources to save developer time.
