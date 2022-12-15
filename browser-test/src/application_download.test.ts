@@ -8,7 +8,7 @@ import {
   loginAsTestUser,
   logout,
   seedCanonicalQuestions,
-  selectApplicantLanguage,
+  selectApplicantLanguage, validateScreenshot,
 } from './support'
 
 describe('normal application flow', () => {
@@ -172,6 +172,7 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
     await adminPrograms.viewApplicationForApplicant('smith, sarah')
+    await validateScreenshot(page, 'applications-page')
 
     const pdfFile = await adminPrograms.getPdf()
     expect(pdfFile.length).toBeGreaterThan(1)
