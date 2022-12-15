@@ -36,6 +36,11 @@ class AzureUploadController {
       throw new Error('Attempted to upload to null container')
     }
     const azureUploadProps = this.getAzureUploadProps(uploadContainer)
+    if (azureUploadProps.file == null) {
+      // No file selected by the user. Validation is done in file_upload.ts so
+      // here we simply halt uploading.
+      return
+    }
 
     const redirectUrl = new URL(azureUploadProps.successActionRedirect)
 
