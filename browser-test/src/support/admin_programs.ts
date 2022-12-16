@@ -215,6 +215,12 @@ export class AdminPrograms {
     await this.expectEditPredicatePage(blockName)
   }
 
+  async goToProgramDescriptionPage(programName: string) {
+    await this.goToManageQuestionsPage(programName)
+    await this.page.click('button:has-text("Edit program details")')
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectDraftProgram(programName: string) {
     expect(
       await this.page.isVisible(this.programCardSelector(programName, 'Draft')),
@@ -778,7 +784,7 @@ export class AdminPrograms {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.applicationFrameLocator()
-        .locator('a:has-text("Export to PDF")')
+        .locator('button:has-text("Export to PDF")')
         .click(),
     ])
     const path = await downloadEvent.path()

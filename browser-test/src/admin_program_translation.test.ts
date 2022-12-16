@@ -23,6 +23,7 @@ describe('Admin can manage translations', () => {
 
     // Add translations for Spanish and publish
     await adminTranslations.selectLanguage('Spanish')
+    await validateScreenshot(page, 'program-translation')
     await adminTranslations.expectProgramTranslation({
       expectProgramName: '',
       expectProgramDescription: '',
@@ -167,6 +168,7 @@ describe('Admin can manage translations', () => {
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
+    await validateScreenshot(page, 'question-translation')
     await adminTranslations.editQuestionTranslations(
       'Spanish question text',
       'Spanish help text',
@@ -224,6 +226,7 @@ describe('Admin can manage translations', () => {
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
+    await validateScreenshot(page, 'multi-option-question-translation')
     await adminTranslations.editQuestionTranslations('hola', 'mundo', [
       'uno',
       'dos',

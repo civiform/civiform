@@ -1,4 +1,4 @@
-import {createTestContext, loginAsAdmin} from './support'
+import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
 
 describe('Managing API keys', () => {
   const ctx = createTestContext()
@@ -11,6 +11,8 @@ describe('Managing API keys', () => {
     const programDescription = 'This program uses the API.'
     await adminPrograms.addProgram(programName, programDescription, '', false)
     await adminPrograms.publishAllPrograms()
+    await adminApiKeys.gotoNewApiKeyPage()
+    await validateScreenshot(page, 'new-api-key-page')
 
     const credentials = await adminApiKeys.createApiKey({
       name: 'Test API key',
@@ -22,6 +24,7 @@ describe('Managing API keys', () => {
     expect(typeof credentials).toEqual('string')
 
     await adminApiKeys.expectApiKeyIsActive('Test API key')
+    await validateScreenshot(page, 'api-key-index-page')
 
     let apiResponse = await adminApiKeys.callCheckAuth(credentials)
     expect(apiResponse.status).toEqual(200)

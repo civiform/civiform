@@ -4,6 +4,8 @@ import {
   loginAsAdmin,
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
+  selectApplicantLanguage,
+  validateScreenshot,
 } from './support'
 
 describe('Trusted intermediaries', () => {
@@ -49,6 +51,14 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
+    await validateScreenshot(page, 'dashboard-with-one-client')
+  })
+
+  it('ti landing page is the TI Dashboard', async () => {
+    const {page} = ctx
+    await loginAsTrustedIntermediary(page)
+    await selectApplicantLanguage(page, 'English')
+    await validateScreenshot(page, 'ti')
   })
 
   it('search For Client In TI Dashboard', async () => {
@@ -95,10 +105,12 @@ describe('Trusted intermediaries', () => {
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.fillInGroupBasics('group name', 'group description')
     await adminTiGroups.expectGroupExist('group name', 'group description')
+    await validateScreenshot(page, 'ti-groups-page')
 
     await adminTiGroups.editGroup('group name')
     await adminTiGroups.addGroupMember('foo@bar.com')
     await adminTiGroups.expectGroupMemberExist('<Unnamed User>', 'foo@bar.com')
+    await validateScreenshot(page, 'manage-ti-group-members-page')
   })
 
   it('logging in as a trusted intermediary', async () => {

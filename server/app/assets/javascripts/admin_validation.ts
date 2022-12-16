@@ -102,5 +102,4 @@ class AdminValidationController {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const adminValidationController = new AdminValidationController()
+new AdminValidationController()

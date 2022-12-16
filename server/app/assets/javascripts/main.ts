@@ -102,7 +102,7 @@ function addNewInput(
  */
 function removeInput(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
-  const optionDiv = (event.target as Element).parentNode
+  const optionDiv = (event.currentTarget as Element).parentNode
   optionDiv.parentNode.removeChild(optionDiv)
 }
 
@@ -112,7 +112,7 @@ function removeInput(event: Event) {
  * @param {Event} event The event that triggered this action.
  */
 function hideInput(event: Event) {
-  const inputDiv = (event.target as Element).parentElement
+  const inputDiv = (event.currentTarget as Element).parentElement
   // Remove 'disabled' so the field is submitted with the form
   inputDiv.querySelector('input').disabled = false
   // Hide the entire div from the user
@@ -375,6 +375,21 @@ function attachStopPropogationListenerOnFormButtons() {
   })
 }
 
+/**
+ * Disables default browser behavior where pressing Enter on any input in a form
+ * triggers form submission. See https://github.com/civiform/civiform/issues/3872
+ */
+function disableEnterToSubmitBehaviorOnForms() {
+  addEventListenerToElements('form', 'keydown', (e: KeyboardEvent) => {
+    const target = (e.target as HTMLElement).tagName.toLowerCase()
+    // if event originated from a button or link - it should proceed with
+    // default action.
+    if (target !== 'button' && target !== 'a' && e.key === 'Enter') {
+      e.preventDefault()
+    }
+  })
+}
+
 window.addEventListener('load', () => {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
@@ -445,6 +460,7 @@ window.addEventListener('load', () => {
 
   attachRedirectToPageListeners()
   attachStopPropogationListenerOnFormButtons()
+  disableEnterToSubmitBehaviorOnForms()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
