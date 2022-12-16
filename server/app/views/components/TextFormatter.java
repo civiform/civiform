@@ -113,7 +113,6 @@ public final class TextFormatter {
       contentBuilder.add(text(content));
     }
     if (addRequiredIndicator) {
-
       contentBuilder.add(span(rawHtml("&nbsp;*")).withClasses("text-red-600"));
     }
     return contentBuilder.build();
