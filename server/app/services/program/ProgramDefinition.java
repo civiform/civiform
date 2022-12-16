@@ -487,16 +487,6 @@ public abstract class ProgramDefinition {
         .collect(ImmutableList.toImmutableList());
   }
 
-  public ImmutableList<QuestionDefinition> getAvailableVisibilityPredicateQuestionDefinitions(long blockId)
-    throws ProgramBlockDefinitionNotFoundException{
-    return getAvailablePredicateQuestionDefinitions(blockId - 1);
-  }
-
-  public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(long blockId)
-    throws ProgramBlockDefinitionNotFoundException{
-    return getAvailablePredicateQuestionDefinitions(blockId);
-  }
-
   /**
    * Returns a list of the question definitions that may be used to define visibility predicates on
    * the block definition with the id {@code blockId}.
