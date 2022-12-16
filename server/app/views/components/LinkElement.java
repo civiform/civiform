@@ -65,22 +65,10 @@ public final class LinkElement {
       StyleUtils.joinStyles(
           BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, "inline-flex", "items-center");
 
-  private static final String BUTTON_LOOKS_LIKE_LINK_STYLES =
-      StyleUtils.joinStyles(
-          "border-none",
-          "cursor-pointer",
-          "bg-transparent",
-          StyleUtils.hover("bg-transparent"),
-          DEFAULT_LINK_STYLES,
-          "p-0",
-          "mr-2",
-          "font-normal");
-
   private String id = "";
   private String text = "";
   private String href = "";
   private String styles = "";
-  private String onsubmit = "";
   private boolean doesOpenInNewTab = false;
   private Optional<Icons> icon = Optional.empty();
 
@@ -101,11 +89,6 @@ public final class LinkElement {
 
   public LinkElement setStyles(String... styles) {
     this.styles = StyleUtils.joinStyles(styles);
-    return this;
-  }
-
-  public LinkElement setOnsubmit(String onsubmit) {
-    this.onsubmit = onsubmit;
     return this;
   }
 
@@ -185,34 +168,11 @@ public final class LinkElement {
                     .withClasses(DEFAULT_LINK_BUTTON_STYLES)
                     .withType("submit"))
             .withMethod("POST")
-            .withCondOnsubmit(!Strings.isNullOrEmpty(onsubmit), onsubmit)
             .withAction(href)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     hiddenFormValues.entrySet().stream()
         .map(entry -> input().isHidden().withName(entry.getKey()).withValue(entry.getValue()))
         .forEach(form::with);
-    return form;
-  }
-
-  public FormTag asHiddenFormLink(Http.Request request) {
-    Preconditions.checkNotNull(href);
-    Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
-    String csrfToken = "";
-    if (csrfTokenMaybe.isDefined()) {
-      csrfToken = csrfTokenMaybe.get().value();
-    }
-
-    FormTag form =
-        form(
-                input().isHidden().withValue(csrfToken).withName("csrfToken"),
-                button(TagCreator.text(text))
-                    .withClasses(BUTTON_LOOKS_LIKE_LINK_STYLES)
-                    .withType("submit"))
-            .withClasses("inline")
-            .withMethod("POST")
-            .withCondOnsubmit(!Strings.isNullOrEmpty(onsubmit), onsubmit)
-            .withAction(href)
-            .withCondId(!Strings.isNullOrEmpty(id), id);
     return form;
   }
 }

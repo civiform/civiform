@@ -2,6 +2,7 @@ package views.admin.apikeys;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
@@ -16,6 +17,7 @@ import auth.ApiKeyGrants;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 import java.util.function.Function;
@@ -27,10 +29,12 @@ import services.DateConverter;
 import services.PaginationResult;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.components.LinkElement;
+import views.components.Icons;
+import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a page that lists the system's {@link models.ApiKey}s. */
@@ -49,16 +53,17 @@ public final class ApiKeyIndexView extends BaseHtmlView {
       PaginationResult<ApiKey> apiKeyPaginationResult,
       ImmutableSet<String> allProgramNames) {
     String title = "API Keys";
+    ButtonTag newKeyButton =
+        ViewUtils.makeSvgTextButton("New API Key", Icons.PLUS)
+            .withId("new-api-key-button")
+            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES);
     DivTag headerDiv =
         div()
-            .withClasses("flex", "place-content-between", "my-8")
+            .withClasses("flex", "items-center", "place-content-between", "my-8")
             .with(
-                h1(title).withClasses("my-4"),
-                new LinkElement()
-                    .setHref(controllers.admin.routes.AdminApiKeysController.newOne().url())
-                    .setId("new-api-key-button")
-                    .setText("New API Key")
-                    .asButton());
+                h1(title),
+                asRedirectElement(
+                    newKeyButton, controllers.admin.routes.AdminApiKeysController.newOne().url()));
 
     DivTag contentDiv = div().withClasses("px-20").with(headerDiv);
 
@@ -94,18 +99,22 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     if (apiKey.isRetired()) {
       statsDiv.with(p("Retired " + dateConverter.formatRfc1123(apiKey.getRetiredTime().get())));
     } else {
+
+      String onSubmitJs =
+          "return confirm('Retiring the API key is permanent and will prevent"
+              + " anyone from being able to call the API with the key. Are you"
+              + " sure you want to retire "
+              + apiKey.getName()
+              + "?')";
       linksDiv.with(
-          new LinkElement()
-              .setHref(controllers.admin.routes.AdminApiKeysController.retire(apiKey.id).url())
-              .setOnsubmit(
-                  "return confirm('Retiring the API key is permanent and will prevent"
-                      + " anyone from being able to call the API with the key. Are you"
-                      + " sure you want to retire "
-                      + apiKey.getName()
-                      + "?')")
-              .setText("Retire key")
-              .setId(String.format("retire-%s", keyNameSlugified))
-              .asHiddenForm(request));
+          form(makeCsrfTokenInputTag(request))
+              .withAction(controllers.admin.routes.AdminApiKeysController.retire(apiKey.id).url())
+              .withMethod("POST")
+              .withOnsubmit(onSubmitJs)
+              .withId(String.format("retire-%s", keyNameSlugified))
+              .with(
+                  makeSvgTextButton("Retire key", Icons.DELETE)
+                      .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES)));
     }
 
     DivTag topRowDiv =
