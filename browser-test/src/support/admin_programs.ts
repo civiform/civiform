@@ -784,7 +784,7 @@ export class AdminPrograms {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.applicationFrameLocator()
-        .locator('a:has-text("Export to PDF")')
+        .locator('button:has-text("Export to PDF")')
         .click(),
     ])
     const path = await downloadEvent.path()
