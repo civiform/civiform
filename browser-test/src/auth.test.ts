@@ -6,12 +6,10 @@ import {
   validateScreenshot,
   testUserDisplayName,
   AuthStrategy,
-  gotoEndpoint,
   logout,
   loginAsAdmin,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
-import {Page} from 'playwright'
 
 describe('applicant auth', () => {
   const ctx = createTestContext()
