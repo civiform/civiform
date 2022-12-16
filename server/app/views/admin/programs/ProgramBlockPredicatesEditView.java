@@ -103,10 +103,11 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
         text_no_conditions = "This screen is always shown.";
         h2_new_condition = "New visibility condition";
         text_new_condition =
-          "Apply a visibility condition using a question below. When you create a visibility"
-            + " condition, it replaces the present one.";
+            "Apply a visibility condition using a question below. When you create a visibility"
+                + " condition, it replaces the present one.";
         text_no_available_questions =
-          "There are no available questions with which to set a visibility condition for this screen.";
+            "There are no available questions with which to set a visibility condition for this"
+                + " screen.";
         predicateUpdateUrl =
             routes.AdminProgramBlockPredicatesController.updateEligibility(
                     programDefinition.id(), blockDefinition.id())
@@ -122,10 +123,11 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
         text_no_conditions = "This screen is always shown.";
         h2_new_condition = "New visibility condition";
         text_new_condition =
-          "Apply a visibility condition using a question below. When you create a visibility"
-            + " condition, it replaces the present one.";
+            "Apply a visibility condition using a question below. When you create a visibility"
+                + " condition, it replaces the present one.";
         text_no_available_questions =
-          "There are no available questions with which to set a visibility condition for this screen.";
+            "There are no available questions with which to set a visibility condition for this"
+                + " screen.";
         predicateUpdateUrl =
             routes.AdminProgramBlockPredicatesController.update(
                     programDefinition.id(), blockDefinition.id())
@@ -181,8 +183,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             // Show the current predicate.
             .with(
                 div()
-                    .with(
-                        h2(h2_current_condition).withClasses("font-semibold", "text-lg"))
+                    .with(h2(h2_current_condition).withClasses("font-semibold", "text-lg"))
                     .with(
                         div(blockDefinition
                                 .visibilityPredicate()
