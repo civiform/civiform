@@ -404,12 +404,14 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
                 "my-4");
 
-    return div()
-        .withClasses("w-7/12", "py-6", "px-4")
-        .with(blockInfoDisplay, buttons, visibilityPredicateDisplay)
-        .condWith(
-            maybeEligibilityPredicateDisplay.isPresent(), maybeEligibilityPredicateDisplay.get())
-        .with(programQuestions, addQuestion);
+    DivTag div =
+        div()
+            .withClasses("w-7/12", "py-6", "px-4")
+            .with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
+    if (maybeEligibilityPredicateDisplay.isPresent()) {
+      div = div.with(maybeEligibilityPredicateDisplay.get());
+    }
+    return div.with(programQuestions, addQuestion);
   }
 
   private DivTag renderVisibilityPredicate(
