@@ -181,14 +181,11 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     return layout.renderCentered(htmlBundle);
   }
 
-  /** Define the String that will be shown on the Edit button * */
   @Override
   protected String getEditButtonText() {
     return "Edit program details";
   }
-  ;
 
-  /** Define the navigation destination for the Edit button * */
   @Override
   protected String getButtonUrl(ProgramDefinition programDefinition) {
     return routes.AdminProgramController.edit(programDefinition.id()).url();

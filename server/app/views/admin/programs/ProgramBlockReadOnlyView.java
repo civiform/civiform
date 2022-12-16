@@ -169,6 +169,8 @@ public class ProgramBlockReadOnlyView extends ProgramBlockView {
     String selectionColoring = blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
     String questionCountText = String.format("Question count: %d", numQuestions);
 
+    // TODO(#3162): review the link creation before the ReadOnlyView is used in production
+    // Before a screen can be edited, it must be explicitly created.
     String blockLink =
         controllers.admin.routes.AdminProgramBlocksController.edit(
                 programDefinition.id(), blockDefinition.id())
@@ -298,7 +300,7 @@ public class ProgramBlockReadOnlyView extends ProgramBlockView {
     return "Edit program";
   }
 
-  // TODO when the ProgramBlockReadOnlyView is used, clicking the button should lead to the
+  // TODO(#3162): when the ProgramBlockReadOnlyView is used, clicking the button should lead to the
   // ProgramBlockEditView.
   @Override
   protected String getButtonUrl(ProgramDefinition programDefinition) {
