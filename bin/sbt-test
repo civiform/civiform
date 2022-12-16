@@ -9,4 +9,4 @@ bin/pull-image
 
 docker::compose_unit_test_dev up -d --wait
 
-docker::dev_and_test_server_sbt_command "8459"
+docker::dev_and_test_server_sbt_command "8459" "$@"

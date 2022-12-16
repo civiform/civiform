@@ -165,7 +165,7 @@ function docker::do_dockerhub_login() {
 #   The function takes optional params
 #   1. The port to connect the debugger to
 #   2. The command to run. 
-# If no argument is passed then sbt starts in interactive shell mode.
+# If no command to run is passed sbt starts in interactive shell mode.
 # Globals:
 #   COMPOSE_PROJECT_NAME
 #######################################
