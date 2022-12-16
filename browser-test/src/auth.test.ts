@@ -6,8 +6,12 @@ import {
   validateScreenshot,
   testUserDisplayName,
   AuthStrategy,
+  gotoEndpoint,
+  logout,
+  loginAsAdmin,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
+import {Page} from 'playwright'
 
 describe('applicant auth', () => {
   const ctx = createTestContext()
@@ -72,6 +76,13 @@ describe('applicant auth', () => {
 
     await ctx.page.waitForURL(/.*\/loginForm/)
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
+
+    // Try login again, ensuring that full login process is followed. If login
+    // page doesn't ask for username/password - the method will fail.
+    await loginAsTestUser(page)
+    expect(await ctx.page.textContent('html')).toContain(
+      `Logged in as ${testUserDisplayName()}`,
+    )
   })
 
   it('applicant can logout from guest', async () => {
@@ -82,5 +93,43 @@ describe('applicant auth', () => {
 
     await page.click('text=Logout')
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
+  })
+
+  async function getApplicantId(page: Page): Promise<string> {
+    const originalPage = page.url()
+    await gotoEndpoint(page, '/users/me')
+    const result =
+      (await page.locator('#applicant-id').getAttribute('data-applicant-id')) ||
+      ''
+    await page.goto(originalPage)
+    return result
+  }
+
+  it('auth login after guest login merges profiles', async () => {
+    const {page, adminPrograms, applicantQuestions} = ctx
+    await loginAsAdmin(page)
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.publishAllPrograms()
+
+    await logout(page)
+    await loginAsGuest(page)
+    await selectApplicantLanguage(page, 'English')
+
+    await applicantQuestions.clickApplyProgramButton(programName)
+    await applicantQuestions.submitFromPreviewPage()
+    await loginAsTestUser(page, 'a:has-text("Create account or sign in")')
+
+    // Check that program is marked as submitted.
+    expect(
+      await page.innerText(`.cf-application-card:has-text("${programName}")`),
+    ).toMatch(/Submitted \d\d\/\d\d\/\d\d/)
+
+    // Logout and login to make sure data is tied to account.
+    await logout(page)
+    await loginAsTestUser(page)
+    expect(
+      await page.innerText(`.cf-application-card:has-text("${programName}")`),
+    ).toMatch(/Submitted \d\d\/\d\d\/\d\d/)
   })
 })
