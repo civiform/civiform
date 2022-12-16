@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import forms.BlockForm;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
@@ -62,6 +63,7 @@ import views.style.StyleUtils;
 public final class ProgramBlockEditView extends ProgramBlockView {
 
   private final AdminLayout layout;
+  private final FeatureFlags featureFlags;
   private final boolean featureFlagOptionalQuestions;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
@@ -71,8 +73,10 @@ public final class ProgramBlockEditView extends ProgramBlockView {
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   @Inject
-  public ProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
+  public ProgramBlockEditView(
+      AdminLayoutFactory layoutFactory, Config config, FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.featureFlags = checkNotNull(featureFlags);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
   }
 
@@ -138,7 +142,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                                     questions,
                                     blockDefinition.isEnumerator(),
                                     csrfTag,
-                                    blockDescriptionEditModal.getButton()))),
+                                    blockDescriptionEditModal.getButton(),
+                                    featureFlags.isProgramEligibilityConditionsEnabled(request)))),
                 questionBankPanel(
                     questions,
                     programDefinition,
@@ -312,7 +317,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       ImmutableList<QuestionDefinition> allQuestions,
       boolean blockDefinitionIsEnumerator,
       InputTag csrfTag,
-      ButtonTag blockDescriptionModalButton) {
+      ButtonTag blockDescriptionModalButton,
+      boolean isProgramEligibilityConditionsEnabled) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete =
@@ -332,13 +338,17 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             blockDefinition.name(),
             allQuestions);
 
-    DivTag eligibilityPredicateDisplay =
-        renderEligibilityPredicate(
-            program.id(),
-            blockDefinition.id(),
-            blockDefinition.eligibilityDefinition(),
-            blockDefinition.name(),
-            allQuestions);
+    Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
+    if (isProgramEligibilityConditionsEnabled) {
+      maybeEligibilityPredicateDisplay =
+          Optional.of(
+              renderEligibilityPredicate(
+                  program.id(),
+                  blockDefinition.id(),
+                  blockDefinition.eligibilityDefinition(),
+                  blockDefinition.name(),
+                  allQuestions));
+    }
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
@@ -396,13 +406,10 @@ public final class ProgramBlockEditView extends ProgramBlockView {
 
     return div()
         .withClasses("w-7/12", "py-6", "px-4")
-        .with(
-            blockInfoDisplay,
-            buttons,
-            visibilityPredicateDisplay,
-            eligibilityPredicateDisplay,
-            programQuestions,
-            addQuestion);
+        .with(blockInfoDisplay, buttons, visibilityPredicateDisplay)
+        .condWith(
+            maybeEligibilityPredicateDisplay.isPresent(), maybeEligibilityPredicateDisplay.get())
+        .with(programQuestions, addQuestion);
   }
 
   private DivTag renderVisibilityPredicate(
