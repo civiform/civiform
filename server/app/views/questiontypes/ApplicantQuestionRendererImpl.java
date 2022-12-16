@@ -71,7 +71,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         TextFormatter.createLinksAndEscapeText(
                             question.getQuestionHelpText(),
                             TextFormatter.UrlOpenAction.NewTab,
-                            false)))
+                            /*addRequiredIndicator= */ false)))
             .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
@@ -100,7 +100,9 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
-            question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab, !question.isOptional());
+            question.getQuestionText(),
+            TextFormatter.UrlOpenAction.NewTab,
+            /*addRequiredIndicator= */ !question.isOptional());
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 

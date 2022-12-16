@@ -274,7 +274,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         TextFormatter.createLinksAndEscapeText(
             program.localizedDescription().getOrDefault(preferredLocale),
             TextFormatter.UrlOpenAction.NewTab,
-            false);
+            /* addRequiredIndicator= */ false);
     DivTag description =
         div()
             .withId(baseId + "-description")

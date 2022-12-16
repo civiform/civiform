@@ -14,7 +14,9 @@ public class TextFormatterTest {
   public void urlsRenderToOpenInSameTabCorrectly() {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
-            "hello google.com http://internet.website", TextFormatter.UrlOpenAction.SameTab, false);
+            "hello google.com http://internet.website",
+            TextFormatter.UrlOpenAction.SameTab,
+            /*addRequiredIndicator= */ false);
 
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
@@ -31,7 +33,9 @@ public class TextFormatterTest {
   public void urlsRenderToOpenInNewTabCorrectly() {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
-            "hello google.com http://internet.website", TextFormatter.UrlOpenAction.NewTab, false);
+            "hello google.com http://internet.website",
+            TextFormatter.UrlOpenAction.NewTab,
+            /*addRequiredIndicator= */ false);
 
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
@@ -50,7 +54,9 @@ public class TextFormatterTest {
   public void rendersRequiredIndicator() {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
-            "Enter your full legal name.", TextFormatter.UrlOpenAction.SameTab, true);
+            "Enter your full legal name.",
+            TextFormatter.UrlOpenAction.SameTab,
+            /*addRequiredIndicator= */ true);
 
     assertThat(content).hasSize(2);
     assertThat(content.get(0).render()).isEqualTo(new Text("Enter your full legal name.").render());
@@ -65,7 +71,9 @@ public class TextFormatterTest {
   public void verifyUrlsMaintainSchemeCorrectly() {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
-            "hello google.com https://secure.website", TextFormatter.UrlOpenAction.SameTab, false);
+            "hello google.com https://secure.website",
+            TextFormatter.UrlOpenAction.SameTab,
+            /*addRequiredIndicator= */ false);
 
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
@@ -84,7 +92,7 @@ public class TextFormatterTest {
         TextFormatter.createLinksAndEscapeText(
             "Hello google.com, crawl (http://seattle.gov/); and http://mysite.com...!",
             TextFormatter.UrlOpenAction.SameTab,
-            false);
+            /*addRequiredIndicator= */ false);
 
     assertThat(content).hasSize(7);
     assertThat(content.get(0).render()).isEqualTo(new Text("Hello ").render());
