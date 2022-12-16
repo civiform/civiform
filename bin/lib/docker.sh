@@ -164,21 +164,16 @@ function docker::do_dockerhub_login() {
 # Arguments:
 #   The function takes optional params
 #   1. The port to connect the debugger to
-#   2. The command to run. 
+#   2. The command to run.
 # If no command to run is passed sbt starts in interactive shell mode.
 # Globals:
 #   COMPOSE_PROJECT_NAME
 #######################################
 function docker::dev_and_test_server_sbt_command() {
-  
+
   local server_container_name="${COMPOSE_PROJECT_NAME}-civiform-1"
   local server_container_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $server_container_name)
-
 
   # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
   docker exec -it $server_container_name ./entrypoint.sh -jvm-debug "$server_container_ip:$1" -Dsbt.offline $2
 }
-
-
-
-
