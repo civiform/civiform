@@ -132,8 +132,7 @@ public final class ApplicantQuestion {
   /**
    * Returns the question text that should be used for screen readers.
    *
-   * <p>We add a styled asterisk, which
-   * should be read out to screen readers.
+   * <p>We add a styled asterisk, which should be read out to screen readers.
    */
   public String getQuestionTextForScreenReader() {
     return isOptional() ? getQuestionText() : getQuestionText() + " *";
