@@ -95,17 +95,7 @@ describe('applicant auth', () => {
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
   })
 
-  async function getApplicantId(page: Page): Promise<string> {
-    const originalPage = page.url()
-    await gotoEndpoint(page, '/users/me')
-    const result =
-      (await page.locator('#applicant-id').getAttribute('data-applicant-id')) ||
-      ''
-    await page.goto(originalPage)
-    return result
-  }
-
-  it('auth login after guest login merges profiles', async () => {
+  it('guest login followed by auth login stores submitted applications', async () => {
     const {page, adminPrograms, applicantQuestions} = ctx
     await loginAsAdmin(page)
     const programName = 'Test program'
