@@ -4,24 +4,39 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.option;
+import static play.mvc.Http.HttpVerbs.POST;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import controllers.admin.routes;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.inject.Inject;
 import play.data.DynamicForm;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.predicate.AndNode;
+import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -71,28 +86,41 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       Http.Request request,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
-      DynamicForm form,
+      DynamicForm questionSelectForm,
       TYPE type) {
     final String editPredicateUrl;
     final String typeDisplayName;
+    final String formActionUrl;
+    final Optional<PredicateDefinition> existingPredicate;
 
     switch (type) {
       case ELIGIBILITY:
         {
           typeDisplayName = "eligibility";
-          //        editPredicateUrl =
-          // routes.AdminProgramBlockPredicatesController.editEligibility(programDefinition.id(),
-          // blockDefinition.id())
-          //          .url();
+          existingPredicate =
+              blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
+          formActionUrl =
+              routes.AdminProgramBlockPredicatesController.updateEligibility(
+                      programDefinition.id(), blockDefinition.id())
+                  .url();
+          editPredicateUrl =
+              routes.AdminProgramBlockPredicatesController.editEligibility(
+                      programDefinition.id(), blockDefinition.id())
+                  .url();
           break;
         }
       case VISIBILITY:
         {
           typeDisplayName = "visibility";
-          //        editPredicateUrl =
-          // routes.AdminProgramBlockPredicatesController.edit(programDefinition.id(),
-          // blockDefinition.id())
-          //          .url();
+          existingPredicate = blockDefinition.visibilityPredicate();
+          formActionUrl =
+              routes.AdminProgramBlockPredicatesController.update(
+                      programDefinition.id(), blockDefinition.id())
+                  .url();
+          editPredicateUrl =
+              routes.AdminProgramBlockPredicatesController.edit(
+                      programDefinition.id(), blockDefinition.id())
+                  .url();
           break;
         }
       default:
@@ -100,25 +128,17 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
           throw new RuntimeException("Unknown predicate view type");
         }
     }
-    editPredicateUrl = "foo";
 
     ImmutableList<QuestionDefinition> questionDefinitions =
-        getQuestionDefinitions(programDefinition, blockDefinition, form);
+        getQuestionDefinitions(programDefinition, blockDefinition, questionSelectForm);
 
     DivTag content =
         div(
-                new LinkElement()
-                    .setHref(editPredicateUrl)
-                    .setText(
-                        String.format(
-                            "Return to %s conditions for %s screen",
-                            typeDisplayName, blockDefinition.name()))
-                    .setStyles("my-6")
-                    .asAnchorText(),
+                renderBackLink(editPredicateUrl, typeDisplayName, blockDefinition),
                 h2("Configure eligibility conditions").withClasses("my-6"),
                 each(questionDefinitions, this::renderQuestionCard),
-                renderConditionGroup(questionDefinitions),
-                submitButton("Save condition").withClasses("my-4"))
+                renderPredicateConfigurator(
+                    request, formActionUrl, questionDefinitions, existingPredicate))
             .withClasses("max-w-6xl", "mb-12");
 
     HtmlBundle htmlBundle =
@@ -130,35 +150,140 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag renderConditionGroup(ImmutableList<QuestionDefinition> questionDefinitions) {
-    DivTag container =
-        div().withId("condition-group-template").withClasses("flex", "bg-gray-100", "py-4");
-    DivTag rowContainer = div().withClasses("grow");
+  private ATag renderBackLink(
+      String editPredicateUrl, String typeDisplayName, BlockDefinition blockDefinition) {
+    return new LinkElement()
+        .setHref(editPredicateUrl)
+        .setText(
+            String.format(
+                "Return to %s conditions for %s screen", typeDisplayName, blockDefinition.name()))
+        .setStyles("my-6")
+        .asAnchorText();
+  }
 
-    var count = 1;
-    for (var questionDefinition : questionDefinitions) {
-      DivTag questionRow =
-          div(
-                  div(
-                          div().withClasses("text-base", "p-2"),
-                          div("And").withClasses("px-4").withCondClass(count++ == 1, "hidden"))
-                      .withClasses("w-1/12", "pt-4"),
-                  div(questionDefinition.getQuestionText().getDefault())
-                      .withClasses("w-2/12", "pt-4"),
-                  createScalarDropdown(questionDefinition).withClasses("w-2/12"),
-                  createOperatorDropdown(questionDefinition).withClasses("w-2/12"),
-                  createValueField(questionDefinition).withClasses("grow"))
-              .withClasses("flex", "flex-row", "gap-2");
+  private FormTag renderPredicateConfigurator(
+      Http.Request request,
+      String formAction,
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      Optional<PredicateDefinition> maybeExistingPredicate) {
+    FormTag formTag =
+        form(
+                makeCsrfTokenInputTag(request),
+                renderQuestionHeaders(questionDefinitions, maybeExistingPredicate))
+            .withAction(formAction)
+            .withMethod(POST)
+            .withClasses(
+                "bg-gray-100", "predicate-config-form", ReferenceClasses.PREDICATE_OPTIONS);
 
-      rowContainer.with(questionRow);
+    DivTag valueRowContainer = div().withId("predicate-config-value-row-container");
+
+    if (maybeExistingPredicate.isPresent()) {
+      PredicateDefinition existingPredicate = maybeExistingPredicate.get();
+
+      AtomicInteger groupCount = new AtomicInteger(0);
+      existingPredicate.rootNode().getOrNode().children().stream()
+          .map(PredicateExpressionNode::getAndNode)
+          .forEach(
+              andNode ->
+                  valueRowContainer.with(
+                      renderValueRow(questionDefinitions, groupCount.incrementAndGet(), Optional.of(andNode))));
+    } else {
+      valueRowContainer.with(
+          renderValueRow(questionDefinitions, 1, /* maybeAndNode= */ Optional.empty()));
+    }
+
+    formTag.with(valueRowContainer);
+    formTag.with(
+        div(makeSvgTextButton("Add value set", Icons.ADD).withId("predicate-add-value-set")));
+    formTag.with(submitButton("Save condition").withClasses("my-4"));
+
+    return formTag;
+  }
+
+  private DivTag renderQuestionHeaders(
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      Optional<PredicateDefinition> maybeExistingPredicate) {
+    DivTag container = div().withClasses("flex", "py-4", "grow", "gap-2");
+
+    if (maybeExistingPredicate.isPresent()) {
+      PredicateDefinition predicateDefinition = maybeExistingPredicate.get();
+
+      ImmutableList<LeafOperationExpressionNode> leafNodes =
+          predicateDefinition.rootNode().getOrNode().children().stream()
+              .findFirst()
+              .get()
+              .getAndNode()
+              .children()
+              .stream()
+              .map(PredicateExpressionNode::getLeafNode)
+              .collect(ImmutableList.toImmutableList());
+
+      for (LeafOperationExpressionNode leafNode : leafNodes) {
+        long questionId = leafNode.questionId();
+        QuestionDefinition qd =
+            questionDefinitions.stream()
+                .filter(questionDefinition -> questionDefinition.getId() == questionId)
+                .findFirst()
+                .get();
+
+        container.with(
+            div(
+                    div(qd.getQuestionText().getDefault()).withClasses("pt-4"),
+                    createScalarDropdown(qd, Optional.of(leafNode.scalar())),
+                    createOperatorDropdown(
+                        qd, Optional.of(leafNode.scalar()), Optional.of(leafNode.operator())))
+                .withClasses("w-lg"));
+      }
+    } else {
+      for (var questionDefinition : questionDefinitions) {
+        container.with(
+            div(
+                    div(questionDefinition.getQuestionText().getDefault()).withClasses("pt-4"),
+                    createScalarDropdown(questionDefinition, /* maybeScalar */ Optional.empty()),
+                    createOperatorDropdown(
+                        questionDefinition,
+                        /* maybeSelectedScalar */ Optional.empty(),
+                        /* maybeOperator */ Optional.empty()))
+                .withClasses("w-lg"));
+      }
+    }
+
+    return container;
+  }
+
+  private DivTag renderValueRow(
+      ImmutableList<QuestionDefinition> questionDefinitions, int groupId, Optional<AndNode> maybeAndNode) {
+    DivTag row = div().withClasses("flex", "grow", "gap-2", "predicate-config-value-row");
+
+    if (maybeAndNode.isPresent()) {
+      for (PredicateExpressionNode predicateExpressionNode : maybeAndNode.get().children()) {
+        LeafOperationExpressionNode leafNode = predicateExpressionNode.getLeafNode();
+        long questionId = leafNode.questionId();
+        QuestionDefinition qd =
+            questionDefinitions.stream()
+                .filter(questionDefinition -> questionDefinition.getId() == questionId)
+                .findFirst()
+                .get();
+
+        row.with(createValueField(qd, groupId, Optional.of(leafNode.comparedValue())));
+      }
+    } else {
+      for (var questionDefinition : questionDefinitions) {
+        row.with(createValueField(questionDefinition, groupId, /* maybePredicateValue= */ Optional.empty()));
+      }
     }
 
     DivTag delete =
         div(Icons.svg(Icons.DELETE).withClasses("w-8"))
             .attr("role", "button")
-            .withClasses("place-self-center", "mx-6", "cursor-pointer");
+            .withClasses(
+                "predicate-config-delete-value-row",
+                "place-self-center",
+                "mx-6",
+                "cursor-pointer",
+                "hidden");
 
-    return container.with(rowContainer, delete);
+    return row.with(delete);
   }
 
   private ImmutableList<QuestionDefinition> getQuestionDefinitions(
@@ -199,7 +324,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                         .withClasses("mt-1", "text-sm")));
   }
 
-  private DivTag createScalarDropdown(QuestionDefinition questionDefinition) {
+  private DivTag createScalarDropdown(
+      QuestionDefinition questionDefinition, Optional<Scalar> maybeScalar) {
     ImmutableSet<Scalar> scalars;
     try {
       scalars = Scalar.getScalars(questionDefinition.getQuestionType());
@@ -212,11 +338,20 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     ImmutableList<OptionTag> options =
         scalars.stream()
             .map(
-                scalar ->
-                    option(scalar.toDisplayString())
-                        .withValue(scalar.name())
-                        // Add the scalar type as data so we can determine which operators to allow.
-                        .withData("type", scalar.toScalarType().name().toLowerCase()))
+                scalar -> {
+                  OptionTag tag =
+                      option(scalar.toDisplayString())
+                          .withValue(scalar.name())
+                          // Add the scalar type as data so we can determine which operators to
+                          // allow.
+                          .withData("type", scalar.toScalarType().name().toLowerCase());
+
+                  if (maybeScalar.isPresent() && maybeScalar.get().name().equals(scalar.name())) {
+                    tag.isSelected();
+                  }
+
+                  return tag;
+                })
             .collect(toImmutableList());
 
     var selectElement =
@@ -233,7 +368,23 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     return selectElement.getSelectTag();
   }
 
-  private DivTag createOperatorDropdown(QuestionDefinition questionDefinition) {
+  private DivTag createOperatorDropdown(
+      QuestionDefinition questionDefinition,
+      Optional<Scalar> maybeSelectedScalar,
+      Optional<Operator> maybeOperator) {
+    try {
+      ImmutableSet<Scalar> scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+
+      if (scalars.size() == 1) {
+        maybeSelectedScalar = scalars.stream().findFirst();
+      }
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
+
+    // Copying to a final variable because variables referenced within
+    // lambdas must be final or effectively final.
+    final Optional<Scalar> finalMaybeSelectedScalar = maybeSelectedScalar;
     ImmutableList<OptionTag> operatorOptions =
         Arrays.stream(Operator.values())
             .map(
@@ -241,24 +392,39 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                   // Add this operator's allowed scalar types as data, so that we can determine
                   // whether to show or hide each operator based on the current type of scalar
                   // selected.
-                  OptionTag option = option(operator.toDisplayString()).withValue(operator.name());
+                  OptionTag optionTag =
+                      option(operator.toDisplayString()).withValue(operator.name());
                   operator
                       .getOperableTypes()
-                      .forEach(type -> option.withData(type.name().toLowerCase(), ""));
-                  return option;
+                      .forEach(type -> optionTag.withData(type.name().toLowerCase(), ""));
+
+                  if (maybeOperator.isPresent()
+                      && operator.name().equals(maybeOperator.get().name())) {
+                    optionTag.isSelected();
+                  }
+
+                  finalMaybeSelectedScalar.ifPresent(
+                      selectedScalar -> {
+                        if (!operator.getOperableTypes().contains(selectedScalar.toScalarType())) {
+                          optionTag.withClass("hidden");
+                        }
+                      });
+
+                  return optionTag;
                 })
             .collect(toImmutableList());
 
     return new SelectWithLabel()
         .setFieldName(
-            String.format("group-GROUP_ID-question-%d-operator", questionDefinition.getId()))
+            String.format("question-%d-operator", questionDefinition.getId()))
         .setLabelText("Operator")
         .setCustomOptions(operatorOptions)
         .addReferenceClass(ReferenceClasses.PREDICATE_OPERATOR_SELECT)
         .getSelectTag();
   }
 
-  private DivTag createValueField(QuestionDefinition questionDefinition) {
+  private DivTag createValueField(
+      QuestionDefinition questionDefinition, int groupId, Optional<PredicateValue> maybePredicateValue) {
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
@@ -269,13 +435,25 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       DivTag valueOptionsDiv =
           div().with(div("Values").withClasses(BaseStyles.CHECKBOX_GROUP_LABEL));
       for (QuestionOption option : options) {
+        boolean isChecked =
+            maybePredicateValue
+                .map(PredicateValue::value)
+                .map(
+                    value ->
+                        Splitter.on(", ")
+                            .splitToStream(value.substring(1, value.length() - 1))
+                            .collect(ImmutableList.toImmutableList()))
+                .map(values -> values.contains(String.valueOf(option.id())))
+                .orElse(false);
+
         LabelTag optionCheckbox =
             FieldWithLabel.checkbox()
                 .setFieldName(
                     String.format(
-                        "group-GROUP_ID-question-%d-predicateValues[]", questionDefinition.getId()))
+                        "group-%d-question-%d-predicateValues[]", groupId, questionDefinition.getId()))
                 .setValue(String.valueOf(option.id()))
                 .setLabelText(option.optionText().getDefault())
+                .setChecked(isChecked)
                 .getCheckboxTag();
         valueOptionsDiv.with(optionCheckbox);
       }
@@ -286,8 +464,9 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
               FieldWithLabel.input()
                   .setFieldName(
                       String.format(
-                          "group-GROUP_ID-question-%d-predicateValue", questionDefinition.getId()))
+                          "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
                   .setLabelText("Value")
+                  .setValue(maybePredicateValue.map(PredicateValue::value))
                   .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
                   .getInputTag())
           .with(

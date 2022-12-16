@@ -390,6 +390,51 @@ function disableEnterToSubmitBehaviorOnForms() {
   })
 }
 
+function predicateAddValueRow(event: Event) {
+  event.preventDefault()
+  event.stopPropagation()
+
+  const currentRows = document.querySelectorAll(
+    '.predicate-config-value-row',
+  )
+  const templateRow = currentRows[currentRows.length - 1]
+  const newRow = templateRow.cloneNode(true) as HTMLElement
+
+  newRow.querySelectorAll('input').forEach((el) => {
+    if (el.type === 'checkbox' || el.type === 'radio') {
+      el.checked = false
+    } else {
+      el.value = ''
+    }
+
+    let groupNum = parseInt(el.name.match(/group-(\d+)/)[1], 10)
+    el.name = el.name.replace(/group-\d+/, `group-${++groupNum}`)
+    const newId = `${el.id}-${groupNum}`
+    el.id = newId
+
+    el.closest('label')?.setAttribute('for', newId)
+  })
+
+  newRow
+    .querySelectorAll('.predicate-config-delete-value-row')
+    .forEach((el) => {
+      el.addEventListener('click', predicateDeleteValueRow)
+      el.classList.remove('hidden')
+    })
+
+  document.getElementById('predicate-config-value-row-container').append(newRow)
+}
+
+function predicateDeleteValueRow(event: Event) {
+  event.preventDefault()
+  event.stopPropagation()
+
+  const valueRow = (event.target as HTMLElement).closest(
+    '.predicate-config-value-row',
+  )
+  valueRow.remove()
+}
+
 window.addEventListener('load', () => {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
@@ -410,6 +455,16 @@ window.addEventListener('load', () => {
     '.cf-operator-select',
     'input',
     configurePredicateFormOnOperatorChange,
+  )
+
+  document
+    .querySelector('#predicate-add-value-set')
+    ?.addEventListener('click', predicateAddValueRow)
+
+  addEventListenerToElements(
+    'predicate-config-delete-value-row',
+    'click',
+    predicateDeleteValueRow,
   )
 
   // Submit button is disabled by default until program block edit form is changed
