@@ -455,7 +455,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
-            .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
+            .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_BUTTON);
     return div()
         .withClasses("my-4")
         .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))

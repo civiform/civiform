@@ -218,6 +218,18 @@ export class AdminPrograms {
     await this.expectEditVisibilityPredicatePage(blockName)
   }
 
+  async goToEditBlockEligibilityPredicatePage(
+    programName: string,
+    blockName: string,
+  ) {
+    await this.goToBlockInProgram(programName, blockName)
+
+    // Click on the edit predicate button
+    await this.page.click('#cf-edit-eligibility-predicate')
+    await waitForPageJsLoad(this.page)
+    await this.expectEditEligibilityPredicatePage(blockName)
+  }
+
   async goToProgramDescriptionPage(programName: string) {
     await this.goToManageQuestionsPage(programName)
     await this.page.click('button:has-text("Edit program details")')
@@ -266,6 +278,12 @@ export class AdminPrograms {
   async expectEditVisibilityPredicatePage(blockName: string) {
     expect(await this.page.innerText('h1')).toContain(
       'Visibility condition for ' + blockName,
+    )
+  }
+
+  async expectEditEligibilityPredicatePage(blockName: string) {
+    expect(await this.page.innerText('h1')).toContain(
+      'Eligibility condition for ' + blockName,
     )
   }
 

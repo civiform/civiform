@@ -426,5 +426,200 @@ describe('create and edit predicates', () => {
       // We should now be on the summary page
       await applicantQuestions.submitFromReviewPage()
     })
+
+    it('every eligibility right hand type evaluates correctly', async () => {
+      const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
+
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+      const programName = 'Test all eligibility predicate types'
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlock(programName, 'string', [
+        'single-string',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'list of strings', [
+        'list of strings',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'long', ['single-long'])
+      await adminPrograms.addProgramBlock(programName, 'list of longs', [
+        'list of longs',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'currency', [
+        'predicate-currency',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'date', [
+        'predicate-date',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'two lists', [
+        'both sides are lists',
+      ])
+
+      // Simple string predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        'single-string',
+        'shown if',
+        'first name',
+        'is not equal to',
+        'hidden',
+      )
+
+      // Single string one of a list of strings
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 2',
+      )
+      await adminPredicates.addPredicate(
+        'list of strings',
+        'shown if',
+        'text',
+        'is one of',
+        'blue, green',
+      )
+
+      // Simple long predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 3',
+      )
+      await adminPredicates.addPredicate(
+        'single-long',
+        'shown if',
+        'number',
+        'is equal to',
+        '42',
+      )
+
+      // Single long one of a list of longs
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 4',
+      )
+      await adminPredicates.addPredicate(
+        'list of longs',
+        'shown if',
+        'number',
+        'is one of',
+        '123, 456',
+      )
+
+      // Currency predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 5',
+      )
+      await adminPredicates.addPredicate(
+        'predicate-currency',
+        'shown if',
+        'currency',
+        'is greater than',
+        '100.01',
+      )
+
+      // Date predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 6',
+      )
+      await adminPredicates.addPredicate(
+        'predicate-date',
+        'shown if',
+        'date',
+        'is earlier than',
+        '2021-01-01',
+      )
+
+      // Lists of strings on both sides (multi-option question checkbox)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 7',
+      )
+      await adminPredicates.addPredicate(
+        'both sides are lists',
+        'shown if',
+        'selections',
+        'contains any of',
+        'dog,cat',
+      )
+
+      await adminPrograms.publishProgram(programName)
+
+      // Switch to applicantQuestions.view - if they answer each question according to the predicate,
+      // the next screen will be shown.
+      await logout(page)
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(programName)
+
+      // For each condition:
+      // - submit an invalid option
+      // - verify the ineligible page is shown
+      // - go back
+      // - enter an allowed value
+
+      // "hidden" first name is not allowed.
+      await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await page.goBack()
+      await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
+      await applicantQuestions.clickNext()
+
+      // "blue" or "green" are allowed.
+      await applicantQuestions.answerTextQuestion('red')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await page.goBack()
+      await applicantQuestions.answerTextQuestion('blue')
+      await applicantQuestions.clickNext()
+
+      // 42 is allowed.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await page.goBack()
+      await applicantQuestions.answerNumberQuestion('42')
+      await applicantQuestions.clickNext()
+
+      // 123 or 456 are allowed.
+      await applicantQuestions.answerNumberQuestion('11111')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await page.goBack()
+      await applicantQuestions.answerNumberQuestion('123')
+      await applicantQuestions.clickNext()
+
+      // Greater than 100.01 is allowed
+      await applicantQuestions.answerCurrencyQuestion('100.01')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await page.goBack()
+      await applicantQuestions.answerCurrencyQuestion('100.02')
+      await applicantQuestions.clickNext()
+
+      // Earlier than 2021-01-01 is allowed
+      // TODO(#3859): 2021-01-01 evaluates as earlier, but it shouldn't.
+      await applicantQuestions.answerDateQuestion('2021-01-02')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('2020-12-31')
+      await applicantQuestions.clickNext()
+
+      // "dog" or "cat" are allowed.
+      await applicantQuestions.answerCheckboxQuestion(['rabbit'])
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await page.goBack()
+      await applicantQuestions.answerCheckboxQuestion(['cat'])
+      await applicantQuestions.clickNext()
+
+      // We should now be on the summary page
+      await applicantQuestions.submitFromReviewPage()
+    })
   })
 })

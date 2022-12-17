@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public class IneligibleBlockView extends ApplicationBaseView {
   }
 
   public Content render(Request request, Optional<String> applicantName, Messages messages) {
-    DivTag content = div("Sorry you are not eligible for this program");
+    DivTag content = div(h2("Sorry you are not eligible for this program"));
     String title = "Ineligible for program";
     HtmlBundle bundle =
         layout
