@@ -6,6 +6,7 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
@@ -138,7 +139,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       boolean isFirstUnanswered) {
     DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
     if (!data.applicantQuestion().isOptional()) {
-      questionPrompt.with(span(" *").withClasses("text-red-600"));
+      questionPrompt.with(span(rawHtml("&nbsp;*")).withClasses("text-red-600"));
     }
     DivTag questionContent = div(questionPrompt).withClasses("pr-2");
 
@@ -178,14 +179,19 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     // Maybe link to block containing specific question.
     if (data.isAnswered() || isFirstUnanswered) {
       String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
-      String ariaLabel = messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText());
+      String ariaLabel =
+          messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionTextForScreenReader());
       if (!data.isAnswered()) {
         if (inReview) {
           editText = messages.at(MessageKey.BUTTON_CONTINUE.getKeyName());
-          ariaLabel = messages.at(MessageKey.ARIA_LABEL_CONTINUE.getKeyName(), data.questionText());
+          ariaLabel =
+              messages.at(
+                  MessageKey.ARIA_LABEL_CONTINUE.getKeyName(), data.questionTextForScreenReader());
         } else {
           editText = messages.at(MessageKey.LINK_BEGIN.getKeyName());
-          ariaLabel = messages.at(MessageKey.ARIA_LABEL_BEGIN.getKeyName(), data.questionText());
+          ariaLabel =
+              messages.at(
+                  MessageKey.ARIA_LABEL_BEGIN.getKeyName(), data.questionTextForScreenReader());
         }
       }
       String editLink =
