@@ -44,6 +44,12 @@ public abstract class AnswerData {
   /** The localized question text */
   public abstract String questionText();
 
+  /**
+   * The localized question text that should be used for screen readers. We add a styled asterisk,
+   * which should be read out to screen readers.
+   */
+  public abstract String questionTextForScreenReader();
+
   /** True if this answer represents an answer, or false for a skipped question. */
   public abstract boolean isAnswered();
 
@@ -88,6 +94,8 @@ public abstract class AnswerData {
     public abstract Builder setQuestionIndex(int questionIndex);
 
     public abstract Builder setQuestionText(String questionText);
+
+    public abstract Builder setQuestionTextForScreenReader(String questionTextForScreenReader);
 
     public abstract Builder setIsAnswered(boolean isAnswered);
 
