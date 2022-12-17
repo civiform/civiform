@@ -60,7 +60,7 @@ public class TextFormatterTest {
 
     assertThat(content).hasSize(2);
     assertThat(content.get(0).render()).isEqualTo(new Text("Enter your full legal name.").render());
-    assertThat(content.get(1).render()).isEqualTo("<span class=\"text-red-600\"> *</span>");
+    assertThat(content.get(1).render()).isEqualTo("<span class=\"text-red-600\">&nbsp;*</span>");
   }
 
   private void assertIsExternalUrlWithIcon(String actualValue, String expectedValue) {
