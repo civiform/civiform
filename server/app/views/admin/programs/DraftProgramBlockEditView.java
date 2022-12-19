@@ -56,13 +56,11 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
 
   private final boolean featureFlagOptionalQuestions;
   private InputTag csrfTag;
-  private ArrayList<Modal> modals;
 
   @Inject
   public DraftProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
     super(layoutFactory, config);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
-    this.modals = new ArrayList<>();
   }
 
   @Override
@@ -75,8 +73,6 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       ImmutableList<QuestionDefinition> questions) {
 
     csrfTag = makeCsrfTokenInputTag(request);
-    modals = new ArrayList<>();
-
     return super.render(request, programDefinition, blockForm, blockDefinition, message, questions);
   }
 
@@ -94,8 +90,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
                 programDefinition,
                 blockDefinition,
                 QuestionBank.shouldShowQuestionBank(request)))
-        .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()))
-        .addModals(modals);
+        .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()));
   }
 
   @Override

@@ -38,14 +38,15 @@ abstract class ProgramBlockView extends BaseHtmlView {
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
 
-  /** Define the String that will be shown on the Edit button * */
+  /** Defines the String that will be shown on the Edit button */
   protected abstract String getEditButtonText();
 
-  /** Define the navigation destination for the Edit button * */
+  /** Defines the navigation destination for the Edit button */
   protected abstract String getButtonUrl(ProgramDefinition programDefinition);
 
-  /* The Status badge that will be shown at the top of the page */
-  // TODO(#3162) Investigate if we can auto generate the status based on the
-  // version that is being viewed in each implementation.
+  /**
+   * Returns the badge which represents the status of the program displayed
+   * within this ProgramBlockView. It will be shown at the top of the page.
+   */
   protected abstract BadgeStatus getBadgeStatus();
 }

@@ -13,7 +13,10 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -28,6 +31,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.Icons;
+import views.components.Modal;
 import views.components.SvgTag;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
@@ -45,6 +49,10 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
   private final AdminLayout layout;
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
+
+  // To concurrency issues and duplication, collect all modals which this class
+  // and its children want to show in a synchronized Set.
+  protected final Set<Modal> modals = Collections.synchronizedSet(new HashSet<>());
 
   @Inject
   public ActiveProgramBlockReadOnlyView(AdminLayoutFactory layoutFactory, Config config) {
@@ -111,7 +119,8 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
     return layout
         .getBundle()
         .setTitle(String.format("View %s", blockDefinition.name()))
-        .addMainContent(mainContent);
+        .addMainContent(mainContent)
+        .addModals(new ArrayList<>(modals));
   }
 
   /*
@@ -298,14 +307,18 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
     return ret.with(icon, content);
   }
 
+  protected void addModals() {
+
+  }
+
   @Override
   protected String getEditButtonText() {
     return "Edit program";
   }
 
-  // TODO(#3162): once ProgramBlockReadOnlyView is used, clicks should open a ProgramBlockEditView.
   @Override
   protected String getButtonUrl(ProgramDefinition programDefinition) {
+    // TODO(#3162): once ProgramBlockReadOnlyView is used, clicks should open a ProgramBlockEditView.
     throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
   }
 
