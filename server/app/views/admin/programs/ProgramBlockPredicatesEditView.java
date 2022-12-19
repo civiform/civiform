@@ -155,7 +155,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
         break;
       default:
         throw new IllegalArgumentException(
-            String.format("Predicate type %s is unsupported.", type));
+            String.format("Predicate type %s is unsupported.", viewType));
     }
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     ImmutableList<Modal> modals =
@@ -241,13 +241,13 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       ImmutableList<QuestionDefinition> questionDefinitions,
       String predicateUpdateUrl,
       String modalTitle,
-      boolean forVisibility,
+      ViewType viewType,
       InputTag csrfTag) {
     ImmutableList.Builder<Modal> builder = ImmutableList.builder();
     for (QuestionDefinition qd : questionDefinitions) {
       builder.add(
           createQuestionViewAndPredicateUpdateFormModal(
-              blockName, qd, predicateUpdateUrl, modalTitle, forVisibility, csrfTag));
+              blockName, qd, predicateUpdateUrl, modalTitle, viewType, csrfTag));
     }
     return builder.build();
   }
@@ -263,7 +263,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
       String modalTitle,
-      boolean forVisibility,
+      ViewType viewType,
       InputTag csrfTag) {
     String questionHelpText =
         questionDefinition.getQuestionHelpText().isEmpty()
@@ -291,7 +291,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             .withClasses("m-4")
             .with(
                 renderPredicateUpdateForm(
-                    blockName, questionDefinition, predicateUpdateUrl, forVisibility, csrfTag));
+                    blockName, questionDefinition, predicateUpdateUrl, viewType, csrfTag));
 
     return Modal.builder(
             String.format("predicate-modal-%s", questionDefinition.getId()), modalContent)

@@ -243,7 +243,7 @@ describe('create and edit predicates', () => {
     )
 
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 1 is eligible if question with an admin ID of "show-predicate-q"\'s text is equal to "eligible"',
+      'Screen 1 is eligible if question with an admin ID of "eligibility-predicate-q"\'s text is equal to "eligible"',
     )
     await validateScreenshot(page, 'eligibility-predicate')
 
