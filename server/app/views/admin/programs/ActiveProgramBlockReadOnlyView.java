@@ -52,7 +52,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
 
   // To concurrency issues and duplication, collect all modals which this class
   // and its children want to show in a synchronized Set.
-  protected final Set<Modal> modals = Collections.synchronizedSet(new HashSet<>());
+  protected final Set<Modal> modals;
 
   @Inject
   public ActiveProgramBlockReadOnlyView(AdminLayoutFactory layoutFactory, Config config) {
