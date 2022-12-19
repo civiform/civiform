@@ -194,7 +194,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           .forEach(error -> errorMessageBuilder.append(String.format("\n• %s", error.message())));
 
       return redirect(
-              routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId))
+              routes.AdminProgramBlockPredicatesController.editEligibility(
+                  programId, blockDefinitionId))
           .flashing("error", errorMessageBuilder.toString());
     }
 
