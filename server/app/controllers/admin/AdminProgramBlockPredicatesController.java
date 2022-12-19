@@ -36,7 +36,7 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockPredicatesEditView;
-import views.admin.programs.ProgramBlockPredicatesEditView.TYPE;
+import views.admin.programs.ProgramBlockPredicatesEditView.ViewType;
 
 /** Controller for admins editing and viewing program show-hide logic. */
 public class AdminProgramBlockPredicatesController extends CiviFormController {
@@ -78,7 +78,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               blockDefinition,
               programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
                   blockDefinitionId),
-              TYPE.VISIBILITY));
+              ViewType.VISIBILITY));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -105,7 +105,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               blockDefinition,
               programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
                   blockDefinitionId),
-              TYPE.ELIGIBILITY));
+              ViewType.ELIGIBILITY));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

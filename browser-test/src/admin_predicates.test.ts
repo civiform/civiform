@@ -201,6 +201,91 @@ describe('create and edit predicates', () => {
     ).toContain('Screen 2')
   })
 
+  it('add an eligibility predicate', async () => {
+    const {
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+      adminPredicates,
+    } = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+    // Add a program with two screens
+    await adminQuestions.addTextQuestion({
+      questionName: 'eligibility-predicate-q',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'eligibility-other-q',
+      description: 'desc',
+      questionText: 'eligibility question',
+    })
+
+    const programName = 'Create eligibility predicate'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'first screen', [
+      'eligibility-predicate-q',
+    ])
+
+    // Edit predicate for second screen
+    await adminPrograms.goToEditBlockEligibilityPredicatePage(
+      programName,
+      'Screen 1',
+    )
+    await adminPredicates.addPredicate(
+      'eligibility-predicate-q',
+      /* action= */ null,
+      'text',
+      'is equal to',
+      'eligible',
+    )
+
+    await adminPredicates.expectVisibilityConditionEquals(
+      'Screen 1 is eligible if question with an admin ID of "show-predicate-q"\'s text is equal to "eligible"',
+    )
+    await validateScreenshot(page, 'eligibility-predicate')
+
+    // Publish the program
+    await adminPrograms.publishProgram(programName)
+
+    // Switch to the applicantQuestions.view and apply to the program
+    await logout(page)
+    await loginAsTestUser(page)
+    await selectApplicantLanguage(page, 'English')
+    await applicantQuestions.applyProgram(programName)
+
+    // Initially fill out the first screen so that it is ineligible
+    await applicantQuestions.answerTextQuestion('ineligble')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.expectIneligiblePage()
+
+    // Return to the screen and fill it out to be eligible.
+    await page.goBack()
+    await applicantQuestions.answerTextQuestion('eligible')
+    await applicantQuestions.clickNext()
+
+    // We should be on the review page, and able to submit the application
+    expect((await page.innerText('.cf-submit-button')).toLowerCase()).toContain(
+      'submit',
+    )
+    await applicantQuestions.submitFromReviewPage()
+
+    // Visit the program admin page and assert the question is shown
+    await logout(page)
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+    expect(
+      await adminPrograms
+        .applicationFrameLocator()
+        .locator('#application-view')
+        .innerText(),
+    ).toContain('Screen 1')
+  })
+
   describe('test predicates', () => {
     beforeEach(async () => {
       const {page, adminQuestions} = ctx
@@ -462,7 +547,7 @@ describe('create and edit predicates', () => {
       )
       await adminPredicates.addPredicate(
         'single-string',
-        'shown if',
+        /* action= */ null,
         'first name',
         'is not equal to',
         'hidden',
@@ -475,7 +560,7 @@ describe('create and edit predicates', () => {
       )
       await adminPredicates.addPredicate(
         'list of strings',
-        'shown if',
+        /* action= */ null,
         'text',
         'is one of',
         'blue, green',
@@ -488,7 +573,7 @@ describe('create and edit predicates', () => {
       )
       await adminPredicates.addPredicate(
         'single-long',
-        'shown if',
+        /* action= */ null,
         'number',
         'is equal to',
         '42',
@@ -501,7 +586,7 @@ describe('create and edit predicates', () => {
       )
       await adminPredicates.addPredicate(
         'list of longs',
-        'shown if',
+        /* action= */ null,
         'number',
         'is one of',
         '123, 456',
@@ -514,7 +599,7 @@ describe('create and edit predicates', () => {
       )
       await adminPredicates.addPredicate(
         'predicate-currency',
-        'shown if',
+        /* action= */ null,
         'currency',
         'is greater than',
         '100.01',
@@ -527,7 +612,7 @@ describe('create and edit predicates', () => {
       )
       await adminPredicates.addPredicate(
         'predicate-date',
-        'shown if',
+        /* action= */ null,
         'date',
         'is earlier than',
         '2021-01-01',
@@ -540,7 +625,7 @@ describe('create and edit predicates', () => {
       )
       await adminPredicates.addPredicate(
         'both sides are lists',
-        'shown if',
+        /* action= */ null,
         'selections',
         'contains any of',
         'dog,cat',

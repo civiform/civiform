@@ -59,7 +59,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
 
   private final AdminLayout layout;
 
-  public enum TYPE {
+  public enum ViewType {
     ELIGIBILITY,
     VISIBILITY
   }
@@ -89,7 +89,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> predicateQuestions,
-      TYPE type) {
+      ViewType viewType) {
     String blockName = blockDefinition.name();
 
     // This render code is used to render eligibility and visibility predicate editors.
@@ -106,7 +106,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     final String textNoAvailableQuestions;
     final String predicateUpdateUrl;
     final String removePredicateUrl;
-    switch (type) {
+    switch (viewType) {
       case ELIGIBILITY:
         predicateDef =
             blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
@@ -164,7 +164,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             predicateQuestions,
             predicateUpdateUrl,
             modalTitle,
-            /* forVisibility= */ type.equals(TYPE.VISIBILITY),
+            viewType,
             csrfTag);
 
     String title = String.format("%s condition for %s", predicateTypeNameTitleCase, blockName);
@@ -314,14 +314,18 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       String blockName,
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
-      boolean forVisibility,
+      ViewType viewType,
       InputTag csrfTag) {
     String formId = UUID.randomUUID().toString();
 
     var updateForm = form(csrfTag).withId(formId).withMethod(POST).withAction(predicateUpdateUrl);
-    if (forVisibility) {
+
+    if (viewType.equals(ViewType.ELIGIBILITY)) {
+      updateForm = updateForm.with(createEligibilityHiddenAction());
+    } else if (viewType.equals(ViewType.VISIBILITY)) {
       updateForm = updateForm.with(createVisibilityActionDropdown(blockName));
     }
+
     return updateForm
         .with(renderQuestionDefinitionBox(questionDefinition))
         // Need to pass in the question ID with the rest of the form data in order to save the
@@ -359,6 +363,13 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                     div(questionHelpText).withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));
+  }
+
+  private InputTag createEligibilityHiddenAction() {
+    return input()
+        .withName("predicateAction")
+        .withType("hidden")
+        .withValue(PredicateAction.ELIGIBLE_BLOCK.name());
   }
 
   private DivTag createVisibilityActionDropdown(String blockName) {
