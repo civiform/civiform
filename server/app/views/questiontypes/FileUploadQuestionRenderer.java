@@ -14,8 +14,8 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import views.FileUploadViewStrategy;
 import views.components.FieldWithLabel;
-import views.style.ReferenceClasses;
 import views.style.ApplicantStyles;
+import views.style.ReferenceClasses;
 
 /**
  * Renders a file upload question.
@@ -63,8 +63,10 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
             fileUploadViewStrategy.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
         .with(
-            label().withFor(fileInputId).withText("Choose File").withClasses(ApplicantStyles.BUTTON_UPLOAD, "w-44", "mt-2", "cursor-pointer")
-        );
+            label()
+                .withFor(fileInputId)
+                .withText("Choose File")
+                .withClasses(ApplicantStyles.BUTTON_UPLOAD, "w-44", "mt-2", "cursor-pointer"));
   }
 
   @Override

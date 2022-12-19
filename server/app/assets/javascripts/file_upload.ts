@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     blockForm.addEventListener('change', (event) => {
       if (uploadedDiv.innerHTML) return
       const file = (<HTMLInputElement>event.target).files[0]
-      uploadedDiv.innerHTML = uploadText.replace("{0}", file.name)
+      uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
     })
   }
 })
