@@ -261,6 +261,7 @@ describe('create and edit predicates', () => {
     await applicantQuestions.answerTextQuestion('ineligble')
     await applicantQuestions.clickNext()
     await applicantQuestions.expectIneligiblePage()
+    await validateScreenshot(page, 'ineligible')
 
     // Return to the screen and fill it out to be eligible.
     await page.goBack()

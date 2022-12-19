@@ -3,7 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.p;
 
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
@@ -24,8 +24,20 @@ public class IneligibleBlockView extends ApplicationBaseView {
     this.layout = checkNotNull(layout);
   }
 
-  public Content render(Request request, Optional<String> applicantName, Messages messages) {
-    DivTag content = div(h2("Sorry you are not eligible for this program"));
+  public Content render(
+      Request request, String programTitle, Optional<String> applicantName, Messages messages) {
+    // TODO(#3744): Translate these strings.
+    DivTag content =
+        div()
+            .with(
+                h1(
+                    String.format(
+                        "Based on your responses, you are not eligible for the %s", programTitle)))
+            .with(p("You are not eligible for this program."))
+            .with(
+                p(
+                    "You can return to the previous page to edit your answers, or apply to another"
+                        + " program."));
     String title = "Ineligible for program";
     HtmlBundle bundle =
         layout
@@ -34,7 +46,6 @@ public class IneligibleBlockView extends ApplicationBaseView {
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(h1(title).withClasses("sr-only"), content);
 
-    // We probably don't want the nav bar here (or we need it somewhat different - no dropdown.)
     return layout.renderWithNav(request, applicantName, messages, bundle);
   }
 }

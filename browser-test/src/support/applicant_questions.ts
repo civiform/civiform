@@ -328,7 +328,7 @@ export class ApplicantQuestions {
   }
 
   async expectIneligiblePage() {
-    expect(await this.page.innerText('h2')).toContain(
+    expect(await this.page.innerText('p')).toContain(
       'not eligible for this program',
     )
   }
