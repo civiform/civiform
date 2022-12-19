@@ -399,8 +399,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
-    if (featureFlags.isProgramEligibilityConditionsEnabled(request) &&
-      !roApplicantProgramService.isBlockEligible(blockId)) {
+    if (featureFlags.isProgramEligibilityConditionsEnabled(request)
+        && !roApplicantProgramService.isBlockEligible(blockId)) {
       return supplyAsync(
           () ->
               ok(

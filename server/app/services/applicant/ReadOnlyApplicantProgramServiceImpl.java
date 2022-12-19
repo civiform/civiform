@@ -45,24 +45,15 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private ImmutableList<Block> currentBlockList;
 
   public ReadOnlyApplicantProgramServiceImpl(
-      ApplicantData applicantData,
-      ProgramDefinition programDefinition,
-      String baseUrl
-  ) {
-    this(
-        applicantData,
-        programDefinition,
-        baseUrl,
-        /* failedUpdates= */ ImmutableMap.of()
-        );
+      ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
+    this(applicantData, programDefinition, baseUrl, /* failedUpdates= */ ImmutableMap.of());
   }
 
   protected ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData,
       ProgramDefinition programDefinition,
       String baseUrl,
-      ImmutableMap<Path, String> failedUpdates
-  ) {
+      ImmutableMap<Path, String> failedUpdates) {
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.setFailedUpdates(failedUpdates);
