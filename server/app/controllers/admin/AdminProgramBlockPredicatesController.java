@@ -179,7 +179,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 leafExpression.toDisplayString(roQuestionService.getUpToDateQuestions())));
   }
 
-  /** POST endpoint for updating show-hide configurations. */
+  /** POST endpoint for updating eligibility configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateEligibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
