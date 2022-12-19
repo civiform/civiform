@@ -723,7 +723,8 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition removeBlockEligibilityPredicate(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     try {
-      return setBlockEligibilityDefinition(programId, blockDefinitionId, /* eligibility= */ Optional.empty());
+      return setBlockEligibilityDefinition(
+          programId, blockDefinitionId, /* eligibility= */ Optional.empty());
     } catch (IllegalPredicateOrderingException e) {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
