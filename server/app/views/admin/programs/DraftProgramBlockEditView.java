@@ -48,7 +48,7 @@ import views.style.StyleUtils;
  * program. A block is a synonym for a Screen. The ProgramBlockEditView is very similar to the
  * ProgramBlockReadOnlyView, but specifically adds all UI functionality that is needed for editing.
  */
-public final class ProgramBlockEditView extends ProgramBlockReadOnlyView {
+public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyView {
 
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
@@ -59,7 +59,7 @@ public final class ProgramBlockEditView extends ProgramBlockReadOnlyView {
   private ArrayList<Modal> modals;
 
   @Inject
-  public ProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
+  public DraftProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
     super(layoutFactory, config);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
     this.modals = new ArrayList<>();

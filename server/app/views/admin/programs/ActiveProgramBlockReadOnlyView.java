@@ -37,7 +37,7 @@ import views.style.StyleUtils;
  * Renders a view only page for an admin to see the details of an active program, including a list
  * of all screens and details about the block they select. A block is a synonym for a screen.
  */
-public class ProgramBlockReadOnlyView extends ProgramBlockView {
+public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
   private static final String NOT_YET_IMPLEMENTED_ERROR =
     "ProgramBlockReadOnlyView is not fully implemented yet. It should only be "
       + "used when issue #3162 is closed.";
@@ -47,9 +47,9 @@ public class ProgramBlockReadOnlyView extends ProgramBlockView {
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
 
   @Inject
-  public ProgramBlockReadOnlyView(AdminLayoutFactory layoutFactory, Config config) {
+  public ActiveProgramBlockReadOnlyView(AdminLayoutFactory layoutFactory, Config config) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    if (!(this instanceof ProgramBlockEditView)){
+    if (!(this instanceof DraftProgramBlockEditView)){
       throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
     }
   }
