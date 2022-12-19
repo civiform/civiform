@@ -160,12 +160,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     ImmutableList<Modal> modals =
         createPredicateUpdateFormModals(
-            blockName,
-            predicateQuestions,
-            predicateUpdateUrl,
-            modalTitle,
-            viewType,
-            csrfTag);
+            blockName, predicateQuestions, predicateUpdateUrl, modalTitle, viewType, csrfTag);
 
     String title = String.format("%s condition for %s", predicateTypeNameTitleCase, blockName);
     String removePredicateFormId = UUID.randomUUID().toString();
