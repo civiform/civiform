@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import featureflags.FeatureFlags;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
@@ -41,25 +42,29 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   private final ProgramDefinition programDefinition;
   private final String baseUrl;
+  private final FeatureFlags featureflags;
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
 
   public ReadOnlyApplicantProgramServiceImpl(
-      ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
-    this(applicantData, programDefinition, baseUrl, ImmutableMap.of());
+      ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl, FeatureFlags featureFlags) {
+    this(applicantData, programDefinition, baseUrl, /* failedUpdates= */ ImmutableMap.of(), featureFlags);
   }
 
   protected ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData,
       ProgramDefinition programDefinition,
       String baseUrl,
-      ImmutableMap<Path, String> failedUpdates) {
+      ImmutableMap<Path, String> failedUpdates,
+    FeatureFlags featureFlags
+    ) {
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.setFailedUpdates(failedUpdates);
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
     this.baseUrl = checkNotNull(baseUrl);
+    this.featureflags = featureFlags;
   }
 
   @Override
@@ -90,6 +95,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     Block block = getBlock(blockId).get();
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
+    if (!featureflags.isProgramEligibilityConditionsEnabled()) {
+      return true;
+    }
     if (predicate.isEmpty()) {
       return true;
     }

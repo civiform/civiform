@@ -254,6 +254,7 @@ describe('create and edit predicates', () => {
     await logout(page)
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
+    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
     await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that it is ineligible
@@ -638,6 +639,7 @@ describe('create and edit predicates', () => {
       await logout(page)
       await loginAsTestUser(page)
       await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
       await applicantQuestions.applyProgram(programName)
 
       // For each condition:
