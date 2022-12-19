@@ -43,8 +43,8 @@ import views.style.StyleUtils;
  */
 public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
   private static final String NOT_YET_IMPLEMENTED_ERROR =
-    "ProgramBlockReadOnlyView is not fully implemented yet. It should only be "
-      + "used when issue #3162 is closed.";
+      "ProgramBlockReadOnlyView is not fully implemented yet. It should only be "
+          + "used when issue #3162 is closed.";
 
   private final AdminLayout layout;
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
@@ -57,7 +57,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
   @Inject
   public ActiveProgramBlockReadOnlyView(AdminLayoutFactory layoutFactory, Config config) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    if (!(this instanceof DraftProgramBlockEditView)){
+    if (!(this instanceof DraftProgramBlockEditView)) {
       throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
     }
   }
@@ -307,9 +307,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
     return ret.with(icon, content);
   }
 
-  protected void addModals() {
-
-  }
+  protected void addModals() {}
 
   @Override
   protected String getEditButtonText() {
@@ -318,7 +316,8 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
 
   @Override
   protected String getButtonUrl(ProgramDefinition programDefinition) {
-    // TODO(#3162): once ProgramBlockReadOnlyView is used, clicks should open a ProgramBlockEditView.
+    // TODO(#3162): once ProgramBlockReadOnlyView is used, clicks should open a
+    // ProgramBlockEditView.
     throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
   }
 
