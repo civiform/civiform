@@ -41,7 +41,6 @@ import repository.TimeFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.Path;
-import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
@@ -111,8 +110,9 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
   }
 
-  /** Create a new {@link Applicant} for a given user. */
-  public CompletionStage<Applicant> createApplicant(long userId) {
+  /** Create a new {@link Applicant}. */
+  public CompletionStage<Applicant> createApplicant() {
+
     Applicant applicant = new Applicant();
     return userRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
   }
