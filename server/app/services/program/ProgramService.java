@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import models.Application;
@@ -269,7 +270,7 @@ public interface ProgramService {
 
   /**
    * Set the visibility {@link PredicateDefinition} for a block. This predicate describes under what
-   * conditions the block should be hidden from an applicant filling out the program form.
+   * conditions the application is considered eligible for the program as of the block.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
@@ -281,7 +282,7 @@ public interface ProgramService {
    * @throws IllegalPredicateOrderingException if this predicate cannot be added to this block
    */
   ProgramDefinition setBlockEligibilityDefinition(
-      long programId, long blockDefinitionId, EligibilityDefinition eligibility)
+      long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException;
 

@@ -13,6 +13,7 @@ import forms.BlockVisibilityPredicateForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -225,7 +226,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       programService.setBlockEligibilityDefinition(
           programId,
           blockDefinitionId,
-          EligibilityDefinition.builder().setPredicate(predicateDefinition).build());
+          Optional.of(EligibilityDefinition.builder().setPredicate(predicateDefinition).build()));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

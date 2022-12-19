@@ -693,14 +693,14 @@ public final class ProgramServiceImpl implements ProgramService {
   @Override
   @Transactional
   public ProgramDefinition setBlockEligibilityDefinition(
-      long programId, long blockDefinitionId, @Nullable EligibilityDefinition eligibility)
+      long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setEligibilityDefinition(Optional.ofNullable(eligibility))
+            .setEligibilityDefinition(eligibility)
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -723,7 +723,7 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition removeBlockEligibilityPredicate(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     try {
-      return setBlockEligibilityDefinition(programId, blockDefinitionId, null);
+      return setBlockEligibilityDefinition(programId, blockDefinitionId, /* eligibility= */ Optional.empty());
     } catch (IllegalPredicateOrderingException e) {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
