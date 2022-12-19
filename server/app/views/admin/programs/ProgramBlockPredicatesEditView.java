@@ -59,6 +59,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
 
   private final AdminLayout layout;
 
+  // The functionality type of the predicate editor.
   public enum ViewType {
     ELIGIBILITY,
     VISIBILITY

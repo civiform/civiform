@@ -91,7 +91,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.featureFlags = featureFlags;
+    this.featureFlags = checkNotNull(featureFlags);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
