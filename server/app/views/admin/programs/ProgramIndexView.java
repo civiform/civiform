@@ -131,8 +131,10 @@ public final class ProgramIndexView extends BaseHtmlView {
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(demographicsCsvModal)
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
+            .addModals(demographicsCsvModal);
+    if (!featureFlags.isJsBundlingEnabled()) {
+      htmlBundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
+    }
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
     Http.Flash flash = request.flash();
@@ -366,7 +368,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
     String editLink =
-        controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), 1).url();
+        controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
     String editLinkId = "program-edit-link-" + program.id();
     if (isActive) {
       editLink = controllers.admin.routes.AdminProgramController.newVersionFrom(program.id()).url();

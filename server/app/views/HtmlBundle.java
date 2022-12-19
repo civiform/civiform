@@ -1,5 +1,6 @@
 package views;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.document;
 import static j2html.TagCreator.each;
@@ -41,6 +42,7 @@ public final class HtmlBundle {
   private String pageTitle;
   private String language = "en";
   private Optional<String> faviconURL = Optional.empty();
+  private JsBundle jsBundle = null;
 
   private final ArrayList<String> bodyStyles = new ArrayList<>();
   private final ArrayList<Tag> footerContent = new ArrayList<>();
@@ -55,6 +57,13 @@ public final class HtmlBundle {
   private final ArrayList<Modal> modals = new ArrayList<>();
   private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
+  private final ViewUtils viewUtils;
+  private final boolean enableJsBundles;
+
+  public HtmlBundle(ViewUtils viewUtils, boolean enableJsBundles) {
+    this.viewUtils = checkNotNull(viewUtils);
+    this.enableJsBundles = enableJsBundles;
+  }
 
   public HtmlBundle addBodyStyles(String... styles) {
     bodyStyles.addAll(Arrays.asList(styles));
@@ -125,6 +134,11 @@ public final class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle setJsBundle(JsBundle jsBundle) {
+    this.jsBundle = jsBundle;
+    return this;
+  }
+
   private HtmlTag getContent() {
     return html(renderHead(), renderBody()).withLang(language);
   }
@@ -167,6 +181,12 @@ public final class HtmlBundle {
 
   private FooterTag renderFooter() {
     FooterTag footerTag = footer().with(footerContent).with(footerScripts);
+    if (jsBundle == null) {
+      throw new IllegalStateException("JS bundle must be set for every page.");
+    }
+    if (enableJsBundles) {
+      footerTag.with(viewUtils.makeLocalJsTag(jsBundle.getJsPath()));
+    }
 
     if (footerStyles.size() > 0) {
       footerTag.withClasses(footerStyles.toArray(new String[0]));

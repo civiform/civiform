@@ -276,6 +276,8 @@ public class ApplicantQuestionTest {
         .isEqualTo("How many days has Jonathan worked at JonCo?");
     assertThat(applicantQuestion.getQuestionHelpText())
         .isEqualTo("How many days has Jonathan worked at JonCo?");
+    assertThat(applicantQuestion.getQuestionTextForScreenReader())
+        .isEqualTo("How many days has Jonathan worked at JonCo? *");
   }
 
   @Test

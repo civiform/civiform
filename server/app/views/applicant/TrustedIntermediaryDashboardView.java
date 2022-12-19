@@ -311,7 +311,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       emailField = "(no email address)";
     }
     return td().with(div(ti.getApplicantName()).withClasses("font-semibold"))
-        .with(div(emailField).withClasses("text-xs"))
+        .with(div(emailField).withClasses("text-xs", ReferenceClasses.BT_EMAIL))
         .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 

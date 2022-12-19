@@ -194,7 +194,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
-            .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
+            .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_BUTTON);
 
     return ret.with(
         asRedirectElement(

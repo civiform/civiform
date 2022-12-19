@@ -8,6 +8,17 @@ import {Page} from 'playwright'
 
 describe('program creation', () => {
   const ctx = createTestContext()
+
+  it('program details page screenshot', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await validateScreenshot(page, 'program-description-page')
+  })
+
   it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
@@ -179,6 +190,35 @@ describe('program creation', () => {
       'second question',
       'first question',
     ])
+  })
+
+  /**
+   * There was a bug where if you deleted the first block
+   * and then go to edit the program, it would error
+   * because it would go to the block with ID == 1
+   */
+  it('delete first block and edit', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Test program 5'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.addProgramBlock(programName)
+    await adminPrograms.removeProgramBlock(programName, 'Screen 1')
+    await adminPrograms.goToManageQuestionsPage(programName)
+  })
+
+  it('delete last block and edit', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Test program 6'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.addProgramBlock(programName)
+    await adminPrograms.removeProgramBlock(programName, 'Screen 2')
+    await adminPrograms.goToManageQuestionsPage(programName)
   })
 
   async function expectQuestionsOrderWithinBlock(
