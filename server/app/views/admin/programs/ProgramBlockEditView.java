@@ -116,7 +116,6 @@ public final class ProgramBlockEditView extends ProgramBlockReadOnlyView {
       int blockIndex,
       ProgramDefinition programDefinition,
       long focusedBlockId) {
-    super.blockTag(blockDefinitions, blockIndex, programDefinition, focusedBlockId);
     DivTag blockTag =
         super.blockTag(blockDefinitions, blockIndex, programDefinition, focusedBlockId);
 

@@ -45,5 +45,7 @@ abstract class ProgramBlockView extends BaseHtmlView {
   protected abstract String getButtonUrl(ProgramDefinition programDefinition);
 
   /* The Status badge that will be shown at the top of the page */
+  // TODO(#3162) Investigate if we can auto generate the status based on the
+  // version that is being viewed in each implementation.
   protected abstract BadgeStatus getBadgeStatus();
 }

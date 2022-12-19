@@ -38,6 +38,9 @@ import views.style.StyleUtils;
  * of all screens and details about the block they select. A block is a synonym for a screen.
  */
 public class ProgramBlockReadOnlyView extends ProgramBlockView {
+  private static final String NOT_YET_IMPLEMENTED_ERROR =
+    "ProgramBlockReadOnlyView is not fully implemented yet. It should only be "
+      + "used when issue #3162 is closed.";
 
   private final AdminLayout layout;
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
@@ -46,6 +49,9 @@ public class ProgramBlockReadOnlyView extends ProgramBlockView {
   @Inject
   public ProgramBlockReadOnlyView(AdminLayoutFactory layoutFactory, Config config) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    if (!(this instanceof ProgramBlockEditView)){
+      throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
+    }
   }
 
   public Content render(
@@ -171,10 +177,7 @@ public class ProgramBlockReadOnlyView extends ProgramBlockView {
 
     // TODO(#3162): review the link creation before the ReadOnlyView is used in production
     // Before a screen can be edited, it must be explicitly created.
-    String blockLink =
-        controllers.admin.routes.AdminProgramBlocksController.edit(
-                programDefinition.id(), blockDefinition.id())
-            .url();
+    String blockLink = "notYetImplementedLink";
 
     DivTag blockTag =
         div()
@@ -300,11 +303,10 @@ public class ProgramBlockReadOnlyView extends ProgramBlockView {
     return "Edit program";
   }
 
-  // TODO(#3162): when the ProgramBlockReadOnlyView is used, clicking the button should lead to the
-  // ProgramBlockEditView.
+  // TODO(#3162): once ProgramBlockReadOnlyView is used, clicks should open a ProgramBlockEditView.
   @Override
   protected String getButtonUrl(ProgramDefinition programDefinition) {
-    return null;
+    throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
   }
 
   @Override
