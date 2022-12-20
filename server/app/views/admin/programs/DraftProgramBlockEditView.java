@@ -120,6 +120,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       int blockIndex,
       ProgramDefinition programDefinition,
       long focusedBlockId) {
+
     DivTag blockTag =
         super.blockTag(blockDefinitions, blockIndex, programDefinition, focusedBlockId);
 
@@ -544,12 +545,20 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
   }
 
   @Override
+  protected String getBlockSelectionUrl(
+      ProgramDefinition programDefinition, BlockDefinition blockDefinition) {
+    return controllers.admin.routes.AdminProgramBlocksController.edit(
+            programDefinition.id(), blockDefinition.id())
+        .url();
+  }
+
+  @Override
   protected String getEditButtonText() {
     return "Edit program details";
   }
 
   @Override
-  protected String getButtonUrl(ProgramDefinition programDefinition) {
+  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
     return routes.AdminProgramController.edit(programDefinition.id()).url();
   }
 

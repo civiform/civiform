@@ -187,7 +187,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   }
 
   @Override
-  protected String getButtonUrl(ProgramDefinition programDefinition) {
+  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
     return routes.AdminProgramController.edit(programDefinition.id()).url();
   }
 

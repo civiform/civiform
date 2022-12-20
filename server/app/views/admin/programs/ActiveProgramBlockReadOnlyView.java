@@ -178,10 +178,6 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
     String selectionColoring = blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
     String questionCountText = String.format("Question count: %d", numQuestions);
 
-    // TODO(#3162): review the link creation before the ReadOnlyView is used in production
-    // Before a screen can be edited, it must be explicitly created.
-    String blockLink = "notYetImplementedLink";
-
     DivTag blockTag =
         div()
             .withClasses(
@@ -196,7 +192,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
                 selectionColoring)
             .with(
                 a().withClasses("flex-grow", "overflow-hidden")
-                    .withHref(blockLink)
+                    .withHref(getBlockSelectionUrl(programDefinition, blockDefinition))
                     .with(p(blockDefinition.name()), p(questionCountText).withClasses("text-sm")));
     return blockTag;
   }
@@ -303,7 +299,15 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
     return ret.with(icon, content);
   }
 
-  protected void addModals() {}
+  /**
+   * Returns the url which should be loaded when an individual block is selected from the List. This
+   * can be overriden by children to navigate to a different view of the block (e.g. a version that
+   * is editable.
+   */
+  protected String getBlockSelectionUrl(
+      ProgramDefinition programDefinition, BlockDefinition blockDefinition) {
+    throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
+  }
 
   @Override
   protected String getEditButtonText() {
@@ -311,7 +315,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
   }
 
   @Override
-  protected String getButtonUrl(ProgramDefinition programDefinition) {
+  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
     // TODO(#3162): once ProgramBlockReadOnlyView is used, clicks should open a
     // ProgramBlockEditView.
     throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
