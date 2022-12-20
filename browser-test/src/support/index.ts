@@ -189,10 +189,16 @@ export const createTestContext = (clearDb = true): TestContext => {
   // we'll get one huge video for all tests.
   async function resetContext() {
     if (browserContext != null) {
-      if (!DISABLE_BROWSER_ERROR_WATCHER) {
-        ctx.browserErrorWatcher.failIfContainsErrors()
+      try {
+        if (!DISABLE_BROWSER_ERROR_WATCHER) {
+          ctx.browserErrorWatcher.failIfContainsErrors()
+        }
+      } finally {
+        // browserErrorWatcher might throw error that should be bubble up all
+        // the way to user. But even if error is thrown we need to close the
+        // browser context, for example to save videos.
+        await browserContext.close()
       }
-      await browserContext.close()
     }
     browserContext = await makeBrowserContext(browser)
     ctx.page = await browserContext.newPage()
