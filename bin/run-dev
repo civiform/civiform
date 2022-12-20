@@ -65,6 +65,6 @@ done &
 
 echo "Civiform starting locally at http://localhost:9000/loginForm"
 
-docker::dev_server_sbt_command runDevServer
+docker::dev_and_test_server_sbt_command "8457" runDevServer
 
 docker::compose_dev stop civiform
