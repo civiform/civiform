@@ -19,7 +19,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testSetTitle() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
     bundle.setTitle("My title").setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
@@ -28,7 +28,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testFavicon() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
     bundle.setFavicon("www.civiform.com/favicon").setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
@@ -37,7 +37,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testNoFavicon() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
 
     bundle.setJsBundle(JsBundle.APPLICANT);
     Content content = bundle.render();
@@ -46,7 +46,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void emptyBundleRendersOutline() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
 
     bundle.setJsBundle(JsBundle.APPLICANT);
     Content content = bundle.render();
@@ -59,7 +59,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void rendersContentInOrder() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
     bundle.addMainContent(div("One")).addMainContent(div("Two")).setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
@@ -67,15 +67,8 @@ public class HtmlBundleTest extends ResetPostgres {
   }
 
   @Test
-  public void renderWithJsBundlesDisabled() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
-    Content content = bundle.setJsBundle(JsBundle.APPLICANT).render();
-    assertThat(content.body()).doesNotContain("applicant.bundle.js");
-  }
-
-  @Test
-  public void renderWithJsBundlesEnabled() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ true);
+  public void rendersBundle() {
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
     Content content = bundle.setJsBundle(JsBundle.APPLICANT).render();
     assertThat(content.body()).contains("applicant.bundle.js");
   }
