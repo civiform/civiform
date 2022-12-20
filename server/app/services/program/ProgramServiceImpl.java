@@ -19,7 +19,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.annotation.Nullable;
 import models.Account;
 import models.Application;
 import models.DisplayMode;
@@ -677,14 +676,14 @@ public final class ProgramServiceImpl implements ProgramService {
   @Override
   @Transactional
   public ProgramDefinition setBlockPredicate(
-      long programId, long blockDefinitionId, @Nullable PredicateDefinition predicate)
+      long programId, long blockDefinitionId, Optional<PredicateDefinition> predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setVisibilityPredicate(Optional.ofNullable(predicate))
+            .setVisibilityPredicate(predicate)
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -695,7 +694,7 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition removeBlockPredicate(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     try {
-      return setBlockPredicate(programId, blockDefinitionId, null);
+      return setBlockPredicate(programId, blockDefinitionId, /* predicate= */ Optional.empty());
     } catch (IllegalPredicateOrderingException e) {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
