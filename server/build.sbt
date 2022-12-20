@@ -32,11 +32,11 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.17.295",
-      "software.amazon.awssdk" % "ses" % "2.17.295",
+      "software.amazon.awssdk" % "s3" % "2.18.41",
+      "software.amazon.awssdk" % "ses" % "2.18.41",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.7.1",
+      "com.azure" % "azure-identity" % "1.7.2",
       "com.azure" % "azure-storage-blob" % "12.20.1",
 
       // Database and database testing libraries
@@ -51,7 +51,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
-      "org.mockito" % "mockito-inline" % "4.9.0",
+      "org.mockito" % "mockito-inline" % "4.10.0",
       "org.assertj" % "assertj-core" % "3.23.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html

@@ -8,6 +8,17 @@ import {Page} from 'playwright'
 
 describe('program creation', () => {
   const ctx = createTestContext()
+
+  it('program details page screenshot', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await validateScreenshot(page, 'program-description-page')
+  })
+
   it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 

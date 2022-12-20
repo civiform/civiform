@@ -3,7 +3,7 @@ import {createTestContext, loginAsAdmin, waitForPageJsLoad} from './support'
 describe('create dropdown question with options', () => {
   const ctx = createTestContext()
 
-  it('add remove buttons work correctly', async () => {
+  fit('add remove buttons work correctly', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -55,7 +55,7 @@ describe('create dropdown question with options', () => {
     expect(questionSettingsDiv.match(/<input/g)).toHaveLength(3)
 
     // Remove first option - use :visible to not select the hidden template
-    await page.click('button:text("Remove"):visible')
+    await page.click('button:has-text("Delete"):visible')
 
     // Assert there are only two options now
     questionSettingsDiv = await page.innerHTML('#question-settings')

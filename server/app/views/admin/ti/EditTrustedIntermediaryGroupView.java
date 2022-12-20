@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -11,7 +12,6 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.specialized.DivTag;
@@ -25,11 +25,13 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
-import views.components.LinkElement;
+import views.components.Icons;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -86,7 +88,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             formTag.with(
                 emailField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses("ml-2", "mb-6")))
+                submitButton("Add").withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 
@@ -118,17 +120,23 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
 
   private TdTag renderActionsCell(
       TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
-    return td().with(renderDeleteButton(tiGroup, account, request));
+    return td().with(
+            div()
+                .withClasses("flex", "justify-end", "items-center", "pr-3")
+                .with(renderDeleteButton(tiGroup, account, request)));
   }
 
   private FormTag renderDeleteButton(
       TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
-    return new LinkElement()
-        .setText("Delete")
-        .setId("delete-" + account.id + "-button")
-        .setHref(
+    return form()
+        .withMethod("POST")
+        .withAction(
             routes.TrustedIntermediaryManagementController.removeIntermediary(tiGroup.id).url())
-        .asHiddenForm(request, ImmutableMap.of("accountId", account.id.toString()));
+        .with(makeCsrfTokenInputTag(request))
+        .with(input().isHidden().withName("accountId").withValue(account.id.toString()))
+        .with(
+            ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
+                .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
   }
 
   private TheadTag renderGroupTableHeader() {

@@ -55,7 +55,7 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
     if (!validationErrors.isEmpty()) {
       select.forceAriaInvalid();
     }
-    select.setScreenReaderText(question.getQuestionText());
+    select.setScreenReaderText(question.getQuestionTextForScreenReader());
 
     if (singleSelectQuestion.getSelectedOptionId().isPresent()) {
       select.setValue(String.valueOf(singleSelectQuestion.getSelectedOptionId().get()));

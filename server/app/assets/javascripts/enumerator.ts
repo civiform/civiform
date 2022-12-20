@@ -10,12 +10,9 @@ window.addEventListener('load', () => {
     enumeratorOptionButton.addEventListener('click', addNewEnumeratorField)
   }
 
-  // Configure existing enumerator entity remove buttons
-  // This function is defined in main.js, which is expected to be bundled into the page.
-  addEventListenerToElements(
-    '.cf-enumerator-delete-button',
-    'click',
-    removeExistingEnumeratorField,
+  // TODO(#3864) switch to use addEventListenerToElements() once imports supported.
+  Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
+    (el) => el.addEventListener('click', removeExistingEnumeratorField),
   )
   addEnumeratorListeners()
 })

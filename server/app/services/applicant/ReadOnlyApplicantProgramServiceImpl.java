@@ -179,6 +179,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         }
         boolean isAnswered = question.isAnswered();
         String questionText = question.getQuestionText();
+        String questionTextForScreenReader = question.getQuestionTextForScreenReader();
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
@@ -204,6 +205,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
+                .setQuestionTextForScreenReader(questionTextForScreenReader)
                 .setIsAnswered(isAnswered)
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
