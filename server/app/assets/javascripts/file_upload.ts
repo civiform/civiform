@@ -7,8 +7,7 @@ window.addEventListener('load', () => {
   const blockForm = document.getElementById('cf-block-form')
 
   if (blockForm) {
-    const uploadedDiv = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)[0]
-    const uploadText = uploadedDiv.getAttribute(UPLOAD_ATTR)
+    const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
 
     blockForm.addEventListener('submit', (event) => {
       if (!validateFileUploadQuestions(blockForm)) {
@@ -18,11 +17,16 @@ window.addEventListener('load', () => {
       return true
     })
 
-    blockForm.addEventListener('change', (event) => {
-      if (uploadedDiv.innerHTML) return
-      const file = (<HTMLInputElement>event.target).files[0]
-      uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
-    })
+    if (uploadedDivs.length) {
+      const uploadedDiv = uploadedDivs[0]
+      const uploadText = uploadedDiv.getAttribute(UPLOAD_ATTR)
+
+      blockForm.addEventListener('change', (event) => {
+        if (uploadedDiv.innerHTML) return
+        const file = (<HTMLInputElement>event.target).files[0]
+        uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
+      })
+    }
   }
 })
 
