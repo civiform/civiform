@@ -270,6 +270,24 @@ public interface ProgramService {
           IllegalPredicateOrderingException;
 
   /**
+   * Set the eligibility {@link PredicateDefinition} for a block. This predicate describes under
+   * what conditions the application is considered eligible for the program as of the block.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param eligibility the {@link EligibilityDefinition} for continuing the application.
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
+   * @throws IllegalPredicateOrderingException if this predicate cannot be added to this block
+   */
+  ProgramDefinition setBlockEligibilityDefinition(
+      long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException;
+
+  /**
    * Remove the visibility {@link PredicateDefinition} for a block.
    *
    * @param programId the ID of the program to update
@@ -280,6 +298,19 @@ public interface ProgramService {
    *     real Block.
    */
   ProgramDefinition removeBlockPredicate(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
+
+  /**
+   * Remove the eligibility {@link PredicateDefinition} for a block.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
+   */
+  ProgramDefinition removeBlockEligibilityPredicate(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
