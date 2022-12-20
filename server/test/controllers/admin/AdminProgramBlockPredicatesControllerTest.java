@@ -124,7 +124,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(content).contains("Eligibility condition for Screen 1");
-    assertThat(content).contains("The screen is always eligible");
+    assertThat(content).contains("This screen is always eligible");
     assertThat(content).contains("Admin ID: applicant name");
     assertThat(content).contains("what is your name?");
   }
@@ -194,7 +194,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Result editBeforeResult =
         controller.editEligibility(
             addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
-    assertThat(Helpers.contentAsString(editBeforeResult)).contains("The screen is always eligible");
+    assertThat(Helpers.contentAsString(editBeforeResult)).contains("This screen is always eligible");
 
     Http.Request request =
         fakeRequest()
@@ -229,7 +229,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.editEligibility(
             addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult))
-        .doesNotContain("The screen is always eligible");
+        .doesNotContain("This screen is always eligible");
   }
 
   @Test
@@ -362,7 +362,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     // edit page manually.
     Result redirectResult =
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
-    assertThat(Helpers.contentAsString(redirectResult)).contains("The screen is always eligible");
+    assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always eligible");
   }
 
   @Test
