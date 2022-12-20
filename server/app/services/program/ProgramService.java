@@ -269,7 +269,7 @@ public interface ProgramService {
           IllegalPredicateOrderingException;
 
   /**
-   * Set the visibility {@link PredicateDefinition} for a block. This predicate describes under what
+   * Set the eligibility {@link PredicateDefinition} for a block. This predicate describes under what
    * conditions the application is considered eligible for the program as of the block.
    *
    * @param programId the ID of the program to update
