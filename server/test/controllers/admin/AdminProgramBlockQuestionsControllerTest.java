@@ -117,7 +117,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
                 controllers.admin.routes.AdminProgramBlockQuestionsController.move(
                     program.id, block.id(), nameQuestion.getId()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
-            .bodyForm(ImmutableMap.of(ActiveProgramBlockReadOnlyView.MOVE_QUESTION_POSITION_FIELD, "1"))
+            .bodyForm(
+                ImmutableMap.of(ActiveProgramBlockReadOnlyView.MOVE_QUESTION_POSITION_FIELD, "1"))
             .build();
     Result result = controller.move(request, program.id, block.id(), nameQuestion.getId());
 
