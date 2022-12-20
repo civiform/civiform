@@ -408,9 +408,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         div()
             .withClasses("w-7/12", "py-6", "px-4")
             .with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
-    if (maybeEligibilityPredicateDisplay.isPresent()) {
-      div = div.with(maybeEligibilityPredicateDisplay.get());
-    }
+    maybeEligibilityPredicateDisplay.ifPresent(div::with);
+
     return div.with(programQuestions, addQuestion);
   }
 

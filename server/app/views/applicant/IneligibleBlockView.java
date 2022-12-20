@@ -15,6 +15,7 @@ import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.style.ApplicantStyles;
 
+/** Renders a page indicating the applicant is not eligible for a program. */
 public class IneligibleBlockView extends ApplicationBaseView {
 
   private final ApplicantLayout layout;

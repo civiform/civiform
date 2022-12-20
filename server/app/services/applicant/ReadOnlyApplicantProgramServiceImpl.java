@@ -90,10 +90,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     Block block = getBlock(blockId).get();
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
+    // No eligibility criteria means the block is eligible.
     if (predicate.isEmpty()) {
       return true;
     }
-    return evaluateEligibility(block, predicate.get());
+    return evaluatePredicate(block, predicate.get());
   }
 
   @Override
@@ -336,10 +337,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       default:
         return true;
     }
-  }
-
-  private boolean evaluateEligibility(Block block, PredicateDefinition predicate) {
-    return evaluatePredicate(block, predicate);
   }
 
   private boolean evaluatePredicate(Block block, PredicateDefinition predicate) {

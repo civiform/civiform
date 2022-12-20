@@ -115,13 +115,13 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
         modalTitle = String.format("Add an eligibility condition for %s", blockName);
         predicateTypeNameTitleCase = "Eligibility";
         h2CurrentCondition = "Current eligibility condition";
-        textNoConditions = "The block is always eligible.";
+        textNoConditions = "The screen is always eligible.";
         h2NewCondition = "New eligibility condition";
         textNewCondition =
             "Apply a eligibility condition using a question below. When you create a eligibility"
                 + " condition, it replaces the present one.";
         textNoAvailableQuestions =
-            "There are no available questions with which to set a eligibility condition for this"
+            "There are no available questions with which to set an eligibility condition for this"
                 + " screen.";
         predicateUpdateUrl =
             routes.AdminProgramBlockPredicatesController.updateEligibility(
@@ -317,9 +317,9 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     var updateForm = form(csrfTag).withId(formId).withMethod(POST).withAction(predicateUpdateUrl);
 
     if (viewType.equals(ViewType.ELIGIBILITY)) {
-      updateForm = updateForm.with(createEligibilityHiddenAction());
+      updateForm.with(createEligibilityHiddenAction());
     } else if (viewType.equals(ViewType.VISIBILITY)) {
-      updateForm = updateForm.with(createVisibilityActionDropdown(blockName));
+      updateForm.with(createVisibilityActionDropdown(blockName));
     }
 
     return updateForm

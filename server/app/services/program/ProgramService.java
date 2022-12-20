@@ -274,7 +274,7 @@ public interface ProgramService {
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param eligibility the {@link EligibilityDefinition} for continuing.
+   * @param eligibility the {@link EligibilityDefinition} for continuing the application.
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
