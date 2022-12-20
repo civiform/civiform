@@ -151,6 +151,7 @@ public abstract class ProgramDefinition {
    * that appears after it.
    */
   public boolean hasValidPredicateOrdering() {
+    // TODO(#3744): Update for eligibility predicates.
     Set<Long> previousQuestionIds = new HashSet<>();
     for (BlockDefinition b : blockDefinitions()) {
       // Check that all the predicate questions exist before this block.
@@ -487,19 +488,9 @@ public abstract class ProgramDefinition {
         .collect(ImmutableList.toImmutableList());
   }
 
-  public ImmutableList<QuestionDefinition> getAvailableVisibilityPredicateQuestionDefinitions(
-      long blockId) throws ProgramBlockDefinitionNotFoundException {
-    return getAvailablePredicateQuestionDefinitions(blockId - 1);
-  }
-
-  public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
-      long blockId) throws ProgramBlockDefinitionNotFoundException {
-    return getAvailablePredicateQuestionDefinitions(blockId);
-  }
-
   /**
-   * Returns a list of the question definitions that may be used to define predicates on the block
-   * definition with the given ID.
+   * Returns a list of the question definitions that may be used to define visibility predicates on
+   * the block definition with the id {@code blockId}.
    *
    * <p>The available question definitions for predicates satisfy ALL of the following:
    *
@@ -510,10 +501,46 @@ public abstract class ProgramDefinition {
    *   <li>Is not an enumerator.
    * </ul>
    */
+  public ImmutableList<QuestionDefinition> getAvailableVisibilityPredicateQuestionDefinitions(
+      long blockId) throws ProgramBlockDefinitionNotFoundException {
+    // Questions through the block before this one are available for this block's visibility
+    // conditions.
+    return getAvailablePredicateQuestionDefinitions(blockId - 1);
+  }
+
+  /**
+   * Returns a list of the question definitions that may be used to define eligibility predicates on
+   * the block definition with the id {@code blockId}.
+   *
+   * <p>This is the same as {@link #getAvailableVisibilityPredicateQuestionDefinitions} but it
+   * includes questions in the provided {@code blockId}.
+   */
+  public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
+      long blockId) throws ProgramBlockDefinitionNotFoundException {
+    // Questions through the block are available for this block's eligibility conditions.
+    return getAvailablePredicateQuestionDefinitions(blockId);
+  }
+
+  /**
+   * Returns a list of the question definitions that may be used to define predicates on the block
+   * definition with the id {@code blockId}.
+   *
+   * <p>The available question definitions for predicates satisfy ALL of the following:
+   *
+   * <ul>
+   *   <li>In the provided block definition or one that comes sequentially before it.
+   *   <li>In a block definition that either has the same enumerator ID as the given block
+   *       definition, or has the same enumerator ID as some "parent" of the given block definition.
+   *   <li>Is not an enumerator.
+   * </ul>
+   */
   public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
       throws ProgramBlockDefinitionNotFoundException {
-    ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
+    if (blockId <= 0) {
+      return ImmutableList.of();
+    }
 
+    ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
     for (BlockDefinition blockDefinition :
         getAvailablePredicateBlockDefinitions(this.getBlockDefinition(blockId))) {
       builder.addAll(
@@ -539,17 +566,16 @@ public abstract class ProgramDefinition {
     // If this block is repeated, recurse "upward". In other words, add all the available predicate
     // block definitions for its enumerator. Do this before adding its sibling block definitions to
     // maintain sequential order of the block definitions in the result.
-    if (blockDefinition.isRepeated()) {
+    if (maybeEnumeratorId.isPresent()) {
       builder.addAll(
           getAvailablePredicateBlockDefinitions(this.getBlockDefinition(maybeEnumeratorId.get())));
     }
 
-    // Only include sequentially earlier block definitions.
+    // Only include block definitions up through the specified block.
     for (BlockDefinition siblingBlockDefinition : siblingBlockDefinitions) {
+      builder.add(siblingBlockDefinition);
       // Stop adding block definitions once we reach this block.
       if (siblingBlockDefinition.id() == blockDefinition.id()) break;
-
-      builder.add(siblingBlockDefinition);
     }
 
     return builder.build();

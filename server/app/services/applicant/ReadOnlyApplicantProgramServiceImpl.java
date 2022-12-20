@@ -46,7 +46,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   public ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
-    this(applicantData, programDefinition, baseUrl, ImmutableMap.of());
+    this(applicantData, programDefinition, baseUrl, /* failedUpdates= */ ImmutableMap.of());
   }
 
   protected ReadOnlyApplicantProgramServiceImpl(
@@ -90,10 +90,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     Block block = getBlock(blockId).get();
     Optional<PredicateDefinition> predicate =
         block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
+    // No eligibility criteria means the block is eligible.
     if (predicate.isEmpty()) {
       return true;
     }
-    return evaluateEligibility(block, predicate.get());
+    return evaluatePredicate(block, predicate.get());
   }
 
   @Override
@@ -191,6 +192,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         }
         boolean isAnswered = question.isAnswered();
         String questionText = question.getQuestionText();
+        String questionTextForScreenReader = question.getQuestionTextForScreenReader();
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
@@ -216,6 +218,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
+                .setQuestionTextForScreenReader(questionTextForScreenReader)
                 .setIsAnswered(isAnswered)
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
@@ -334,10 +337,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       default:
         return true;
     }
-  }
-
-  private boolean evaluateEligibility(Block block, PredicateDefinition predicate) {
-    return evaluatePredicate(block, predicate);
   }
 
   private boolean evaluatePredicate(Block block, PredicateDefinition predicate) {

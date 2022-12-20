@@ -21,7 +21,6 @@ import j2html.tags.specialized.OptionTag;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.inject.Inject;
 import play.data.DynamicForm;
 import play.mvc.Http;
@@ -186,7 +185,10 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
           .forEach(
               andNode ->
                   valueRowContainer.with(
-                      renderValueRow(questionDefinitions, groupCount.incrementAndGet(), Optional.of(andNode))));
+                      renderValueRow(
+                          questionDefinitions,
+                          groupCount.incrementAndGet(),
+                          Optional.of(andNode))));
     } else {
       valueRowContainer.with(
           renderValueRow(questionDefinitions, 1, /* maybeAndNode= */ Optional.empty()));
@@ -252,7 +254,9 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
   }
 
   private DivTag renderValueRow(
-      ImmutableList<QuestionDefinition> questionDefinitions, int groupId, Optional<AndNode> maybeAndNode) {
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      int groupId,
+      Optional<AndNode> maybeAndNode) {
     DivTag row = div().withClasses("flex", "grow", "gap-2", "predicate-config-value-row");
 
     if (maybeAndNode.isPresent()) {
@@ -269,7 +273,9 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       }
     } else {
       for (var questionDefinition : questionDefinitions) {
-        row.with(createValueField(questionDefinition, groupId, /* maybePredicateValue= */ Optional.empty()));
+        row.with(
+            createValueField(
+                questionDefinition, groupId, /* maybePredicateValue= */ Optional.empty()));
       }
     }
 
@@ -415,8 +421,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
             .collect(toImmutableList());
 
     return new SelectWithLabel()
-        .setFieldName(
-            String.format("question-%d-operator", questionDefinition.getId()))
+        .setFieldName(String.format("question-%d-operator", questionDefinition.getId()))
         .setLabelText("Operator")
         .setCustomOptions(operatorOptions)
         .addReferenceClass(ReferenceClasses.PREDICATE_OPERATOR_SELECT)
@@ -424,7 +429,9 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
   }
 
   private DivTag createValueField(
-      QuestionDefinition questionDefinition, int groupId, Optional<PredicateValue> maybePredicateValue) {
+      QuestionDefinition questionDefinition,
+      int groupId,
+      Optional<PredicateValue> maybePredicateValue) {
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
@@ -450,7 +457,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
             FieldWithLabel.checkbox()
                 .setFieldName(
                     String.format(
-                        "group-%d-question-%d-predicateValues[]", groupId, questionDefinition.getId()))
+                        "group-%d-question-%d-predicateValues[]",
+                        groupId, questionDefinition.getId()))
                 .setValue(String.valueOf(option.id()))
                 .setLabelText(option.optionText().getDefault())
                 .setChecked(isChecked)
@@ -464,7 +472,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
               FieldWithLabel.input()
                   .setFieldName(
                       String.format(
-                          "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
+                          "group-%d-question-%d-predicateValue",
+                          groupId, questionDefinition.getId()))
                   .setLabelText("Value")
                   .setValue(maybePredicateValue.map(PredicateValue::value))
                   .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)

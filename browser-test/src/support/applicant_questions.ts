@@ -327,6 +327,12 @@ export class ApplicantQuestions {
     )
   }
 
+  async expectIneligiblePage() {
+    expect(await this.page.innerText('p')).toContain(
+      'not eligible for this program',
+    )
+  }
+
   async submitFromReviewPage() {
     // Assert that we're on the review page.
     await this.expectReviewPage()

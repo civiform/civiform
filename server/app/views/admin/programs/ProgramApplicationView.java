@@ -20,7 +20,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import featureflags.FeatureFlags;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -45,9 +44,9 @@ import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.JsBundle;
+import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
-import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
@@ -118,7 +117,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
                 div()
-                    .withClasses("flex")
+                    .withClasses("flex", "items-center")
                     .with(
                         p(applicantNameWithApplicationId)
                             .withClasses(
@@ -167,11 +166,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private ATag renderDownloadButton(long programId, long applicationId) {
+  private ButtonTag renderDownloadButton(long programId, long applicationId) {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
-    return new LinkElement().setHref(link).setText("Export to PDF").asRightAlignedButton();
+    return asRedirectElement(
+        ViewUtils.makeSvgTextButton("Export to PDF", Icons.DOWNLOAD)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
+        link);
   }
 
   private DivTag renderApplicationBlock(

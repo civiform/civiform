@@ -47,14 +47,14 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/move      controlle
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
 
 # A controller for pages for an admin to configure show/hide logic on blocks for a program
-GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/edit                    controllers.admin.AdminProgramBlockPredicatesController.edit(request: Request, programId: Long, blockDefinitionId: Long)
-GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/editEligibility         controllers.admin.AdminProgramBlockPredicatesController.editEligibility(request: Request, programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/edit    controllers.admin.AdminProgramBlockPredicatesController.edit(request: Request, programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/editEligibility    controllers.admin.AdminProgramBlockPredicatesController.editEligibility(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/configureEligibility    controllers.admin.AdminProgramBlockPredicatesController.configureNewEligibilityPredicate(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/configureVisibility     controllers.admin.AdminProgramBlockPredicatesController.configureNewVisibilityPredicate(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates                         controllers.admin.AdminProgramBlockPredicatesController.update(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/eligibilityPredicates              controllers.admin.AdminProgramBlockPredicatesController.updateEligibility(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/delete                  controllers.admin.AdminProgramBlockPredicatesController.destroy(programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/deleteEligibility       controllers.admin.AdminProgramBlockPredicatesController.destroyEligibility(programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates         controllers.admin.AdminProgramBlockPredicatesController.update(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/eligibilityPredicates         controllers.admin.AdminProgramBlockPredicatesController.updateEligibility(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/delete  controllers.admin.AdminProgramBlockPredicatesController.destroy(programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/deleteEligibility  controllers.admin.AdminProgramBlockPredicatesController.destroyEligibility(programId: Long, blockDefinitionId: Long)
 
 # A controller for adding and removing questions from program blocks
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                     controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)

@@ -32,6 +32,7 @@ public final class FeatureFlags {
       "program_eligibility_conditions_enabled";
   public static final String PREDICATES_MULTIPLE_QUESTIONS_ENABLED =
       "predicates_multiple_questions_enabled";
+  public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
   private static final String USE_JS_BUNDLES = "use_js_bundles";
 
   private final Config config;
@@ -87,6 +88,16 @@ public final class FeatureFlags {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
 
+  // If the UI can show a read only view of a program. Without this flag the
+  // only way to view a program is to start editing it.
+  public boolean isReadOnlyProgramViewEnabled() {
+    return config.getBoolean(PROGRAM_READ_ONLY_VIEW_ENABLED);
+  }
+
+  public boolean isReadOnlyProgramViewEnabled(Request request) {
+    return getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED);
+  }
+
   public boolean isJsBundlingEnabled() {
     return config.getBoolean(USE_JS_BUNDLES);
   }
@@ -100,7 +111,9 @@ public final class FeatureFlags {
         PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
         isProgramEligibilityConditionsEnabled(request),
         PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
-        isPredicatesMultipleQuestionsEnabled(request));
+        isPredicatesMultipleQuestionsEnabled(request),
+        PROGRAM_READ_ONLY_VIEW_ENABLED,
+        isReadOnlyProgramViewEnabled(request));
   }
 
   /**

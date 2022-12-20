@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -62,6 +63,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
   private final ProfileUtils profileUtils;
+  private final FeatureFlags featureFlags;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
 
@@ -78,6 +80,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration,
+      FeatureFlags featureFlags,
       FileUploadViewStrategy fileUploadViewStrategy,
       IneligibleBlockView ineligibleBlockView) {
     this.applicantService = checkNotNull(applicantService);
@@ -88,6 +91,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.featureFlags = checkNotNull(featureFlags);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
@@ -395,12 +399,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
-    if (!roApplicantProgramService.isBlockEligible(blockId)) {
+    if (featureFlags.isProgramEligibilityConditionsEnabled(request)
+        && !roApplicantProgramService.isBlockEligible(blockId)) {
       return supplyAsync(
           () ->
               ok(
                   ineligibleBlockView.render(
-                      request, applicantName, messagesApi.preferred(request))));
+                      request,
+                      roApplicantProgramService.getProgramTitle(),
+                      applicantName,
+                      messagesApi.preferred(request))));
     }
 
     Optional<String> nextBlockIdMaybe =
