@@ -252,11 +252,12 @@ public interface ProgramService {
 
   /**
    * Set the visibility {@link PredicateDefinition} for a block. This predicate describes under what
-   * conditions the block should be hidden from an applicant filling out the program form.
+   * conditions the block should be shown-to or hidden-from an applicant filling out the program
+   * form.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param predicate the {@link PredicateDefinition} for hiding the block
+   * @param predicate the {@link PredicateDefinition} to set, or empty to remove an existing one.
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
@@ -264,7 +265,7 @@ public interface ProgramService {
    * @throws IllegalPredicateOrderingException if this predicate cannot be added to this block
    */
   ProgramDefinition setBlockPredicate(
-      long programId, long blockDefinitionId, PredicateDefinition predicate)
+      long programId, long blockDefinitionId, Optional<PredicateDefinition> predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException;
 

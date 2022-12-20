@@ -159,7 +159,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         PredicateDefinition.create(PredicateExpressionNode.create(leafExpression), action);
 
     try {
-      programService.setBlockPredicate(programId, blockDefinitionId, predicateDefinition);
+      programService.setBlockPredicate(
+          programId, blockDefinitionId, Optional.of(predicateDefinition));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
