@@ -9,7 +9,6 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.List;
@@ -34,18 +33,15 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ProgramCardFactory programCardFactory;
-  private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramAdministratorProgramListView(
       AdminLayoutFactory layoutFactory,
       Config config,
-      ProgramCardFactory programCardFactory,
-      FeatureFlags featureFlags) {
+      ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -72,10 +68,6 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                         .map(programCardFactory::renderCard)));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
-    if (!featureFlags.isJsBundlingEnabled()) {
-      htmlBundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
-    }
-
     return layout.renderCentered(htmlBundle);
   }
 

@@ -58,11 +58,9 @@ public final class HtmlBundle {
   private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
   private final ViewUtils viewUtils;
-  private final boolean enableJsBundles;
 
-  public HtmlBundle(ViewUtils viewUtils, boolean enableJsBundles) {
+  public HtmlBundle(ViewUtils viewUtils) {
     this.viewUtils = checkNotNull(viewUtils);
-    this.enableJsBundles = enableJsBundles;
   }
 
   public HtmlBundle addBodyStyles(String... styles) {
@@ -184,9 +182,7 @@ public final class HtmlBundle {
     if (jsBundle == null) {
       throw new IllegalStateException("JS bundle must be set for every page.");
     }
-    if (enableJsBundles) {
-      footerTag.with(viewUtils.makeLocalJsTag(jsBundle.getJsPath()));
-    }
+    footerTag.with(viewUtils.makeLocalJsTag(jsBundle.getJsPath()));
 
     if (footerStyles.size() > 0) {
       footerTag.withClasses(footerStyles.toArray(new String[0]));
