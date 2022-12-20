@@ -74,7 +74,7 @@ describe('normal application flow', () => {
     // Change export visibility of a question
     await adminQuestions.createNewVersion('dropdown-csv-download')
     await adminQuestions.gotoQuestionEditPage('dropdown-csv-download')
-    await page.click('#question-settings button:text("Remove"):visible')
+    await page.click('#question-settings button:has-text("Delete"):visible')
     await page.click('text=Update')
 
     // Add a new question so that the program has multiple versions
