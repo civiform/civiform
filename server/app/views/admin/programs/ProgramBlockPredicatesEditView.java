@@ -133,8 +133,8 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                 .url();
         break;
       case VISIBILITY:
-        modalTitle = String.format("Add a visibility condition for %s", blockName);
         predicateDef = blockDefinition.visibilityPredicate();
+        modalTitle = String.format("Add a visibility condition for %s", blockName);
         predicateTypeNameTitleCase = "Visibility";
         h2CurrentCondition = "Current visibility condition";
         textNoConditions = "This screen is always shown.";

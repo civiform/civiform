@@ -194,7 +194,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Result editBeforeResult =
         controller.editEligibility(
             addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
-    assertThat(Helpers.contentAsString(editBeforeResult)).contains("This screen is always eligible");
+    assertThat(Helpers.contentAsString(editBeforeResult))
+        .contains("This screen is always eligible");
 
     Http.Request request =
         fakeRequest()
@@ -361,7 +362,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     // For some reason the above result has an empty contents. So we test the new content of the
     // edit page manually.
     Result redirectResult =
-        controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+        controller.editEligibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always eligible");
   }
 
