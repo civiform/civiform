@@ -53,11 +53,30 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void editEligibility_withNonExistantProgram_notFound() {
+    assertThatThrownBy(
+            () ->
+                controller.editEligibility(
+                    fakeRequest().build(), /* programId= */ 1, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
   public void edit_withInvalidBlock_notFound() {
     Http.Request request = addCSRFToken(fakeRequest()).build();
     Program program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.edit(request, program.id, 543L);
+    Result result = controller.editEligibility(request, program.id, 543L);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void editEligibility_withInvalidBlock_notFound() {
+    Http.Request request = addCSRFToken(fakeRequest()).build();
+    Program program = ProgramBuilder.newDraftProgram().build();
+
+    Result result = controller.editEligibility(request, program.id, 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -67,6 +86,16 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () -> controller.edit(fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void editEligibility_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(
+            () ->
+                controller.editEligibility(
+                    fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -84,6 +113,20 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .contains(
             "There are no available questions with which to set a visibility condition for this"
                 + " screen.");
+  }
+
+  @Test
+  public void editEligibility_withFirstBlock_displaysFirstBlock() {
+    Http.Request request = addCSRFToken(fakeRequest()).build();
+
+    Result result = controller.editEligibility(request, programWithThreeBlocks.id, 1L);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("Eligibility condition for Screen 1");
+    assertThat(content).contains("The screen is always eligible");
+    assertThat(content).contains("Admin ID: applicant name");
+    assertThat(content).contains("what is your name?");
   }
 
   @Test
@@ -143,6 +186,50 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult))
         .doesNotContain("This screen is always shown.");
+  }
+
+  @Test
+  public void updateEligibility_withValidFormData_savesNewPredicate() {
+    // Test that the edit page does not display a saved predicate beforehand.
+    Result editBeforeResult =
+        controller.editEligibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+    assertThat(Helpers.contentAsString(editBeforeResult)).contains("The screen is always eligible");
+
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of(
+                    "predicateAction",
+                    "ELIGIBLE_BLOCK",
+                    "questionId",
+                    String.valueOf(testQuestionBank.applicantName().id),
+                    "scalar",
+                    "FIRST_NAME",
+                    "operator",
+                    "EQUAL_TO",
+                    "predicateValue",
+                    "Hello"))
+            .build();
+
+    Result result = controller.updateEligibility(request, programWithThreeBlocks.id, 3L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlockPredicatesController.editEligibility(
+                    programWithThreeBlocks.id, 3L)
+                .url());
+    assertThat(result.flash().get("error")).isEmpty();
+    assertThat(result.flash().get("success").get()).contains("Saved eligibility condition");
+
+    // For some reason the above result has an empty contents. So we test the new content of the
+    // edit page manually.
+    Result redirectResult =
+        controller.editEligibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+    assertThat(Helpers.contentAsString(redirectResult))
+        .doesNotContain("The screen is always eligible");
   }
 
   @Test
@@ -243,6 +330,42 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void updateEligibility_withMissingRequiredFields_doesNotSavePredicate() {
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of(
+                    "predicateAction",
+                    "",
+                    "questionId",
+                    "",
+                    "scalar",
+                    "",
+                    "operator",
+                    "",
+                    "predicateValue",
+                    ""))
+            .build();
+
+    Result result = controller.updateEligibility(request, programWithThreeBlocks.id, 3L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlockPredicatesController.editEligibility(
+                    programWithThreeBlocks.id, 3L)
+                .url());
+    assertThat(result.flash().get("error").get()).contains("Did not save eligibility condition");
+    assertThat(result.flash().get("success")).isEmpty();
+
+    // For some reason the above result has an empty contents. So we test the new content of the
+    // edit page manually.
+    Result redirectResult =
+        controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+    assertThat(Helpers.contentAsString(redirectResult)).contains("The screen is always eligible");
+  }
+
+  @Test
   public void update_withInvalidOperator_doesNotSavePredicate() {
     Http.Request request =
         fakeRequest()
@@ -279,10 +402,59 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_withActiveProgram_throws() {
+  public void updateEligibility_withInvalidOperator_doesNotSavePredicate() {
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of(
+                    "predicateAction",
+                    "ELIGIBLE_BLOCK",
+                    "questionId",
+                    "1",
+                    "scalar",
+                    "FIRST_NAME",
+                    "operator",
+                    "GREATER_THAN",
+                    "predicateValue",
+                    "Hello"))
+            .build();
+
+    Result result = controller.updateEligibility(request, programWithThreeBlocks.id, 3L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlockPredicatesController.editEligibility(
+                    programWithThreeBlocks.id, 3L)
+                .url());
+    assertThat(result.flash().get("error").get()).contains("Did not save eligibility condition");
+    assertThat(result.flash().get("error").get())
+        .contains("Cannot use operator \"is greater than\" on scalar \"first name\".");
+    assertThat(result.flash().get("success")).isEmpty();
+
+    // For some reason the above result has an empty contents. So we test the new content of the
+    // edit page manually.
+    Result redirectResult =
+        controller.editEligibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+    assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always eligible.");
+  }
+
+  @Test
+  public void update_activeProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () -> controller.update(fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void updateEligibility_activeProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(
+            () ->
+                controller.updateEligibility(
+                    fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -294,7 +466,14 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void destroy_removesPredicate() {
+  public void destroyEligibility_activeProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(() -> controller.destroyEligibility(programId, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void destroy_removesVisibilityPredicate() {
     // First add a predicate and assert its presence.
     Http.Request request =
         fakeRequest()
@@ -327,6 +506,44 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Result redirectResult =
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always shown.");
+  }
+
+  @Test
+  public void destroy_removesEligibilityPredicate() {
+    // First add a predicate and assert its presence.
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of(
+                    "predicateAction",
+                    "ELIGIBLE_BLOCK",
+                    "questionId",
+                    String.valueOf(testQuestionBank.applicantName().id),
+                    "scalar",
+                    "FIRST_NAME",
+                    "operator",
+                    "EQUAL_TO",
+                    "predicateValue",
+                    "Hello"))
+            .build();
+    Result resultWithPredicate =
+        controller.updateEligibility(request, programWithThreeBlocks.id, 1L);
+    assertThat(resultWithPredicate.flash().get("success").get())
+        .contains("Saved eligibility condition");
+
+    // Then use the destroy endpoint and confirm the predicate's absence.
+    Result resultWithoutPredicate = controller.destroyEligibility(programWithThreeBlocks.id, 1L);
+
+    assertThat(resultWithoutPredicate.status()).isEqualTo(SEE_OTHER);
+    assertThat(resultWithoutPredicate.flash().get("success").get())
+        .contains("Removed the eligibility condition for this screen.");
+
+    // For some reason the above result has an empty contents. So we test the new content of the
+    // edit page manually.
+    Result redirectResult =
+        controller.editEligibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 1L);
+    assertThat(Helpers.contentAsString(redirectResult)).contains("Apply a eligibility condition");
   }
 
   @Test
