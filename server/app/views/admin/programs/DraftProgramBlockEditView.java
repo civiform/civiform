@@ -19,6 +19,8 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.mvc.Http.HttpVerbs;
@@ -54,6 +56,10 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
+  // To avoid concurrency issues and duplication, collect all modals which this class
+  // and its children want to show in a synchronized Set.
+  private List<Modal> modals = Collections.synchronizedList(new ArrayList<Modal>());
+
   private final boolean featureFlagOptionalQuestions;
   private InputTag csrfTag;
 
@@ -72,6 +78,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
 
+    modals = Collections.synchronizedList(new ArrayList<Modal>());
     csrfTag = makeCsrfTokenInputTag(request);
     return super.render(request, programDefinition, blockForm, blockDefinition, message, questions);
   }
@@ -83,6 +90,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       BlockForm blockForm,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questions) {
+
     return super.createHtmlBundle(request, programDefinition, blockForm, blockDefinition, questions)
         .addMainContent(
             questionBankPanel(
@@ -90,7 +98,8 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
                 programDefinition,
                 blockDefinition,
                 QuestionBank.shouldShowQuestionBank(request)))
-        .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()));
+        .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()))
+        .addModals(modals);
   }
 
   @Override

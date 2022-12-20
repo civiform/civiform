@@ -13,10 +13,7 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.IntStream;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -31,7 +28,6 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.Icons;
-import views.components.Modal;
 import views.components.SvgTag;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
@@ -49,10 +45,6 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
   private final AdminLayout layout;
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
-
-  // To concurrency issues and duplication, collect all modals which this class
-  // and its children want to show in a synchronized Set.
-  protected final Set<Modal> modals;
 
   @Inject
   public ActiveProgramBlockReadOnlyView(AdminLayoutFactory layoutFactory, Config config) {
@@ -99,6 +91,9 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
     return layout.render(htmlBundle);
   }
 
+  /**
+   * Creates the html bundle for rendering the page. This method is called exactly once per render.
+   */
   protected HtmlBundle createHtmlBundle(
       Request request,
       ProgramDefinition programDefinition,
@@ -119,8 +114,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
     return layout
         .getBundle()
         .setTitle(String.format("View %s", blockDefinition.name()))
-        .addMainContent(mainContent)
-        .addModals(new ArrayList<>(modals));
+        .addMainContent(mainContent);
   }
 
   /*
@@ -221,6 +215,8 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
    * Creates a list of elements that will be shown in the block panel. The list format allows
    * subclasses to add elements to the list at various indices before the content is added to the
    * UI.
+   *
+   * <p>This method is called exactly once per render.
    */
   protected ArrayList<DomContent> prepareContentForBlockPanel(
       ProgramDefinition program,
