@@ -115,7 +115,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
         modalTitle = String.format("Add an eligibility condition for %s", blockName);
         predicateTypeNameTitleCase = "Eligibility";
         h2CurrentCondition = "Current eligibility condition";
-        textNoConditions = "The screen is always eligible.";
+        textNoConditions = "This screen is always eligible.";
         h2NewCondition = "New eligibility condition";
         textNewCondition =
             "Apply a eligibility condition using a question below. When you create a eligibility"
