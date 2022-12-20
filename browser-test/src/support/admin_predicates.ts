@@ -10,18 +10,22 @@ export class AdminPredicates {
 
   // For multi-option questions where the value is a checkbox of options, provide a comma-separated
   // list of the options you would like to check as the value. Ex: blue,red,green
+  //
+  // If action is null the action selector will not be set.
   async addPredicate(
     questionName: string,
-    action: string,
+    action: string | null,
     scalar: string,
     operator: string,
     value: string,
   ) {
     await this.page.click(`button:has-text("Admin ID: ${questionName}")`)
 
-    await this.page.selectOption('.cf-predicate-action:visible select', {
-      label: action,
-    })
+    if (action != null) {
+      await this.page.selectOption('.cf-predicate-action:visible select', {
+        label: action,
+      })
+    }
     await this.page.selectOption('.cf-scalar-select:visible select', {
       label: scalar,
     })

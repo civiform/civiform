@@ -13,6 +13,7 @@ import forms.BlockVisibilityPredicateForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -21,6 +22,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -35,8 +37,12 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockPredicatesEditView;
+import views.admin.programs.ProgramBlockPredicatesEditView.ViewType;
 
-/** Controller for admins editing and viewing program show-hide logic. */
+/**
+ * Controller for admins editing and viewing program predicates for eligibility and visibility
+ * logic.
+ */
 public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final ProgramService programService;
   private final QuestionService questionService;
@@ -75,7 +81,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               programDefinition,
               blockDefinition,
               programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
-                  blockDefinitionId)));
+                  blockDefinitionId),
+              ViewType.VISIBILITY));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -84,6 +91,32 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
   }
 
+  /**
+   * Return an HTML page containing current eligibility configurations and forms to edit the
+   * configurations.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result editEligibility(Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    try {
+      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+      return ok(
+          predicatesEditView.render(
+              request,
+              programDefinition,
+              blockDefinition,
+              programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
+                  blockDefinitionId),
+              ViewType.ELIGIBILITY));
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    }
+  }
   /** POST endpoint for updating show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockDefinitionId) {
@@ -126,7 +159,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         PredicateDefinition.create(PredicateExpressionNode.create(leafExpression), action);
 
     try {
-      programService.setBlockPredicate(programId, blockDefinitionId, predicateDefinition);
+      programService.setBlockPredicate(
+          programId, blockDefinitionId, Optional.of(predicateDefinition));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -150,6 +184,79 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 leafExpression.toDisplayString(roQuestionService.getUpToDateQuestions())));
   }
 
+  /** POST endpoint for updating eligibility configurations. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result updateEligibility(Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    Form<BlockVisibilityPredicateForm> predicateFormWrapper =
+        formFactory.form(BlockVisibilityPredicateForm.class).bindFromRequest(request);
+
+    if (predicateFormWrapper.hasErrors()) {
+      StringBuilder errorMessageBuilder = new StringBuilder("Did not save eligibility condition:");
+      predicateFormWrapper
+          .errors()
+          .forEach(error -> errorMessageBuilder.append(String.format("\n• %s", error.message())));
+
+      return redirect(
+              routes.AdminProgramBlockPredicatesController.editEligibility(
+                  programId, blockDefinitionId))
+          .flashing("error", errorMessageBuilder.toString());
+    }
+
+    // TODO(https://github.com/seattle-uat/civiform/issues/322): Implement complex predicates.
+    //  Right now we only support "leaf node" predicates (a single logical statement based on one
+    //  question). In the future we should support logical statements that combine multiple "leaf
+    //  node" predicates with ANDs and ORs.
+    BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
+
+    Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
+    Operator operator = Operator.valueOf(predicateForm.getOperator());
+    PredicateValue predicateValue =
+        parsePredicateValue(
+            scalar,
+            operator,
+            predicateForm.getPredicateValue(),
+            predicateForm.getPredicateValues());
+
+    LeafOperationExpressionNode leafExpression =
+        LeafOperationExpressionNode.create(
+            predicateForm.getQuestionId(), scalar, operator, predicateValue);
+    PredicateAction action = PredicateAction.valueOf(predicateForm.getPredicateAction());
+    PredicateDefinition predicateDefinition =
+        PredicateDefinition.create(PredicateExpressionNode.create(leafExpression), action);
+
+    try {
+      programService.setBlockEligibilityDefinition(
+          programId,
+          blockDefinitionId,
+          Optional.of(EligibilityDefinition.builder().setPredicate(predicateDefinition).build()));
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    } catch (IllegalPredicateOrderingException e) {
+      return redirect(
+              routes.AdminProgramBlockPredicatesController.editEligibility(
+                  programId, blockDefinitionId))
+          .flashing("error", e.getLocalizedMessage());
+    }
+
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+    return redirect(
+            routes.AdminProgramBlockPredicatesController.editEligibility(
+                programId, blockDefinitionId))
+        .flashing(
+            "success",
+            String.format(
+                "Saved eligibility condition: %s %s",
+                action.toDisplayString(),
+                leafExpression.toDisplayString(roQuestionService.getUpToDateQuestions())));
+  }
+
   /** POST endpoint for deleting show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockDefinitionId) {
@@ -166,6 +273,26 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     return redirect(routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
         .flashing("success", "Removed the visibility condition for this screen.");
+  }
+
+  /** POST endpoint for deleting eligibility configurations. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result destroyEligibility(long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    try {
+      programService.removeBlockEligibilityPredicate(programId, blockDefinitionId);
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    }
+
+    return redirect(
+            routes.AdminProgramBlockPredicatesController.editEligibility(
+                programId, blockDefinitionId))
+        .flashing("success", "Removed the eligibility condition for this screen.");
   }
 
   /**

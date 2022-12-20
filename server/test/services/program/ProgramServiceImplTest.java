@@ -820,7 +820,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                             AndNode.create(ImmutableSet.of(statePredicate, zipPredicate)))))),
             PredicateAction.HIDE_BLOCK);
 
-    ps.setBlockPredicate(program.id, 2L, predicate);
+    ps.setBlockPredicate(program.id, 2L, Optional.of(predicate));
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
@@ -836,11 +836,12 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 ps.setBlockPredicate(
                     p.id(),
                     100L,
-                    PredicateDefinition.create(
-                        PredicateExpressionNode.create(
-                            LeafOperationExpressionNode.create(
-                                1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-                        PredicateAction.HIDE_BLOCK)))
+                    Optional.of(
+                        PredicateDefinition.create(
+                            PredicateExpressionNode.create(
+                                LeafOperationExpressionNode.create(
+                                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                            PredicateAction.HIDE_BLOCK))))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
@@ -862,11 +863,15 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ps.setBlockPredicate(
             programId,
             2L,
-            PredicateDefinition.create(
-                PredicateExpressionNode.create(
-                    LeafOperationExpressionNode.create(
-                        question.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-                PredicateAction.HIDE_BLOCK));
+            Optional.of(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.CITY,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of(""))),
+                    PredicateAction.HIDE_BLOCK)));
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
@@ -891,7 +896,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     // This predicate depends on a question that doesn't exist in a prior block.
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
-        .isThrownBy(() -> ps.setBlockPredicate(program.id(), 2L, predicate))
+        .isThrownBy(() -> ps.setBlockPredicate(program.id(), 2L, Optional.of(predicate)))
         .withMessage("This action would invalidate a block condition");
   }
 
@@ -914,7 +919,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     Operator.EQUAL_TO,
                     PredicateValue.of(""))),
             PredicateAction.HIDE_BLOCK);
-    ps.setBlockPredicate(program.id, 2L, predicate);
+    ps.setBlockPredicate(program.id, 2L, Optional.of(predicate));
 
     ProgramDefinition foundWithPredicate = ps.getProgramDefinition(program.id);
     assertThat(foundWithPredicate.blockDefinitions().get(1).visibilityPredicate())

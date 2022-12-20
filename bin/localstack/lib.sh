@@ -22,6 +22,6 @@ function localstack::run_command() {
     -e "AWS_ACCESS_KEY_ID=test" \
     -e "AWS_SECRET_ACCESS_KEY=test" \
     amazon/aws-cli \
-    --endpoint-url="http://localstack:4566" \
+    --endpoint-url="http://localhost.localstack.cloud:4566" \
     $localstack_command
 }

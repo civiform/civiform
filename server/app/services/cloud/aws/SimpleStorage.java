@@ -11,6 +11,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.mockito.Mockito;
@@ -21,6 +22,7 @@ import services.cloud.StorageServiceName;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
@@ -207,7 +209,16 @@ public class SimpleStorage implements StorageClient {
 
     @Override
     public String bucketAddress() {
-      return String.join("/", localEndpoint, bucket);
+      try {
+        return S3EndpointProvider.defaultProvider()
+            .resolveEndpoint(
+                (builder) -> builder.endpoint(localEndpoint).bucket(bucket).region(region))
+            .get()
+            .url()
+            .toString();
+      } catch (ExecutionException | InterruptedException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     @Override
