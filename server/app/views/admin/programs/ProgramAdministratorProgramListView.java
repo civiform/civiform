@@ -36,9 +36,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
 
   @Inject
   public ProgramAdministratorProgramListView(
-      AdminLayoutFactory layoutFactory,
-      Config config,
-      ProgramCardFactory programCardFactory) {
+      AdminLayoutFactory layoutFactory, Config config, ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.programCardFactory = checkNotNull(programCardFactory);

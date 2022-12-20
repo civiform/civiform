@@ -67,8 +67,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final Messages enUsMessages;
 
   @Inject
-  public ProgramApplicationView(
-      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages) {
+  public ProgramApplicationView(BaseHtmlLayout layout, @EnUsLang Messages enUsMessages) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
   }
