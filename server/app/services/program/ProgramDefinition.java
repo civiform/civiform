@@ -151,6 +151,7 @@ public abstract class ProgramDefinition {
    * that appears after it.
    */
   public boolean hasValidPredicateOrdering() {
+    // TODO(#3744): Update for eligibility predicates.
     Set<Long> previousQuestionIds = new HashSet<>();
     for (BlockDefinition b : blockDefinitions()) {
       // Check that all the predicate questions exist before this block.
