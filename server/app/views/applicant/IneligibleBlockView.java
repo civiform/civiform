@@ -15,7 +15,7 @@ import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.style.ApplicantStyles;
 
-public class IneligibleBlockView extends ApplicationBaseView {
+public final class IneligibleBlockView extends ApplicationBaseView {
 
   private final ApplicantLayout layout;
 
