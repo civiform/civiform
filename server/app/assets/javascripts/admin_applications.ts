@@ -247,4 +247,6 @@ interface EditNoteData {
   note: string
 }
 
-window.addEventListener('load', () => new AdminApplications())
+export function init() {
+  new AdminApplications()
+}

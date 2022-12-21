@@ -109,4 +109,6 @@ class AzureUploadController {
 }
 /* eslint-enable  @typescript-eslint/no-explicit-any */
 
-window.addEventListener('load', () => new AzureUploadController())
+export function init() {
+  new AzureUploadController()
+}

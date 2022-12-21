@@ -390,7 +390,7 @@ function disableEnterToSubmitBehaviorOnForms() {
   })
 }
 
-window.addEventListener('load', () => {
+export function init() {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
     attachDropdown(el.id)
@@ -464,4 +464,4 @@ window.addEventListener('load', () => {
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
-})
+}
