@@ -68,9 +68,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   @Inject
   public ProgramApplicationView(
-      BaseHtmlLayout layout,
-      @EnUsLang Messages enUsMessages,
-      DateConverter dateConverter) {
+      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
