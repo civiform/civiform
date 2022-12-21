@@ -72,7 +72,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void canAddContentBefore() {
-    HtmlBundle bundle = new HtmlBundle(instanceOf(ViewUtils.class), /* enableJsBundles= */ true);
+    HtmlBundle bundle = new HtmlBundle(instanceOf(ViewUtils.class));
 
     // Add stylesheet before default.
     LinkTag linkTag = link().withHref("moose.css").withRel("stylesheet");
