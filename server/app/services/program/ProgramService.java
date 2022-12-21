@@ -264,7 +264,7 @@ public interface ProgramService {
    *     real Block.
    * @throws IllegalPredicateOrderingException if this predicate cannot be added to this block
    */
-  ProgramDefinition setBlockPredicate(
+  ProgramDefinition setBlockVisibilityPredicate(
       long programId, long blockDefinitionId, Optional<PredicateDefinition> predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException;
