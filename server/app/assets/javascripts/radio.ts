@@ -81,5 +81,7 @@ class RadioController {
   }
 }
 
-window.addEventListener('pageshow', () => RadioController.initializeRadios())
-new RadioController()
+export function init() {
+  window.addEventListener('pageshow', () => RadioController.initializeRadios())
+  new RadioController()
+}

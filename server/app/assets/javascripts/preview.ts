@@ -438,4 +438,6 @@ class PreviewController {
   }
 }
 
-new PreviewController()
+export function init() {
+  new PreviewController()
+}
