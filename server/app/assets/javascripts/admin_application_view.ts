@@ -198,4 +198,6 @@ class AdminApplicationView {
   }
 }
 
-window.addEventListener('load', () => new AdminApplicationView())
+export function init() {
+  new AdminApplicationView()
+}

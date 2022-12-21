@@ -1,6 +1,6 @@
 const UPLOAD_ATTR = 'data-upload-text'
 
-window.addEventListener('load', () => {
+export function init() {
   // Prevent attempting to submit a file upload form
   // if no file has been selected. Note: For optional
   // file uploads, a distinct skip button is shown.
@@ -28,7 +28,7 @@ window.addEventListener('load', () => {
       })
     }
   }
-})
+}
 
 let wasSetInvalid = false
 
