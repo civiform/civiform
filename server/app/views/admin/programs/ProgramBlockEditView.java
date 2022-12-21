@@ -22,6 +22,7 @@ import j2html.tags.specialized.InputTag;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -101,11 +102,12 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       Request request,
       ProgramDefinition programDefinition,
       long blockId,
-      BlockForm blockForm,
+      @Nullable BlockForm blockForm,
       BlockDefinition blockDefinition,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
+
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     String title = String.format("Edit %s", blockDefinition.name());
 

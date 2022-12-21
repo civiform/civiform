@@ -35,6 +35,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
   private final ProgramService programService;
   private final ProgramBlockEditView editView;
+  //private final ProgramBlockReadOnlyView readOnlyView;
   private final QuestionService questionService;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
@@ -127,7 +128,27 @@ public final class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
-  /** POST endpoint for updating a screen (block) for the program. */
+  /**
+   * Return a HTML page displaying all configurations of the specified program screen (block) and
+   * forms to view them. Does not allow updating
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result view(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotActive(programId);
+
+    try {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+
+      Optional<ToastMessage> maybeToastMessage =
+        request.flash().get("success").map(ToastMessage::success);
+      return renderReadOnlyViewWithMessage(request, program, block, maybeToastMessage);
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      return notFound(e.toString());
+    }
+  }
+
+      /** POST endpoint for updating a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
@@ -184,6 +205,25 @@ public final class AdminProgramBlocksController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.index(programId));
   }
 
+  // TODO(jhummel) continue implementing when todo below is done and message signatures are simplified
+  // including my pending change. All render view messages could potentially be one method
+  private Result renderReadOnlyViewWithMessage(
+        Request request,
+        ProgramDefinition program,
+        BlockDefinition block,
+        Optional<ToastMessage> message) {
+
+        ReadOnlyQuestionService roQuestionService =
+          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+        // TODO(jhummel) use a read only view
+        return ok(
+          editView.render(
+            request, program, block, message, roQuestionService.getUpToDateQuestions()));
+  }
+
+  // TODO(jhummel) remove one of the methods for renderEditViewWithMessage and one of the
+  // render methods in ProgramBlockEditView to simplify (wait for other code change)
   private Result renderEditViewWithMessage(
       Request request,
       ProgramDefinition program,

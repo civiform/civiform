@@ -149,6 +149,32 @@ public final class AdminProgramController extends CiviFormController {
     }
   }
 
+  /** POST endpoint for creating a new draft version of the program. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result activeVersion(Request request, long id) {
+    try {
+      // If there's already a draft then use that, likely the client is out of date and unaware a
+      // draft exists.
+      // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
+      Optional<Program> existingDraft =
+        versionRepository
+          .getDraftVersion()
+          .getProgramByName(programService.getProgramDefinition(id).adminName());
+      final Long idToEdit;
+      if (existingDraft.isPresent()) {
+        idToEdit = existingDraft.get().id;
+      } else {
+        // Make a new draft from the provided id.
+        idToEdit = programService.newDraftOf(id).id();
+      }
+      return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(idToEdit, 1));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (Exception e) {
+      return badRequest(e.toString());
+    }
+  }
+
   /** POST endpoint for updating the program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId) throws ProgramNotFoundException {
