@@ -39,8 +39,8 @@ export class BrowserErrorWatcher {
 
     // Catch requests failed due to 4xx or 5xx responses.
     page.on('requestfinished', (request) => {
-      try {
-        void request.response().then((response) => {
+      void request.response().then(
+        (response) => {
           if (response == null) return
           const statusCode = response.status()
           if (statusCode >= 400 && statusCode < 600) {
@@ -49,11 +49,12 @@ export class BrowserErrorWatcher {
               url: request.url(),
             })
           }
-        })
-      } catch (e) {
-        // do nothing. Sometimes we are getting error like:
-        // request.response: Target page, context or browser has been closed
-      }
+        },
+        () => {
+          // do nothing. Sometimes we are getting error like:
+          // request.response: Target page, context or browser has been closed
+        },
+      )
     })
   }
 
