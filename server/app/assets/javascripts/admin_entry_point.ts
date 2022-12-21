@@ -15,10 +15,10 @@ import * as devIcons from './dev_icons'
 import * as modal from './modal'
 import * as questionBank from './questionBank'
 import * as preview from './preview'
-import * as enumerator from './enumerator';
-import * as fileUpload from './file_upload';
-import * as azureDelete from './azure_delete';
-import * as azureUpload from './azure_upload';
+import * as enumerator from './enumerator'
+import * as fileUpload from './file_upload'
+import * as azureDelete from './azure_delete'
+import * as azureUpload from './azure_upload'
 
 window.addEventListener('load', () => {
   main.init()

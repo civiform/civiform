@@ -105,4 +105,3 @@ class AdminValidationController {
 export function init() {
   new AdminValidationController()
 }
-
