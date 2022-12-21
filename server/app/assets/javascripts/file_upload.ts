@@ -1,9 +1,14 @@
+const UPLOAD_ATTR = 'data-upload-text'
+
 window.addEventListener('load', () => {
   // Prevent attempting to submit a file upload form
   // if no file has been selected. Note: For optional
   // file uploads, a distinct skip button is shown.
   const blockForm = document.getElementById('cf-block-form')
+
   if (blockForm) {
+    const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
+
     blockForm.addEventListener('submit', (event) => {
       if (!validateFileUploadQuestions(blockForm)) {
         event.preventDefault()
@@ -11,6 +16,17 @@ window.addEventListener('load', () => {
       }
       return true
     })
+
+    if (uploadedDivs.length) {
+      const uploadedDiv = uploadedDivs[0]
+      const uploadText = uploadedDiv.getAttribute(UPLOAD_ATTR)
+
+      blockForm.addEventListener('change', (event) => {
+        if (uploadedDiv.innerHTML) return
+        const file = (<HTMLInputElement>event.target).files[0]
+        uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
+      })
+    }
   }
 })
 
