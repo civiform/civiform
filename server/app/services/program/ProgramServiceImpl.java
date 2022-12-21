@@ -675,7 +675,7 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setBlockPredicate(
+  public ProgramDefinition setBlockVisibilityPredicate(
       long programId, long blockDefinitionId, Optional<PredicateDefinition> predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
@@ -710,7 +710,8 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition removeBlockPredicate(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     try {
-      return setBlockPredicate(programId, blockDefinitionId, /* predicate= */ Optional.empty());
+      return setBlockVisibilityPredicate(
+          programId, blockDefinitionId, /* predicate= */ Optional.empty());
     } catch (IllegalPredicateOrderingException e) {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
