@@ -19,7 +19,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testSetTitle() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
     bundle.setTitle("My title").setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
@@ -28,7 +28,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testFavicon() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
     bundle.setFavicon("www.civiform.com/favicon").setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
@@ -37,7 +37,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testNoFavicon() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
 
     bundle.setJsBundle(JsBundle.APPLICANT);
     Content content = bundle.render();
@@ -46,37 +46,25 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void emptyBundleRendersOutline() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
 
     bundle.setJsBundle(JsBundle.APPLICANT);
     Content content = bundle.render();
     assertThat(content.body())
-        .contains(
+        .containsPattern(
             "<body><header></header><main></main><div id=\"modal-container\" class=\"hidden fixed"
                 + " h-screen w-screen z-20\"><div id=\"modal-glass-pane\" class=\"fixed h-screen"
-                + " w-screen bg-gray-400 opacity-75\"></div></div><footer></footer></body>");
+                + " w-screen bg-gray-400 opacity-75\"></div></div><footer><script src=\"/assets/"
+                + "javascripts/[a-z0-9]+-applicant.bundle.js\" type=\"text/javascript\"></script>"
+                + "</footer></body>");
   }
 
   @Test
   public void rendersContentInOrder() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
     bundle.addMainContent(div("One")).addMainContent(div("Two")).setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
     assertThat(content.body()).contains("<main><div>One</div><div>Two</div></main>");
-  }
-
-  @Test
-  public void renderWithJsBundlesDisabled() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ false);
-    Content content = bundle.setJsBundle(JsBundle.APPLICANT).render();
-    assertThat(content.body()).doesNotContain("applicant.bundle.js");
-  }
-
-  @Test
-  public void renderWithJsBundlesEnabled() {
-    HtmlBundle bundle = new HtmlBundle(viewUtils, /* enableJsBundles= */ true);
-    Content content = bundle.setJsBundle(JsBundle.APPLICANT).render();
-    assertThat(content.body()).contains("applicant.bundle.js");
   }
 }

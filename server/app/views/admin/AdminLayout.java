@@ -37,8 +37,6 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   private final NavPage activeNavPage;
 
-  private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank", "admin_validation"};
-
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
   AdminLayout(
@@ -68,12 +66,6 @@ public final class AdminLayout extends BaseHtmlLayout {
     bundle.addMainStyles(
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
-
-    if (!featureFlags.isJsBundlingEnabled()) {
-      for (String source : FOOTER_SCRIPTS) {
-        bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
-      }
-    }
 
     return super.render(bundle);
   }

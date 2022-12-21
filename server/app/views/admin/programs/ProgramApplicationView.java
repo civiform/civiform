@@ -18,7 +18,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
-import featureflags.FeatureFlags;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -65,18 +64,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
   public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
-  private final FeatureFlags featureFlags;
   private final DateConverter dateConverter;
 
   @Inject
   public ProgramApplicationView(
       BaseHtmlLayout layout,
       @EnUsLang Messages enUsMessages,
-      FeatureFlags featureFlags,
       DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
-    this.featureFlags = checkNotNull(featureFlags);
     this.dateConverter = checkNotNull(dateConverter);
   }
 
@@ -160,9 +156,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .setJsBundle(JsBundle.ADMIN);
-    if (!featureFlags.isJsBundlingEnabled()) {
-      htmlBundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
-    }
     Optional<String> maybeSuccessMessage = request.flash().get("success");
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
