@@ -435,7 +435,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         .with(
             asRedirectElement(
                 editScreenButton,
-                routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockId).url()));
+                routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockId)
+                    .url()));
   }
 
   private DivTag renderEligibilityPredicate(

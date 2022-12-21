@@ -85,7 +85,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void edit_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
-            () -> controller.editVisibility(fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+            () ->
+                controller.editVisibility(
+                    fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -152,7 +154,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void update_withValidFormData_savesNewPredicate() {
     // Test that the edit page does not display a saved predicate beforehand.
     Result editBeforeResult =
-        controller.editVisibility(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+        controller.editVisibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(editBeforeResult)).contains("This screen is always shown.");
 
     Http.Request request =
@@ -176,14 +179,17 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.AdminProgramBlockPredicatesController.editVisibility(programWithThreeBlocks.id, 3L).url());
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                    programWithThreeBlocks.id, 3L)
+                .url());
     assertThat(result.flash().get("error")).isEmpty();
     assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
 
     // For some reason the above result has an empty contents. So we test the new content of the
     // edit page manually.
     Result redirectResult =
-        controller.editVisibility(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+        controller.editVisibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult))
         .doesNotContain("This screen is always shown.");
   }
@@ -256,7 +262,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.AdminProgramBlockPredicatesController.editVisibility(programWithThreeBlocks.id, 3L).url());
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                    programWithThreeBlocks.id, 3L)
+                .url());
     assertThat(result.flash().get("error")).isEmpty();
     assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
   }
@@ -284,14 +292,17 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.AdminProgramBlockPredicatesController.editVisibility(programWithThreeBlocks.id, 3L).url());
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                    programWithThreeBlocks.id, 3L)
+                .url());
     assertThat(result.flash().get("error")).isEmpty();
     assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
 
     // For some reason the above result has an empty contents. So we test the new content of the
     // edit page manually.
     Result redirectResult =
-        controller.editVisibility(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+        controller.editVisibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult))
         .doesNotContain("This screen is always shown.");
   }
@@ -319,14 +330,17 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.AdminProgramBlockPredicatesController.editVisibility(programWithThreeBlocks.id, 3L).url());
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                    programWithThreeBlocks.id, 3L)
+                .url());
     assertThat(result.flash().get("error").get()).contains("Did not save visibility condition");
     assertThat(result.flash().get("success")).isEmpty();
 
     // For some reason the above result has an empty contents. So we test the new content of the
     // edit page manually.
     Result redirectResult =
-        controller.editVisibility(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+        controller.editVisibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always shown.");
   }
 
@@ -390,7 +404,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.AdminProgramBlockPredicatesController.editVisibility(programWithThreeBlocks.id, 3L).url());
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                    programWithThreeBlocks.id, 3L)
+                .url());
     assertThat(result.flash().get("error").get()).contains("Did not save visibility condition");
     assertThat(result.flash().get("error").get())
         .contains("Cannot use operator \"is greater than\" on scalar \"first name\".");
@@ -399,7 +415,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     // For some reason the above result has an empty contents. So we test the new content of the
     // edit page manually.
     Result redirectResult =
-        controller.editVisibility(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+        controller.editVisibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always shown.");
   }
 
@@ -446,7 +463,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void update_activeProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
-            () -> controller.updateVisibility(fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
+            () ->
+                controller.updateVisibility(
+                    fakeRequest().build(), programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 
@@ -492,7 +511,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     "predicateValue",
                     "Hello"))
             .build();
-    Result resultWithPredicate = controller.updateVisibility(request, programWithThreeBlocks.id, 3L);
+    Result resultWithPredicate =
+        controller.updateVisibility(request, programWithThreeBlocks.id, 3L);
     assertThat(resultWithPredicate.flash().get("success").get())
         .contains("Saved visibility condition");
 
@@ -506,7 +526,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     // For some reason the above result has an empty contents. So we test the new content of the
     // edit page manually.
     Result redirectResult =
-        controller.editVisibility(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+        controller.editVisibility(
+            addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always shown.");
   }
 

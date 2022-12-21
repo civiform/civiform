@@ -132,7 +132,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           .forEach(error -> errorMessageBuilder.append(String.format("\n• %s", error.message())));
 
       return redirect(
-              routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockDefinitionId))
+              routes.AdminProgramBlockPredicatesController.editVisibility(
+                  programId, blockDefinitionId))
           .flashing("error", errorMessageBuilder.toString());
     }
 
@@ -168,14 +169,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (IllegalPredicateOrderingException e) {
       return redirect(
-              routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockDefinitionId))
+              routes.AdminProgramBlockPredicatesController.editVisibility(
+                  programId, blockDefinitionId))
           .flashing("error", e.getLocalizedMessage());
     }
 
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
-    return redirect(routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockDefinitionId))
+    return redirect(
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                programId, blockDefinitionId))
         .flashing(
             "success",
             String.format(
@@ -271,7 +275,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     }
 
-    return redirect(routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockDefinitionId))
+    return redirect(
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                programId, blockDefinitionId))
         .flashing("success", "Removed the visibility condition for this screen.");
   }
 
