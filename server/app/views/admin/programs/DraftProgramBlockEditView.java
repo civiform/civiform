@@ -19,6 +19,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,11 +57,9 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
-  // To avoid concurrency issues and duplication, collect all modals which this class
-  // and its children want to show in a synchronized Set.
-  private List<Modal> modals = Collections.synchronizedList(new ArrayList<Modal>());
-
   private final boolean featureFlagOptionalQuestions;
+
+  private Optional<Modal> blockDescriptionEditModal = Optional.empty();
   private InputTag csrfTag;
 
   @Inject
@@ -78,7 +77,12 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
 
-    modals = Collections.synchronizedList(new ArrayList<Modal>());
+    if(blockDescriptionEditModal.isEmpty()) {
+      String blockUpdateAction = controllers.admin.routes.AdminProgramBlocksController
+        .update( programDefinition.id(), blockDefinition.id()) .url();
+      blockDescriptionEditModal = Optional.of(blockDescriptionModal(blockForm, blockUpdateAction));
+    }
+
     csrfTag = makeCsrfTokenInputTag(request);
     return super.render(request, programDefinition, blockForm, blockDefinition, message, questions);
   }
@@ -91,15 +95,19 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questions) {
 
-    return super.createHtmlBundle(request, programDefinition, blockForm, blockDefinition, questions)
-        .addMainContent(
-            questionBankPanel(
-                questions,
-                programDefinition,
-                blockDefinition,
-                QuestionBank.shouldShowQuestionBank(request)))
-        .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()))
-        .addModals(modals);
+    HtmlBundle htmlBundle = super.createHtmlBundle(request, programDefinition,
+      blockForm, blockDefinition, questions);
+    htmlBundle.addMainContent(
+        questionBankPanel(
+          questions,
+          programDefinition,
+          blockDefinition,
+          QuestionBank.shouldShowQuestionBank(request)))
+      .addMainContent(
+        addFormEndpoints(programDefinition.id(), blockDefinition.id()));
+    blockDescriptionEditModal.ifPresent(htmlBundle::addModals);
+
+    return htmlBundle;
   }
 
   @Override
@@ -140,8 +148,6 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
         controllers.admin.routes.AdminProgramBlocksController.update(
                 program.id(), blockDefinition.id())
             .url();
-    Modal blockDescriptionEditModal = blockDescriptionModal(blockForm, blockUpdateAction);
-    modals.add(blockDescriptionEditModal);
 
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
@@ -150,7 +156,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
-    buttons.with(blockDescriptionEditModal.getButton());
+    blockDescriptionEditModal.ifPresent(modal -> buttons.with(modal.getButton()));
     if (blockDefinition.isEnumerator()) {
       buttons.with(
           button("Create repeated screen")
