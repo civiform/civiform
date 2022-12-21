@@ -298,16 +298,26 @@ export const setLangEsUS = async (page: Page) => {
   await page.click('text=Submit')
 }
 
-export const loginAsTestUser = async (page: Page) => {
+/**
+ * Logs in via an auth provider.
+ * @param loginButton Selector of a button on current page that starts auth
+ *     login. Normally it's "Log in" button on main page, but in some cases
+ *     login can be initiated from different pages, for example after program
+ *     submission.
+ */
+export const loginAsTestUser = async (
+  page: Page,
+  loginButton = 'button:has-text("Log in")',
+) => {
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:
-      await loginAsTestUserFakeOidc(page)
+      await loginAsTestUserFakeOidc(page, loginButton)
       break
     case AuthStrategy.AWS_STAGING:
-      await loginAsTestUserAwsStaging(page)
+      await loginAsTestUserAwsStaging(page, loginButton)
       break
     case AuthStrategy.SEATTLE_STAGING:
-      await loginAsTestUserSeattleStaging(page)
+      await loginAsTestUserSeattleStaging(page, loginButton)
       break
     default:
       throw new Error(
@@ -320,8 +330,8 @@ export const loginAsTestUser = async (page: Page) => {
   )
 }
 
-async function loginAsTestUserSeattleStaging(page: Page) {
-  await page.click('#idcs')
+async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
+  await page.click(loginButton)
   // Wait for the IDCS login page to make sure we've followed all redirects.
   // If running this against a site with a real IDCS (i.e. staging) and this
   // test fails with a timeout try re-running the tests. Sometimes there are
@@ -334,10 +344,10 @@ async function loginAsTestUserSeattleStaging(page: Page) {
   await page.waitForNavigation({waitUntil: 'networkidle'})
 }
 
-async function loginAsTestUserAwsStaging(page: Page) {
+async function loginAsTestUserAwsStaging(page: Page, loginButton: string) {
   await Promise.all([
     page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
-    page.click('button:has-text("Log in")'),
+    page.click(loginButton),
   ])
 
   await page.fill('input[name=username]', TEST_USER_LOGIN)
@@ -348,10 +358,10 @@ async function loginAsTestUserAwsStaging(page: Page) {
   ])
 }
 
-async function loginAsTestUserFakeOidc(page: Page) {
+async function loginAsTestUserFakeOidc(page: Page, loginButton: string) {
   await Promise.all([
     page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
-    page.click('button:has-text("Log in")'),
+    page.click(loginButton),
   ])
 
   // If the user has previously signed in to the provider, a prompt is shown
@@ -364,10 +374,9 @@ async function loginAsTestUserFakeOidc(page: Page) {
       'the client is asking you to confirm previously given authorization',
     )
   ) {
-    return Promise.all([
-      page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
-      page.click('button:has-text("Continue")'),
-    ])
+    throw new Error(
+      'Unexpected reauthorization page. Central logout should fully logout user.',
+    )
   }
 
   await page.fill('input[name=login]', TEST_USER_LOGIN)

@@ -69,7 +69,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * configurations.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Request request, long programId, long blockDefinitionId) {
+  public Result editVisibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
@@ -119,7 +119,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   }
   /** POST endpoint for updating show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Request request, long programId, long blockDefinitionId) {
+  public Result updateVisibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
@@ -132,7 +132,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           .forEach(error -> errorMessageBuilder.append(String.format("\n• %s", error.message())));
 
       return redirect(
-              routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+              routes.AdminProgramBlockPredicatesController.editVisibility(
+                  programId, blockDefinitionId))
           .flashing("error", errorMessageBuilder.toString());
     }
 
@@ -159,7 +160,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         PredicateDefinition.create(PredicateExpressionNode.create(leafExpression), action);
 
     try {
-      programService.setBlockPredicate(
+      programService.setBlockVisibilityPredicate(
           programId, blockDefinitionId, Optional.of(predicateDefinition));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
@@ -168,14 +169,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (IllegalPredicateOrderingException e) {
       return redirect(
-              routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+              routes.AdminProgramBlockPredicatesController.editVisibility(
+                  programId, blockDefinitionId))
           .flashing("error", e.getLocalizedMessage());
     }
 
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
-    return redirect(routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+    return redirect(
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                programId, blockDefinitionId))
         .flashing(
             "success",
             String.format(
@@ -259,7 +263,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
   /** POST endpoint for deleting show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result destroy(long programId, long blockDefinitionId) {
+  public Result destroyVisibility(long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
@@ -271,7 +275,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     }
 
-    return redirect(routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+    return redirect(
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                programId, blockDefinitionId))
         .flashing("success", "Removed the visibility condition for this screen.");
   }
 

@@ -25,8 +25,6 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.SelectTag;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -35,6 +33,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.Block;
@@ -65,11 +64,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
   public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
+  private final DateConverter dateConverter;
 
   @Inject
-  public ProgramApplicationView(BaseHtmlLayout layout, @EnUsLang Messages enUsMessages) {
+  public ProgramApplicationView(
+      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   public Content render(
@@ -191,8 +193,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private DivTag renderAnswer(long programId, AnswerData answerData) {
-    LocalDate date =
-        Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
+    String date = dateConverter.renderDate(Instant.ofEpochMilli(answerData.timestamp()));
     DivTag answerContent;
     if (answerData.encodedFileKey().isPresent()) {
       String encodedFileKey = answerData.encodedFileKey().get();
@@ -215,7 +216,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .with(p().withClasses("flex-grow"))
         .with(
             div("Answered on " + date)
-                .withClasses("flex-auto", "text-right", "font-light", "text-xs"));
+                .withClasses(
+                    ReferenceClasses.BT_DATE, "flex-auto", "text-right", "font-light", "text-xs"));
   }
 
   private DivTag renderStatusOptionsSelector(

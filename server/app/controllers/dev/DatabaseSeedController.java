@@ -424,7 +424,7 @@ public class DatabaseSeedController extends DevController {
           PredicateDefinition.create(
               PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
       programDefinition =
-          programService.setBlockPredicate(programId, blockId, Optional.of(predicate));
+          programService.setBlockVisibilityPredicate(programId, blockId, Optional.of(predicate));
 
       // Add file upload as optional to make local testing easier.
       blockId =

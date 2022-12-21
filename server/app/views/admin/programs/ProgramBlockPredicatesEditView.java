@@ -146,11 +146,11 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             "There are no available questions with which to set a visibility condition for this"
                 + " screen.";
         predicateUpdateUrl =
-            routes.AdminProgramBlockPredicatesController.update(
+            routes.AdminProgramBlockPredicatesController.updateVisibility(
                     programDefinition.id(), blockDefinition.id())
                 .url();
         removePredicateUrl =
-            routes.AdminProgramBlockPredicatesController.destroy(
+            routes.AdminProgramBlockPredicatesController.destroyVisibility(
                     programDefinition.id(), blockDefinition.id())
                 .url();
         break;
