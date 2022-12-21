@@ -112,7 +112,7 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
             "There are no available questions with which to set a visibility condition for this"
                 + " screen.";
         removePredicateUrl =
-            routes.AdminProgramBlockPredicatesController.destroy(
+            routes.AdminProgramBlockPredicatesController.destroyVisibility(
                     programDefinition.id(), blockDefinition.id())
                 .url();
         configurePredicateUrl =

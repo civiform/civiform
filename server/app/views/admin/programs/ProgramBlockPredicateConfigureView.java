@@ -113,11 +113,11 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
           typeDisplayName = "visibility";
           existingPredicate = blockDefinition.visibilityPredicate();
           formActionUrl =
-              routes.AdminProgramBlockPredicatesController.update(
+              routes.AdminProgramBlockPredicatesController.updateVisibility(
                       programDefinition.id(), blockDefinition.id())
                   .url();
           editPredicateUrl =
-              routes.AdminProgramBlockPredicatesController.edit(
+              routes.AdminProgramBlockPredicatesController.editVisibility(
                       programDefinition.id(), blockDefinition.id())
                   .url();
           break;

@@ -132,4 +132,6 @@ class QuestionBankController {
   }
 }
 
-new QuestionBankController()
+export function init() {
+  new QuestionBankController()
+}

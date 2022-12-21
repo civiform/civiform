@@ -32,4 +32,6 @@ class AccordionController {
   }
 }
 
-new AccordionController()
+export function init() {
+  new AccordionController()
+}

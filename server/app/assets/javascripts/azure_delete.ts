@@ -45,4 +45,6 @@ class AzureDeleteController {
   }
 }
 
-window.addEventListener('load', () => new AzureDeleteController())
+export function init() {
+  new AzureDeleteController()
+}

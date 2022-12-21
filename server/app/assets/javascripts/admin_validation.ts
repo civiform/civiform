@@ -102,4 +102,6 @@ class AdminValidationController {
   }
 }
 
-new AdminValidationController()
+export function init() {
+  new AdminValidationController()
+}

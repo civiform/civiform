@@ -65,6 +65,6 @@ class AdminPrograms {
   }
 }
 
-window.addEventListener('load', () => {
+export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
-})
+}
