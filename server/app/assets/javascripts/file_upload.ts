@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 const UPLOAD_ATTR = 'data-upload-text'
 
->>>>>>> main
 export function init() {
   // Prevent attempting to submit a file upload form
   // if no file has been selected. Note: For optional

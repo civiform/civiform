@@ -38,7 +38,6 @@ async function tryCopyToClipboard(content: string): Promise<boolean> {
   }
 }
 
-<<<<<<< HEAD
 async function copyProgramLinkToClipboard(programLink: string) {
   const succeeded = await tryCopyToClipboard(programLink)
   if (succeeded) {
@@ -64,8 +63,4 @@ async function copyProgramLinkToClipboard(programLink: string) {
 
 export function init() {
   attachCopyProgramLinkListeners()
-=======
-export function init() {
-  AdminPrograms.attachCopyProgramLinkListeners()
->>>>>>> main
 }
