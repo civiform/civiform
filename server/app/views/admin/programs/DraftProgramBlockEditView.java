@@ -19,9 +19,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.mvc.Http.HttpVerbs;
@@ -77,9 +74,11 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
 
-    if(blockDescriptionEditModal.isEmpty()) {
-      String blockUpdateAction = controllers.admin.routes.AdminProgramBlocksController
-        .update( programDefinition.id(), blockDefinition.id()) .url();
+    if (blockDescriptionEditModal.isEmpty()) {
+      String blockUpdateAction =
+          controllers.admin.routes.AdminProgramBlocksController.update(
+                  programDefinition.id(), blockDefinition.id())
+              .url();
       blockDescriptionEditModal = Optional.of(blockDescriptionModal(blockForm, blockUpdateAction));
     }
 
@@ -95,16 +94,16 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questions) {
 
-    HtmlBundle htmlBundle = super.createHtmlBundle(request, programDefinition,
-      blockForm, blockDefinition, questions);
-    htmlBundle.addMainContent(
-        questionBankPanel(
-          questions,
-          programDefinition,
-          blockDefinition,
-          QuestionBank.shouldShowQuestionBank(request)))
-      .addMainContent(
-        addFormEndpoints(programDefinition.id(), blockDefinition.id()));
+    HtmlBundle htmlBundle =
+        super.createHtmlBundle(request, programDefinition, blockForm, blockDefinition, questions);
+    htmlBundle
+        .addMainContent(
+            questionBankPanel(
+                questions,
+                programDefinition,
+                blockDefinition,
+                QuestionBank.shouldShowQuestionBank(request)))
+        .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()));
     blockDescriptionEditModal.ifPresent(htmlBundle::addModals);
 
     return htmlBundle;
