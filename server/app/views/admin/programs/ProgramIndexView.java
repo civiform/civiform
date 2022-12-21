@@ -132,9 +132,6 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
             .addModals(demographicsCsvModal);
-    if (!featureFlags.isJsBundlingEnabled()) {
-      htmlBundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
-    }
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
     Http.Flash flash = request.flash();

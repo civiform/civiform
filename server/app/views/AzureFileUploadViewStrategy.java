@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
@@ -16,12 +15,10 @@ import services.cloud.azure.BlobStorageUploadRequest;
 public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
   private final ViewUtils viewUtils;
-  private final FeatureFlags featureFlags;
 
   @Inject
-  AzureFileUploadViewStrategy(ViewUtils viewUtils, FeatureFlags featureFlags) {
+  AzureFileUploadViewStrategy(ViewUtils viewUtils) {
     this.viewUtils = checkNotNull(viewUtils);
-    this.featureFlags = checkNotNull(featureFlags);
   }
 
   @Override
@@ -72,13 +69,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   protected ImmutableList<ScriptTag> extraScriptTags() {
-    ImmutableList.Builder<ScriptTag> builder = ImmutableList.builder();
-    builder.add(viewUtils.makeAzureBlobStoreScriptTag());
-    if (!featureFlags.isJsBundlingEnabled()) {
-      builder.add(viewUtils.makeLocalJsTag("azure_upload"));
-      builder.add(viewUtils.makeLocalJsTag("azure_delete"));
-    }
-    return builder.build();
+    return ImmutableList.of(viewUtils.makeAzureBlobStoreScriptTag());
   }
 
   @Override

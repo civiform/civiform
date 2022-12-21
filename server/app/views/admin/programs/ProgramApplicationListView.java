@@ -17,7 +17,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import featureflags.FeatureFlags;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
@@ -63,19 +62,16 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
   private final DateConverter dateConverter;
-  private final FeatureFlags featureFlags;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
   public ProgramApplicationListView(
       AdminLayoutFactory layoutFactory,
       ApplicantUtils applicantUtils,
-      DateConverter dateConverter,
-      FeatureFlags featureFlags) {
+      DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS).setOnlyProgramAdminType();
     this.applicantUtils = checkNotNull(applicantUtils);
     this.dateConverter = checkNotNull(dateConverter);
-    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -137,9 +133,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .addMainStyles("flex")
             .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv, applicationShowDiv);
 
-    if (!featureFlags.isJsBundlingEnabled()) {
-      htmlBundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"));
-    }
     Optional<String> maybeSuccessMessage = request.flash().get("success");
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
