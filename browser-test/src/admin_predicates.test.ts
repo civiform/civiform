@@ -214,15 +214,13 @@ describe('create and edit predicates', () => {
       questionName: 'predicate-currency',
     })
     await adminQuestions.addDateQuestion({questionName: 'predicate-date'})
+    await adminQuestions.addDateQuestion({questionName: 'on-or-after-date-question'})
     await adminQuestions.addCheckboxQuestion({
       questionName: 'both sides are lists',
       options: ['dog', 'rabbit', 'cat'],
     })
     await adminQuestions.addTextQuestion({
       questionName: 'depends on previous',
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'on after predicate-date',
     })
 
     const programName = 'Test all predicate types'
@@ -241,9 +239,7 @@ describe('create and edit predicates', () => {
       'predicate-currency',
     ])
     await adminPrograms.addProgramBlock(programName, 'date', ['predicate-date'])
-    await adminPrograms.addProgramBlock(programName, 'on after predicate', [
-      'on after predicate-date',
-    ])
+    await adminPrograms.addProgramBlock(programName, 'on or after date question', ['on-or-after-date-question'])
     await adminPrograms.addProgramBlock(programName, 'two lists', [
       'both sides are lists',
     ])
@@ -307,18 +303,18 @@ describe('create and edit predicates', () => {
       'predicate-date',
       'shown if',
       'date',
-      'is on or earlier than',
-      '2020-01-01',
+      'is earlier than',
+      '2021-01-01',
     )
 
     // Date predicate is before
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 8')
     await adminPredicates.addPredicate(
-      'predicate-date',
+      'on-or-after-date-question',
       'shown if',
       'date',
-      'is earlier than',
-      '2021-01-01',
+      'is on or later than',
+      '2023-01-01',
     )
 
     // Lists of strings on both sides (multi-option question checkbox)
@@ -391,11 +387,15 @@ describe('create and edit predicates', () => {
     await applicantQuestions.clickNext()
     await applicantQuestions.expectReviewPage()
     await page.goBack()
-    await applicantQuestions.answerDateQuestion('2020-01-01')
+    await applicantQuestions.answerDateQuestion('2020-12-31')
     await applicantQuestions.clickNext()
 
-    // on or earlier than 2020-01-01 is allowed
-    await applicantQuestions.answerTextQuestion('date-predicate')
+    // On or later than 2023-01-01 is allowed
+    await applicantQuestions.answerDateQuestion('2022-12-31')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.expectReviewPage()
+    await page.goBack()
+    await applicantQuestions.answerDateQuestion('2023-01-01')
     await applicantQuestions.clickNext()
 
     // "dog" or "cat" are allowed.
