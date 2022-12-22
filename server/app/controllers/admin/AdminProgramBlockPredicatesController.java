@@ -97,7 +97,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 blockDefinition,
                 programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
                     blockDefinitionId),
-                ProgramBlockPredicatesEditViewV2.TYPE.VISIBILITY));
+                ProgramBlockPredicatesEditViewV2.ViewType.VISIBILITY));
       }
 
       return ok(
@@ -137,7 +137,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 blockDefinition,
                 programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
                     blockDefinitionId),
-                ProgramBlockPredicatesEditViewV2.TYPE.VISIBILITY));
+                ProgramBlockPredicatesEditViewV2.ViewType.VISIBILITY));
       }
 
       return ok(

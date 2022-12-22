@@ -1,11 +1,6 @@
 import {addEventListenerToElements} from './dom_utils'
 
 class AdminPredicatConfiguration {
-  private form: HTMLFormElement
-
-  AdminPredicatConfiguration() {
-    this.form = document.querySelector('.predicate-config-form')
-  }
 
   registerEventListeners() {
     addEventListenerToElements(
@@ -19,6 +14,12 @@ class AdminPredicatConfiguration {
       'input',
       this.configurePredicateFormOnOperatorChange.bind(this),
     )
+
+    // Trigger a select event to set the correct input type on the value field(s)
+    Array.from(document.querySelectorAll('.cf-operator-select select')).forEach((el) => {
+      const event = new CustomEvent('input', { bubbles: true })
+      el.dispatchEvent(event)
+    })
 
     document
       .querySelector('#predicate-add-value-set')
@@ -118,7 +119,7 @@ class AdminPredicatConfiguration {
     const operatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
-    const valueInputs = this.form
+    const valueInputs = document
       .querySelector('#predicate-config-value-row-container')
       .querySelectorAll(`[data-question-id="${questionId}"] input`)
 
@@ -260,7 +261,7 @@ class AdminPredicatConfiguration {
   }
 
   private getQuestionId(element: HTMLSelectElement) {
-    return (this.form.closest(`[data-question-id]`) as HTMLElement)?.dataset
+    return (element.closest(`[data-question-id]`) as HTMLElement)?.dataset
       .questionId
   }
 
@@ -269,7 +270,7 @@ class AdminPredicatConfiguration {
     questionId: string,
     childSelector: string,
   ) {
-    return this.form.querySelector(
+    return document.querySelector(
       `${selector}[data-question-id="${questionId}"] ${childSelector}`,
     )
   }
