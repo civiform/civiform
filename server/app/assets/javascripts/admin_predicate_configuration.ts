@@ -1,7 +1,6 @@
 import {addEventListenerToElements} from './dom_utils'
 
 class AdminPredicatConfiguration {
-
   registerEventListeners() {
     addEventListenerToElements(
       '.cf-scalar-select',
@@ -16,10 +15,12 @@ class AdminPredicatConfiguration {
     )
 
     // Trigger a select event to set the correct input type on the value field(s)
-    Array.from(document.querySelectorAll('.cf-operator-select select')).forEach((el) => {
-      const event = new CustomEvent('input', { bubbles: true })
-      el.dispatchEvent(event)
-    })
+    Array.from(document.querySelectorAll('.cf-operator-select select')).forEach(
+      (el) => {
+        const event = new CustomEvent('input', {bubbles: true})
+        el.dispatchEvent(event)
+      },
+    )
 
     document
       .querySelector('#predicate-add-value-set')
@@ -134,6 +135,7 @@ class AdminPredicatConfiguration {
           }
           valueInput.setAttribute('type', 'text')
           break
+        case 'CURRENCY_CENTS':
         case 'LONG':
           if (
             operatorValue.toUpperCase() === 'IN' ||

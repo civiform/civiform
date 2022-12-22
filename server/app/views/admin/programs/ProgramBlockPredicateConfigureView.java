@@ -155,6 +155,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       String editPredicateUrl, String typeDisplayName, BlockDefinition blockDefinition) {
     return new LinkElement()
         .setHref(editPredicateUrl)
+        .setIcon(Icons.ARROW_LEFT)
         .setText(
             String.format(
                 "Return to %s conditions for %s screen", typeDisplayName, blockDefinition.name()))

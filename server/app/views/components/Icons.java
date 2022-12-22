@@ -28,6 +28,7 @@ public enum Icons {
       24,
       "M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4"
           + " 4z"),
+  ARROW_LEFT(24, "m12 20-8-8 8-8 1.425 1.4-5.6 5.6H20v2H7.825l5.6 5.6Z"),
   // Check Box
   CHECKBOX(
       24,
