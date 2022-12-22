@@ -80,6 +80,7 @@ public final class Block {
   public Optional<PredicateDefinition> getVisibilityPredicate() {
     return blockDefinition.visibilityPredicate();
   }
+
   /**
    * Returns the {@link RepeatedEntity} associated with this block, if this is a repeated block.
    * Otherwise, return empty.
