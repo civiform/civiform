@@ -269,7 +269,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
             questionIndex -> {
               programQuestions.with(renderQuestion(program, blockDefinition, questionIndex));
             });
-    List<DomContent> ret = Arrays.asList(blockInfoDisplay,visibilityPredicateDisplay);
+    List<DomContent> ret = Arrays.asList(blockInfoDisplay, visibilityPredicateDisplay);
     maybeEligibilityPredicateDisplay.ifPresent(ret::add);
     ret.add(programQuestions);
     return ret;
