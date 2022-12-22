@@ -126,7 +126,7 @@ object TypescriptBuilder extends AutoPlugin {
 
   def runWebpack(targetDir: File, log: ManagedLogger) = {
     val compilationCommand =
-      "npx webpack --no-stats --config webpack.config.js --output-path " + targetDir
+      "npx webpack --config webpack.config.js --output-path " + targetDir
     val res = Process(compilationCommand) ! ProcessLogger(
       line => log.error(line),
       line => log.error(line)
