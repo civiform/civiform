@@ -12,7 +12,6 @@ import featureflags.FeatureFlags;
 import forms.BlockForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -215,7 +214,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
       BlockForm blockForm,
       ImmutableList<QuestionDefinition> allQuestions,
       boolean isProgramEligibilityConditionEnabled) {
-    ArrayList<DomContent> content =
+    List<DomContent> content =
         prepareContentForBlockPanel(
             programDefinition,
             blockDefinition,
