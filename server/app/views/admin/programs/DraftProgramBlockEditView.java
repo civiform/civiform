@@ -64,10 +64,13 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
+  public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
+  public static final String MOVE_QUESTION_POSITION_FIELD = "position";
 
   private final boolean featureFlagOptionalQuestions;
 
-  private Optional<Modal> blockDescriptionEditModal = Optional.empty();
+  Optional<Modal> blockDescriptionEditModal = Optional.empty();
+  private String blockDescriptionEditModalButtonId;
   private InputTag csrfTag;
 
   @Inject
@@ -92,6 +95,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
                   programDefinition.id(), blockDefinition.id())
               .url();
       blockDescriptionEditModal = Optional.of(blockDescriptionModal(blockForm, blockUpdateAction));
+      blockDescriptionEditModalButtonId = blockDescriptionEditModal.get().getTriggerButtonId();
     }
 
     csrfTag = makeCsrfTokenInputTag(request);
@@ -164,7 +168,11 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
-    blockDescriptionEditModal.ifPresent(modal -> buttons.with(modal.getButton()));
+    // TODO: check id exists.
+    ButtonTag editScreenButton =
+      ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
+        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES)
+        .withId(blockDescriptionEditModalButtonId);
     if (blockDefinition.isEnumerator()) {
       buttons.with(
           button("Create repeated screen")

@@ -49,9 +49,6 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
   private final AdminLayout layout;
   private final FeatureFlags featureFlags;
 
-  public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
-  public static final String MOVE_QUESTION_POSITION_FIELD = "position";
-
   @Inject
   public ActiveProgramBlockReadOnlyView(
       AdminLayoutFactory layoutFactory, Config config, FeatureFlags featureFlags) {
