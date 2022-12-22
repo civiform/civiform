@@ -6,10 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.hr;
-import static j2html.TagCreator.input;
 import static j2html.TagCreator.option;
-import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
 
 import com.google.common.base.Splitter;
@@ -177,8 +174,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                 renderQuestionHeaders(questionDefinitions, maybeExistingPredicate))
             .withAction(formAction)
             .withMethod(POST)
-            .withClasses("p-8",
-                "bg-gray-100", "predicate-config-form", ReferenceClasses.PREDICATE_OPTIONS);
+            .withClasses(
+                "p-8", "bg-gray-100", "predicate-config-form", ReferenceClasses.PREDICATE_OPTIONS);
 
     DivTag valueRowContainer = div().withId("predicate-config-value-row-container");
 
@@ -201,8 +198,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     }
 
     formTag.with(valueRowContainer);
-    formTag.with(
-        div(makeSvgTextButton("Add values", Icons.ADD).withId("predicate-add-value-set")));
+    formTag.with(div(makeSvgTextButton("Add values", Icons.ADD).withId("predicate-add-value-set")));
     formTag.with(submitButton("Save condition").withClasses("my-4"));
 
     return formTag;
@@ -237,26 +233,25 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
 
         container.with(
             div(
-              div(qd.getQuestionText().getDefault())
-                .withClasses(BaseStyles.INPUT, "text-gray-500", "mb-2", "truncate"),
+                    div(qd.getQuestionText().getDefault())
+                        .withClasses(BaseStyles.INPUT, "text-gray-500", "mb-2", "truncate"),
                     createScalarDropdown(qd, Optional.of(leafNode.scalar())),
                     createOperatorDropdown(
                         qd, Optional.of(leafNode.scalar()), Optional.of(leafNode.operator())))
-              .withClasses(COLUMN_WIDTH, columnNumber++ != 1 ? "ml-16" : null));
+                .withClasses(COLUMN_WIDTH, columnNumber++ != 1 ? "ml-16" : null));
       }
     } else {
       for (var qd : questionDefinitions) {
         container.with(
             div(
-              div(qd.getQuestionText().getDefault())
-                .withClasses(BaseStyles.INPUT, "text-gray-500", "mb-2", "truncate"),
+                    div(qd.getQuestionText().getDefault())
+                        .withClasses(BaseStyles.INPUT, "text-gray-500", "mb-2", "truncate"),
                     createScalarDropdown(qd, /* maybeScalar */ Optional.empty()),
                     createOperatorDropdown(
-                      qd,
+                        qd,
                         /* maybeSelectedScalar */ Optional.empty(),
                         /* maybeOperator */ Optional.empty()))
-                .withClasses(COLUMN_WIDTH, columnNumber++ != 1 ? "ml-16" : null)
-          );
+                .withClasses(COLUMN_WIDTH, columnNumber++ != 1 ? "ml-16" : null));
       }
     }
 
@@ -281,15 +276,15 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                 .findFirst()
                 .get();
 
-        row.condWith(columnNumber++ != 1, andText).with(createValueField(qd, groupId, Optional.of(leafNode.comparedValue())));
+        row.condWith(columnNumber++ != 1, andText)
+            .with(createValueField(qd, groupId, Optional.of(leafNode.comparedValue())));
       }
     } else {
       for (var questionDefinition : questionDefinitions) {
-        row
-          .condWith(columnNumber++ != 1, andText)
-          .with(
-            createValueField(
-                questionDefinition, groupId, /* maybePredicateValue= */ Optional.empty()));
+        row.condWith(columnNumber++ != 1, andText)
+            .with(
+                createValueField(
+                    questionDefinition, groupId, /* maybePredicateValue= */ Optional.empty()));
       }
     }
 
@@ -297,11 +292,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
         div(Icons.svg(Icons.DELETE).withClasses("w-8", groupId == 1 ? "hidden" : null))
             .attr("role", "button")
             .withClasses(
-                "predicate-config-delete-value-row",
-                "mx-6",
-                "w-12",
-                "pt-2",
-                "cursor-pointer");
+                "predicate-config-delete-value-row", "mx-6", "w-12", "pt-2", "cursor-pointer");
 
     return row.with(delete);
   }
@@ -384,7 +375,9 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       options.stream().findFirst().get().isSelected();
     }
 
-    return selectElement.getSelectTag().withData("question-id", String.valueOf(questionDefinition.getId()));
+    return selectElement
+        .getSelectTag()
+        .withData("question-id", String.valueOf(questionDefinition.getId()));
   }
 
   private DivTag createOperatorDropdown(
@@ -483,7 +476,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
     } else {
       return valueField
-        .withData("question-id", String.valueOf(questionDefinition.getId()))
+          .withData("question-id", String.valueOf(questionDefinition.getId()))
           .with(
               FieldWithLabel.input()
                   .setFieldName(

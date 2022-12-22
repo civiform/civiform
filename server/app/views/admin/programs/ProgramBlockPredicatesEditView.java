@@ -107,7 +107,6 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
     final String textNoAvailableQuestions;
     final String predicateUpdateUrl;
     final String removePredicateUrl;
-
     switch (viewType) {
       case ELIGIBILITY:
         predicateDef =

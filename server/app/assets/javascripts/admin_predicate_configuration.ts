@@ -1,7 +1,6 @@
 import {addEventListenerToElements} from './dom_utils'
 
 class AdminPredicatConfiguration {
-
   private form: HTMLFormElement
 
   AdminPredicatConfiguration() {
@@ -12,7 +11,7 @@ class AdminPredicatConfiguration {
     addEventListenerToElements(
       '.cf-scalar-select',
       'input',
-      this.configurePredicateFormOnScalarChange.bind(this)
+      this.configurePredicateFormOnScalarChange.bind(this),
     )
 
     addEventListenerToElements(
@@ -47,24 +46,36 @@ class AdminPredicatConfiguration {
     const operatorDropdown = event.target as HTMLSelectElement
     const selectedOperatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
-    const questionId = (operatorDropdown.closest('.cf-operator-select') as HTMLElement)?.dataset?.questionId
+    const questionId = (
+      operatorDropdown.closest('.cf-operator-select') as HTMLElement
+    )?.dataset?.questionId
 
-    const commaSeparatedHelpTexts = document.querySelectorAll(`#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`)
+    const commaSeparatedHelpTexts = document.querySelectorAll(
+      `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`,
+    )
 
     // This help text div isn't present at all in some cases.
     if (commaSeparatedHelpTexts == null) {
       return
     }
 
-    const shouldShowCommaSeperatedHelpText = selectedOperatorValue.toUpperCase() !== 'IN' &&
+    const shouldShowCommaSeperatedHelpText =
+      selectedOperatorValue.toUpperCase() !== 'IN' &&
       selectedOperatorValue.toUpperCase() !== 'NOT_IN'
 
-    for (var commaSeparatedHelpText of Array.from(commaSeparatedHelpTexts)) {
-      commaSeparatedHelpText.classList.toggle('hidden', shouldShowCommaSeperatedHelpText)
+    for (const commaSeparatedHelpText of Array.from(commaSeparatedHelpTexts)) {
+      commaSeparatedHelpText.classList.toggle(
+        'hidden',
+        shouldShowCommaSeperatedHelpText,
+      )
     }
 
     // The type of the value field may need to change based on the current operator
-    const scalarDropdown = this.getElementWithQuestionId('.cf-scalar-select', questionId, 'select') as HTMLSelectElement
+    const scalarDropdown = this.getElementWithQuestionId(
+      '.cf-scalar-select',
+      questionId,
+      'select',
+    ) as HTMLSelectElement
     const selectedScalarType =
       scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
     const selectedScalarValue =
@@ -73,7 +84,7 @@ class AdminPredicatConfiguration {
       scalarDropdown,
       selectedScalarType,
       selectedScalarValue,
-      questionId
+      questionId,
     )
   }
 
@@ -88,25 +99,30 @@ class AdminPredicatConfiguration {
     scalarDropdown: HTMLSelectElement,
     selectedScalarType: string,
     selectedScalarValue: string,
-    questionId: string
+    questionId: string,
   ) {
     // If the scalar is from a multi-option question, there is not an input box for the 'Value'
     // field (there's a set of checkboxes instead), so return immediately.
     if (
       selectedScalarValue.toUpperCase() === 'SELECTION' ||
-        selectedScalarValue.toUpperCase() === 'SELECTIONS'
+      selectedScalarValue.toUpperCase() === 'SELECTIONS'
     ) {
       return
     }
 
-    const operatorDropdown = this.getElementWithQuestionId('.cf-operator-select', questionId, 'select') as HTMLSelectElement
-    const operatorValue = operatorDropdown.options[operatorDropdown.options.selectedIndex].value
+    const operatorDropdown = this.getElementWithQuestionId(
+      '.cf-operator-select',
+      questionId,
+      'select',
+    ) as HTMLSelectElement
+    const operatorValue =
+      operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
     const valueInputs = this.form
-        .querySelector('#predicate-config-value-row-container')
-        .querySelectorAll(`[data-question-id="${questionId}"] input`)
+      .querySelector('#predicate-config-value-row-container')
+      .querySelectorAll(`[data-question-id="${questionId}"] input`)
 
-    for (var valueInput of Array.from(valueInputs)) {
+    for (const valueInput of Array.from(valueInputs)) {
       switch (selectedScalarType.toUpperCase()) {
         case 'STRING':
           if (selectedScalarValue.toUpperCase() === 'EMAIL') {
@@ -120,7 +136,7 @@ class AdminPredicatConfiguration {
         case 'LONG':
           if (
             operatorValue.toUpperCase() === 'IN' ||
-              operatorValue.toUpperCase() === 'NOT_IN'
+            operatorValue.toUpperCase() === 'NOT_IN'
           ) {
             // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
             valueInput.setAttribute('type', 'text')
@@ -160,13 +176,19 @@ class AdminPredicatConfiguration {
       el.closest('label')?.setAttribute('for', newId)
     })
 
-    const deleteButtonDiv = newRow.querySelector('.predicate-config-delete-value-row')
+    const deleteButtonDiv = newRow.querySelector(
+      '.predicate-config-delete-value-row',
+    )
 
+    deleteButtonDiv.addEventListener(
+      'click',
+      this.predicateDeleteValueRow.bind(this),
+    )
+    deleteButtonDiv.querySelector('svg').classList.remove('hidden')
 
-    deleteButtonDiv.addEventListener('click', this.predicateDeleteValueRow.bind(this))
-    deleteButtonDiv.querySelector("svg").classList.remove('hidden')
-
-    document.getElementById('predicate-config-value-row-container').append(newRow)
+    document
+      .getElementById('predicate-config-value-row-container')
+      .append(newRow)
   }
 
   predicateDeleteValueRow(event: Event) {
@@ -191,14 +213,21 @@ class AdminPredicatConfiguration {
     selectedScalarValue: string,
   ) {
     const questionId = this.getQuestionId(scalarDropdown)
-    const operatorDropdown = this.getElementWithQuestionId('.cf-operator-select', questionId, 'select') as HTMLSelectElement
+    const operatorDropdown = this.getElementWithQuestionId(
+      '.cf-operator-select',
+      questionId,
+      'select',
+    ) as HTMLSelectElement
 
     Array.from(operatorDropdown.options).forEach((operatorOption) => {
-      operatorOption.classList.toggle('hidden', !this.shouldHideOperator(
+      operatorOption.classList.toggle(
+        'hidden',
+        !this.shouldHideOperator(
           selectedScalarType,
           selectedScalarValue,
           operatorOption,
-        ))
+        ),
+      )
     })
   }
 
@@ -224,18 +253,25 @@ class AdminPredicatConfiguration {
       // exclude these operators from single-select predicates to simplify the code on both
       // the form processing side and on the admin user side.
       !(selectedScalarType in operatorOption.dataset) ||
-        (selectedScalarValue.toUpperCase() === 'SELECTION' &&
-          (operatorOption.value === 'EQUAL_TO' ||
-            operatorOption.value === 'NOT_EQUAL_TO'))
+      (selectedScalarValue.toUpperCase() === 'SELECTION' &&
+        (operatorOption.value === 'EQUAL_TO' ||
+          operatorOption.value === 'NOT_EQUAL_TO'))
     )
   }
 
   private getQuestionId(element: HTMLSelectElement) {
-    return (this.form.closest(`[data-question-id]`) as HTMLElement)?.dataset.questionId
+    return (this.form.closest(`[data-question-id]`) as HTMLElement)?.dataset
+      .questionId
   }
 
-  private getElementWithQuestionId(selector: string, questionId: string, childSelector: string) {
-    return this.form.querySelector(`${selector}[data-question-id="${questionId}"] ${childSelector}`)
+  private getElementWithQuestionId(
+    selector: string,
+    questionId: string,
+    childSelector: string,
+  ) {
+    return this.form.querySelector(
+      `${selector}[data-question-id="${questionId}"] ${childSelector}`,
+    )
   }
 }
 
@@ -420,7 +456,7 @@ function configurePredicateFormOnOperatorChange(event: Event) {
 
 export function init() {
   // Hacky feature flag for the V2 predicate configuration UI.
-  if (document.querySelector(".predicate-config-value-row") == null) {
+  if (document.querySelector('.predicate-config-value-row') == null) {
     addEventListenerToElements(
       '.cf-operator-select',
       'input',

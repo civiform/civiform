@@ -38,7 +38,8 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
 
   private final AdminLayout layout;
 
-  public enum TYPE {
+  // The functionality type of the predicate editor.
+  public enum ViewType {
     ELIGIBILITY,
     VISIBILITY
   }
@@ -68,28 +69,32 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> predicateQuestions,
-      TYPE type) {
+      ViewType type) {
+
+    // This render code is used to render eligibility and visibility predicate editors.
+    // The following vars set the per-type visual and url values and the rest lays things out
+    // identically for the most part.
 
     final String predicateTypeNameTitleCase;
-    final String h2_current_condition;
-    final String text_no_conditions;
-    final String h2_new_condition;
-    final String text_new_condition;
-    final String text_no_available_questions;
+    final String h2CurrentCondition;
+    final String textNoConditions;
+    final String h2NewCondition;
+    final String textNewCondition;
+    final String textNoAvailableQuestions;
     final String removePredicateUrl;
     final String configurePredicateUrl;
 
     switch (type) {
       case ELIGIBILITY:
         predicateTypeNameTitleCase = "Eligibility";
-        h2_current_condition = "Current visibility condition";
-        text_no_conditions = "This screen is always shown.";
-        h2_new_condition = "New visibility condition";
-        text_new_condition =
-            "Apply a visibility condition using a question below. When you create a visibility"
+        h2CurrentCondition = "Current eligibility condition";
+        textNoConditions = "This screen is always eligible.";
+        h2NewCondition = "New eligibility condition";
+        textNewCondition =
+            "Apply a eligibility condition using a question below. When you create a eligibility"
                 + " condition, it replaces the present one.";
-        text_no_available_questions =
-            "There are no available questions with which to set a visibility condition for this"
+        textNoAvailableQuestions =
+            "There are no available questions with which to set an eligibility condition for this"
                 + " screen.";
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyEligibility(
@@ -102,13 +107,13 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
         break;
       case VISIBILITY:
         predicateTypeNameTitleCase = "Visibility";
-        h2_current_condition = "Current visibility condition";
-        text_no_conditions = "This screen is always shown.";
-        h2_new_condition = "New visibility condition";
-        text_new_condition =
+        h2CurrentCondition = "Current visibility condition";
+        textNoConditions = "This screen is always shown.";
+        h2NewCondition = "New visibility condition";
+        textNewCondition =
             "Apply a visibility condition using a question below. When you create a visibility"
                 + " condition, it replaces the present one.";
-        text_no_available_questions =
+        textNoAvailableQuestions =
             "There are no available questions with which to set a visibility condition for this"
                 + " screen.";
         removePredicateUrl =
@@ -163,7 +168,7 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
             // Show the current predicate.
             .with(
                 div()
-                    .with(h2(h2_current_condition).withClasses("font-semibold", "text-lg"))
+                    .with(h2(h2CurrentCondition).withClasses("font-semibold", "text-lg"))
                     .with(
                         div(blockDefinition
                                 .visibilityPredicate()
@@ -171,18 +176,18 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
                                     pred ->
                                         pred.toDisplayString(
                                             blockDefinition.name(), predicateQuestions))
-                                .orElse(text_no_conditions))
+                                .orElse(textNoConditions))
                             .withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
             // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()
-                    .with(h2(h2_new_condition).withClasses("font-semibold", "text-lg"))
-                    .with(div(text_new_condition).withClasses("mb-2"))
+                    .with(h2(h2NewCondition).withClasses("font-semibold", "text-lg"))
+                    .with(div(textNewCondition).withClasses("mb-2"))
                     .with(
                         predicateQuestions.isEmpty()
-                            ? text(text_no_available_questions)
+                            ? text(textNoAvailableQuestions)
                             : form(
                                     makeCsrfTokenInputTag(request),
                                     each(

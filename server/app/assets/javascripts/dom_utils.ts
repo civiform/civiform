@@ -1,4 +1,3 @@
-
 /**
  * Adds event listener to all elements on a page that match given selector.
  * This function doesn't handle elements added dynamically after the function was invoked.
