@@ -194,9 +194,10 @@ export const createTestContext = (clearDb = true): TestContext => {
           ctx.browserErrorWatcher.failIfContainsErrors()
         }
       } finally {
-        // browserErrorWatcher might throw error that should be bubble up all
-        // the way to user. But even if error is thrown we need to close the
-        // browser context, for example to save videos.
+        // browserErrorWatcher might throw an error that should bubble up all
+        // the way to the developer. Regardless whether the error is thrown or
+        // not we need to close the browser context. Without that some processes
+        // won't be finished, like saving videos.
         await browserContext.close()
       }
     }
