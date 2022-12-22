@@ -20,6 +20,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.mvc.Http.HttpVerbs;
@@ -69,7 +70,6 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
 
   private final boolean featureFlagOptionalQuestions;
 
-  Optional<Modal> blockDescriptionEditModal = Optional.empty();
   private String blockDescriptionEditModalButtonId;
   private InputTag csrfTag;
 
@@ -89,15 +89,6 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
 
-    if (blockDescriptionEditModal.isEmpty()) {
-      String blockUpdateAction =
-          controllers.admin.routes.AdminProgramBlocksController.update(
-                  programDefinition.id(), blockDefinition.id())
-              .url();
-      blockDescriptionEditModal = Optional.of(blockDescriptionModal(blockForm, blockUpdateAction));
-      blockDescriptionEditModalButtonId = blockDescriptionEditModal.get().getTriggerButtonId();
-    }
-
     csrfTag = makeCsrfTokenInputTag(request);
     return super.render(request, programDefinition, blockForm, blockDefinition, message, questions);
   }
@@ -110,6 +101,13 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questions) {
 
+    String blockUpdateAction =
+        controllers.admin.routes.AdminProgramBlocksController.update(
+                programDefinition.id(), blockDefinition.id())
+            .url();
+    Modal blockDescriptionEditModal = blockDescriptionModal(blockForm, blockUpdateAction);
+    blockDescriptionEditModalButtonId = blockDescriptionEditModal.getTriggerButtonId();
+
     HtmlBundle htmlBundle =
         super.createHtmlBundle(request, programDefinition, blockForm, blockDefinition, questions);
     htmlBundle
@@ -119,9 +117,8 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
                 programDefinition,
                 blockDefinition,
                 QuestionBank.shouldShowQuestionBank(request)))
-        .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()));
-    blockDescriptionEditModal.ifPresent(htmlBundle::addModals);
-
+        .addMainContent(addFormEndpoints(programDefinition.id(), blockDefinition.id()))
+        .addModals(Collections.singletonList(blockDescriptionEditModal));
     return htmlBundle;
   }
 
@@ -168,7 +165,12 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
-    // TODO: check id exists.
+    if (blockDescriptionEditModalButtonId == null) {
+      throw new IllegalStateException(
+          "The blockDescriptionEditModal must be"
+              + " created and the id for the button that triggers it must be "
+              + " initiated before the editScreenButton can be created.");
+    }
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES)
