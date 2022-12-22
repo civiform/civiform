@@ -105,7 +105,7 @@ public final class AdminProgramController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
   }
 
-  /** Return a HTML page containing a form to edit a draft program. */
+  /** Return an HTML page containing a form to edit a draft program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
@@ -121,6 +121,21 @@ public final class AdminProgramController extends CiviFormController {
     } catch (Exception e) {
       return badRequest(e.toString());
     }
+  }
+
+  /**
+   * Returns an HTML page containing the active version of a program for
+   * viewing only.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result view(Request request, long id) throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getProgramDefinition(id);
+    if (!versionRepository.isActiveProgram(program.id())) {
+      throw new NotViewableException(
+        "The program can not be viewed because it is not active");
+    }
+    return redirect(
+      controllers.admin.routes.AdminProgramBlocksController.view(program.id(), 1/* blockId*/));
   }
 
   /** POST endpoint for creating a new draft version of the program. */
@@ -141,33 +156,8 @@ public final class AdminProgramController extends CiviFormController {
         // Make a new draft from the provided id.
         idToEdit = programService.newDraftOf(id).id();
       }
-      return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(idToEdit, 1));
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
-    } catch (Exception e) {
-      return badRequest(e.toString());
-    }
-  }
-
-  /** POST endpoint for creating a new draft version of the program. */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result activeVersion(Request request, long id) {
-    try {
-      // If there's already a draft then use that, likely the client is out of date and unaware a
-      // draft exists.
-      // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
-      Optional<Program> existingDraft =
-        versionRepository
-          .getDraftVersion()
-          .getProgramByName(programService.getProgramDefinition(id).adminName());
-      final Long idToEdit;
-      if (existingDraft.isPresent()) {
-        idToEdit = existingDraft.get().id;
-      } else {
-        // Make a new draft from the provided id.
-        idToEdit = programService.newDraftOf(id).id();
-      }
-      return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(idToEdit, 1));
+      return redirect(
+        controllers.admin.routes.AdminProgramBlocksController.edit(idToEdit, 1 /* blockId*/));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (Exception e) {
@@ -196,6 +186,6 @@ public final class AdminProgramController extends CiviFormController {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(editView.render(request, programDefinition, programData, Optional.of(message)));
     }
-    return redirect(routes.AdminProgramBlocksController.index(programId).url());
+    return redirect(routes.AdminProgramBlocksController.index(programId, false).url());
   }
 }

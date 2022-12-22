@@ -17,6 +17,7 @@ GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 # A controller for pages for an admin to create and maintain programs
 GET     /admin/programs                                         controllers.admin.AdminProgramController.index(request: Request)
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
+GET     /admin/programs/:programId/view                         controllers.admin.AdminProgramController.view(request: Request, programId: Long)
 GET     /admin/programs/:programId/edit                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long)
 POST    /admin/programs/:programId/newVersion                   controllers.admin.AdminProgramController.newVersionFrom(request: Request, programId: Long)
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)
@@ -39,7 +40,7 @@ POST    /admin/programs/:programId/translations/:locale         controllers.admi
 
 
 # A controller for pages for an admin to create and maintain blocks for a program
-GET     /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.index(programId: Long)
+GET     /admin/programs/:programId/blocks/:readOnly                    controllers.admin.AdminProgramBlocksController.index(programId: Long, readOnly: Boolean)
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/view      controllers.admin.AdminProgramBlocksController.view(request: Request, programId: Long, blockDefinitionId: Long)
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit      controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId           controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockDefinitionId: Long)

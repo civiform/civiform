@@ -367,13 +367,14 @@ public final class ProgramIndexView extends BaseHtmlView {
     String editLink =
         controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
     String editLinkId = "program-edit-link-" + program.id();
+    // TODO(jhummel) set this back to newVersionFrom instead of view
     if (isActive) {
-      editLink = controllers.admin.routes.AdminProgramController.newVersionFrom(program.id()).url();
-      editLinkId = "program-new-version-link-" + program.id();
+      editLink = controllers.admin.routes.AdminProgramController.edit(program.id()).url();
+      editLinkId = "program-edit-link-" + program.id();
     }
 
     ButtonTag button =
-        makeSvgTextButton("Edit", Icons.EDIT)
+        makeSvgTextButton("View", Icons.EDIT)
             .withId(editLinkId)
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     return isActive

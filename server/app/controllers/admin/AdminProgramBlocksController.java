@@ -61,11 +61,14 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * (blocks) if applicable through links on the page.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(long programId) {
+  public Result index(long programId, boolean readOnly) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
-      return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
+      String redirectUrl = readOnly ?
+        routes.AdminProgramBlockController.view(programId, blockId)
+        : routes.AdminProgramBlocksController.edit(programId, blockId);
+      return redirect(redirectUrl);
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     }
@@ -109,8 +112,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Return a HTML page displaying all configurations of the specified program screen (block) and
-   * forms to update them.
+   * Return an HTML page displaying all configurations of the specified program screen (block)
+   * and forms to update them.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
@@ -129,8 +132,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Return a HTML page displaying all configurations of the specified program screen (block) and
-   * forms to view them. Does not allow updating
+   * Return an HTML page displaying all configurations of the specified program screen (block)
+   * and forms for viewing only.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result view(Request request, long programId, long blockId) {
@@ -216,7 +219,9 @@ public final class AdminProgramBlocksController extends CiviFormController {
         ReadOnlyQuestionService roQuestionService =
           questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
-        // TODO(jhummel) use a read only view
+      System.out.println("*******jhummel   read only view should be shown here. *****");
+
+    // TODO(jhummel) use a read only view
         return ok(
           editView.render(
             request, program, block, message, roQuestionService.getUpToDateQuestions()));
