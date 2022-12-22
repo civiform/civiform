@@ -21,6 +21,7 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.mvc.Http.HttpVerbs;
@@ -151,7 +152,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
   }
 
   @Override
-  protected ArrayList<DomContent> prepareContentForBlockPanel(
+  protected List<DomContent> prepareContentForBlockPanel(
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       BlockForm blockForm,
@@ -210,7 +211,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
                 ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
                 "my-4");
 
-    ArrayList<DomContent> content =
+    List<DomContent> content =
         super.prepareContentForBlockPanel(
             program,
             blockDefinition,

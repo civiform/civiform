@@ -13,6 +13,8 @@ import forms.BlockForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import play.mvc.Http.Request;
@@ -183,7 +185,6 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
       int blockIndex,
       ProgramDefinition programDefinition /* needed for subclasses */,
       long focusedBlockId) {
-    //
     BlockDefinition blockDefinition = blockDefinitions.get(blockIndex);
     int numQuestions = blockDefinition.getQuestionCount();
     String selectionColoring = blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
@@ -231,7 +232,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
    *
    * <p>This method is called exactly once per render.
    */
-  protected ArrayList<DomContent> prepareContentForBlockPanel(
+  protected List<DomContent> prepareContentForBlockPanel(
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       BlockForm blockForm,
@@ -268,9 +269,7 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
             questionIndex -> {
               programQuestions.with(renderQuestion(program, blockDefinition, questionIndex));
             });
-    ArrayList<DomContent> ret = new ArrayList<DomContent>();
-    ret.add(blockInfoDisplay);
-    ret.add(visibilityPredicateDisplay);
+    List<DomContent> ret = Arrays.asList(blockInfoDisplay,visibilityPredicateDisplay);
     maybeEligibilityPredicateDisplay.ifPresent(ret::add);
     ret.add(programQuestions);
     return ret;
