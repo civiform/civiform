@@ -170,9 +170,9 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
     // TODO: check id exists.
     ButtonTag editScreenButton =
-      ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
-        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES)
-        .withId(blockDescriptionEditModalButtonId);
+        ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES)
+            .withId(blockDescriptionEditModalButtonId);
     buttons.with(editScreenButton);
     if (blockDefinition.isEnumerator()) {
       buttons.with(
