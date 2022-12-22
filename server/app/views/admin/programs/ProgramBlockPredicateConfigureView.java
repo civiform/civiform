@@ -368,7 +368,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
 
     var selectElement =
         new SelectWithLabel()
-            .setFieldName("scalar")
+            .setFieldName(String.format("question-%d-scalar", questionDefinition.getId()))
             .setCustomOptions(options)
             .addReferenceClass(ReferenceClasses.PREDICATE_SCALAR_SELECT);
 

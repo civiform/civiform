@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import models.Application;
+import play.data.DynamicForm;
 import play.libs.F;
 import repository.SubmittedApplicationFilter;
 import services.CiviFormError;
@@ -284,6 +285,11 @@ public interface ProgramService {
    */
   ProgramDefinition setBlockEligibilityDefinition(
       long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException;
+
+  ProgramDefinition setBlockEligibilityDefinition(
+      long programId, long blockDefinitionId, DynamicForm predicateForm)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException;
 

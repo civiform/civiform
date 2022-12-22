@@ -5,15 +5,9 @@ import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
 import forms.BlockVisibilityPredicateForm;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -30,6 +24,7 @@ import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramServiceImpl;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -137,7 +132,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 blockDefinition,
                 programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
                     blockDefinitionId),
-                ProgramBlockPredicatesEditViewV2.ViewType.VISIBILITY));
+                ProgramBlockPredicatesEditViewV2.ViewType.ELIGIBILITY));
       }
 
       return ok(
@@ -185,7 +180,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
     Operator operator = Operator.valueOf(predicateForm.getOperator());
     PredicateValue predicateValue =
-        parsePredicateValue(
+        ProgramServiceImpl.parsePredicateValue(
             scalar,
             operator,
             predicateForm.getPredicateValue(),
@@ -251,13 +246,45 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    return ok();
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+
+    try {
+      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+      return ok(
+          predicatesConfigureView.renderEligibility(
+              request, programDefinition, blockDefinition, form));
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /** POST endpoint for updating eligibility configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateEligibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
+
+    if (featureFlags.isPredicatesMultipleQuestionsEnabled(request)) {
+      try {
+        programService.setBlockEligibilityDefinition(
+            programId, blockDefinitionId, formFactory.form().bindFromRequest(request));
+      } catch (ProgramNotFoundException e) {
+        return notFound(String.format("Program ID %d not found.", programId));
+      } catch (ProgramBlockDefinitionNotFoundException e) {
+        return notFound(
+            String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+      } catch (IllegalPredicateOrderingException e) {
+        return redirect(
+                routes.AdminProgramBlockPredicatesController.editEligibility(
+                    programId, blockDefinitionId))
+            .flashing("error", e.getLocalizedMessage());
+      }
+
+      return redirect(
+          routes.AdminProgramBlockPredicatesController.editEligibility(
+              programId, blockDefinitionId));
+    }
 
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
         formFactory.form(BlockVisibilityPredicateForm.class).bindFromRequest(request);
@@ -283,7 +310,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
     Operator operator = Operator.valueOf(predicateForm.getOperator());
     PredicateValue predicateValue =
-        parsePredicateValue(
+        ProgramServiceImpl.parsePredicateValue(
             scalar,
             operator,
             predicateForm.getPredicateValue(),
@@ -365,68 +392,5 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             routes.AdminProgramBlockPredicatesController.editEligibility(
                 programId, blockDefinitionId))
         .flashing("success", "Removed the eligibility condition for this screen.");
-  }
-
-  /**
-   * Parses the given value based on the given scalar type and operator. For example, if the scalar
-   * is of type LONG and the operator is of type ANY_OF, the value will be parsed as a list of
-   * comma-separated longs.
-   *
-   * <p>If value is the empty string, then parses the list of values instead.
-   */
-  @VisibleForTesting
-  static PredicateValue parsePredicateValue(
-      Scalar scalar, Operator operator, String value, List<String> values) {
-
-    // If the scalar is SELECTION or SELECTIONS then this is a multi-option question predicate, and
-    // the right hand side values are in the `values` list rather than the `value` string.
-    if (scalar == Scalar.SELECTION || scalar == Scalar.SELECTIONS) {
-      ImmutableList.Builder<String> builder = ImmutableList.builder();
-      return PredicateValue.listOfStrings(builder.addAll(values).build());
-    }
-
-    switch (scalar.toScalarType()) {
-      case CURRENCY_CENTS:
-        // Currency is inputted as dollars and cents but stored as cents.
-        Float cents = Float.parseFloat(value) * 100;
-        return PredicateValue.of(cents.longValue());
-
-      case DATE:
-        LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        return PredicateValue.of(localDate);
-
-      case LONG:
-        switch (operator) {
-          case IN:
-          case NOT_IN:
-            ImmutableList<Long> listOfLongs =
-                Splitter.on(",")
-                    .splitToStream(value)
-                    .map(s -> Long.parseLong(s.trim()))
-                    .collect(ImmutableList.toImmutableList());
-            return PredicateValue.listOfLongs(listOfLongs);
-          default: // EQUAL_TO, NOT_EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO, LESS_THAN,
-            // LESS_THAN_OR_EQUAL_TO
-            return PredicateValue.of(Long.parseLong(value));
-        }
-
-      default: // STRING - we list all operators here, but in reality only IN and NOT_IN are
-        // expected. The others are handled using the "values" field in the predicate form
-        switch (operator) {
-          case ANY_OF:
-          case IN:
-          case NONE_OF:
-          case NOT_IN:
-          case SUBSET_OF:
-            ImmutableList<String> listOfStrings =
-                Splitter.on(",")
-                    .splitToStream(value)
-                    .map(String::trim)
-                    .collect(ImmutableList.toImmutableList());
-            return PredicateValue.listOfStrings(listOfStrings);
-          default: // EQUAL_TO, NOT_EQUAL_TO
-            return PredicateValue.of(value);
-        }
-    }
   }
 }
