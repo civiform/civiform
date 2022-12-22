@@ -173,6 +173,7 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
         .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES)
         .withId(blockDescriptionEditModalButtonId);
+    buttons.with(editScreenButton);
     if (blockDefinition.isEnumerator()) {
       buttons.with(
           button("Create repeated screen")

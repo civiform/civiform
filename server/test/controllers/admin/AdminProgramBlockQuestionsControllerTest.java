@@ -164,7 +164,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .bodyForm(
                 ImmutableMap.of(
-                    ActiveProgramBlockReadOnlyView.MOVE_QUESTION_POSITION_FIELD, "foobar"))
+                    DraftProgramBlockEditView.MOVE_QUESTION_POSITION_FIELD, "foobar"))
             .build();
     assertThatThrownBy(
             () ->
