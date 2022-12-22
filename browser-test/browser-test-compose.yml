@@ -27,7 +27,7 @@ services:
       - APPLICANT_REGISTER_URI=http://dev-oidc:3390/
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=http://civiform:9000
-      - LOCALSTACK_URL=http://localstack:4566
+      - LOCALSTACK_URL=http://localhost.localstack.cloud:4566
       - CIVIFORM_TIME_ZONE_ID
     command: ~runBrowserTestsServer
     entrypoint: ./entrypoint.sh

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import models.Application;
@@ -251,19 +252,38 @@ public interface ProgramService {
 
   /**
    * Set the visibility {@link PredicateDefinition} for a block. This predicate describes under what
-   * conditions the block should be hidden from an applicant filling out the program form.
+   * conditions the block should be shown-to or hidden-from an applicant filling out the program
+   * form.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param predicate the {@link PredicateDefinition} for hiding the block
+   * @param predicate the {@link PredicateDefinition} to set, or empty to remove an existing one.
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
    * @throws IllegalPredicateOrderingException if this predicate cannot be added to this block
    */
-  ProgramDefinition setBlockPredicate(
-      long programId, long blockDefinitionId, PredicateDefinition predicate)
+  ProgramDefinition setBlockVisibilityPredicate(
+      long programId, long blockDefinitionId, Optional<PredicateDefinition> predicate)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException;
+
+  /**
+   * Set the eligibility {@link PredicateDefinition} for a block. This predicate describes under
+   * what conditions the application is considered eligible for the program as of the block.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param eligibility the {@link EligibilityDefinition} for continuing the application.
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
+   * @throws IllegalPredicateOrderingException if this predicate cannot be added to this block
+   */
+  ProgramDefinition setBlockEligibilityDefinition(
+      long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException;
 
@@ -278,6 +298,19 @@ public interface ProgramService {
    *     real Block.
    */
   ProgramDefinition removeBlockPredicate(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
+
+  /**
+   * Remove the eligibility {@link PredicateDefinition} for a block.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
+   */
+  ProgramDefinition removeBlockEligibilityPredicate(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**

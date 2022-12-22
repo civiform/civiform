@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import forms.BlockForm;
 import j2html.TagCreator;
 import j2html.tags.DomContent;
@@ -25,6 +26,7 @@ import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
@@ -47,6 +49,15 @@ import views.style.StyleUtils;
  * Renders a page for an admin to edit the configuration for program, including a single block of a
  * program. A block is a synonym for a Screen. The ProgramBlockEditView is very similar to the
  * ProgramBlockReadOnlyView, but specifically adds all UI functionality that is needed for editing.
+ *
+ * <p>Contains elements to:
+ *
+ * <ul>
+ *   <li>Delete the block
+ *   <li>Edit the name and description
+ *   <li>View, add, delete and reorder questions
+ *   <li>View and navigate to the visibility criteria
+ * </ul>
  */
 public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyView {
 
@@ -60,8 +71,9 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
   private InputTag csrfTag;
 
   @Inject
-  public DraftProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
-    super(layoutFactory, config);
+  public DraftProgramBlockEditView(
+      AdminLayoutFactory layoutFactory, Config config, FeatureFlags featureFlags) {
+    super(layoutFactory, config, featureFlags);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
   }
 
@@ -142,11 +154,8 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       BlockForm blockForm,
-      ImmutableList<QuestionDefinition> allQuestions) {
-    String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(
-                program.id(), blockDefinition.id())
-            .url();
+      ImmutableList<QuestionDefinition> allQuestions,
+      boolean isProgramEligibilityConditionsEnabled) {
 
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
@@ -191,7 +200,12 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
                 "my-4");
 
     ArrayList<DomContent> content =
-        super.prepareContentForBlockPanel(program, blockDefinition, blockForm, allQuestions);
+        super.prepareContentForBlockPanel(
+            program,
+            blockDefinition,
+            blockForm,
+            allQuestions,
+            isProgramEligibilityConditionsEnabled);
 
     content.add(1, buttons);
     content.add(addQuestion);
@@ -200,11 +214,11 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
   }
 
   @Override
-  protected DivTag renderPredicate(
+  protected DivTag renderVisibilityPredicate(
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questions) {
-    DivTag ret = super.renderPredicate(programDefinition, blockDefinition, questions);
+    DivTag ret = super.renderVisibilityPredicate(programDefinition, blockDefinition, questions);
 
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
@@ -214,8 +228,28 @@ public final class DraftProgramBlockEditView extends ActiveProgramBlockReadOnlyV
     return ret.with(
         asRedirectElement(
             editScreenButton,
-            routes.AdminProgramBlockPredicatesController.edit(
+            routes.AdminProgramBlockPredicatesController.editVisibility(
                     programDefinition.id(), blockDefinition.id())
+                .url()));
+  }
+
+  @Override
+  protected DivTag renderEligibilityPredicate(
+      long programId,
+      long blockId,
+      Optional<EligibilityDefinition> predicate,
+      String blockName,
+      ImmutableList<QuestionDefinition> questions) {
+    DivTag ret =
+        super.renderEligibilityPredicate(programId, blockId, predicate, blockName, questions);
+    ButtonTag editScreenButton =
+        ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+            .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_BUTTON);
+    return ret.with(
+        asRedirectElement(
+            editScreenButton,
+            routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockId)
                 .url()));
   }
 

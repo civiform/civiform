@@ -82,7 +82,7 @@ public final class ViewUtils {
     return button()
         .with(
             Icons.svg(icon)
-                .withClasses("ml-1", "inline-block", "shrink-0")
+                .withClasses("inline-block")
                 // Can't set 18px using Tailwind CSS classes.
                 .withStyle("width: 18px; height: 18px;"),
             span(buttonText).withClass("text-left"));

@@ -8,16 +8,17 @@ import static j2html.TagCreator.p;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import forms.BlockForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
@@ -36,6 +37,9 @@ import views.style.StyleUtils;
 /**
  * Renders a view only page for an admin to see the details of an active program, including a list
  * of all screens and details about the block they select. A block is a synonym for a screen.
+ *
+ * <p>Contains elements to view the name, descriptions, questions and visibility criteria of a
+ * block.
  */
 public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
   private static final String NOT_YET_IMPLEMENTED_ERROR =
@@ -43,12 +47,16 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
           + "used when issue #3162 is closed.";
 
   private final AdminLayout layout;
+  private final FeatureFlags featureFlags;
+
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
 
   @Inject
-  public ActiveProgramBlockReadOnlyView(AdminLayoutFactory layoutFactory, Config config) {
+  public ActiveProgramBlockReadOnlyView(
+      AdminLayoutFactory layoutFactory, Config config, FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.featureFlags = checkNotNull(featureFlags);
     if (!(this instanceof DraftProgramBlockEditView)) {
       throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
     }
@@ -109,7 +117,13 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
                 div()
                     .withClasses("flex", "flex-grow", "-mx-2")
                     .with(blockOrderPanel(request, programDefinition, blockDefinition.id()))
-                    .with(blockPanel(programDefinition, blockDefinition, blockForm, questions)));
+                    .with(
+                        blockPanel(
+                            programDefinition,
+                            blockDefinition,
+                            blockForm,
+                            questions,
+                            featureFlags.isProgramEligibilityConditionsEnabled(request))));
 
     return layout
         .getBundle()
@@ -201,9 +215,15 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       BlockForm blockForm,
-      ImmutableList<QuestionDefinition> allQuestions) {
+      ImmutableList<QuestionDefinition> allQuestions,
+      boolean isProgramEligibilityConditionEnabled) {
     ArrayList<DomContent> content =
-        prepareContentForBlockPanel(programDefinition, blockDefinition, blockForm, allQuestions);
+        prepareContentForBlockPanel(
+            programDefinition,
+            blockDefinition,
+            blockForm,
+            allQuestions,
+            isProgramEligibilityConditionEnabled);
     return div().withClasses("w-7/12", "py-6", "px-4").with(content);
   }
 
@@ -218,7 +238,8 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       BlockForm blockForm,
-      ImmutableList<QuestionDefinition> allQuestions) {
+      ImmutableList<QuestionDefinition> allQuestions,
+      boolean isProgramEligibilityConditionsEnabled) {
 
     DivTag blockInfoDisplay =
         div()
@@ -226,7 +247,21 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
             .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
             .withClasses("my-4");
 
-    DivTag predicateDisplay = renderPredicate(program, blockDefinition, allQuestions);
+    // todo ordering based on eligibility there
+    DivTag visibilityPredicateDisplay =
+        renderVisibilityPredicate(program, blockDefinition, allQuestions);
+
+    Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
+    if (isProgramEligibilityConditionsEnabled) {
+      maybeEligibilityPredicateDisplay =
+          Optional.of(
+              renderEligibilityPredicate(
+                  program.id(),
+                  blockDefinition.id(),
+                  blockDefinition.eligibilityDefinition(),
+                  blockDefinition.name(),
+                  allQuestions));
+    }
 
     ImmutableList<ProgramQuestionDefinition> blockQuestions =
         blockDefinition.programQuestionDefinitions();
@@ -236,11 +271,15 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
             questionIndex -> {
               programQuestions.with(renderQuestion(program, blockDefinition, questionIndex));
             });
-    return new ArrayList<DomContent>(
-        Arrays.asList(blockInfoDisplay, predicateDisplay, programQuestions));
+    ArrayList<DomContent> ret = new ArrayList<DomContent>();
+    ret.add(blockInfoDisplay);
+    ret.add(visibilityPredicateDisplay);
+    maybeEligibilityPredicateDisplay.ifPresent(ret::add);
+    ret.add(programQuestions);
+    return ret;
   }
 
-  protected DivTag renderPredicate(
+  protected DivTag renderVisibilityPredicate(
       ProgramDefinition programDefinition /* needed for subclasses */,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questions) {
@@ -254,6 +293,25 @@ public class ActiveProgramBlockReadOnlyView extends ProgramBlockView {
     return div()
         .withClasses("my-4")
         .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
+        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
+  }
+
+  protected DivTag renderEligibilityPredicate(
+      long programId,
+      long blockId,
+      Optional<EligibilityDefinition> predicate,
+      String blockName,
+      ImmutableList<QuestionDefinition> questions) {
+    String currentBlockStatus =
+        predicate.isEmpty()
+            ? "You can add eligibility conditions to help you screen out applicants who do not"
+                + " meet the minimum requirements for a program early in the application"
+                + " process."
+            : predicate.get().predicate().toDisplayString(blockName, questions);
+
+    return div()
+        .withClasses("my-4")
+        .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
         .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
   }
 

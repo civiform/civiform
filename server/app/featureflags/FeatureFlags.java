@@ -31,7 +31,6 @@ public final class FeatureFlags {
   public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
       "program_eligibility_conditions_enabled";
   public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
-  private static final String USE_JS_BUNDLES = "use_js_bundles";
 
   private final Config config;
 
@@ -85,10 +84,6 @@ public final class FeatureFlags {
 
   public boolean isReadOnlyProgramViewEnabled(Request request) {
     return getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED);
-  }
-
-  public boolean isJsBundlingEnabled() {
-    return config.getBoolean(USE_JS_BUNDLES);
   }
 
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {

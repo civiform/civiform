@@ -1,7 +1,7 @@
 // Javascript handling for enumerators
 // This file requires that main.ts is also added to the page.
 
-window.addEventListener('load', () => {
+export function init() {
   // Configure the button on the enumerator question form to add more enumerator field options
   const enumeratorOptionButton = document.getElementById(
     'enumerator-field-add-button',
@@ -15,7 +15,7 @@ window.addEventListener('load', () => {
     (el) => el.addEventListener('click', removeExistingEnumeratorField),
   )
   addEnumeratorListeners()
-})
+}
 
 // Used to allow us to generate a unique ID for each newly added enumerator entity.
 // We can't generate this based on the number of elements rendered since entities

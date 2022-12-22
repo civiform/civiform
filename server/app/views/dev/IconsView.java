@@ -10,7 +10,6 @@ import static j2html.TagCreator.tr;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TrTag;
 import play.twirl.api.Content;
@@ -27,12 +26,10 @@ import views.style.ReferenceClasses;
  */
 public final class IconsView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
-  private final FeatureFlags featureFlags;
 
   @Inject
-  public IconsView(BaseHtmlLayout layout, FeatureFlags featureFlags) {
+  public IconsView(BaseHtmlLayout layout) {
     this.layout = checkNotNull(layout);
-    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render() {
@@ -44,9 +41,6 @@ public final class IconsView extends BaseHtmlView {
                 each(ImmutableList.copyOf(Icons.values()), this::renderIconRow));
     HtmlBundle bundle =
         layout.getBundle().setTitle("Icons").addMainContent(content).setJsBundle(JsBundle.ADMIN);
-    if (!featureFlags.isJsBundlingEnabled()) {
-      bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("dev_icons"));
-    }
     return layout.render(bundle);
   }
 
