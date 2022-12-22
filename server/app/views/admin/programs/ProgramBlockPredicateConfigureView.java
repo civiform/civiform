@@ -6,7 +6,10 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.hr;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.option;
+import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
 
 import com.google.common.base.Splitter;
@@ -52,6 +55,8 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
+
+  private static final String COLUMN_WIDTH = "w-48";
 
   public enum TYPE {
     ELIGIBILITY,
@@ -168,10 +173,11 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     FormTag formTag =
         form(
                 makeCsrfTokenInputTag(request),
+                div("Applicant is eligible when:").withClasses("font-bold"),
                 renderQuestionHeaders(questionDefinitions, maybeExistingPredicate))
             .withAction(formAction)
             .withMethod(POST)
-            .withClasses(
+            .withClasses("p-8",
                 "bg-gray-100", "predicate-config-form", ReferenceClasses.PREDICATE_OPTIONS);
 
     DivTag valueRowContainer = div().withId("predicate-config-value-row-container");
@@ -196,7 +202,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
 
     formTag.with(valueRowContainer);
     formTag.with(
-        div(makeSvgTextButton("Add value set", Icons.ADD).withId("predicate-add-value-set")));
+        div(makeSvgTextButton("Add values", Icons.ADD).withId("predicate-add-value-set")));
     formTag.with(submitButton("Save condition").withClasses("my-4"));
 
     return formTag;
@@ -205,7 +211,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
   private DivTag renderQuestionHeaders(
       ImmutableList<QuestionDefinition> questionDefinitions,
       Optional<PredicateDefinition> maybeExistingPredicate) {
-    DivTag container = div().withClasses("flex", "py-4", "grow", "gap-2");
+    DivTag container = div().withClasses("flex", "py-4");
+    int columnNumber = 1;
 
     if (maybeExistingPredicate.isPresent()) {
       PredicateDefinition predicateDefinition = maybeExistingPredicate.get();
@@ -230,34 +237,39 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
 
         container.with(
             div(
-                    div(qd.getQuestionText().getDefault()).withClasses("pt-4"),
+              div(qd.getQuestionText().getDefault())
+                .withClasses(BaseStyles.INPUT, "text-gray-500", "mb-2", "truncate"),
                     createScalarDropdown(qd, Optional.of(leafNode.scalar())),
                     createOperatorDropdown(
                         qd, Optional.of(leafNode.scalar()), Optional.of(leafNode.operator())))
-                .withClasses("w-lg"));
+              .withClasses(COLUMN_WIDTH, columnNumber++ != 1 ? "ml-16" : null));
       }
     } else {
-      for (var questionDefinition : questionDefinitions) {
+      for (var qd : questionDefinitions) {
         container.with(
             div(
-                    div(questionDefinition.getQuestionText().getDefault()).withClasses("pt-4"),
-                    createScalarDropdown(questionDefinition, /* maybeScalar */ Optional.empty()),
+              div(qd.getQuestionText().getDefault())
+                .withClasses(BaseStyles.INPUT, "text-gray-500", "mb-2", "truncate"),
+                    createScalarDropdown(qd, /* maybeScalar */ Optional.empty()),
                     createOperatorDropdown(
-                        questionDefinition,
+                      qd,
                         /* maybeSelectedScalar */ Optional.empty(),
                         /* maybeOperator */ Optional.empty()))
-                .withClasses("w-lg"));
+                .withClasses(COLUMN_WIDTH, columnNumber++ != 1 ? "ml-16" : null)
+          );
       }
     }
 
-    return container;
+    return container.with(div().withClasses("w-28"));
   }
 
   private DivTag renderValueRow(
       ImmutableList<QuestionDefinition> questionDefinitions,
       int groupId,
       Optional<AndNode> maybeAndNode) {
-    DivTag row = div().withClasses("flex", "grow", "gap-2", "predicate-config-value-row");
+    DivTag row = div().withClasses("flex", "mb-6", "predicate-config-value-row");
+    DivTag andText = div("and").withClasses("object-center", "w-16", "p-4", "leading-10");
+    int columnNumber = 1;
 
     if (maybeAndNode.isPresent()) {
       for (PredicateExpressionNode predicateExpressionNode : maybeAndNode.get().children()) {
@@ -269,25 +281,27 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                 .findFirst()
                 .get();
 
-        row.with(createValueField(qd, groupId, Optional.of(leafNode.comparedValue())));
+        row.condWith(columnNumber++ != 1, andText).with(createValueField(qd, groupId, Optional.of(leafNode.comparedValue())));
       }
     } else {
       for (var questionDefinition : questionDefinitions) {
-        row.with(
+        row
+          .condWith(columnNumber++ != 1, andText)
+          .with(
             createValueField(
                 questionDefinition, groupId, /* maybePredicateValue= */ Optional.empty()));
       }
     }
 
     DivTag delete =
-        div(Icons.svg(Icons.DELETE).withClasses("w-8"))
+        div(Icons.svg(Icons.DELETE).withClasses("w-8", groupId == 1 ? "hidden" : null))
             .attr("role", "button")
             .withClasses(
                 "predicate-config-delete-value-row",
-                "place-self-center",
                 "mx-6",
-                "cursor-pointer",
-                "hidden");
+                "w-12",
+                "pt-2",
+                "cursor-pointer");
 
     return row.with(delete);
   }
@@ -363,7 +377,6 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     var selectElement =
         new SelectWithLabel()
             .setFieldName("scalar")
-            .setLabelText("Field")
             .setCustomOptions(options)
             .addReferenceClass(ReferenceClasses.PREDICATE_SCALAR_SELECT);
 
@@ -371,7 +384,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       options.stream().findFirst().get().isSelected();
     }
 
-    return selectElement.getSelectTag();
+    return selectElement.getSelectTag().withData("question-id", String.valueOf(questionDefinition.getId()));
   }
 
   private DivTag createOperatorDropdown(
@@ -422,16 +435,18 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
 
     return new SelectWithLabel()
         .setFieldName(String.format("question-%d-operator", questionDefinition.getId()))
-        .setLabelText("Operator")
         .setCustomOptions(operatorOptions)
         .addReferenceClass(ReferenceClasses.PREDICATE_OPERATOR_SELECT)
-        .getSelectTag();
+        .getSelectTag()
+        .withData("question-id", String.valueOf(questionDefinition.getId()));
   }
 
   private DivTag createValueField(
       QuestionDefinition questionDefinition,
       int groupId,
       Optional<PredicateValue> maybePredicateValue) {
+    DivTag valueField = div().withClasses(COLUMN_WIDTH);
+
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
@@ -439,8 +454,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       // localized.
       ImmutableList<QuestionOption> options =
           ((MultiOptionQuestionDefinition) questionDefinition).getOptions();
-      DivTag valueOptionsDiv =
-          div().with(div("Values").withClasses(BaseStyles.CHECKBOX_GROUP_LABEL));
+
       for (QuestionOption option : options) {
         boolean isChecked =
             maybePredicateValue
@@ -463,18 +477,19 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                 .setLabelText(option.optionText().getDefault())
                 .setChecked(isChecked)
                 .getCheckboxTag();
-        valueOptionsDiv.with(optionCheckbox);
+        valueField.with(optionCheckbox);
       }
-      return valueOptionsDiv;
+
+      return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
     } else {
-      return div()
+      return valueField
+        .withData("question-id", String.valueOf(questionDefinition.getId()))
           .with(
               FieldWithLabel.input()
                   .setFieldName(
                       String.format(
                           "group-%d-question-%d-predicateValue",
                           groupId, questionDefinition.getId()))
-                  .setLabelText("Value")
                   .setValue(maybePredicateValue.map(PredicateValue::value))
                   .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
                   .getInputTag())
