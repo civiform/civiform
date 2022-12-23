@@ -6,7 +6,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-play-ebean" % "6.2.0-RC4")
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
 
 // IDE compatibility plugin
-addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.2")
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
 // Web Assets plugins
 addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.3")
