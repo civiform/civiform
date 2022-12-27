@@ -638,39 +638,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
   }
 
   @Test
-  public void moveBlock_up_withEligibilityPredicate_throwsForIllegalMove() {
-    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
-    // Trying to move a block with a predicate before the block it depends on throws.
-    EligibilityDefinition eligibility =
-        EligibilityDefinition.builder()
-            .setPredicate(
-                PredicateDefinition.create(
-                    PredicateExpressionNode.create(
-                        LeafOperationExpressionNode.create(
-                            predicateQuestion.id,
-                            Scalar.TEXT,
-                            Operator.EQUAL_TO,
-                            PredicateValue.of("yellow"))),
-                    PredicateAction.SHOW_BLOCK))
-            .build();
-
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram()
-            .withBlock()
-            .withRequiredQuestion(predicateQuestion)
-            .withBlock()
-            .withEligibilityDefinition(eligibility)
-            .build()
-            .getProgramDefinition();
-
-    assertThatExceptionOfType(IllegalPredicateOrderingException.class)
-        .isThrownBy(() -> programDefinition.moveBlock(2L, ProgramDefinition.Direction.UP))
-        .withMessage(
-            "This move is not possible - it would move a block condition before the question it"
-                + " depends on");
-  }
-
-  @Test
   public void moveBlock_up_withEligibilityPredicateAndQuestionInSameBlock() throws Exception {
     Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
