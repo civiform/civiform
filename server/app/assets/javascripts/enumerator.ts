@@ -1,6 +1,8 @@
 // Javascript handling for enumerators
 // This file requires that main.ts is also added to the page.
 
+import {addEventListenerToElements} from './util'
+
 export function init() {
   // Configure the button on the enumerator question form to add more enumerator field options
   const enumeratorOptionButton = document.getElementById(
@@ -10,9 +12,10 @@ export function init() {
     enumeratorOptionButton.addEventListener('click', addNewEnumeratorField)
   }
 
-  // TODO(#3864) switch to use addEventListenerToElements() once imports supported.
-  Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
-    (el) => el.addEventListener('click', removeExistingEnumeratorField),
+  addEventListenerToElements(
+    '.cf-enumerator-delete-button',
+    'click',
+    removeExistingEnumeratorField,
   )
   addEnumeratorListeners()
 }
