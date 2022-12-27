@@ -679,7 +679,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .buildDefinition();
 
     // Overwriting the question in the first block invalidates the predicate in the second block.
@@ -778,7 +778,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .buildDefinition();
 
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
@@ -1073,7 +1073,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(addressQuestion)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .buildDefinition();
 
     // This predicate depends on a question that doesn't exist in a prior block.
