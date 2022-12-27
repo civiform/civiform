@@ -378,7 +378,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(oldOne)
             .withBlock()
             .withRequiredQuestion(oldTwo)
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .build();
     program.save();
 
