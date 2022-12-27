@@ -154,7 +154,7 @@ public abstract class ProgramDefinition {
   public boolean hasValidPredicateOrdering() {
     Set<Long> previousQuestionIds = new HashSet<>();
     for (BlockDefinition b : blockDefinitions()) {
-      // All visibility predicate questions exist before their block.
+      // All visibility predicate questions exist before the blocks that mention them.
       if (b.visibilityPredicate().isPresent()
           && !previousQuestionIds.containsAll(b.visibilityPredicate().get().getQuestions())) {
         return false;
@@ -162,7 +162,7 @@ public abstract class ProgramDefinition {
       b.programQuestionDefinitions().stream()
           .map(ProgramQuestionDefinition::id)
           .forEach(previousQuestionIds::add);
-      // Eligibility can include the current blocks' questions.
+      // Eligibility can include preceding and the current blocks' questions.
       if (b.eligibilityDefinition().isPresent()
           && !previousQuestionIds.containsAll(
               b.eligibilityDefinition().get().predicate().getQuestions())) {
