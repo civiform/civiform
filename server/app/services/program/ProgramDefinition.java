@@ -148,19 +148,26 @@ public abstract class ProgramDefinition {
   }
 
   /**
-   * Checks whether this program has a valid block order, so that no predicate depends on a block
-   * that appears after it.
+   * Returns whether this program has a valid block order for predicates, such that their referenced
+   * questions are correctly ordered wrt to the block and predicate type.
    */
   public boolean hasValidPredicateOrdering() {
-    // TODO(#3744): Update for eligibility predicates.
     Set<Long> previousQuestionIds = new HashSet<>();
     for (BlockDefinition b : blockDefinitions()) {
-      // Check that all the predicate questions exist before this block.
+      // All visibility predicate questions exist before their block.
       if (b.visibilityPredicate().isPresent()
           && !previousQuestionIds.containsAll(b.visibilityPredicate().get().getQuestions())) {
         return false;
       }
-      b.programQuestionDefinitions().forEach(pqd -> previousQuestionIds.add(pqd.id()));
+      b.programQuestionDefinitions().stream()
+          .map(ProgramQuestionDefinition::id)
+          .forEach(previousQuestionIds::add);
+      // Eligibility can include the current blocks' questions.
+      if (b.eligibilityDefinition().isPresent()
+          && !previousQuestionIds.containsAll(
+              b.eligibilityDefinition().get().predicate().getQuestions())) {
+        return false;
+      }
     }
     return true;
   }
