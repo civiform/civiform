@@ -53,6 +53,9 @@ public abstract class AnswerData {
   /** True if this answer represents an answer, or false for a skipped question. */
   public abstract boolean isAnswered();
 
+  /** True if this answer meets eligibility criteria for the program. */
+  public abstract boolean isEligible();
+
   /** The applicant's response to the question. */
   public abstract String answerText();
 
@@ -98,6 +101,8 @@ public abstract class AnswerData {
     public abstract Builder setQuestionTextForScreenReader(String questionTextForScreenReader);
 
     public abstract Builder setIsAnswered(boolean isAnswered);
+
+    public abstract Builder setIsEligible(boolean isEligible);
 
     public abstract Builder setAnswerText(String answerText);
 

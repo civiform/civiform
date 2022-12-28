@@ -47,16 +47,19 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   }
 
   /**
-   * Renders a summary of all of the applicant's data for a specific application. Data includes:
+   * Renders a summary of all the applicant's data for a specific application.
    *
-   * <p>Program Id, Applicant Id - Needed for link context (submit & edit)
-   *
-   * <p>Question Data for each question:
+   * <p>Data includes:
    *
    * <ul>
-   *   <li>question text
-   *   <li>answer text
-   *   <li>block id (for edit link)
+   *   <li>Program Id
+   *   <li>Applicant Id - Needed for link context (submit & edit)
+   *   <li>Question Data for each question:
+   *       <ul>
+   *         <li>question text
+   *         <li>answer text
+   *         <li>block id (for edit link)
+   *       </ul>
    * </ul>
    */
   public Content render(Params params) {
@@ -65,7 +68,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     DivTag applicationSummary = div().withId("application-summary").withClasses("mb-8");
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
-    boolean isFirstUnanswered = true;
+    boolean isTheFirstUnansweredQuestion = true;
     for (AnswerData answerData : params.summaryData()) {
       Optional<RepeatedEntity> currentRepeatedEntity = answerData.repeatedEntity();
       if (!currentRepeatedEntity.equals(previousRepeatedEntity)
@@ -74,8 +77,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       }
       applicationSummary.with(
           renderQuestionSummary(
-              answerData, messages, params.applicantId(), params.inReview(), isFirstUnanswered));
-      isFirstUnanswered = isFirstUnanswered && answerData.isAnswered();
+              answerData,
+              messages,
+              params.applicantId(),
+              params.inReview(),
+              isTheFirstUnansweredQuestion));
+      isTheFirstUnansweredQuestion &= answerData.isAnswered();
       previousRepeatedEntity = currentRepeatedEntity;
     }
 
@@ -131,6 +138,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
+  /**
+   * @param inReview if this is the review view of the application, and not the preview view.
+   * @param isFirstUnanswered if this is the first unanswered question in the application.
+   */
   private DivTag renderQuestionSummary(
       AnswerData data,
       Messages messages,
@@ -176,53 +187,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       actionAndTimestampDiv.with(timestampContent);
     }
 
-    // Maybe link to block containing specific question.
+    if (!data.isEligible() && data.isAnswered()) {
+      actionAndTimestampDiv.with(div("Not Eligible").withClasses("text-m font-medium flex-grow"));
+    }
+
+    // Render an "edit" button if the question is answered or this is the first unanswered question.
     if (data.isAnswered() || isFirstUnanswered) {
-      String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
-      String ariaLabel =
-          messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionTextForScreenReader());
-      if (!data.isAnswered()) {
-        if (inReview) {
-          editText = messages.at(MessageKey.BUTTON_CONTINUE.getKeyName());
-          ariaLabel =
-              messages.at(
-                  MessageKey.ARIA_LABEL_CONTINUE.getKeyName(), data.questionTextForScreenReader());
-        } else {
-          editText = messages.at(MessageKey.LINK_BEGIN.getKeyName());
-          ariaLabel =
-              messages.at(
-                  MessageKey.ARIA_LABEL_BEGIN.getKeyName(), data.questionTextForScreenReader());
-        }
-      }
-      String editLink =
-          (!data.isAnswered() && !inReview)
-              ? routes.ApplicantProgramBlocksController.edit(
-                      applicantId, data.programId(), data.blockId())
-                  .url()
-              : routes.ApplicantProgramBlocksController.review(
-                      applicantId, data.programId(), data.blockId())
-                  .url();
-
-      LinkElement editElement =
-          new LinkElement()
-              .setHref(editLink)
-              .setText(editText)
-              .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
-      if (data.isAnswered()) {
-        editElement.setIcon(Icons.EDIT);
-      }
-      DivTag editContent =
-          div()
-              .with(editElement.asAnchorText().attr("aria-label", ariaLabel))
-              .withClasses(
-                  "font-medium",
-                  "break-normal",
-                  "flex",
-                  "flex-grow",
-                  "justify-end",
-                  "items-center");
-
-      actionAndTimestampDiv.with(editContent);
+      actionAndTimestampDiv.with(generateEditButton(data, messages, applicantId, inReview));
     }
 
     return div(questionContent, actionAndTimestampDiv)
@@ -238,6 +209,55 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             "flex",
             "justify-between")
         .withStyle("word-break:break-word");
+  }
+
+  /**
+   * Creates an "edit" button for {@code data}.
+   *
+   * <p>Uses default "edit" messaging unless the question is unanswered, then "get started"
+   * messaging is used with specific wordage based on {@code inReview}.
+   */
+  private static DivTag generateEditButton(
+      AnswerData data, Messages messages, long applicantId, boolean inReview) {
+    String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
+    String ariaLabel =
+        messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionTextForScreenReader());
+    if (!data.isAnswered()) {
+      if (inReview) {
+        editText = messages.at(MessageKey.BUTTON_CONTINUE.getKeyName());
+        ariaLabel =
+            messages.at(
+                MessageKey.ARIA_LABEL_CONTINUE.getKeyName(), data.questionTextForScreenReader());
+      } else {
+        editText = messages.at(MessageKey.LINK_BEGIN.getKeyName());
+        ariaLabel =
+            messages.at(
+                MessageKey.ARIA_LABEL_BEGIN.getKeyName(), data.questionTextForScreenReader());
+      }
+    }
+    String editLink =
+        (!data.isAnswered() && !inReview)
+            ? routes.ApplicantProgramBlocksController.edit(
+                    applicantId, data.programId(), data.blockId())
+                .url()
+            : routes.ApplicantProgramBlocksController.review(
+                    applicantId, data.programId(), data.blockId())
+                .url();
+
+    LinkElement editElement =
+        new LinkElement()
+            .setHref(editLink)
+            .setText(editText)
+            .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
+    if (data.isAnswered()) {
+      editElement.setIcon(Icons.EDIT);
+    }
+    DivTag editContent =
+        div()
+            .with(editElement.asAnchorText().attr("aria-label", ariaLabel))
+            .withClasses(
+                "font-medium", "break-normal", "flex", "flex-grow", "justify-end", "items-center");
+    return editContent;
   }
 
   private DivTag renderRepeatedEntitySection(RepeatedEntity repeatedEntity, Messages messages) {
