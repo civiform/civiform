@@ -118,7 +118,7 @@ class PreviewController {
 
     const questionSettings = document.getElementById(
       PreviewController.QUESTION_SETTINGS_ID,
-    ) 
+    )
     const questionPreviewContainer = document.getElementById(
       PreviewController.SAMPLE_QUESTION_ID,
     )
