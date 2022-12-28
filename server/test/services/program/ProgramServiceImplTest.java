@@ -1062,24 +1062,30 @@ public class ProgramServiceImplTest extends ResetPostgres {
   @Test
   public void deleteBlock_removesEligibilityPredicateQuestion_throwsException() {
     QuestionDefinition question = nameQuestion;
-    EligibilityDefinition eligibility = EligibilityDefinition.builder().setPredicate(
-      PredicateDefinition.create(
-        PredicateExpressionNode.create(
-          LeafOperationExpressionNode.create(
-            question.getId(), Scalar.FIRST_NAME, Operator.EQUAL_TO, PredicateValue.of(""))),
-        PredicateAction.HIDE_BLOCK)).build();
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of(""))),
+                    PredicateAction.HIDE_BLOCK))
+            .build();
     ProgramDefinition program =
-      ProgramBuilder.newDraftProgram()
-        .withBlock()
-        .withRequiredQuestionDefinition(addressQuestion)
-        .withBlock()
-        .withEligibilityDefinition(eligibility)
-        .buildDefinition();
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(addressQuestion)
+            .withBlock()
+            .withEligibilityDefinition(eligibility)
+            .buildDefinition();
 
     // This predicate depends on a question that doesn't exist in a prior block.
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
-      .isThrownBy(() -> ps.deleteBlock(program.id(), 1L))
-      .withMessage("This action would invalidate a block condition");
+        .isThrownBy(() -> ps.deleteBlock(program.id(), 1L))
+        .withMessage("This action would invalidate a block condition");
   }
 
   @Test
