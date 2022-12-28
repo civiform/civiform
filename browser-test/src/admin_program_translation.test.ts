@@ -1,5 +1,6 @@
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
   logout,
@@ -56,11 +57,11 @@ describe('Admin can manage translations', () => {
     expect(cardText).toContain('Spanish description')
   })
 
-  // TODO(#3071): Re-enable when the feature flag is controllable in tests.
-  it.skip('creates a program with statuses and adds translations for program statuses', async () => {
+  it('creates a program with statuses and adds translations for program statuses', async () => {
     const {page, adminPrograms, adminProgramStatuses, adminTranslations} = ctx
 
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
     const programName = 'Program to be translated with statuses'
     await adminPrograms.addProgram(programName)
