@@ -33,19 +33,20 @@ export class TIDashboard {
   }
 
   async expectDashboardContainClient(client: ClientInformation) {
-    const rowText = await this.page
-      .locator(
-        `.cf-admin-question-table-row:has-text("${client.emailAddress}")`,
-      )
-      .innerText()
-    expect(rowText).toContain(this.convertToMMDDYYYY(client.dobDate))
+    const row = this.page.locator(
+      `.cf-admin-question-table-row:has-text("${client.emailAddress}")`,
+    )
+    const rowText = await row.innerText()
     expect(rowText).toContain(client.firstName)
     expect(rowText).toContain(client.lastName)
+    // date of birth rendered as <input> rather than plain text.
+    expect(await row.locator('input[name="dob"]').inputValue()).toEqual(
+      client.dobDate,
+    )
   }
 
   async expectDashboardNotContainClient(client: ClientInformation) {
     const tableInnerText = await this.page.innerText('table')
-    expect(tableInnerText).not.toContain(this.convertToMMDDYYYY(client.dobDate))
     expect(tableInnerText).not.toContain(client.emailAddress)
     expect(tableInnerText).not.toContain(client.firstName)
     expect(tableInnerText).not.toContain(client.lastName)
@@ -54,11 +55,6 @@ export class TIDashboard {
   async searchByDateOfBirth(dobDate: string) {
     await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
     await this.page.click('button:text("Search")')
-  }
-
-  convertToMMDDYYYY(dobDate: string): string {
-    const [year, month, day] = dobDate.split('-')
-    return `${month}-${day}-${year}`
   }
 }
 
