@@ -107,8 +107,7 @@ export class ToastController {
     const toastContainer = document.getElementById(ToastController.CONTAINER_ID)
     if (toastContainer) {
       toastContainer.appendChild(toastMessage)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      toastContainer!.classList.remove('hidden')
+      toastContainer.classList.remove('hidden')
       if (message.duration > 0) {
         setTimeout(
           ToastController.dismissToast,
@@ -160,12 +159,10 @@ export class ToastController {
     )
     messages.forEach((element) => {
       const message: ToastMessage = {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        id: element.getAttribute('id')!,
+        id: element.getAttribute('id'),
         canDismiss: element.getAttribute('canDismiss') === 'true',
         canIgnore: element.getAttribute('canIgnore') === 'true',
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        content: element.textContent!,
+        content: element.textContent,
         duration: Number(element.getAttribute('toastDuration')),
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         type: element.getAttribute('toastType')!.toLowerCase(),

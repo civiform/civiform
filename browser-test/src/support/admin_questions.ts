@@ -14,10 +14,6 @@ type QuestionParams = {
   exportOption?: string
 }
 
-// Disable no-unused-vars check as values of this enum are iterated through
-// using Object.values(QuestionType) in some tests and that doesn't get detected
-// by the ESLint.
-/* eslint-disable no-unused-vars */
 export enum QuestionType {
   ADDRESS = 'address',
   CHECKBOX = 'checkbox',
@@ -140,7 +136,7 @@ export class AdminQuestions {
   async updateQuestionText(updateText: string) {
     // This function should only be called on question create/edit page.
     const questionText = await this.page.textContent('#question-text-textarea')
-    const updatedText = questionText + updateText
+    const updatedText = questionText! + updateText
 
     await this.page.fill('text=Question Text', updatedText)
     return updatedText
@@ -491,7 +487,7 @@ export class AdminQuestions {
         })
         break
       default:
-        throw new Error(`Unhandled question type ${type}`)
+        throw new Error(`Unhandled question type ${type as string}`)
     }
   }
 

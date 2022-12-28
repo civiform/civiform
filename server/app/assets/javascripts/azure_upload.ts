@@ -2,6 +2,12 @@
  * This is responsible for uploading a file to Azure blob storage.
  */
 
+// TODO(#3994): update Azure storage blob dependency and remove exceptions
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 class AzureUploadController {
   private static FILEUPLOAD_FORM_ID = 'cf-block-form'
   private static AZURE_UPLOAD_SELECTOR = '.azure-upload'
@@ -87,9 +93,8 @@ class AzureUploadController {
         'successActionRedirect',
       ),
       containerName: this.getValueFromInputLabel('containerName'),
-      file: (<HTMLInputElement>(
-        uploadContainer.querySelector('input[type=file]')
-      )).files[0],
+      file: uploadContainer.querySelector<HTMLInputElement>('input[type=file]')
+        .files[0],
       fileName: this.getValueFromInputLabel('fileName'),
     }
   }

@@ -51,7 +51,6 @@ export const isLocalDevEnvironment = () => {
   )
 }
 
-/* eslint-disable no-unused-vars */
 /**
  * Different auth strategies that are being exercised in this test. Each strategy
  * requires different logic for login (which fields to fill and button to click on
@@ -62,7 +61,6 @@ export enum AuthStrategy {
   AWS_STAGING = 'aws-staging',
   SEATTLE_STAGING = 'seattle-staging',
 }
-/* eslint-enable no-unused-vars */
 
 function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   if (process.env.RECORD_VIDEO) {
@@ -556,7 +554,11 @@ const normalizeElements = async (page: Frame | Page) => {
     }
   })
 }
-export type LocalstackSesEmail = {
+
+type LocalstackSesResponse = {
+  messages: LocalstackSesEmail[]
+}
+type LocalstackSesEmail = {
   Body: {
     html_part: string | null
     text_part: string | null
@@ -584,9 +586,11 @@ export const extractEmailsForRecipient = async function (
   }
   const originalPageUrl = page.url()
   await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
-  const responseJson = JSON.parse(await page.innerText('body')) as any
+  const responseJson = JSON.parse(
+    await page.innerText('body'),
+  ) as LocalstackSesResponse
 
-  const allEmails = responseJson.messages as LocalstackSesEmail[]
+  const allEmails = responseJson.messages
   const filteredEmails = allEmails.filter((email) => {
     return email.Destination.ToAddresses.includes(recipientEmail)
   })

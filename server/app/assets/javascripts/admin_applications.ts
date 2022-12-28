@@ -104,13 +104,6 @@ class AdminApplications {
     return value
   }
 
-  _assertIsNumber(value: any): number {
-    if (typeof value !== 'number') {
-      throw new Error(`Expected ${value} to be a number, got: ${typeof value}`)
-    }
-    return value
-  }
-
   registerApplicationViewPostMessageListener() {
     window.addEventListener('message', (ev) => {
       if (ev.origin !== window.location.origin) {

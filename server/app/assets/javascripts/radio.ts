@@ -68,12 +68,11 @@ class RadioController {
         }
         // If this is a checkbox we need to check or uncheck the "None selected" option.
         if (targetElement.type === 'checkbox') {
-          const defaultCheckbox = document.querySelector(
+          const defaultCheckbox = document.querySelector<HTMLInputElement>(
             RadioController.radioDefaultClass + "[name='" + radioName + "']",
-          ) as HTMLInputElement
+          )
           if (defaultCheckbox !== null) {
             defaultCheckbox.checked = checkCount == 0
-            console.log('Number selected for ' + radioName + ': ' + checkCount)
           }
         }
       })

@@ -118,7 +118,7 @@ class PreviewController {
 
     const questionSettings = document.getElementById(
       PreviewController.QUESTION_SETTINGS_ID,
-    ) as HTMLElement | null
+    )
     const questionPreviewContainer = document.getElementById(
       PreviewController.SAMPLE_QUESTION_ID,
     )
@@ -224,9 +224,9 @@ class PreviewController {
         PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS,
       )
         ? newPreviewOption
-        : (newPreviewOption.querySelector(
+        : newPreviewOption.querySelector<HTMLElement>(
             `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
-          ) as HTMLElement)
+          )
       optionText.innerText = configuredOption
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
@@ -245,7 +245,7 @@ class PreviewController {
 
       const contentParent = document.querySelector(
         PreviewController.QUESTION_TEXT_SELECTOR,
-      ) as Element
+      )
       if (contentParent) {
         contentParent.innerHTML = ''
         contentParent.appendChild(contentElement)
