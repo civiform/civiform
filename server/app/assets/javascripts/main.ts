@@ -54,8 +54,11 @@ function changeUpdateBlockButtonState() {
   const blockEditForm = document.getElementById('block-edit-form')
   const submitButton = document.getElementById('update-block-button')
 
-  const formNameInput = blockEditForm['block-name-input']
-  const formDescriptionText = blockEditForm['block-description-textarea']
+  const formNameInput =
+    blockEditForm.querySelector<HTMLInputElement>('#block-name-input')
+  const formDescriptionText = blockEditForm.querySelector<HTMLTextAreaElement>(
+    '#block-description-textarea',
+  )
 
   if (
     (formNameInput.value !== formNameInput.defaultValue ||
@@ -172,8 +175,7 @@ function filterOperators(
   // Filter the operators available for the given selected scalar type.
   const operatorDropdown = scalarDropdown
     .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-operator-select') // div containing the operator dropdown
-    .querySelector('select') as HTMLSelectElement
+    .querySelector<HTMLSelectElement>('.cf-operator-select select')
 
   Array.from(operatorDropdown.options).forEach((operatorOption) => {
     // Remove any existing hidden class from previous filtering.
