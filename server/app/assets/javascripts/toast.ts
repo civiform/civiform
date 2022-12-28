@@ -101,7 +101,7 @@ class ToastController {
         'hover:opacity-100',
       )
       dismissButton.textContent = 'x'
-      dismissButton.addEventListener('click', this.dismissClicked)
+      dismissButton.addEventListener('click', ToastController.dismissClicked)
       toastMessage.appendChild(dismissButton)
       toastMessage.classList.add('pr-8')
     }
@@ -109,8 +109,7 @@ class ToastController {
     const toastContainer = document.getElementById(ToastController.containerId)
     if (toastContainer) {
       toastContainer.appendChild(toastMessage)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      toastContainer!.classList.remove('hidden')
+      toastContainer.classList.remove('hidden')
       if (message.duration > 0) {
         setTimeout(
           ToastController.dismissToast,
@@ -162,12 +161,10 @@ class ToastController {
     )
     messages.forEach((element) => {
       const message: ToastMessage = {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        id: element.getAttribute('id')!,
+        id: element.getAttribute('id'),
         canDismiss: element.getAttribute('canDismiss') === 'true',
         canIgnore: element.getAttribute('canIgnore') === 'true',
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        content: element.textContent!,
+        content: element.textContent,
         duration: Number(element.getAttribute('toastDuration')),
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         type: element.getAttribute('toastType')!.toLowerCase(),
@@ -181,7 +178,7 @@ class ToastController {
    *  Hide warning message and throw an indicator in local storage to not show.
    *  @param {Event} event The event that triggered this action.
    *  */
-  dismissClicked(event: Event) {
+  static dismissClicked(event: Event) {
     const target = event.target as Element
     const toast = target.closest('.' + ToastController.messageClass)
     if (toast && toast.hasAttribute('id')) {

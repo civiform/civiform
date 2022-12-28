@@ -33,14 +33,14 @@ export class TIDashboard {
   }
 
   async expectDashboardContainClient(client: ClientInformation) {
-    expect(
-      `.cf-admin-question-table-row:has-text("${this.convertToMMDDYYYY(
-        client.dobDate,
-      )}")`,
-    )
-    expect(`.cf-admin-question-table-row:has-text("${client.emailAddress}")`)
-    expect(`.cf-admin-question-table-row:has-text("${client.firstName}")`)
-    expect(`.cf-admin-question-table-row:has-text("${client.lastName}")`)
+    const rowText = await this.page
+      .locator(
+        `.cf-admin-question-table-row:has-text("${client.emailAddress}")`,
+      )
+      .innerText()
+    expect(rowText).toContain(this.convertToMMDDYYYY(client.dobDate))
+    expect(rowText).toContain(client.firstName)
+    expect(rowText).toContain(client.lastName)
   }
 
   async expectDashboardNotContainClient(client: ClientInformation) {

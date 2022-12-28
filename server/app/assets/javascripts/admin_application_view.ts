@@ -127,7 +127,7 @@ class AdminApplicationView {
     inputName: string,
   ): string {
     return this._assertNotNull(
-      formEl.querySelector(`[name=${inputName}]`) as HTMLInputElement,
+      formEl.querySelector<HTMLInputElement>(`[name=${inputName}]`),
       inputName,
     ).value
   }
@@ -137,22 +137,22 @@ class AdminApplicationView {
     inputName: string,
   ): string {
     const checkbox = this._assertNotNull(
-      formEl.querySelector(`[name=${inputName}]`) as HTMLInputElement,
+      formEl.querySelector<HTMLInputElement>(`[name=${inputName}]`),
       inputName,
     )
     return checkbox.checked ? checkbox.value : ''
   }
 
   private registerStatusSelectorEventListener() {
-    const statusSelectForm = document.querySelector(
+    const statusSelectForm = document.querySelector<HTMLFormElement>(
       AdminApplicationView.APPLICATION_STATUS_SELECTOR,
-    ) as HTMLFormElement | null
+    )
     if (!statusSelectForm) {
       // If status tracking isn't enabled, there's nothing to do.
       return
     }
     const statusSelector = this._assertNotNull(
-      statusSelectForm.querySelector('select') as HTMLSelectElement | null,
+      statusSelectForm.querySelector<HTMLSelectElement>('select'),
       'status selector',
     )
 
