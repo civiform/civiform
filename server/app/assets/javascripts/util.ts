@@ -28,6 +28,7 @@ export function addEventListenerToElements<K extends keyof HTMLElementEventMap>(
  *
  * This is preferred way of asserting values over using assertion `value!` as
  * latter doesn't throw error immediately and instead value can be dereferenced later in the code flow making root cause of the error harder to track.
+ *
  * @param value
  * @param extraInfo Additional info to add to the error if provided value is null. In most cases it's not needed as stack trace is enough to identify the location of the error.
  */

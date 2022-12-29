@@ -11,7 +11,6 @@
     "mapRoot": "/assets/javascripts",
     "sourceRoot": "/assets/javascripts",
     "baseUrl": "./",
-    // TODO(#3361): fix and reenable strict checks.
     "strict": true
   },
   "include": ["app/assets/javascripts/*"]

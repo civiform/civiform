@@ -90,10 +90,9 @@ class AzureUploadController {
 
   private getAzureUploadProps(uploadContainer: HTMLElement) {
     const files = assert(
-      assert(
-        uploadContainer.querySelector<HTMLInputElement>('input[type=file]'),
-      ),
-    ).files
+      uploadContainer.querySelector<HTMLInputElement>('input[type=file]')
+        ?.files,
+    )
     return {
       sasToken: this.getValueFromInputLabel('sasToken'),
       blobUrl: this.getValueFromInputLabel('blobUrl'),
@@ -101,7 +100,7 @@ class AzureUploadController {
         'successActionRedirect',
       ),
       containerName: this.getValueFromInputLabel('containerName'),
-      file: assert(files)[0],
+      file: files[0],
       fileName: this.getValueFromInputLabel('fileName'),
     }
   }

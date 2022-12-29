@@ -184,7 +184,7 @@ function filterOperators(
   // Filter the operators available for the given selected scalar type.
   const operatorDropdown = assert(
     scalarDropdown
-      ?.closest('.cf-predicate-options') // div containing all predicate builder form fields
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
       ?.querySelector<HTMLSelectElement>('.cf-operator-select select'),
   )
 
