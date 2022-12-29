@@ -824,8 +824,8 @@ public final class ProgramServiceImpl implements ProgramService {
         continue;
       }
 
-      int groupId = Integer.valueOf(matcher.group(0));
-      int questionId = Integer.valueOf(matcher.group(1));
+      int groupId = Integer.valueOf(matcher.group(1));
+      int questionId = Integer.valueOf(matcher.group(2));
       String rawPredicateValue = predicateForm.get(key);
       String rawScalarValue = predicateForm.get(String.format("question-%d-scalar", questionId));
       String rawOperatorValue =
