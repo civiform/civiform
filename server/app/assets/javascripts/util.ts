@@ -42,8 +42,8 @@ export function assertNotNull<T>(
   extraInfo = '',
 ): T {
   if (value == null) {
-    const extra = extraInfo !== '' ? ' Extra info: ' + extraInfo : ''
-    throw new Error(`Provided value is ${String(value)}.${extra}`)
+    const extra = extraInfo !== '' ? `Extra info: ${extraInfo}` : ''
+    throw new Error(`Provided value is ${String(value)}. ${extra}`)
   }
   return value
 }
