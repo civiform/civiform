@@ -1,4 +1,5 @@
 /** The question bank controller is responsible for manipulating the question bank. */
+import {assertNotNull} from './util'
 
 class QuestionBankController {
   static readonly FILTER_ID = 'question-bank-filter'
@@ -82,7 +83,10 @@ class QuestionBankController {
   }
 
   static hideQuestionBank(container: HTMLElement) {
-    container.querySelector('.cf-question-bank-panel').addEventListener(
+    const panel = assertNotNull(
+      container.querySelector('.cf-question-bank-panel'),
+    )
+    panel.addEventListener(
       'transitionend',
       () => {
         container.classList.add('hidden')
@@ -125,7 +129,7 @@ class QuestionBankController {
       const questionContents = questionElement.innerText
       questionElement.classList.toggle(
         'hidden',
-        filterString.length &&
+        filterString.length > 0 &&
           !questionContents.toUpperCase().includes(filterString),
       )
     })

@@ -1,3 +1,5 @@
+import {assertNotNull} from './util'
+
 class AdminApplicationView {
   private static APPLICATION_STATUS_SELECTOR =
     '.cf-program-admin-status-selector'
@@ -35,10 +37,7 @@ class AdminApplicationView {
       // within the IFrame.
       statusUpdateForm.addEventListener('submit', (ev) => {
         ev.preventDefault()
-        const formEl = this._assertNotNull(
-          ev.target as HTMLFormElement,
-          'form element',
-        )
+        const formEl = assertNotNull(ev.target as HTMLFormElement)
         window.parent.postMessage(
           {
             messageType: 'UPDATE_STATUS',
@@ -89,10 +88,7 @@ class AdminApplicationView {
     // list of applications to reflect the note change.
     editNoteForm.addEventListener('submit', (ev) => {
       ev.preventDefault()
-      const formEl = this._assertNotNull(
-        ev.target as HTMLFormElement,
-        'form element',
-      )
+      const formEl = assertNotNull(ev.target as HTMLFormElement)
       window.parent.postMessage(
         {
           messageType: 'EDIT_NOTE',
@@ -126,7 +122,7 @@ class AdminApplicationView {
     formEl: HTMLFormElement,
     inputName: string,
   ): string {
-    return this._assertNotNull(
+    return assertNotNull(
       formEl.querySelector<HTMLInputElement>(`[name=${inputName}]`),
       inputName,
     ).value
@@ -136,7 +132,7 @@ class AdminApplicationView {
     formEl: HTMLFormElement,
     inputName: string,
   ): string {
-    const checkbox = this._assertNotNull(
+    const checkbox = assertNotNull(
       formEl.querySelector<HTMLInputElement>(`[name=${inputName}]`),
       inputName,
     )
@@ -151,9 +147,8 @@ class AdminApplicationView {
       // If status tracking isn't enabled, there's nothing to do.
       return
     }
-    const statusSelector = this._assertNotNull(
+    const statusSelector = assertNotNull(
       statusSelectForm.querySelector<HTMLSelectElement>('select'),
-      'status selector',
     )
 
     // Remember the original value here since neither the 'change/input' events provide the
@@ -175,7 +170,7 @@ class AdminApplicationView {
         `[${AdminApplicationView.CONFIRM_MODAL_FOR_DATA_ATTRIBUTE}]`,
       ),
     )
-    const relevantStatusModalTrigger = this._assertNotNull(
+    const relevantStatusModalTrigger = assertNotNull(
       statusModalTriggers.find((statusModalTrigger) => {
         return (
           selectedStatus ===
@@ -184,17 +179,8 @@ class AdminApplicationView {
           )
         )
       }) as HTMLButtonElement | null,
-      'confirmation modal button',
     )
     relevantStatusModalTrigger.click()
-  }
-
-  _assertNotNull<T>(value: T | null | undefined, description: string): T {
-    if (value == null) {
-      throw new Error(`Expected ${description} not to be null.`)
-    }
-
-    return value
   }
 }
 
