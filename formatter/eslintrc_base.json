@@ -16,7 +16,9 @@
   "plugins": ["@typescript-eslint"],
   "rules": {
     "require-jsdoc": "off",
-    "valid-jsdoc": "warn",
+    // valid-jsdoc is deprecated. If we want JSdoc checks we should use
+    // https://github.com/gajus/eslint-plugin-jsdoc with TS-specific settings.
+    "valid-jsdoc": "off",
     // default JS no-unused-vars causes false-positives on TS code. For example
     // enums.
     "no-unused-vars": "off",
