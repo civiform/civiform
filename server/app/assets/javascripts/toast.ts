@@ -6,7 +6,7 @@
  *  - dismiss a toast messages based on a user action or after a specified timeout.
  *  - permanently dismiss toast messags (using localStorage)
  */
-import {assert} from './util'
+import {assertNotNull} from './util'
 
 export class ToastController {
   private static readonly CONTAINER_ID = 'toast-container'
@@ -164,9 +164,9 @@ export class ToastController {
         id: element.id,
         canDismiss: element.getAttribute('canDismiss') === 'true',
         canIgnore: element.getAttribute('canIgnore') === 'true',
-        content: assert(element.textContent),
+        content: assertNotNull(element.textContent),
         duration: Number(element.getAttribute('toastDuration')),
-        type: assert(element.getAttribute('toastType')).toLowerCase(),
+        type: element.getAttribute('toastType')!.toLowerCase(),
       }
       element.remove()
       ToastController.showToastMessage(message)

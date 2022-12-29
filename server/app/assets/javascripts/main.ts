@@ -1,4 +1,4 @@
-import {addEventListenerToElements, assert} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 /**
  * We're trying to keep the JS pretty minimal for CiviForm, so we're only using it
@@ -51,13 +51,17 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
  * In admin program block edit form - enabling submit button when form is changed or if not empty
  */
 function changeUpdateBlockButtonState() {
-  const blockEditForm = assert(document.getElementById('block-edit-form'))
-  const submitButton = assert(document.getElementById('update-block-button'))
+  const blockEditForm = assertNotNull(
+    document.getElementById('block-edit-form'),
+  )
+  const submitButton = assertNotNull(
+    document.getElementById('update-block-button'),
+  )
 
-  const formNameInput = assert(
+  const formNameInput = assertNotNull(
     blockEditForm.querySelector<HTMLInputElement>('#block-name-input'),
   )
-  const formDescriptionText = assert(
+  const formDescriptionText = assertNotNull(
     blockEditForm.querySelector<HTMLTextAreaElement>(
       '#block-description-textarea',
     ),
@@ -89,21 +93,20 @@ function addNewInput(
   divContainerId: string,
 ) {
   // Copy the answer template and remove ID and hidden properties.
-  const newField = assert(document.getElementById(inputTemplateId)).cloneNode(
-    true,
-  ) as HTMLElement
+  const newField = assertNotNull(
+    document.getElementById(inputTemplateId),
+  ).cloneNode(true) as HTMLElement
   newField.classList.remove('hidden')
   newField.removeAttribute('id')
 
   // Register the click event handler for the remove button.
-  assert(newField.querySelector('[type=button]')).addEventListener(
-    'click',
-    removeInput,
-  )
+  newField
+    .querySelector('[type=button]')!
+    .addEventListener('click', removeInput)
 
   // Find the add option button and insert the new option input field before it.
   const button = document.getElementById(addButtonId)
-  assert(document.getElementById(divContainerId)).insertBefore(newField, button)
+  document.getElementById(divContainerId)!.insertBefore(newField, button)
 }
 
 /**
@@ -113,7 +116,7 @@ function addNewInput(
  */
 function removeInput(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
-  const optionDiv = assert(
+  const optionDiv = assertNotNull(
     (event.currentTarget as Element).parentNode,
   ) as HTMLElement
   optionDiv.remove()
@@ -125,9 +128,9 @@ function removeInput(event: Event) {
  * @param {Event} event The event that triggered this action.
  */
 function hideInput(event: Event) {
-  const inputDiv = assert((event.currentTarget as Element).parentElement)
+  const inputDiv = assertNotNull((event.currentTarget as Element).parentElement)
   // Remove 'disabled' so the field is submitted with the form
-  assert(inputDiv.querySelector('input')).disabled = false
+  inputDiv.querySelector('input')!.disabled = false
   // Hide the entire div from the user
   inputDiv.classList.add('hidden')
 }
@@ -156,7 +159,7 @@ function attachLineClampListeners() {
 function configurePredicateFormOnScalarChange(event: Event) {
   // Get the type of scalar currently selected.
   const scalarDropdown = event.target as HTMLSelectElement
-  const selectedScalarType = assert(
+  const selectedScalarType = assertNotNull(
     scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
   )
   const selectedScalarValue =
@@ -182,7 +185,7 @@ function filterOperators(
   selectedScalarValue: string,
 ) {
   // Filter the operators available for the given selected scalar type.
-  const operatorDropdown = assert(
+  const operatorDropdown = assertNotNull(
     scalarDropdown
       .closest('.cf-predicate-options') // div containing all predicate builder form fields
       ?.querySelector<HTMLSelectElement>('.cf-operator-select select'),
@@ -253,7 +256,7 @@ function configurePredicateValueInput(
     return
   }
 
-  const operatorDropdown = assert(
+  const operatorDropdown = assertNotNull(
     scalarDropdown
       .closest('.cf-predicate-options') // div containing all predicate builder form fields
       ?.querySelector<HTMLSelectElement>('.cf-operator-select select'),
@@ -261,7 +264,7 @@ function configurePredicateValueInput(
   const operatorValue =
     operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
-  const valueInput = assert(
+  const valueInput = assertNotNull(
     scalarDropdown
       .closest('.cf-predicate-options') // div containing all predicate builder form fields
       ?.querySelector<HTMLInputElement>('.cf-predicate-value-input input'),
@@ -321,12 +324,12 @@ function configurePredicateFormOnOperatorChange(event: Event) {
   }
 
   // The type of the value field may need to change based on the current operator
-  const scalarDropdown = assert(
+  const scalarDropdown = assertNotNull(
     operatorDropdown
       .closest('.cf-predicate-options') // div containing all predicate builder form fields
       ?.querySelector<HTMLSelectElement>('.cf-scalar-select select'),
   )
-  const selectedScalarType = assert(
+  const selectedScalarType = assertNotNull(
     scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
   )
   const selectedScalarValue =
@@ -361,7 +364,7 @@ function attachFormDebouncers() {
 function attachRedirectToPageListeners() {
   addEventListenerToElements('[data-redirect-to]', 'click', (e: Event) => {
     e.stopPropagation()
-    window.location.href = assert(
+    window.location.href = assertNotNull(
       (e.currentTarget as HTMLElement).dataset.redirectTo,
     )
   })

@@ -1,5 +1,5 @@
 /** The question bank controller is responsible for manipulating the question bank. */
-import {assert} from './util'
+import {assertNotNull} from './util'
 
 class QuestionBankController {
   static readonly FILTER_ID = 'question-bank-filter'
@@ -83,7 +83,9 @@ class QuestionBankController {
   }
 
   static hideQuestionBank(container: HTMLElement) {
-    const panel = assert(container.querySelector('.cf-question-bank-panel'))
+    const panel = assertNotNull(
+      container.querySelector('.cf-question-bank-panel'),
+    )
     panel.addEventListener(
       'transitionend',
       () => {

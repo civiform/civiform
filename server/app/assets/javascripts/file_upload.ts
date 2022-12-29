@@ -1,4 +1,4 @@
-import {assert} from './util'
+import {assertNotNull} from './util'
 
 const UPLOAD_ATTR = 'data-upload-text'
 
@@ -21,12 +21,12 @@ export function init() {
 
     if (uploadedDivs.length) {
       const uploadedDiv = uploadedDivs[0]
-      const uploadText = assert(uploadedDiv.getAttribute(UPLOAD_ATTR))
+      const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
 
       blockForm.addEventListener('change', (event) => {
         if (uploadedDiv.innerHTML) return
-        const files = (assert(event.target) as HTMLInputElement).files
-        const file = assert(files)[0]
+        const files = (event.target! as HTMLInputElement).files
+        const file = assertNotNull(files)[0]
         uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
       })
     }
@@ -42,7 +42,7 @@ function validateFileUploadQuestions(formEl: Element): boolean {
   )
   for (const question of questions) {
     // validate a file is selected.
-    const fileInput = assert(
+    const fileInput = assertNotNull(
       question.querySelector<HTMLInputElement>('input[type=file]'),
     )
 

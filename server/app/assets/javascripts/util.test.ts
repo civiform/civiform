@@ -1,4 +1,4 @@
-import {addEventListenerToElements, assert} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 describe('addEventListenerToElements', () => {
   let container: HTMLElement
@@ -40,26 +40,26 @@ describe('addEventListenerToElements', () => {
 
 describe('assert', () => {
   it('does not throw on non-null values', () => {
-    expect(assert('')).toEqual('')
-    expect(assert(false)).toEqual(false)
-    expect(assert([])).toEqual([])
-    expect(assert(0)).toEqual(0)
+    expect(assertNotNull('')).toEqual('')
+    expect(assertNotNull(false)).toEqual(false)
+    expect(assertNotNull([])).toEqual([])
+    expect(assertNotNull(0)).toEqual(0)
     const val = {}
-    expect(assert(val)).toEqual(val)
+    expect(assertNotNull(val)).toEqual(val)
   })
 
   it('throws errors on null and undefined', () => {
     expect(() => {
-      assert(null)
+      assertNotNull(null)
     }).toThrow('Provided value is null.')
     expect(() => {
-      assert(undefined)
+      assertNotNull(undefined)
     }).toThrow('Provided value is undefined.')
   })
 
   it('adds extra info to error if passed', () => {
     expect(() => {
-      assert(null, 'foobar')
+      assertNotNull(null, 'foobar')
     }).toThrow('Provided value is null. Extra info: foobar')
   })
 })

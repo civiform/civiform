@@ -1,4 +1,4 @@
-import {assert} from './util'
+import {assertNotNull} from './util'
 
 class AdminApplicationView {
   private static APPLICATION_STATUS_SELECTOR =
@@ -37,7 +37,7 @@ class AdminApplicationView {
       // within the IFrame.
       statusUpdateForm.addEventListener('submit', (ev) => {
         ev.preventDefault()
-        const formEl = assert(ev.target as HTMLFormElement)
+        const formEl = assertNotNull(ev.target as HTMLFormElement)
         window.parent.postMessage(
           {
             messageType: 'UPDATE_STATUS',
@@ -88,7 +88,7 @@ class AdminApplicationView {
     // list of applications to reflect the note change.
     editNoteForm.addEventListener('submit', (ev) => {
       ev.preventDefault()
-      const formEl = assert(ev.target as HTMLFormElement)
+      const formEl = assertNotNull(ev.target as HTMLFormElement)
       window.parent.postMessage(
         {
           messageType: 'EDIT_NOTE',
@@ -122,7 +122,7 @@ class AdminApplicationView {
     formEl: HTMLFormElement,
     inputName: string,
   ): string {
-    return assert(
+    return assertNotNull(
       formEl.querySelector<HTMLInputElement>(`[name=${inputName}]`),
       inputName,
     ).value
@@ -132,7 +132,7 @@ class AdminApplicationView {
     formEl: HTMLFormElement,
     inputName: string,
   ): string {
-    const checkbox = assert(
+    const checkbox = assertNotNull(
       formEl.querySelector<HTMLInputElement>(`[name=${inputName}]`),
       inputName,
     )
@@ -147,7 +147,7 @@ class AdminApplicationView {
       // If status tracking isn't enabled, there's nothing to do.
       return
     }
-    const statusSelector = assert(
+    const statusSelector = assertNotNull(
       statusSelectForm.querySelector<HTMLSelectElement>('select'),
     )
 
@@ -170,7 +170,7 @@ class AdminApplicationView {
         `[${AdminApplicationView.CONFIRM_MODAL_FOR_DATA_ATTRIBUTE}]`,
       ),
     )
-    const relevantStatusModalTrigger = assert(
+    const relevantStatusModalTrigger = assertNotNull(
       statusModalTriggers.find((statusModalTrigger) => {
         return (
           selectedStatus ===

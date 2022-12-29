@@ -9,7 +9,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assert} from './util'
+import {assertNotNull} from './util'
 
 class AzureUploadController {
   private static FILEUPLOAD_FORM_ID = 'cf-block-form'
@@ -22,7 +22,7 @@ class AzureUploadController {
     ) {
       return
     }
-    const blockForm = assert(
+    const blockForm = assertNotNull(
       document.getElementById(AzureUploadController.FILEUPLOAD_FORM_ID),
     )
     blockForm.addEventListener('submit', (event) => {
@@ -89,7 +89,7 @@ class AzureUploadController {
   }
 
   private getAzureUploadProps(uploadContainer: HTMLElement) {
-    const files = assert(
+    const files = assertNotNull(
       uploadContainer.querySelector<HTMLInputElement>('input[type=file]')
         ?.files,
     )

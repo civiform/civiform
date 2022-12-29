@@ -1,5 +1,5 @@
 /** This class controls the style of selected radio buttons. */
-import {assert} from './util'
+import {assertNotNull} from './util'
 
 class RadioController {
   static radioDefaultClass = '.cf-radio-default'
@@ -43,7 +43,7 @@ class RadioController {
       // Add listener to radio button.
       radio.addEventListener('change', (e) => {
         const targetElement = e.target as HTMLInputElement
-        const radioName = assert(targetElement.getAttribute('name'))
+        const radioName = assertNotNull(targetElement.getAttribute('name'))
         let checkCount = 0
         const buttons = Array.from(
           document.querySelectorAll(
