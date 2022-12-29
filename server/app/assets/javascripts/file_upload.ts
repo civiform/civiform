@@ -39,9 +39,9 @@ function validateFileUploadQuestions(formEl: Element): boolean {
   )
   for (const question of questions) {
     // validate a file is selected.
-    const fileInput = <HTMLInputElement>(
-      question.querySelector('input[type=file]')
-    )
+    const fileInput =
+      question.querySelector<HTMLInputElement>('input[type=file]')
+
     const isValid = fileInput.value != ''
 
     const errorDiv = question.querySelector('.cf-fileupload-error')

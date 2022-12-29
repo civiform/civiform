@@ -516,7 +516,7 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition moveBlock(
       long programId, long blockId, ProgramDefinition.Direction direction)
       throws ProgramNotFoundException, IllegalPredicateOrderingException {
-    Program program;
+    final Program program;
     try {
       program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
     } catch (ProgramBlockDefinitionNotFoundException e) {

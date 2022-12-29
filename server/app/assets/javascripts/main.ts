@@ -54,8 +54,11 @@ function changeUpdateBlockButtonState() {
   const blockEditForm = document.getElementById('block-edit-form')
   const submitButton = document.getElementById('update-block-button')
 
-  const formNameInput = blockEditForm['block-name-input']
-  const formDescriptionText = blockEditForm['block-description-textarea']
+  const formNameInput =
+    blockEditForm.querySelector<HTMLInputElement>('#block-name-input')
+  const formDescriptionText = blockEditForm.querySelector<HTMLTextAreaElement>(
+    '#block-description-textarea',
+  )
 
   if (
     (formNameInput.value !== formNameInput.defaultValue ||
