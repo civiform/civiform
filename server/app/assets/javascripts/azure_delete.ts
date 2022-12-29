@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * This is responsible for deleting a file that was uploaded to Azure blob storage.
@@ -23,7 +24,7 @@ class AzureDeleteController {
       AzureDeleteController.FILEUPLOAD_DELETE_ID,
     )
     if (deleteContainer) {
-      const azblob = window['azblob']
+      const azblob = (window as {[key: string]: any})['azblob']
       deleteContainer.addEventListener('click', () =>
         this.attemptDelete(azblob),
       )
