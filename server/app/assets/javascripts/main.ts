@@ -93,9 +93,9 @@ function addNewInput(
   divContainerId: string,
 ) {
   // Copy the answer template and remove ID and hidden properties.
-  const newField = assertNotNull(
-    document.getElementById(inputTemplateId),
-  ).cloneNode(true) as HTMLElement
+  const newField = document
+    .getElementById(inputTemplateId)!
+    .cloneNode(true) as HTMLElement
   newField.classList.remove('hidden')
   newField.removeAttribute('id')
 
@@ -128,7 +128,9 @@ function removeInput(event: Event) {
  * @param {Event} event The event that triggered this action.
  */
 function hideInput(event: Event) {
-  const inputDiv = assertNotNull((event.currentTarget as Element).parentElement)
+  const inputDiv = assertNotNull(
+    (event.currentTarget as Element)!.parentElement,
+  )
   // Remove 'disabled' so the field is submitted with the form
   inputDiv.querySelector('input')!.disabled = false
   // Hide the entire div from the user
