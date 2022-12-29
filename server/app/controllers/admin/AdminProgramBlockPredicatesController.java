@@ -5,6 +5,8 @@ import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
 import forms.BlockVisibilityPredicateForm;
@@ -33,6 +35,7 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import services.question.types.QuestionDefinition;
 import views.admin.programs.ProgramBlockPredicateConfigureView;
 import views.admin.programs.ProgramBlockPredicatesEditView;
 import views.admin.programs.ProgramBlockPredicatesEditView.ViewType;
@@ -235,7 +238,44 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       return ok(
           predicatesConfigureView.renderVisibility(
-              request, programDefinition, blockDefinition, form));
+              request,
+              programDefinition,
+              blockDefinition,
+              getQuestionDefinitions(programDefinition, blockDefinition, form)));
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result configureExistingVisibilityPredicate(
+      Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    try {
+      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+      ImmutableList<Long> questionIds =
+          blockDefinition
+              .visibilityPredicate()
+              .orElseThrow(
+                  () ->
+                      new RuntimeException(
+                          String.format(
+                              "Block %d has no visibility predicate", blockDefinition.id())))
+              .getQuestions();
+
+      ImmutableList<QuestionDefinition> questionDefinitions =
+          getQuestionDefinitions(
+              programDefinition,
+              blockDefinition,
+              (QuestionDefinition questionDefinition) ->
+                  questionIds.contains(questionDefinition.getId()));
+
+      return ok(
+          predicatesConfigureView.renderVisibility(
+              request, programDefinition, blockDefinition, questionDefinitions));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -254,8 +294,87 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       return ok(
           predicatesConfigureView.renderEligibility(
-              request, programDefinition, blockDefinition, form));
+              request,
+              programDefinition,
+              blockDefinition,
+              getQuestionDefinitionsForForm(programDefinition, blockDefinition, form)));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result configureExistingEligibilityPredicate(
+      Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    try {
+      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+      ImmutableList<Long> questionIds =
+          blockDefinition
+              .eligibilityDefinition()
+              .orElseThrow(
+                  () ->
+                      new RuntimeException(
+                          String.format(
+                              "Block %d has no eligibility definition", blockDefinition.id())))
+              .predicate()
+              .getQuestions();
+
+      ImmutableList<QuestionDefinition> questionDefinitions =
+          getQuestionDefinitions(
+              programDefinition,
+              blockDefinition,
+              (QuestionDefinition questionDefinition) ->
+                  questionIds.contains(questionDefinition.getId()));
+
+      return ok(
+          predicatesConfigureView.renderEligibility(
+              request, programDefinition, blockDefinition, questionDefinitions));
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private ImmutableList<QuestionDefinition> getQuestionDefinitionsForForm(
+      ProgramDefinition programDefinition, BlockDefinition blockDefinition, DynamicForm form) {
+    return getQuestionDefinitions(
+        programDefinition,
+        blockDefinition,
+        (QuestionDefinition questionDefinition) ->
+            form.rawData().containsKey(String.format("question-%d", questionDefinition.getId())));
+  }
+
+  private ImmutableList<QuestionDefinition> getQuestionDefinitions(
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition,
+      Predicate<QuestionDefinition> predicate) {
+
+    try {
+      return programDefinition
+          .getAvailablePredicateQuestionDefinitions(blockDefinition.id())
+          .stream()
+          .filter(predicate)
+          .collect(ImmutableList.toImmutableList());
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private ImmutableList<QuestionDefinition> getQuestionDefinitions(
+      ProgramDefinition programDefinition, BlockDefinition blockDefinition, DynamicForm form) {
+    try {
+      return programDefinition
+          .getAvailablePredicateQuestionDefinitions(blockDefinition.id())
+          .stream()
+          .filter(
+              questionDefinition ->
+                  form.rawData()
+                      .containsKey(String.format("question-%d", questionDefinition.getId())))
+          .collect(ImmutableList.toImmutableList());
+    } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
   }

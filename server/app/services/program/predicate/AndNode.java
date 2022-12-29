@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -20,12 +19,12 @@ public abstract class AndNode implements ConcretePredicateExpressionNode {
 
   @JsonCreator
   public static AndNode create(
-      @JsonProperty("children") ImmutableSet<PredicateExpressionNode> children) {
+      @JsonProperty("children") ImmutableList<PredicateExpressionNode> children) {
     return new AutoValue_AndNode(children);
   }
 
   @JsonProperty("children")
-  public abstract ImmutableSet<PredicateExpressionNode> children();
+  public abstract ImmutableList<PredicateExpressionNode> children();
 
   @Override
   @JsonIgnore

@@ -2,16 +2,12 @@ import {addEventListenerToElements} from './dom_utils'
 
 class AdminPredicatConfiguration {
   registerEventListeners() {
-    addEventListenerToElements(
-      '.cf-scalar-select',
-      'input',
-      this.configurePredicateFormOnScalarChange.bind(this),
+    addEventListenerToElements('.cf-scalar-select', 'input', (event: Event) =>
+      this.configurePredicateFormOnScalarChange(event),
     )
 
-    addEventListenerToElements(
-      '.cf-operator-select',
-      'input',
-      this.configurePredicateFormOnOperatorChange.bind(this),
+    addEventListenerToElements('.cf-operator-select', 'input', (event: Event) =>
+      this.configurePredicateFormOnOperatorChange(event),
     )
 
     // Trigger a select event to set the correct input type on the value field(s)
@@ -24,12 +20,14 @@ class AdminPredicatConfiguration {
 
     document
       .querySelector('#predicate-add-value-set')
-      ?.addEventListener('click', this.predicateAddValueRow.bind(this))
+      ?.addEventListener('click', (event: Event) =>
+        this.predicateAddValueRow(event),
+      )
 
     addEventListenerToElements(
-      'predicate-config-delete-value-row',
+      '.predicate-config-delete-value-row',
       'click',
-      this.predicateDeleteValueRow.bind(this),
+      (event: Event) => this.predicateDeleteValueRow(event),
     )
   }
 
@@ -48,9 +46,10 @@ class AdminPredicatConfiguration {
     const operatorDropdown = event.target as HTMLSelectElement
     const selectedOperatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
-    const questionId = (
-      operatorDropdown.closest('.cf-operator-select') as HTMLElement
-    )?.dataset?.questionId
+    const operatorDropdownContainer: HTMLElement = operatorDropdown.closest(
+      '.cf-operator-select',
+    )
+    const questionId: string = operatorDropdownContainer?.dataset?.questionId
 
     const commaSeparatedHelpTexts = document.querySelectorAll(
       `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`,
@@ -96,6 +95,7 @@ class AdminPredicatConfiguration {
    *  @param {HTMLSelectElement} scalarDropdown The element to configure the value input for.
    *  @param {string} selectedScalarType The tyoe of the selected option
    *  @param {string} selectedScalarValue The value of the selected option
+   *  @param {number} questionId The ID of the question for this predicate value
    */
   configurePredicateValueInput(
     scalarDropdown: HTMLSelectElement,
@@ -136,6 +136,18 @@ class AdminPredicatConfiguration {
           valueInput.setAttribute('type', 'text')
           break
         case 'CURRENCY_CENTS':
+          if (
+            operatorValue.toUpperCase() === 'IN' ||
+            operatorValue.toUpperCase() === 'NOT_IN'
+          ) {
+            // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
+            valueInput.setAttribute('type', 'text')
+          } else {
+            valueInput.setAttribute('step', '.01')
+            valueInput.setAttribute('placeholder', '$0.00')
+            valueInput.setAttribute('type', 'number')
+          }
+          break
         case 'LONG':
           if (
             operatorValue.toUpperCase() === 'IN' ||
@@ -144,6 +156,8 @@ class AdminPredicatConfiguration {
             // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
             valueInput.setAttribute('type', 'text')
           } else {
+            valueInput.setAttribute('step', '1')
+            valueInput.setAttribute('placeholder', '0')
             valueInput.setAttribute('type', 'number')
           }
           break
@@ -183,9 +197,8 @@ class AdminPredicatConfiguration {
       '.predicate-config-delete-value-row',
     )
 
-    deleteButtonDiv.addEventListener(
-      'click',
-      this.predicateDeleteValueRow.bind(this),
+    deleteButtonDiv.addEventListener('click', (event: Event) =>
+      this.predicateDeleteValueRow(event),
     )
     deleteButtonDiv.querySelector('svg').classList.remove('hidden')
 
@@ -262,9 +275,10 @@ class AdminPredicatConfiguration {
     )
   }
 
-  private getQuestionId(element: HTMLSelectElement) {
-    return (element.closest(`[data-question-id]`) as HTMLElement)?.dataset
-      .questionId
+  private getQuestionId(element: HTMLSelectElement): string {
+    const parentWithQuestionId: HTMLElement =
+      element.closest(`[data-question-id]`)
+    return parentWithQuestionId?.dataset?.questionId
   }
 
   private getElementWithQuestionId(
@@ -309,7 +323,7 @@ function filterOperators(
   const operatorDropdown = scalarDropdown
     .closest('.cf-predicate-options') // div containing all predicate builder form fields
     .querySelector('.cf-operator-select') // div containing the operator dropdown
-    .querySelector('select') as HTMLSelectElement
+    .querySelector('select')
 
   Array.from(operatorDropdown.options).forEach((operatorOption) => {
     // Remove any existing hidden class from previous filtering.
@@ -458,7 +472,7 @@ function configurePredicateFormOnOperatorChange(event: Event) {
 }
 
 export function init() {
-  // Hacky feature flag for the V2 predicate configuration UI.
+  // Feature flag for the V2 predicate configuration UI.
   if (document.querySelector('.predicate-config-value-row') == null) {
     addEventListenerToElements(
       '.cf-operator-select',
@@ -473,7 +487,9 @@ export function init() {
       'input',
       configurePredicateFormOnScalarChange,
     )
-  } else {
-    new AdminPredicatConfiguration().registerEventListeners()
+
+    return
   }
+
+  new AdminPredicatConfiguration().registerEventListeners()
 }

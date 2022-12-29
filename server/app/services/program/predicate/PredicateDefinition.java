@@ -7,7 +7,6 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -32,7 +31,7 @@ public abstract class PredicateDefinition {
 
   @JsonIgnore
   @Memoized
-  public ImmutableSet<Long> getQuestions() {
+  public ImmutableList<Long> getQuestions() {
     return rootNode().getQuestions();
   }
 

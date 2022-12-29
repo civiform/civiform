@@ -17,7 +17,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
-
 import java.util.UUID;
 import javax.inject.Inject;
 import play.mvc.Http;
@@ -84,7 +83,8 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
     final String textNewCondition;
     final String textNoAvailableQuestions;
     final String removePredicateUrl;
-    final String configurePredicateUrl;
+    final String configureExistingPredicateUrl;
+    final String configureNewPredicateUrl;
     final boolean hasExistingPredicate;
 
     switch (type) {
@@ -100,14 +100,20 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
                 + " screen.";
         hasExistingPredicate = blockDefinition.eligibilityDefinition().isPresent();
         textExistingPredicate =
-            blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate).map(
-                pred -> pred.toDisplayString(blockDefinition.name(), predicateQuestions))
+            blockDefinition
+                .eligibilityDefinition()
+                .map(EligibilityDefinition::predicate)
+                .map(pred -> pred.toDisplayString(blockDefinition.name(), predicateQuestions))
                 .orElse("This screen is always eligible.");
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyEligibility(
                     programDefinition.id(), blockDefinition.id())
                 .url();
-        configurePredicateUrl =
+        configureExistingPredicateUrl =
+            routes.AdminProgramBlockPredicatesController.configureExistingEligibilityPredicate(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        configureNewPredicateUrl =
             routes.AdminProgramBlockPredicatesController.configureNewEligibilityPredicate(
                     programDefinition.id(), blockDefinition.id())
                 .url();
@@ -124,14 +130,19 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
                 + " screen.";
         hasExistingPredicate = blockDefinition.visibilityPredicate().isPresent();
         textExistingPredicate =
-            blockDefinition.visibilityPredicate().map(
-                pred -> pred.toDisplayString(blockDefinition.name(), predicateQuestions))
+            blockDefinition
+                .visibilityPredicate()
+                .map(pred -> pred.toDisplayString(blockDefinition.name(), predicateQuestions))
                 .orElse("This screen is always shown.");
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyVisibility(
                     programDefinition.id(), blockDefinition.id())
                 .url();
-        configurePredicateUrl =
+        configureExistingPredicateUrl =
+            routes.AdminProgramBlockPredicatesController.configureExistingVisibilityPredicate(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        configureNewPredicateUrl =
             routes.AdminProgramBlockPredicatesController.configureNewVisibilityPredicate(
                     programDefinition.id(), blockDefinition.id())
                 .url();
@@ -153,7 +164,8 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
             .with(
                 submitButton(
                         String.format(
-                            "Remove %s condition", predicateTypeNameTitleCase.toLowerCase()))
+                            "Remove existing %s condition",
+                            predicateTypeNameTitleCase.toLowerCase()))
                     .withForm(removePredicateFormId)
                     .withCondDisabled(!hasExistingPredicate));
 
@@ -182,6 +194,16 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
                     .with(h2(h2CurrentCondition).withClasses("font-semibold", "text-lg"))
                     .with(
                         div(textExistingPredicate).withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
+            .with(
+                div(
+                    redirectButton(
+                            "edit-condition-button",
+                            String.format(
+                                "Edit existing %s condition",
+                                predicateTypeNameTitleCase.toLowerCase()),
+                            configureExistingPredicateUrl)
+                        .withCondDisabled(!hasExistingPredicate)
+                        .withClasses()))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
             // Show all available questions that predicates can be made for, for this block.
@@ -198,7 +220,7 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
                                         predicateQuestions,
                                         this::renderPredicateQuestionCheckBoxRow),
                                     submitButton("Add condition"))
-                                .withAction(configurePredicateUrl)
+                                .withAction(configureNewPredicateUrl)
                                 .withMethod(POST)));
 
     HtmlBundle htmlBundle =

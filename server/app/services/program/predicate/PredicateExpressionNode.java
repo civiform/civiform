@@ -1,14 +1,11 @@
 package services.program.predicate;
 
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import services.question.types.QuestionDefinition;
 
 /** Represents a predicate that can be evaluated over {@link services.applicant.ApplicantData}. */
@@ -65,20 +62,20 @@ public abstract class PredicateExpressionNode {
 
   @JsonIgnore
   @Memoized
-  public ImmutableSet<Long> getQuestions() {
+  public ImmutableList<Long> getQuestions() {
     switch (getType()) {
       case LEAF_OPERATION:
-        return ImmutableSet.of(getLeafNode().questionId());
+        return ImmutableList.of(getLeafNode().questionId());
       case AND:
         return getAndNode().children().stream()
             .flatMap(n -> n.getQuestions().stream())
-            .collect(toImmutableSet());
+            .collect(ImmutableList.toImmutableList());
       case OR:
         return getOrNode().children().stream()
             .flatMap(n -> n.getQuestions().stream())
-            .collect(toImmutableSet());
+            .collect(ImmutableList.toImmutableList());
       default:
-        return ImmutableSet.of();
+        return ImmutableList.of();
     }
   }
 

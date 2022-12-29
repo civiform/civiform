@@ -593,11 +593,11 @@ public abstract class ProgramDefinition {
     return builder.build();
   }
 
+  private static final ImmutableSet<QuestionType> NON_PREDICATE_QUESTION_TYPES =
+      ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.FILEUPLOAD, QuestionType.STATIC);
+
   private static boolean isPotentialPredicateQuestionDefinition(QuestionDefinition qd) {
-    // TODO(https://github.com/seattle-uat/civiform/issues/322): Add the following once STATIC
-    //  questions are implemented.
-    //  && qd.getQuestionTyp() != QuestionType.STATIC
-    return !qd.isEnumerator() && qd.getQuestionType() != QuestionType.FILEUPLOAD;
+    return !NON_PREDICATE_QUESTION_TYPES.contains(qd.getQuestionType());
   }
 
   public Program toProgram() {

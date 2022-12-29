@@ -18,17 +18,18 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
-import play.data.DynamicForm;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
-import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -71,23 +72,25 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       Http.Request request,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
-      DynamicForm form) {
-    return render(request, programDefinition, blockDefinition, form, TYPE.VISIBILITY);
+      ImmutableList<QuestionDefinition> questionDefinitions) {
+    return render(
+        request, programDefinition, blockDefinition, questionDefinitions, TYPE.VISIBILITY);
   }
 
   public Content renderEligibility(
       Http.Request request,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
-      DynamicForm form) {
-    return render(request, programDefinition, blockDefinition, form, TYPE.ELIGIBILITY);
+      ImmutableList<QuestionDefinition> questionDefinitions) {
+    return render(
+        request, programDefinition, blockDefinition, questionDefinitions, TYPE.ELIGIBILITY);
   }
 
   public Content render(
       Http.Request request,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
-      DynamicForm questionSelectForm,
+      ImmutableList<QuestionDefinition> questionDefinitions,
       TYPE type) {
     final String editPredicateUrl;
     final String typeDisplayName;
@@ -129,9 +132,6 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
           throw new RuntimeException("Unknown predicate view type");
         }
     }
-
-    ImmutableList<QuestionDefinition> questionDefinitions =
-        getQuestionDefinitions(programDefinition, blockDefinition, questionSelectForm);
 
     DivTag content =
         div(
@@ -222,6 +222,9 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
               .children()
               .stream()
               .map(PredicateExpressionNode::getLeafNode)
+              .sorted(
+                  (LeafOperationExpressionNode loenA, LeafOperationExpressionNode loenB) ->
+                      (int) (loenA.questionId() - loenB.questionId()))
               .collect(ImmutableList.toImmutableList());
 
       for (LeafOperationExpressionNode leafNode : leafNodes) {
@@ -268,8 +271,15 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     int columnNumber = 1;
 
     if (maybeAndNode.isPresent()) {
-      for (PredicateExpressionNode predicateExpressionNode : maybeAndNode.get().children()) {
-        LeafOperationExpressionNode leafNode = predicateExpressionNode.getLeafNode();
+      ImmutableList<LeafOperationExpressionNode> leafNodes =
+          maybeAndNode.get().children().stream()
+              .map(PredicateExpressionNode::getLeafNode)
+              .sorted(
+                  (LeafOperationExpressionNode loenA, LeafOperationExpressionNode loenB) ->
+                      (int) (loenA.questionId() - loenB.questionId()))
+              .collect(ImmutableList.toImmutableList());
+
+      for (LeafOperationExpressionNode leafNode : leafNodes) {
         long questionId = leafNode.questionId();
         QuestionDefinition qd =
             questionDefinitions.stream()
@@ -278,14 +288,22 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                 .get();
 
         row.condWith(columnNumber++ != 1, andText)
-            .with(createValueField(qd, groupId, Optional.of(leafNode.comparedValue())));
+            .with(
+                createValueField(
+                    qd,
+                    groupId,
+                    Optional.of(leafNode.scalar()),
+                    Optional.of(leafNode.comparedValue())));
       }
     } else {
       for (var questionDefinition : questionDefinitions) {
         row.condWith(columnNumber++ != 1, andText)
             .with(
                 createValueField(
-                    questionDefinition, groupId, /* maybePredicateValue= */ Optional.empty()));
+                    questionDefinition,
+                    groupId,
+                    /* maybeScalar= */ Optional.empty(),
+                    /* maybePredicateValue= */ Optional.empty()));
       }
     }
 
@@ -296,22 +314,6 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                 "predicate-config-delete-value-row", "mx-6", "w-12", "pt-2", "cursor-pointer");
 
     return row.with(delete);
-  }
-
-  private ImmutableList<QuestionDefinition> getQuestionDefinitions(
-      ProgramDefinition programDefinition, BlockDefinition blockDefinition, DynamicForm form) {
-    try {
-      return programDefinition
-          .getAvailablePredicateQuestionDefinitions(blockDefinition.id())
-          .stream()
-          .filter(
-              questionDefinition ->
-                  form.rawData()
-                      .containsKey(String.format("question-%d", questionDefinition.getId())))
-          .collect(ImmutableList.toImmutableList());
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private DivTag renderQuestionCard(QuestionDefinition questionDefinition) {
@@ -438,6 +440,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
   private DivTag createValueField(
       QuestionDefinition questionDefinition,
       int groupId,
+      Optional<Scalar> maybeScalar,
       Optional<PredicateValue> maybePredicateValue) {
     DivTag valueField = div().withClasses(COLUMN_WIDTH);
 
@@ -484,7 +487,10 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                       String.format(
                           "group-%d-question-%d-predicateValue",
                           groupId, questionDefinition.getId()))
-                  .setValue(maybePredicateValue.map(PredicateValue::value))
+                  .setValue(
+                      maybePredicateValue.map(
+                          predicateValue ->
+                              formatPredicateValue(maybeScalar.get(), predicateValue)))
                   .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
                   .getInputTag())
           .with(
@@ -495,6 +501,39 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                       "text-xs",
                       BaseStyles.FORM_LABEL_TEXT_COLOR)
                   .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
+    }
+  }
+
+  private static String formatPredicateValue(Scalar scalar, PredicateValue predicateValue) {
+    switch (scalar.toScalarType()) {
+      case CURRENCY_CENTS:
+        {
+          long storedCents = Long.parseLong(predicateValue.value());
+          long dollars = storedCents / 100;
+          long cents = storedCents % 100;
+          return String.format("%d.%02d", dollars, cents);
+        }
+
+      case DATE:
+        {
+          return Instant.ofEpochMilli(Long.parseLong(predicateValue.value()))
+              .atZone(ZoneId.systemDefault())
+              .toLocalDate()
+              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }
+
+      case LIST_OF_STRINGS:
+      case LONG:
+      case STRING:
+        {
+          return predicateValue.value();
+        }
+
+      default:
+        {
+          throw new RuntimeException(
+              String.format("Unknown scalar type: %s", scalar.toScalarType()));
+        }
     }
   }
 }

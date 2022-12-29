@@ -1,6 +1,7 @@
 package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static services.program.EligibilityDefinition.PredicateFormat.SINGLE_LAYER_AND;
 import static services.program.predicate.PredicateAction.ELIGIBLE_BLOCK;
 
@@ -862,10 +863,10 @@ public final class ProgramServiceImpl implements ProgramService {
                         leafNodeGroup ->
                             leafNodeGroup.stream()
                                 .map(PredicateExpressionNode::create)
-                                .collect(ImmutableSet.toImmutableSet()))
+                                .collect(toImmutableList()))
                     .map(AndNode::create)
                     .map(PredicateExpressionNode::create)
-                    .collect(ImmutableSet.toImmutableSet()))),
+                    .collect(toImmutableList()))),
         ELIGIBLE_BLOCK);
   }
 
