@@ -25,6 +25,8 @@ public class FeatureFlagsTest {
               "true",
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
               "true",
+              FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
+              "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
               "true"));
 
@@ -35,6 +37,8 @@ public class FeatureFlagsTest {
               "true",
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
               "true",
+              FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
+              "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
               "true"));
   private static final Map<String, String> allFeaturesEnabledMap =
@@ -42,6 +46,8 @@ public class FeatureFlagsTest {
           FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
           "true",
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
+          "true",
+          FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
           "true",
           FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
           "true");
@@ -53,6 +59,8 @@ public class FeatureFlagsTest {
           FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
           "false",
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
+          "false",
+          FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
           "false",
           FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
           "false");
@@ -67,6 +75,7 @@ public class FeatureFlagsTest {
 
     assertThat(featureFlags.isStatusTrackingEnabled(fakeRequest().build())).isFalse();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isFalse();
+    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(fakeRequest().build())).isFalse();
   }
 
   @Test
@@ -77,6 +86,8 @@ public class FeatureFlagsTest {
     assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesEnabledRequest)).isFalse();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesEnabledRequest))
         .isFalse();
+    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(allFeaturesEnabledRequest))
+        .isFalse();
   }
 
   @Test
@@ -85,6 +96,7 @@ public class FeatureFlagsTest {
 
     assertThat(featureFlags.isStatusTrackingEnabled(fakeRequest().build())).isFalse();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isFalse();
+    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(fakeRequest().build())).isFalse();
   }
 
   @Test
@@ -93,6 +105,7 @@ public class FeatureFlagsTest {
 
     assertThat(featureFlags.isStatusTrackingEnabled(fakeRequest().build())).isTrue();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isTrue();
+    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(fakeRequest().build())).isTrue();
   }
 
   @Test
