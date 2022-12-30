@@ -33,6 +33,8 @@ public final class FeatureFlags {
   public static final String PREDICATES_MULTIPLE_QUESTIONS_ENABLED =
       "predicates_multiple_questions_enabled";
   public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
+  public static final String PREDICATES_MULTIPLE_QUESTIONS_ENABLED =
+      "predicates_multiple_questions_enabled";
 
   private final Config config;
 
