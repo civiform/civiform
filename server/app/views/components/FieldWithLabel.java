@@ -442,8 +442,8 @@ public class FieldWithLabel {
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
     return div(
-      labelTag,
-      div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
+            labelTag,
+            div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
