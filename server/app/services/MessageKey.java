@@ -47,6 +47,7 @@ public enum MessageKey {
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
   CONTENT_LOGIN_PROMPT_ALTERNATIVE("content.alternativeLoginPrompt"),
   CONTENT_OR("content.or"),
+  CONTENT_NOT_ELIGIBLE("content.notEligible"),
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
   ERROR_ANNOUNCEMENT_SR("validation.errorAnnouncementSr"),

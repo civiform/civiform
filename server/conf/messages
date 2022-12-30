@@ -182,6 +182,9 @@ button.submit=Submit
 # Continue application button
 button.continue=Continue
 
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=Not Eligible
+
 # The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
 link.begin=Start here
 
