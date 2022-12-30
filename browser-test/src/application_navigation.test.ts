@@ -242,7 +242,7 @@ describe('Applicant navigation flow', () => {
     })
   })
 
-  fdescribe('navigation with eligibility conditions', () => {
+  describe('navigation with eligibility conditions', () => {
     // Create two programs, one with 2 questions and an eligibility condition, and one with the eligibility question to evaluate interactions between saved data.
     const fullProgramName = 'Test program for eligibility navigation flows'
     const overlappingOneQProgramName =
