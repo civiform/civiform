@@ -1,7 +1,6 @@
 package services.program.predicate;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static services.program.predicate.PredicateAction.ELIGIBLE_BLOCK;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
@@ -31,6 +30,13 @@ public final class PredicateGenerator {
     Multimap<Integer, LeafOperationExpressionNode> leafNodes = LinkedHashMultimap.create();
 
     HashSet<String> consumedMultiValueKeys = new HashSet<>();
+    PredicateAction predicateAction = PredicateAction.valueOf(predicateForm.get("predicateAction"));
+
+    if (predicateAction == null) {
+      throw new BadRequestException(
+          String.format(
+              "Missing or unknown predicateAction: %s", predicateForm.get("predicateAction")));
+    }
 
     for (String key : predicateForm.rawData().keySet()) {
       Matcher singleValueMatcher = SINGLE_PREDICATE_VALUE_FORM_KEY_PATTERN.matcher(key);
@@ -126,7 +132,7 @@ public final class PredicateGenerator {
                           .map(AndNode::create)
                           .map(PredicateExpressionNode::create)
                           .collect(toImmutableList()))),
-              ELIGIBLE_BLOCK,
+              predicateAction,
               PredicateDefinition.PredicateFormat.SINGLE_LAYER_AND);
         }
 
@@ -137,7 +143,7 @@ public final class PredicateGenerator {
 
           return PredicateDefinition.create(
               PredicateExpressionNode.create(singleQuestionNode),
-              ELIGIBLE_BLOCK,
+              predicateAction,
               PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
         }
 

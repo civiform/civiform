@@ -6,7 +6,10 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.option;
+import static j2html.TagCreator.select;
+import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
 
 import com.google.common.base.Splitter;
@@ -18,6 +21,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
+import j2html.tags.specialized.SelectTag;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +38,7 @@ import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
@@ -136,16 +141,16 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     DivTag content =
         div(
                 renderBackLink(editPredicateUrl, typeDisplayName, blockDefinition),
-                h2("Configure eligibility conditions").withClasses("my-6"),
+                h2(String.format("Configure %s conditions", typeDisplayName)).withClasses("my-6"),
                 each(questionDefinitions, this::renderQuestionCard),
                 renderPredicateConfigurator(
-                    request, formActionUrl, questionDefinitions, existingPredicate))
+                    request, formActionUrl, questionDefinitions, existingPredicate, type))
             .withClasses("max-w-6xl", "mb-12");
 
     HtmlBundle htmlBundle =
         layout
             .getBundle()
-            .setTitle("Configure predicate")
+            .setTitle(String.format("Configure %s predicate", typeDisplayName))
             .addMainContent(renderProgramInfo(programDefinition), content);
 
     return layout.renderCentered(htmlBundle);
@@ -167,11 +172,14 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       Http.Request request,
       String formAction,
       ImmutableList<QuestionDefinition> questionDefinitions,
-      Optional<PredicateDefinition> maybeExistingPredicate) {
+      Optional<PredicateDefinition> maybeExistingPredicate,
+      TYPE type) {
     FormTag formTag =
         form(
                 makeCsrfTokenInputTag(request),
-                div("Applicant is eligible when:").withClasses("font-bold"),
+                type.equals(TYPE.ELIGIBILITY)
+                    ? renderConfiguratorEligibilityHeader()
+                    : renderConfiguratorVisibilityHeader(maybeExistingPredicate),
                 renderQuestionHeaders(questionDefinitions, maybeExistingPredicate))
             .withAction(formAction)
             .withMethod(POST)
@@ -203,6 +211,42 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     formTag.with(submitButton("Save condition").withClasses("my-4"));
 
     return formTag;
+  }
+
+  private static DivTag renderConfiguratorEligibilityHeader() {
+    return div(
+            text("Applicant is eligible when:"),
+            input()
+                .withType("hidden")
+                .withName("predicateAction")
+                .withValue(PredicateAction.ELIGIBLE_BLOCK.name()))
+        .withClasses("font-bold");
+  }
+
+  private static DivTag renderConfiguratorVisibilityHeader(
+      Optional<PredicateDefinition> maybeExistingPredicate) {
+    DivTag container = div("Screen is ").withClasses("font-bold");
+    SelectTag selectTag =
+        select().withName("predicateAction").withClasses(ReferenceClasses.PREDICATE_ACTION);
+
+    ImmutableList.of(PredicateAction.HIDE_BLOCK, PredicateAction.SHOW_BLOCK)
+        .forEach(
+            action ->
+                selectTag.with(
+                    option(action.toDisplayString())
+                        .withClasses(
+                            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+                            ReferenceClasses.MULTI_OPTION_VALUE)
+                        .withCondSelected(
+                            maybeExistingPredicate
+                                .map(PredicateDefinition::action)
+                                .map(existingAction -> existingAction.equals(action))
+                                .orElse(false))
+                        .withValue(action.name())));
+
+    container.with(selectTag);
+
+    return container;
   }
 
   private ImmutableList<PredicateExpressionNode> getExistingAndNodes(
