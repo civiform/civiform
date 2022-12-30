@@ -259,7 +259,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                   AndNode.create(ImmutableList.of(existingPredicate.rootNode()))));
         }
 
-      case SINGLE_LAYER_AND:
+      case OR_OF_SINGLE_LAYER_ANDS:
         {
           return existingPredicate.rootNode().getOrNode().children();
         }

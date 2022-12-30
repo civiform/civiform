@@ -117,7 +117,7 @@ public final class PredicateGenerator {
     }
 
     switch (getFormat(leafNodes)) {
-      case SINGLE_LAYER_AND:
+      case OR_OF_SINGLE_LAYER_ANDS:
         {
           return PredicateDefinition.create(
               PredicateExpressionNode.create(
@@ -133,7 +133,7 @@ public final class PredicateGenerator {
                           .map(PredicateExpressionNode::create)
                           .collect(toImmutableList()))),
               predicateAction,
-              PredicateDefinition.PredicateFormat.SINGLE_LAYER_AND);
+              PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
         }
 
       case SINGLE_QUESTION:
@@ -164,7 +164,7 @@ public final class PredicateGenerator {
                 (Collection<LeafOperationExpressionNode> leafNodeGroup) -> leafNodeGroup.size() > 1)
             .findAny()
             .isPresent()) {
-      return PredicateDefinition.PredicateFormat.SINGLE_LAYER_AND;
+      return PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS;
     }
 
     return PredicateDefinition.PredicateFormat.SINGLE_QUESTION;

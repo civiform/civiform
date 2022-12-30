@@ -22,9 +22,9 @@ public abstract class PredicateDefinition {
   public enum PredicateFormat {
     // A single leaf node
     SINGLE_QUESTION,
-    // A top level conjunction with only AND child nodes,
-    // each of which has only leaf nodes.
-    SINGLE_LAYER_AND;
+    // A top level OR with only AND child nodes,
+    // each AND node's children are all leaf nodes.
+    OR_OF_SINGLE_LAYER_ANDS;
   }
 
   @JsonCreator
