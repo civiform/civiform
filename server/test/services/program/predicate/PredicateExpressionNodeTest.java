@@ -3,7 +3,6 @@ package services.program.predicate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import org.junit.Test;
@@ -36,7 +35,7 @@ public class PredicateExpressionNodeTest {
             456L, Scalar.SELECTION, Operator.EQUAL_TO, PredicateValue.of("hello"));
     AndNode and =
         AndNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(leaf1), PredicateExpressionNode.create(leaf2)));
 
     PredicateExpressionNode node = PredicateExpressionNode.create(and);
@@ -54,7 +53,7 @@ public class PredicateExpressionNodeTest {
             456L, Scalar.SELECTION, Operator.EQUAL_TO, PredicateValue.of("hello"));
     OrNode or =
         OrNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(leaf1), PredicateExpressionNode.create(leaf2)));
 
     PredicateExpressionNode node = PredicateExpressionNode.create(or);
@@ -88,7 +87,7 @@ public class PredicateExpressionNodeTest {
             question.getId(), Scalar.NUMBER, Operator.LESS_THAN_OR_EQUAL_TO, PredicateValue.of(72));
     AndNode and =
         AndNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(leaf1), PredicateExpressionNode.create(leaf2)));
 
     PredicateExpressionNode node = PredicateExpressionNode.create(and);
@@ -120,7 +119,7 @@ public class PredicateExpressionNodeTest {
                 LocalDate.parse("2021-01-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
     OrNode or =
         OrNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(leaf1), PredicateExpressionNode.create(leaf2)));
 
     PredicateExpressionNode node = PredicateExpressionNode.create(or);

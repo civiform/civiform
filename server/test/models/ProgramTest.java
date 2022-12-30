@@ -171,7 +171,7 @@ public class ProgramTest extends ResetPostgres {
                     PredicateExpressionNode.create(
                         LeafOperationExpressionNode.create(
                             1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-                    PredicateAction.ELIGIBILITY_BLOCK))
+                    PredicateAction.ELIGIBLE_BLOCK))
             .build();
 
     BlockDefinition blockDefinition =

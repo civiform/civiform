@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
 import io.ebean.DB;
 import java.util.Arrays;
@@ -814,10 +813,10 @@ public class ProgramServiceImplTest extends ResetPostgres {
         PredicateDefinition.create(
             PredicateExpressionNode.create(
                 OrNode.create(
-                    ImmutableSet.of(
+                    ImmutableList.of(
                         cityPredicate,
                         PredicateExpressionNode.create(
-                            AndNode.create(ImmutableSet.of(statePredicate, zipPredicate)))))),
+                            AndNode.create(ImmutableList.of(statePredicate, zipPredicate)))))),
             PredicateAction.HIDE_BLOCK);
 
     ps.setBlockVisibilityPredicate(program.id, 2L, Optional.of(predicate));

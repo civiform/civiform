@@ -1,6 +1,6 @@
 import {addEventListenerToElements, assertNotNull} from './util'
 
-class AdminPredicatConfiguration {
+class AdminPredicateConfiguration {
   registerEventListeners() {
     addEventListenerToElements('.cf-scalar-select', 'input', (event: Event) =>
       this.configurePredicateFormOnScalarChange(event),
@@ -37,20 +37,26 @@ class AdminPredicatConfiguration {
     const selectedScalarType =
       scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type!
     const selectedScalarValue =
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].value!
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].value
 
-    filterOperators(scalarDropdown, selectedScalarType, selectedScalarValue)
+    this.filterOperators(
+      scalarDropdown,
+      selectedScalarType,
+      selectedScalarValue,
+    )
   }
 
   configurePredicateFormOnOperatorChange(event: Event) {
     const operatorDropdown = event.target as HTMLSelectElement
     const selectedOperatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
-    const operatorDropdownContainer = assertNotNull(operatorDropdown.closest(
-      '.cf-operator-select',
-    )) as HTMLElement
+    const operatorDropdownContainer = assertNotNull(
+      operatorDropdown.closest('.cf-operator-select'),
+    ) as HTMLElement
 
-    const questionId = assertNotNull(operatorDropdownContainer.dataset.questionId)
+    const questionId = assertNotNull(
+      operatorDropdownContainer.dataset.questionId,
+    )
 
     const commaSeparatedHelpTexts = document.querySelectorAll(
       `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`,
@@ -81,7 +87,7 @@ class AdminPredicatConfiguration {
     const selectedScalarType =
       scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type!
     const selectedScalarValue =
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].value!
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].value
     this.configurePredicateValueInput(
       selectedScalarType,
       selectedScalarValue,
@@ -119,9 +125,11 @@ class AdminPredicatConfiguration {
     const operatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
-    const valueInputs = assertNotNull(document
-      ?.querySelector('#predicate-config-value-row-container')
-      ?.querySelectorAll(`[data-question-id="${questionId}"] input`))
+    const valueInputs = assertNotNull(
+      document
+        ?.querySelector('#predicate-config-value-row-container')
+        ?.querySelectorAll(`[data-question-id="${questionId}"] input`),
+    )
 
     for (const valueInput of Array.from(valueInputs)) {
       switch (selectedScalarType.toUpperCase()) {
@@ -184,7 +192,7 @@ class AdminPredicatConfiguration {
         el.value = ''
       }
 
-      const groupNumString = assertNotNull(el).name.match(/group-(\d+)/)[1]
+      const groupNumString = assertNotNull(el.name.match(/group-(\d+)/))[1]
 
       let groupNum = parseInt(groupNumString, 10)
       el.name = el.name.replace(/group-\d+/, `group-${++groupNum}`)
@@ -194,18 +202,20 @@ class AdminPredicatConfiguration {
       el.closest('label')?.setAttribute('for', newId)
     })
 
-    const deleteButtonDiv = assertNotNull(newRow.querySelector(
-      '.predicate-config-delete-value-row',
-    )) as HTMLElement
+    const deleteButtonDiv = assertNotNull(
+      newRow.querySelector('.predicate-config-delete-value-row'),
+    ) as HTMLElement
 
     deleteButtonDiv.addEventListener('click', (event: Event) =>
-      this.predicateDeleteValueRow(event)
+      this.predicateDeleteValueRow(event),
     )
-    deleteButtonDiv.querySelector('svg').classList.remove('hidden')
+    assertNotNull(deleteButtonDiv.querySelector('svg')).classList.remove(
+      'hidden',
+    )
 
-    assertNotNull(document)
-      .getElementById('predicate-config-value-row-container')
-      .append(newRow)
+    assertNotNull(
+      document.getElementById('predicate-config-value-row-container'),
+    ).append(newRow)
   }
 
   predicateDeleteValueRow(event: Event) {
@@ -217,7 +227,7 @@ class AdminPredicatConfiguration {
     )
 
     if (valueRow == null) {
-      throw new Error("Parent with class .predicate-config-value-row not found")
+      throw new Error('Parent with class .predicate-config-value-row not found')
     }
 
     valueRow.remove()
@@ -234,7 +244,7 @@ class AdminPredicatConfiguration {
     selectedScalarType: string,
     selectedScalarValue: string,
   ) {
-    const questionId = this.getQuestionId(scalarDropdown)
+    const questionId = assertNotNull(this.getQuestionId(scalarDropdown))
     const operatorDropdown = this.getElementWithQuestionId(
       '.cf-operator-select',
       questionId,
@@ -282,8 +292,9 @@ class AdminPredicatConfiguration {
   }
 
   private getQuestionId(element: HTMLSelectElement): string | undefined {
-    const parentWithQuestionId =
-      assertNotNull(element.closest(`[data-question-id]`)) as HTMLElement
+    const parentWithQuestionId = assertNotNull(
+      element.closest(`[data-question-id]`),
+    ) as HTMLElement
     return parentWithQuestionId.dataset.questionId
   }
 
@@ -503,5 +514,5 @@ export function init() {
     return
   }
 
-  new AdminPredicatConfiguration().registerEventListeners()
+  new AdminPredicateConfiguration().registerEventListeners()
 }

@@ -11,7 +11,7 @@
     "mapRoot": "/assets/javascripts",
     "sourceRoot": "/assets/javascripts",
     "baseUrl": "./",
-    "strict": false
+    "strict": true
   },
   "include": ["app/assets/javascripts/*"]
 }
