@@ -2,7 +2,6 @@ package services.program.predicate;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedHashMultimap;
@@ -19,6 +18,7 @@ import java.util.regex.Pattern;
 import play.data.DynamicForm;
 import services.applicant.question.Scalar;
 
+/** Creates {@link PredicateDefinition}s from form inputs. */
 public final class PredicateGenerator {
 
   private static final Pattern SINGLE_PREDICATE_VALUE_FORM_KEY_PATTERN =
@@ -26,6 +26,29 @@ public final class PredicateGenerator {
   private static final Pattern MULTI_PREDICATE_VALUE_FORM_KEY_PATTERN =
       Pattern.compile("^group-(\\d+)-question-(\\d+)-predicateValues\\[\\d+\\]$");
 
+  /**
+   * Generates a {@link PredicateDefinition} from the given form.
+   *
+   * <p>Determines {@link PredicateDefinition.PredicateFormat} based on form contents. If the form
+   * contains a single leaf node then it generates a SINGLE_QUESTION, otherwise a
+   * OR_OF_SINGLE_LAYER_ANDS.
+   *
+   * <p>Requires the form to have the following keys:
+   *
+   * <ul>
+   *   <li>{@code predicateAction} - a {@link PredicateAction}
+   *   <li>{@code question-QID-scalar} - a {@link Scalar} for the question identified by QID
+   *   <li>{@code question-QID-operator} - an {@link Operator} for the question identified by QID
+   *   <li>{@code group-GID-question-QID-predicateValue} - a {@link PredicateValue} identifying a
+   *       leaf node on a given AND node. The GID specifies the AND node and the QID specifies the
+   *       leaf node.
+   *   <li>{@code group-GID-question-QID-predicateValues[VID]} - a single value in a multi-value
+   *       {@link PredicateValue}. The VID distinguishes the key from the others in the same leaf
+   *       node and is otherwise unused.
+   * </ul>
+   *
+   * @throws BadRequestException if the form is invalid.
+   */
   public PredicateDefinition generatePredicateDefinition(DynamicForm predicateForm) {
     Multimap<Integer, LeafOperationExpressionNode> leafNodes = LinkedHashMultimap.create();
 
@@ -149,7 +172,7 @@ public final class PredicateGenerator {
 
       default:
         {
-          throw new RuntimeException(
+          throw new BadRequestException(
               String.format("Unrecognized predicate format: %s", getFormat(leafNodes)));
         }
     }
@@ -179,7 +202,6 @@ public final class PredicateGenerator {
    */
   // TODO: make this private once the old predicate logic is removed from
   // AdminProgramBlockPredicatesController
-  @VisibleForTesting
   public static PredicateValue parsePredicateValue(
       Scalar scalar, Operator operator, String value, List<String> values) {
 

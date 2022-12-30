@@ -57,6 +57,20 @@ import views.components.SelectWithLabel;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
+/**
+ * Admin UI for specifying scalars, operators, and values for {@link PredicateDefinition}s for both
+ * eligibility and visibility predicates.
+ *
+ * <p>Scalars and operators are specified one per question.
+ *
+ * <p>If only one value is specified by the admin, a SINGLE_QUESTION (single leaf node) {@link
+ * PredicateDefinition.PredicateFormat} will result.
+ *
+ * <p>Multiple values per question can be specified, grouped together to form an AND clause. Each
+ * group corresponds to an AND node, with one leaf node per question. If multiple groups or
+ * questions are specified an OR_OF_SINGLE_LAYER_ANDS {@link PredicateDefinition.PredicateFormat}
+ * will result.
+ */
 public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
 
   private static final String COLUMN_WIDTH = "w-48";

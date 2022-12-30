@@ -1,5 +1,11 @@
 import {addEventListenerToElements, assertNotNull} from './util'
 
+/** Dynamic behavior for ProgramBlockPredicateConfigureView.
+ *
+ * When scalar is selected, updates operator and value input(s) to match.
+ * When operator is selected, updates value input(s) to match.
+ * Implements adding and deleting value rows when the user clicks on the UI.
+ * */
 class AdminPredicateConfiguration {
   registerEventListeners() {
     addEventListenerToElements('.cf-scalar-select', 'input', (event: Event) =>
@@ -177,6 +183,7 @@ class AdminPredicateConfiguration {
     }
   }
 
+  /** Add a value row by duplicating the last row in the list and updating its group IDs. */
   predicateAddValueRow(event: Event) {
     event.preventDefault()
     event.stopPropagation()
@@ -218,6 +225,9 @@ class AdminPredicateConfiguration {
     ).append(newRow)
   }
 
+  /**
+   * Delete the value row that includes the event target.
+   * */
   predicateDeleteValueRow(event: Event) {
     event.preventDefault()
     event.stopPropagation()
@@ -308,6 +318,8 @@ class AdminPredicateConfiguration {
     )
   }
 }
+
+/** TODO(4004): Remove all functions below this line except init. */
 
 function configurePredicateFormOnScalarChange(event: Event) {
   // Get the type of scalar currently selected.

@@ -62,6 +62,12 @@ public abstract class PredicateDefinition {
   @JsonProperty("predicateFormat")
   public abstract Optional<PredicateFormat> predicateFormat();
 
+  /**
+   * Returns SINGLE_QUESTION if {@code predicateFormat} is empty.
+   *
+   * <p>Before {@link PredicateFormat} was added, all predicates were a single leaf node.
+   * PredicateDefinitions saved without formats are therefore assumed to have that shape.
+   */
   public PredicateFormat computePredicateFormat() {
     return predicateFormat().orElse(PredicateFormat.SINGLE_QUESTION);
   }
