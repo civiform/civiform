@@ -1,4 +1,4 @@
-import {addEventListenerToElements} from './dom_utils'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 class AdminPredicatConfiguration {
   registerEventListeners() {
@@ -35,9 +35,9 @@ class AdminPredicatConfiguration {
     // Get the type of scalar currently selected.
     const scalarDropdown = event.target as HTMLSelectElement
     const selectedScalarType =
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type!
     const selectedScalarValue =
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].value
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].value!
 
     filterOperators(scalarDropdown, selectedScalarType, selectedScalarValue)
   }
@@ -46,10 +46,11 @@ class AdminPredicatConfiguration {
     const operatorDropdown = event.target as HTMLSelectElement
     const selectedOperatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
-    const operatorDropdownContainer: HTMLElement = operatorDropdown.closest(
+    const operatorDropdownContainer = assertNotNull(operatorDropdown.closest(
       '.cf-operator-select',
-    )
-    const questionId: string = operatorDropdownContainer?.dataset?.questionId
+    )) as HTMLElement
+
+    const questionId = assertNotNull(operatorDropdownContainer.dataset.questionId)
 
     const commaSeparatedHelpTexts = document.querySelectorAll(
       `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`,
@@ -78,11 +79,10 @@ class AdminPredicatConfiguration {
       'select',
     ) as HTMLSelectElement
     const selectedScalarType =
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type!
     const selectedScalarValue =
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].value
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].value!
     this.configurePredicateValueInput(
-      scalarDropdown,
       selectedScalarType,
       selectedScalarValue,
       questionId,
@@ -98,7 +98,6 @@ class AdminPredicatConfiguration {
    *  @param {number} questionId The ID of the question for this predicate value
    */
   configurePredicateValueInput(
-    scalarDropdown: HTMLSelectElement,
     selectedScalarType: string,
     selectedScalarValue: string,
     questionId: string,
@@ -120,9 +119,9 @@ class AdminPredicatConfiguration {
     const operatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
-    const valueInputs = document
-      .querySelector('#predicate-config-value-row-container')
-      .querySelectorAll(`[data-question-id="${questionId}"] input`)
+    const valueInputs = assertNotNull(document
+      ?.querySelector('#predicate-config-value-row-container')
+      ?.querySelectorAll(`[data-question-id="${questionId}"] input`))
 
     for (const valueInput of Array.from(valueInputs)) {
       switch (selectedScalarType.toUpperCase()) {
@@ -178,14 +177,16 @@ class AdminPredicatConfiguration {
     const templateRow = currentRows[currentRows.length - 1]
     const newRow = templateRow.cloneNode(true) as HTMLElement
 
-    newRow.querySelectorAll('input').forEach((el) => {
+    newRow.querySelectorAll('input').forEach((el: HTMLInputElement) => {
       if (el.type === 'checkbox' || el.type === 'radio') {
         el.checked = false
       } else {
         el.value = ''
       }
 
-      let groupNum = parseInt(el.name.match(/group-(\d+)/)[1], 10)
+      const groupNumString = assertNotNull(el).name.match(/group-(\d+)/)[1]
+
+      let groupNum = parseInt(groupNumString, 10)
       el.name = el.name.replace(/group-\d+/, `group-${++groupNum}`)
       const newId = `${el.id}-${groupNum}`
       el.id = newId
@@ -193,16 +194,16 @@ class AdminPredicatConfiguration {
       el.closest('label')?.setAttribute('for', newId)
     })
 
-    const deleteButtonDiv = newRow.querySelector(
+    const deleteButtonDiv = assertNotNull(newRow.querySelector(
       '.predicate-config-delete-value-row',
-    )
+    )) as HTMLElement
 
     deleteButtonDiv.addEventListener('click', (event: Event) =>
-      this.predicateDeleteValueRow(event),
+      this.predicateDeleteValueRow(event)
     )
     deleteButtonDiv.querySelector('svg').classList.remove('hidden')
 
-    document
+    assertNotNull(document)
       .getElementById('predicate-config-value-row-container')
       .append(newRow)
   }
@@ -214,6 +215,11 @@ class AdminPredicatConfiguration {
     const valueRow = (event.target as HTMLElement).closest(
       '.predicate-config-value-row',
     )
+
+    if (valueRow == null) {
+      throw new Error("Parent with class .predicate-config-value-row not found")
+    }
+
     valueRow.remove()
   }
 
@@ -275,10 +281,10 @@ class AdminPredicatConfiguration {
     )
   }
 
-  private getQuestionId(element: HTMLSelectElement): string {
-    const parentWithQuestionId: HTMLElement =
-      element.closest(`[data-question-id]`)
-    return parentWithQuestionId?.dataset?.questionId
+  private getQuestionId(element: HTMLSelectElement): string | undefined {
+    const parentWithQuestionId =
+      assertNotNull(element.closest(`[data-question-id]`)) as HTMLElement
+    return parentWithQuestionId.dataset.questionId
   }
 
   private getElementWithQuestionId(
@@ -295,8 +301,9 @@ class AdminPredicatConfiguration {
 function configurePredicateFormOnScalarChange(event: Event) {
   // Get the type of scalar currently selected.
   const scalarDropdown = event.target as HTMLSelectElement
-  const selectedScalarType =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
+  const selectedScalarType = assertNotNull(
+    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
+  )
   const selectedScalarValue =
     scalarDropdown.options[scalarDropdown.options.selectedIndex].value
 
@@ -320,10 +327,11 @@ function filterOperators(
   selectedScalarValue: string,
 ) {
   // Filter the operators available for the given selected scalar type.
-  const operatorDropdown = scalarDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-operator-select') // div containing the operator dropdown
-    .querySelector('select')
+  const operatorDropdown = assertNotNull(
+    scalarDropdown
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      ?.querySelector<HTMLSelectElement>('.cf-operator-select select'),
+  )
 
   Array.from(operatorDropdown.options).forEach((operatorOption) => {
     // Remove any existing hidden class from previous filtering.
@@ -390,17 +398,19 @@ function configurePredicateValueInput(
     return
   }
 
-  const operatorDropdown = scalarDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-operator-select') // div containing the operator dropdown
-    .querySelector('select')
+  const operatorDropdown = assertNotNull(
+    scalarDropdown
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      ?.querySelector<HTMLSelectElement>('.cf-operator-select select'),
+  )
   const operatorValue =
     operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
-  const valueInput = scalarDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-predicate-value-input') // div containing the predicate value input
-    .querySelector('input')
+  const valueInput = assertNotNull(
+    scalarDropdown
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      ?.querySelector<HTMLInputElement>('.cf-predicate-value-input input'),
+  )
 
   switch (selectedScalarType.toUpperCase()) {
     case 'STRING':
@@ -438,7 +448,7 @@ function configurePredicateFormOnOperatorChange(event: Event) {
 
   const commaSeparatedHelpText = operatorDropdown
     .closest('.cf-predicate-options')
-    .querySelector('.cf-predicate-value-comma-help-text')
+    ?.querySelector('.cf-predicate-value-comma-help-text')
 
   // This help text div isn't present at all in some cases.
   if (!commaSeparatedHelpText) {
@@ -456,12 +466,14 @@ function configurePredicateFormOnOperatorChange(event: Event) {
   }
 
   // The type of the value field may need to change based on the current operator
-  const scalarDropdown = operatorDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-scalar-select') // div containing the scalar dropdown
-    .querySelector('select')
-  const selectedScalarType =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
+  const scalarDropdown = assertNotNull(
+    operatorDropdown
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      ?.querySelector<HTMLSelectElement>('.cf-scalar-select select'),
+  )
+  const selectedScalarType = assertNotNull(
+    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
+  )
   const selectedScalarValue =
     scalarDropdown.options[scalarDropdown.options.selectedIndex].value
   configurePredicateValueInput(
