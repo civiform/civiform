@@ -184,7 +184,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       PredicateDefinition existingPredicate = maybeExistingPredicate.get();
 
       AtomicInteger groupCount = new AtomicInteger(0);
-      existingPredicate.rootNode().getOrNode().children().stream()
+      getExistingAndNodes(existingPredicate).stream()
           .map(PredicateExpressionNode::getAndNode)
           .forEach(
               andNode ->
@@ -205,6 +205,30 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     return formTag;
   }
 
+  private ImmutableList<PredicateExpressionNode> getExistingAndNodes(
+      PredicateDefinition existingPredicate) {
+    switch (existingPredicate.computePredicateFormat()) {
+      case SINGLE_QUESTION:
+        {
+          return ImmutableList.of(
+              PredicateExpressionNode.create(
+                  AndNode.create(ImmutableList.of(existingPredicate.rootNode()))));
+        }
+
+      case SINGLE_LAYER_AND:
+        {
+          return existingPredicate.rootNode().getOrNode().children();
+        }
+
+      default:
+        {
+          throw new RuntimeException(
+              String.format(
+                  "Unrecognized predicate format: %s", existingPredicate.computePredicateFormat()));
+        }
+    }
+  }
+
   private DivTag renderQuestionHeaders(
       ImmutableList<QuestionDefinition> questionDefinitions,
       Optional<PredicateDefinition> maybeExistingPredicate) {
@@ -212,10 +236,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     int columnNumber = 1;
 
     if (maybeExistingPredicate.isPresent()) {
-      PredicateDefinition predicateDefinition = maybeExistingPredicate.get();
-
       ImmutableList<LeafOperationExpressionNode> leafNodes =
-          predicateDefinition.rootNode().getOrNode().children().stream()
+          getExistingAndNodes(maybeExistingPredicate.get()).stream()
               .findFirst()
               .get()
               .getAndNode()
@@ -452,17 +474,19 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       ImmutableList<QuestionOption> options =
           ((MultiOptionQuestionDefinition) questionDefinition).getOptions();
 
+      ImmutableSet<String> currentlyCheckedValues =
+          maybePredicateValue
+              .map(PredicateValue::value)
+              .map(
+                  value ->
+                      Splitter.on(", ")
+                          .splitToStream(value.substring(1, value.length() - 1))
+                          .map(item -> item.replaceAll("\"", ""))
+                          .collect(ImmutableSet.toImmutableSet()))
+              .orElse(ImmutableSet.of());
+
       for (QuestionOption option : options) {
-        boolean isChecked =
-            maybePredicateValue
-                .map(PredicateValue::value)
-                .map(
-                    value ->
-                        Splitter.on(", ")
-                            .splitToStream(value.substring(1, value.length() - 1))
-                            .collect(ImmutableList.toImmutableList()))
-                .map(values -> values.contains(String.valueOf(option.id())))
-                .orElse(false);
+        boolean isChecked = currentlyCheckedValues.contains(String.valueOf(option.id()));
 
         LabelTag optionCheckbox =
             FieldWithLabel.checkbox()

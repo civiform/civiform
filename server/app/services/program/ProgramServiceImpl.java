@@ -1,25 +1,15 @@
 package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static services.program.EligibilityDefinition.PredicateFormat.SINGLE_LAYER_AND;
-import static services.program.predicate.PredicateAction.ELIGIBLE_BLOCK;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
-import controllers.BadRequestException;
 import forms.BlockForm;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -27,8 +17,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import models.Account;
@@ -52,14 +40,8 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
-import services.applicant.question.Scalar;
-import services.program.predicate.AndNode;
-import services.program.predicate.LeafOperationExpressionNode;
-import services.program.predicate.Operator;
-import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateExpressionNode;
-import services.program.predicate.PredicateValue;
+import services.program.predicate.PredicateGenerator;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -68,6 +50,7 @@ import services.question.types.QuestionDefinition;
 /** Implementation class for {@link ProgramService} interface. */
 public final class ProgramServiceImpl implements ProgramService {
 
+  private final PredicateGenerator predicateGenerator;
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -76,81 +59,18 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Inject
   public ProgramServiceImpl(
+      PredicateGenerator predicateGenerator,
       ProgramRepository programRepository,
       QuestionService questionService,
       UserRepository userRepository,
       VersionRepository versionRepository,
       HttpExecutionContext ec) {
+    this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
-  }
-
-  /**
-   * Parses the given value based on the given scalar type and operator. For example, if the scalar
-   * is of type LONG and the operator is of type ANY_OF, the value will be parsed as a list of
-   * comma-separated longs.
-   *
-   * <p>If value is the empty string, then parses the list of values instead.
-   */
-  // TODO: make this private once the old predicate logic is removed from
-  // AdminProgramBlockPredicatesController
-  @VisibleForTesting
-  public static PredicateValue parsePredicateValue(
-      Scalar scalar, Operator operator, String value, List<String> values) {
-
-    // If the scalar is SELECTION or SELECTIONS then this is a multi-option question predicate, and
-    // the right hand side values are in the `values` list rather than the `value` string.
-    if (scalar == Scalar.SELECTION || scalar == Scalar.SELECTIONS) {
-      ImmutableList.Builder<String> builder = ImmutableList.builder();
-      return PredicateValue.listOfStrings(builder.addAll(values).build());
-    }
-
-    switch (scalar.toScalarType()) {
-      case CURRENCY_CENTS:
-        // Currency is inputted as dollars and cents but stored as cents.
-        Float cents = Float.parseFloat(value) * 100;
-        return PredicateValue.of(cents.longValue());
-
-      case DATE:
-        LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        return PredicateValue.of(localDate);
-
-      case LONG:
-        switch (operator) {
-          case IN:
-          case NOT_IN:
-            ImmutableList<Long> listOfLongs =
-                Splitter.on(",")
-                    .splitToStream(value)
-                    .map(s -> Long.parseLong(s.trim()))
-                    .collect(ImmutableList.toImmutableList());
-            return PredicateValue.listOfLongs(listOfLongs);
-          default: // EQUAL_TO, NOT_EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO, LESS_THAN,
-            // LESS_THAN_OR_EQUAL_TO
-            return PredicateValue.of(Long.parseLong(value));
-        }
-
-      default: // STRING - we list all operators here, but in reality only IN and NOT_IN are
-        // expected. The others are handled using the "values" field in the predicate form
-        switch (operator) {
-          case ANY_OF:
-          case IN:
-          case NONE_OF:
-          case NOT_IN:
-          case SUBSET_OF:
-            ImmutableList<String> listOfStrings =
-                Splitter.on(",")
-                    .splitToStream(value)
-                    .map(String::trim)
-                    .collect(ImmutableList.toImmutableList());
-            return PredicateValue.listOfStrings(listOfStrings);
-          default: // EQUAL_TO, NOT_EQUAL_TO
-            return PredicateValue.of(value);
-        }
-    }
   }
 
   @Override
@@ -797,11 +717,9 @@ public final class ProgramServiceImpl implements ProgramService {
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
-    PredicateDefinition predicateDefinition = generatePredicateDefinition(predicateForm);
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
-            .setPredicate(predicateDefinition)
-            .setPredicateFormat(SINGLE_LAYER_AND)
+            .setPredicate(predicateGenerator.generatePredicateDefinition(predicateForm))
             .build();
 
     BlockDefinition blockDefinition =
@@ -810,64 +728,6 @@ public final class ProgramServiceImpl implements ProgramService {
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
-  }
-
-  private static final Pattern PREDICATE_VALUE_FORM_KEY_PATTERN =
-      Pattern.compile("^group-(\\d+)-question-(\\d+)-predicateValue$");
-
-  private PredicateDefinition generatePredicateDefinition(DynamicForm predicateForm) {
-    Multimap<Integer, LeafOperationExpressionNode> leafNodes = LinkedHashMultimap.create();
-
-    for (String key : predicateForm.rawData().keySet()) {
-      Matcher matcher = PREDICATE_VALUE_FORM_KEY_PATTERN.matcher(key);
-
-      if (!matcher.find()) {
-        continue;
-      }
-
-      int groupId = Integer.valueOf(matcher.group(1));
-      int questionId = Integer.valueOf(matcher.group(2));
-      String rawPredicateValue = predicateForm.get(key);
-      String rawScalarValue = predicateForm.get(String.format("question-%d-scalar", questionId));
-      String rawOperatorValue =
-          predicateForm.get(String.format("question-%d-operator", questionId));
-
-      if (rawOperatorValue == null || rawScalarValue == null || rawPredicateValue == null) {
-        throw new BadRequestException(
-            String.format(
-                "Bad form submission for updating predicate: %s", predicateForm.rawData()));
-      }
-
-      Scalar scalar = Scalar.valueOf(rawScalarValue);
-      Operator operator = Operator.valueOf(rawOperatorValue);
-      // TODO handle multiselect predicate values
-      PredicateValue predicateValue =
-          parsePredicateValue(scalar, operator, rawPredicateValue, ImmutableList.of());
-
-      leafNodes.put(
-          groupId,
-          LeafOperationExpressionNode.builder()
-              .setQuestionId(questionId)
-              .setScalar(scalar)
-              .setOperator(operator)
-              .setComparedValue(predicateValue)
-              .build());
-    }
-
-    return PredicateDefinition.create(
-        PredicateExpressionNode.create(
-            OrNode.create(
-                leafNodes.keySet().stream()
-                    .map(leafNodes::get)
-                    .map(
-                        leafNodeGroup ->
-                            leafNodeGroup.stream()
-                                .map(PredicateExpressionNode::create)
-                                .collect(toImmutableList()))
-                    .map(AndNode::create)
-                    .map(PredicateExpressionNode::create)
-                    .collect(toImmutableList()))),
-        ELIGIBLE_BLOCK);
   }
 
   @Override

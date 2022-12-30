@@ -26,12 +26,12 @@ import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.program.ProgramServiceImpl;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -159,6 +159,31 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public Result updateVisibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
+    if (featureFlags.isPredicatesMultipleQuestionsEnabled(request)) {
+      try {
+        PredicateDefinition predicateDefinition =
+            new PredicateGenerator()
+                .generatePredicateDefinition(formFactory.form().bindFromRequest(request));
+
+        programService.setBlockVisibilityPredicate(
+            programId, blockDefinitionId, Optional.of(predicateDefinition));
+      } catch (ProgramNotFoundException e) {
+        return notFound(String.format("Program ID %d not found.", programId));
+      } catch (ProgramBlockDefinitionNotFoundException e) {
+        return notFound(
+            String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+      } catch (IllegalPredicateOrderingException e) {
+        return redirect(
+                routes.AdminProgramBlockPredicatesController.editVisibility(
+                    programId, blockDefinitionId))
+            .flashing("error", e.getLocalizedMessage());
+      }
+
+      return redirect(
+          routes.AdminProgramBlockPredicatesController.editVisibility(
+              programId, blockDefinitionId));
+    }
+
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
         formFactory.form(BlockVisibilityPredicateForm.class).bindFromRequest(request);
 
@@ -183,7 +208,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
     Operator operator = Operator.valueOf(predicateForm.getOperator());
     PredicateValue predicateValue =
-        ProgramServiceImpl.parsePredicateValue(
+        PredicateGenerator.parsePredicateValue(
             scalar,
             operator,
             predicateForm.getPredicateValue(),
@@ -429,7 +454,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
     Operator operator = Operator.valueOf(predicateForm.getOperator());
     PredicateValue predicateValue =
-        ProgramServiceImpl.parsePredicateValue(
+        PredicateGenerator.parsePredicateValue(
             scalar,
             operator,
             predicateForm.getPredicateValue(),

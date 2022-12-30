@@ -1,11 +1,8 @@
 package services.program;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import services.program.predicate.PredicateDefinition;
 
 /**
@@ -21,15 +18,6 @@ import services.program.predicate.PredicateDefinition;
 @AutoValue
 public abstract class EligibilityDefinition {
 
-  /** Indicates the shape of the predicate's AST so view code can render the appropriate UI. */
-  public enum PredicateFormat {
-    // A single leaf node
-    SINGLE_QUESTION,
-    // A top level conjunction with only AND child nodes,
-    // each of which has only leaf nodes.
-    SINGLE_LAYER_AND;
-  }
-
   public static Builder builder() {
     return new AutoValue_EligibilityDefinition.Builder();
   }
@@ -37,11 +25,6 @@ public abstract class EligibilityDefinition {
   /** A {@link PredicateDefinition} that determines whether the applicant is eligible. */
   @JsonProperty("predicate")
   public abstract PredicateDefinition predicate();
-
-  /** Indicates the shape of the predicate's AST so view code can render the appropriate UI. */
-  @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  @JsonProperty("predicateType")
-  public abstract Optional<PredicateFormat> predicateFormat();
 
   public abstract Builder toBuilder();
 
@@ -51,12 +34,5 @@ public abstract class EligibilityDefinition {
 
     @JsonProperty("predicate")
     public abstract Builder setPredicate(PredicateDefinition def);
-
-    @JsonProperty("predicateType")
-    public abstract Builder setPredicateFormat(Optional<PredicateFormat> predicateFormat);
-
-    public Builder setPredicateFormat(@Nullable PredicateFormat predicateFormat) {
-      return this.setPredicateFormat(Optional.ofNullable(predicateFormat));
-    }
   }
 }
