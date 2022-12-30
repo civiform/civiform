@@ -6,6 +6,8 @@
  *  - dismiss a toast messages based on a user action or after a specified timeout.
  *  - permanently dismiss toast messags (using localStorage)
  */
+import {assertNotNull} from './util'
+
 export class ToastController {
   private static readonly CONTAINER_ID = 'toast-container'
   private static readonly MESSAGE_CLASS = 'cf-toast'
@@ -107,8 +109,7 @@ export class ToastController {
     const toastContainer = document.getElementById(ToastController.CONTAINER_ID)
     if (toastContainer) {
       toastContainer.appendChild(toastMessage)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      toastContainer!.classList.remove('hidden')
+      toastContainer.classList.remove('hidden')
       if (message.duration > 0) {
         setTimeout(
           ToastController.dismissToast,
@@ -160,14 +161,11 @@ export class ToastController {
     )
     messages.forEach((element) => {
       const message: ToastMessage = {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        id: element.getAttribute('id')!,
+        id: element.id,
         canDismiss: element.getAttribute('canDismiss') === 'true',
         canIgnore: element.getAttribute('canIgnore') === 'true',
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        content: element.textContent!,
+        content: assertNotNull(element.textContent),
         duration: Number(element.getAttribute('toastDuration')),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         type: element.getAttribute('toastType')!.toLowerCase(),
       }
       element.remove()
@@ -182,9 +180,8 @@ export class ToastController {
   private static dismissClicked(event: Event) {
     const target = event.target as Element
     const toast = target.closest('.' + ToastController.MESSAGE_CLASS)
-    if (toast && toast.hasAttribute('id')) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const toastId = toast.getAttribute('id')!
+    if (toast && toast.id) {
+      const toastId = toast.id
       ToastController.dismissToast(toastId, /* dismissClicked = */ true)
     }
   }
