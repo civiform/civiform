@@ -46,6 +46,7 @@ import views.admin.programs.ProgramBlockPredicatesEditViewV2;
  * logic.
  */
 public class AdminProgramBlockPredicatesController extends CiviFormController {
+  private final PredicateGenerator predicateGenerator;
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ProgramBlockPredicatesEditView predicatesEditView;
@@ -57,6 +58,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
   @Inject
   public AdminProgramBlockPredicatesController(
+      PredicateGenerator predicateGenerator,
       ProgramService programService,
       QuestionService questionService,
       ProgramBlockPredicatesEditView predicatesEditView,
@@ -65,6 +67,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       FormFactory formFactory,
       RequestChecker requestChecker,
       FeatureFlags featureFlags) {
+    this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.predicatesEditView = checkNotNull(predicatesEditView);
@@ -411,8 +414,15 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     if (featureFlags.isPredicatesMultipleQuestionsEnabled(request)) {
       try {
+        EligibilityDefinition eligibility =
+            EligibilityDefinition.builder()
+                .setPredicate(
+                    predicateGenerator.generatePredicateDefinition(
+                        formFactory.form().bindFromRequest(request)))
+                .build();
+
         programService.setBlockEligibilityDefinition(
-            programId, blockDefinitionId, formFactory.form().bindFromRequest(request));
+            programId, blockDefinitionId, Optional.of(eligibility));
       } catch (ProgramNotFoundException e) {
         return notFound(String.format("Program ID %d not found.", programId));
       } catch (ProgramBlockDefinitionNotFoundException e) {

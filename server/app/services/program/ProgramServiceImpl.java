@@ -25,7 +25,6 @@ import models.DisplayMode;
 import models.Program;
 import models.Version;
 import modules.MainModule;
-import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
@@ -41,7 +40,6 @@ import services.PaginationResult;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateGenerator;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -50,7 +48,6 @@ import services.question.types.QuestionDefinition;
 /** Implementation class for {@link ProgramService} interface. */
 public final class ProgramServiceImpl implements ProgramService {
 
-  private final PredicateGenerator predicateGenerator;
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -59,13 +56,11 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Inject
   public ProgramServiceImpl(
-      PredicateGenerator predicateGenerator,
       ProgramRepository programRepository,
       QuestionService questionService,
       UserRepository userRepository,
       VersionRepository versionRepository,
       HttpExecutionContext ec) {
-    this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
@@ -701,26 +696,6 @@ public final class ProgramServiceImpl implements ProgramService {
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-
-    BlockDefinition blockDefinition =
-        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setEligibilityDefinition(eligibility)
-            .build();
-
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
-  }
-
-  @Override
-  public ProgramDefinition setBlockEligibilityDefinition(
-      long programId, long blockDefinitionId, DynamicForm predicateForm)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-
-    EligibilityDefinition eligibility =
-        EligibilityDefinition.builder()
-            .setPredicate(predicateGenerator.generatePredicateDefinition(predicateForm))
-            .build();
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()

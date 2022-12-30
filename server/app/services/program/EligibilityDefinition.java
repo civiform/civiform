@@ -17,6 +17,8 @@ import services.program.predicate.PredicateDefinition;
 @JsonDeserialize(builder = AutoValue_EligibilityDefinition.Builder.class)
 @AutoValue
 public abstract class EligibilityDefinition {
+  // Note: While there is only one member currently, future iterations will add more which requires
+  // a wrapping class.
 
   public static Builder builder() {
     return new AutoValue_EligibilityDefinition.Builder();
