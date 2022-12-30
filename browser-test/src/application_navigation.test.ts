@@ -249,7 +249,7 @@ describe('Applicant navigation flow', () => {
       'Test program with one overlapping question for eligibility navigation flows'
 
     beforeAll(async () => {
-      const {page, adminQuestions, adminPrograms} = ctx
+      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
@@ -298,8 +298,8 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(fullProgramName)
     })
 
-    it('', async () => {
-      const {page, adminPredicates, applicantQuestions} = ctx
+    it('shows not eligible with ineligible answer', async () => {
+      const {page, applicantQuestions} = ctx
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
@@ -312,7 +312,24 @@ describe('Applicant navigation flow', () => {
 
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
-      await validateScreenshot(page, 'application-ineligible')
+      await validateScreenshot(page, 'application-ineligible-same-application')
+    })
+
+    it('shows not eligible with ineligible answer from another application', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+      await applicantQuestions.applyProgram(overlappingOneQProgramName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await validateScreenshot(page, 'application-ineligible-preexisting-data')
     })
   })
   // TODO: Add tests for "next" navigation
