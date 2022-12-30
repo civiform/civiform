@@ -7,6 +7,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import {assertNotNull} from './util'
 
 class AzureUploadController {
   private static FILEUPLOAD_FORM_ID = 'cf-block-form'
@@ -19,8 +22,8 @@ class AzureUploadController {
     ) {
       return
     }
-    const blockForm = document.getElementById(
-      AzureUploadController.FILEUPLOAD_FORM_ID,
+    const blockForm = assertNotNull(
+      document.getElementById(AzureUploadController.FILEUPLOAD_FORM_ID),
     )
     blockForm.addEventListener('submit', (event) => {
       this.attemptUpload(event, blockForm)
@@ -36,7 +39,7 @@ class AzureUploadController {
     // This is set by an imported JavaScript Azure blob client.
     // window["azblob"] was used because the TS compiler complained about using
     // window.azblob.
-    const azblob = window['azblob']
+    const azblob = (window as {[key: string]: any})['azblob']
 
     if (uploadContainer == null) {
       throw new Error('Attempted to upload to null container')
@@ -71,7 +74,7 @@ class AzureUploadController {
         blockBlobUrl,
         options,
       )
-      .then((resp, err) => {
+      .then((resp: any, err: any) => {
         if (err) {
           throw err
         }
@@ -86,6 +89,10 @@ class AzureUploadController {
   }
 
   private getAzureUploadProps(uploadContainer: HTMLElement) {
+    const files = assertNotNull(
+      uploadContainer.querySelector<HTMLInputElement>('input[type=file]')
+        ?.files,
+    )
     return {
       sasToken: this.getValueFromInputLabel('sasToken'),
       blobUrl: this.getValueFromInputLabel('blobUrl'),
@@ -93,8 +100,7 @@ class AzureUploadController {
         'successActionRedirect',
       ),
       containerName: this.getValueFromInputLabel('containerName'),
-      file: uploadContainer.querySelector<HTMLInputElement>('input[type=file]')
-        .files[0],
+      file: files[0],
       fileName: this.getValueFromInputLabel('fileName'),
     }
   }

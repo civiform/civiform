@@ -7,8 +7,7 @@
  *  - Rare instances in which we need to update a page without refreshing.
  *  - TBD
  */
-
-import {addEventListenerToElements} from './dom_utils'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 function attachDropdown(elementId: string) {
   const dropdownId = elementId + '-dropdown'
@@ -51,13 +50,20 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
  * In admin program block edit form - enabling submit button when form is changed or if not empty
  */
 function changeUpdateBlockButtonState() {
-  const blockEditForm = document.getElementById('block-edit-form')
-  const submitButton = document.getElementById('update-block-button')
+  const blockEditForm = assertNotNull(
+    document.getElementById('block-edit-form'),
+  )
+  const submitButton = assertNotNull(
+    document.getElementById('update-block-button'),
+  )
 
-  const formNameInput =
-    blockEditForm.querySelector<HTMLInputElement>('#block-name-input')
-  const formDescriptionText = blockEditForm.querySelector<HTMLTextAreaElement>(
-    '#block-description-textarea',
+  const formNameInput = assertNotNull(
+    blockEditForm.querySelector<HTMLInputElement>('#block-name-input'),
+  )
+  const formDescriptionText = assertNotNull(
+    blockEditForm.querySelector<HTMLTextAreaElement>(
+      '#block-description-textarea',
+    ),
   )
 
   if (
@@ -87,17 +93,19 @@ function addNewInput(
 ) {
   // Copy the answer template and remove ID and hidden properties.
   const newField = document
-    .getElementById(inputTemplateId)
+    .getElementById(inputTemplateId)!
     .cloneNode(true) as HTMLElement
   newField.classList.remove('hidden')
   newField.removeAttribute('id')
 
   // Register the click event handler for the remove button.
-  newField.querySelector('[type=button]').addEventListener('click', removeInput)
+  newField
+    .querySelector('[type=button]')!
+    .addEventListener('click', removeInput)
 
   // Find the add option button and insert the new option input field before it.
   const button = document.getElementById(addButtonId)
-  document.getElementById(divContainerId).insertBefore(newField, button)
+  document.getElementById(divContainerId)!.insertBefore(newField, button)
 }
 
 /**
@@ -107,8 +115,10 @@ function addNewInput(
  */
 function removeInput(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
-  const optionDiv = (event.currentTarget as Element).parentNode
-  optionDiv.parentNode.removeChild(optionDiv)
+  const optionDiv = assertNotNull(
+    (event.currentTarget as Element).parentNode,
+  ) as HTMLElement
+  optionDiv.remove()
 }
 
 /**
@@ -117,9 +127,11 @@ function removeInput(event: Event) {
  * @param {Event} event The event that triggered this action.
  */
 function hideInput(event: Event) {
-  const inputDiv = (event.currentTarget as Element).parentElement
+  const inputDiv = assertNotNull(
+    (event.currentTarget as Element)!.parentElement,
+  )
   // Remove 'disabled' so the field is submitted with the form
-  inputDiv.querySelector('input').disabled = false
+  inputDiv.querySelector('input')!.disabled = false
   // Hide the entire div from the user
   inputDiv.classList.add('hidden')
 }
@@ -168,7 +180,9 @@ function attachFormDebouncers() {
 function attachRedirectToPageListeners() {
   addEventListenerToElements('[data-redirect-to]', 'click', (e: Event) => {
     e.stopPropagation()
-    window.location.href = (e.currentTarget as HTMLElement).dataset.redirectTo
+    window.location.href = assertNotNull(
+      (e.currentTarget as HTMLElement).dataset.redirectTo,
+    )
   })
 }
 

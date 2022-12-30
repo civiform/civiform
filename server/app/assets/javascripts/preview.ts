@@ -1,4 +1,6 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
+import {assertNotNull} from './util'
+
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
   private static readonly QUESTION_HELP_TEXT_INPUT_ID =
@@ -224,8 +226,10 @@ class PreviewController {
         PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS,
       )
         ? newPreviewOption
-        : newPreviewOption.querySelector<HTMLElement>(
-            `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
+        : assertNotNull(
+            newPreviewOption.querySelector<HTMLElement>(
+              `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
+            ),
           )
       optionText.innerText = configuredOption
       previewQuestionOptionContainer.appendChild(newPreviewOption)
@@ -268,8 +272,10 @@ class PreviewController {
   private static updateFromNewEnumeratorSelector(
     enumeratorSelectorValue: string,
   ) {
-    const repeatedQuestionInformation = document.getElementById(
-      PreviewController.REPEATED_QUESTION_INFORMATION_ID,
+    const repeatedQuestionInformation = assertNotNull(
+      document.getElementById(
+        PreviewController.REPEATED_QUESTION_INFORMATION_ID,
+      ),
     )
     repeatedQuestionInformation.classList.toggle(
       'hidden',
@@ -308,7 +314,7 @@ class PreviewController {
     selector: string,
     text: string,
   ) {
-    const previewDiv = document.querySelector(selector)
+    const previewDiv = assertNotNull(document.querySelector(selector))
     const pieces = text.split(PreviewController.THIS_REGEX)
 
     previewDiv.innerHTML = ''

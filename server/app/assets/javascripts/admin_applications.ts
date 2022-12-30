@@ -2,8 +2,7 @@ class AdminApplications {
   private static BACKGROUND_GRAY_CLASS = 'bg-gray-200'
   private static BACKGROUND_WHITE_CLASS = 'bg-white'
   private static CARD_SELECTOR = '.cf-admin-application-card'
-  private static DISPLAY_FRAME_SELECTOR =
-    'iframe[name="application-display-frame"]'
+  static DISPLAY_FRAME_SELECTOR = 'iframe[name="application-display-frame"]'
 
   // This value should be kept in sync with that in AdminApplicationController.java.
   private static SELECTED_APPLICATION_URI_PARAM_NAME = 'selectedApplicationUri'
@@ -17,19 +16,9 @@ class AdminApplications {
   private static SEND_EMAIL_INPUT_NAME = 'sendEmail'
   private static NOTE_INPUT_NAME = 'note'
 
-  private displayFrame: Element
   private cards: Array<HTMLElement>
 
-  constructor() {
-    const frame = document.querySelector(
-      AdminApplications.DISPLAY_FRAME_SELECTOR,
-    )
-
-    if (frame == null) {
-      return
-    }
-
-    this.displayFrame = frame
+  constructor(private readonly displayFrame: Element) {
     this.cards = Array.from(
       document.querySelectorAll(AdminApplications.CARD_SELECTOR),
     )
@@ -241,5 +230,8 @@ interface EditNoteData {
 }
 
 export function init() {
-  new AdminApplications()
+  const frame = document.querySelector(AdminApplications.DISPLAY_FRAME_SELECTOR)
+  if (frame) {
+    new AdminApplications(frame)
+  }
 }

@@ -1,4 +1,5 @@
 /** The validation controller provides basic client-side validation of admin form fields. */
+
 class AdminValidationController {
   static readonly MULTI_OPTION_QUESTION_FIELD_NAME_CREATE =
     '#question-settings input[name="newOptions[]"]'
@@ -35,13 +36,13 @@ class AdminValidationController {
     fieldErrorName: string,
     isValid: boolean,
   ) {
-    const errorDiv = element.parentElement.querySelector(fieldErrorName)
+    const errorDiv = element.parentElement!.querySelector(fieldErrorName)
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid)
     }
 
     // Also toggle the border on error inputs (if applicable).
-    const field = element.parentElement.querySelector('input')
+    const field = element.parentElement!.querySelector('input')
     if (field) {
       field.classList.toggle('border-red-600', !isValid)
     }
