@@ -35,6 +35,7 @@ import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import views.admin.programs.ProgramBlockPredicateConfigureView;
 import views.admin.programs.ProgramBlockPredicatesEditView;
@@ -162,11 +163,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public Result updateVisibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
     if (featureFlags.isPredicatesMultipleQuestionsEnabled(request)) {
       try {
         PredicateDefinition predicateDefinition =
-            new PredicateGenerator()
-                .generatePredicateDefinition(formFactory.form().bindFromRequest(request));
+            predicateGenerator.generatePredicateDefinition(
+                formFactory.form().bindFromRequest(request), roQuestionService);
 
         programService.setBlockVisibilityPredicate(
             programId, blockDefinitionId, Optional.of(predicateDefinition));
@@ -175,7 +179,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       } catch (ProgramBlockDefinitionNotFoundException e) {
         return notFound(
             String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
-      } catch (IllegalPredicateOrderingException e) {
+      } catch (IllegalPredicateOrderingException | QuestionNotFoundException e) {
         return redirect(
                 routes.AdminProgramBlockPredicatesController.editVisibility(
                     programId, blockDefinitionId))
@@ -238,9 +242,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   programId, blockDefinitionId))
           .flashing("error", e.getLocalizedMessage());
     }
-
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     return redirect(
             routes.AdminProgramBlockPredicatesController.editVisibility(
@@ -412,13 +413,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public Result updateEligibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
     if (featureFlags.isPredicatesMultipleQuestionsEnabled(request)) {
       try {
         EligibilityDefinition eligibility =
             EligibilityDefinition.builder()
                 .setPredicate(
                     predicateGenerator.generatePredicateDefinition(
-                        formFactory.form().bindFromRequest(request)))
+                        formFactory.form().bindFromRequest(request), roQuestionService))
                 .build();
 
         programService.setBlockEligibilityDefinition(
@@ -428,7 +432,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       } catch (ProgramBlockDefinitionNotFoundException e) {
         return notFound(
             String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
-      } catch (IllegalPredicateOrderingException e) {
+      } catch (IllegalPredicateOrderingException | QuestionNotFoundException e) {
         return redirect(
                 routes.AdminProgramBlockPredicatesController.editEligibility(
                     programId, blockDefinitionId))
@@ -493,9 +497,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   programId, blockDefinitionId))
           .flashing("error", e.getLocalizedMessage());
     }
-
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     return redirect(
             routes.AdminProgramBlockPredicatesController.editEligibility(

@@ -1,5 +1,7 @@
 package services.program.predicate;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -51,10 +53,14 @@ public abstract class PredicateDefinition {
   @JsonProperty("action")
   public abstract PredicateAction action();
 
+  /**
+   * Question IDs referenced by this predicate, deduplicated but presented in a list to preserve
+   * ordering.
+   */
   @JsonIgnore
   @Memoized
   public ImmutableList<Long> getQuestions() {
-    return rootNode().getQuestions();
+    return rootNode().getQuestions().stream().distinct().collect(toImmutableList());
   }
 
   /** Indicates the shape of the predicate's AST so view code can render the appropriate UI. */

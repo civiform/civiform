@@ -15,8 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.tuple.Pair;
 import play.data.DynamicForm;
 import services.applicant.question.Scalar;
+import services.question.ReadOnlyQuestionService;
+import services.question.exceptions.QuestionNotFoundException;
 
 /** Creates {@link PredicateDefinition}s from form inputs. */
 public final class PredicateGenerator {
@@ -47,15 +50,24 @@ public final class PredicateGenerator {
    *       node and is otherwise unused.
    * </ul>
    *
+   * @param predicateForm contains key-value pairs specifying the predicate.
+   * @param roQuestionService a {@link ReadOnlyQuestionService} for validating that questions
+   *     referenced in the form are active or draft.
+   * @throws QuestionNotFoundException if the form references a question ID that is not in the
+   *     {@link ReadOnlyQuestionService}.
    * @throws BadRequestException if the form is invalid.
    */
-  public PredicateDefinition generatePredicateDefinition(DynamicForm predicateForm) {
+  public PredicateDefinition generatePredicateDefinition(
+      DynamicForm predicateForm, ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException {
     Multimap<Integer, LeafOperationExpressionNode> leafNodes = LinkedHashMultimap.create();
 
     HashSet<String> consumedMultiValueKeys = new HashSet<>();
-    PredicateAction predicateAction = PredicateAction.valueOf(predicateForm.get("predicateAction"));
+    final PredicateAction predicateAction;
 
-    if (predicateAction == null) {
+    try {
+      predicateAction = PredicateAction.valueOf(predicateForm.get("predicateAction"));
+    } catch (IllegalArgumentException e) {
       throw new BadRequestException(
           String.format(
               "Missing or unknown predicateAction: %s", predicateForm.get("predicateAction")));
@@ -66,39 +78,30 @@ public final class PredicateGenerator {
       Matcher multiValueMatcher = MULTI_PREDICATE_VALUE_FORM_KEY_PATTERN.matcher(key);
 
       int groupId;
-      int questionId;
+      long questionId;
       Scalar scalar;
       Operator operator;
       PredicateValue predicateValue;
 
       if (singleValueMatcher.find()) {
-        groupId = Integer.parseInt(singleValueMatcher.group(1));
-        questionId = Integer.parseInt(singleValueMatcher.group(2));
-        String rawPredicateValue = predicateForm.get(key);
-        String rawScalarValue = predicateForm.get(String.format("question-%d-scalar", questionId));
-        String rawOperatorValue =
-            predicateForm.get(String.format("question-%d-operator", questionId));
+        Pair<Integer, Long> groupIdQuestionIdPair =
+            getGroupIdAndQuestionId(roQuestionService, singleValueMatcher);
+        groupId = groupIdQuestionIdPair.getLeft();
+        questionId = groupIdQuestionIdPair.getRight();
+        Pair<Scalar, Operator> scalarOperatorPair = getScalarAndOperator(predicateForm, questionId);
+        scalar = scalarOperatorPair.getLeft();
+        operator = scalarOperatorPair.getRight();
 
-        if (rawOperatorValue == null || rawScalarValue == null || rawPredicateValue == null) {
-          throw new BadRequestException(
-              String.format(
-                  "Bad form submission for updating predicate: %s", predicateForm.rawData()));
-        }
-
-        scalar = Scalar.valueOf(rawScalarValue);
-        operator = Operator.valueOf(rawOperatorValue);
         predicateValue =
-            parsePredicateValue(scalar, operator, rawPredicateValue, ImmutableList.of());
-      } else if (multiValueMatcher.find()) {
-        if (consumedMultiValueKeys.contains(key)) {
-          continue;
-        }
-
-        groupId = Integer.parseInt(multiValueMatcher.group(1));
-        questionId = Integer.parseInt(multiValueMatcher.group(2));
-        String rawScalarValue = predicateForm.get(String.format("question-%d-scalar", questionId));
-        String rawOperatorValue =
-            predicateForm.get(String.format("question-%d-operator", questionId));
+            parsePredicateValue(scalar, operator, predicateForm.get(key), ImmutableList.of());
+      } else if (multiValueMatcher.find() && !consumedMultiValueKeys.contains(key)) {
+        Pair<Integer, Long> groupIdQuestionIdPair =
+            getGroupIdAndQuestionId(roQuestionService, multiValueMatcher);
+        groupId = groupIdQuestionIdPair.getLeft();
+        questionId = groupIdQuestionIdPair.getRight();
+        Pair<Scalar, Operator> scalarOperatorPair = getScalarAndOperator(predicateForm, questionId);
+        scalar = scalarOperatorPair.getLeft();
+        operator = scalarOperatorPair.getRight();
 
         ImmutableList<String> multiSelectKeys =
             predicateForm.rawData().keySet().stream()
@@ -116,14 +119,6 @@ public final class PredicateGenerator {
                 .map(predicateForm.rawData()::get)
                 .collect(ImmutableList.toImmutableList());
 
-        if (rawOperatorValue == null || rawScalarValue == null) {
-          throw new BadRequestException(
-              String.format(
-                  "Bad form submission for updating predicate: %s", predicateForm.rawData()));
-        }
-
-        scalar = Scalar.valueOf(rawScalarValue);
-        operator = Operator.valueOf(rawOperatorValue);
         predicateValue = parsePredicateValue(scalar, operator, "", rawPredicateValues);
       } else {
         continue;
@@ -139,7 +134,7 @@ public final class PredicateGenerator {
               .build());
     }
 
-    switch (getFormat(leafNodes)) {
+    switch (detectFormat(leafNodes)) {
       case OR_OF_SINGLE_LAYER_ANDS:
         {
           return PredicateDefinition.create(
@@ -173,12 +168,48 @@ public final class PredicateGenerator {
       default:
         {
           throw new BadRequestException(
-              String.format("Unrecognized predicate format: %s", getFormat(leafNodes)));
+              String.format("Unrecognized predicate format: %s", detectFormat(leafNodes)));
         }
     }
   }
 
-  private static PredicateDefinition.PredicateFormat getFormat(
+  /**
+   * Gets the groupId and questionId for the provided predicate value matcher.
+   *
+   * @throws QuestionNotFoundException if the resulting questionId is not in the {@link
+   *     ReadOnlyQuestionService}
+   */
+  private static Pair<Integer, Long> getGroupIdAndQuestionId(
+      ReadOnlyQuestionService roQuestionService, Matcher matcher) throws QuestionNotFoundException {
+    int groupId = Integer.parseInt(matcher.group(1));
+    long questionId = Long.parseLong(matcher.group(2));
+
+    roQuestionService.getQuestionDefinition(questionId);
+
+    return Pair.of(groupId, questionId);
+  }
+
+  private static Pair<Scalar, Operator> getScalarAndOperator(
+      DynamicForm predicateForm, Long questionId) {
+    String rawScalarValue = predicateForm.get(String.format("question-%d-scalar", questionId));
+    String rawOperatorValue = predicateForm.get(String.format("question-%d-operator", questionId));
+
+    if (rawOperatorValue == null || rawScalarValue == null) {
+      throw new BadRequestException(
+          String.format(
+              "Missing scalar or operator for predicate update form: %s", predicateForm.rawData()));
+    }
+
+    try {
+      return Pair.of(Scalar.valueOf(rawScalarValue), Operator.valueOf(rawOperatorValue));
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException(
+          String.format(
+              "Bad scalar or operator for predicate update form: %s", predicateForm.rawData()));
+    }
+  }
+
+  private static PredicateDefinition.PredicateFormat detectFormat(
       Multimap<Integer, LeafOperationExpressionNode> leafNodes) {
     if (leafNodes.size() > 1
         || leafNodes.keySet().stream()
