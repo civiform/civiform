@@ -24,6 +24,7 @@ class AdminPredicateConfiguration {
       },
     )
 
+    // Set add and remove events for managing rows of values when multiple questions are involved.
     document
       .querySelector('#predicate-add-value-set')
       ?.addEventListener('click', (event: Event) =>
