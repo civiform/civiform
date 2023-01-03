@@ -40,7 +40,10 @@ describe('create and edit predicates', () => {
     ])
 
     // Edit predicate for second block
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 2',
+    )
     await adminPredicates.addPredicate(
       'hide-predicate-q',
       'hidden if',
@@ -130,7 +133,10 @@ describe('create and edit predicates', () => {
     ])
 
     // Edit predicate for second screen
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 2',
+    )
     await adminPredicates.addPredicate(
       'show-predicate-q',
       'shown if',
@@ -214,7 +220,9 @@ describe('create and edit predicates', () => {
       questionName: 'predicate-currency',
     })
     await adminQuestions.addDateQuestion({questionName: 'predicate-date'})
-    await adminQuestions.addDateQuestion({questionName: 'on-or-after-date-question'})
+    await adminQuestions.addDateQuestion({
+      questionName: 'on-or-after-date-question',
+    })
     await adminQuestions.addCheckboxQuestion({
       questionName: 'both sides are lists',
       options: ['dog', 'rabbit', 'cat'],
@@ -239,7 +247,11 @@ describe('create and edit predicates', () => {
       'predicate-currency',
     ])
     await adminPrograms.addProgramBlock(programName, 'date', ['predicate-date'])
-    await adminPrograms.addProgramBlock(programName, 'on or after date question', ['on-or-after-date-question'])
+    await adminPrograms.addProgramBlock(
+      programName,
+      'on or after date question',
+      ['on-or-after-date-question'],
+    )
     await adminPrograms.addProgramBlock(programName, 'two lists', [
       'both sides are lists',
     ])
@@ -248,7 +260,10 @@ describe('create and edit predicates', () => {
     ])
 
     // Simple string predicate
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 2',
+    )
     await adminPredicates.addPredicate(
       'single-string',
       'shown if',
@@ -258,7 +273,10 @@ describe('create and edit predicates', () => {
     )
 
     // Single string one of a list of strings
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 3')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 3',
+    )
     await adminPredicates.addPredicate(
       'list of strings',
       'shown if',
@@ -268,7 +286,10 @@ describe('create and edit predicates', () => {
     )
 
     // Simple long predicate
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 4')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 4',
+    )
     await adminPredicates.addPredicate(
       'single-long',
       'shown if',
@@ -278,7 +299,10 @@ describe('create and edit predicates', () => {
     )
 
     // Single long one of a list of longs
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 5')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 5',
+    )
     await adminPredicates.addPredicate(
       'list of longs',
       'shown if',
@@ -288,7 +312,10 @@ describe('create and edit predicates', () => {
     )
 
     // Currency predicate
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 6')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 6',
+    )
     await adminPredicates.addPredicate(
       'predicate-currency',
       'shown if',
@@ -298,7 +325,10 @@ describe('create and edit predicates', () => {
     )
 
     // Date predicate is on or before
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 7')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 7',
+    )
     await adminPredicates.addPredicate(
       'predicate-date',
       'shown if',
@@ -308,7 +338,10 @@ describe('create and edit predicates', () => {
     )
 
     // Date predicate is before
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 8')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 8',
+    )
     await adminPredicates.addPredicate(
       'on-or-after-date-question',
       'shown if',
@@ -318,7 +351,10 @@ describe('create and edit predicates', () => {
     )
 
     // Lists of strings on both sides (multi-option question checkbox)
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 9')
+    await adminPrograms.goToEditBlockVisibilityPredicatePage(
+      programName,
+      'Screen 9',
+    )
     await adminPredicates.addPredicate(
       'both sides are lists',
       'shown if',
