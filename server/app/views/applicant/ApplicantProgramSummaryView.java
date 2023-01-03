@@ -69,7 +69,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     DivTag applicationSummary = div().withId("application-summary").withClasses("mb-8");
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
     // Require the edit control be shown up through the first unanswered question. Note: The control
-    // is also shown if the question has data.
+    // will also be shown if the question has data in renderQuestionSummary().
     boolean forceShowEditButton = true;
     for (AnswerData answerData : params.summaryData()) {
       Optional<RepeatedEntity> currentRepeatedEntity = answerData.repeatedEntity();
