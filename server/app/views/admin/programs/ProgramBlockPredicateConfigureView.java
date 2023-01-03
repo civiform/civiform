@@ -221,7 +221,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     }
 
     formTag.with(valueRowContainer);
-    formTag.with(div(makeSvgTextButton("Add values", Icons.ADD).withId("predicate-add-value-set")));
+    formTag.with(div(makeSvgTextButton("Add values", Icons.ADD).withId("predicate-add-value-row")));
     formTag.with(submitButton("Save condition").withClasses("my-4"));
 
     return formTag;

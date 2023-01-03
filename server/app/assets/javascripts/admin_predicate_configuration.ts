@@ -2,12 +2,26 @@ import {addEventListenerToElements, assertNotNull} from './util'
 
 /** Dynamic behavior for ProgramBlockPredicateConfigureView.
  *
- * When scalar is selected, updates operator and value input(s) to match.
- * When operator is selected, updates value input(s) to match.
- * Implements adding and deleting value rows when the user clicks on the UI.
+ * To configure a predicate, the admin specifies the scalar of a question
+ * the predicate refers to, a comparison operator, and a comparison value
+ * or values.
+ *
+ * The UI supports specifying groups of comparison values that taken together
+ * form an AND clause in the resulting boolean expression AST. These groups
+ * of comparison values all share a group number. The groups are added
+ * and deleted as rows of value inputs in the UI.
+ *
+ * When scalar is selected, this code updates the operator input and value
+ * input(s) to provide the appropriate input semantics.
+ *
+ * When operator is selected, only value input(s) are updated.
  * */
 class AdminPredicateConfiguration {
   registerEventListeners() {
+    if (document.querySelector('.predicate-config-value-row') == null) {
+      return
+    }
+
     addEventListenerToElements('.cf-scalar-select', 'input', (event: Event) =>
       this.configurePredicateFormOnScalarChange(event),
     )
@@ -26,7 +40,7 @@ class AdminPredicateConfiguration {
 
     // Set add and remove events for managing rows of values when multiple questions are involved.
     document
-      .querySelector('#predicate-add-value-set')
+      .querySelector('#predicate-add-value-row')
       ?.addEventListener('click', (event: Event) =>
         this.predicateAddValueRow(event),
       )
@@ -41,6 +55,7 @@ class AdminPredicateConfiguration {
   configurePredicateFormOnScalarChange(event: Event) {
     // Get the type of scalar currently selected.
     const scalarDropdown = event.target as HTMLSelectElement
+    const questionId = assertNotNull(this.getQuestionId(scalarDropdown))
     const selectedScalarType =
       scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type!
     const selectedScalarValue =
@@ -51,8 +66,19 @@ class AdminPredicateConfiguration {
       selectedScalarType,
       selectedScalarValue,
     )
+    this.configurePredicateValueInput(
+      selectedScalarType,
+      selectedScalarValue,
+      questionId,
+    )
   }
 
+  /** Updates the value input and hidden behavior of comma help text when the operator changes.
+   *
+   * The comma help text instructs the admin on using a single text field to specify multiple
+   * values in cases where they select an operator that acts on multiple values such as ANY_OF
+   * or NONE_OF.
+   * */
   configurePredicateFormOnOperatorChange(event: Event) {
     const operatorDropdown = event.target as HTMLSelectElement
     const selectedOperatorValue =
@@ -69,23 +95,25 @@ class AdminPredicateConfiguration {
       `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`,
     )
 
-    // This help text div isn't present at all in some cases.
-    if (commaSeparatedHelpTexts == null) {
-      return
+    // The help text div is present for inputs that allow specifying
+    // multiple values in a single text input. It won't be present
+    // for other input types e.g. multiselect inputs.
+    if (commaSeparatedHelpTexts != null) {
+      const shouldShowCommaSeperatedHelpText =
+        selectedOperatorValue.toUpperCase() !== 'IN' &&
+        selectedOperatorValue.toUpperCase() !== 'NOT_IN'
+
+      for (const commaSeparatedHelpText of Array.from(
+        commaSeparatedHelpTexts,
+      )) {
+        commaSeparatedHelpText.classList.toggle(
+          'hidden',
+          shouldShowCommaSeperatedHelpText,
+        )
+      }
     }
 
-    const shouldShowCommaSeperatedHelpText =
-      selectedOperatorValue.toUpperCase() !== 'IN' &&
-      selectedOperatorValue.toUpperCase() !== 'NOT_IN'
-
-    for (const commaSeparatedHelpText of Array.from(commaSeparatedHelpTexts)) {
-      commaSeparatedHelpText.classList.toggle(
-        'hidden',
-        shouldShowCommaSeperatedHelpText,
-      )
-    }
-
-    // The type of the value field may need to change based on the current operator
+    // Update the value field to reflect the new Operator selection.
     const scalarDropdown = this.getElementWithQuestionId(
       '.cf-scalar-select',
       questionId,
@@ -104,7 +132,7 @@ class AdminPredicateConfiguration {
 
   /**
    *  Setup the the html attributes for value inputs so they acccept the correct
-   *  type of input (nubers, text, email, ect.)
+   *  type of input (nubers, text, email, etc.)
    *  @param {HTMLSelectElement} scalarDropdown The element to configure the value input for.
    *  @param {string} selectedScalarType The type of the selected option
    *  @param {string} selectedScalarValue The value of the selected option
@@ -263,14 +291,17 @@ class AdminPredicateConfiguration {
     ) as HTMLSelectElement
 
     Array.from(operatorDropdown.options).forEach((operatorOption) => {
-      operatorOption.classList.toggle(
-        'hidden',
-        !this.shouldHideOperator(
-          selectedScalarType,
-          selectedScalarValue,
-          operatorOption,
-        ),
+      const shouldHide = !this.shouldHideOperator(
+        selectedScalarType,
+        selectedScalarValue,
+        operatorOption,
       )
+
+      if (shouldHide) {
+        operatorOption.selected = false
+      }
+
+      operatorOption.classList.toggle('hidden', shouldHide)
     })
   }
 
@@ -320,212 +351,6 @@ class AdminPredicateConfiguration {
   }
 }
 
-/** TODO(4004): Remove all functions below this line except init. */
-
-function configurePredicateFormOnScalarChange(event: Event) {
-  // Get the type of scalar currently selected.
-  const scalarDropdown = event.target as HTMLSelectElement
-  const selectedScalarType = assertNotNull(
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
-  )
-  const selectedScalarValue =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].value
-
-  filterOperators(scalarDropdown, selectedScalarType, selectedScalarValue)
-  configurePredicateValueInput(
-    scalarDropdown,
-    selectedScalarType,
-    selectedScalarValue,
-  )
-}
-
-/**
- * Filter the operators available for each scalar type based on the current scalar selected.
- *   @param {HTMLSelectElement} scalarDropdown The element to filter the operators for.
- *   @param {string} selectedScalarType The tyoe of the selected option
- *   @param {string} selectedScalarValue The value of the selected option
- */
-function filterOperators(
-  scalarDropdown: HTMLSelectElement,
-  selectedScalarType: string,
-  selectedScalarValue: string,
-) {
-  // Filter the operators available for the given selected scalar type.
-  const operatorDropdown = assertNotNull(
-    scalarDropdown
-      .closest('.cf-predicate-options') // div containing all predicate builder form fields
-      ?.querySelector<HTMLSelectElement>('.cf-operator-select select'),
-  )
-
-  Array.from(operatorDropdown.options).forEach((operatorOption) => {
-    // Remove any existing hidden class from previous filtering.
-    operatorOption.classList.remove('hidden')
-
-    if (
-      shouldHideOperator(
-        selectedScalarType,
-        selectedScalarValue,
-        operatorOption,
-      )
-    ) {
-      operatorOption.classList.add('hidden')
-    }
-  })
-}
-
-/**
- * Logic that decides if a operator should be hidden.
- *   @param {string} selectedScalarType The tyoe of the selected option
- *   @param {string} selectedScalarValue The value of the selected option
- *   @param {HTMLOptionElement} operatorOption The operator to check if we should hide.
- * @return {boolean} If the operator should be hidden
- */
-function shouldHideOperator(
-  selectedScalarType: string,
-  selectedScalarValue: string,
-  operatorOption: HTMLOptionElement,
-): boolean {
-  // If this operator is not for the currently selected type, hide it.
-  return (
-    // Special case for SELECTION scalars (which are of type STRING):
-    // do not include EQUAL_TO or NOT_EQUAL_TO. This is because we use a set of checkbox
-    // inputs for values for multi-option question predicates, which works well for list
-    // operators such as ANY_OF and NONE_OF. Because you can achieve the same functionality
-    // of EQUAL_TO with ANY_OF and NOT_EQUAL_TO with NONE_OF, we made a technical choice to
-    // exclude these operators from single-select predicates to simplify the code on both
-    // the form processing side and on the admin user side.
-    !(selectedScalarType in operatorOption.dataset) ||
-    (selectedScalarValue.toUpperCase() === 'SELECTION' &&
-      (operatorOption.value === 'EQUAL_TO' ||
-        operatorOption.value === 'NOT_EQUAL_TO'))
-  )
-}
-
-/**
- *  Setup the the html attributes for value inputs so they acccept the correct
- *  type of input (nubers, text, email, ect.)
- *  @param {HTMLSelectElement} scalarDropdown The element to configure the value input for.
- *  @param {string} selectedScalarType The tyoe of the selected option
- *  @param {string} selectedScalarValue The value of the selected option
- */
-function configurePredicateValueInput(
-  scalarDropdown: HTMLSelectElement,
-  selectedScalarType: string,
-  selectedScalarValue: string,
-) {
-  // If the scalar is from a multi-option question, there is not an input box for the 'Value'
-  // field (there's a set of checkboxes instead), so return immediately.
-  if (
-    selectedScalarValue.toUpperCase() === 'SELECTION' ||
-    selectedScalarValue.toUpperCase() === 'SELECTIONS'
-  ) {
-    return
-  }
-
-  const operatorDropdown = assertNotNull(
-    scalarDropdown
-      .closest('.cf-predicate-options') // div containing all predicate builder form fields
-      ?.querySelector<HTMLSelectElement>('.cf-operator-select select'),
-  )
-  const operatorValue =
-    operatorDropdown.options[operatorDropdown.options.selectedIndex].value
-
-  const valueInput = assertNotNull(
-    scalarDropdown
-      .closest('.cf-predicate-options') // div containing all predicate builder form fields
-      ?.querySelector<HTMLInputElement>('.cf-predicate-value-input input'),
-  )
-
-  switch (selectedScalarType.toUpperCase()) {
-    case 'STRING':
-      if (selectedScalarValue.toUpperCase() === 'EMAIL') {
-        // Need to look at the selected scalar *value* for email since the type is just a
-        // string, but emails have a special type in HTML inputs.
-        valueInput.setAttribute('type', 'email')
-        break
-      }
-      valueInput.setAttribute('type', 'text')
-      break
-    case 'LONG':
-      if (
-        operatorValue.toUpperCase() === 'IN' ||
-        operatorValue.toUpperCase() === 'NOT_IN'
-      ) {
-        // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
-        valueInput.setAttribute('type', 'text')
-      } else {
-        valueInput.setAttribute('type', 'number')
-      }
-      break
-    case 'DATE':
-      valueInput.setAttribute('type', 'date')
-      break
-    default:
-      valueInput.setAttribute('type', 'text')
-  }
-}
-
-function configurePredicateFormOnOperatorChange(event: Event) {
-  const operatorDropdown = event.target as HTMLSelectElement
-  const selectedOperatorValue =
-    operatorDropdown.options[operatorDropdown.options.selectedIndex].value
-
-  const commaSeparatedHelpText = operatorDropdown
-    .closest('.cf-predicate-options')
-    ?.querySelector('.cf-predicate-value-comma-help-text')
-
-  // This help text div isn't present at all in some cases.
-  if (!commaSeparatedHelpText) {
-    return
-  }
-
-  // Remove any existing hidden class.
-  commaSeparatedHelpText.classList.remove('hidden')
-
-  if (
-    selectedOperatorValue.toUpperCase() !== 'IN' &&
-    selectedOperatorValue.toUpperCase() !== 'NOT_IN'
-  ) {
-    commaSeparatedHelpText.classList.add('hidden')
-  }
-
-  // The type of the value field may need to change based on the current operator
-  const scalarDropdown = assertNotNull(
-    operatorDropdown
-      .closest('.cf-predicate-options') // div containing all predicate builder form fields
-      ?.querySelector<HTMLSelectElement>('.cf-scalar-select select'),
-  )
-  const selectedScalarType = assertNotNull(
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
-  )
-  const selectedScalarValue =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].value
-  configurePredicateValueInput(
-    scalarDropdown,
-    selectedScalarType,
-    selectedScalarValue,
-  )
-}
-
 export function init() {
-  // Feature flag for the V2 predicate configuration UI.
-  if (document.querySelector('.predicate-config-value-row') == null) {
-    addEventListenerToElements(
-      '.cf-operator-select',
-      'input',
-      configurePredicateFormOnOperatorChange,
-    )
-
-    // Configure the admin predicate builder to show the appropriate options based on
-    // the type of scalar selected.
-    addEventListenerToElements(
-      '.cf-scalar-select',
-      'input',
-      configurePredicateFormOnScalarChange,
-    )
-
-    return
-  }
-
   new AdminPredicateConfiguration().registerEventListeners()
 }
