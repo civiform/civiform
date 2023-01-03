@@ -20,6 +20,7 @@ import {
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
   TEST_USER_DISPLAY_NAME,
+  DISABLE_BROWSER_ERROR_WATCHER,
 } from './config'
 import {AdminQuestions} from './admin_questions'
 import {AdminPrograms} from './admin_programs'
@@ -30,6 +31,7 @@ import {AdminPredicates} from './admin_predicates'
 import {AdminTranslations} from './admin_translations'
 import {TIDashboard} from './ti_dashboard'
 import {AdminTIGroups} from './admin_ti_groups'
+import {BrowserErrorWatcher} from './browser_error_watcher'
 
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -131,6 +133,7 @@ export interface TestContext {
    * Methods: https://playwright.dev/docs/api/class-page
    */
   page: Page
+  browserErrorWatcher: BrowserErrorWatcher
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
@@ -186,10 +189,21 @@ export const createTestContext = (clearDb = true): TestContext => {
   // we'll get one huge video for all tests.
   async function resetContext() {
     if (browserContext != null) {
-      await browserContext.close()
+      try {
+        if (!DISABLE_BROWSER_ERROR_WATCHER) {
+          ctx.browserErrorWatcher.failIfContainsErrors()
+        }
+      } finally {
+        // browserErrorWatcher might throw an error that should bubble up all
+        // the way to the developer. Regardless whether the error is thrown or
+        // not we need to close the browser context. Without that some processes
+        // won't be finished, like saving videos.
+        await browserContext.close()
+      }
     }
     browserContext = await makeBrowserContext(browser)
     ctx.page = await browserContext.newPage()
+    ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
     // Default timeout is 30s. It's too long given that civiform is not JS
     // heavy and all elements render quite quickly. Setting it to 5 sec so that
     // tests fail fast.
@@ -291,16 +305,26 @@ export const setLangEsUS = async (page: Page) => {
   await page.click('text=Submit')
 }
 
-export const loginAsTestUser = async (page: Page) => {
+/**
+ * Logs in via an auth provider.
+ * @param loginButton Selector of a button on current page that starts auth
+ *     login. Normally it's "Log in" button on main page, but in some cases
+ *     login can be initiated from different pages, for example after program
+ *     submission.
+ */
+export const loginAsTestUser = async (
+  page: Page,
+  loginButton = 'button:has-text("Log in")',
+) => {
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:
-      await loginAsTestUserFakeOidc(page)
+      await loginAsTestUserFakeOidc(page, loginButton)
       break
     case AuthStrategy.AWS_STAGING:
-      await loginAsTestUserAwsStaging(page)
+      await loginAsTestUserAwsStaging(page, loginButton)
       break
     case AuthStrategy.SEATTLE_STAGING:
-      await loginAsTestUserSeattleStaging(page)
+      await loginAsTestUserSeattleStaging(page, loginButton)
       break
     default:
       throw new Error(
@@ -313,8 +337,8 @@ export const loginAsTestUser = async (page: Page) => {
   )
 }
 
-async function loginAsTestUserSeattleStaging(page: Page) {
-  await page.click('#idcs')
+async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
+  await page.click(loginButton)
   // Wait for the IDCS login page to make sure we've followed all redirects.
   // If running this against a site with a real IDCS (i.e. staging) and this
   // test fails with a timeout try re-running the tests. Sometimes there are
@@ -327,10 +351,10 @@ async function loginAsTestUserSeattleStaging(page: Page) {
   await page.waitForNavigation({waitUntil: 'networkidle'})
 }
 
-async function loginAsTestUserAwsStaging(page: Page) {
+async function loginAsTestUserAwsStaging(page: Page, loginButton: string) {
   await Promise.all([
     page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
-    page.click('button:has-text("Log in")'),
+    page.click(loginButton),
   ])
 
   await page.fill('input[name=username]', TEST_USER_LOGIN)
@@ -341,10 +365,10 @@ async function loginAsTestUserAwsStaging(page: Page) {
   ])
 }
 
-async function loginAsTestUserFakeOidc(page: Page) {
+async function loginAsTestUserFakeOidc(page: Page, loginButton: string) {
   await Promise.all([
     page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
-    page.click('button:has-text("Log in")'),
+    page.click(loginButton),
   ])
 
   // If the user has previously signed in to the provider, a prompt is shown
@@ -357,10 +381,9 @@ async function loginAsTestUserFakeOidc(page: Page) {
       'the client is asking you to confirm previously given authorization',
     )
   ) {
-    return Promise.all([
-      page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
-      page.click('button:has-text("Continue")'),
-    ])
+    throw new Error(
+      'Unexpected reauthorization page. Central logout should fully logout user.',
+    )
   }
 
   await page.fill('input[name=login]', TEST_USER_LOGIN)
@@ -479,9 +502,16 @@ export const validateScreenshot = async (
     await normalizeElements(frame)
   }
 
+  // Some tests take screenshots while scroll position in the middle. That
+  // affects header which is position fixed and on final full-page screenshots
+  // overlaps part of the page.
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
   expect(screenshotFileName).toMatch(/^[a-z0-9-]+$/)
   expect(
     await element.screenshot({
+      fullPage: true,
       ...screenshotOptions,
     }),
   ).toMatchImageSnapshot({
@@ -507,20 +537,22 @@ export const validateScreenshot = async (
  */
 const normalizeElements = async (page: Frame | Page) => {
   await page.evaluate(() => {
-    for (const date of Array.from(document.querySelectorAll('.cf-bt-date'))) {
-      date.textContent = date
-        .textContent!.replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
-        .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
-        .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT')
+    const replacements: {[selector: string]: (text: string) => string} = {
+      '.cf-bt-date': (text) =>
+        text
+          .replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
+          .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
+          .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT'),
+      '.cf-application-id': (text) => text.replace(/\d+/, '1234'),
+      '.cf-bt-email': () => 'fake-email@example.com',
+      '.cf-bt-api-key-id': (text) => text.replace(/ID: .*/, 'ID: ####'),
+      '.cf-bt-api-key-created-by': (text) =>
+        text.replace(/Created by .*/, 'Created by fake-admin-12345'),
     }
-    // Process application id values.
-    for (const applicationId of Array.from(
-      document.querySelectorAll('.cf-application-id'),
-    )) {
-      applicationId.textContent = applicationId.textContent!.replace(
-        /\d+/,
-        '1234',
-      )
+    for (const [selector, replacement] of Object.entries(replacements)) {
+      for (const element of Array.from(document.querySelectorAll(selector))) {
+        element.textContent = replacement(element.textContent!)
+      }
     }
   })
 }

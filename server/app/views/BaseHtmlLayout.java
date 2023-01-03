@@ -8,8 +8,10 @@ import static j2html.TagCreator.script;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ScriptTag;
 import java.net.URI;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import views.components.ToastMessage;
@@ -29,20 +31,24 @@ public class BaseHtmlLayout {
 
   private static final String CIVIFORM_TITLE = "CiviForm";
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
-  private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast"};
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
-  private final String measurementId;
+  protected final FeatureFlags featureFlags;
+  private final Optional<String> measurementId;
   private final String hostName;
   private final boolean isStaging;
 
   @Inject
-  public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
+  public BaseHtmlLayout(ViewUtils viewUtils, Config configuration, FeatureFlags featureFlags) {
     checkNotNull(configuration);
     this.viewUtils = checkNotNull(viewUtils);
-    this.measurementId = configuration.getString("measurement_id");
+    this.featureFlags = checkNotNull(featureFlags);
+    this.measurementId =
+        configuration.hasPath("measurement_id")
+            ? Optional.of(configuration.getString("measurement_id"))
+            : Optional.empty();
 
     String baseUrl = configuration.getString("base_url");
     String stagingHostname = configuration.getString("staging_hostname");
@@ -55,7 +61,7 @@ public class BaseHtmlLayout {
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
   public HtmlBundle getBundle() {
-    return getBundle(new HtmlBundle());
+    return getBundle(new HtmlBundle(viewUtils));
   }
 
   /**
@@ -93,14 +99,13 @@ public class BaseHtmlLayout {
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME));
 
     // Add Google analytics scripts.
-    bundle.addFooterScripts(getAnalyticsScripts(measurementId).toArray(new ScriptTag[0]));
+    measurementId
+        .map(id -> getAnalyticsScripts(id).toArray(new ScriptTag[0]))
+        .ifPresent(bundle::addFooterScripts);
 
-    // Add default scripts.
-    for (String source : FOOTER_SCRIPTS) {
-      bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
-    }
     // Add the favicon link
     bundle.setFavicon(civiformFaviconUrl);
+    bundle.setJsBundle(getJsBundle());
 
     return bundle;
   }
@@ -121,6 +126,10 @@ public class BaseHtmlLayout {
 
   protected String getTitleSuffix() {
     return CIVIFORM_TITLE;
+  }
+
+  protected JsBundle getJsBundle() {
+    return JsBundle.APPLICANT;
   }
 
   /** Creates Google Analytics scripts for the site. */

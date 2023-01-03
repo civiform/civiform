@@ -117,7 +117,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     DivTag applicationShowDiv =
         div()
-            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "w-full", "h-full")
+            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "w-full")
             .with(
                 iframe()
                     .withName("application-display-frame")
@@ -129,10 +129,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(program.adminName() + " - Applications")
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
             .addModals(downloadModal)
             .addMainStyles("flex")
             .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv, applicationShowDiv);
+
     Optional<String> maybeSuccessMessage = request.flash().get("success");
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));

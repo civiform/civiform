@@ -2,6 +2,8 @@ package services.program.predicate;
 
 /** Action that is taken when associating predicate is evaluated to be true. */
 public enum PredicateAction {
+  /** If the predicate evaluates to true, the program is eligible as of the current block. */
+  ELIGIBLE_BLOCK("eligible if"),
   /** If the predicate evaluates to true, hide the current block. */
   HIDE_BLOCK("hidden if"),
   /** If the predicate evaluates to true, show the current block. */

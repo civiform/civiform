@@ -3,9 +3,16 @@
  */
 
 class AzureUploadController {
-  static FILEUPLOAD_FORM_ID = 'cf-block-form'
+  private static FILEUPLOAD_FORM_ID = 'cf-block-form'
+  private static AZURE_UPLOAD_SELECTOR = '.azure-upload'
 
   constructor() {
+    if (
+      document.querySelector(AzureUploadController.AZURE_UPLOAD_SELECTOR) ==
+      null
+    ) {
+      return
+    }
     const blockForm = document.getElementById(
       AzureUploadController.FILEUPLOAD_FORM_ID,
     )
@@ -29,6 +36,11 @@ class AzureUploadController {
       throw new Error('Attempted to upload to null container')
     }
     const azureUploadProps = this.getAzureUploadProps(uploadContainer)
+    if (azureUploadProps.file == null) {
+      // No file selected by the user. Validation is done in file_upload.ts so
+      // here we simply halt uploading.
+      return
+    }
 
     const redirectUrl = new URL(azureUploadProps.successActionRedirect)
 
@@ -97,4 +109,6 @@ class AzureUploadController {
 }
 /* eslint-enable  @typescript-eslint/no-explicit-any */
 
-window.addEventListener('load', () => new AzureUploadController())
+export function init() {
+  new AzureUploadController()
+}

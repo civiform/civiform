@@ -63,7 +63,16 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .getFilename()
             .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
 
-    DivTag result = div().with(div().withText(uploaded.orElse("")));
+    DivTag result =
+        div()
+            .with(
+                div()
+                    .withText(uploaded.orElse(""))
+                    // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side
+                    // can render the translated text if it gets added
+                    .attr(
+                        "data-upload-text",
+                        params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName())));
     result.with(
         fileUploadFields(
             params.signedFileUploadRequest(), fileInputId, ariaDescribedByIds, hasErrors));
@@ -80,6 +89,12 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
       String fileInputId,
       ImmutableList<String> ariaDescribedByIds,
       boolean hasErrors);
+
+  /**
+   * Returns strategy-specific class to add to the <form> element. It helps to distinguish
+   * client-side different strategies (AWS or Azure).
+   */
+  protected abstract String getUploadFormClass();
 
   /**
    * Method to render the UI for uploading a file.
@@ -131,6 +146,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         .withId(BLOCK_FORM_ID)
         .withEnctype("multipart/form-data")
         .withMethod(HttpVerbs.POST)
+        .withClasses(getUploadFormClass())
         .with(this.requiredFieldsExplanationContent(params.messages()));
   }
 

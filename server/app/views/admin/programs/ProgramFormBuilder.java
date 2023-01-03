@@ -17,6 +17,7 @@ import modules.MainModule;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 
 /**
@@ -113,7 +114,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Program note for administrative use only*")
             .setValue(adminDescription)
             .getTextareaTag(),
-        submitButton("Save").withId("program-update-button"));
+        submitButton("Save")
+            .withId("program-update-button")
+            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES));
     return formTag;
   }
 

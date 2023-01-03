@@ -26,7 +26,7 @@ class AdminApplications {
     )
 
     if (frame == null) {
-      throw new Error('Application display frame not found!')
+      return
     }
 
     this.displayFrame = frame
@@ -247,4 +247,6 @@ interface EditNoteData {
   note: string
 }
 
-window.addEventListener('load', () => new AdminApplications())
+export function init() {
+  new AdminApplications()
+}

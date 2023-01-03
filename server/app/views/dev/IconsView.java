@@ -16,7 +16,9 @@ import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.JsBundle;
 import views.components.Icons;
+import views.style.ReferenceClasses;
 
 /**
  * Renders a listing of all SVG icons and metadata about the icon size. This is generally useful for
@@ -33,15 +35,12 @@ public final class IconsView extends BaseHtmlView {
   public Content render() {
     TableTag content =
         table()
+            .withClasses(ReferenceClasses.DEV_ICONS)
             .with(
                 tr().with(th("Icon name"), th("Icon"), th("Width"), th("Height")),
                 each(ImmutableList.copyOf(Icons.values()), this::renderIconRow));
     HtmlBundle bundle =
-        layout
-            .getBundle()
-            .setTitle("Icons")
-            .addMainContent(content)
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("dev_icons"));
+        layout.getBundle().setTitle("Icons").addMainContent(content).setJsBundle(JsBundle.ADMIN);
     return layout.render(bundle);
   }
 

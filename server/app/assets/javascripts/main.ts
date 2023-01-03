@@ -102,7 +102,7 @@ function addNewInput(
  */
 function removeInput(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
-  const optionDiv = (event.target as Element).parentNode
+  const optionDiv = (event.currentTarget as Element).parentNode
   optionDiv.parentNode.removeChild(optionDiv)
 }
 
@@ -112,7 +112,7 @@ function removeInput(event: Event) {
  * @param {Event} event The event that triggered this action.
  */
 function hideInput(event: Event) {
-  const inputDiv = (event.target as Element).parentElement
+  const inputDiv = (event.currentTarget as Element).parentElement
   // Remove 'disabled' so the field is submitted with the form
   inputDiv.querySelector('input').disabled = false
   // Hide the entire div from the user
@@ -363,7 +363,34 @@ function attachRedirectToPageListeners() {
   })
 }
 
-window.addEventListener('load', () => {
+/**
+ * Adds listeners to buttons with 'form' attributes. These buttons trigger form
+ * submission without JS. But we still need to stop propagation of events
+ * because it's possible that some other button up-stream in the ancestor chain
+ * contains a click listener as we have nested clickable elements.
+ */
+function attachStopPropogationListenerOnFormButtons() {
+  addEventListenerToElements('button[form]', 'click', (e: Event) => {
+    e.stopPropagation()
+  })
+}
+
+/**
+ * Disables default browser behavior where pressing Enter on any input in a form
+ * triggers form submission. See https://github.com/civiform/civiform/issues/3872
+ */
+function disableEnterToSubmitBehaviorOnForms() {
+  addEventListenerToElements('form', 'keydown', (e: KeyboardEvent) => {
+    const target = (e.target as HTMLElement).tagName.toLowerCase()
+    // if event originated from a button or link - it should proceed with
+    // default action.
+    if (target !== 'button' && target !== 'a' && e.key === 'Enter') {
+      e.preventDefault()
+    }
+  })
+}
+
+export function init() {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
     attachDropdown(el.id)
@@ -432,7 +459,9 @@ window.addEventListener('load', () => {
   attachFormDebouncers()
 
   attachRedirectToPageListeners()
+  attachStopPropogationListenerOnFormButtons()
+  disableEnterToSubmitBehaviorOnForms()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
-})
+}

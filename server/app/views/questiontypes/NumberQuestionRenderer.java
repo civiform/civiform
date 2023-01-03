@@ -35,7 +35,7 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
     FieldWithLabel numberField =
         FieldWithLabel.number()
             .setFieldName(numberQuestion.getNumberPath().toString())
-            .setScreenReaderText(question.getQuestionText())
+            .setScreenReaderText(question.getQuestionTextForScreenReader())
             .setMin(numberQuestion.getQuestionDefinition().getMin())
             .setMax(numberQuestion.getQuestionDefinition().getMax())
             .setFieldErrors(

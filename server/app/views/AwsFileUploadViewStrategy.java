@@ -64,6 +64,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
                 StringUtils.join(ariaDescribedByIds, " "))
             .withType("file")
             .withName("file")
+            .withClass("hidden")
             .withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
@@ -81,5 +82,10 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
           "Tried to upload a file to AWS S3 storage using incorrect request type");
     }
     return (SignedS3UploadRequest) request;
+  }
+
+  @Override
+  protected String getUploadFormClass() {
+    return "aws-upload";
   }
 }

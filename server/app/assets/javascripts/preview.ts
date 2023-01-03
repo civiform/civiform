@@ -23,6 +23,8 @@ class PreviewController {
     '.cf-enumerator-delete-button'
   private static readonly QUESTION_MULTI_OPTION_SELECTOR =
     '.cf-multi-option-question-option'
+  private static readonly QUESTION_MULTI_OPTION_INPUT_FIELD_SELECTOR =
+    '.cf-multi-option-input'
   private static readonly QUESTION_MULTI_OPTION_VALUE_CLASS =
     'cf-multi-option-value'
 
@@ -152,26 +154,23 @@ class PreviewController {
     const previewOptionTemplate = firstPreviewOption.cloneNode(
       true,
     ) as HTMLElement
+    const syncOptionsToPreview = () => {
+      PreviewController.updateOptionsList({
+        questionSettings,
+        previewOptionTemplate,
+        previewQuestionOptionContainer,
+      })
+    }
     const mutationObserver = new MutationObserver(
       (records: MutationRecord[]) => {
+        syncOptionsToPreview()
         for (const record of records) {
-          PreviewController.updateOptionsList({
-            questionSettings,
-            previewOptionTemplate,
-            previewQuestionOptionContainer,
-          })
           for (const newNode of Array.from(record.addedNodes)) {
             const newInputs = Array.from(
               (<Element>newNode).querySelectorAll('input'),
             )
             newInputs.forEach((newInput) => {
-              newInput.addEventListener('input', () => {
-                PreviewController.updateOptionsList({
-                  questionSettings,
-                  previewOptionTemplate,
-                  previewQuestionOptionContainer,
-                })
-              })
+              newInput.addEventListener('input', syncOptionsToPreview)
             })
           }
         }
@@ -183,6 +182,7 @@ class PreviewController {
       subtree: true,
       characterDataOldValue: true,
     })
+    syncOptionsToPreview()
   }
 
   private static updateOptionsList({
@@ -196,7 +196,7 @@ class PreviewController {
   }) {
     const configuredOptions = Array.from(
       questionSettings.querySelectorAll(
-        `${PreviewController.QUESTION_MULTI_OPTION_SELECTOR} input`,
+        `${PreviewController.QUESTION_MULTI_OPTION_SELECTOR} ${PreviewController.QUESTION_MULTI_OPTION_INPUT_FIELD_SELECTOR} input`,
       ),
     ).map((el) => {
       return (el as HTMLInputElement).value
@@ -438,5 +438,6 @@ class PreviewController {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const previewController = new PreviewController()
+export function init() {
+  new PreviewController()
+}
