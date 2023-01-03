@@ -239,9 +239,9 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
 
   private static DivTag renderConfiguratorVisibilityHeader(
       Optional<PredicateDefinition> maybeExistingPredicate) {
-    DivTag container = div("Screen is ").withClasses("font-bold");
-    SelectTag selectTag =
-        select().withName("predicateAction").withClasses(ReferenceClasses.PREDICATE_ACTION);
+    DivTag container =
+        div("Screen is ").withClasses("font-bold", ReferenceClasses.PREDICATE_ACTION);
+    SelectTag selectTag = select().withName("predicateAction");
 
     ImmutableList.of(PredicateAction.HIDE_BLOCK, PredicateAction.SHOW_BLOCK)
         .forEach(

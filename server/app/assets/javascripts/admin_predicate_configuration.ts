@@ -31,7 +31,7 @@ class AdminPredicateConfiguration {
     )
 
     // Trigger a select event to set the correct input type on the value field(s)
-    Array.from(document.querySelectorAll('.cf-operator-select select')).forEach(
+    Array.from(document.querySelectorAll('.cf-scalar-select select')).forEach(
       (el) => {
         const event = new CustomEvent('input', {bubbles: true})
         el.dispatchEvent(event)
@@ -139,15 +139,16 @@ class AdminPredicateConfiguration {
    *  @param {number} questionId The ID of the question for this predicate value
    */
   configurePredicateValueInput(
-    selectedScalarType: string,
-    selectedScalarValue: string,
+    selectedScalarType: string | null,
+    selectedScalarValue: string | null,
     questionId: string,
   ) {
     // If the scalar is from a multi-option question, there is not an input box for the 'Value'
     // field (there's a set of checkboxes instead), so return immediately.
     if (
-      selectedScalarValue.toUpperCase() === 'SELECTION' ||
-      selectedScalarValue.toUpperCase() === 'SELECTIONS'
+      selectedScalarValue &&
+      (selectedScalarValue.toUpperCase() === 'SELECTION' ||
+        selectedScalarValue.toUpperCase() === 'SELECTIONS')
     ) {
       return
     }
@@ -167,6 +168,15 @@ class AdminPredicateConfiguration {
     )
 
     for (const valueInput of Array.from(valueInputs)) {
+      // Reset defaults
+      valueInput.setAttribute('type', 'text')
+      valueInput.removeAttribute('step')
+      valueInput.removeAttribute('placeholder')
+
+      if (selectedScalarType == null || selectedScalarValue == null) {
+        continue
+      }
+
       switch (selectedScalarType.toUpperCase()) {
         case 'STRING':
           if (selectedScalarValue.toUpperCase() === 'EMAIL') {
@@ -280,8 +290,8 @@ class AdminPredicateConfiguration {
    */
   filterOperators(
     scalarDropdown: HTMLSelectElement,
-    selectedScalarType: string,
-    selectedScalarValue: string,
+    selectedScalarType: string | null,
+    selectedScalarValue: string | null,
   ) {
     const questionId = assertNotNull(this.getQuestionId(scalarDropdown))
     const operatorDropdown = this.getElementWithQuestionId(
@@ -313,10 +323,14 @@ class AdminPredicateConfiguration {
    * @return {boolean} If the operator should be hidden
    */
   private shouldHideOperator(
-    selectedScalarType: string,
-    selectedScalarValue: string,
+    selectedScalarType: string | null,
+    selectedScalarValue: string | null,
     operatorOption: HTMLOptionElement,
   ): boolean {
+    if (selectedScalarType == null || selectedScalarValue == null) {
+      return true
+    }
+
     // If this operator is not for the currently selected type, hide it.
     return (
       // Special case for SELECTION scalars (which are of type STRING):

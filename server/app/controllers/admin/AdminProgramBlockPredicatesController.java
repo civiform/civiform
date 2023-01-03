@@ -137,7 +137,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 request,
                 programDefinition,
                 blockDefinition,
-                programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
+                programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
                     blockDefinitionId),
                 ProgramBlockPredicatesEditViewV2.ViewType.ELIGIBILITY));
       }

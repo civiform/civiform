@@ -19,7 +19,8 @@ export class AdminPredicates {
     operator: string,
     value: string,
   ) {
-    await this.page.click(`button:has-text("Admin ID: ${questionName}")`)
+    await this.page.click(`label:has-text("Admin ID: ${questionName}")`)
+    await this.page.click('button:has-text("Add condition")')
 
     if (action != null) {
       await this.page.selectOption('.cf-predicate-action:visible select', {
@@ -46,7 +47,7 @@ export class AdminPredicates {
       }
     }
 
-    await this.page.click('button:visible:has-text("Submit")')
+    await this.page.click('button:visible:has-text("Save condition")')
     await waitForPageJsLoad(this.page)
   }
 

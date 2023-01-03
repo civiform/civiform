@@ -22,6 +22,7 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
@@ -115,6 +116,7 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'show-predicate-q'})
@@ -212,6 +214,7 @@ describe('create and edit predicates', () => {
 
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+    await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
@@ -318,6 +321,7 @@ describe('create and edit predicates', () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
       await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
       const programName = 'Test all visibility predicate types'
       await adminPrograms.addProgram(programName)
@@ -519,6 +523,7 @@ describe('create and edit predicates', () => {
 
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
       const programName = 'Test all eligibility predicate types'
       await adminPrograms.addProgram(programName)
