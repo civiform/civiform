@@ -68,7 +68,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     DivTag applicationSummary = div().withId("application-summary").withClasses("mb-8");
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
-    boolean isTheFirstUnansweredQuestion = true;
+    // Require the edit control be shown up through the first unanswered question. Note: The control
+    // is also shown if the question has data.
+    boolean forceShowEditButton = true;
     for (AnswerData answerData : params.summaryData()) {
       Optional<RepeatedEntity> currentRepeatedEntity = answerData.repeatedEntity();
       if (!currentRepeatedEntity.equals(previousRepeatedEntity)
@@ -77,12 +79,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       }
       applicationSummary.with(
           renderQuestionSummary(
-              answerData,
-              messages,
-              params.applicantId(),
-              params.inReview(),
-              isTheFirstUnansweredQuestion));
-      isTheFirstUnansweredQuestion &= answerData.isAnswered();
+              answerData, messages, params.applicantId(), params.inReview(), forceShowEditButton));
+      // Stop forcing the edit button after we render the first unanswered question.
+      forceShowEditButton &= answerData.isAnswered();
       previousRepeatedEntity = currentRepeatedEntity;
     }
 
@@ -140,14 +139,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   /**
    * @param inReview if this is the review view of the application, and not the preview view.
-   * @param isFirstUnanswered if this is the first unanswered question in the application.
+   * @param forceShowEditButton if the edit button should be shown regardless of other logic.
    */
   private DivTag renderQuestionSummary(
       AnswerData data,
       Messages messages,
       long applicantId,
       boolean inReview,
-      boolean isFirstUnanswered) {
+      boolean forceShowEditButton) {
     DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
     if (!data.applicantQuestion().isOptional()) {
       questionPrompt.with(span(rawHtml("&nbsp;*")).withClasses("text-red-600"));
@@ -183,7 +182,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
       DivTag timestampContent =
-          div("Previously answered on " + date).withClasses(ReferenceClasses.BT_DATE, "font-light", "text-xs", "flex-grow");
+          div("Previously answered on " + date)
+              .withClasses(ReferenceClasses.BT_DATE, "font-light", "text-xs", "flex-grow");
       actionAndTimestampDiv.with(timestampContent);
     }
 
@@ -193,8 +193,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
               .withClasses("text-m font-medium flex-grow"));
     }
 
-    // Render an "edit" button if the question is answered or this is the first unanswered question.
-    if (data.isAnswered() || isFirstUnanswered) {
+    // Render an "edit" button if the question is answered or instructed to.
+    if (data.isAnswered() || forceShowEditButton) {
       actionAndTimestampDiv.with(generateEditButton(data, messages, applicantId, inReview));
     }
 
