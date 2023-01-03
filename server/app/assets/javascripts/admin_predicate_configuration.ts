@@ -105,7 +105,7 @@ class AdminPredicateConfiguration {
    *  Setup the the html attributes for value inputs so they acccept the correct
    *  type of input (nubers, text, email, ect.)
    *  @param {HTMLSelectElement} scalarDropdown The element to configure the value input for.
-   *  @param {string} selectedScalarType The tyoe of the selected option
+   *  @param {string} selectedScalarType The type of the selected option
    *  @param {string} selectedScalarValue The value of the selected option
    *  @param {number} questionId The ID of the question for this predicate value
    */
