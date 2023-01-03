@@ -138,8 +138,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   }
 
   /**
+   * Renders {@code data} including the question and any existing answer to it.
+   *
+   * <p>If {@code data} has been answered or {@code forceShowEditButton} is true, an edit control is
+   * shown.
+   *
    * @param inReview if this is the review view of the application, and not the preview view.
-   * @param forceShowEditButton if the edit button should be shown regardless of other logic.
    */
   private DivTag renderQuestionSummary(
       AnswerData data,
