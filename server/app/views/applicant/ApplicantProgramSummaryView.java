@@ -183,7 +183,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
       DivTag timestampContent =
-          div("Previously answered on " + date).withClasses("font-light", "text-xs", "flex-grow");
+          div("Previously answered on " + date).withClasses(ReferenceClasses.BT_DATE, "font-light", "text-xs", "flex-grow");
       actionAndTimestampDiv.with(timestampContent);
     }
 
