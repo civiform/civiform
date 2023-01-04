@@ -73,9 +73,9 @@ class AdminPredicateConfiguration {
     )
   }
 
-  /** Updates the value input and hidden behavior of comma help text when the operator changes.
+  /** Updates the value input and hidden behavior of CSV help text when the operator changes.
    *
-   * The comma help text instructs the admin on using a single text field to specify multiple
+   * The CSV help text instructs the admin on using a single text field to specify multiple
    * values in cases where they select an operator that acts on multiple values such as ANY_OF
    * or NONE_OF.
    * */
@@ -91,21 +91,19 @@ class AdminPredicateConfiguration {
       operatorDropdownContainer.dataset.questionId,
     )
 
-    const commaSeparatedHelpTexts = document.querySelectorAll(
+    const csvHelpTexts = document.querySelectorAll(
       `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-comma-help-text`,
     )
 
     // The help text div is present for inputs that allow specifying
     // multiple values in a single text input. It won't be present
     // for other input types e.g. multiselect inputs.
-    if (commaSeparatedHelpTexts != null) {
+    if (csvHelpTexts != null) {
       const shouldShowCommaSeperatedHelpText =
         selectedOperatorValue.toUpperCase() !== 'IN' &&
         selectedOperatorValue.toUpperCase() !== 'NOT_IN'
 
-      for (const commaSeparatedHelpText of Array.from(
-        commaSeparatedHelpTexts,
-      )) {
+      for (const commaSeparatedHelpText of Array.from(csvHelpTexts)) {
         commaSeparatedHelpText.classList.toggle(
           'hidden',
           shouldShowCommaSeperatedHelpText,
@@ -119,8 +117,9 @@ class AdminPredicateConfiguration {
       questionId,
       'select',
     ) as HTMLSelectElement
-    const selectedScalarType =
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type!
+    const selectedScalarType = assertNotNull(
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
+    )
     const selectedScalarValue =
       scalarDropdown.options[scalarDropdown.options.selectedIndex].value
     this.configurePredicateValueInput(
@@ -133,10 +132,9 @@ class AdminPredicateConfiguration {
   /**
    *  Setup the the html attributes for value inputs so they acccept the correct
    *  type of input (nubers, text, email, etc.)
-   *  @param {HTMLSelectElement} scalarDropdown The element to configure the value input for.
-   *  @param {string} selectedScalarType The type of the selected option
-   *  @param {string} selectedScalarValue The value of the selected option
-   *  @param {number} questionId The ID of the question for this predicate value
+   *  @param {string} selectedScalarType The type of the selected option.
+   *  @param {string} selectedScalarValue The value of the selected option.
+   *  @param {number} questionId The ID of the question for this predicate value.
    */
   configurePredicateValueInput(
     selectedScalarType: string | null,
@@ -255,6 +253,8 @@ class AdminPredicateConfiguration {
     deleteButtonDiv.addEventListener('click', (event: Event) =>
       this.predicateDeleteValueRow(event),
     )
+    // The first row which is being used as a template cannot be deleted
+    // and is rendered with a hidden delete button.
     assertNotNull(deleteButtonDiv.querySelector('svg')).classList.remove(
       'hidden',
     )
@@ -285,8 +285,8 @@ class AdminPredicateConfiguration {
   /**
    * Filter the operators available for each scalar type based on the current scalar selected.
    *   @param {HTMLSelectElement} scalarDropdown The element to filter the operators for.
-   *   @param {string} selectedScalarType The type of the selected option
-   *   @param {string} selectedScalarValue The value of the selected option
+   *   @param {string} selectedScalarType The tyoe of the selected option.
+   *   @param {string} selectedScalarValue The value of the selected option.
    */
   filterOperators(
     scalarDropdown: HTMLSelectElement,
@@ -301,7 +301,7 @@ class AdminPredicateConfiguration {
     ) as HTMLSelectElement
 
     Array.from(operatorDropdown.options).forEach((operatorOption) => {
-      const shouldHide = !this.shouldHideOperator(
+      const shouldHide = this.shouldHideOperator(
         selectedScalarType,
         selectedScalarValue,
         operatorOption,
@@ -311,16 +311,16 @@ class AdminPredicateConfiguration {
         operatorOption.selected = false
       }
 
-      operatorOption.classList.toggle('hidden', shouldHide)
+      operatorOption.classList.toggle('hidden', !shouldHide)
     })
   }
 
   /**
    * Determines if an operator should be hidden.
-   *   @param {string} selectedScalarType The tyoe of the selected option
-   *   @param {string} selectedScalarValue The value of the selected option
+   *   @param {string} selectedScalarType The tyoe of the selected option.
+   *   @param {string} selectedScalarValue The value of the selected option.
    *   @param {HTMLOptionElement} operatorOption The operator to check if we should hide.
-   * @return {boolean} If the operator should be hidden
+   * @return {boolean} If the operator should be hidden.
    */
   private shouldHideOperator(
     selectedScalarType: string | null,
