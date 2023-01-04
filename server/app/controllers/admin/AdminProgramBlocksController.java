@@ -1,8 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-//import static views.ViewUtils.ProgramDisplayType.DRAFT;
-import static views.ViewUtils.ProgramDisplayType.ACTIVE;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import static views.components.ToastMessage.ToastType.ERROR;
 
@@ -31,7 +30,6 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockAllAspectsView;
-import views.admin.programs.ProgramBlockAllAspectsView;
 import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
@@ -52,7 +50,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.editView = checkNotNull(editViewFactory.create(ACTIVE));
+    this.editView = checkNotNull(editViewFactory.create(DRAFT));
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
   }

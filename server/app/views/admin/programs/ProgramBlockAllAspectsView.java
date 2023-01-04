@@ -31,6 +31,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
+import services.program.ProgramNeedsABlockException;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
@@ -64,30 +65,24 @@ import views.style.StyleUtils;
  *   <li>View and navigate to the visibility criteria
  * </ul>
  *
- * For Active program viewing it contains the same elements, but removes all
- * UI that can be used for editing.
+ * For Active program viewing it contains the same elements, but UI elements
+ * that can be used for editing.
  */
-// TODO(jhummel) rename class and change error message
-// TODO(jhummel) simplify methods
-// TODO(jhummel) Change the edit button text, routes and  badge for none editable version
-// (See parent class)
-//  TODO(jhummel) check statuses are correct
-//TODO (jhummel) check tests
 public final class ProgramBlockAllAspectsView extends ProgramBlockView {
 
   private final AdminLayout layout;
   private final FeatureFlags featureFlags;
   private final boolean featureFlagOptionalQuestions;
-  private final ProgramDisplayType programViewType;
+  private final ProgramDisplayType programDisplayType;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
-  // private static final String NOT_YET_IMPLEMENTED_ERROR =
-  //   " The read only version of ProgramBlockView is not fully implemented. It should only be "
-  //     + "used once issue #3162 is closed.";
+  private static final String NOT_YET_IMPLEMENTED_ERROR =
+    " The read only version of ProgramBlockView is not fully implemented. It should only be "
+      + "used once issue #3162 is closed.";
 
   @Inject
   public ProgramBlockAllAspectsView(
@@ -98,11 +93,11 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.featureFlags = checkNotNull(featureFlags);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
-    this.programViewType = programViewType;
+    this.programDisplayType = programViewType;
 
-    // if (!programViewType.equals(DRAFT)) {
-    //   throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
-    // }
+    if (!(programDisplayType == DRAFT)) {
+       throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
+    }
   }
 
   public Content render(
@@ -169,7 +164,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
                                     featureFlags.isProgramEligibilityConditionsEnabled(request)))));
 
       // Add top level UI  that is only visible in the editable version.
-      if (programViewType == DRAFT) {
+      if (viewAllowsEditingProgram()) {
         htmlBundle.addMainContent(
             questionBankPanel(
               questions,
@@ -232,7 +227,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
         blockList(request, program,
           program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
 
-    if (programViewType == DRAFT) {
+    if (viewAllowsEditingProgram()) {
       ret.with(
         ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
           .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
@@ -282,7 +277,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
             a().withClasses("flex-grow", "overflow-hidden")
               .withHref(editBlockLink)
               .with(p(blockName), p(questionCountText).withClasses("text-sm")));
-      if (programViewType == DRAFT) {
+      if (viewAllowsEditingProgram()) {
         blockTag.with(moveButtons);
       }
       container.with(blockTag);
@@ -403,7 +398,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     DivTag div = div().withClasses("w-7/12", "py-6", "px-4");
 
     // UI elements for editing are only needed when we view a draft
-    if (programViewType == DRAFT) {
+    if (viewAllowsEditingProgram()) {
       DivTag buttons = blockPanelButtons(program, blockDefinitionIsEnumerator, blockDescriptionModalButton, canDelete);
       ButtonTag addQuestion =
         makeSvgTextButton("Add a question", Icons.ADD)
@@ -479,7 +474,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
         .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
 
     // The edit button is only visible for drafts
-    if (programViewType == DRAFT) {
+    if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
           .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
@@ -513,7 +508,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
         .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
         .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
 
-    if (programViewType == DRAFT) {
+    if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
           .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
@@ -574,7 +569,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     ret.with(icon, content);
 
     // UI for editing is only added if we are viewing a draft.
-    if (programViewType == DRAFT) {
+    if (viewAllowsEditingProgram()) {
       maybeOptionalToggle.ifPresent(ret::with);
       ret.with(this.createMoveQuestionButtonsSection(
         csrfTag,
@@ -810,31 +805,41 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {
     return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
   }
-
-  // private void checkEditUiOnlyDisplayedForDraft() {
-  //   if (!programViewType.equals(DRAFT)) {
-  //     throw new UnsupportedOperationException("UI for editing a program should "
-  //       + "only be displayed when the display type is set to DRAFT");
-  //   }
-  // }
+  
+  private boolean viewAllowsEditingProgram() {
+    return programDisplayType == DRAFT;
+  }
 
   @Override
   protected String getEditButtonText() {
-   // if (programViewType.equals(DRAFT)) {
+    if (viewAllowsEditingProgram()) {
       return "Edit program details";
-  //  } else {
-   //   throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
-  //  }
+    } else {
+      return "Edit Program";
+    }
   }
 
   @Override
   protected String getEditButtonUrl(ProgramDefinition programDefinition) {
-    return routes.AdminProgramController.edit(programDefinition.id()).url();
+    if (viewAllowsEditingProgram()) {
+      return routes.AdminProgramController.edit(programDefinition.id()).url();
+    } else {
+      try {
+        // TODO(#3162): Manually test all navigation paths once the full flow
+        // of viewing and editing a program is implemented
+        long blockId = programDefinition.getLastBlockDefinition().id();
+        return routes.AdminProgramBlocksController.edit(programDefinition.id(),
+          blockId).url();
+      } catch (ProgramNeedsABlockException e) {
+        throw new RuntimeException(
+          "Error: Trying to display a Program without a screen", e);
+      }
+      }
   }
 
   @Override
   protected ProgramDisplayType getProgramDisplayStatus() {
-    return programViewType;
+    return programDisplayType;
   }
 
   public interface Factory {
