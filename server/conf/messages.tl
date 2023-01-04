@@ -177,10 +177,18 @@ button.continue=Magsimula dito
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=I-edit
+link.answer=Sagot
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=I-edit {0}
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=Sagot {0}
+
+# Program Summary Title
+title.programSummary=Buod ng application para sa programa
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

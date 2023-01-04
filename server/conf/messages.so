@@ -145,10 +145,18 @@ button.continue=Sii wad
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Wax ka beddel
+link.answer=Jawaab
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Wax ka beddel {0}
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=Jawaab {0}
+
+# Program Summary Title
+title.programSummary=Soo koobida barnaamijka codsiga
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
