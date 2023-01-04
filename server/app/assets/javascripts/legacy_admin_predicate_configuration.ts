@@ -1,4 +1,4 @@
-/** This this file contains functionality for the legacy predicate editor in the
+/** This file contains functionality for the legacy predicate editor in the
  * admin UI. */
 /** TODO(#4004): Remove this legacy file once new predicate UI is fully released. */
 
