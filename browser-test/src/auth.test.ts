@@ -105,7 +105,7 @@ describe('applicant auth', () => {
     await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantQuestions.submitFromPreviewPage()
+    await applicantQuestions.submitFromReviewPage()
     await loginAsTestUser(page, 'a:has-text("Create account or sign in")')
 
     // Check that program is marked as submitted.
