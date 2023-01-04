@@ -206,10 +206,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           .flashing("error", errorMessageBuilder.toString());
     }
 
-    // TODO(https://github.com/seattle-uat/civiform/issues/322): Implement complex predicates.
-    //  Right now we only support "leaf node" predicates (a single logical statement based on one
-    //  question). In the future we should support logical statements that combine multiple "leaf
-    //  node" predicates with ANDs and ORs.
     BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
 
     Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
@@ -270,7 +266,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               request,
               programDefinition,
               blockDefinition,
-              getQuestionDefinitions(programDefinition, blockDefinition, form)));
+              getQuestionDefinitionsForForm(programDefinition, blockDefinition, form)));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -285,7 +281,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
-      ImmutableList<Long> questionIds =
+      ImmutableList<Long> visibilityQuestionIds =
           blockDefinition
               .visibilityPredicate()
               .orElseThrow(
@@ -295,16 +291,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                               "Block %d has no visibility predicate", blockDefinition.id())))
               .getQuestions();
 
-      ImmutableList<QuestionDefinition> questionDefinitions =
+      ImmutableList<QuestionDefinition> visibilityQuestionDefinitions =
           getQuestionDefinitions(
               programDefinition,
               blockDefinition,
-              (QuestionDefinition questionDefinition) ->
-                  questionIds.contains(questionDefinition.getId()));
+              /* selectionPredicate= */ (QuestionDefinition questionDefinition) ->
+                  visibilityQuestionIds.contains(questionDefinition.getId()));
 
       return ok(
           predicatesConfigureView.renderVisibility(
-              request, programDefinition, blockDefinition, questionDefinitions));
+              request, programDefinition, blockDefinition, visibilityQuestionDefinitions));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -341,7 +337,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
-      ImmutableList<Long> questionIds =
+      ImmutableList<Long> eligibilityQuestionIds =
           blockDefinition
               .eligibilityDefinition()
               .orElseThrow(
@@ -352,16 +348,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               .predicate()
               .getQuestions();
 
-      ImmutableList<QuestionDefinition> questionDefinitions =
+      ImmutableList<QuestionDefinition> eligibilityQuestionDefinitions =
           getQuestionDefinitions(
               programDefinition,
               blockDefinition,
               (QuestionDefinition questionDefinition) ->
-                  questionIds.contains(questionDefinition.getId()));
+                  eligibilityQuestionIds.contains(questionDefinition.getId()));
 
       return ok(
           predicatesConfigureView.renderEligibility(
-              request, programDefinition, blockDefinition, questionDefinitions));
+              request, programDefinition, blockDefinition, eligibilityQuestionDefinitions));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -379,29 +375,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private ImmutableList<QuestionDefinition> getQuestionDefinitions(
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
-      Predicate<QuestionDefinition> predicate) {
+      Predicate<QuestionDefinition> selectionPredicate) {
 
     try {
       return programDefinition
           .getAvailablePredicateQuestionDefinitions(blockDefinition.id())
           .stream()
-          .filter(predicate)
-          .collect(ImmutableList.toImmutableList());
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private ImmutableList<QuestionDefinition> getQuestionDefinitions(
-      ProgramDefinition programDefinition, BlockDefinition blockDefinition, DynamicForm form) {
-    try {
-      return programDefinition
-          .getAvailablePredicateQuestionDefinitions(blockDefinition.id())
-          .stream()
-          .filter(
-              questionDefinition ->
-                  form.rawData()
-                      .containsKey(String.format("question-%d", questionDefinition.getId())))
+          .filter(selectionPredicate)
           .collect(ImmutableList.toImmutableList());
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
@@ -459,10 +439,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           .flashing("error", errorMessageBuilder.toString());
     }
 
-    // TODO(https://github.com/seattle-uat/civiform/issues/322): Implement complex predicates.
-    //  Right now we only support "leaf node" predicates (a single logical statement based on one
-    //  question). In the future we should support logical statements that combine multiple "leaf
-    //  node" predicates with ANDs and ORs.
     BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
 
     Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
