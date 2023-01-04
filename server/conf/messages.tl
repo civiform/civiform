@@ -41,6 +41,8 @@ validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago m
 # Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
 
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng “Pumili ng File” na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
