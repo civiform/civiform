@@ -22,7 +22,7 @@ public abstract class PredicateDefinition {
 
   /** Indicates the shape of the predicate's AST so view code can render the appropriate UI. */
   public enum PredicateFormat {
-    // A single leaf node
+    // A single leaf node.
     SINGLE_QUESTION,
     // A top level OR with only AND child nodes,
     // each AND node's children are all leaf nodes.
