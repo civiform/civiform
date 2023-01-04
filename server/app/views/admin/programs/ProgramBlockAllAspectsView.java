@@ -7,9 +7,11 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import featureflags.FeatureFlags;
@@ -35,7 +37,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
 import views.HtmlBundle;
 import views.ViewUtils;
-import views.ViewUtils.BadgeStatus;
+import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -65,40 +67,51 @@ import views.style.StyleUtils;
  * For Active program viewing it contains the same elements, but removes all
  * UI that can be used for editing.
  */
-//TODO(jhummel) rename BadgeStatus
-// TODO(jhummel) rename class
-// TDOD(jhummel) simplify methods
-public final class ProgramBlockEditView extends ProgramBlockView {
+// TODO(jhummel) rename class and change error message
+// TODO(jhummel) simplify methods
+// TODO(jhummel) Change the edit button text, routes and  badge for none editable version
+// (See parent class)
+//  TODO(jhummel) check statuses are correct
+//TODO (jhummel) check tests
+public final class ProgramBlockAllAspectsView extends ProgramBlockView {
 
   private final AdminLayout layout;
   private final FeatureFlags featureFlags;
   private final boolean featureFlagOptionalQuestions;
+  private final ProgramDisplayType programViewType;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
+  // private static final String NOT_YET_IMPLEMENTED_ERROR =
+  //   " The read only version of ProgramBlockView is not fully implemented. It should only be "
+  //     + "used once issue #3162 is closed.";
 
   @Inject
-  public ProgramBlockEditView(
+  public ProgramBlockAllAspectsView(
+    @Assisted ProgramDisplayType programViewType,
     AdminLayoutFactory layoutFactory,
     Config config,
     FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.featureFlags = checkNotNull(featureFlags);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
+    this.programViewType = programViewType;
+
+    // if (!programViewType.equals(DRAFT)) {
+    //   throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
+    // }
   }
 
   public Content render(
-    BadgeStatus viewStatus,
     Request request,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
     return render(
-      viewStatus,
       request,
         program,
         blockDefinition.id(),
@@ -110,7 +123,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
   }
 
   public Content render(
-    BadgeStatus viewStatus,
     Request request,
       ProgramDefinition programDefinition,
       long blockId,
@@ -144,10 +156,9 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                         renderProgramInfo(programDefinition),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
-                            .with(blockOrderPanel(viewStatus, request, programDefinition, blockId))
+                            .with(blockOrderPanel(request, programDefinition, blockId))
                             .with(
-                                blockPanel(viewStatus,
-                                    programDefinition,
+                                blockPanel(programDefinition,
                                     blockDefinition,
                                     blockForm,
                                     blockQuestions,
@@ -158,7 +169,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                                     featureFlags.isProgramEligibilityConditionsEnabled(request)))));
 
       // Add top level UI  that is only visible in the editable version.
-      if (viewStatus == BadgeStatus.DRAFT) {
+      if (programViewType == DRAFT) {
         htmlBundle.addMainContent(
             questionBankPanel(
               questions,
@@ -215,13 +226,13 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm).withClasses("hidden");
   }
 
-  private DivTag blockOrderPanel(BadgeStatus viewStatus, Request request, ProgramDefinition program, long focusedBlockId) {
+  private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
-        blockList(viewStatus, request, program,
+        blockList(request, program,
           program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
 
-    if (viewStatus == BadgeStatus.DRAFT) {
+    if (programViewType == DRAFT) {
       ret.with(
         ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
           .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
@@ -233,7 +244,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
   }
 
   private DivTag blockList(
-      BadgeStatus viewStatus,
       Request request,
       ProgramDefinition programDefinition,
       ImmutableList<BlockDefinition> blockDefinitions,
@@ -262,7 +272,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                   selectedClasses);
 
       // Show UI for editing only if we are viewing a Draft
-      if (viewStatus == BadgeStatus.DRAFT) {
         String editBlockLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(
               programDefinition.id(), blockDefinition.id())
@@ -272,21 +281,16 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         blockTag.with(
             a().withClasses("flex-grow", "overflow-hidden")
               .withHref(editBlockLink)
-              .with(p(blockName), p(questionCountText).withClasses("text-sm")))
-          .with(moveButtons);
-      } else {
-        blockTag.with(
-          div().withClasses("flex-grow", "overflow-hidden")
-            .with(p(blockName), p(questionCountText).withClasses("text-sm")));
+              .with(p(blockName), p(questionCountText).withClasses("text-sm")));
+      if (programViewType == DRAFT) {
+        blockTag.with(moveButtons);
       }
-
       container.with(blockTag);
 
       // Recursively add repeated blocks indented under their enumerator block
       if (blockDefinition.isEnumerator()) {
         container.with(
             blockList(
-                viewStatus,
                 request,
                 programDefinition,
                 programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id()),
@@ -339,7 +343,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
   }
 
   private DivTag blockPanel(
-      BadgeStatus viewStatus,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       BlockForm blockForm,
@@ -362,7 +365,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
 
     DivTag visibilityPredicateDisplay =
         renderVisibilityPredicate(
-            viewStatus,
             program.id(),
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
@@ -374,7 +376,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(
-                  viewStatus,
                   program.id(),
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
@@ -389,7 +390,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
               var question = blockQuestions.get(index);
               programQuestions.with(
                   renderQuestion(
-                      viewStatus,
                       csrfTag,
                       program.id(),
                       blockDefinition.id(),
@@ -403,9 +403,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     DivTag div = div().withClasses("w-7/12", "py-6", "px-4");
 
     // UI elements for editing are only needed when we view a draft
-    if (viewStatus == BadgeStatus.DRAFT) {
-      DivTag buttons = blockPanelButtons(viewStatus, program, blockDefinition,
-          blockDefinitionIsEnumerator, blockDescriptionModalButton, canDelete);
+    if (programViewType == DRAFT) {
+      DivTag buttons = blockPanelButtons(program, blockDefinitionIsEnumerator, blockDescriptionModalButton, canDelete);
       ButtonTag addQuestion =
         makeSvgTextButton("Add a question", Icons.ADD)
           .withClasses(
@@ -423,9 +422,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     }
   }
 
-  private DivTag blockPanelButtons(BadgeStatus viewStatus,
+  private DivTag blockPanelButtons(
     ProgramDefinition program,
-    BlockDefinition blockDefinition,
     boolean blockDefinitionIsEnumerator,
     ButtonTag blockDescriptionModalButton,
     boolean canDelete){
@@ -465,7 +463,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     }
 
   private DivTag renderVisibilityPredicate(
-      BadgeStatus viewStatus,
       long programId,
       long blockId,
       Optional<PredicateDefinition> predicate,
@@ -482,7 +479,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
 
     // The edit button is only visible for drafts
-    if (viewStatus == BadgeStatus.DRAFT) {
+    if (programViewType == DRAFT) {
       ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
           .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
@@ -499,7 +496,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
   }
 
   private DivTag renderEligibilityPredicate(
-      BadgeStatus viewStatus,
       long programId,
       long blockId,
       Optional<EligibilityDefinition> predicate,
@@ -517,7 +513,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
         .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
 
-    if (viewStatus == BadgeStatus.DRAFT) {
+    if (programViewType == DRAFT) {
       ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
           .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
@@ -533,7 +529,6 @@ public final class ProgramBlockEditView extends ProgramBlockView {
   }
 
   private DivTag renderQuestion(
-      BadgeStatus viewStatus,
       InputTag csrfTag,
       long programDefinitionId,
       long blockDefinitionId,
@@ -579,7 +574,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     ret.with(icon, content);
 
     // UI for editing is only added if we are viewing a draft.
-    if (viewStatus == BadgeStatus.DRAFT) {
+    if (programViewType == DRAFT) {
       maybeOptionalToggle.ifPresent(ret::with);
       ret.with(this.createMoveQuestionButtonsSection(
         csrfTag,
@@ -814,5 +809,35 @@ public final class ProgramBlockEditView extends ProgramBlockView {
 
   private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {
     return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
+  }
+
+  // private void checkEditUiOnlyDisplayedForDraft() {
+  //   if (!programViewType.equals(DRAFT)) {
+  //     throw new UnsupportedOperationException("UI for editing a program should "
+  //       + "only be displayed when the display type is set to DRAFT");
+  //   }
+  // }
+
+  @Override
+  protected String getEditButtonText() {
+   // if (programViewType.equals(DRAFT)) {
+      return "Edit program details";
+  //  } else {
+   //   throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
+  //  }
+  }
+
+  @Override
+  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
+    return routes.AdminProgramController.edit(programDefinition.id()).url();
+  }
+
+  @Override
+  protected ProgramDisplayType getProgramDisplayStatus() {
+    return programViewType;
+  }
+
+  public interface Factory {
+    ProgramBlockAllAspectsView create(ProgramDisplayType type);
   }
 }

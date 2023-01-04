@@ -88,7 +88,7 @@ public final class ViewUtils {
             span(buttonText).withClass("text-left"));
   }
 
-  public enum BadgeStatus {
+  public enum ProgramDisplayType {
     ACTIVE,
     DRAFT
   }
@@ -103,14 +103,14 @@ public final class ViewUtils {
    * @return Tag representing the badge. No classes should be added to the returned tag as it will
    *     overwrite existing classes due to how Jhtml works.
    */
-  public static PTag makeBadge(BadgeStatus status, String... extraClasses) {
-    String badgeText = status == BadgeStatus.ACTIVE ? "Active" : "Draft";
+  public static PTag makeBadge(ProgramDisplayType status, String... extraClasses) {
+    String badgeText = status == ProgramDisplayType.ACTIVE ? "Active" : "Draft";
     String badgeBGColor =
-        status == BadgeStatus.ACTIVE
+        status == ProgramDisplayType.ACTIVE
             ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT
             : BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
     String badgeFillColor =
-        status == BadgeStatus.ACTIVE
+        status == ProgramDisplayType.ACTIVE
             ? BaseStyles.TEXT_CIVIFORM_GREEN
             : BaseStyles.TEXT_CIVIFORM_PURPLE;
     return p().withClasses(
