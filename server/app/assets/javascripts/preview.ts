@@ -1,4 +1,6 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
+import {assertNotNull} from './util'
+
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
   private static readonly QUESTION_HELP_TEXT_INPUT_ID =
@@ -118,7 +120,7 @@ class PreviewController {
 
     const questionSettings = document.getElementById(
       PreviewController.QUESTION_SETTINGS_ID,
-    ) as HTMLElement | null
+    )
     const questionPreviewContainer = document.getElementById(
       PreviewController.SAMPLE_QUESTION_ID,
     )
@@ -224,9 +226,11 @@ class PreviewController {
         PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS,
       )
         ? newPreviewOption
-        : (newPreviewOption.querySelector(
-            `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
-          ) as HTMLElement)
+        : assertNotNull(
+            newPreviewOption.querySelector<HTMLElement>(
+              `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
+            ),
+          )
       optionText.innerText = configuredOption
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
@@ -245,7 +249,7 @@ class PreviewController {
 
       const contentParent = document.querySelector(
         PreviewController.QUESTION_TEXT_SELECTOR,
-      ) as Element
+      )
       if (contentParent) {
         contentParent.innerHTML = ''
         contentParent.appendChild(contentElement)
@@ -268,8 +272,10 @@ class PreviewController {
   private static updateFromNewEnumeratorSelector(
     enumeratorSelectorValue: string,
   ) {
-    const repeatedQuestionInformation = document.getElementById(
-      PreviewController.REPEATED_QUESTION_INFORMATION_ID,
+    const repeatedQuestionInformation = assertNotNull(
+      document.getElementById(
+        PreviewController.REPEATED_QUESTION_INFORMATION_ID,
+      ),
     )
     repeatedQuestionInformation.classList.toggle(
       'hidden',
@@ -308,7 +314,7 @@ class PreviewController {
     selector: string,
     text: string,
   ) {
-    const previewDiv = document.querySelector(selector)
+    const previewDiv = assertNotNull(document.querySelector(selector))
     const pieces = text.split(PreviewController.THIS_REGEX)
 
     previewDiv.innerHTML = ''

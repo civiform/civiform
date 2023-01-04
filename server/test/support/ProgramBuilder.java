@@ -12,6 +12,7 @@ import models.Version;
 import play.inject.Injector;
 import repository.VersionRepository;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.StatusDefinitions;
@@ -262,7 +263,12 @@ public class ProgramBuilder {
       return this;
     }
 
-    public BlockBuilder withPredicate(PredicateDefinition predicate) {
+    public BlockBuilder withEligibilityDefinition(EligibilityDefinition eligibility) {
+      blockDefBuilder.setEligibilityDefinition(eligibility);
+      return this;
+    }
+
+    public BlockBuilder withVisibilityPredicate(PredicateDefinition predicate) {
       blockDefBuilder.setVisibilityPredicate(predicate);
       return this;
     }

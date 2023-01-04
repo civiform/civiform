@@ -189,7 +189,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock() // Previous block with color question
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock() // Block with predicate
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a question that has not been answered
             .buildDefinition();
@@ -220,7 +220,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock() // Previous block with color question
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock() // Block with predicate
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a question that has not been answered
             .buildDefinition();
@@ -251,7 +251,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock("visibility question")
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock("enumeration - household members")
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock("repeated - household members name")
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberName())
@@ -554,7 +554,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock() // Previous block with color question
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock() // Block with predicate
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a question that has not been answered
             .buildDefinition();
@@ -587,7 +587,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a skipped question so the block is incomplete
             .buildDefinition();
@@ -622,7 +622,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock() // Block incomplete; this is what predicate is based on
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a skipped question so the block is incomplete
             .buildDefinition();

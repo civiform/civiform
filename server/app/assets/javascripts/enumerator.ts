@@ -1,6 +1,8 @@
 // Javascript handling for enumerators
 // This file requires that main.ts is also added to the page.
 
+import {addEventListenerToElements, assertNotNull} from './util'
+
 export function init() {
   // Configure the button on the enumerator question form to add more enumerator field options
   const enumeratorOptionButton = document.getElementById(
@@ -10,9 +12,10 @@ export function init() {
     enumeratorOptionButton.addEventListener('click', addNewEnumeratorField)
   }
 
-  // TODO(#3864) switch to use addEventListenerToElements() once imports supported.
-  Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
-    (el) => el.addEventListener('click', removeExistingEnumeratorField),
+  addEventListenerToElements(
+    '.cf-enumerator-delete-button',
+    'click',
+    removeExistingEnumeratorField,
   )
   addEnumeratorListeners()
 }
@@ -26,34 +29,36 @@ let enumeratorCounter = 0
 /** In the enumerator form - add a new input field for a repeated entity. */
 function addNewEnumeratorField() {
   // Copy the enumerator field template
-  const newField = document
-    .getElementById('enumerator-field-template')
-    .cloneNode(true) as HTMLElement
+  const newField = assertNotNull(
+    document.getElementById('enumerator-field-template'),
+  ).cloneNode(true) as HTMLElement
   newField.classList.remove('hidden')
   newField.removeAttribute('id')
 
   // Add the remove enumerator field event listener to the delete button
   newField
-    .querySelector('[type=button]')
+    .querySelector('[type=button]')!
     .addEventListener('click', removeEnumeratorField)
 
   // Update IDs from the template element so that they are unique.
-  const inputElement = newField.querySelector(
-    '#enumerator-field-template-input',
+  const inputElement = assertNotNull(
+    newField.querySelector('#enumerator-field-template-input'),
   )
   enumeratorCounter++
   inputElement.id = `${inputElement.id}-${enumeratorCounter}`
-  const labelElement = newField.querySelector(
-    'label[for="enumerator-field-template-input"]',
+  const labelElement = assertNotNull(
+    newField.querySelector('label[for="enumerator-field-template-input"]'),
   )
   labelElement.setAttribute('for', inputElement.id)
-  const errorsElement = newField.querySelector(
-    '#enumerator-field-template-input-errors',
+  const errorsElement = assertNotNull(
+    newField.querySelector('#enumerator-field-template-input-errors'),
   )
   errorsElement.id = `enumerator-field-template-input-${enumeratorCounter}-errors`
 
   // Add to the end of enumerator-fields div.
-  const enumeratorFields = document.getElementById('enumerator-fields')
+  const enumeratorFields = assertNotNull(
+    document.getElementById('enumerator-fields'),
+  )
   enumeratorFields.appendChild(newField)
 
   // Set focus to the new input
@@ -75,8 +80,10 @@ function addNewEnumeratorField() {
  */
 function removeEnumeratorField(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
-  const enumeratorFieldDiv = (event.currentTarget as HTMLElement).parentNode
-  enumeratorFieldDiv.parentNode.removeChild(enumeratorFieldDiv)
+  const enumeratorFieldDiv = assertNotNull(
+    (event.currentTarget as HTMLElement).parentNode,
+  ) as HTMLElement
+  enumeratorFieldDiv.remove()
 }
 
 /**
@@ -90,20 +97,22 @@ function removeExistingEnumeratorField(event: Event) {
 
   // Hide the field that was removed. We cannot remove it completely, as we need to
   // submit the input to maintain entity ordering.
-  const enumeratorFieldDiv = removeButton.parentElement
+  const enumeratorFieldDiv = assertNotNull(removeButton.parentElement)
   enumeratorFieldDiv.classList.add('hidden')
   // We must hide the child in addition to the parent since we
   // want to prevent this input from being considered when
   // toggling whether the "Add" button is enabled (especially if
   // the applicant were removing a blank input).
-  const enumeratorInput = enumeratorFieldDiv.querySelector('input')
+  const enumeratorInput = assertNotNull(
+    enumeratorFieldDiv.querySelector('input'),
+  )
   enumeratorInput.classList.add('hidden')
 
   // Create a copy of the hidden deleted entity template. Set the value to this
   // button's ID, and set disabled to false so the data is submitted with the form.
-  const deletedEntityInput = document
-    .getElementById('enumerator-delete-template')
-    .cloneNode(true) as HTMLInputElement
+  const deletedEntityInput = assertNotNull(
+    document.getElementById('enumerator-delete-template'),
+  ).cloneNode(true) as HTMLInputElement
   deletedEntityInput.disabled = false
   deletedEntityInput.setAttribute('value', removeButton.id)
   deletedEntityInput.removeAttribute('id')

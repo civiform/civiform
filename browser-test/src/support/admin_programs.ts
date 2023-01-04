@@ -799,7 +799,7 @@ export class AdminPrograms {
       throw new Error('download failed')
     }
 
-    return JSON.parse(readFileSync(path, 'utf8'))
+    return JSON.parse(readFileSync(path, 'utf8')) as DownloadedApplication[]
   }
   async getPdf() {
     const [downloadEvent] = await Promise.all([
