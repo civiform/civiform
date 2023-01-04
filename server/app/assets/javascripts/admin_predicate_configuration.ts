@@ -240,6 +240,9 @@ class AdminPredicateConfiguration {
 
       let groupNum = parseInt(groupNumString, 10)
       el.name = el.name.replace(/group-\d+/, `group-${++groupNum}`)
+
+      // The server-rendered inputs have UUID-generated IDs to ensure uniqueness on the page.
+      // We reuse those IDs and add a suffix to likewise ensure uniqueness for the new inputs.
       const newId = `${el.id}-${groupNum}`
       el.id = newId
 
