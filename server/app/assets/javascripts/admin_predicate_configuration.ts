@@ -229,7 +229,7 @@ class AdminPredicateConfiguration {
 
     const currentRows = document.querySelectorAll('.predicate-config-value-row')
     const templateRow = currentRows[currentRows.length - 1]
-    const newRow = templateRow.cloneNode(true) as HTMLElement
+    const newRow = templateRow.cloneNode(/* deep= */ true) as HTMLElement
 
     newRow.querySelectorAll('input').forEach((el: HTMLInputElement) => {
       if (el.type === 'checkbox' || el.type === 'radio') {
