@@ -1,3 +1,5 @@
+import {ToastController} from './toast'
+
 class AdminPrograms {
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
@@ -41,10 +43,8 @@ class AdminPrograms {
 
   static async copyProgramLinkToClipboard(programLink: string) {
     const succeeded = await AdminPrograms.tryCopyToClipboard(programLink)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const toastController = window['toastController'] as any
     if (succeeded) {
-      toastController.showToastMessage({
+      ToastController.showToastMessage({
         id: `program-link-${Math.random()}`,
         content: 'Program link copied to clipboard',
         duration: 3000,
@@ -53,7 +53,7 @@ class AdminPrograms {
         canIgnore: false,
       })
     } else {
-      toastController.showToastMessage({
+      ToastController.showToastMessage({
         id: `program-link-${Math.random()}`,
         content: `Could not copy program link to clipboard: ${programLink}`,
         duration: -1,
@@ -65,6 +65,6 @@ class AdminPrograms {
   }
 }
 
-window.addEventListener('load', () => {
+export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
-})
+}

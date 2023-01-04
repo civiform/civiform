@@ -1,4 +1,6 @@
 /** This class controls the style of selected radio buttons. */
+import {assertNotNull} from './util'
+
 class RadioController {
   static radioDefaultClass = '.cf-radio-default'
   static radioInputClass = '.cf-radio-input'
@@ -41,7 +43,7 @@ class RadioController {
       // Add listener to radio button.
       radio.addEventListener('change', (e) => {
         const targetElement = e.target as HTMLInputElement
-        const radioName = targetElement.getAttribute('name')
+        const radioName = assertNotNull(targetElement.getAttribute('name'))
         let checkCount = 0
         const buttons = Array.from(
           document.querySelectorAll(
@@ -68,12 +70,11 @@ class RadioController {
         }
         // If this is a checkbox we need to check or uncheck the "None selected" option.
         if (targetElement.type === 'checkbox') {
-          const defaultCheckbox = document.querySelector(
+          const defaultCheckbox = document.querySelector<HTMLInputElement>(
             RadioController.radioDefaultClass + "[name='" + radioName + "']",
-          ) as HTMLInputElement
+          )
           if (defaultCheckbox !== null) {
             defaultCheckbox.checked = checkCount == 0
-            console.log('Number selected for ' + radioName + ': ' + checkCount)
           }
         }
       })
@@ -81,5 +82,7 @@ class RadioController {
   }
 }
 
-window.addEventListener('pageshow', () => RadioController.initializeRadios())
-new RadioController()
+export function init() {
+  window.addEventListener('pageshow', () => RadioController.initializeRadios())
+  new RadioController()
+}

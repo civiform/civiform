@@ -679,7 +679,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .buildDefinition();
 
     // Overwriting the question in the first block invalidates the predicate in the second block.
@@ -778,7 +778,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .buildDefinition();
 
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
@@ -820,7 +820,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                             AndNode.create(ImmutableSet.of(statePredicate, zipPredicate)))))),
             PredicateAction.HIDE_BLOCK);
 
-    ps.setBlockPredicate(program.id, 2L, predicate);
+    ps.setBlockVisibilityPredicate(program.id, 2L, Optional.of(predicate));
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
@@ -833,14 +833,15 @@ public class ProgramServiceImplTest extends ResetPostgres {
     ProgramDefinition p = ProgramBuilder.newDraftProgram().buildDefinition();
     assertThatThrownBy(
             () ->
-                ps.setBlockPredicate(
+                ps.setBlockVisibilityPredicate(
                     p.id(),
                     100L,
-                    PredicateDefinition.create(
-                        PredicateExpressionNode.create(
-                            LeafOperationExpressionNode.create(
-                                1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-                        PredicateAction.HIDE_BLOCK)))
+                    Optional.of(
+                        PredicateDefinition.create(
+                            PredicateExpressionNode.create(
+                                LeafOperationExpressionNode.create(
+                                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                            PredicateAction.HIDE_BLOCK))))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
@@ -859,14 +860,18 @@ public class ProgramServiceImplTest extends ResetPostgres {
     Long programId = programDefinition.id();
 
     ProgramDefinition found =
-        ps.setBlockPredicate(
+        ps.setBlockVisibilityPredicate(
             programId,
             2L,
-            PredicateDefinition.create(
-                PredicateExpressionNode.create(
-                    LeafOperationExpressionNode.create(
-                        question.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-                PredicateAction.HIDE_BLOCK));
+            Optional.of(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.CITY,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of(""))),
+                    PredicateAction.HIDE_BLOCK)));
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
@@ -891,7 +896,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     // This predicate depends on a question that doesn't exist in a prior block.
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
-        .isThrownBy(() -> ps.setBlockPredicate(program.id(), 2L, predicate))
+        .isThrownBy(() -> ps.setBlockVisibilityPredicate(program.id(), 2L, Optional.of(predicate)))
         .withMessage("This action would invalidate a block condition");
   }
 
@@ -914,7 +919,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     Operator.EQUAL_TO,
                     PredicateValue.of(""))),
             PredicateAction.HIDE_BLOCK);
-    ps.setBlockPredicate(program.id, 2L, predicate);
+    ps.setBlockVisibilityPredicate(program.id, 2L, Optional.of(predicate));
 
     ProgramDefinition foundWithPredicate = ps.getProgramDefinition(program.id);
     assertThat(foundWithPredicate.blockDefinitions().get(1).visibilityPredicate())
@@ -1055,7 +1060,36 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteBlock_removesPredicateQuestion_throwsException() {
+  public void deleteBlock_removesEligibilityPredicateQuestion_throwsException() {
+    QuestionDefinition question = nameQuestion;
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of(""))),
+                    PredicateAction.HIDE_BLOCK))
+            .build();
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(addressQuestion)
+            .withBlock()
+            .withEligibilityDefinition(eligibility)
+            .buildDefinition();
+
+    // This predicate depends on a question that doesn't exist in a prior block.
+    assertThatExceptionOfType(IllegalPredicateOrderingException.class)
+        .isThrownBy(() -> ps.deleteBlock(program.id(), 1L))
+        .withMessage("This action would invalidate a block condition");
+  }
+
+  @Test
+  public void deleteBlock_removesVisibilityPredicateQuestion_throwsException() {
     QuestionDefinition question = nameQuestion;
     PredicateDefinition predicate =
         PredicateDefinition.create(
@@ -1068,7 +1102,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(addressQuestion)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .buildDefinition();
 
     // This predicate depends on a question that doesn't exist in a prior block.

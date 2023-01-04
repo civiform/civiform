@@ -56,5 +56,6 @@ class ModalController {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const modalController = new ModalController()
+export function init() {
+  new ModalController()
+}

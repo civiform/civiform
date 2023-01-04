@@ -19,7 +19,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.annotation.Nullable;
 import models.Account;
 import models.Application;
 import models.DisplayMode;
@@ -433,7 +432,7 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition moveBlock(
       long programId, long blockId, ProgramDefinition.Direction direction)
       throws ProgramNotFoundException, IllegalPredicateOrderingException {
-    Program program;
+    final Program program;
     try {
       program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -676,15 +675,31 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setBlockPredicate(
-      long programId, long blockDefinitionId, @Nullable PredicateDefinition predicate)
+  public ProgramDefinition setBlockVisibilityPredicate(
+      long programId, long blockDefinitionId, Optional<PredicateDefinition> predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setVisibilityPredicate(Optional.ofNullable(predicate))
+            .setVisibilityPredicate(predicate)
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition setBlockEligibilityDefinition(
+      long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+            .setEligibilityDefinition(eligibility)
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -695,7 +710,21 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition removeBlockPredicate(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     try {
-      return setBlockPredicate(programId, blockDefinitionId, null);
+      return setBlockVisibilityPredicate(
+          programId, blockDefinitionId, /* predicate= */ Optional.empty());
+    } catch (IllegalPredicateOrderingException e) {
+      // Removing a predicate should never invalidate another.
+      throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition removeBlockEligibilityPredicate(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    try {
+      return setBlockEligibilityDefinition(
+          programId, blockDefinitionId, /* eligibility= */ Optional.empty());
     } catch (IllegalPredicateOrderingException e) {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");

@@ -37,7 +37,7 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 params.messages(),
                 validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionText());
+            .setScreenReaderText(question.getQuestionTextForScreenReader());
 
     if (!validationErrors.isEmpty()) {
       textField.forceAriaInvalid();

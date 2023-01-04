@@ -302,6 +302,9 @@ describe('view program statuses', () => {
     it('renders the note dialog', async () => {
       const {page, adminPrograms} = ctx
       await adminPrograms.awaitEditNoteModal()
+      await page.evaluate(() => {
+        window.scrollTo(0, 0)
+      })
       await validateScreenshot(page, 'edit-note-modal')
     })
 

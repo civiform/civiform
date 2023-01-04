@@ -17,11 +17,14 @@ import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -30,10 +33,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
   private static final String EMAIL_FIELD_STYLES = StyleUtils.joinStyles("flex", "flex-row");
   private static final String PAGE_TITLE = "Manage Admins for Program: ";
-  private static final String ADD_ADMIN_BUTTON = "Add admin";
-  private static final String SUBMIT_BUTTON = "Save";
   private static final String INPUT_PLACEHOLDER = "New admin email";
-  private static final String REMOVE_BUTTON = "Remove";
   private static final String EMAIL_CONTAINER_DIV_ID = "program-admin-emails";
   private static final String ADD_BUTTON_ID = "add-program-admin-button";
   private static final String ADD_EMAIL_FIELD_NAME = "adminEmails[]";
@@ -84,14 +84,18 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .withId(EMAIL_CONTAINER_DIV_ID)
             .withClasses("ml-4")
             .with(each(existingAdminEmails, email -> adminEmailInput(Optional.of(email))))
-            .with(button(ADD_ADMIN_BUTTON).withId(ADD_BUTTON_ID).withClasses("my-2"));
+            .with(
+                ViewUtils.makeSvgTextButton("Add admin", Icons.PLUS)
+                    .withType("button")
+                    .withId(ADD_BUTTON_ID)
+                    .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-2"));
 
     return form()
         .with(makeCsrfTokenInputTag(request))
         .withAction(routes.ProgramAdminManagementController.update(programId).url())
         .withMethod("POST")
         .with(emailFields)
-        .with(submitButton(SUBMIT_BUTTON).withClasses("my-4"));
+        .with(submitButton("Save").withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "my-4"));
   }
 
   private DivTag adminEmailInput(Optional<String> existing) {
@@ -113,8 +117,13 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .withClasses("flex", "m-2");
 
     ButtonTag removeAdminButton =
-        button(REMOVE_BUTTON)
-            .withClasses(ReferenceClasses.PROGRAM_ADMIN_REMOVE_BUTTON, "flex", "m-2");
+        ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
+            .withType("button")
+            .withClasses(
+                ReferenceClasses.PROGRAM_ADMIN_REMOVE_BUTTON,
+                AdminStyles.SECONDARY_BUTTON_STYLES,
+                "flex",
+                "m-2");
 
     return div().with(input, removeAdminButton).withClasses(EMAIL_FIELD_STYLES);
   }

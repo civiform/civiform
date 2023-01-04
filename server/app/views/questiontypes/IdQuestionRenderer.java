@@ -37,7 +37,7 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 params.messages(),
                 validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionText());
+            .setScreenReaderText(question.getQuestionTextForScreenReader());
 
     if (!validationErrors.isEmpty()) {
       idField.forceAriaInvalid();

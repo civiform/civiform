@@ -65,13 +65,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                         .sorted(ProgramCardFactory.lastModifiedTimeThenNameComparator())
                         .map(programCardFactory::renderCard)));
 
-    HtmlBundle htmlBundle =
-        layout
-            .getBundle()
-            .setTitle(title)
-            .addMainContent(contentDiv)
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
-
+    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 

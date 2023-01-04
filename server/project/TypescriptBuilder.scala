@@ -109,7 +109,7 @@ object TypescriptBuilder extends AutoPlugin {
       incremental.syncIncremental(cacheDir, tsFiles)({ modifiedFiles =>
         if (modifiedFiles.nonEmpty || !targetDir.exists()) {
           log.info("Typescript files changed. Recompiling...")
-          compileTypescriptInternal(targetDir, log)
+          runWebpack(targetDir, log)
         }
         val compiledJsFiles: Seq[File] = targetDir.listFiles()
         // ignore opResults. We are not using full functionality of syncIncremental
@@ -124,29 +124,19 @@ object TypescriptBuilder extends AutoPlugin {
     compiledJsFiles
   }
 
-  /** Function that compiles TS files. It relies on tsconfig.json to contain all
-    * necessary settings including which source files to compile. Note that we
-    * don't pass input source files. Instead we simply compile everything in
-    * server/app/assets/javascripts folder (check server/tsconfig.json).
-    *
-    * @param targetDir
-    *   Directory in which compiled JS and sourcemap files will be added.
-    * @param log
-    *   Logger object to output compilation errors to sbt console.
-    */
-  def compileTypescriptInternal(targetDir: File, log: ManagedLogger) = {
+  def runWebpack(targetDir: File, log: ManagedLogger) = {
     val compilationCommand =
-      "npx tsc --pretty --project tsconfig.json --outDir " + targetDir
+      "npx webpack --config webpack.config.js --output-path " + targetDir
     val res = Process(compilationCommand) ! ProcessLogger(
       line => log.error(line),
       line => log.error(line)
     )
     if (res != 0) {
       log.info(
-        "To debug TS code compilation can run the following command from 'server' folder:\n    " + compilationCommand
+        "To debug Webpack compilation run the following command from 'server' folder:\n    " + compilationCommand
       )
       throw new sbt.MessageOnlyException(
-        "TypeScript compilation failed. Check console to see compilation errors."
+        "Webpack compilation failed. Check console to see compilation errors."
       )
     }
   }
