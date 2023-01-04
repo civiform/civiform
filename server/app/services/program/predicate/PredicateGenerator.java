@@ -9,7 +9,6 @@ import com.google.common.collect.Multimap;
 import controllers.BadRequestException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,10 @@ public final class PredicateGenerator {
    *
    * <p>Determines {@link PredicateDefinition.PredicateFormat} based on form contents. If the form
    * contains a single leaf node then it generates a SINGLE_QUESTION, otherwise a
-   * OR_OF_SINGLE_LAYER_ANDS.
+   * OR_OF_SINGLE_LAYER_ANDS. For each question a single scalar and operator are selected with one
+   * or more values. The values for all questions are grouped into rows containing one value for
+   * each question. Note that the group IDs are not persisted explicitly since they are used for
+   * grouping values which is accomplished structurally in the resulting predicate's AST.
    *
    * <p>Requires the form to have the following keys:
    *
@@ -60,9 +62,6 @@ public final class PredicateGenerator {
   public PredicateDefinition generatePredicateDefinition(
       DynamicForm predicateForm, ReadOnlyQuestionService roQuestionService)
       throws QuestionNotFoundException {
-    Multimap<Integer, LeafOperationExpressionNode> leafNodes = LinkedHashMultimap.create();
-
-    HashSet<String> consumedMultiValueKeys = new HashSet<>();
     final PredicateAction predicateAction;
 
     try {
@@ -73,15 +72,68 @@ public final class PredicateGenerator {
               "Missing or unknown predicateAction: %s", predicateForm.get("predicateAction")));
     }
 
+    Multimap<Integer, LeafOperationExpressionNode> leafNodes =
+        getLeafNodes(predicateForm, roQuestionService);
+
+    switch (detectFormat(leafNodes)) {
+      case OR_OF_SINGLE_LAYER_ANDS:
+        {
+          return PredicateDefinition.create(
+              PredicateExpressionNode.create(
+                  OrNode.create(
+                      leafNodes.keySet().stream()
+                          // Sorting here ensures the AND nodes are created in the same order as
+                          // value groups/rows in the UI.
+                          // This ensures the edit UI will show the value rows in the original
+                          // order.
+                          .sorted()
+                          .map(leafNodes::get)
+                          .map(
+                              leafNodeGroup ->
+                                  leafNodeGroup.stream()
+                                      .map(PredicateExpressionNode::create)
+                                      .collect(toImmutableList()))
+                          .map(AndNode::create)
+                          .map(PredicateExpressionNode::create)
+                          .collect(toImmutableList()))),
+              predicateAction,
+              PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+        }
+
+      case SINGLE_QUESTION:
+        {
+          LeafOperationExpressionNode singleQuestionNode =
+              leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
+
+          return PredicateDefinition.create(
+              PredicateExpressionNode.create(singleQuestionNode),
+              predicateAction,
+              PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        }
+
+      default:
+        {
+          throw new BadRequestException(
+              String.format("Unrecognized predicate format: %s", detectFormat(leafNodes)));
+        }
+    }
+  }
+
+  private static Multimap<Integer, LeafOperationExpressionNode> getLeafNodes(
+      DynamicForm predicateForm, ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException {
+    Multimap<Integer, LeafOperationExpressionNode> leafNodes = LinkedHashMultimap.create();
+    HashSet<String> consumedMultiValueKeys = new HashSet<>();
+
     for (String key : predicateForm.rawData().keySet()) {
       Matcher singleValueMatcher = SINGLE_PREDICATE_VALUE_FORM_KEY_PATTERN.matcher(key);
       Matcher multiValueMatcher = MULTI_PREDICATE_VALUE_FORM_KEY_PATTERN.matcher(key);
 
-      int groupId;
-      long questionId;
-      Scalar scalar;
-      Operator operator;
-      PredicateValue predicateValue;
+      final int groupId;
+      final long questionId;
+      final Scalar scalar;
+      final Operator operator;
+      final PredicateValue predicateValue;
 
       if (singleValueMatcher.find()) {
         Pair<Integer, Long> groupIdQuestionIdPair =
@@ -95,6 +147,8 @@ public final class PredicateGenerator {
         predicateValue =
             parsePredicateValue(scalar, operator, predicateForm.get(key), ImmutableList.of());
       } else if (multiValueMatcher.find() && !consumedMultiValueKeys.contains(key)) {
+        // For the first encountered key of a multivalued question, we process all the keys now for
+        // the question, then skip them later.
         Pair<Integer, Long> groupIdQuestionIdPair =
             getGroupIdAndQuestionId(roQuestionService, multiValueMatcher);
         groupId = groupIdQuestionIdPair.getLeft();
@@ -133,44 +187,7 @@ public final class PredicateGenerator {
               .setComparedValue(predicateValue)
               .build());
     }
-
-    switch (detectFormat(leafNodes)) {
-      case OR_OF_SINGLE_LAYER_ANDS:
-        {
-          return PredicateDefinition.create(
-              PredicateExpressionNode.create(
-                  OrNode.create(
-                      leafNodes.keySet().stream()
-                          .map(leafNodes::get)
-                          .map(
-                              leafNodeGroup ->
-                                  leafNodeGroup.stream()
-                                      .map(PredicateExpressionNode::create)
-                                      .collect(toImmutableList()))
-                          .map(AndNode::create)
-                          .map(PredicateExpressionNode::create)
-                          .collect(toImmutableList()))),
-              predicateAction,
-              PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
-        }
-
-      case SINGLE_QUESTION:
-        {
-          LeafOperationExpressionNode singleQuestionNode =
-              leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
-
-          return PredicateDefinition.create(
-              PredicateExpressionNode.create(singleQuestionNode),
-              predicateAction,
-              PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
-        }
-
-      default:
-        {
-          throw new BadRequestException(
-              String.format("Unrecognized predicate format: %s", detectFormat(leafNodes)));
-        }
-    }
+    return leafNodes;
   }
 
   /**
@@ -211,17 +228,9 @@ public final class PredicateGenerator {
 
   private static PredicateDefinition.PredicateFormat detectFormat(
       Multimap<Integer, LeafOperationExpressionNode> leafNodes) {
-    if (leafNodes.size() > 1
-        || leafNodes.keySet().stream()
-            .map(leafNodes::get)
-            .filter(
-                (Collection<LeafOperationExpressionNode> leafNodeGroup) -> leafNodeGroup.size() > 1)
-            .findAny()
-            .isPresent()) {
-      return PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS;
-    }
-
-    return PredicateDefinition.PredicateFormat.SINGLE_QUESTION;
+    return leafNodes.size() > 1
+        ? PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS
+        : PredicateDefinition.PredicateFormat.SINGLE_QUESTION;
   }
 
   /**

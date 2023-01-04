@@ -54,8 +54,8 @@ public abstract class PredicateDefinition {
   public abstract PredicateAction action();
 
   /**
-   * Returns the question IDs referenced by this predicate, deduplicated but presented in a list to preserve
-   * ordering.
+   * Returns the question IDs referenced by this predicate, deduplicated but presented in a list to
+   * preserve ordering.
    */
   @JsonIgnore
   @Memoized
