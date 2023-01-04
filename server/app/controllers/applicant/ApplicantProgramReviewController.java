@@ -8,6 +8,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -20,7 +21,9 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
+import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
@@ -110,6 +113,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            readOnlyApplicantProgramService -> validateApplication(readOnlyApplicantProgramService))
+        .thenComposeAsync(
             v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
         .exceptionally(
             ex -> {
@@ -118,10 +126,37 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof SecurityException) {
                   return unauthorized();
                 }
+                if (cause instanceof ApplicationOutOfDateException) {
+                  Optional<String> referer = request.getHeaders().get("Referer");
+                  if (referer.isPresent()) {
+                    return redirect(referer.get()).flashing("error", cause.getMessage());
+                  } else {
+                    Call viewPage =
+                        routes.ApplicantProgramReviewController.preview(applicantId, programId);
+                    return redirect(viewPage).flashing("error", cause.getMessage());
+                  }
+                }
                 throw new RuntimeException(cause);
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  private CompletableFuture<Void> validateApplication(
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    // Check that all blocks have been answered.
+    if (!roApplicantProgramService.getFirstIncompleteBlock().isEmpty()) {
+      return CompletableFuture.failedFuture(
+          new ApplicationOutOfDateException("Your application is out of date."));
+    }
+    // Check that all eligibility conditions are met.
+    if (!roApplicantProgramService.getAllActiveBlocks().stream()
+        .map(Block::getId)
+        .allMatch(roApplicantProgramService::isBlockEligible)) {
+      return CompletableFuture.failedFuture(
+          new ApplicationOutOfDateException("Your application is out of date."));
+    }
+    return CompletableFuture.completedFuture(null);
   }
 
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
