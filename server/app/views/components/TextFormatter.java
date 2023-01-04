@@ -3,6 +3,8 @@ package views.components;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.li;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
@@ -50,8 +52,16 @@ public final class TextFormatter {
   private static final String ACCORDION_HEADER = "### ";
   private static final String BULLETED_ITEM = "* ";
 
+  /**
+   * Parses plain-text string into rich HTML with clickable links.
+   *
+   * @param content The plain-text string to parse.
+   * @param urlOpenAction Enum indicating whether the url should open in a new tab.
+   * @param addRequiredIndicator Whether a required indicator, in the form of a red asterisk, should
+   *     be added to the html element.
+   */
   public static ImmutableList<DomContent> createLinksAndEscapeText(
-      String content, UrlOpenAction urlOpenAction) {
+      String content, UrlOpenAction urlOpenAction, boolean addRequiredIndicator) {
     // JAVASCRIPT option avoids including surrounding quotes or brackets in the URL.
     List<Url> urls = new UrlDetector(content, UrlDetectorOptions.JAVASCRIPT).detect();
 
@@ -102,6 +112,9 @@ public final class TextFormatter {
     if (!Strings.isNullOrEmpty(content)) {
       contentBuilder.add(text(content));
     }
+    if (addRequiredIndicator) {
+      contentBuilder.add(span(rawHtml("&nbsp;*")).withClasses("text-red-600"));
+    }
     return contentBuilder.build();
   }
 
@@ -134,7 +147,8 @@ public final class TextFormatter {
         builder.add(buildList(items));
       } else if (line.length() > 0) {
         ImmutableList<DomContent> lineContent =
-            TextFormatter.createLinksAndEscapeText(line, UrlOpenAction.NewTab);
+            TextFormatter.createLinksAndEscapeText(
+                line, UrlOpenAction.NewTab, /*addRequiredIndicator= */ false);
         builder.add(div().with(lineContent));
       } else if (preserveEmptyLines) {
         builder.add(div().withClasses("h-6"));

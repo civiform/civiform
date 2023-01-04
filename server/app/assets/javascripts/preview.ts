@@ -1,4 +1,6 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
+import {assertNotNull} from './util'
+
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
   private static readonly QUESTION_HELP_TEXT_INPUT_ID =
@@ -23,6 +25,8 @@ class PreviewController {
     '.cf-enumerator-delete-button'
   private static readonly QUESTION_MULTI_OPTION_SELECTOR =
     '.cf-multi-option-question-option'
+  private static readonly QUESTION_MULTI_OPTION_INPUT_FIELD_SELECTOR =
+    '.cf-multi-option-input'
   private static readonly QUESTION_MULTI_OPTION_VALUE_CLASS =
     'cf-multi-option-value'
 
@@ -116,7 +120,7 @@ class PreviewController {
 
     const questionSettings = document.getElementById(
       PreviewController.QUESTION_SETTINGS_ID,
-    ) as HTMLElement | null
+    )
     const questionPreviewContainer = document.getElementById(
       PreviewController.SAMPLE_QUESTION_ID,
     )
@@ -152,26 +156,23 @@ class PreviewController {
     const previewOptionTemplate = firstPreviewOption.cloneNode(
       true,
     ) as HTMLElement
+    const syncOptionsToPreview = () => {
+      PreviewController.updateOptionsList({
+        questionSettings,
+        previewOptionTemplate,
+        previewQuestionOptionContainer,
+      })
+    }
     const mutationObserver = new MutationObserver(
       (records: MutationRecord[]) => {
+        syncOptionsToPreview()
         for (const record of records) {
-          PreviewController.updateOptionsList({
-            questionSettings,
-            previewOptionTemplate,
-            previewQuestionOptionContainer,
-          })
           for (const newNode of Array.from(record.addedNodes)) {
             const newInputs = Array.from(
               (<Element>newNode).querySelectorAll('input'),
             )
             newInputs.forEach((newInput) => {
-              newInput.addEventListener('input', () => {
-                PreviewController.updateOptionsList({
-                  questionSettings,
-                  previewOptionTemplate,
-                  previewQuestionOptionContainer,
-                })
-              })
+              newInput.addEventListener('input', syncOptionsToPreview)
             })
           }
         }
@@ -183,6 +184,7 @@ class PreviewController {
       subtree: true,
       characterDataOldValue: true,
     })
+    syncOptionsToPreview()
   }
 
   private static updateOptionsList({
@@ -196,7 +198,7 @@ class PreviewController {
   }) {
     const configuredOptions = Array.from(
       questionSettings.querySelectorAll(
-        `${PreviewController.QUESTION_MULTI_OPTION_SELECTOR} input`,
+        `${PreviewController.QUESTION_MULTI_OPTION_SELECTOR} ${PreviewController.QUESTION_MULTI_OPTION_INPUT_FIELD_SELECTOR} input`,
       ),
     ).map((el) => {
       return (el as HTMLInputElement).value
@@ -224,9 +226,11 @@ class PreviewController {
         PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS,
       )
         ? newPreviewOption
-        : (newPreviewOption.querySelector(
-            `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
-          ) as HTMLElement)
+        : assertNotNull(
+            newPreviewOption.querySelector<HTMLElement>(
+              `.${PreviewController.QUESTION_MULTI_OPTION_VALUE_CLASS}`,
+            ),
+          )
       optionText.innerText = configuredOption
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
@@ -245,7 +249,7 @@ class PreviewController {
 
       const contentParent = document.querySelector(
         PreviewController.QUESTION_TEXT_SELECTOR,
-      ) as Element
+      )
       if (contentParent) {
         contentParent.innerHTML = ''
         contentParent.appendChild(contentElement)
@@ -268,8 +272,10 @@ class PreviewController {
   private static updateFromNewEnumeratorSelector(
     enumeratorSelectorValue: string,
   ) {
-    const repeatedQuestionInformation = document.getElementById(
-      PreviewController.REPEATED_QUESTION_INFORMATION_ID,
+    const repeatedQuestionInformation = assertNotNull(
+      document.getElementById(
+        PreviewController.REPEATED_QUESTION_INFORMATION_ID,
+      ),
     )
     repeatedQuestionInformation.classList.toggle(
       'hidden',
@@ -308,7 +314,7 @@ class PreviewController {
     selector: string,
     text: string,
   ) {
-    const previewDiv = document.querySelector(selector)
+    const previewDiv = assertNotNull(document.querySelector(selector))
     const pieces = text.split(PreviewController.THIS_REGEX)
 
     previewDiv.innerHTML = ''
@@ -438,5 +444,6 @@ class PreviewController {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const previewController = new PreviewController()
+export function init() {
+  new PreviewController()
+}

@@ -49,12 +49,20 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .with(div(renderBlockWithSubmitForm(params)).withClasses("my-8"))
             .withClasses("my-8", "m-auto");
 
+    String errorMessage = "";
+    if (params.block().hasErrors()
+        && ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS.equals(
+            params.errorDisplayMode())) {
+      // Add error message to title for screen reader users.
+      errorMessage = " — " + params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName());
+    }
     HtmlBundle bundle =
         layout
             .getBundle()
             .setTitle(
                 layout.renderPageTitleWithBlockProgress(
-                    params.programTitle(), params.blockIndex(), params.totalBlockCount()))
+                        params.programTitle(), params.blockIndex(), params.totalBlockCount())
+                    + errorMessage)
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
@@ -66,14 +74,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
           renderLocaleNotSupportedToast(
               params.applicantId(), params.programId(), params.messages()));
     }
-
-    if (params.block().isFileUpload()) {
-      bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("file_upload"));
-    }
-    if (params.block().isEnumerator()) {
-      bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("enumerator"));
-    }
-
     return layout.renderWithNav(
         params.request(), params.applicantName(), params.messages(), bundle);
   }
@@ -111,7 +111,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       form.with(
           div()
               .withText(params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName()))
-              .attr("role", "status")
+              .attr("role", "alert")
               .attr("aria-live", "polite")
               .withClasses("sr-only"));
     }
