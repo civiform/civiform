@@ -9,7 +9,7 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
 // Web Assets plugins
-addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.3")
+addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.4")
 addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.2")
 
 // Code Coverage plugin

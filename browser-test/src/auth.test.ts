@@ -111,13 +111,13 @@ describe('applicant auth', () => {
     // Check that program is marked as submitted.
     expect(
       await page.innerText(`.cf-application-card:has-text("${programName}")`),
-    ).toMatch(/Submitted \d\d\/\d\d\/\d\d/)
+    ).toMatch(/Submitted \d?\d\/\d?\d\/\d\d/)
 
     // Logout and login to make sure data is tied to account.
     await logout(page)
     await loginAsTestUser(page)
     expect(
       await page.innerText(`.cf-application-card:has-text("${programName}")`),
-    ).toMatch(/Submitted \d\d\/\d\d\/\d\d/)
+    ).toMatch(/Submitted \d?\d\/\d?\d\/\d\d/)
   })
 })
