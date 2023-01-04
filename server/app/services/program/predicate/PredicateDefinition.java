@@ -44,7 +44,7 @@ public abstract class PredicateDefinition {
 
   public static PredicateDefinition create(
       PredicateExpressionNode rootNode, PredicateAction action) {
-    return create(rootNode, action, /* predicateFormat */ Optional.empty());
+    return create(rootNode, action, /* predicateFormat= */ Optional.empty());
   }
 
   @JsonProperty("rootNode")
@@ -54,7 +54,7 @@ public abstract class PredicateDefinition {
   public abstract PredicateAction action();
 
   /**
-   * Question IDs referenced by this predicate, deduplicated but presented in a list to preserve
+   * Returns the question IDs referenced by this predicate, deduplicated but presented in a list to preserve
    * ordering.
    */
   @JsonIgnore
@@ -69,7 +69,7 @@ public abstract class PredicateDefinition {
   public abstract Optional<PredicateFormat> predicateFormat();
 
   /**
-   * Returns SINGLE_QUESTION if {@code predicateFormat} is empty.
+   * Returns the {@code predicateFormat} if present otherwise defaults to SINGLE_QUESTION.
    *
    * <p>Before {@link PredicateFormat} was added, all predicates were a single leaf node.
    * PredicateDefinitions saved without formats are therefore assumed to have that shape.
