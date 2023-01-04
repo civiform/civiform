@@ -34,6 +34,9 @@ validation.isRequired=Su''aashan ayaa loo baahan yahay.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Fadlan geli qiimaha sadar kasta.
 
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=Telefoonkaaga? “Choose File” sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
