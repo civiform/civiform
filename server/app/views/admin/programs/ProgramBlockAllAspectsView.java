@@ -266,18 +266,17 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
                   StyleUtils.hover("border-gray-300"),
                   selectedClasses);
 
-      // Show UI for editing only if we are viewing a Draft
-        String editBlockLink =
+        String switchBlockLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(
               programDefinition.id(), blockDefinition.id())
             .url();
-        DivTag moveButtons =
-          blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
         blockTag.with(
             a().withClasses("flex-grow", "overflow-hidden")
-              .withHref(editBlockLink)
+              .withHref(switchBlockLink)
               .with(p(blockName), p(questionCountText).withClasses("text-sm")));
       if (viewAllowsEditingProgram()) {
+        DivTag moveButtons =
+          blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
         blockTag.with(moveButtons);
       }
       container.with(blockTag);
