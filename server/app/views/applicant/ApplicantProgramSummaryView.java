@@ -65,17 +65,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     DivTag applicationSummary = div().withId("application-summary").withClasses("mb-8");
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
-    boolean isFirstUnanswered = true;
     for (AnswerData answerData : params.summaryData()) {
       Optional<RepeatedEntity> currentRepeatedEntity = answerData.repeatedEntity();
       if (!currentRepeatedEntity.equals(previousRepeatedEntity)
           && currentRepeatedEntity.isPresent()) {
         applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
       }
-      applicationSummary.with(
-          renderQuestionSummary(
-              answerData, messages, params.applicantId(), params.inReview(), isFirstUnanswered));
-      isFirstUnanswered = isFirstUnanswered && answerData.isAnswered();
+      applicationSummary.with(renderQuestionSummary(answerData, messages, params.applicantId()));
       previousRepeatedEntity = currentRepeatedEntity;
     }
 
@@ -114,10 +110,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
 
-    String pageTitle =
-        params.inReview()
-            ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
-            : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
+    String pageTitle = messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
@@ -131,12 +124,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
-  private DivTag renderQuestionSummary(
-      AnswerData data,
-      Messages messages,
-      long applicantId,
-      boolean inReview,
-      boolean isFirstUnanswered) {
+  private DivTag renderQuestionSummary(AnswerData data, Messages messages, long applicantId) {
     DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
     if (!data.applicantQuestion().isOptional()) {
       questionPrompt.with(span(rawHtml("&nbsp;*")).withClasses("text-red-600"));
@@ -176,54 +164,42 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       actionAndTimestampDiv.with(timestampContent);
     }
 
-    // Maybe link to block containing specific question.
-    if (data.isAnswered() || isFirstUnanswered) {
-      String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
-      String ariaLabel =
-          messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionTextForScreenReader());
-      if (!data.isAnswered()) {
-        if (inReview) {
-          editText = messages.at(MessageKey.BUTTON_CONTINUE.getKeyName());
-          ariaLabel =
-              messages.at(
-                  MessageKey.ARIA_LABEL_CONTINUE.getKeyName(), data.questionTextForScreenReader());
-        } else {
-          editText = messages.at(MessageKey.LINK_BEGIN.getKeyName());
-          ariaLabel =
-              messages.at(
-                  MessageKey.ARIA_LABEL_BEGIN.getKeyName(), data.questionTextForScreenReader());
-        }
-      }
-      String editLink =
-          (!data.isAnswered() && !inReview)
-              ? routes.ApplicantProgramBlocksController.edit(
+    LinkElement editElement =
+        new LinkElement()
+            .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
+    if (data.isAnswered()) {
+      editElement
+          .setHref(
+              routes.ApplicantProgramBlocksController.review(
                       applicantId, data.programId(), data.blockId())
-                  .url()
-              : routes.ApplicantProgramBlocksController.review(
+                  .url())
+          .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
+          .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
+    } else {
+      editElement
+          .setHref(
+              routes.ApplicantProgramBlocksController.edit(
                       applicantId, data.programId(), data.blockId())
-                  .url();
-
-      LinkElement editElement =
-          new LinkElement()
-              .setHref(editLink)
-              .setText(editText)
-              .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
-      if (data.isAnswered()) {
-        editElement.setIcon(Icons.EDIT);
-      }
-      DivTag editContent =
-          div()
-              .with(editElement.asAnchorText().attr("aria-label", ariaLabel))
-              .withClasses(
-                  "font-medium",
-                  "break-normal",
-                  "flex",
-                  "flex-grow",
-                  "justify-end",
-                  "items-center");
-
-      actionAndTimestampDiv.with(editContent);
+                  .url())
+          .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
+          .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);
     }
+    DivTag editContent =
+        div()
+            .with(
+                editElement
+                    .asAnchorText()
+                    .attr(
+                        "aria-label",
+                        data.isAnswered()
+                            ? messages.at(
+                                MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText())
+                            : messages.at(
+                                MessageKey.ARIA_LABEL_ANSWER.getKeyName(), data.questionText())))
+            .withClasses(
+                "font-medium", "break-normal", "flex", "flex-grow", "justify-end", "items-center");
+
+    actionAndTimestampDiv.with(editContent);
 
     return div(questionContent, actionAndTimestampDiv)
         .withClasses(
@@ -282,8 +258,6 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract int completedBlockCount();
 
-    abstract boolean inReview();
-
     abstract Messages messages();
 
     abstract long programId();
@@ -306,8 +280,6 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setBannerMessage(Optional<ToastMessage> banner);
 
       public abstract Builder setCompletedBlockCount(int completedBlockCount);
-
-      public abstract Builder setInReview(boolean inReview);
 
       public abstract Builder setMessages(Messages messages);
 

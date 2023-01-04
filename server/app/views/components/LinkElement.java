@@ -46,6 +46,13 @@ public final class LinkElement {
   private boolean doesOpenInNewTab = false;
   private Optional<Icons> icon = Optional.empty();
 
+  public enum IconPosition {
+    START,
+    END
+  }
+
+  private IconPosition iconPosition = IconPosition.START;
+
   public LinkElement setId(String id) {
     this.id = id;
     return this;
@@ -71,15 +78,21 @@ public final class LinkElement {
     return this;
   }
 
-  public LinkElement setIcon(Icons icon) {
+  public LinkElement setIcon(Icons icon, IconPosition position) {
     this.icon = Optional.of(checkNotNull(icon));
+    this.iconPosition = position;
     return this;
   }
 
   public ATag asAnchorText() {
     ATag tag = a();
-    this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2", "w-5", "h-5")));
-    tag.withText(this.text);
+    if (IconPosition.END.equals(this.iconPosition)) {
+      tag.withText(this.text);
+      this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2", "w-5", "h-5")));
+    } else {
+      this.icon.ifPresent(icon -> tag.with(Icons.svg(icon).withClasses("mr-2", "w-5", "h-5")));
+      tag.withText(this.text);
+    }
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withCondHref(!Strings.isNullOrEmpty(href), href)
         .withCondTarget(doesOpenInNewTab, "_blank")
