@@ -352,7 +352,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           getQuestionDefinitions(
               programDefinition,
               blockDefinition,
-              (QuestionDefinition questionDefinition) ->
+              /* selectionPredicate= */ (QuestionDefinition questionDefinition) ->
                   eligibilityQuestionIds.contains(questionDefinition.getId()));
 
       return ok(
