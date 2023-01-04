@@ -316,7 +316,7 @@ class AdminPredicateConfiguration {
   }
 
   /**
-   * Logic that decides if a operator should be hidden.
+   * Determines if an operator should be hidden.
    *   @param {string} selectedScalarType The tyoe of the selected option
    *   @param {string} selectedScalarValue The value of the selected option
    *   @param {HTMLOptionElement} operatorOption The operator to check if we should hide.
