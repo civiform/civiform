@@ -176,21 +176,20 @@ button.submit=አስገባ
 # Continue application button
 button.continue=ቀጥል
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=እዚህ ይጀምሩ
-
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=አርትዕ
+link.answer=መልስ
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0}ን አርትዕ
 
-# Program Preview Title
-title.programPreview=የፕሮግራም ማመልክቻ ቅድመ-ዕይታ
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=መልስ {0}
 
-# Program Review Title
-title.programReview=የፕሮግራም ማመልከቻ ግምገማ
+# Program Summary Title
+title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

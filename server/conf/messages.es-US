@@ -180,20 +180,20 @@ button.submit=Enviar
 # Continue application button
 button.continue=Continuar
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=Comenzar aquí
-
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Editar
+link.answer=Responder
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Editar {0}
 
-# Program Preview Title
-title.programPreview=Vista previa de la solicitud del programa
-# Program Review Title
-title.programReview=Revisión de la solicitud del programa
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=Responder {0}
+
+# Program Summary Title
+title.programSummary=Resumen de la inscripción al programa
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

@@ -177,21 +177,20 @@ button.submit=提交
 # Continue application button
 button.continue=繼續
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=從這裡開始
-
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=編輯
+link.answer=回答問題
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=編輯「{0}」
 
-# Program Preview Title
-title.programPreview=計畫申請資料預覽畫面
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=回答以下問題：{0}
 
-# Program Review Title
-title.programReview=計畫申請資料檢查畫面
+# Program Summary Title
+title.programSummary=計畫申請摘要
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

@@ -178,21 +178,20 @@ button.submit=제출
 # Continue application button
 button.continue=계속
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=여기에서 시작
-
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=편집
+link.answer=답변
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0} 편집
 
-# Program Preview Title
-title.programPreview=프로그램 신청 미리보기
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer={0}에 답변
 
-# Program Review Title
-title.programReview=프로그램 신청 검토
+# Program Summary Title
+title.programSummary=프로그램 신청 요약
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
