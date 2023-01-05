@@ -93,7 +93,7 @@ public class PredicateExpressionNodeTest {
         .isEqualTo(
             String.format(
                 "\"%s\" number is greater than 45 and "
-                    + " \"%s\" number is less than or equal to 72",
+                    + "\"%s\" number is less than or equal to 72",
                 question.getName(), question.getName()));
   }
 

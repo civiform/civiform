@@ -87,7 +87,7 @@ abstract class ProgramBlockView extends BaseHtmlView {
 
     container.with(
         text(blockName + " is " + predicateDefinition.action().toDisplayString() + " any of:"));
-    UlTag conditionList = ul().withClasses("list-disc", "m-4");
+    UlTag conditionList = ul().withClasses("list-disc", "ml-4", "mb-4");
 
     andNodes.stream()
         .map(PredicateExpressionNode::getAndNode)
