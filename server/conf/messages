@@ -48,6 +48,9 @@ validation.errorAnnouncementSr=There are errors in the form. Please fix before c
 # Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
 
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=On your phone? “Choose File” also allows you to use your phone camera to upload documents.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -185,29 +188,20 @@ button.continue=Continue
 # Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
 content.notEligible=Not Eligible
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=Start here
-
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Edit
-
-# An aria-label for screen readers that helps provide context for the associated continue link. The link is for a specific
-# question, so this might say "Continue. What is your name?". The {0} variable is the question text.
-ariaLabel.continue=Continue. {0}
-
-# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
-# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
-ariaLabel.begin=Start here. {0}
+link.answer=Answer
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Edit {0}
 
-# Program Preview Title
-title.programPreview=Program application preview
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=Answer {0}
 
-# Program Review Title
-title.programReview=Program application review
+# Program Summary Title
+title.programSummary=Program application summary
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

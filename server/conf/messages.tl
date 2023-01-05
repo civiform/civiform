@@ -41,6 +41,8 @@ validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago m
 # Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
 
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng “Pumili ng File” na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -175,21 +177,20 @@ button.submit=Isumite
 # Continue application button
 button.continue=Magsimula dito
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=Magsimula dito
-
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=I-edit
+link.answer=Sagot
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=I-edit {0}
 
-# Program Preview Title
-title.programPreview=Pagsilip sa aplikasyon ng programa
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=Sagot {0}
 
-# Program Review Title
-title.programReview=Pagsusuri sa aplikasyon ng programa
+# Program Summary Title
+title.programSummary=Buod ng application para sa programa
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
