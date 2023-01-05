@@ -191,6 +191,16 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           continue;
         }
         boolean isAnswered = question.isAnswered();
+        // A block's eligibility can only be on questions in the block, so if the block is
+        // ineligible see if this question is part of that eligibility condition.
+        boolean isEligible =
+            isBlockEligible(block.getId())
+                || !block
+                    .getEligibilityDefinition()
+                    .get()
+                    .predicate()
+                    .getQuestions()
+                    .contains(question.getQuestionDefinition().getId());
         String questionText = question.getQuestionText();
         String questionTextForScreenReader = question.getQuestionTextForScreenReader();
         String answerText = question.errorsPresenter().getAnswerString();
@@ -220,6 +230,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionText(questionText)
                 .setQuestionTextForScreenReader(questionTextForScreenReader)
                 .setIsAnswered(isAnswered)
+                .setIsEligible(isEligible)
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
                 .setOriginalFileName(originalFileName)
