@@ -75,8 +75,7 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
         Joiner.on(' ').join(scalar().toDisplayString(), operator().toDisplayString(), displayValue);
     return question.isEmpty()
         ? phrase
-        : String.format(
-            "question with an admin ID of \"%s\"'s %s", question.get().getName(), phrase);
+        : String.format("\"%s\" %s", question.get().getName(), phrase);
   }
 
   public static Builder builder() {
