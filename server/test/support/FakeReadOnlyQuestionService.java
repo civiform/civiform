@@ -1,7 +1,6 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.NotImplementedException;
 import services.question.ActiveAndDraftQuestions;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -37,12 +36,12 @@ public class FakeReadOnlyQuestionService implements ReadOnlyQuestionService {
 
   @Override
   public ImmutableList<EnumeratorQuestionDefinition> getUpToDateEnumeratorQuestions() {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public ActiveAndDraftQuestions getActiveAndDraftQuestions() {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 
   @Override

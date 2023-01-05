@@ -7,8 +7,6 @@ import static play.test.Helpers.fakeRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.DynamicForm;
@@ -17,6 +15,7 @@ import repository.ResetPostgres;
 import services.applicant.question.Scalar;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
+import support.CfTestHelpers;
 import support.FakeReadOnlyQuestionService;
 import support.TestQuestionBank;
 
@@ -122,7 +121,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                                 .setQuestionId(testQuestionBank.applicantDate().id)
                                 .setScalar(Scalar.DATE)
                                 .setOperator(Operator.EQUAL_TO)
-                                .setComparedValue(stringToPredicateDate("2023-01-01"))
+                                .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
                                 .build()),
                         PredicateExpressionNode.create(
                             LeafOperationExpressionNode.builder()
@@ -139,7 +138,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                                 .setQuestionId(testQuestionBank.applicantDate().id)
                                 .setScalar(Scalar.DATE)
                                 .setOperator(Operator.EQUAL_TO)
-                                .setComparedValue(stringToPredicateDate("2023-02-02"))
+                                .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-02-02"))
                                 .build()),
                         PredicateExpressionNode.create(
                             LeafOperationExpressionNode.builder()
@@ -303,11 +302,6 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThatThrownBy(
             () -> predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService))
         .isInstanceOf(BadRequestException.class);
-  }
-
-  private PredicateValue stringToPredicateDate(String rawDate) {
-    LocalDate localDate = LocalDate.parse(rawDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    return PredicateValue.of(localDate);
   }
 
   private DynamicForm buildForm(ImmutableMap<String, String> formContents) {

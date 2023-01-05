@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.iff;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
@@ -14,6 +15,7 @@ import static play.mvc.Http.HttpVerbs.POST;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.tags.specialized.ATag;
@@ -26,8 +28,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -66,10 +70,10 @@ import views.style.ReferenceClasses;
  * <p>If only one value is specified by the admin, a SINGLE_QUESTION (single leaf node) {@link
  * PredicateDefinition.PredicateFormat} will result.
  *
- * <p>Multiple values per question can be specified in equal number across all questions. Each set of question values are grouped together to form an AND clause. Each
- * group corresponds to an AND node, with one leaf node per question. If multiple groups or
- * questions are specified an OR_OF_SINGLE_LAYER_ANDS {@link PredicateDefinition.PredicateFormat}
- * will result.
+ * <p>Multiple values per question can be specified in equal number across all questions. Each set
+ * of question values are grouped together to form an AND clause. Each group corresponds to an AND
+ * node, with one leaf node per question. If multiple groups or questions are specified an
+ * OR_OF_SINGLE_LAYER_ANDS {@link PredicateDefinition.PredicateFormat} will result.
  */
 public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
 
@@ -111,6 +115,15 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questionDefinitions,
       TYPE type) {
+
+    // The order of the question definitions in the list determines the column
+    // order in the UI. Questions are ordered by admin name to ensure stable
+    // ordering.
+    questionDefinitions =
+        questionDefinitions.stream()
+            .sorted(Comparator.comparing(QuestionDefinition::getName))
+            .collect(toImmutableList());
+
     final String editPredicateUrl;
     final String typeDisplayName;
     final String formActionUrl;
@@ -148,7 +161,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
         }
       default:
         {
-          throw new RuntimeException("Unknown predicate view type");
+          throw new IllegalArgumentException(
+              String.format("Unknown predicate view type: %s", type));
         }
     }
 
@@ -263,9 +277,14 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     return container;
   }
 
-  private ImmutableList<PredicateExpressionNode> getExistingAndNodes(
+  /**
+   * Presents the existing predicate as a list of {@link AndNode}'s regardless of actual AST
+   * structure. This is done to make rendering the tabular view easier.
+   */
+  private static ImmutableList<PredicateExpressionNode> getExistingAndNodes(
       PredicateDefinition existingPredicate) {
-    switch (existingPredicate.computePredicateFormat()) {
+    PredicateDefinition.PredicateFormat format = existingPredicate.computePredicateFormat();
+    switch (format) {
       case SINGLE_QUESTION:
         {
           return ImmutableList.of(
@@ -280,9 +299,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
 
       default:
         {
-          throw new RuntimeException(
-              String.format(
-                  "Unrecognized predicate format: %s", existingPredicate.computePredicateFormat()));
+          throw new IllegalArgumentException(
+              String.format("Unrecognized predicate format: %s", format));
         }
     }
   }
@@ -291,10 +309,11 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       ImmutableList<QuestionDefinition> questionDefinitions,
       Optional<PredicateDefinition> maybeExistingPredicate) {
     DivTag container = div().withClasses("flex", "py-4");
-    int columnNumber = 1;
 
     if (maybeExistingPredicate.isPresent()) {
-      ImmutableList<LeafOperationExpressionNode> leafNodes =
+      int columnNumber = 1;
+
+      ImmutableMap<Long, LeafOperationExpressionNode> questionIdLeafNodeMap =
           getExistingAndNodes(maybeExistingPredicate.get()).stream()
               .findFirst()
               .get()
@@ -302,18 +321,12 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
               .children()
               .stream()
               .map(PredicateExpressionNode::getLeafNode)
-              .sorted(
-                  (LeafOperationExpressionNode loenA, LeafOperationExpressionNode loenB) ->
-                      (int) (loenA.questionId() - loenB.questionId()))
-              .collect(ImmutableList.toImmutableList());
+              .collect(
+                  ImmutableMap.toImmutableMap(
+                      LeafOperationExpressionNode::questionId, Function.identity()));
 
-      for (LeafOperationExpressionNode leafNode : leafNodes) {
-        long questionId = leafNode.questionId();
-        QuestionDefinition qd =
-            questionDefinitions.stream()
-                .filter(questionDefinition -> questionDefinition.getId() == questionId)
-                .findFirst()
-                .get();
+      for (var qd : questionDefinitions) {
+        var leafNode = questionIdLeafNodeMap.get(qd.getId());
 
         container.with(
             div(
@@ -322,9 +335,11 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                     createScalarDropdown(qd, Optional.of(leafNode.scalar())),
                     createOperatorDropdown(
                         qd, Optional.of(leafNode.scalar()), Optional.of(leafNode.operator())))
-                .withClasses(COLUMN_WIDTH, columnNumber++ != 1 ? "ml-16" : null));
+                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
       }
     } else {
+      int columnNumber = 1;
+
       for (var qd : questionDefinitions) {
         container.with(
             div(
@@ -335,7 +350,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                         qd,
                         /* maybeSelectedScalar */ Optional.empty(),
                         /* maybeOperator */ Optional.empty()))
-                .withClasses(COLUMN_WIDTH, columnNumber++ != 1 ? "ml-16" : null));
+                .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
       }
     }
 
@@ -348,24 +363,19 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       Optional<AndNode> maybeAndNode) {
     DivTag row = div().withClasses("flex", "mb-6", "predicate-config-value-row");
     DivTag andText = div("and").withClasses("object-center", "w-16", "p-4", "leading-10");
-    int columnNumber = 1;
 
     if (maybeAndNode.isPresent()) {
-      ImmutableList<LeafOperationExpressionNode> leafNodes =
+      int columnNumber = 1;
+
+      ImmutableMap<Long, LeafOperationExpressionNode> questionIdLeafNodeMap =
           maybeAndNode.get().children().stream()
               .map(PredicateExpressionNode::getLeafNode)
-              .sorted(
-                  (LeafOperationExpressionNode loenA, LeafOperationExpressionNode loenB) ->
-                      (int) (loenA.questionId() - loenB.questionId()))
-              .collect(ImmutableList.toImmutableList());
+              .collect(
+                  ImmutableMap.toImmutableMap(
+                      LeafOperationExpressionNode::questionId, Function.identity()));
 
-      for (LeafOperationExpressionNode leafNode : leafNodes) {
-        long questionId = leafNode.questionId();
-        QuestionDefinition qd =
-            questionDefinitions.stream()
-                .filter(questionDefinition -> questionDefinition.getId() == questionId)
-                .findFirst()
-                .get();
+      for (var qd : questionDefinitions) {
+        var leafNode = questionIdLeafNodeMap.get(qd.getId());
 
         row.condWith(columnNumber++ != 1, andText)
             .with(
@@ -376,6 +386,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
                     Optional.of(leafNode.comparedValue())));
       }
     } else {
+      int columnNumber = 1;
+
       for (var questionDefinition : questionDefinitions) {
         row.condWith(columnNumber++ != 1, andText)
             .with(
@@ -388,7 +400,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
     }
 
     DivTag delete =
-        div(Icons.svg(Icons.DELETE).withClasses("w-8", groupId == 1 ? "hidden" : null))
+        div(Icons.svg(Icons.DELETE).withClasses("w-8", iff(groupId == 1, "hidden")))
             .attr("role", "button")
             .withClasses(
                 "predicate-config-delete-value-row", "mx-6", "w-12", "pt-2", "cursor-pointer");
@@ -560,30 +572,28 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
       }
 
       return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
-    } else {
-      return valueField
-          .withData("question-id", String.valueOf(questionDefinition.getId()))
-          .with(
-              FieldWithLabel.input()
-                  .setFieldName(
-                      String.format(
-                          "group-%d-question-%d-predicateValue",
-                          groupId, questionDefinition.getId()))
-                  .setValue(
-                      maybePredicateValue.map(
-                          predicateValue ->
-                              formatPredicateValue(maybeScalar.get(), predicateValue)))
-                  .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
-                  .getInputTag())
-          .with(
-              div()
-                  .withClasses(
-                      ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
-                      "hidden",
-                      "text-xs",
-                      BaseStyles.FORM_LABEL_TEXT_COLOR)
-                  .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
     }
+
+    return valueField
+        .withData("question-id", String.valueOf(questionDefinition.getId()))
+        .with(
+            FieldWithLabel.input()
+                .setFieldName(
+                    String.format(
+                        "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
+                .setValue(
+                    maybePredicateValue.map(
+                        predicateValue -> formatPredicateValue(maybeScalar.get(), predicateValue)))
+                .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
+                .getInputTag())
+        .with(
+            div()
+                .withClasses(
+                    ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
+                    "hidden",
+                    "text-xs",
+                    BaseStyles.FORM_LABEL_TEXT_COLOR)
+                .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
   }
 
   private static String formatPredicateValue(Scalar scalar, PredicateValue predicateValue) {
