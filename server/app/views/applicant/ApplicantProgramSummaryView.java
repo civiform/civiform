@@ -163,6 +163,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (data.isPreviousResponse()) {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
+      // TODO(#4003): Translate this text.
       DivTag timestampContent =
           div("Previously answered on " + date)
               .withClasses(ReferenceClasses.BT_DATE, "font-light", "text-xs", "flex-grow");
