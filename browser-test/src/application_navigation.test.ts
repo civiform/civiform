@@ -247,6 +247,9 @@ describe('Applicant navigation flow', () => {
     const fullProgramName = 'Test program for eligibility navigation flows'
     const overlappingOneQProgramName =
       'Test program with one overlapping question for eligibility navigation flows'
+    const eligibilityQuestionId = 'nav-predicate-number-q'
+    // Hard coded in the utility class.
+    const eligibilityQuestionName = 'number question text'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
@@ -254,7 +257,7 @@ describe('Applicant navigation flow', () => {
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
       await adminQuestions.addNumberQuestion({
-        questionName: 'nav-predicate-number-q',
+        questionName: eligibilityQuestionId,
       })
       await adminQuestions.addEmailQuestion({
         questionName: 'nav-predicate-email-q',
@@ -265,7 +268,7 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.editProgramBlock(
         overlappingOneQProgramName,
         'first description',
-        ['nav-predicate-number-q'],
+        [eligibilityQuestionId],
       )
 
       // Add the full program.
@@ -312,6 +315,9 @@ describe('Applicant navigation flow', () => {
 
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.expectQuestionIsNotEligible(
+        eligibilityQuestionName,
+      )
       await validateScreenshot(page, 'application-ineligible-same-application')
     })
 
@@ -329,6 +335,9 @@ describe('Applicant navigation flow', () => {
 
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.expectQuestionIsNotEligible(
+        eligibilityQuestionName,
+      )
       await validateScreenshot(page, 'application-ineligible-preexisting-data')
     })
   })

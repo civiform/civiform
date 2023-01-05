@@ -194,7 +194,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (!data.isEligible() && data.isAnswered()) {
       actionAndTimestampDiv.with(
           div(messages.at(MessageKey.CONTENT_NOT_ELIGIBLE.getKeyName()))
-              .withClasses("text-m font-medium flex-grow"));
+              .withClasses(
+                  "text-m",
+                  "font-medium",
+                  "flex-grow",
+                  ReferenceClasses.APPLICANT_NOT_ELIGIBLE_TEXT));
     }
 
     // Render an "edit" button if the question is answered or instructed to.
