@@ -1,4 +1,5 @@
 import {
+  AdminQuestions,
   createTestContext,
   enableFeatureFlag,
   loginAsAdmin,
@@ -270,13 +271,9 @@ describe('Applicant navigation flow', () => {
   })
 
   describe('navigation with eligibility conditions', () => {
-    // Create two programs, one with 2 questions and an eligibility condition, and one with the eligibility question to evaluate interactions between saved data.
+    // Create a program with 2 questions and an eligibility condition.
     const fullProgramName = 'Test program for eligibility navigation flows'
-    const overlappingOneQProgramName =
-      'Test program with one overlapping question for eligibility navigation flows'
     const eligibilityQuestionId = 'nav-predicate-number-q'
-    // Hard coded in the utility class.
-    const eligibilityQuestionName = 'number question text'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
@@ -290,16 +287,7 @@ describe('Applicant navigation flow', () => {
         questionName: 'nav-predicate-email-q',
       })
 
-      // Add the partial program.
-      await adminPrograms.addProgram(overlappingOneQProgramName)
-      await adminPrograms.editProgramBlock(
-        overlappingOneQProgramName,
-        'first description',
-        [eligibilityQuestionId],
-      )
-
       // Add the full program.
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.addProgram(fullProgramName)
       await adminPrograms.editProgramBlock(
         fullProgramName,
@@ -344,14 +332,30 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
       await applicantQuestions.expectQuestionIsNotEligible(
-        eligibilityQuestionName,
+        AdminQuestions.NUMBER_QUESTION_TEXT,
       )
       await validateScreenshot(page, 'application-ineligible-same-application')
       await validateAccessibility(page)
     })
 
     it('shows not eligible with ineligible answer from another application', async () => {
-      const {page, applicantQuestions} = ctx
+      const {page, adminPrograms, applicantQuestions} = ctx
+      const overlappingOneQProgramName =
+        'Test program with one overlapping question for eligibility navigation flows'
+
+      // Add the partial program.
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await adminPrograms.addProgram(overlappingOneQProgramName)
+      await adminPrograms.editProgramBlock(
+        overlappingOneQProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(overlappingOneQProgramName)
+      await logout(page)
+
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
@@ -366,7 +370,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
       await applicantQuestions.expectQuestionIsNotEligible(
-        eligibilityQuestionName,
+        AdminQuestions.NUMBER_QUESTION_TEXT,
       )
       await validateScreenshot(page, 'application-ineligible-preexisting-data')
       await validateAccessibility(page)
