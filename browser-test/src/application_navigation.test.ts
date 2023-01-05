@@ -347,6 +347,7 @@ describe('Applicant navigation flow', () => {
         eligibilityQuestionName,
       )
       await validateScreenshot(page, 'application-ineligible-same-application')
+      await validateAccessibility(page)
     })
 
     it('shows not eligible with ineligible answer from another application', async () => {
@@ -368,6 +369,7 @@ describe('Applicant navigation flow', () => {
         eligibilityQuestionName,
       )
       await validateScreenshot(page, 'application-ineligible-preexisting-data')
+      await validateAccessibility(page)
     })
   })
   // TODO: Add tests for "next" navigation
