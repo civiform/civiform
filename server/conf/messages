@@ -185,6 +185,9 @@ button.submit=Submit
 # Continue application button
 button.continue=Continue
 
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=Not Eligible
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Edit
 link.answer=Answer

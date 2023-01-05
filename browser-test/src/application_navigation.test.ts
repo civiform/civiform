@@ -1,5 +1,7 @@
 import {
+  AdminQuestions,
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
   logout,
@@ -268,5 +270,111 @@ describe('Applicant navigation flow', () => {
     })
   })
 
+  describe('navigation with eligibility conditions', () => {
+    // Create a program with 2 questions and an eligibility condition.
+    const fullProgramName = 'Test program for eligibility navigation flows'
+    const eligibilityQuestionId = 'nav-predicate-number-q'
+
+    beforeAll(async () => {
+      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+      await adminQuestions.addNumberQuestion({
+        questionName: eligibilityQuestionId,
+      })
+      await adminQuestions.addEmailQuestion({
+        questionName: 'nav-predicate-email-q',
+      })
+
+      // Add the full program.
+      await adminPrograms.addProgram(fullProgramName)
+      await adminPrograms.editProgramBlock(
+        fullProgramName,
+        'first description',
+        ['nav-predicate-number-q'],
+      )
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        fullProgramName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        'nav-predicate-number-q',
+        /* action= */ null,
+        'number',
+        'is equal to',
+        '5',
+      )
+
+      await adminPrograms.addProgramBlock(
+        fullProgramName,
+        'second description',
+        ['nav-predicate-email-q'],
+      )
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(fullProgramName)
+    })
+
+    it('shows not eligible with ineligible answer', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+
+      // Verify the question is marked ineligible.
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.expectQuestionIsNotEligible(
+        AdminQuestions.NUMBER_QUESTION_TEXT,
+      )
+      await validateScreenshot(page, 'application-ineligible-same-application')
+      await validateAccessibility(page)
+    })
+
+    it('shows not eligible with ineligible answer from another application', async () => {
+      const {page, adminPrograms, applicantQuestions} = ctx
+      const overlappingOneQProgramName =
+        'Test program with one overlapping question for eligibility navigation flows'
+
+      // Add the partial program.
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await adminPrograms.addProgram(overlappingOneQProgramName)
+      await adminPrograms.editProgramBlock(
+        overlappingOneQProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(overlappingOneQProgramName)
+      await logout(page)
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+      await applicantQuestions.applyProgram(overlappingOneQProgramName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+
+      // Verify the question is marked ineligible.
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.expectQuestionIsNotEligible(
+        AdminQuestions.NUMBER_QUESTION_TEXT,
+      )
+      await validateScreenshot(page, 'application-ineligible-preexisting-data')
+      await validateAccessibility(page)
+    })
+  })
   // TODO: Add tests for "next" navigation
 })
