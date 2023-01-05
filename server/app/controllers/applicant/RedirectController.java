@@ -101,7 +101,7 @@ public final class RedirectController extends CiviFormController {
                           return CompletableFuture.completedFuture(
                               redirect(
                                   controllers.applicant.routes.ApplicantProgramReviewController
-                                      .preview(
+                                      .review(
                                           applicantId, programForExistingApplication.get().id())));
                         }
 
@@ -118,7 +118,7 @@ public final class RedirectController extends CiviFormController {
         .thenApplyAsync(
             (activeProgramDefinition) ->
                 redirect(
-                    controllers.applicant.routes.ApplicantProgramReviewController.preview(
+                    controllers.applicant.routes.ApplicantProgramReviewController.review(
                         applicantId, activeProgramDefinition.id())),
             httpContext.current());
   }

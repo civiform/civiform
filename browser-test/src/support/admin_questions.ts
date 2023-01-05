@@ -39,6 +39,7 @@ export class AdminQuestions {
   public static readonly NO_EXPORT_OPTION = "Don't allow answers to be exported"
   public static readonly EXPORT_VALUE_OPTION = 'Export exact answers'
   public static readonly EXPORT_OBFUSCATED_OPTION = 'Export obfuscated answers'
+  public static readonly NUMBER_QUESTION_TEXT = 'number question text'
 
   constructor(page: Page) {
     this.page = page
@@ -847,7 +848,7 @@ export class AdminQuestions {
   async addNumberQuestion({
     questionName,
     description = 'number description',
-    questionText = 'number question text',
+    questionText = AdminQuestions.NUMBER_QUESTION_TEXT,
     helpText = 'number question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,

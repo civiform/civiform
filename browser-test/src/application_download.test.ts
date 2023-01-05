@@ -104,7 +104,7 @@ describe('normal application flow', () => {
 
     // Apply to the program again as the same user
     await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantQuestions.submitFromPreviewPage()
+    await applicantQuestions.submitFromReviewPage()
     await logout(page)
 
     // #######################################

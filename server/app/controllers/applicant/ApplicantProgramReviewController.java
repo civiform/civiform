@@ -57,18 +57,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.profileUtils = checkNotNull(profileUtils);
   }
 
-  @Secure
-  public CompletionStage<Result> preview(Request request, long applicantId, long programId) {
-    return view(request, applicantId, programId, false);
-  }
-
-  @Secure
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
-    return view(request, applicantId, programId, true);
-  }
-
-  private CompletionStage<Result> view(
-      Request request, long applicantId, long programId, boolean inReview) {
     Optional<ToastMessage> banner =
         request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
     CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
@@ -85,7 +74,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       .setApplicantId(applicantId)
                       .setApplicantName(applicantStage.toCompletableFuture().join())
                       .setBannerMessage(banner)
-                      .setInReview(inReview)
                       .setMessages(messagesApi.preferred(request))
                       .setProgramId(programId)
                       .setRequest(request)

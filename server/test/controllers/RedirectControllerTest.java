@@ -84,7 +84,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
 
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.preview(
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
                     applicant.id, programDefinition.id())
                 .url());
   }
@@ -127,7 +127,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             .join();
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.preview(
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
                     applicant.id, programDefinition.id())
                 .url());
   }
@@ -155,7 +155,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             .join();
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.preview(
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
                     applicant.id, programDefinition.id())
                 .url());
   }
