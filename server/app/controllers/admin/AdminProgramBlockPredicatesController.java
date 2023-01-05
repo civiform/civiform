@@ -187,8 +187,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       }
 
       return redirect(
-          routes.AdminProgramBlockPredicatesController.editVisibility(
-              programId, blockDefinitionId));
+              routes.AdminProgramBlockPredicatesController.editVisibility(
+                  programId, blockDefinitionId))
+          .flashing("success", "Saved visibility condition");
     }
 
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
@@ -420,8 +421,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       }
 
       return redirect(
-          routes.AdminProgramBlockPredicatesController.editEligibility(
-              programId, blockDefinitionId));
+              routes.AdminProgramBlockPredicatesController.editEligibility(
+                  programId, blockDefinitionId))
+          .flashing("success", "Saved eligibility condition");
     }
 
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
