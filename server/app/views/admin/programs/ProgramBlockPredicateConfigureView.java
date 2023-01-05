@@ -61,12 +61,12 @@ import views.style.ReferenceClasses;
  * Admin UI for specifying scalars, operators, and values for {@link PredicateDefinition}s for both
  * eligibility and visibility predicates.
  *
- * <p>Scalars and operators are specified one per question.
+ * <p>Scalars and operators are specified one per question with one or many values, all in a column.
  *
  * <p>If only one value is specified by the admin, a SINGLE_QUESTION (single leaf node) {@link
  * PredicateDefinition.PredicateFormat} will result.
  *
- * <p>Multiple values per question can be specified, grouped together to form an AND clause. Each
+ * <p>Multiple values per question can be specified in equal number across all questions. Each set of question values are grouped together to form an AND clause. Each
  * group corresponds to an AND node, with one leaf node per question. If multiple groups or
  * questions are specified an OR_OF_SINGLE_LAYER_ANDS {@link PredicateDefinition.PredicateFormat}
  * will result.
