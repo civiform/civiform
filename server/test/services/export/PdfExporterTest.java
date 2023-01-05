@@ -227,7 +227,7 @@ public class PdfExporterTest extends AbstractExporterTest {
           + "-- my-file-key UPLOADED (click to download) --\n"
           + "Answered on : 1969-12-31\n"
           + "applicant household members\n"
-          + "item1\n"
+          + "item1;\n"
           + "item2\n"
           + "Answered on : 1969-12-31\n"
           + "applicant ice cream\n"
