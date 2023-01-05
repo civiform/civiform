@@ -127,9 +127,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
-  /**
-   * Renders {@code data} including the question and any existing answer to it.
-   */
+  /** Renders {@code data} including the question and any existing answer to it. */
   private DivTag renderQuestionSummary(AnswerData data, Messages messages, long applicantId) {
     DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
     if (!data.applicantQuestion().isOptional()) {

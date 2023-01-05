@@ -191,6 +191,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           continue;
         }
         boolean isAnswered = question.isAnswered();
+        // A block's eligibility can only be on questions in the block, so if the block is
+        // ineligible see if this question is part of that eligibility condition.
         boolean isEligible =
             isBlockEligible(block.getId())
                 || !block
