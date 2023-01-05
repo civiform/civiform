@@ -27,6 +27,9 @@ public final class AddressQuestion extends Question {
   private Optional<String> cityValue;
   private Optional<String> stateValue;
   private Optional<String> zipValue;
+  private Optional<String> longValue;
+  private Optional<String> latValue;
+  private Optional<String> refValue;
 
   AddressQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -46,6 +49,9 @@ public final class AddressQuestion extends Question {
         .put(getCityPath(), validateCity())
         .put(getStatePath(), validateState())
         .put(getZipPath(), validateZipCode())
+        .put(getLongPath(), validateLocation())
+        .put(getLatPath(), validateLocation())
+        .put(getRefPath(), validateLocation())
         .build();
   }
 
@@ -119,6 +125,10 @@ public final class AddressQuestion extends Question {
     return ImmutableSet.of();
   }
 
+  private ImmutableSet<ValidationErrorMessage> validateLocation() {
+    return ImmutableSet.of();
+  }
+
   public Optional<String> getStreetValue() {
     if (streetValue != null) {
       return streetValue;
@@ -164,6 +174,33 @@ public final class AddressQuestion extends Question {
     return zipValue;
   }
 
+  public Optional<String> getLongValue() {
+    if (longValue != null) {
+      return longValue;
+    }
+
+    longValue = applicantQuestion.getApplicantData().readString(getLongPath());
+    return longValue;
+  }
+
+  public Optional<String> getLatValue() {
+    if (latValue != null) {
+      return latValue;
+    }
+
+    latValue = applicantQuestion.getApplicantData().readString(getLatPath());
+    return latValue;
+  }
+
+  public Optional<String> getRefValue() {
+    if (refValue != null) {
+      return refValue;
+    }
+
+    refValue = applicantQuestion.getApplicantData().readString(getRefPath());
+    return refValue;
+  }
+
   public AddressQuestionDefinition getQuestionDefinition() {
     return (AddressQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -188,6 +225,18 @@ public final class AddressQuestion extends Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.ZIP);
   }
 
+  public Path  getLongPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.LONG);
+  }
+
+  public Path  getLatPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.LAT);
+  }
+
+  public Path  getRefPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.REF);
+  }
+
   @Override
   public String getAnswerString() {
     String displayLine1 = getStreetValue().orElse("");
@@ -210,6 +259,6 @@ public final class AddressQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(
-        getStreetPath(), getLine2Path(), getCityPath(), getStatePath(), getZipPath());
+        getStreetPath(), getLine2Path(), getCityPath(), getStatePath(), getZipPath(), getLongPath(), getLatPath(), getRefPath());
   }
 }

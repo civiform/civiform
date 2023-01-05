@@ -25,6 +25,8 @@ public final class FeatureFlags {
       "allow_civiform_admin_access_programs";
   private static final String USE_JS_BUNDLES = "use_js_bundles";
   private final Config config;
+  private static final String ESRI_ADDRESS_CORRECTION_ENABLED = "esri_address_correction_enabled";
+  private static final String ESRI_ADDRESS_VERIFICATION_ENABLED = "esri_address_verification_enabled";
 
   @Inject
   FeatureFlags(Config config) {
@@ -56,6 +58,14 @@ public final class FeatureFlags {
 
   public boolean isJsBundlingEnabled() {
     return config.getBoolean(USE_JS_BUNDLES);
+  }
+
+  public boolean isEsriAddressCorrectionEnabled() {
+    return config.getBoolean(ESRI_ADDRESS_CORRECTION_ENABLED);
+  }
+
+  public boolean isEsriAddressVerificationEnabled() {
+    return config.getBoolean(ESRI_ADDRESS_VERIFICATION_ENABLED);
   }
 
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {

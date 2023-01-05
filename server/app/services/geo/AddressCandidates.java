@@ -10,9 +10,17 @@ public abstract class AddressCandidates {
     return new AutoValue_AddressCandidates.Builder();
   }
 
-  public abstract int wkid();
+  /**
+   * this method returns a well-known ID for ArcGIS coordinate systems, used for spatial reference
+   * @return int
+   */
+  public abstract int getWkid();
 
-  public abstract ImmutableList<AddressCandidate> candidates();
+  /**
+   * this method returns a list of address candidates sorted by their score (best match)
+   * @return a list of address cnadidates
+   */
+  public abstract ImmutableList<AddressCandidate> getCandidates();
 
   @AutoValue.Builder
   public abstract static class Builder {

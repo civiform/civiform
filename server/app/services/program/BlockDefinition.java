@@ -115,6 +115,15 @@ public abstract class BlockDefinition {
         .anyMatch(questionType -> questionType.equals(QuestionType.FILEUPLOAD));
   }
 
+  @JsonIgnore
+  @Memoized
+  public boolean isAddress() {
+    return programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .map(QuestionDefinition::getQuestionType)
+        .anyMatch(questionType -> questionType.equals(QuestionType.ADDRESS)); 
+  }
+
   /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
   @JsonProperty("hidePredicate")
   public abstract Optional<PredicateDefinition> visibilityPredicate();

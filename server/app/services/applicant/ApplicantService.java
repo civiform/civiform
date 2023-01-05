@@ -3,6 +3,7 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -10,12 +11,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.jayway.jsonpath.*;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -35,6 +39,7 @@ import models.StoredFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
+import play.libs.ws.*;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
@@ -48,6 +53,8 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.cloud.aws.SimpleEmail;
+import services.geo.AddressAttributes;
+import services.geo.AddressLocation;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -55,6 +62,7 @@ import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
+import services.geo.esri.EsriClient;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program
@@ -75,10 +83,12 @@ public final class ApplicantService {
   private final Clock clock;
   private final String baseUrl;
   private final boolean isStaging;
+  private final Config configuration;
   private final HttpExecutionContext httpExecutionContext;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ApplicantService(
@@ -90,7 +100,8 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext httpExecutionContext,
+      FeatureFlags featureFlags) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
@@ -98,7 +109,9 @@ public final class ApplicantService {
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
+    this.configuration = checkNotNull(configuration);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.featureFlags = checkNotNull(featureFlags);
 
     String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.baseUrl = checkNotNull(configuration).getString("base_url");
@@ -191,7 +204,7 @@ public final class ApplicantService {
    *     </ul>
    */
   public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap) {
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap, WSClient ws) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -208,11 +221,11 @@ public final class ApplicantService {
           new IllegalArgumentException("Path contained reserved scalar key"));
     }
 
-    return stageAndUpdateIfValid(applicantId, programId, blockId, updates);
+    return stageAndUpdateIfValid(applicantId, programId, blockId, updates, ws);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
-      long applicantId, long programId, String blockId, ImmutableSet<Update> updates) {
+      long applicantId, long programId, String blockId, ImmutableSet<Update> updates, WSClient ws) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         userRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -240,6 +253,51 @@ public final class ApplicantService {
                     new ProgramBlockNotFoundException(programId, blockId));
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
+
+              if (blockBeforeUpdate.isAddress()) {
+                // TODO move this out into separate function(s)
+                if (featureFlags.isEsriAddressCorrectionEnabled()) {
+                  EsriClient client = new EsriClient(this.configuration, ws);
+                  // if updates does not contain x, y coordinates then it needs to be corrected
+                  Optional<Update> mayHaveCorrection = updates.stream().filter(update -> "long".equals(update.path().keyName()) && !update.value().isEmpty()).findFirst();
+
+                  // location builder for verification
+                  // AddressLocation.Builder addressLocation = AddressLocation.builder();
+
+                  if (!mayHaveCorrection.isPresent()) {
+                    AddressAttributes.Builder addressAttributes = AddressAttributes.builder();
+
+                    for (Update update : updates) {
+                      Path currentPath = update.path();
+                      if ("street".equals(currentPath.keyName())) {
+                        addressAttributes.setStreetValue(update.value());
+                      } else if ("line2".equals(currentPath.keyName())) {
+                        addressAttributes.setLine2Value(update.value());
+                      } else if ("city".equals(currentPath.keyName())) {
+                        addressAttributes.setCityValue(update.value());
+                      } else if ("state".equals(currentPath.keyName())) {
+                        addressAttributes.setStateValue(update.value());
+                      } else if ("zip".equals(currentPath.keyName())) {
+                        addressAttributes.setZipValue(update.value());
+                      }
+                    }
+
+                    CompletionStage<JsonNode> addressCandidatesJsonFuture = client.getAddressCandidates(addressAttributes.build());
+                    // TODO return here with thenApplyAsync with candidates for modal
+                    JsonNode addressCandidates = addressCandidatesJsonFuture.toCompletableFuture().join();
+                    System.out.println(addressCandidates);
+                  }
+                  /**
+                   * TODO once the address form is submitted after correction, 
+                   * take the x,y and wkid from updates and call verifyAddressCoordinates.
+                   * The response can then be parsed using the JsonPath library and validated against the verifaction path
+                   */
+                  /* if (featureFlags.isEsriAddressVerificationEnabled() && mayHaveCorrection.isPresent()) {
+                    CompletionStage<JsonNode> isValidFuture = client.verifyAddressCoordinates("get verificatoin value from question", addressLocation.build());
+                    System.out.println(isValid);
+                  } */
+                }
+              }
 
               UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
               ImmutableMap<Path, String> failedUpdates;

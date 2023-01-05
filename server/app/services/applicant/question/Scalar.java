@@ -35,6 +35,9 @@ public enum Scalar {
   STREET("street", ScalarType.STRING),
   TEXT("text", ScalarType.STRING),
   ZIP("ZIP code", ScalarType.STRING),
+  LONG("longitude", ScalarType.FLOAT),
+  LAT("latitude", ScalarType.FLOAT),
+  REF("spacial reference", ScalarType.LONG),
 
   // Special scalars for Enumerator updates
   DELETE_ENTITY("delete entity", ScalarType.STRING), // This is used for deleting enumerator entries
@@ -63,7 +66,7 @@ public enum Scalar {
   }
 
   private static final ImmutableSet<Scalar> ADDRESS_SCALARS =
-      ImmutableSet.of(STREET, LINE2, CITY, STATE, ZIP);
+      ImmutableSet.of(STREET, LINE2, CITY, STATE, ZIP, LONG, LAT, REF);
 
   private static final ImmutableSet<Scalar> CURRENCY_SCALARS = ImmutableSet.of(CURRENCY_CENTS);
 

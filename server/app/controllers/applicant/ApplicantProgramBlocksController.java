@@ -27,6 +27,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.libs.ws.*;
 import repository.StoredFileRepository;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -51,6 +52,7 @@ import views.questiontypes.ApplicantQuestionRendererParams;
  * check the current profile so that an unauthorized user cannot access another applicant's data!
  */
 public final class ApplicantProgramBlocksController extends CiviFormController {
+  @Inject WSClient ws;
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
 
   private final ApplicantService applicantService;
@@ -298,7 +300,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   .thenComposeAsync(
                       (StoredFile unused) ->
                           applicantService.stageAndUpdateIfValid(
-                              applicantId, programId, blockId, fileUploadQuestionFormData.build()));
+                              applicantId, programId, blockId, fileUploadQuestionFormData.build(), this.ws));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
@@ -342,7 +344,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData = cleanForm(form.rawData());
 
               return applicantService.stageAndUpdateIfValid(
-                  applicantId, programId, blockId, formData);
+                  applicantId, programId, blockId, formData, this.ws);
             },
             httpExecutionContext.current())
         .thenComposeAsync(

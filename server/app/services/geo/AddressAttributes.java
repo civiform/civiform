@@ -8,27 +8,27 @@ public abstract class AddressAttributes {
     return new AutoValue_AddressAttributes.Builder();
   }
 
-  public abstract String address();
+  public abstract String getStreetValue();
 
-  public abstract String subAddress();
+  public abstract String getLine2Value();
 
-  public abstract String city();
+  public abstract String getCityValue();
 
-  public abstract String region();
+  public abstract String getStateValue();
 
-  public abstract String postal();
+  public abstract String getZipValue();
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setAddress(String address);
+    public abstract Builder setStreetValue(String address);
 
-    public abstract Builder setSubAddress(String subAddress);
+    public abstract Builder setLine2Value(String subAddress);
 
-    public abstract Builder setCity(String city);
+    public abstract Builder setCityValue(String city);
 
-    public abstract Builder setRegion(String region);
+    public abstract Builder setStateValue(String region);
 
-    public abstract Builder setPostal(String postal);
+    public abstract Builder setZipValue(String postal);
 
     public abstract AddressAttributes build();
   }
