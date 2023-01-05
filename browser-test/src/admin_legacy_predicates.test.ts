@@ -56,7 +56,7 @@ describe('create and edit predicates', () => {
       'hide me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is hidden if question with an admin ID of "hide-predicate-q"\'s text is equal to "hide me"',
+      'Screen 2 is hidden if "hide-predicate-q" text is equal to "hide me"',
     )
     await validateScreenshot(page, 'hide-predicate')
 
@@ -149,7 +149,7 @@ describe('create and edit predicates', () => {
       'show me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is shown if question with an admin ID of "show-predicate-q"\'s text is equal to "show me"',
+      'Screen 2 is shown if "show-predicate-q" text is equal to "show me"',
     )
     await validateScreenshot(page, 'show-predicate')
 
@@ -246,7 +246,7 @@ describe('create and edit predicates', () => {
     )
 
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 1 is eligible if question with an admin ID of "eligibility-predicate-q"\'s text is equal to "eligible"',
+      'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
     )
     await validateScreenshot(page, 'eligibility-predicate')
 

@@ -8,9 +8,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.li;
 import static j2html.TagCreator.text;
-import static j2html.TagCreator.ul;
 import static play.mvc.Http.HttpVerbs.POST;
 
 import com.google.common.collect.ImmutableList;
@@ -19,7 +17,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
-import j2html.tags.specialized.UlTag;
 import java.util.UUID;
 import javax.inject.Inject;
 import play.mvc.Http;
@@ -27,8 +24,6 @@ import play.twirl.api.Content;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
-import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -108,7 +103,9 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
             blockDefinition
                 .eligibilityDefinition()
                 .map(EligibilityDefinition::predicate)
-                .map(pred -> renderExistingPredicate(blockDefinition, pred, predicateQuestions))
+                .map(
+                    pred ->
+                        renderExistingPredicate(blockDefinition.name(), pred, predicateQuestions))
                 .orElse(div("This screen is always eligible."));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyEligibility(
@@ -137,7 +134,9 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
         existingPredicateDisplay =
             blockDefinition
                 .visibilityPredicate()
-                .map(pred -> renderExistingPredicate(blockDefinition, pred, predicateQuestions))
+                .map(
+                    pred ->
+                        renderExistingPredicate(blockDefinition.name(), pred, predicateQuestions))
                 .orElse(div("This screen is always shown."));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyVisibility(
@@ -242,40 +241,6 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
     }
 
     return layout.renderCentered(htmlBundle);
-  }
-
-  private static DivTag renderExistingPredicate(
-      BlockDefinition blockDefinition,
-      PredicateDefinition predicateDefinition,
-      ImmutableList<QuestionDefinition> questionDefinitions) {
-    DivTag container = div();
-
-    if (predicateDefinition
-        .computePredicateFormat()
-        .equals(PredicateDefinition.PredicateFormat.SINGLE_QUESTION)) {
-      return container.with(
-          text(predicateDefinition.toDisplayString(blockDefinition.name(), questionDefinitions)));
-    } else if (!predicateDefinition
-        .computePredicateFormat()
-        .equals(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS)) {
-      throw new IllegalArgumentException(
-          String.format(
-              "Predicate type %s is unsupported.", predicateDefinition.computePredicateFormat()));
-    }
-
-    container.with(
-        text(
-            blockDefinition.name()
-                + " is "
-                + predicateDefinition.action().toDisplayString()
-                + " any of:"));
-    UlTag conditionList = ul().withClasses("list-disc", "m-4");
-
-    predicateDefinition.rootNode().getOrNode().children().stream()
-        .map(PredicateExpressionNode::getAndNode)
-        .forEach(andNode -> conditionList.with(li(andNode.toDisplayString(questionDefinitions))));
-
-    return container.with(conditionList);
   }
 
   private static LabelTag renderPredicateQuestionCheckBoxRow(
