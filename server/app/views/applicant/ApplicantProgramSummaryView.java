@@ -177,6 +177,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                   "text-m",
                   "font-medium",
                   "flex-grow",
+                  "py-1",
                   ReferenceClasses.APPLICANT_NOT_ELIGIBLE_TEXT));
     }
 
