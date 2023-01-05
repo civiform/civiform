@@ -340,6 +340,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
 
+      // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
       await applicantQuestions.expectQuestionIsNotEligible(
@@ -360,6 +361,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickNext()
 
+      // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
       await applicantQuestions.expectQuestionIsNotEligible(
