@@ -24,8 +24,7 @@ public abstract class PredicateDefinition {
   public enum PredicateFormat {
     // A single leaf node.
     SINGLE_QUESTION,
-    // A top level OR with only AND child nodes,
-    // each AND node's children are all leaf nodes.
+    // A top level OR with only AND child nodes, each AND node's children are all leaf nodes.
     OR_OF_SINGLE_LAYER_ANDS;
   }
 

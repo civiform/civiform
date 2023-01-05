@@ -17,12 +17,18 @@ import services.question.types.QuestionDefinition;
 @AutoValue
 public abstract class OrNode implements ConcretePredicateExpressionNode {
 
+  /**
+   * Create a new OR node.
+   *
+   * @param children the child nodes of this OR node. Ordering is preserved.
+   */
   @JsonCreator
   public static OrNode create(
       @JsonProperty("children") ImmutableList<PredicateExpressionNode> children) {
     return new AutoValue_OrNode(children);
   }
 
+  /** The child nodes of this OR node. Ordering is stable. */
   @JsonProperty("children")
   public abstract ImmutableList<PredicateExpressionNode> children();
 

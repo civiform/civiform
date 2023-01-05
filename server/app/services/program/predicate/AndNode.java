@@ -17,12 +17,18 @@ import services.question.types.QuestionDefinition;
 @AutoValue
 public abstract class AndNode implements ConcretePredicateExpressionNode {
 
+  /**
+   * Create a new AND node.
+   *
+   * @param children the child nodes of this AND node. Ordering is preserved.
+   */
   @JsonCreator
   public static AndNode create(
       @JsonProperty("children") ImmutableList<PredicateExpressionNode> children) {
     return new AutoValue_AndNode(children);
   }
 
+  /** The child nodes of this AND node. Ordering is stable. */
   @JsonProperty("children")
   public abstract ImmutableList<PredicateExpressionNode> children();
 

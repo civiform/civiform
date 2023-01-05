@@ -24,7 +24,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
 
   private FormFactory formFactory;
   private PredicateGenerator predicateGenerator;
-  private TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+  private TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */ false);
 
   private ReadOnlyQuestionService readOnlyQuestionService =
       new FakeReadOnlyQuestionService(
@@ -113,7 +113,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
 
     assertThat(predicateDefinition.rootNode().getType()).isEqualTo(PredicateExpressionNodeType.OR);
     assertThat(predicateDefinition.rootNode().getOrNode().children())
-        .containsExactlyInAnyOrder(
+        .containsExactly(
             PredicateExpressionNode.create(
                 AndNode.create(
                     ImmutableList.of(
