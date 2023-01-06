@@ -182,6 +182,9 @@ button.submit=Submit
 # Continue application button
 button.continue=Continue
 
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=There's been an update to the application, please review and answer questions to proceed
+
 # Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
 content.notEligible=Not Eligible
 

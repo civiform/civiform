@@ -14,11 +14,13 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
+import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -104,7 +106,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
         .thenComposeAsync(
-            readOnlyApplicantProgramService -> validateApplication(readOnlyApplicantProgramService))
+            readOnlyApplicantProgramService ->
+                validateApplication(
+                    readOnlyApplicantProgramService, messagesApi.preferred(request)))
         .thenComposeAsync(
             v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
         .exceptionally(
@@ -116,13 +120,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
                   Optional<String> referer = request.getHeaders().get("Referer");
-                  if (referer.isPresent()) {
-                    return redirect(referer.get()).flashing("error", cause.getMessage());
-                  } else {
-                    Call viewPage =
-                        routes.ApplicantProgramReviewController.preview(applicantId, programId);
-                    return redirect(viewPage).flashing("error", cause.getMessage());
-                  }
+                  Call viewPage =
+                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                  return redirect(viewPage).flashing("error", cause.getMessage());
                 }
                 throw new RuntimeException(cause);
               }
@@ -130,19 +130,26 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  /**
+   * Validates that the application is complete and correct to submit.
+   *
+   * <p>An application may be submitted but incomplete for a variety of reason:
+   *
+   * <ul>
+   *   <li>The application view with submit button contains stale data that has changed visibility
+   *       or eligibility conditions that result in the application being incomplete or ineligible.
+   * </ul>
+   *
+   * @return a {@link ApplicationOutOfDateException} wrapped in a failed future with a user visible
+   *     message for the issue.
+   */
   private CompletableFuture<Void> validateApplication(
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
+      ReadOnlyApplicantProgramService roApplicantProgramService, Messages messages) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlock().isEmpty()) {
       return CompletableFuture.failedFuture(
-          new ApplicationOutOfDateException("Your application is out of date."));
-    }
-    // Check that all eligibility conditions are met.
-    if (!roApplicantProgramService.getAllActiveBlocks().stream()
-        .map(Block::getId)
-        .allMatch(roApplicantProgramService::isBlockEligible)) {
-      return CompletableFuture.failedFuture(
-          new ApplicationOutOfDateException("Your application is out of date."));
+          new ApplicationOutOfDateException(
+              messages.at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName())));
     }
     return CompletableFuture.completedFuture(null);
   }

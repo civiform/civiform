@@ -107,6 +107,7 @@ public enum MessageKey {
   TITLE_PROGRAM_SUMMARY("title.programSummary"),
   TITLE_PROGRAMS_SUBMITTED("title.submittedPrograms"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
+  TOAST_APPLICATION_OUT_OF_DATE("toast.applicationOutOfDate"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
   USER_NAME("header.userName"),
