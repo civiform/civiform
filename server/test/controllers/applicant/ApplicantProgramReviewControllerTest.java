@@ -88,7 +88,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Result result = this.submit(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().get("error")).isPresent();
-    assertThat(result.flash().get("error").get()).contains("There's been an update to the application");
+    assertThat(result.flash().get("error").get())
+        .contains("There's been an update to the application");
   }
 
   public Result review(long applicantId, long programId) {
