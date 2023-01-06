@@ -95,7 +95,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
     this.programDisplayType = programViewType;
 
-    if (!(programDisplayType.equals(DRAFT))) {
+    if (!programDisplayType.equals(DRAFT)) {
       throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
     }
   }
