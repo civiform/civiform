@@ -53,8 +53,8 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 /**
- * Renders a page for an admin to view or edit the configuration for a single
- * block of an active or draft program.
+ * Renders a page for an admin to view or edit the configuration for a single block of an active or
+ * draft program.
  *
  * <p>For drafts editing this contains elements to:
  *
@@ -65,8 +65,8 @@ import views.style.StyleUtils;
  *   <li>View and navigate to the visibility criteria
  * </ul>
  *
- * For Active program viewing it contains the same elements, but UI elements
- * that can be used for editing.
+ * For Active program viewing it contains the same elements, but UI elements that can be used for
+ * editing.
  */
 public final class ProgramBlockAllAspectsView extends ProgramBlockView {
 
@@ -81,33 +81,33 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final String NOT_YET_IMPLEMENTED_ERROR =
-    " The read only version of ProgramBlockView is not fully implemented. It should only be "
-      + "used once issue #3162 is closed.";
+      " The read only version of ProgramBlockView is not fully implemented. It should only be "
+          + "used once issue #3162 is closed.";
 
   @Inject
   public ProgramBlockAllAspectsView(
-    @Assisted ProgramDisplayType programViewType,
-    AdminLayoutFactory layoutFactory,
-    Config config,
-    FeatureFlags featureFlags) {
+      @Assisted ProgramDisplayType programViewType,
+      AdminLayoutFactory layoutFactory,
+      Config config,
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.featureFlags = checkNotNull(featureFlags);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
     this.programDisplayType = programViewType;
 
     if (!(programDisplayType == DRAFT)) {
-       throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
+      throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
     }
   }
 
   public Content render(
-    Request request,
+      Request request,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
     return render(
-      request,
+        request,
         program,
         blockDefinition.id(),
         new BlockForm(blockDefinition.name(), blockDefinition.description()),
@@ -118,7 +118,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   }
 
   public Content render(
-    Request request,
+      Request request,
       ProgramDefinition programDefinition,
       long blockId,
       BlockForm blockForm,
@@ -153,7 +153,8 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
                             .withClasses("flex", "flex-grow", "-mx-2")
                             .with(blockOrderPanel(request, programDefinition, blockId))
                             .with(
-                                blockPanel(programDefinition,
+                                blockPanel(
+                                    programDefinition,
                                     blockDefinition,
                                     blockForm,
                                     blockQuestions,
@@ -163,19 +164,19 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
                                     blockDescriptionEditModal.getButton(),
                                     featureFlags.isProgramEligibilityConditionsEnabled(request)))));
 
-      // Add top level UI  that is only visible in the editable version.
-      if (viewAllowsEditingProgram()) {
-        htmlBundle.addMainContent(
-            questionBankPanel(
-              questions,
-              programDefinition,
-              blockDefinition,
-              csrfTag,
-              QuestionBank.shouldShowQuestionBank(request)))
+    // Add top level UI  that is only visible in the editable version.
+    if (viewAllowsEditingProgram()) {
+      htmlBundle
           .addMainContent(
-            addFormEndpoints(csrfTag, programDefinition.id(), blockId))
+              questionBankPanel(
+                  questions,
+                  programDefinition,
+                  blockDefinition,
+                  csrfTag,
+                  QuestionBank.shouldShowQuestionBank(request)))
+          .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal);
-      }
+    }
 
     // Add toast messages
     request
@@ -224,16 +225,15 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
-        blockList(request, program,
-          program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+        blockList(request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
 
     if (viewAllowsEditingProgram()) {
       ret.with(
-        ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
-          .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
-          .withType("submit")
-          .withId("add-block-button")
-          .withForm(CREATE_BLOCK_FORM_ID));
+          ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
+              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
+              .withType("submit")
+              .withId("add-block-button")
+              .withForm(CREATE_BLOCK_FORM_ID));
     }
     return ret;
   }
@@ -266,17 +266,19 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
                   StyleUtils.hover("border-gray-300"),
                   selectedClasses);
 
-        String switchBlockLink =
+      // TODO(#3162) use a different route when viewAllowsEditingProgram is
+      //  false once a read only navigation option is available.
+      String switchBlockLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(
-              programDefinition.id(), blockDefinition.id())
-            .url();
-        blockTag.with(
-            a().withClasses("flex-grow", "overflow-hidden")
+                  programDefinition.id(), blockDefinition.id())
+              .url();
+      blockTag.with(
+          a().withClasses("flex-grow", "overflow-hidden")
               .withHref(switchBlockLink)
               .with(p(blockName), p(questionCountText).withClasses("text-sm")));
       if (viewAllowsEditingProgram()) {
         DivTag moveButtons =
-          blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
+            blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
         blockTag.with(moveButtons);
       }
       container.with(blockTag);
@@ -398,13 +400,15 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
 
     // UI elements for editing are only needed when we view a draft
     if (viewAllowsEditingProgram()) {
-      DivTag buttons = blockPanelButtons(program, blockDefinitionIsEnumerator, blockDescriptionModalButton, canDelete);
+      DivTag buttons =
+          blockPanelButtons(
+              program, blockDefinitionIsEnumerator, blockDescriptionModalButton, canDelete);
       ButtonTag addQuestion =
-        makeSvgTextButton("Add a question", Icons.ADD)
-          .withClasses(
-            AdminStyles.PRIMARY_BUTTON_STYLES,
-            ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-            "my-4");
+          makeSvgTextButton("Add a question", Icons.ADD)
+              .withClasses(
+                  AdminStyles.PRIMARY_BUTTON_STYLES,
+                  ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                  "my-4");
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
@@ -417,44 +421,44 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   }
 
   private DivTag blockPanelButtons(
-    ProgramDefinition program,
-    boolean blockDefinitionIsEnumerator,
-    ButtonTag blockDescriptionModalButton,
-    boolean canDelete){
+      ProgramDefinition program,
+      boolean blockDefinitionIsEnumerator,
+      ButtonTag blockDescriptionModalButton,
+      boolean canDelete) {
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
 
     // Buttons are only needed when the view is used for editing
-      buttons.with(blockDescriptionModalButton);
-      if (blockDefinitionIsEnumerator) {
-        buttons.with(
-          button("Create repeated screen")
+    buttons.with(blockDescriptionModalButton);
+    buttons.condWith(
+        blockDefinitionIsEnumerator,
+        button("Create repeated screen")
             .withType("submit")
             .withId("create-repeated-block-button")
             .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
-      }
-      // TODO: Maybe add alpha variants to button color on hover over so we do not have
-      //  to hard-code what the color will be when button is in hover state?
-      if (program.blockDefinitions().size() > 1) {
-        buttons.with(div().withClass("flex-grow"));
-        buttons.with(
+
+    // TODO: Maybe add alpha variants to button color on hover over so we do not have
+    //  to hard-code what the color will be when button is in hover state?
+    if (program.blockDefinitions().size() > 1) {
+      buttons.with(div().withClass("flex-grow"));
+      buttons.with(
           ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
-            .withType("submit")
-            .withId("delete-block-button")
-            .withForm(DELETE_BLOCK_FORM_ID)
-            .withCondDisabled(!canDelete)
-            .withCondTitle(
-              !canDelete, "A screen can only be deleted when it has no repeated screens.")
-            .withClasses(
-              AdminStyles.SECONDARY_BUTTON_STYLES,
-              "mx-4",
-              "my-1",
-              StyleUtils.disabled("opacity-50")));
-      }
-      return buttons;
+              .withType("submit")
+              .withId("delete-block-button")
+              .withForm(DELETE_BLOCK_FORM_ID)
+              .withCondDisabled(!canDelete)
+              .withCondTitle(
+                  !canDelete, "A screen can only be deleted when it has no repeated screens.")
+              .withClasses(
+                  AdminStyles.SECONDARY_BUTTON_STYLES,
+                  "mx-4",
+                  "my-1",
+                  StyleUtils.disabled("opacity-50")));
     }
+    return buttons;
+  }
 
   private DivTag renderVisibilityPredicate(
       long programId,
@@ -467,24 +471,24 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
             ? "This screen is always shown."
             : predicate.get().toDisplayString(blockName, questions);
 
-    DivTag div = div()
-        .withClasses("my-4")
-        .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
-        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
+    DivTag div =
+        div()
+            .withClasses("my-4")
+            .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
+            .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
 
     // The edit button is only visible for drafts
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
-        ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
-          .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
-          .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_BUTTON);
+          ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
+              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+              .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_BUTTON);
 
       div.with(
-        asRedirectElement(
-          editScreenButton,
-          routes.AdminProgramBlockPredicatesController.editVisibility(programId,
-              blockId)
-            .url()));
+          asRedirectElement(
+              editScreenButton,
+              routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockId)
+                  .url()));
     }
     return div;
   }
@@ -502,22 +506,22 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
                 + " process."
             : predicate.get().predicate().toDisplayString(blockName, questions);
 
-    DivTag div = div()
-        .withClasses("my-4")
-        .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
+    DivTag div =
+        div()
+            .withClasses("my-4")
+            .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
+            .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"));
 
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
-        ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
-          .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
-          .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_BUTTON);
+          ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
+              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+              .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_BUTTON);
       div.with(
-        asRedirectElement(
-          editScreenButton,
-          routes.AdminProgramBlockPredicatesController.editEligibility(
-              programId, blockId)
-            .url()));
+          asRedirectElement(
+              editScreenButton,
+              routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockId)
+                  .url()));
     }
     return div;
   }
@@ -570,16 +574,17 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     // UI for editing is only added if we are viewing a draft.
     if (viewAllowsEditingProgram()) {
       maybeOptionalToggle.ifPresent(ret::with);
-      ret.with(this.createMoveQuestionButtonsSection(
-        csrfTag,
-        programDefinitionId,
-        blockDefinitionId,
-        questionDefinition,
-        questionIndex,
-        questionsCount));
-      ret.with(deleteQuestionForm(
-        csrfTag, programDefinitionId, blockDefinitionId, questionDefinition,
-        canRemove));
+      ret.with(
+          this.createMoveQuestionButtonsSection(
+              csrfTag,
+              programDefinitionId,
+              blockDefinitionId,
+              questionDefinition,
+              questionIndex,
+              questionsCount));
+      ret.with(
+          deleteQuestionForm(
+              csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
     }
     return ret;
   }
@@ -804,7 +809,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {
     return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
   }
-  
+
   private boolean viewAllowsEditingProgram() {
     return programDisplayType == DRAFT;
   }
@@ -822,18 +827,14 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   protected String getEditButtonUrl(ProgramDefinition programDefinition) {
     if (viewAllowsEditingProgram()) {
       return routes.AdminProgramController.edit(programDefinition.id()).url();
-    } else {
-      try {
-        // TODO(#3162): Manually test all navigation paths once the full flow
-        // of viewing and editing a program is implemented
-        long blockId = programDefinition.getLastBlockDefinition().id();
-        return routes.AdminProgramBlocksController.edit(programDefinition.id(),
-          blockId).url();
-      } catch (ProgramNeedsABlockException e) {
-        throw new RuntimeException(
-          "Error: Trying to display a Program without a screen", e);
-      }
-      }
+    }
+    try {
+      long blockId = programDefinition.getLastBlockDefinition().id();
+      // TODO(#3162) change this route once a read only navigation option is available
+      return routes.AdminProgramBlocksController.edit(programDefinition.id(), blockId).url();
+    } catch (ProgramNeedsABlockException e) {
+      throw new RuntimeException("Error: Trying to display a Program without a screen", e);
+    }
   }
 
   @Override

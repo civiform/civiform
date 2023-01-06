@@ -159,7 +159,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
     final int newPosition;
     try {
       newPosition =
-          Integer.parseInt(requestData.get(ProgramBlockAllAspectsView.MOVE_QUESTION_POSITION_FIELD));
+          Integer.parseInt(
+              requestData.get(ProgramBlockAllAspectsView.MOVE_QUESTION_POSITION_FIELD));
     } catch (NumberFormatException e) {
       throw InvalidQuestionPositionException.missingPositionArgument();
     }

@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
-
 import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
@@ -195,7 +194,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     return ok(
-        editView.render(request, program, block, message, roQuestionService.getUpToDateQuestions()));
+        editView.render(
+            request, program, block, message, roQuestionService.getUpToDateQuestions()));
   }
 
   private Result renderEditViewWithMessage(

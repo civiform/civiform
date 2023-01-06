@@ -89,10 +89,9 @@ public final class ViewUtils {
   }
 
   /**
-   * Used to indicate if a view that shows information about a program is
-   * displaying a draft (and thus is editable) or an active program
-   * (not editable). Values here match the database statuses but are limited
-   * to the statuses that are viewable for civiform admins.
+   * Used to indicate if a view that shows information about a program is displaying a draft (and
+   * thus is editable) or an active program (not editable). Values here match the database statuses
+   * but are limited to the statuses that are viewable for civiform admins.
    */
   public enum ProgramDisplayType {
     ACTIVE,

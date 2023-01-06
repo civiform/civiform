@@ -486,6 +486,7 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                   .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
     }
   }
+
   @Override
   protected String getEditButtonText() {
     return "Edit program details";
