@@ -73,6 +73,7 @@ public final class ReferenceClasses {
   public static final String APPLICANT_QUESTION_TEXT = "cf-applicant-question-text";
   public static final String APPLICANT_QUESTION_ERRORS = "cf-applicant-question-errors";
   public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
+  public static final String APPLICANT_NOT_ELIGIBLE_TEXT = "cf-applicant-not-eligible-text";
   public static final String APPLICATION_CARD = "cf-application-card";
   public static final String APPLICATION_CARD_TITLE = "cf-application-card-title";
   public static final String APPLICATION_CARD_DESCRIPTION = "cf-application-card-description";

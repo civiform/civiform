@@ -47,16 +47,19 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   }
 
   /**
-   * Renders a summary of all of the applicant's data for a specific application. Data includes:
+   * Renders a summary of all the applicant's data for a specific application.
    *
-   * <p>Program Id, Applicant Id - Needed for link context (submit & edit)
-   *
-   * <p>Question Data for each question:
+   * <p>Data includes:
    *
    * <ul>
-   *   <li>question text
-   *   <li>answer text
-   *   <li>block id (for edit link)
+   *   <li>Program Id
+   *   <li>Applicant Id - Needed for link context (submit & edit)
+   *   <li>Question Data for each question:
+   *       <ul>
+   *         <li>question text
+   *         <li>answer text
+   *         <li>block id (for edit link)
+   *       </ul>
    * </ul>
    */
   public Content render(Params params) {
@@ -124,6 +127,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
+  /** Renders {@code data} including the question and any existing answer to it. */
   private DivTag renderQuestionSummary(AnswerData data, Messages messages, long applicantId) {
     DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
     if (!data.applicantQuestion().isOptional()) {
@@ -159,9 +163,22 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (data.isPreviousResponse()) {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
+      // TODO(#4003): Translate this text.
       DivTag timestampContent =
-          div("Previously answered on " + date).withClasses("font-light", "text-xs", "flex-grow");
+          div("Previously answered on " + date)
+              .withClasses(ReferenceClasses.BT_DATE, "font-light", "text-xs", "flex-grow");
       actionAndTimestampDiv.with(timestampContent);
+    }
+
+    if (!data.isEligible()) {
+      actionAndTimestampDiv.with(
+          div(messages.at(MessageKey.CONTENT_NOT_ELIGIBLE.getKeyName()))
+              .withClasses(
+                  "text-m",
+                  "font-medium",
+                  "flex-grow",
+                  "py-1",
+                  ReferenceClasses.APPLICANT_NOT_ELIGIBLE_TEXT));
     }
 
     LinkElement editElement =
