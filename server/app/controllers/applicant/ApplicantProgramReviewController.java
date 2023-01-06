@@ -118,10 +118,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return unauthorized();
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
-                  Optional<String> referer = request.getHeaders().get("Referer");
-                  Call viewPage =
+                  Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
-                  return redirect(viewPage).flashing("error", cause.getMessage());
+                  return redirect(reviewPage).flashing("error", cause.getMessage());
                 }
                 throw new RuntimeException(cause);
               }
