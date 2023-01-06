@@ -225,7 +225,8 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
-        blockList(request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+        renderBlockList(
+            request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
 
     if (viewAllowsEditingProgram()) {
       ret.with(
@@ -238,7 +239,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     return ret;
   }
 
-  private DivTag blockList(
+  private DivTag renderBlockList(
       Request request,
       ProgramDefinition programDefinition,
       ImmutableList<BlockDefinition> blockDefinitions,
@@ -286,7 +287,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
       // Recursively add repeated blocks indented under their enumerator block
       if (blockDefinition.isEnumerator()) {
         container.with(
-            blockList(
+            renderBlockList(
                 request,
                 programDefinition,
                 programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id()),
