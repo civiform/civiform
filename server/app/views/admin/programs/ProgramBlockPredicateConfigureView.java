@@ -331,7 +331,14 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
         container.with(
             div(
                     div(qd.getQuestionText().getDefault())
-                        .withClasses(BaseStyles.INPUT, "text-gray-500", "mb-2", "truncate"),
+                        .withClasses(
+                            BaseStyles.INPUT,
+                            "text-gray-500",
+                            "mb-2",
+                            "truncate",
+                            ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
+                        .withData("testid", qd.getName())
+                        .withData("question-id", String.valueOf(qd.getId())),
                     createScalarDropdown(qd, Optional.of(leafNode.scalar())),
                     createOperatorDropdown(
                         qd, Optional.of(leafNode.scalar()), Optional.of(leafNode.operator())))
@@ -344,7 +351,14 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
         container.with(
             div(
                     div(qd.getQuestionText().getDefault())
-                        .withClasses(BaseStyles.INPUT, "text-gray-500", "mb-2", "truncate"),
+                        .withClasses(
+                            BaseStyles.INPUT,
+                            "text-gray-500",
+                            "mb-2",
+                            "truncate",
+                            ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
+                        .withData("testid", qd.getName())
+                        .withData("question-id", String.valueOf(qd.getId())),
                     createScalarDropdown(qd, /* maybeScalar */ Optional.empty()),
                     createOperatorDropdown(
                         qd,
