@@ -23,7 +23,6 @@ import play.mvc.Result;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
-import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
