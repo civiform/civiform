@@ -41,15 +41,15 @@ abstract class ProgramBlockView extends BaseHtmlView {
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
 
-  /** Defines the String that will be shown on the Edit button */
+  /** Returns the string that will be shown on the Edit button */
   protected abstract String getEditButtonText();
 
-  /** Defines the navigation destination for the Edit button */
+  /** Returns the navigation destination for the Edit button */
   protected abstract String getEditButtonUrl(ProgramDefinition programDefinition);
 
   /**
-   * Returns the badge which represents the status of the program displayed within this
-   * ProgramBlockView. It will be shown at the top of the page.
+   * Returns the badge which represents the status of the program. It will be shown at the top of
+   * the page.
    */
   protected abstract ProgramDisplayType getProgramDisplayStatus();
 }

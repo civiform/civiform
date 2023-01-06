@@ -56,7 +56,7 @@ import views.style.StyleUtils;
  * Renders a page for an admin to view or edit the configuration for a single block of an active or
  * draft program.
  *
- * <p>For drafts editing this contains elements to:
+ * <p>For editing drafts this contains elements to:
  *
  * <ul>
  *   <li>Delete the block
@@ -65,8 +65,8 @@ import views.style.StyleUtils;
  *   <li>View and navigate to the visibility criteria
  * </ul>
  *
- * For Active program viewing it contains the same elements, but UI elements that can be used for
- * editing.
+ * For viewing an active program, it contains the same elements, but without UI elements that can be
+ * used for editing.
  */
 public final class ProgramBlockAllAspectsView extends ProgramBlockView {
 
@@ -95,7 +95,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
     this.programDisplayType = programViewType;
 
-    if (!(programDisplayType == DRAFT)) {
+    if (!(programDisplayType.equals(DRAFT))) {
       throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
     }
   }
@@ -164,7 +164,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
                                     blockDescriptionEditModal.getButton(),
                                     featureFlags.isProgramEligibilityConditionsEnabled(request)))));
 
-    // Add top level UI  that is only visible in the editable version.
+    // Add top level UI that is only visible in the editable version.
     if (viewAllowsEditingProgram()) {
       htmlBundle
           .addMainContent(
@@ -811,7 +811,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   }
 
   private boolean viewAllowsEditingProgram() {
-    return programDisplayType == DRAFT;
+    return programDisplayType.equals(DRAFT);
   }
 
   @Override
