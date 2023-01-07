@@ -169,7 +169,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     assertThat(inProgressBlocks).hasSize(1);
     assertThat(inProgressBlocks.get(0).getName()).isEqualTo("Block one");
 
-    Optional<Block> firstIncompleteBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> firstIncompleteBlock = subject.getFirstIncompleteOrStaticBlock();
     Optional<Block> firstIncompleteExcludingStatic =
         subject.getFirstIncompleteBlockExcludingStatic();
 
@@ -328,7 +328,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
 
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
-    Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
     Optional<Block> maybeBlockExcludeStatic = subject.getFirstIncompleteBlockExcludingStatic();
 
     assertThat(allBlocks).hasSize(2);
@@ -773,7 +773,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
-    Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block one");
@@ -789,7 +789,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     assertThat(subject.getInProgressBlocks().get(0).getName()).isEqualTo("Block one");
 
-    Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block two");

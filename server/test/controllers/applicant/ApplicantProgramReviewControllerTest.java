@@ -71,6 +71,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
             .build();
     answer(activeProgram.id);
     Result result = this.submit(applicant.id, activeProgram.id);

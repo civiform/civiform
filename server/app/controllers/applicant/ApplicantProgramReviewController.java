@@ -144,7 +144,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private CompletableFuture<Void> validateApplication(
       ReadOnlyApplicantProgramService roApplicantProgramService, Messages messages) {
     // Check that all blocks have been answered.
-    if (!roApplicantProgramService.getFirstIncompleteBlock().isEmpty()) {
+    if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
       return CompletableFuture.failedFuture(
           new ApplicationOutOfDateException(
               messages.at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName())));

@@ -158,13 +158,15 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return -1;
   }
 
+  /** Returns the first block with an unanswered question or static block. */
   @Override
-  public Optional<Block> getFirstIncompleteBlock() {
+  public Optional<Block> getFirstIncompleteOrStaticBlock() {
     return getInProgressBlocks().stream()
         .filter(block -> !block.isCompletedInProgramWithoutErrors() || block.containsStatic())
         .findFirst();
   }
 
+  /** Returns the first block with an unanswered question. */
   @Override
   public Optional<Block> getFirstIncompleteBlockExcludingStatic() {
     return getInProgressBlocks().stream()
