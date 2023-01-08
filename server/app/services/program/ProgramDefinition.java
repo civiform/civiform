@@ -529,8 +529,11 @@ public abstract class ProgramDefinition {
    */
   public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
       long blockId) throws ProgramBlockDefinitionNotFoundException {
-    // Questions through the block are available for this block's eligibility conditions.
-    return getAvailablePredicateQuestionDefinitions(blockId);
+    // Only questions in the block are available.
+    return getBlockDefinition(blockId).programQuestionDefinitions().stream()
+      .map(ProgramQuestionDefinition::getQuestionDefinition)
+      .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
+      .collect(ImmutableList.toImmutableList());
   }
 
   /**
