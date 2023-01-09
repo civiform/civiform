@@ -33,8 +33,11 @@ import views.components.ToastMessage;
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {
 
+  private static final boolean READONLY = true;
+
   private final ProgramService programService;
   private final ProgramBlockEditView editView;
+  private final ProgramBlockEditView readOnlyView;
   private final QuestionService questionService;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
@@ -44,11 +47,14 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ProgramService programService,
       QuestionService questionService,
       ProgramBlockEditView editView,
+      // TODO(jhummel) use readOnlyView when submitted
+      ProgramBlockEditView readOnlyView,
       FormFactory formFactory,
       RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.editView = checkNotNull(editView);
+    this.readOnlyView = checkNotNull(readOnlyView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
   }
@@ -66,13 +72,27 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * (blocks) if applicable through links on the page.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(long programId, boolean readOnly) {
+  public Result index(long programId) {
+    return index(programId, !READONLY);
+  }
+
+  // TODO(jhummel) update comments
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result readOnlyIndex(long programId) {
+    return index(programId, READONLY);
+  }
+
+  private Result index(long programId, boolean readOnly) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
+
+      // TODO(jhummel) check if using the real read only version resolves the
+      // programblockdefinitionnotfoundexception
       String redirectUrl = readOnly ?
-        routes.AdminProgramBlockController.view(programId, blockId)
-        : routes.AdminProgramBlocksController.edit(programId, blockId);
+        routes.AdminProgramBlocksController.view(programId, blockId).url()
+        : routes.AdminProgramBlocksController.edit(programId, blockId).url();
+
       return redirect(redirectUrl);
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
@@ -136,8 +156,29 @@ public final class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
+  /**
+   * Return a HTML page displaying all configurations of the specified program screen (block) and
+   * forms to update them.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result view(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotActive(programId);
+
+    try {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+
+      Optional<ToastMessage> maybeToastMessage =
+        request.flash().get("success").map(ToastMessage::success);
+      return renderReadOnlyViewWithMessage(request, program, block, maybeToastMessage);
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      return notFound(e.toString());
+    }
+  }
+
   /** POST endpoint for updating a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+
   public Result update(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
@@ -206,12 +247,25 @@ public final class AdminProgramBlocksController extends CiviFormController {
             request, program, block, message, roQuestionService.getUpToDateQuestions()));
   }
 
+  private Result renderReadOnlyViewWithMessage(
+    Request request,
+    ProgramDefinition program,
+    BlockDefinition block,
+    Optional<ToastMessage> message) {
+    ReadOnlyQuestionService roQuestionService =
+      questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+    return ok(
+      readOnlyView.render(
+        request, program, block, message, roQuestionService.getUpToDateQuestions()));
+  }
+
   private Result renderEditViewWithMessage(
-      Request request,
-      ProgramDefinition program,
-      long blockId,
-      BlockForm blockForm,
-      Optional<ToastMessage> message) {
+    Request request,
+    ProgramDefinition program,
+    long blockId,
+    BlockForm blockForm,
+    Optional<ToastMessage> message) {
     try {
       BlockDefinition blockDefinition = program.getBlockDefinition(blockId);
       ReadOnlyQuestionService roQuestionService =

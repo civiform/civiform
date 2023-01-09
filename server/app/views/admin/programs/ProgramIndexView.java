@@ -331,13 +331,16 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (activeProgram.isPresent()) {
       List<ButtonTag> activeRowActions = Lists.newArrayList();
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
+
+      // TODO(jhummel) check what this does
       Optional<ButtonTag> applicationsLink =
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
-        activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        activeRowExtraActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
+      activeRowActions.add(renderViewLink(activeProgram.get(), request));
       activeRowActions.add(renderShareLink(activeProgram.get()));
       activeRow =
           Optional.of(
@@ -365,21 +368,32 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
     String editLink =
-        controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
+      controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
     String editLinkId = "program-edit-link-" + program.id();
-    // TODO(jhummel) set this back to newVersionFrom instead of view
     if (isActive) {
-      editLink = controllers.admin.routes.AdminProgramController.edit(program.id()).url();
-      editLinkId = "program-edit-link-" + program.id();
+      editLink = controllers.admin.routes.AdminProgramController.newVersionFrom(program.id()).url();
+      editLinkId = "program-new-version-link-" + program.id();
     }
 
     ButtonTag button =
-        makeSvgTextButton("View", Icons.EDIT)
-            .withId(editLinkId)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+      makeSvgTextButton("Edit", Icons.EDIT)
+        .withId(editLinkId)
+        .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     return isActive
-        ? toLinkButtonForPost(button, editLink, request)
-        : asRedirectElement(button, editLink);
+      ? toLinkButtonForPost(button, editLink, request)
+      : asRedirectElement(button, editLink);
+  }
+
+  ButtonTag renderViewLink(ProgramDefinition program, Http.Request request) {
+    String viewLink =
+      controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
+    String viewLinkId = "program-view-link-" + program.id();
+
+    ButtonTag button =
+      makeSvgTextButton("View", Icons.VIEW)
+        .withId(viewLinkId)
+        .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return asRedirectElement(button, viewLink);
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
