@@ -11,7 +11,6 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
-import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -42,7 +41,6 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
-import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -485,20 +483,5 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                       BaseStyles.FORM_LABEL_TEXT_COLOR)
                   .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
     }
-  }
-
-  @Override
-  protected String getEditButtonText() {
-    return "Edit program details";
-  }
-
-  @Override
-  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
-    return routes.AdminProgramController.edit(programDefinition.id()).url();
-  }
-
-  @Override
-  protected ProgramDisplayType getProgramDisplayStatus() {
-    return DRAFT;
   }
 }

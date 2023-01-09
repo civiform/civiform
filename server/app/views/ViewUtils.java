@@ -88,12 +88,7 @@ public final class ViewUtils {
             span(buttonText).withClass("text-left"));
   }
 
-  /**
-   * Used to indicate if a view that shows information about a program is displaying a draft (and
-   * thus is editable) or an active program (not editable). Values here match the database statuses
-   * but are limited to the statuses that are viewable for civiform admins.
-   */
-  public enum ProgramDisplayType {
+  public enum BadgeStatus {
     ACTIVE,
     DRAFT
   }
@@ -108,14 +103,14 @@ public final class ViewUtils {
    * @return Tag representing the badge. No classes should be added to the returned tag as it will
    *     overwrite existing classes due to how Jhtml works.
    */
-  public static PTag makeBadge(ProgramDisplayType status, String... extraClasses) {
-    String badgeText = status == ProgramDisplayType.ACTIVE ? "Active" : "Draft";
+  public static PTag makeBadge(BadgeStatus status, String... extraClasses) {
+    String badgeText = status == BadgeStatus.ACTIVE ? "Active" : "Draft";
     String badgeBGColor =
-        status == ProgramDisplayType.ACTIVE
+        status == BadgeStatus.ACTIVE
             ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT
             : BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
     String badgeFillColor =
-        status == ProgramDisplayType.ACTIVE
+        status == BadgeStatus.ACTIVE
             ? BaseStyles.TEXT_CIVIFORM_GREEN
             : BaseStyles.TEXT_CIVIFORM_PURPLE;
     return p().withClasses(

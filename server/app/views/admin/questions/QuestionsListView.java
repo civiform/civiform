@@ -36,7 +36,7 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
-import views.ViewUtils.ProgramDisplayType;
+import views.ViewUtils.BadgeStatus;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -267,7 +267,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     PTag badge =
         ViewUtils.makeBadge(
-            isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
+            isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
 
