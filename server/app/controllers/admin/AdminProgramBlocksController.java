@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
@@ -28,7 +27,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
-import views.admin.programs.ProgramBlockAllAspectsView;
+import views.admin.programs.ProgramBlockEditView;
 import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
@@ -36,7 +35,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
   private final ProgramService programService;
   private final ProgramBlockEditView editView;
-  //private final ProgramBlockReadOnlyView readOnlyView;
   private final QuestionService questionService;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
@@ -45,12 +43,12 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public AdminProgramBlocksController(
       ProgramService programService,
       QuestionService questionService,
-      ProgramBlockAllAspectsView.Factory editViewFactory,
+      ProgramBlockEditView editView,
       FormFactory formFactory,
       RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.editView = checkNotNull(editViewFactory.create(DRAFT));
+    this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
   }
@@ -62,14 +60,11 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * (blocks) if applicable through links on the page.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(long programId, boolean readOnly) {
+  public Result index(long programId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
-      String redirectUrl = readOnly ?
-        routes.AdminProgramBlockController.view(programId, blockId)
-        : routes.AdminProgramBlocksController.edit(programId, blockId);
-      return redirect(redirectUrl);
+      return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     }
@@ -85,7 +80,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 formFactory
                     .form()
                     .bindFromRequest(request)
-                    .get(ProgramBlockAllAspectsView.ENUMERATOR_ID_FORM_FIELD))
+                    .get(ProgramBlockEditView.ENUMERATOR_ID_FORM_FIELD))
             .map(Long::valueOf);
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
@@ -113,8 +108,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Return an HTML page displaying all configurations of the specified program screen (block)
-   * and forms to update them.
+   * Return a HTML page displaying all configurations of the specified program screen (block) and
+   * forms to update them.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
@@ -132,27 +127,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
-  /**
-   * Return an HTML page displaying all configurations of the specified program screen (block)
-   * and forms for viewing only.
-   */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result view(Request request, long programId, long blockId) {
-    requestChecker.throwIfProgramNotActive(programId);
-
-    try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      BlockDefinition block = program.getBlockDefinition(blockId);
-
-      Optional<ToastMessage> maybeToastMessage =
-        request.flash().get("success").map(ToastMessage::success);
-      return renderReadOnlyViewWithMessage(request, program, block, maybeToastMessage);
-    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
-    }
-  }
-
-      /** POST endpoint for updating a screen (block) for the program. */
+  /** POST endpoint for updating a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
@@ -209,27 +184,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.index(programId));
   }
 
-  // TODO(jhummel) continue implementing when todo below is done and message signatures are simplified
-  // including my pending change. All render view messages could potentially be one method
-  private Result renderReadOnlyViewWithMessage(
-        Request request,
-        ProgramDefinition program,
-        BlockDefinition block,
-        Optional<ToastMessage> message) {
-
-        ReadOnlyQuestionService roQuestionService =
-          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-
-      System.out.println("*******jhummel   read only view should be shown here. *****");
-
-    // TODO(jhummel) use a read only view
-        return ok(
-          editView.render(
-            request, program, block, message, roQuestionService.getUpToDateQuestions()));
-  }
-
-  // TODO(jhummel) remove one of the methods for renderEditViewWithMessage and one of the
-  // render methods in ProgramBlockEditView to simplify (wait for other code change)
   private Result renderEditViewWithMessage(
       Request request,
       ProgramDefinition program,
