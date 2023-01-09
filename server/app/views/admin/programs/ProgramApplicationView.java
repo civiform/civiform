@@ -201,7 +201,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
           controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
       answerContent = div(a(answerData.answerText()).withHref(fileLink));
     } else {
-      answerContent = div(answerData.answerText());
+      answerContent = div(answerData.answerText().replace("\n","; "));
     }
     return div()
         .withClasses("flex")

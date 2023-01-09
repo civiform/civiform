@@ -921,7 +921,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // check enumerator and repeated answers
     assertThat(result.get(6).questionIndex()).isEqualTo(0);
     assertThat(result.get(6).scalarAnswersInDefaultLocale())
-        .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one;\nenum two"));
+        .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
     assertThat(result.get(7).questionIndex()).isEqualTo(0);
     assertThat(result.get(7).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(

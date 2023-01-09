@@ -83,6 +83,6 @@ public final class EnumeratorQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return Joiner.on(";\n").join(getEntityNames());
+    return Joiner.on("\n").join(getEntityNames());
   }
 }
