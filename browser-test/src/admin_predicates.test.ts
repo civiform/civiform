@@ -320,7 +320,6 @@ describe('create and edit predicates', () => {
     it('every visibility right hand type evaluates correctly', async () => {
       const {
         page,
-        adminQuestions,
         adminPrograms,
         applicantQuestions,
         adminPredicates,
