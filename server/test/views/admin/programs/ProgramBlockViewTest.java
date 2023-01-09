@@ -93,7 +93,7 @@ public class ProgramBlockViewTest {
   }
 
   @Test
-  public void renderExistingPredicate_orOfSingleLayerAnds_multipleAnd() {
+  public void renderExistingPredicate_orOfSingleLayerAnds_withMultipleAnd() {
     var predicateDefinition =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
