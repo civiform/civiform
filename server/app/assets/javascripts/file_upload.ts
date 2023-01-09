@@ -1,9 +1,16 @@
-window.addEventListener('load', () => {
+import {assertNotNull} from './util'
+
+const UPLOAD_ATTR = 'data-upload-text'
+
+export function init() {
   // Prevent attempting to submit a file upload form
   // if no file has been selected. Note: For optional
   // file uploads, a distinct skip button is shown.
   const blockForm = document.getElementById('cf-block-form')
+
   if (blockForm) {
+    const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
+
     blockForm.addEventListener('submit', (event) => {
       if (!validateFileUploadQuestions(blockForm)) {
         event.preventDefault()
@@ -11,8 +18,20 @@ window.addEventListener('load', () => {
       }
       return true
     })
+
+    if (uploadedDivs.length) {
+      const uploadedDiv = uploadedDivs[0]
+      const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
+
+      blockForm.addEventListener('change', (event) => {
+        if (uploadedDiv.innerHTML) return
+        const files = (event.target! as HTMLInputElement).files
+        const file = assertNotNull(files)[0]
+        uploadedDiv.innerHTML = uploadText.replace('{0}', file.name)
+      })
+    }
   }
-})
+}
 
 let wasSetInvalid = false
 
@@ -23,9 +42,10 @@ function validateFileUploadQuestions(formEl: Element): boolean {
   )
   for (const question of questions) {
     // validate a file is selected.
-    const fileInput = <HTMLInputElement>(
-      question.querySelector('input[type=file]')
+    const fileInput = assertNotNull(
+      question.querySelector<HTMLInputElement>('input[type=file]'),
     )
+
     const isValid = fileInput.value != ''
 
     const errorDiv = question.querySelector('.cf-fileupload-error')
@@ -44,7 +64,7 @@ function validateFileUploadQuestions(formEl: Element): boolean {
         // Only allow this to be done once so we don't repeatedly append the error id.
         wasSetInvalid = true
         fileInput.setAttribute('aria-invalid', 'true')
-        const ariaDescribedBy = fileInput.getAttribute('aria-describedby')
+        const ariaDescribedBy = fileInput.getAttribute('aria-describedby') ?? ''
         fileInput.setAttribute(
           'aria-describedby',
           `${errorId} ${ariaDescribedBy}`,

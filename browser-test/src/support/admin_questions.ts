@@ -14,10 +14,6 @@ type QuestionParams = {
   exportOption?: string
 }
 
-// Disable no-unused-vars check as values of this enum are iterated through
-// using Object.values(QuestionType) in some tests and that doesn't get detected
-// by the ESLint.
-/* eslint-disable no-unused-vars */
 export enum QuestionType {
   ADDRESS = 'address',
   CHECKBOX = 'checkbox',
@@ -43,6 +39,7 @@ export class AdminQuestions {
   public static readonly NO_EXPORT_OPTION = "Don't allow answers to be exported"
   public static readonly EXPORT_VALUE_OPTION = 'Export exact answers'
   public static readonly EXPORT_OBFUSCATED_OPTION = 'Export obfuscated answers'
+  public static readonly NUMBER_QUESTION_TEXT = 'number question text'
 
   constructor(page: Page) {
     this.page = page
@@ -140,7 +137,7 @@ export class AdminQuestions {
   async updateQuestionText(updateText: string) {
     // This function should only be called on question create/edit page.
     const questionText = await this.page.textContent('#question-text-textarea')
-    const updatedText = questionText + updateText
+    const updatedText = questionText! + updateText
 
     await this.page.fill('text=Question Text', updatedText)
     return updatedText
@@ -491,7 +488,7 @@ export class AdminQuestions {
         })
         break
       default:
-        throw new Error(`Unhandled question type ${type}`)
+        throw new Error(`Unhandled question type ${type as string}`)
     }
   }
 
@@ -851,7 +848,7 @@ export class AdminQuestions {
   async addNumberQuestion({
     questionName,
     description = 'number description',
-    questionText = 'number question text',
+    questionText = AdminQuestions.NUMBER_QUESTION_TEXT,
     helpText = 'number question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,

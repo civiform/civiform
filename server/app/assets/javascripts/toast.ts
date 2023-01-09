@@ -6,29 +6,29 @@
  *  - dismiss a toast messages based on a user action or after a specified timeout.
  *  - permanently dismiss toast messags (using localStorage)
  */
-class ToastController {
-  static containerId = 'toast-container'
-  static messageClass = 'cf-toast'
-  static messageDataClass = 'cf-toast-data'
+import {assertNotNull} from './util'
 
-  static infoSvgPath =
+export class ToastController {
+  private static readonly CONTAINER_ID = 'toast-container'
+  private static readonly MESSAGE_CLASS = 'cf-toast'
+  private static readonly MESSAGE_DATA_CLASS = 'cf-toast-data'
+
+  private static readonly INFO_SVG_PATH =
     'M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0' +
     ' 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z'
-  static errorSvgPath =
+  private static readonly ERROR_SVG_PATH =
     'M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0' +
     ' 102 0V6a1 1 0 00-1-1z'
-  static successSvgPath = 'M5 13l4 4L19 7'
-  static warningSvgPath =
+  private static readonly SUCCESS_SVG_PATH = 'M5 13l4 4L19 7'
+  private static readonly WARNING_SVG_PATH =
     'M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742' +
     ' 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012' +
     ' 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z'
 
-  toastContainer: Element
-
   constructor() {
-    this.toastContainer = document.createElement('div')
-    this.toastContainer.setAttribute('id', ToastController.containerId)
-    this.toastContainer.classList.add(
+    const toastContainer = document.createElement('div')
+    toastContainer.setAttribute('id', ToastController.CONTAINER_ID)
+    toastContainer.classList.add(
       'absolute',
       'hidden',
       'left-1/2',
@@ -37,12 +37,12 @@ class ToastController {
       '-translate-x-1/2',
       'z-20',
     )
-    document.body.appendChild(this.toastContainer)
+    document.body.appendChild(toastContainer)
 
-    this.maybeShowToasts()
+    ToastController.maybeShowToasts()
   }
 
-  showToastMessage(message: ToastMessage) {
+  static showToastMessage(message: ToastMessage) {
     const inIgnoreList = localStorage.getItem(message.id + '-dismissed')
     if (message.canIgnore && inIgnoreList) {
       return
@@ -51,7 +51,7 @@ class ToastController {
     const toastMessage = document.createElement('div')
     toastMessage.setAttribute('id', message.id)
     toastMessage.setAttribute('ignorable', String(message.canIgnore))
-    toastMessage.classList.add(ToastController.messageClass)
+    toastMessage.classList.add(ToastController.MESSAGE_CLASS)
     toastMessage.classList.add(
       'bg-opacity-90',
       'duration-300',
@@ -79,7 +79,7 @@ class ToastController {
       toastMessage.classList.add('bg-amber-200', 'border-amber-300')
     }
 
-    toastMessage.appendChild(this.getToastIcon(message.type))
+    toastMessage.appendChild(ToastController.getToastIcon(message.type))
 
     // Add the content string.
     const contentContainer = document.createElement('span')
@@ -101,16 +101,15 @@ class ToastController {
         'hover:opacity-100',
       )
       dismissButton.textContent = 'x'
-      dismissButton.addEventListener('click', this.dismissClicked)
+      dismissButton.addEventListener('click', ToastController.dismissClicked)
       toastMessage.appendChild(dismissButton)
       toastMessage.classList.add('pr-8')
     }
 
-    const toastContainer = document.getElementById(ToastController.containerId)
+    const toastContainer = document.getElementById(ToastController.CONTAINER_ID)
     if (toastContainer) {
       toastContainer.appendChild(toastMessage)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      toastContainer!.classList.remove('hidden')
+      toastContainer.classList.remove('hidden')
       if (message.duration > 0) {
         setTimeout(
           ToastController.dismissToast,
@@ -122,7 +121,7 @@ class ToastController {
     }
   }
 
-  private getToastIcon(type: string): Element {
+  private static getToastIcon(type: string): Element {
     const svgContainer = document.createElement('div')
     svgContainer.classList.add('flex-none', 'pr-2')
 
@@ -141,39 +140,36 @@ class ToastController {
     svg.appendChild(svgPath)
 
     if (type === 'alert') {
-      svgPath.setAttribute('d', ToastController.infoSvgPath)
+      svgPath.setAttribute('d', ToastController.INFO_SVG_PATH)
     } else if (type === 'error') {
-      svgPath.setAttribute('d', ToastController.errorSvgPath)
+      svgPath.setAttribute('d', ToastController.ERROR_SVG_PATH)
     } else if (type === 'success') {
       svg.setAttribute('fill', 'none')
       svg.setAttribute('stroke', 'currentColor')
       svg.setAttribute('stroke-width', '2')
-      svgPath.setAttribute('d', ToastController.successSvgPath)
+      svgPath.setAttribute('d', ToastController.SUCCESS_SVG_PATH)
     } else if (type === 'warning') {
-      svgPath.setAttribute('d', ToastController.warningSvgPath)
+      svgPath.setAttribute('d', ToastController.WARNING_SVG_PATH)
     }
     return svgContainer
   }
 
   /** If a toast message is present, create it and add it to the container. */
-  maybeShowToasts() {
+  private static maybeShowToasts() {
     const messages = Array.from(
-      document.querySelectorAll('.' + ToastController.messageDataClass),
+      document.querySelectorAll('.' + ToastController.MESSAGE_DATA_CLASS),
     )
     messages.forEach((element) => {
       const message: ToastMessage = {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        id: element.getAttribute('id')!,
+        id: element.id,
         canDismiss: element.getAttribute('canDismiss') === 'true',
         canIgnore: element.getAttribute('canIgnore') === 'true',
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        content: element.textContent!,
+        content: assertNotNull(element.textContent),
         duration: Number(element.getAttribute('toastDuration')),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         type: element.getAttribute('toastType')!.toLowerCase(),
       }
       element.remove()
-      this.showToastMessage(message)
+      ToastController.showToastMessage(message)
     })
   }
 
@@ -181,12 +177,11 @@ class ToastController {
    *  Hide warning message and throw an indicator in local storage to not show.
    *  @param {Event} event The event that triggered this action.
    *  */
-  dismissClicked(event: Event) {
+  private static dismissClicked(event: Event) {
     const target = event.target as Element
-    const toast = target.closest('.' + ToastController.messageClass)
-    if (toast && toast.hasAttribute('id')) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const toastId = toast.getAttribute('id')!
+    const toast = target.closest('.' + ToastController.MESSAGE_CLASS)
+    if (toast && toast.id) {
+      const toastId = toast.id
       ToastController.dismissToast(toastId, /* dismissClicked = */ true)
     }
   }
@@ -197,7 +192,7 @@ class ToastController {
    * @param {string} toastId The html id of the toast message
    * @param {boolean} dismissClicked Whether to add indicator in local storage to not show
    *  */
-  static dismissToast(toastId: string, dismissClicked: boolean) {
+  private static dismissToast(toastId: string, dismissClicked: boolean) {
     const toastMessage = document.getElementById(toastId)
     if (toastMessage) {
       if (dismissClicked && toastMessage.getAttribute('ignorable')) {
@@ -214,7 +209,7 @@ class ToastController {
    * Removes a toast from the DOM and hides the toast container if it is now empty.
    * @param {string} toastId The html id of the toast message
    * */
-  static cleanupToast(toastId: string) {
+  private static cleanupToast(toastId: string) {
     const toastMessage = document.getElementById(toastId)
     if (toastMessage) {
       // Remove toast message.
@@ -222,7 +217,7 @@ class ToastController {
     }
 
     /** Hide toast container if there are no toast messages active. */
-    const toastContainer = document.getElementById(this.containerId)
+    const toastContainer = document.getElementById(ToastController.CONTAINER_ID)
     if (toastContainer && toastContainer.children.length == 0) {
       toastContainer.classList.add('hidden')
     }
@@ -238,7 +233,6 @@ type ToastMessage = {
   type: string
 }
 
-// toastController is used from other JS files. They read it from the window object.
-// TODO(#3864): refactor to export instance of controller instead of setting
-// it on window object.
-window['toastController'] = new ToastController()
+export function init() {
+  new ToastController()
+}

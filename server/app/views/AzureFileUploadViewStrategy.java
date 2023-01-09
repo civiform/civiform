@@ -54,6 +54,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
                 StringUtils.join(ariaDescribedByIds, " "))
             .withType("file")
             .withName("file")
+            .withClass("hidden")
             .withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }

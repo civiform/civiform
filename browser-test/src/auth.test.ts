@@ -105,19 +105,19 @@ describe('applicant auth', () => {
     await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantQuestions.submitFromPreviewPage()
+    await applicantQuestions.submitFromReviewPage()
     await loginAsTestUser(page, 'a:has-text("Create account or sign in")')
 
     // Check that program is marked as submitted.
     expect(
       await page.innerText(`.cf-application-card:has-text("${programName}")`),
-    ).toMatch(/Submitted \d\d\/\d\d\/\d\d/)
+    ).toMatch(/Submitted \d?\d\/\d?\d\/\d\d/)
 
     // Logout and login to make sure data is tied to account.
     await logout(page)
     await loginAsTestUser(page)
     expect(
       await page.innerText(`.cf-application-card:has-text("${programName}")`),
-    ).toMatch(/Submitted \d\d\/\d\d\/\d\d/)
+    ).toMatch(/Submitted \d?\d\/\d?\d\/\d\d/)
   })
 })

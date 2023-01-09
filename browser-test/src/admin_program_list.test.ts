@@ -38,7 +38,7 @@ describe('Most recently updated program is at top of list.', () => {
     adminPrograms: AdminPrograms,
     expectedPrograms: string[],
   ) {
-    if (!expectedPrograms) {
+    if (expectedPrograms.length === 0) {
       throw new Error('expected at least one program')
     }
     const programListNames = await adminPrograms.programNames()

@@ -87,7 +87,7 @@ describe('Most recently updated question is at top of list.', () => {
     adminQuestions: AdminQuestions,
     expectedQuestions: string[],
   ) {
-    if (!expectedQuestions) {
+    if (expectedQuestions.length === 0) {
       throw new Error('expected at least one question')
     }
     const questionListNames = await adminQuestions.questionNames()
@@ -99,7 +99,7 @@ describe('Most recently updated question is at top of list.', () => {
     adminPrograms: AdminPrograms,
     expectedQuestions: string[],
   ) {
-    if (!expectedQuestions) {
+    if (expectedQuestions.length === 0) {
       throw new Error('expected at least one question')
     }
     await adminPrograms.goToManageQuestionsPage(programName)

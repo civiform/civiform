@@ -1,3 +1,5 @@
+import {addEventListenerToElements, assertNotNull} from './util'
+
 /**
  * We're trying to keep the JS pretty minimal for CiviForm, so we're only using it
  * where it's necessary to improve the user experience.
@@ -49,11 +51,21 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
  * In admin program block edit form - enabling submit button when form is changed or if not empty
  */
 function changeUpdateBlockButtonState() {
-  const blockEditForm = document.getElementById('block-edit-form')
-  const submitButton = document.getElementById('update-block-button')
+  const blockEditForm = assertNotNull(
+    document.getElementById('block-edit-form'),
+  )
+  const submitButton = assertNotNull(
+    document.getElementById('update-block-button'),
+  )
 
-  const formNameInput = blockEditForm['block-name-input']
-  const formDescriptionText = blockEditForm['block-description-textarea']
+  const formNameInput = assertNotNull(
+    blockEditForm.querySelector<HTMLInputElement>('#block-name-input'),
+  )
+  const formDescriptionText = assertNotNull(
+    blockEditForm.querySelector<HTMLTextAreaElement>(
+      '#block-description-textarea',
+    ),
+  )
 
   if (
     (formNameInput.value !== formNameInput.defaultValue ||
@@ -82,17 +94,19 @@ function addNewInput(
 ) {
   // Copy the answer template and remove ID and hidden properties.
   const newField = document
-    .getElementById(inputTemplateId)
+    .getElementById(inputTemplateId)!
     .cloneNode(true) as HTMLElement
   newField.classList.remove('hidden')
   newField.removeAttribute('id')
 
   // Register the click event handler for the remove button.
-  newField.querySelector('[type=button]').addEventListener('click', removeInput)
+  newField
+    .querySelector('[type=button]')!
+    .addEventListener('click', removeInput)
 
   // Find the add option button and insert the new option input field before it.
   const button = document.getElementById(addButtonId)
-  document.getElementById(divContainerId).insertBefore(newField, button)
+  document.getElementById(divContainerId)!.insertBefore(newField, button)
 }
 
 /**
@@ -102,8 +116,10 @@ function addNewInput(
  */
 function removeInput(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
-  const optionDiv = (event.currentTarget as Element).parentNode
-  optionDiv.parentNode.removeChild(optionDiv)
+  const optionDiv = assertNotNull(
+    (event.currentTarget as Element).parentNode,
+  ) as HTMLElement
+  optionDiv.remove()
 }
 
 /**
@@ -112,9 +128,11 @@ function removeInput(event: Event) {
  * @param {Event} event The event that triggered this action.
  */
 function hideInput(event: Event) {
-  const inputDiv = (event.currentTarget as Element).parentElement
+  const inputDiv = assertNotNull(
+    (event.currentTarget as Element)!.parentElement,
+  )
   // Remove 'disabled' so the field is submitted with the form
-  inputDiv.querySelector('input').disabled = false
+  inputDiv.querySelector('input')!.disabled = false
   // Hide the entire div from the user
   inputDiv.classList.add('hidden')
 }
@@ -143,8 +161,9 @@ function attachLineClampListeners() {
 function configurePredicateFormOnScalarChange(event: Event) {
   // Get the type of scalar currently selected.
   const scalarDropdown = event.target as HTMLSelectElement
-  const selectedScalarType =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
+  const selectedScalarType = assertNotNull(
+    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
+  )
   const selectedScalarValue =
     scalarDropdown.options[scalarDropdown.options.selectedIndex].value
 
@@ -168,10 +187,11 @@ function filterOperators(
   selectedScalarValue: string,
 ) {
   // Filter the operators available for the given selected scalar type.
-  const operatorDropdown = scalarDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-operator-select') // div containing the operator dropdown
-    .querySelector('select') as HTMLSelectElement
+  const operatorDropdown = assertNotNull(
+    scalarDropdown
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      ?.querySelector<HTMLSelectElement>('.cf-operator-select select'),
+  )
 
   Array.from(operatorDropdown.options).forEach((operatorOption) => {
     // Remove any existing hidden class from previous filtering.
@@ -238,17 +258,19 @@ function configurePredicateValueInput(
     return
   }
 
-  const operatorDropdown = scalarDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-operator-select') // div containing the operator dropdown
-    .querySelector('select')
+  const operatorDropdown = assertNotNull(
+    scalarDropdown
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      ?.querySelector<HTMLSelectElement>('.cf-operator-select select'),
+  )
   const operatorValue =
     operatorDropdown.options[operatorDropdown.options.selectedIndex].value
 
-  const valueInput = scalarDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-predicate-value-input') // div containing the predicate value input
-    .querySelector('input')
+  const valueInput = assertNotNull(
+    scalarDropdown
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      ?.querySelector<HTMLInputElement>('.cf-predicate-value-input input'),
+  )
 
   switch (selectedScalarType.toUpperCase()) {
     case 'STRING':
@@ -286,7 +308,7 @@ function configurePredicateFormOnOperatorChange(event: Event) {
 
   const commaSeparatedHelpText = operatorDropdown
     .closest('.cf-predicate-options')
-    .querySelector('.cf-predicate-value-comma-help-text')
+    ?.querySelector('.cf-predicate-value-comma-help-text')
 
   // This help text div isn't present at all in some cases.
   if (!commaSeparatedHelpText) {
@@ -304,12 +326,14 @@ function configurePredicateFormOnOperatorChange(event: Event) {
   }
 
   // The type of the value field may need to change based on the current operator
-  const scalarDropdown = operatorDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-scalar-select') // div containing the scalar dropdown
-    .querySelector('select')
-  const selectedScalarType =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
+  const scalarDropdown = assertNotNull(
+    operatorDropdown
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      ?.querySelector<HTMLSelectElement>('.cf-scalar-select select'),
+  )
+  const selectedScalarType = assertNotNull(
+    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type,
+  )
   const selectedScalarValue =
     scalarDropdown.options[scalarDropdown.options.selectedIndex].value
   configurePredicateValueInput(
@@ -336,30 +360,15 @@ function attachFormDebouncers() {
 }
 
 /**
- * Adds event listener to all elements on a page that match given selector.
- * This function doesn't handle elements added dynamically after the function was invoked.
- * @param {string} selector CSS selector that will be used to retrieve list of elements.
- * @param {string} event Browser event. For example 'click'
- * @param {Function} listener Listener that will be registered on all matching elements.
- */
-function addEventListenerToElements(
-  selector: string,
-  event: string,
-  listener: (e: Event) => void,
-) {
-  Array.from(document.querySelectorAll(selector)).forEach((el) =>
-    el.addEventListener(event, listener),
-  )
-}
-
-/**
  * Adds listeners to all elements that have `data-redirect-to="..."` attribute.
  * All such elements act as links taking user to another page.
  */
 function attachRedirectToPageListeners() {
   addEventListenerToElements('[data-redirect-to]', 'click', (e: Event) => {
     e.stopPropagation()
-    window.location.href = (e.currentTarget as HTMLElement).dataset.redirectTo
+    window.location.href = assertNotNull(
+      (e.currentTarget as HTMLElement).dataset.redirectTo,
+    )
   })
 }
 
@@ -390,7 +399,7 @@ function disableEnterToSubmitBehaviorOnForms() {
   })
 }
 
-window.addEventListener('load', () => {
+export function init() {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
     attachDropdown(el.id)
@@ -464,4 +473,4 @@ window.addEventListener('load', () => {
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
-})
+}

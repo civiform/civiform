@@ -51,7 +51,6 @@ export const isLocalDevEnvironment = () => {
   )
 }
 
-/* eslint-disable no-unused-vars */
 /**
  * Different auth strategies that are being exercised in this test. Each strategy
  * requires different logic for login (which fields to fill and button to click on
@@ -62,7 +61,6 @@ export enum AuthStrategy {
   AWS_STAGING = 'aws-staging',
   SEATTLE_STAGING = 'seattle-staging',
 }
-/* eslint-enable no-unused-vars */
 
 function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   if (process.env.RECORD_VIDEO) {
@@ -189,10 +187,17 @@ export const createTestContext = (clearDb = true): TestContext => {
   // we'll get one huge video for all tests.
   async function resetContext() {
     if (browserContext != null) {
-      if (!DISABLE_BROWSER_ERROR_WATCHER) {
-        ctx.browserErrorWatcher.failIfContainsErrors()
+      try {
+        if (!DISABLE_BROWSER_ERROR_WATCHER) {
+          ctx.browserErrorWatcher.failIfContainsErrors()
+        }
+      } finally {
+        // browserErrorWatcher might throw an error that should bubble up all
+        // the way to the developer. Regardless whether the error is thrown or
+        // not we need to close the browser context. Without that some processes
+        // won't be finished, like saving videos.
+        await browserContext.close()
       }
-      await browserContext.close()
     }
     browserContext = await makeBrowserContext(browser)
     ctx.page = await browserContext.newPage()
@@ -534,6 +539,7 @@ const normalizeElements = async (page: Frame | Page) => {
       '.cf-bt-date': (text) =>
         text
           .replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
+          .replace(/\d{4}-\d{2}-\d{2}/, '2030-01-01')
           .replace(/^(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
           .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT'),
       '.cf-application-id': (text) => text.replace(/\d+/, '1234'),
@@ -549,7 +555,11 @@ const normalizeElements = async (page: Frame | Page) => {
     }
   })
 }
-export type LocalstackSesEmail = {
+
+type LocalstackSesResponse = {
+  messages: LocalstackSesEmail[]
+}
+type LocalstackSesEmail = {
   Body: {
     html_part: string | null
     text_part: string | null
@@ -577,9 +587,11 @@ export const extractEmailsForRecipient = async function (
   }
   const originalPageUrl = page.url()
   await page.goto(`${LOCALSTACK_URL}/_localstack/ses`)
-  const responseJson = JSON.parse(await page.innerText('body')) as any
+  const responseJson = JSON.parse(
+    await page.innerText('body'),
+  ) as LocalstackSesResponse
 
-  const allEmails = responseJson.messages as LocalstackSesEmail[]
+  const allEmails = responseJson.messages
   const filteredEmails = allEmails.filter((email) => {
     return email.Destination.ToAddresses.includes(recipientEmail)
   })

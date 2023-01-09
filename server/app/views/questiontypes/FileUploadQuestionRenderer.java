@@ -14,6 +14,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import views.FileUploadViewStrategy;
 import views.components.FieldWithLabel;
+import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
 /**
@@ -63,7 +64,12 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
                 .withText(question.getQuestionTextForScreenReader()))
         .with(
             fileUploadViewStrategy.signedFileUploadFields(
-                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors));
+                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
+        .with(
+            label()
+                .withFor(fileInputId)
+                .withText("Choose File")
+                .withClasses(ApplicantStyles.BUTTON_UPLOAD, "w-44", "mt-2", "cursor-pointer"));
   }
 
   @Override

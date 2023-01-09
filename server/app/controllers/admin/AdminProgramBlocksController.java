@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
@@ -27,7 +28,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
-import views.admin.programs.ProgramBlockEditView;
+import views.admin.programs.ProgramBlockAllAspectsView;
 import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
@@ -44,12 +45,12 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public AdminProgramBlocksController(
       ProgramService programService,
       QuestionService questionService,
-      ProgramBlockEditView editView,
+      ProgramBlockAllAspectsView.Factory editViewFactory,
       FormFactory formFactory,
       RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.editView = checkNotNull(editView);
+    this.editView = checkNotNull(editViewFactory.create(DRAFT));
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
   }
@@ -84,7 +85,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 formFactory
                     .form()
                     .bindFromRequest(request)
-                    .get(ProgramBlockEditView.ENUMERATOR_ID_FORM_FIELD))
+                    .get(ProgramBlockAllAspectsView.ENUMERATOR_ID_FORM_FIELD))
             .map(Long::valueOf);
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
