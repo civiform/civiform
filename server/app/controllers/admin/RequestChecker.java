@@ -33,6 +33,6 @@ final class RequestChecker {
     if (versionRepository.isActiveProgram(programId)) {
       return;
     }
-    throw new NotChangeableException(String.format("Program %d is not Active.", programId));
+    throw new NotViewableException(String.format("Program %d is not Active.", programId));
   }
 }

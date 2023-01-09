@@ -59,12 +59,21 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
    * (blocks) if applicable through links on the page.
    */
+  /**
+   * Return a HTML page displaying all configurations of the specified program.
+   *
+   * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
+   * (blocks) if applicable through links on the page.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(long programId) {
+  public Result index(long programId, boolean readOnly) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
-      return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
+      String redirectUrl = readOnly ?
+        routes.AdminProgramBlockController.view(programId, blockId)
+        : routes.AdminProgramBlocksController.edit(programId, blockId);
+      return redirect(redirectUrl);
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     }
