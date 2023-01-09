@@ -56,7 +56,7 @@ export class AdminProgramStatuses {
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain('Create a new status')
 
-    emailBody = emailBody || ''
+    emailBody = emailBody ?? ''
     await this.fillStatusUpdateModalValuesAndSubmit(modal, {
       statusName,
       emailBody,

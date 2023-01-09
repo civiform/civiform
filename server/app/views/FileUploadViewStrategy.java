@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.p;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -81,6 +82,9 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .withId(fileInputId + "-required-error")
             .withClasses(
                 ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, "hidden"));
+    result.with(
+        p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
+            .withClasses("text-sm", "text-gray-600", "mb-2"));
     return result;
   }
 

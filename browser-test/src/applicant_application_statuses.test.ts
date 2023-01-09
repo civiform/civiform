@@ -33,7 +33,7 @@ describe('with program statuses', () => {
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantQuestions.submitFromPreviewPage()
+    await applicantQuestions.submitFromReviewPage()
     await logout(page)
 
     // Navigate to the submitted application as the program admin and set a status.

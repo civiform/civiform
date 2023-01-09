@@ -20,7 +20,6 @@ services:
       - 9999:9000
     environment:
       - CIVIFORM_APPLICANT_IDP=idcs
-      - APPLICANT_OIDC_PROVIDER_LOGOUT=true
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
