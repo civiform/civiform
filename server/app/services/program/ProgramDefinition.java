@@ -531,9 +531,9 @@ public abstract class ProgramDefinition {
       long blockId) throws ProgramBlockDefinitionNotFoundException {
     // Only questions in the block are available.
     return getBlockDefinition(blockId).programQuestionDefinitions().stream()
-      .map(ProgramQuestionDefinition::getQuestionDefinition)
-      .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
-      .collect(ImmutableList.toImmutableList());
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**
