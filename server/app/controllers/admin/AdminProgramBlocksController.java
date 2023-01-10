@@ -30,6 +30,14 @@ import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockEditView;
 import views.components.ToastMessage;
 
+
+
+// TODO(jhummel) use readOnlyView when submitted (in constructor)
+// TODO(jhummel) check if using the real read only version resolves the
+// programblockdefinitionnotfoundexception
+// Todo(jhummel) get icon for view
+// TODO(jhummel) update comments
+
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {
 
@@ -47,7 +55,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ProgramService programService,
       QuestionService questionService,
       ProgramBlockEditView editView,
-      // TODO(jhummel) use readOnlyView when submitted
       ProgramBlockEditView readOnlyView,
       FormFactory formFactory,
       RequestChecker requestChecker) {
@@ -87,8 +94,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
 
-      // TODO(jhummel) check if using the real read only version resolves the
-      // programblockdefinitionnotfoundexception
+
       String redirectUrl = readOnly ?
         routes.AdminProgramBlocksController.view(programId, blockId).url()
         : routes.AdminProgramBlocksController.edit(programId, blockId).url();
