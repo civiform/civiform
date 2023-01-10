@@ -36,7 +36,7 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "ses" % "2.19.4",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.7.2",
+      "com.azure" % "azure-identity" % "1.7.3",
       "com.azure" % "azure-storage-blob" % "12.20.1",
 
       // Database and database testing libraries
@@ -50,9 +50,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.23.1" % Test,
+      "org.assertj" % "assertj-core" % "3.24.1" % Test,
       "org.mockito" % "mockito-inline" % "4.11.0",
-      "org.assertj" % "assertj-core" % "3.23.1" % Test,
+      "org.assertj" % "assertj-core" % "3.24.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "31.1-jre" % Test,
