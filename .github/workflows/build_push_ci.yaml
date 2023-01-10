@@ -98,7 +98,7 @@ jobs:
             contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) ||
             contains(toJSON(steps.file_changes.outputs.files), matrix.script) ||
             contains(toJSON(steps.file_changes.outputs.files), '.github') }}
-        run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}" && echo "::set-output name=build::build"
+        run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}" && echo "build=build" >> $GITHUB_OUTPUT
 
       - name: Skip build & push
         if: ${{ steps.check_build.outputs.build != 'build' }}
