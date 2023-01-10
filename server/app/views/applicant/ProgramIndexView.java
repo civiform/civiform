@@ -273,7 +273,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.createLinksAndEscapeText(
             program.localizedDescription().getOrDefault(preferredLocale),
-            TextFormatter.UrlOpenAction.NewTab);
+            TextFormatter.UrlOpenAction.NewTab,
+            /* addRequiredIndicator= */ false);
     DivTag description =
         div()
             .withId(baseId + "-description")
@@ -317,15 +318,11 @@ public final class ProgramIndexView extends BaseHtmlView {
               .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
               .setHref(program.externalLink())
               .opensInNewTab()
+              .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
               .asAnchorText()
-              .with(
-                  Icons.svg(Icons.OPEN_IN_NEW)
-                      .attr("role", "img")
-                      .attr(
-                          "aria-label",
-                          messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()))
-                      .withClasses(
-                          "shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top"));
+              .attr(
+                  "aria-label",
+                  messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()));
 
       programData.with(div(externalLink));
     }
@@ -336,7 +333,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     String actionUrl =
-        controllers.applicant.routes.ApplicantProgramReviewController.preview(
+        controllers.applicant.routes.ApplicantProgramReviewController.review(
                 applicantId, program.id())
             .url();
     ATag actionButton =

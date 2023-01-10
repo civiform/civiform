@@ -40,7 +40,7 @@ public class ApplicationBaseView extends BaseHtmlView {
               .url();
     } else {
       redirectUrl =
-          routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
+          routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
               .url();
     }
     return a().withHref(redirectUrl)

@@ -1,6 +1,8 @@
 package services.program;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
@@ -129,6 +131,17 @@ public abstract class BlockDefinition {
   public abstract Optional<PredicateDefinition> visibilityPredicate();
 
   /**
+   * An {@link EligibilityDefinition} that determines whether this block can be continued on from or
+   * not.
+   *
+   * <p>This contains a {@link PredicateDefinition} that determines if the applicant is eligible or
+   * not for the program as of this block.
+   */
+  @JsonInclude(Include.NON_EMPTY)
+  @JsonProperty("eligibilityDefinition")
+  public abstract Optional<EligibilityDefinition> eligibilityDefinition();
+
+  /**
    * A {@link PredicateDefinition} that determines whether this is optional or required.
    *
    * <p>Note as of 2021-05-25: We no longer consider blocks to be required or optional - a block is
@@ -178,6 +191,13 @@ public abstract class BlockDefinition {
 
     public Builder setVisibilityPredicate(PredicateDefinition predicate) {
       return this.setVisibilityPredicate(Optional.of(predicate));
+    }
+
+    @JsonProperty("eligibilityDefinition")
+    public abstract Builder setEligibilityDefinition(Optional<EligibilityDefinition> eligibility);
+
+    public Builder setEligibilityDefinition(EligibilityDefinition eligibility) {
+      return this.setEligibilityDefinition(Optional.of(eligibility));
     }
 
     @JsonProperty("optionalPredicate")

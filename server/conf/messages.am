@@ -40,6 +40,9 @@ validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እ
 # Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
 
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -173,21 +176,20 @@ button.submit=አስገባ
 # Continue application button
 button.continue=ቀጥል
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=እዚህ ይጀምሩ
-
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=አርትዕ
+link.answer=መልስ
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0}ን አርትዕ
 
-# Program Preview Title
-title.programPreview=የፕሮግራም ማመልክቻ ቅድመ-ዕይታ
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=መልስ {0}
 
-# Program Review Title
-title.programReview=የፕሮግራም ማመልከቻ ግምገማ
+# Program Summary Title
+title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

@@ -2,7 +2,7 @@ const DEV_ICONS_TABLE = 'cf-dev-icons'
 
 /** This handler is responsible for annotating each rendered SVG icon
  * with its size as calculated by the browser.  */
-window.addEventListener('load', () => {
+export function init() {
   const rows = Array.from(document.querySelectorAll(`.${DEV_ICONS_TABLE} tr`))
   rows.forEach((rowEl) => {
     const svgEl = rowEl.querySelector('svg')
@@ -22,4 +22,4 @@ window.addEventListener('load', () => {
       iconHeightEl.textContent = `${2 * bbox.y + bbox.height}`
     }
   })
-})
+}

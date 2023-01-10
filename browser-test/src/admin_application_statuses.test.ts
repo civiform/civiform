@@ -36,7 +36,7 @@ describe('view program statuses', () => {
       await applicantQuestions.clickApplyProgramButton(
         programWithoutStatusesName,
       )
-      await applicantQuestions.submitFromPreviewPage()
+      await applicantQuestions.submitFromReviewPage()
     })
 
     beforeEach(async () => {
@@ -94,14 +94,14 @@ describe('view program statuses', () => {
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromPreviewPage()
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
 
       // Submit an application as the logged in test user.
       await loginAsTestUser(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromPreviewPage()
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
@@ -302,6 +302,9 @@ describe('view program statuses', () => {
     it('renders the note dialog', async () => {
       const {page, adminPrograms} = ctx
       await adminPrograms.awaitEditNoteModal()
+      await page.evaluate(() => {
+        window.scrollTo(0, 0)
+      })
       await validateScreenshot(page, 'edit-note-modal')
     })
 

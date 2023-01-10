@@ -18,17 +18,13 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
-import featureflags.FeatureFlags;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.SelectTag;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -37,6 +33,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.Block;
@@ -44,9 +41,10 @@ import services.program.StatusDefinitions;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.JsBundle;
+import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
-import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
@@ -66,14 +64,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
   public static final String NOTE = "note";
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
-  private final FeatureFlags featureFlags;
+  private final DateConverter dateConverter;
 
   @Inject
   public ProgramApplicationView(
-      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, FeatureFlags featureFlags) {
+      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   public Content render(
@@ -117,7 +115,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
                 div()
-                    .withClasses("flex")
+                    .withClasses("flex", "items-center")
                     .with(
                         p(applicantNameWithApplicationId)
                             .withClasses(
@@ -154,10 +152,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addBodyStyles("flex")
             .addMainStyles("w-screen")
             .addModals(updateNoteModal)
-            .addModals(statusUpdateConfirmationModals);
-    if (!featureFlags.isJsBundlingEnabled()) {
-      htmlBundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_application_view"));
-    }
+            .addModals(statusUpdateConfirmationModals)
+            .setJsBundle(JsBundle.ADMIN);
     Optional<String> maybeSuccessMessage = request.flash().get("success");
     if (maybeSuccessMessage.isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
@@ -165,11 +161,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private ATag renderDownloadButton(long programId, long applicationId) {
+  private ButtonTag renderDownloadButton(long programId, long applicationId) {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
-    return new LinkElement().setHref(link).setText("Export to PDF").asRightAlignedButton();
+    return asRedirectElement(
+        ViewUtils.makeSvgTextButton("Export to PDF", Icons.DOWNLOAD)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
+        link);
   }
 
   private DivTag renderApplicationBlock(
@@ -194,8 +193,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private DivTag renderAnswer(long programId, AnswerData answerData) {
-    LocalDate date =
-        Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
+    String date = dateConverter.renderDate(Instant.ofEpochMilli(answerData.timestamp()));
     DivTag answerContent;
     if (answerData.encodedFileKey().isPresent()) {
       String encodedFileKey = answerData.encodedFileKey().get();
@@ -203,7 +201,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
           controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
       answerContent = div(a(answerData.answerText()).withHref(fileLink));
     } else {
-      answerContent = div(answerData.answerText());
+      answerContent = div(answerData.answerText().replace("\n", "; "));
     }
     return div()
         .withClasses("flex")
@@ -218,7 +216,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .with(p().withClasses("flex-grow"))
         .with(
             div("Answered on " + date)
-                .withClasses("flex-auto", "text-right", "font-light", "text-xs"));
+                .withClasses(
+                    ReferenceClasses.BT_DATE, "flex-auto", "text-right", "font-light", "text-xs"));
   }
 
   private DivTag renderStatusOptionsSelector(

@@ -31,7 +31,6 @@ public class BaseHtmlLayout {
 
   private static final String CIVIFORM_TITLE = "CiviForm";
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
-  private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast"};
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 
@@ -62,7 +61,7 @@ public class BaseHtmlLayout {
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
   public HtmlBundle getBundle() {
-    return getBundle(new HtmlBundle(viewUtils, featureFlags.isJsBundlingEnabled()));
+    return getBundle(new HtmlBundle(viewUtils));
   }
 
   /**
@@ -104,12 +103,6 @@ public class BaseHtmlLayout {
         .map(id -> getAnalyticsScripts(id).toArray(new ScriptTag[0]))
         .ifPresent(bundle::addFooterScripts);
 
-    // Add default scripts.
-    if (!featureFlags.isJsBundlingEnabled()) {
-      for (String source : FOOTER_SCRIPTS) {
-        bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
-      }
-    }
     // Add the favicon link
     bundle.setFavicon(civiformFaviconUrl);
     bundle.setJsBundle(getJsBundle());

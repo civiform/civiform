@@ -18,12 +18,22 @@ import play.mvc.Http.Request;
  */
 public final class FeatureFlags {
   private static final Logger logger = LoggerFactory.getLogger(FeatureFlags.class);
+  // Main control for any feature flags working.
   private static final String FEATURE_FLAG_OVERRIDES_ENABLED = "feature_flag_overrides_enabled";
-  public static final String APPLICATION_STATUS_TRACKING_ENABLED =
-      "application_status_tracking_enabled";
+
+  // Long lived feature flags.
   public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
       "allow_civiform_admin_access_programs";
-  private static final String USE_JS_BUNDLES = "use_js_bundles";
+
+  // Launch Flags, these will eventually be removed.
+  public static final String APPLICATION_STATUS_TRACKING_ENABLED =
+      "application_status_tracking_enabled";
+  public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
+      "program_eligibility_conditions_enabled";
+  public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
+  public static final String PREDICATES_MULTIPLE_QUESTIONS_ENABLED =
+      "predicates_multiple_questions_enabled";
+
   private final Config config;
   private static final String ESRI_ADDRESS_CORRECTION_ENABLED = "esri_address_correction_enabled";
   private static final String ESRI_ADDRESS_VERIFICATION_ENABLED = "esri_address_verification_enabled";
@@ -36,6 +46,29 @@ public final class FeatureFlags {
   public boolean areOverridesEnabled() {
     return config.hasPath(FEATURE_FLAG_OVERRIDES_ENABLED)
         && config.getBoolean(FEATURE_FLAG_OVERRIDES_ENABLED);
+  }
+
+  /**
+   * If the Eligibility Conditions feature is enabled.
+   *
+   * <p>Allows for overrides set in {@code request}.
+   */
+  public boolean isProgramEligibilityConditionsEnabled(Request request) {
+    return getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
+  }
+
+  /** If the Eligibility Conditions feature is enabled in the system configuration. */
+  public boolean isProgramEligibilityConditionsEnabled() {
+    return config.getBoolean(PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
+  }
+
+  /**
+   * If specifying multiple questions in a predicate is enabled.
+   *
+   * <p>Allows for overrides set in {@code request}.
+   */
+  public boolean isPredicatesMultipleQuestionsEnabled(Request request) {
+    return getFlagEnabled(request, PREDICATES_MULTIPLE_QUESTIONS_ENABLED);
   }
 
   /**
@@ -56,8 +89,14 @@ public final class FeatureFlags {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
 
-  public boolean isJsBundlingEnabled() {
-    return config.getBoolean(USE_JS_BUNDLES);
+  // If the UI can show a read only view of a program. Without this flag the
+  // only way to view a program is to start editing it.
+  public boolean isReadOnlyProgramViewEnabled() {
+    return config.getBoolean(PROGRAM_READ_ONLY_VIEW_ENABLED);
+  }
+
+  public boolean isReadOnlyProgramViewEnabled(Request request) {
+    return getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED);
   }
 
   public boolean isEsriAddressCorrectionEnabled() {
@@ -70,8 +109,14 @@ public final class FeatureFlags {
 
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
     return ImmutableMap.of(
-        ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, allowCiviformAdminAccessPrograms(request),
-        APPLICATION_STATUS_TRACKING_ENABLED, isStatusTrackingEnabled(request));
+        ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
+        allowCiviformAdminAccessPrograms(request),
+        APPLICATION_STATUS_TRACKING_ENABLED,
+        isStatusTrackingEnabled(request),
+        PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
+        isProgramEligibilityConditionsEnabled(request),
+        PROGRAM_READ_ONLY_VIEW_ENABLED,
+        isReadOnlyProgramViewEnabled(request));
   }
 
   /**

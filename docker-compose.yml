@@ -9,6 +9,14 @@ services:
       - '4566'
     environment:
       - SERVICES=s3,ses
+    networks:
+      default:
+        aliases:
+          # We use hosted-style for s3 bucket urls. Which matches production.
+          # https://docs.localstack.cloud/user-guide/aws/s3/
+          # So we need to add host mapping for test bucket civiform-local-s3
+          - civiform-local-s3.localhost.localstack.cloud
+          - localhost.localstack.cloud
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
@@ -75,7 +83,6 @@ services:
       - APPLICANT_REGISTER_URI
       - ADFS_CLIENT_ID
       - ADFS_SECRET
-      - APPLICANT_OIDC_PROVIDER_LOGOUT=true
       - APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM
       - APPLICANT_OIDC_LOGOUT_CLIENT_PARAM=client_id
       - APPLICANT_OIDC_OVERRIDE_LOGOUT_URL

@@ -295,7 +295,7 @@ export class ApplicantQuestions {
   async downloadSingleQuestionFromReviewPage() {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h2')).toContain(
-      'Program application review',
+      'Program application summary',
     )
 
     const [downloadEvent] = await Promise.all([
@@ -323,24 +323,29 @@ export class ApplicantQuestions {
 
   async expectReviewPage() {
     expect(await this.page.innerText('h2')).toContain(
-      'Program application review',
+      'Program application summary',
     )
+  }
+
+  async expectIneligiblePage() {
+    expect(await this.page.innerText('p')).toContain(
+      'not eligible for this program',
+    )
+  }
+
+  async expectQuestionIsNotEligible(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    expect(
+      await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
+    ).toEqual(1)
   }
 
   async submitFromReviewPage() {
     // Assert that we're on the review page.
     await this.expectReviewPage()
-
-    // Click on submit button.
-    await this.page.click('text="Submit"')
-    await waitForPageJsLoad(this.page)
-  }
-
-  async submitFromPreviewPage() {
-    // Assert that we're on the preview page.
-    expect(await this.page.innerText('h2')).toContain(
-      'Program application preview',
-    )
 
     // Click on submit button.
     await this.page.click('text="Submit"')

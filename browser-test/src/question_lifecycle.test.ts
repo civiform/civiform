@@ -57,6 +57,8 @@ describe('normal question lifecycle', () => {
         await adminQuestions.updateQuestion(repeatedQuestion)
       }
 
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await validateScreenshot(page, `${type}-edit-page`)
       await adminQuestions.updateQuestion(questionName)
 
       const programName = `program-for-${type}-question-lifecycle`

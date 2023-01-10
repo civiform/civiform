@@ -8,4 +8,5 @@ docker::set_project_name_unit_tests
 bin/pull-image
 
 docker::compose_unit_test_dev up -d --wait
-docker::compose_unit_test_dev exec -it civiform sbt -jvm-debug "*:8459" "$@"
+
+docker::dev_and_test_server_sbt_command "8459" "$@"

@@ -31,7 +31,8 @@ public final class ReferenceClasses {
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String DEBOUNCED_FORM = "cf-debounced-form";
   public static final String QUESTION_CONFIG = "cf-question-config";
-  public static final String EDIT_PREDICATE_BUTTON = "cf-edit-predicate";
+  public static final String EDIT_ELIGIBILITY_PREDICATE_BUTTON = "cf-edit-eligibility-predicate";
+  public static final String EDIT_VISIBILITY_PREDICATE_BUTTON = "cf-edit-visibility-predicate";
   public static final String PREDICATE_DISPLAY = "cf-display-predicate";
   public static final String PREDICATE_ACTION = "cf-predicate-action";
   public static final String PREDICATE_SCALAR_SELECT = "cf-scalar-select";
@@ -71,6 +72,7 @@ public final class ReferenceClasses {
   public static final String APPLICANT_QUESTION_TEXT = "cf-applicant-question-text";
   public static final String APPLICANT_QUESTION_ERRORS = "cf-applicant-question-errors";
   public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
+  public static final String APPLICANT_NOT_ELIGIBLE_TEXT = "cf-applicant-not-eligible-text";
   public static final String APPLICATION_CARD = "cf-application-card";
   public static final String APPLICATION_CARD_TITLE = "cf-application-card-title";
   public static final String APPLICATION_CARD_DESCRIPTION = "cf-application-card-description";
@@ -137,6 +139,9 @@ public final class ReferenceClasses {
   // taking a screenshot (e.g. dates, application IDs).
   public static final String BT_DATE = "cf-bt-date";
   public static final String BT_APPLICATION_ID = "cf-application-id";
+  public static final String BT_EMAIL = "cf-bt-email";
+  public static final String BT_API_KEY_ID = "cf-bt-api-key-id";
+  public static final String BT_API_KEY_CREATED_BY = "cf-bt-api-key-created-by";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Developer reference classes

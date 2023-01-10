@@ -291,7 +291,7 @@ public final class QuestionEditView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Update").withClass("ml-2"));
+        .with(submitButton("Update").withClasses("ml-2", AdminStyles.PRIMARY_BUTTON_STYLES));
     return formTag;
   }
 

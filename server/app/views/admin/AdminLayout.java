@@ -37,8 +37,6 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   private final NavPage activeNavPage;
 
-  private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank", "admin_validation"};
-
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
   AdminLayout(
@@ -69,12 +67,6 @@ public final class AdminLayout extends BaseHtmlLayout {
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
 
-    if (!featureFlags.isJsBundlingEnabled()) {
-      for (String source : FOOTER_SCRIPTS) {
-        bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
-      }
-    }
-
     return super.render(bundle);
   }
 
@@ -92,7 +84,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     DivTag headerIcon =
-        div(span("C"), span("F").withClasses("font-thin")).withClasses(AdminStyles.ADMIN_NAV_BAR);
+        div(span("C"), span("F").withClasses("font-thin"))
+            .withClasses(AdminStyles.ADMIN_NAV_BAR_LOGO);
     DivTag headerTitle =
         div()
             .withClasses("font-normal", "text-xl", "inline", "pl-10", "py-0", "mr-4")
