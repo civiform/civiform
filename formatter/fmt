@@ -63,14 +63,3 @@ echo 'Start format shell'
 shfmt -bn -ci -i 2 -w -l \
   $(shfmt -f . | grep -v -e /node_modules)
 echo 'Done formatting shell'
-
-# Formatting python is fun as we have some scripts which
-# are python files but don't have .py extension. We find
-# them by having python3 shebang at the begining of the file
-echo 'Start format python'
-python_files=$(grep -rl "/usr/bin/env python3" bin/)
-yapf -i -r -p -vv \
-  --no-local-style \
-  --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}' \
-  $python_files
-echo 'Done formatting python'
