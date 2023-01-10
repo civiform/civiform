@@ -318,12 +318,7 @@ describe('create and edit predicates', () => {
     })
 
     it('every visibility right hand type evaluates correctly', async () => {
-      const {
-        page,
-        adminPrograms,
-        applicantQuestions,
-        adminPredicates,
-      } = ctx
+      const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
       await loginAsAdmin(page)
       const programName = 'Test all visibility predicate types'
