@@ -317,7 +317,7 @@ describe('create and edit predicates', () => {
       await logout(page)
     })
 
-    it('multiple values and multiple questions', async () => {
+    it('eligibility multiple values and multiple questions', async () => {
       const {page, adminPrograms, adminPredicates} = ctx
 
       await loginAsAdmin(page)
@@ -352,7 +352,11 @@ describe('create and edit predicates', () => {
         },
       ])
 
-      const predicateDisplay = await page.innerText('.cf-display-predicate')
+      let predicateDisplay = await page.innerText('.cf-display-predicate')
+      await validateScreenshot(
+        page,
+        'eligibility-predicates-multi-values-multi-questions-predicate-saved',
+      )
       expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
       expect(predicateDisplay).toContain(
         '"predicate-currency" currency is less than $10.00',
@@ -365,6 +369,32 @@ describe('create and edit predicates', () => {
       )
       expect(predicateDisplay).toContain(
         '"predicate-date" date is earlier than 2022-02-02',
+      )
+
+      await adminPredicates.clickEditPredicateButton('eligibility')
+      await validateScreenshot(
+        page,
+        'eligibility-predicates-multi-values-multi-questions-predicate-edit',
+      )
+
+      await adminPredicates.configurePredicate({
+        questionName: 'predicate-currency',
+        scalar: 'currency',
+        operator: 'is greater than',
+        values: ['100', '200'],
+      })
+      await page.screenshot({path: 'tmp/shot.png', fullPage: true})
+      await adminPredicates.clickSaveConditionButton()
+      await validateScreenshot(
+        page,
+        'eligibility-predicates-multi-values-multi-questions-predicate-updated',
+      )
+      predicateDisplay = await page.innerText('.cf-display-predicate')
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is greater than $100.00',
+      )
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is greater than $200.00',
       )
     })
 

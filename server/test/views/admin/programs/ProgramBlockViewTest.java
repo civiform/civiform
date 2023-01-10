@@ -87,9 +87,9 @@ public class ProgramBlockViewTest {
 
     assertThat(result.render())
         .isEqualTo(
-            "<div>Block_name is hidden if &quot;applicant birth date&quot; date is equal to"
-                + " 2023-01-01 and &quot;applicant Email address&quot; email is equal to"
-                + " &quot;test@example.com&quot;</div>");
+            "<div>Block_name is hidden if &quot;applicant Email address&quot; email is equal to"
+                + " &quot;test@example.com&quot; and &quot;applicant birth date&quot; date is"
+                + " equal to 2023-01-01</div>");
   }
 
   @Test
@@ -146,11 +146,11 @@ public class ProgramBlockViewTest {
     assertThat(result.render())
         .isEqualTo(
             "<div>Block_name is hidden if any of:<ul class=\"list-disc ml-4"
-                + " mb-4\"><li>&quot;applicant birth date&quot; date is equal to 2023-01-01 and"
-                + " &quot;applicant Email address&quot; email is equal to"
-                + " &quot;test@example.com&quot;</li><li>&quot;applicant birth date&quot; date is"
-                + " equal to 2023-03-03 and &quot;applicant Email address&quot; email is equal to"
-                + " &quot;other@example.com&quot;</li></ul></div>");
+                + " mb-4\"><li>&quot;applicant Email address&quot; email is equal to"
+                + " &quot;test@example.com&quot; and &quot;applicant birth date&quot; date is"
+                + " equal to 2023-01-01</li><li>&quot;applicant Email address&quot; email is equal"
+                + " to &quot;other@example.com&quot; and &quot;applicant birth date&quot; date is"
+                + " equal to 2023-03-03</li></ul></div>");
   }
 
   private static final class ProgramBlockViewTestChild extends ProgramBlockView {}

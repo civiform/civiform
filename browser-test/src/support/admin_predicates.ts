@@ -27,6 +27,12 @@ export class AdminPredicates {
     }
   }
 
+  async clickEditPredicateButton(predicateType: 'visibility' | 'eligibility') {
+    await this.page.click(
+      `button:has-text("Edit existing ${predicateType} condition")`,
+    )
+  }
+
   async addPredicates(predicateSpecs: PredicateSpec[]) {
     for (const predicateSpec of predicateSpecs) {
       await this.selectQuestionForPredicate(predicateSpec.questionName)
@@ -39,7 +45,6 @@ export class AdminPredicates {
       await this.configurePredicate(predicateSpec)
     }
 
-    await this.page.screenshot({path: 'tmp/presubmit.png', fullPage: true})
     await this.clickSaveConditionButton()
   }
 
@@ -97,10 +102,6 @@ export class AdminPredicates {
 
     let groupNum = 1
     for (const valueToSet of values) {
-      await this.page.screenshot({
-        path: `tmp/setting-value-${groupNum}-${questionId}.png`,
-        fullPage: true,
-      })
       const valueInput = await this.page.$(
         `input[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
       )
