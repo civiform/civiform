@@ -111,9 +111,7 @@ public final class Block {
     return blockDefinition.isFileUpload();
   }
 
-  /**
-   * This block is an address block if its {@link BlockDefinition} contains an address question.
-   */
+  /** This block is an address block if its {@link BlockDefinition} contains an address question. */
   public boolean isAddress() {
     return blockDefinition.isAddress();
   }

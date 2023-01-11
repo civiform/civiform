@@ -1,12 +1,8 @@
 package services.geo;
 
 import com.google.auto.value.AutoValue;
-import services.geo.AddressLocation;
-import services.geo.AddressAttributes;
 
-/**
- * This class is for setting and getting an address candidate
- */
+/** This class is for setting and getting an address candidate */
 @AutoValue
 public abstract class AddressCandidate {
   public static Builder builder() {
@@ -14,24 +10,29 @@ public abstract class AddressCandidate {
   }
   /**
    * this method returns an address as a single line
+   *
    * @return String.
    */
   public abstract String getAddress();
 
   /**
    * this method returns the location object, which conatiins x and y coordinates
+   *
    * @return AddressLocation
    */
   public abstract AddressLocation getLocation();
 
   /**
-   * this method returns an integer which represents how well the candidate address matches with the user inputted address
+   * this method returns an integer which represents how well the candidate address matches with the
+   * user inputted address
+   *
    * @return int
    */
   public abstract int getScore();
 
   /**
    * this method returns address attributes like getStreetValue()
+   *
    * @return AddressAttributes
    */
   public abstract AddressAttributes getAttributes();

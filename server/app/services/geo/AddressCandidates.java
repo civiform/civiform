@@ -2,7 +2,6 @@ package services.geo;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import services.geo.AddressCandidate;
 
 @AutoValue
 public abstract class AddressCandidates {
@@ -12,12 +11,14 @@ public abstract class AddressCandidates {
 
   /**
    * this method returns a well-known ID for ArcGIS coordinate systems, used for spatial reference
+   *
    * @return int
    */
   public abstract int getWkid();
 
   /**
    * this method returns a list of address candidates sorted by their score (best match)
+   *
    * @return a list of address cnadidates
    */
   public abstract ImmutableList<AddressCandidate> getCandidates();

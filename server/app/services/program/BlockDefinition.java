@@ -123,7 +123,7 @@ public abstract class BlockDefinition {
     return programQuestionDefinitions().stream()
         .map(ProgramQuestionDefinition::getQuestionDefinition)
         .map(QuestionDefinition::getQuestionType)
-        .anyMatch(questionType -> questionType.equals(QuestionType.ADDRESS)); 
+        .anyMatch(questionType -> questionType.equals(QuestionType.ADDRESS));
   }
 
   /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
