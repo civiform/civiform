@@ -40,10 +40,12 @@ import views.style.StyleUtils;
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
+  private final ZoneId zoneId;
 
   @Inject
-  public ApplicantProgramSummaryView(ApplicantLayout layout) {
+  public ApplicantProgramSummaryView(ApplicantLayout layout, ZoneId zoneId) {
     this.layout = checkNotNull(layout);
+    this.zoneId = checkNotNull(zoneId);
   }
 
   /**
@@ -162,7 +164,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
       LocalDate date =
-          Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
+          Instant.ofEpochMilli(data.timestamp()).atZone(this.zoneId).toLocalDate();
       // TODO(#4003): Translate this text.
       DivTag timestampContent =
           div("Previously answered on " + date)
