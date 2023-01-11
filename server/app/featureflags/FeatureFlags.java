@@ -36,6 +36,10 @@ public final class FeatureFlags {
 
   private final Config config;
 
+  // Address correction and verifcation flags
+  private static final String ESRI_ADDRESS_CORRECTION_ENABLED = "esri_address_correction_enabled";
+  private static final String ESRI_ADDRESS_VERIFICATION_ENABLED = "esri_address_verification_enabled";
+
   @Inject
   FeatureFlags(Config config) {
     this.config = checkNotNull(config);
@@ -95,6 +99,14 @@ public final class FeatureFlags {
 
   public boolean isReadOnlyProgramViewEnabled(Request request) {
     return getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED);
+  }
+
+  public boolean isEsriAddressCorrectionEnabled() {
+    return config.getBoolean(ESRI_ADDRESS_CORRECTION_ENABLED);
+  }
+
+  public boolean isEsriAddressVerificationEnabled() {
+    return config.getBoolean(ESRI_ADDRESS_VERIFICATION_ENABLED);
   }
 
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
