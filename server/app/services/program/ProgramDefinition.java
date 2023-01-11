@@ -524,8 +524,7 @@ public abstract class ProgramDefinition {
    * Returns a list of the question definitions that may be used to define eligibility predicates on
    * the block definition with the id {@code blockId}.
    *
-   * <p>This is the same as {@link #getAvailableVisibilityPredicateQuestionDefinitions} but it
-   * includes questions in the provided {@code blockId}.
+   * <p>The questions will be the valid predicate questions in the block {@code blockId}.
    */
   public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
       long blockId) throws ProgramBlockDefinitionNotFoundException {
