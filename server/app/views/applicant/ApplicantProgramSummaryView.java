@@ -163,8 +163,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     DivTag actionAndTimestampDiv = div().withClasses("pr-2", "flex", "flex-col", "text-right");
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
-      LocalDate date =
-          Instant.ofEpochMilli(data.timestamp()).atZone(this.zoneId).toLocalDate();
+      LocalDate date = Instant.ofEpochMilli(data.timestamp()).atZone(this.zoneId).toLocalDate();
       // TODO(#4003): Translate this text.
       DivTag timestampContent =
           div("Previously answered on " + date)
