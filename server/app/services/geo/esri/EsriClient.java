@@ -33,16 +33,23 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS = "Address, SubAddr, City, Region, Postal";
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_FORMAT = "pjson";
   
-  public final ConfigList esri_address_verification;
   public final String ESRI_FIND_ADDRESS_CANDIDATES_URL;
+  public final ConfigList ESRI_ADDRESS_VERIFICATION_LABELS;
+  public final ConfigList ESRI_ADDRESS_VERIFICATION_VALUES;
+  public final ConfigList ESRI_ADDRESS_VERIFICATION_URLS;
+  public final ConfigList ESRI_ADDRESS_VERIFICATION_PATHS;
+
   private final WSClient ws;
 
   @Inject
   public EsriClient(
     Config configuration,
     WSClient ws) {
-    this.esri_address_verification = configuration.getList("esri_address_verification");
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL = checkNotNull(configuration).getString("esri_find_address_candidates_url");
+    this.ESRI_ADDRESS_VERIFICATION_LABELS = checkNotNull(configuration).getList("esri_address_verification_labels");
+    this.ESRI_ADDRESS_VERIFICATION_VALUES = checkNotNull(configuration).getList("esri_address_verification_values");
+    this.ESRI_ADDRESS_VERIFICATION_URLS = checkNotNull(configuration).getList("esri_address_verification_urls");
+    this.ESRI_ADDRESS_VERIFICATION_PATHS = checkNotNull(configuration).getList("esri_address_verification_paths");
     this.ws = ws;
   }
 
@@ -52,7 +59,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     request.addQueryParameter("outFields", ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS);
     request.addQueryParameter("f", ESRI_FIND_ADDRESS_CANDIDATES_FORMAT);
     // add addressAttributes to query
-    request.addQueryParameter("address", addressAttributes.getStateValue());
+    request.addQueryParameter("address", addressAttributes.getStreetValue());
     request.addQueryParameter("address2", addressAttributes.getLine2Value());
     request.addQueryParameter("city", addressAttributes.getCityValue());
     request.addQueryParameter("region", addressAttributes.getStateValue());
@@ -62,31 +69,15 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   }
 
   public CompletionStage<JsonNode> verifyAddressCoordinates(String verificationValue, AddressLocation location) {
-    HashMap<String, String> verificationConfig = new HashMap<String, String>();
-    // TODO: move to private memoized function
-    for (Iterator<ConfigValue> iterator = this.esri_address_verification.iterator(); iterator.hasNext();) {        
-      ConfigValue configValue = (ConfigValue) iterator.next();
-      /**
-       * Not happy about this. There doesn't seem to be a good way to traverse or access keys on ConfigValue
-       */
-      String configValueStr = configValue.toString();
+    List<String> verificationValues = this.ESRI_ADDRESS_VERIFICATION_VALUES.stream()
+      .map(configValue -> (String) configValue.unwrapped())
+      .collect(Collectors.toList());
 
-      Iterable<String> parsed = Splitter.on(",").split(
-        configValueStr
-          .replace("SimpleConfigObject({", "")
-          .replace("})", ""));
+    int verificationIndex = verificationValues.indexOf(verificationValue);
 
-      for (String el : parsed) {
-        Iterable<String> keyValue = Splitter.on(":").split(el);
-        String key = keyValue.iterator().next();
-        String value = keyValue.iterator().next();
-        if ("verification_value".equals(key) && value.equals(verificationValue)) {
-          verificationConfig.put(key, value);
-        }
-      }
-    }
+    String verificationUrl = this.ESRI_ADDRESS_VERIFICATION_URLS.get(verificationIndex).unwrapped().toString();
 
-    WSRequest request = ws.url(verificationConfig.get("url"));
+    WSRequest request = ws.url(verificationUrl);
     request.setContentType(ESRI_CONTENT_TYPE);
     request.addQueryParameter("f", ESRI_FIND_ADDRESS_CANDIDATES_FORMAT);
     request.addQueryParameter("geometryType", "esriGeometryPoint");

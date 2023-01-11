@@ -11,6 +11,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
@@ -20,6 +21,8 @@ import services.applicant.question.ApplicantQuestion;
 import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
 import views.HtmlBundle;
+import views.components.Modal;
+import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -44,9 +47,10 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   }
 
   public Content render(Params params) {
+    InputTag csrfTag = makeCsrfTokenInputTag(params.request());
     DivTag blockDiv =
         div()
-            .with(div(renderBlockWithSubmitForm(params)).withClasses("my-8"))
+            .with(div(renderBlockWithSubmitForm(params, csrfTag)).withClasses("my-8"))
             .withClasses("my-8", "m-auto");
 
     String errorMessage = "";
@@ -56,6 +60,11 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       // Add error message to title for screen reader users.
       errorMessage = " — " + params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName());
     }
+    String addressCorrectFormAction =
+        routes.ApplicantProgramBlocksController.update(
+                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+            .url();
+    Modal addressCorrectModal = renderAddressCorrectionModal(csrfTag, addressCorrectFormAction);
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -67,7 +76,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
                 blockDiv)
-            .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
+            .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
+            .addModals(addressCorrectModal);
 
     if (!params.preferredLanguageSupported()) {
       bundle.addMainContent(
@@ -98,7 +108,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .getContainerTag();
   }
 
-  private ContainerTag<?> renderBlockWithSubmitForm(Params params) {
+  private ContainerTag<?> renderBlockWithSubmitForm(Params params, InputTag csrfTag) {
     if (params.block().isFileUpload()) {
       return fileUploadStrategy.renderFileUploadBlock(params, applicantQuestionRendererFactory);
     }
@@ -129,7 +139,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     return form.withId(BLOCK_FORM_ID)
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
-        .with(makeCsrfTokenInputTag(params.request()))
+        .with(csrfTag)
         .with(this.requiredFieldsExplanationContent(params.messages()))
         .with(
             each(
@@ -160,5 +170,20 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
+  }
+
+  private Modal renderAddressCorrectionModal(InputTag csrfTag, String addressCorrectFormAction) {
+    FormTag modalContent = form(csrfTag)
+        .withMethod(HttpVerbs.POST)
+        .withAction(addressCorrectFormAction);
+
+    ButtonTag triggerButton =
+        button("")
+            .withClasses("hidden");
+    return Modal.builder(Modal.randomModalId(), modalContent)
+        .setModalTitle("Select Correct Address")
+        .setWidth(Width.THREE_FOURTHS)
+        .setTriggerButtonContent(triggerButton)
+        .build();
   }
 }

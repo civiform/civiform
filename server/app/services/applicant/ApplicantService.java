@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,6 +54,8 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.cloud.aws.SimpleEmail;
 import services.geo.AddressAttributes;
+import services.geo.AddressCandidate;
+import services.geo.AddressCandidates;
 import services.geo.AddressLocation;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
@@ -254,51 +257,6 @@ public final class ApplicantService {
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
-              if (blockBeforeUpdate.isAddress()) {
-                // TODO move this out into separate function(s)
-                if (featureFlags.isEsriAddressCorrectionEnabled()) {
-                  EsriClient client = new EsriClient(this.configuration, ws);
-                  // if updates does not contain x, y coordinates then it needs to be corrected
-                  Optional<Update> mayHaveCorrection = updates.stream().filter(update -> "long".equals(update.path().keyName()) && !update.value().isEmpty()).findFirst();
-
-                  // location builder for verification
-                  // AddressLocation.Builder addressLocation = AddressLocation.builder();
-
-                  if (!mayHaveCorrection.isPresent()) {
-                    AddressAttributes.Builder addressAttributes = AddressAttributes.builder();
-
-                    for (Update update : updates) {
-                      Path currentPath = update.path();
-                      if ("street".equals(currentPath.keyName())) {
-                        addressAttributes.setStreetValue(update.value());
-                      } else if ("line2".equals(currentPath.keyName())) {
-                        addressAttributes.setLine2Value(update.value());
-                      } else if ("city".equals(currentPath.keyName())) {
-                        addressAttributes.setCityValue(update.value());
-                      } else if ("state".equals(currentPath.keyName())) {
-                        addressAttributes.setStateValue(update.value());
-                      } else if ("zip".equals(currentPath.keyName())) {
-                        addressAttributes.setZipValue(update.value());
-                      }
-                    }
-
-                    CompletionStage<JsonNode> addressCandidatesJsonFuture = client.getAddressCandidates(addressAttributes.build());
-                    // TODO return here with thenApplyAsync with candidates for modal
-                    JsonNode addressCandidates = addressCandidatesJsonFuture.toCompletableFuture().join();
-                    System.out.println(addressCandidates);
-                  }
-                  /**
-                   * TODO once the address form is submitted after correction, 
-                   * take the x,y and wkid from updates and call verifyAddressCoordinates.
-                   * The response can then be parsed using the JsonPath library and validated against the verifaction path
-                   */
-                  /* if (featureFlags.isEsriAddressVerificationEnabled() && mayHaveCorrection.isPresent()) {
-                    CompletionStage<JsonNode> isValidFuture = client.verifyAddressCoordinates("get verificatoin value from question", addressLocation.build());
-                    System.out.println(isValid);
-                  } */
-                }
-              }
-
               UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
               ImmutableMap<Path, String> failedUpdates;
               try {
@@ -315,6 +273,40 @@ public final class ApplicantService {
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
               if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
+                /**
+                 * perform address correction and then verification if enabled
+                 */
+                // TODO check if address question has correction enabled
+                // address correction
+                if (blockBeforeUpdate.isAddress()) {
+                  if (featureFlags.isEsriAddressCorrectionEnabled()) {
+                    // AddressLocation coordinates (long,lat) should be added to address question
+                    // If updates do not contain long, then address correction should be performed
+                    Optional<Update> mayHaveCorrection = updates.stream().filter(update -> "long".equals(update.path().keyName()) && !update.value().isEmpty()).findFirst();
+  
+                    if (!mayHaveCorrection.isPresent()) {
+                      CompletionStage<AddressCandidates> addressCandidates = getAddressCandidates(updates, ws);
+
+                      return addressCandidates
+                          .thenApplyAsync((candidates) -> {
+                            // update applicant
+                            return userRepository
+                                .updateApplicant(applicant);
+                          }, httpExecutionContext.current()).thenApplyAsync(
+                            (finishedSaving) -> roApplicantProgramService,
+                            httpExecutionContext.current());
+                    }
+                  }
+                }
+                /**
+                     * TODO once the address form is submitted after correction, 
+                     * take the long,lat and wkid from updates and call verifyAddressCoordinates.
+                     * The response can then be  validated against the verifaction path using JsonPath
+                     */
+                    /* if (featureFlags.isEsriAddressVerificationEnabled() && mayHaveCorrection.isPresent()) {
+                      CompletionStage<JsonNode> isVerifiedFuture = client.verifyAddressCoordinates("get verificatoin value from question", AddressLocation);
+                      System.out.println(isValid);
+                    } */
                 return userRepository
                     .updateApplicant(applicant)
                     .thenApplyAsync(
@@ -485,6 +477,72 @@ public final class ApplicantService {
     } else {
       amazonSESClient.send(email.get(), subject, message);
     }
+  }
+  
+  /**
+   * returns {@link AddressCandidates}
+   */
+  private CompletionStage<AddressCandidates> getAddressCandidates(ImmutableSet<Update> updates, WSClient ws) {
+    EsriClient client = new EsriClient(this.configuration, ws);
+
+    // build address attributes from updates
+    AddressAttributes.Builder addressAttributes = AddressAttributes.builder();
+
+    for (Update update : updates) {
+      Path currentPath = update.path();
+      if ("street".equals(currentPath.keyName())) {
+        addressAttributes.setStreetValue(update.value());
+      } else if ("line2".equals(currentPath.keyName())) {
+        addressAttributes.setLine2Value(update.value());
+      } else if ("city".equals(currentPath.keyName())) {
+        addressAttributes.setCityValue(update.value());
+      } else if ("state".equals(currentPath.keyName())) {
+        addressAttributes.setStateValue(update.value());
+      } else if ("zip".equals(currentPath.keyName())) {
+        addressAttributes.setZipValue(update.value());
+      }
+    }
+
+    CompletionStage<JsonNode> addressCandidatesJsonFuture = client.getAddressCandidates(addressAttributes.build());
+    
+    return addressCandidatesJsonFuture
+        .thenApplyAsync(
+          (JsonNode json) -> {
+            int wkid = json.get("spatialReference").get("wkid").asInt();
+            List<AddressCandidate> candidates = new ArrayList<>();
+            for (Iterator<JsonNode> iterator = json.get("candidates").iterator(); iterator.hasNext();) {
+              JsonNode candidateJson = (JsonNode) iterator.next();
+              JsonNode location = candidateJson.get("location");
+              JsonNode attributes = candidateJson.get("attributes");
+              AddressLocation addressLocation = AddressLocation.builder()
+                  .setX(location.get("x").asLong())
+                  .setY(location.get("y").asLong())
+                  .setWkid(wkid)
+                  .build();
+              AddressAttributes addressCandidateAttributes = AddressAttributes.builder()
+                  .setStreetValue(attributes.get("Address").toString())
+                  .setLine2Value(attributes.get("SubAddr").toString())
+                  .setCityValue(attributes.get("City").toString())
+                  .setStateValue(attributes.get("Region").toString())
+                  .setZipValue(attributes.get("Postal").toString())
+                  .build();
+              AddressCandidate addressCandidate = AddressCandidate.builder()
+                .setAddress(candidateJson.get("address").toString())
+                .setLocation(addressLocation)
+                .setScore(candidateJson.get("score").asInt())
+                .setAttributes(addressCandidateAttributes)
+                .build();
+              candidates.add(addressCandidate);
+            }
+
+            AddressCandidates addressCandidates = AddressCandidates.builder()
+                .setWkid(wkid)
+                .setCandidates(ImmutableList.copyOf(candidates))
+                .build();
+            return addressCandidates;
+          },
+          httpExecutionContext.current()
+        );
   }
 
   /** Return the name of the given applicant id. If not available, returns the email. */
