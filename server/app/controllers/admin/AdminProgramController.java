@@ -142,8 +142,6 @@ public final class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newVersionFrom(Request request, long id) {
     try {
-      System.out.println("-------------try----------");
-
       // If there's already a draft then use that, likely the client is out of date and unaware a
       // draft exists.
       // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
@@ -153,25 +151,16 @@ public final class AdminProgramController extends CiviFormController {
               .getProgramByName(programService.getProgramDefinition(id).adminName());
       final Long idToEdit;
       if (existingDraft.isPresent()) {
-        System.out.println("-----------draft is present------------");
         idToEdit = existingDraft.get().id;
       } else {
-        System.out.println("---------draft not present--------------");
-
         // Make a new draft from the provided id.
         idToEdit = programService.newDraftOf(id).id();
       }
-      System.out.println("---------returning--------------");
-
       return redirect(
         controllers.admin.routes.AdminProgramBlocksController.edit(idToEdit, 1 /* blockId*/));
     } catch (ProgramNotFoundException e) {
-      System.out.println("------------ProgramNotFound-----------");
-
       return notFound(e.toString());
     } catch (Exception e) {
-      System.out.println("-----------Other exception------------");
-
       return badRequest(e.toString());
     }
   }

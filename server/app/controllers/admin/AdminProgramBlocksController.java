@@ -31,12 +31,10 @@ import views.admin.programs.ProgramBlockEditView;
 import views.components.ToastMessage;
 
 
-
+// TODO(jhummel) use flag
+// TODO(jhummel) add browser test
 // TODO(jhummel) use readOnlyView when submitted (in constructor)
-// TODO(jhummel) check if using the real read only version resolves the
-// programblockdefinitionnotfoundexception
 // Todo(jhummel) get icon for view
-// TODO(jhummel) update comments
 
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {
