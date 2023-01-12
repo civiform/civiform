@@ -111,6 +111,11 @@ public final class Block {
     return blockDefinition.isFileUpload();
   }
 
+  /** This block is an address block if its {@link BlockDefinition} contains an address question. */
+  public boolean hasAddress() {
+    return blockDefinition.hasAddress();
+  }
+
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
       this.questionsMemo =
