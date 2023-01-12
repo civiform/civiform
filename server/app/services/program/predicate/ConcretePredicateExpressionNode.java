@@ -33,4 +33,6 @@ public interface ConcretePredicateExpressionNode {
    * @return a human-readable representation of this node
    */
   String toDisplayString(ImmutableList<QuestionDefinition> questions);
+
+  void accept(PredicateExpressionNodeVisitor v);
 }
