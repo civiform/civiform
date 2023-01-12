@@ -3,8 +3,7 @@ package services.program.predicate;
 import com.google.common.collect.ImmutableList;
 
 /** Extracts {@link LeafAddressServiceAreaExpressionNode}s from a {@link PredicateDefinition}. */
-public final class PredicateAddressServiceAreaNodeExtractor
-    implements PredicateExpressionNodeVisitor {
+public final class PredicateAddressServiceAreaNodeExtractor extends PredicateExpressionNodeVisitor {
 
   private ImmutableList.Builder<LeafAddressServiceAreaExpressionNode> nodes =
       ImmutableList.builder();
@@ -25,13 +24,4 @@ public final class PredicateAddressServiceAreaNodeExtractor
   public void visit(LeafAddressServiceAreaExpressionNode leafAddressServiceAreaExpressionNode) {
     this.nodes.add(leafAddressServiceAreaExpressionNode);
   }
-
-  @Override
-  public void visit(AndNode andNode) {}
-
-  @Override
-  public void visit(OrNode orNode) {}
-
-  @Override
-  public void visit(LeafOperationExpressionNode leafOperationExpressionNode) {}
 }
