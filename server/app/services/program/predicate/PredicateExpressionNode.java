@@ -30,7 +30,12 @@ public abstract class PredicateExpressionNode {
     return node().getType();
   }
 
-  /** Get a leaf node if it exists, or throw if this is not a leaf node. */
+  @JsonIgnore
+  public void accept(PredicateExpressionNodeVisitor predicateExpressionNodeVisitor) {
+    node().accept(predicateExpressionNodeVisitor);
+  }
+
+  /** Get a leaf operation node if it exists, or throw if this is not a leaf operation node. */
   @JsonIgnore
   @Memoized
   public LeafOperationExpressionNode getLeafNode() {
@@ -39,6 +44,18 @@ public abstract class PredicateExpressionNode {
           String.format("Expected a LEAF node but received %s node", getType()));
     }
     return (LeafOperationExpressionNode) node();
+  }
+
+  /** Get a leaf address node if it exists, or throw if this is not a leaf address node. */
+  @JsonIgnore
+  @Memoized
+  public LeafAddressServiceAreaExpressionNode getLeafAddressNode() {
+    if (!(node() instanceof LeafAddressServiceAreaExpressionNode)) {
+      throw new RuntimeException(
+          String.format(
+              "Expected a LEAF_ADDRESS_SERVICE_AREA node but received %s node", getType()));
+    }
+    return (LeafAddressServiceAreaExpressionNode) node();
   }
 
   /** Get an and node if it exists, or throw if this is not an and node. */

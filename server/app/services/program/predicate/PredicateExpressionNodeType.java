@@ -8,5 +8,6 @@ package services.program.predicate;
 public enum PredicateExpressionNodeType {
   AND,
   OR,
-  LEAF_OPERATION
+  LEAF_OPERATION,
+  LEAF_ADDRESS_SERVICE_AREA
 }

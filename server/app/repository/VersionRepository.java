@@ -29,6 +29,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.AndNode;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
@@ -340,6 +341,11 @@ public final class VersionRepository {
         Optional<Question> updated = getLatestVersionOfQuestion(leaf.questionId());
         return PredicateExpressionNode.create(
             leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
+      case LEAF_ADDRESS_SERVICE_AREA:
+        LeafAddressServiceAreaExpressionNode leafAddress = node.getLeafAddressNode();
+        Optional<Question> updatedQuestion = getLatestVersionOfQuestion(leafAddress.questionId());
+        return PredicateExpressionNode.create(
+            leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
     }
     // ErrorProne will require the switch handle all types since there isn't a default, we should
     // never get here.

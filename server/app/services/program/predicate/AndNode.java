@@ -34,6 +34,13 @@ public abstract class AndNode implements ConcretePredicateExpressionNode {
   }
 
   @Override
+  @JsonIgnore
+  public void accept(PredicateExpressionNodeVisitor visitor) {
+    children().stream().forEach(child -> child.accept(visitor));
+    visitor.visit(this);
+  }
+
+  @Override
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
     return Joiner.on(" and ")
         .join(children().stream().map(c -> c.node().toDisplayString(questions)).toArray());
