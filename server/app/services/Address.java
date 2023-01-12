@@ -2,7 +2,7 @@ package services;
 
 import com.google.auto.value.AutoValue;
 
-/** Represents a basic address in the context of address correction */
+/** Represents a basic address. */
 @AutoValue
 public abstract class Address {
   public static Builder builder() {

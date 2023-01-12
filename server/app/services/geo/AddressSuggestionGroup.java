@@ -4,9 +4,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Represents address candidates returned from Esri's findAddressCandidates
+ * Represents address suggestions returned from Esri's findAddressCandidates endpoint
  *
- * <p>See {@link EsriClient} for details on getAddressCandidates
+ * <p>See {@link AddressSuggestion} for details on address suggestions
  */
 @AutoValue
 public abstract class AddressSuggestionGroup {
@@ -17,14 +17,17 @@ public abstract class AddressSuggestionGroup {
   /** returns a well-known ID for ArcGIS coordinate systems, used for spatial reference */
   public abstract int getWellKnownId();
 
-  /** returns a list of address suggestions sorted by their score (best match) */
-  public abstract ImmutableList<AddressSuggestion> getAddressSuggestionGroup();
+  /**
+   * returns a list of address suggestions ordered from highest scoring (most likely match) to
+   * lowest scoring (least likely match).
+   */
+  public abstract ImmutableList<AddressSuggestion> getAddressSuggestions();
 
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setWellKnownId(int wellKnownId);
 
-    public abstract Builder setAddressSuggestionGroup(ImmutableList<AddressSuggestion> suggestions);
+    public abstract Builder setAddressSuggestions(ImmutableList<AddressSuggestion> suggestions);
 
     public abstract AddressSuggestionGroup build();
   }

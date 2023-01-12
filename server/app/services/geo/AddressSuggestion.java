@@ -4,9 +4,11 @@ import com.google.auto.value.AutoValue;
 import services.Address;
 
 /**
- * Represents an address candidate in the context of address candidates
+ * Represents an address suggestion. An address suggestion is provided by a geolocation service by
+ * closest match to a user inputted address. Suggestions also contain geo coordinates which are
+ * necessary for validating that an address is within a service area.
  *
- * <p>See {@link AddressCandidates} for details on address candidates
+ * <p>See {@link AddressSuggestionGroup}
  */
 @AutoValue
 public abstract class AddressSuggestion {
@@ -16,14 +18,14 @@ public abstract class AddressSuggestion {
   /** returns an address as a single line */
   public abstract String getSingleLineAddress();
 
-  /** returns the location object, which conatiins x and y coordinates */
+  /** Returns the location object, which conatiins x and y coordinates */
   public abstract AddressLocation getLocation();
 
   /**
-   * returns an integer which represents how well the candidate address matches with the user
+   * Returns an integer which represents how well the candidate address matches with the user
    * inputted address
    *
-   * <p>score has the range [0-100] sorted in descending order
+   * <p>Score has the range [0-100], with 100 being the best possible score.
    */
   public abstract int getScore();
 
