@@ -119,7 +119,7 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   @Memoized
-  public boolean isAddress() {
+  public boolean hasAddress() {
     return programQuestionDefinitions().stream()
         .map(ProgramQuestionDefinition::getQuestionDefinition)
         .map(QuestionDefinition::getQuestionType)

@@ -112,8 +112,8 @@ public final class Block {
   }
 
   /** This block is an address block if its {@link BlockDefinition} contains an address question. */
-  public boolean isAddress() {
-    return blockDefinition.isAddress();
+  public boolean hasAddress() {
+    return blockDefinition.hasAddress();
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {
