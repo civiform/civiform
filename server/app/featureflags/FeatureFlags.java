@@ -39,7 +39,7 @@ public final class FeatureFlags {
   // Address correction and verifcation flags
   private static final String ESRI_ADDRESS_CORRECTION_ENABLED = "esri_address_correction_enabled";
   private static final String ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED =
-      "esri_address_verification_enabled";
+      "esri_address_service_area_validation_enabled";
 
   @Inject
   FeatureFlags(Config config) {
