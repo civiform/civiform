@@ -46,7 +46,7 @@ public abstract class AndNode implements ConcretePredicateExpressionNode {
   @Override
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
     // Sorted to ensure consistent rendering. A question should always be
-    // found for a child node but if it's not defaulting to Z prevents the
+    // found for a child node but if it's not, default to 'Z' to prevent the
     // code from causing an exception.
     Comparator<PredicateExpressionNode> childComparator =
         Comparator.comparing(
