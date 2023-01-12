@@ -6,7 +6,7 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class Address {
   public static Builder builder() {
-    return new Address.Builder();
+    return new AutoValue_Address.Builder();
   }
 
   public abstract String getStreet();
