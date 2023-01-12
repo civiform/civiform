@@ -18,8 +18,8 @@ public abstract class LeafAddressServiceAreaExpressionNode
   @JsonCreator
   public static LeafAddressServiceAreaExpressionNode create(
       @JsonProperty("questionId") long questionId,
-      @JsonProperty("serviceAreaLabel") String serviceAreaLabel) {
-    return builder().setQuestionId(questionId).setServiceAreaLabel(serviceAreaLabel).build();
+      @JsonProperty("serviceAreaId") String serviceAreaId) {
+    return builder().setQuestionId(questionId).setServiceAreaId(serviceAreaId).build();
   }
 
   /** The ID of the address {@link services.question.types.QuestionDefinition} this node checks. */
@@ -27,8 +27,8 @@ public abstract class LeafAddressServiceAreaExpressionNode
   public abstract long questionId();
 
   /** The string label of the service area the address should be checked for inclusion in. */
-  @JsonProperty("serviceAreaLabel")
-  public abstract String serviceAreaLabel();
+  @JsonProperty("serviceAreaId")
+  public abstract String serviceAreaId();
 
   @Override
   @JsonIgnore
@@ -57,7 +57,7 @@ public abstract class LeafAddressServiceAreaExpressionNode
             .map(addressName -> String.format("\"%s\"", addressName))
             .orElse("address");
 
-    return String.format("%s is in service area \"%s\"", addressLabel, serviceAreaLabel());
+    return String.format("%s is in service area \"%s\"", addressLabel, serviceAreaId());
   }
 
   public static Builder builder() {
@@ -71,7 +71,7 @@ public abstract class LeafAddressServiceAreaExpressionNode
 
     public abstract Builder setQuestionId(long questionId);
 
-    public abstract Builder setServiceAreaLabel(String serviceAreaLabel);
+    public abstract Builder setServiceAreaId(String serviceAreaId);
 
     public abstract LeafAddressServiceAreaExpressionNode build();
   }
