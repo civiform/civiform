@@ -44,6 +44,13 @@ public abstract class AndNode implements ConcretePredicateExpressionNode {
   }
 
   @Override
+  @JsonIgnore
+  public void accept(PredicateExpressionNodeVisitor visitor) {
+    children().stream().forEach(child -> child.accept(visitor));
+    visitor.visit(this);
+  }
+
+  @Override
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
     // Sorted to ensure consistent rendering. A question should always be
     // found for a child node but if it's not, default to 'Z' to place its sort

@@ -46,7 +46,7 @@ jobs:
           rm package*.json
 
       - name: Prettier diff
-        uses: actionsx/prettier@v2
+        uses: actionsx/prettier@e90ec5455552f0f640781bdd5f5d2415acb52f1a
         with:
           # prettier CLI arguments.
           args: --check .

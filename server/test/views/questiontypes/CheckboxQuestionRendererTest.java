@@ -76,7 +76,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).contains("Please select fewer than 2");
+    assertThat(result.render()).contains("Please select fewer than 3");
   }
 
   @Test

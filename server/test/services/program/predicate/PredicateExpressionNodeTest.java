@@ -73,6 +73,26 @@ public class PredicateExpressionNodeTest {
   }
 
   @Test
+  public void toDisplayString_addressServiceAreaNodeOnly_questionIsPresent() {
+    QuestionDefinition question = testQuestionBank.applicantAddress().getQuestionDefinition();
+    LeafAddressServiceAreaExpressionNode leaf =
+        LeafAddressServiceAreaExpressionNode.create(question.getId(), "Seattle");
+
+    assertThat(PredicateExpressionNode.create(leaf).toDisplayString(ImmutableList.of(question)))
+        .isEqualTo(String.format("\"%s\" is in service area \"Seattle\"", question.getName()));
+  }
+
+  @Test
+  public void toDisplayString_addressServiceAreaNodeOnly_questionIsNotPresent() {
+    QuestionDefinition question = testQuestionBank.applicantAddress().getQuestionDefinition();
+    LeafAddressServiceAreaExpressionNode leaf =
+        LeafAddressServiceAreaExpressionNode.create(question.getId(), "Seattle");
+
+    assertThat(PredicateExpressionNode.create(leaf).toDisplayString(ImmutableList.of()))
+        .isEqualTo(String.format("address is in service area \"Seattle\""));
+  }
+
+  @Test
   public void toDisplayString_andNode() {
     QuestionDefinition question =
         testQuestionBank.applicantJugglingNumber().getQuestionDefinition();

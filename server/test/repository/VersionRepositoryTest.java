@@ -17,6 +17,7 @@ import org.junit.Test;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.OrNode;
@@ -300,7 +301,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     //      /     \
     //   LEAF1    OR
     //          /    \
-    //       LEAF2   LEAF3
+    //       LEAF2   LEAF_ADDRESS
     PredicateExpressionNode leafOne =
         PredicateExpressionNode.create(
             LeafOperationExpressionNode.create(
@@ -309,12 +310,10 @@ public class VersionRepositoryTest extends ResetPostgres {
         PredicateExpressionNode.create(
             LeafOperationExpressionNode.create(
                 oldTwo.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("")));
-    PredicateExpressionNode leafThree =
-        PredicateExpressionNode.create(
-            LeafOperationExpressionNode.create(
-                oldOne.id, Scalar.NUMBER, Operator.LESS_THAN, PredicateValue.of(12)));
+    PredicateExpressionNode leafAddress =
+        PredicateExpressionNode.create(LeafAddressServiceAreaExpressionNode.create(oldOne.id, ""));
     PredicateExpressionNode or =
-        PredicateExpressionNode.create(OrNode.create(ImmutableList.of(leafTwo, leafThree)));
+        PredicateExpressionNode.create(OrNode.create(ImmutableList.of(leafTwo, leafAddress)));
     PredicateExpressionNode and =
         PredicateExpressionNode.create(AndNode.create(ImmutableList.of(leafOne, or)));
 
@@ -329,7 +328,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             leafTwo.getLeafNode().toBuilder().setQuestionId(newTwo.id).build());
     PredicateExpressionNode expectedLeafThree =
         PredicateExpressionNode.create(
-            leafThree.getLeafNode().toBuilder().setQuestionId(newOne.id).build());
+            leafAddress.getLeafAddressNode().toBuilder().setQuestionId(newOne.id).build());
     PredicateExpressionNode expectedOr =
         PredicateExpressionNode.create(
             OrNode.create(ImmutableList.of(expectedLeafTwo, expectedLeafThree)));

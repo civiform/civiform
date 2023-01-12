@@ -39,6 +39,13 @@ public abstract class OrNode implements ConcretePredicateExpressionNode {
   }
 
   @Override
+  @JsonIgnore
+  public void accept(PredicateExpressionNodeVisitor visitor) {
+    children().stream().forEach(child -> child.accept(visitor));
+    visitor.visit(this);
+  }
+
+  @Override
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
     return Joiner.on(" or ")
         .join(children().stream().map(c -> c.node().toDisplayString(questions)).toArray());
