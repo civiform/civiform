@@ -26,7 +26,7 @@ public abstract class LeafAddressServiceAreaExpressionNode
   @JsonProperty("questionId")
   public abstract long questionId();
 
-  /** The string label of the service area the address should be checked for inclusion in. */
+  /** The string ID of the service area the address should be checked for inclusion in. */
   @JsonProperty("serviceAreaId")
   public abstract String serviceAreaId();
 
@@ -44,7 +44,7 @@ public abstract class LeafAddressServiceAreaExpressionNode
 
   /**
    * Displays a human-readable representation of the assertion in the format "[question name] is in
-   * service area [service area label]".
+   * service area [service area ID]".
    */
   @Override
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
