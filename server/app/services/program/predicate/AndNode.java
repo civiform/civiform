@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Comparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -18,14 +20,22 @@ import services.question.types.QuestionDefinition;
 @AutoValue
 public abstract class AndNode implements ConcretePredicateExpressionNode {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(AndNode.class);
+
+  /**
+   * Create a new AND node.
+   *
+   * @param children the child nodes of this AND node. Ordering is preserved.
+   */
   @JsonCreator
   public static AndNode create(
-      @JsonProperty("children") ImmutableSet<PredicateExpressionNode> children) {
+      @JsonProperty("children") ImmutableList<PredicateExpressionNode> children) {
     return new AutoValue_AndNode(children);
   }
 
+  /** The child nodes of this AND node. Ordering is stable. */
   @JsonProperty("children")
-  public abstract ImmutableSet<PredicateExpressionNode> children();
+  public abstract ImmutableList<PredicateExpressionNode> children();
 
   @Override
   @JsonIgnore
@@ -42,7 +52,35 @@ public abstract class AndNode implements ConcretePredicateExpressionNode {
 
   @Override
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
+    // Sorted to ensure consistent rendering. A question should always be
+    // found for a child node but if it's not, default to 'Z' to place its sort
+    // order toward the end.
+    Comparator<PredicateExpressionNode> childComparator =
+        Comparator.comparing(
+            node ->
+                node.getQuestions().stream()
+                    .findFirst()
+                    .flatMap(
+                        qid ->
+                            questions.stream()
+                                .filter(question -> question.getId() == qid)
+                                .findFirst())
+                    .map(QuestionDefinition::getName)
+                    .orElseGet(
+                        () -> {
+                          LOGGER.error(
+                              "Question not found for node question IDs: {}, provided questions:"
+                                  + " {}",
+                              node.getQuestions(),
+                              questions.stream().map(QuestionDefinition::getId));
+                          return "Z";
+                        }));
+
     return Joiner.on(" and ")
-        .join(children().stream().map(c -> c.node().toDisplayString(questions)).toArray());
+        .join(
+            children().stream()
+                .sorted(childComparator)
+                .map(c -> c.node().toDisplayString(questions))
+                .toArray());
   }
 }

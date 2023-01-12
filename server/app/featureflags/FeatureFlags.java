@@ -105,6 +105,8 @@ public final class FeatureFlags {
         isStatusTrackingEnabled(request),
         PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
         isProgramEligibilityConditionsEnabled(request),
+        PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
+        isPredicatesMultipleQuestionsEnabled(request),
         PROGRAM_READ_ONLY_VIEW_ENABLED,
         isReadOnlyProgramViewEnabled(request));
   }

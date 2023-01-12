@@ -3,7 +3,6 @@ package services.program.predicate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import services.applicant.question.Scalar;
 
@@ -18,10 +17,10 @@ public class PredicateAddressServiceAreaNodeExtractorTest {
     var rootNode =
         PredicateExpressionNode.create(
             OrNode.create(
-                ImmutableSet.of(
+                ImmutableList.of(
                     PredicateExpressionNode.create(
                         AndNode.create(
-                            ImmutableSet.of(
+                            ImmutableList.of(
                                 PredicateExpressionNode.create(leaf1),
                                 PredicateExpressionNode.create(addressNode)))))));
     var predicateDefinition = PredicateDefinition.create(rootNode, PredicateAction.HIDE_BLOCK);
@@ -41,10 +40,10 @@ public class PredicateAddressServiceAreaNodeExtractorTest {
     var rootNode =
         PredicateExpressionNode.create(
             OrNode.create(
-                ImmutableSet.of(
+                ImmutableList.of(
                     PredicateExpressionNode.create(
                         AndNode.create(
-                            ImmutableSet.of(
+                            ImmutableList.of(
                                 PredicateExpressionNode.create(leaf1),
                                 PredicateExpressionNode.create(leaf2)))))));
     var predicateDefinition = PredicateDefinition.create(rootNode, PredicateAction.HIDE_BLOCK);

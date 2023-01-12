@@ -10,6 +10,9 @@ import {
   validateScreenshot,
 } from './support'
 
+// This test is for the old version of the predicate UI.
+// TODO(#4004): delete this file
+
 describe('create and edit predicates', () => {
   const ctx = createTestContext()
   it('add a hide predicate', async () => {
@@ -22,7 +25,6 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
@@ -46,7 +48,7 @@ describe('create and edit predicates', () => {
       programName,
       'Screen 2',
     )
-    await adminPredicates.addPredicate(
+    await adminPredicates.addLegacyPredicate(
       'hide-predicate-q',
       'hidden if',
       'text',
@@ -116,7 +118,6 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'show-predicate-q'})
@@ -140,7 +141,7 @@ describe('create and edit predicates', () => {
       programName,
       'Screen 2',
     )
-    await adminPredicates.addPredicate(
+    await adminPredicates.addLegacyPredicate(
       'show-predicate-q',
       'shown if',
       'text',
@@ -214,7 +215,6 @@ describe('create and edit predicates', () => {
 
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
-    await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
@@ -237,7 +237,7 @@ describe('create and edit predicates', () => {
       programName,
       'Screen 1',
     )
-    await adminPredicates.addPredicate(
+    await adminPredicates.addLegacyPredicate(
       'eligibility-predicate-q',
       /* action= */ null,
       'text',
@@ -317,174 +317,10 @@ describe('create and edit predicates', () => {
       await logout(page)
     })
 
-    it('eligibility multiple values and multiple questions', async () => {
-      const {page, adminPrograms, adminPredicates} = ctx
-
-      await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
-      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
-
-      const programName = 'Test multiple question and value predicate config'
-      await adminPrograms.addProgram(programName)
-
-      await adminPrograms.editProgramBlock(programName, 'test-block', [
-        'predicate-date',
-        'predicate-currency',
-      ])
-
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        programName,
-        'Screen 1',
-      )
-
-      await adminPredicates.addPredicates([
-        {
-          questionName: 'predicate-date',
-          scalar: 'date',
-          operator: 'is earlier than',
-          values: ['2021-01-01', '2022-02-02'],
-        },
-        {
-          questionName: 'predicate-currency',
-          scalar: 'currency',
-          operator: 'is less than',
-          values: ['10', '20'],
-        },
-      ])
-
-      let predicateDisplay = await page.innerText('.cf-display-predicate')
-      await validateScreenshot(
-        page,
-        'eligibility-predicates-multi-values-multi-questions-predicate-saved',
-      )
-      expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $10.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date" date is earlier than 2021-01-01',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $20.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date" date is earlier than 2022-02-02',
-      )
-
-      await adminPredicates.clickEditPredicateButton('eligibility')
-      await validateScreenshot(
-        page,
-        'eligibility-predicates-multi-values-multi-questions-predicate-edit',
-      )
-
-      await adminPredicates.configurePredicate({
-        questionName: 'predicate-currency',
-        scalar: 'currency',
-        operator: 'is greater than',
-        values: ['100', '200'],
-      })
-
-      await adminPredicates.clickSaveConditionButton()
-      await validateScreenshot(
-        page,
-        'eligibility-predicates-multi-values-multi-questions-predicate-updated',
-      )
-      predicateDisplay = await page.innerText('.cf-display-predicate')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $100.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $200.00',
-      )
-    })
-
-    it('visibility multiple values and multiple questions', async () => {
-      const {page, adminPrograms, adminPredicates} = ctx
-
-      await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
-
-      const programName = 'Test multiple question and value predicate config'
-      await adminPrograms.addProgram(programName)
-
-      await adminPrograms.editProgramBlock(programName, 'test-block', [
-        'predicate-date',
-        'predicate-currency',
-      ])
-
-      await adminPrograms.addProgramBlock(programName, 'show-hide', [])
-
-      await adminPrograms.goToEditBlockVisibilityPredicatePage(
-        programName,
-        'Screen 2',
-      )
-
-      await adminPredicates.addPredicates([
-        {
-          questionName: 'predicate-date',
-          scalar: 'date',
-          operator: 'is earlier than',
-          values: ['2021-01-01', '2022-02-02'],
-        },
-        {
-          questionName: 'predicate-currency',
-          scalar: 'currency',
-          operator: 'is less than',
-          values: ['10', '20'],
-        },
-      ])
-
-      let predicateDisplay = await page.innerText('.cf-display-predicate')
-      await validateScreenshot(
-        page,
-        'visibility-predicates-multi-values-multi-questions-predicate-saved',
-      )
-      expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $10.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date" date is earlier than 2021-01-01',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is less than $20.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-date" date is earlier than 2022-02-02',
-      )
-
-      await adminPredicates.clickEditPredicateButton('visibility')
-      await validateScreenshot(
-        page,
-        'visibility-predicates-multi-values-multi-questions-predicate-edit',
-      )
-
-      await adminPredicates.configurePredicate({
-        questionName: 'predicate-currency',
-        scalar: 'currency',
-        operator: 'is greater than',
-        values: ['100', '200'],
-      })
-
-      await adminPredicates.clickSaveConditionButton()
-      await validateScreenshot(
-        page,
-        'visibility-predicates-multi-values-multi-questions-predicate-updated',
-      )
-      predicateDisplay = await page.innerText('.cf-display-predicate')
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $100.00',
-      )
-      expect(predicateDisplay).toContain(
-        '"predicate-currency" currency is greater than $200.00',
-      )
-    })
-
     it('every visibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
       const programName = 'Test all visibility predicate types'
       await adminPrograms.addProgram(programName)
@@ -516,7 +352,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 2',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'single-string',
         'shown if',
         'first name',
@@ -529,7 +365,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 3',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'list of strings',
         'shown if',
         'text',
@@ -542,7 +378,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 4',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'single-long',
         'shown if',
         'number',
@@ -555,7 +391,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 5',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'list of longs',
         'shown if',
         'number',
@@ -568,7 +404,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 6',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'predicate-currency',
         'shown if',
         'currency',
@@ -581,7 +417,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 7',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'predicate-date',
         'shown if',
         'date',
@@ -594,7 +430,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 8',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'both sides are lists',
         'shown if',
         'selections',
@@ -686,7 +522,6 @@ describe('create and edit predicates', () => {
 
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
-      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
       const programName = 'Test all eligibility predicate types'
       await adminPrograms.addProgram(programName)
@@ -715,7 +550,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 1',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'single-string',
         /* action= */ null,
         'first name',
@@ -728,7 +563,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 2',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'list of strings',
         /* action= */ null,
         'text',
@@ -741,7 +576,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 3',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'single-long',
         /* action= */ null,
         'number',
@@ -754,7 +589,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 4',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'list of longs',
         /* action= */ null,
         'number',
@@ -767,7 +602,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 5',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'predicate-currency',
         /* action= */ null,
         'currency',
@@ -780,7 +615,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 6',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'predicate-date',
         /* action= */ null,
         'date',
@@ -793,7 +628,7 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 7',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'both sides are lists',
         /* action= */ null,
         'selections',

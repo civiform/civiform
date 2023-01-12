@@ -1,7 +1,7 @@
 package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.function.Predicate.not;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -326,15 +326,17 @@ public final class VersionRepository {
     switch (node.getType()) {
       case AND:
         AndNode and = node.getAndNode();
-        ImmutableSet<PredicateExpressionNode> updatedAndChildren =
+        ImmutableList<PredicateExpressionNode> updatedAndChildren =
             and.children().stream()
                 .map(this::updatePredicateNodeVersions)
-                .collect(toImmutableSet());
+                .collect(toImmutableList());
         return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
       case OR:
         OrNode or = node.getOrNode();
-        ImmutableSet<PredicateExpressionNode> updatedOrChildren =
-            or.children().stream().map(this::updatePredicateNodeVersions).collect(toImmutableSet());
+        ImmutableList<PredicateExpressionNode> updatedOrChildren =
+            or.children().stream()
+                .map(this::updatePredicateNodeVersions)
+                .collect(toImmutableList());
         return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
       case LEAF_OPERATION:
         LeafOperationExpressionNode leaf = node.getLeafNode();
