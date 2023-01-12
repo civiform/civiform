@@ -245,6 +245,7 @@ public final class PredicateGenerator {
   public static PredicateValue parsePredicateValue(
       Scalar scalar, Operator operator, String value, List<String> values) {
 
+    // TODO: if scalar is not SELECTION or SELECTIONS and there values then throw an exception.
     // If the scalar is SELECTION or SELECTIONS then this is a multi-option question predicate, and
     // the right hand side values are in the `values` list rather than the `value` string.
     if (scalar == Scalar.SELECTION || scalar == Scalar.SELECTIONS) {
