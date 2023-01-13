@@ -217,6 +217,7 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
     await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
     // Add a program with two screens
