@@ -22,6 +22,7 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
@@ -53,7 +54,7 @@ describe('create and edit predicates', () => {
       'hide me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is hidden if question with an admin ID of "hide-predicate-q"\'s text is equal to "hide me"',
+      'Screen 2 is hidden if "hide-predicate-q" text is equal to "hide me"',
     )
     await validateScreenshot(page, 'hide-predicate')
 
@@ -115,6 +116,7 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'show-predicate-q'})
@@ -146,7 +148,7 @@ describe('create and edit predicates', () => {
       'show me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is shown if question with an admin ID of "show-predicate-q"\'s text is equal to "show me"',
+      'Screen 2 is shown if "show-predicate-q" text is equal to "show me"',
     )
     await validateScreenshot(page, 'show-predicate')
 
@@ -212,6 +214,7 @@ describe('create and edit predicates', () => {
 
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+    await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
@@ -243,7 +246,7 @@ describe('create and edit predicates', () => {
     )
 
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 1 is eligible if question with an admin ID of "eligibility-predicate-q"\'s text is equal to "eligible"',
+      'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
     )
     await validateScreenshot(page, 'eligibility-predicate')
 
@@ -314,10 +317,174 @@ describe('create and edit predicates', () => {
       await logout(page)
     })
 
+    it('eligibility multiple values and multiple questions', async () => {
+      const {page, adminPrograms, adminPredicates} = ctx
+
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
+
+      const programName = 'Test multiple question and value predicate config'
+      await adminPrograms.addProgram(programName)
+
+      await adminPrograms.editProgramBlock(programName, 'test-block', [
+        'predicate-date',
+        'predicate-currency',
+      ])
+
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+      )
+
+      await adminPredicates.addPredicates([
+        {
+          questionName: 'predicate-date',
+          scalar: 'date',
+          operator: 'is earlier than',
+          values: ['2021-01-01', '2022-02-02'],
+        },
+        {
+          questionName: 'predicate-currency',
+          scalar: 'currency',
+          operator: 'is less than',
+          values: ['10', '20'],
+        },
+      ])
+
+      let predicateDisplay = await page.innerText('.cf-display-predicate')
+      await validateScreenshot(
+        page,
+        'eligibility-predicates-multi-values-multi-questions-predicate-saved',
+      )
+      expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is less than $10.00',
+      )
+      expect(predicateDisplay).toContain(
+        '"predicate-date" date is earlier than 2021-01-01',
+      )
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is less than $20.00',
+      )
+      expect(predicateDisplay).toContain(
+        '"predicate-date" date is earlier than 2022-02-02',
+      )
+
+      await adminPredicates.clickEditPredicateButton('eligibility')
+      await validateScreenshot(
+        page,
+        'eligibility-predicates-multi-values-multi-questions-predicate-edit',
+      )
+
+      await adminPredicates.configurePredicate({
+        questionName: 'predicate-currency',
+        scalar: 'currency',
+        operator: 'is greater than',
+        values: ['100', '200'],
+      })
+
+      await adminPredicates.clickSaveConditionButton()
+      await validateScreenshot(
+        page,
+        'eligibility-predicates-multi-values-multi-questions-predicate-updated',
+      )
+      predicateDisplay = await page.innerText('.cf-display-predicate')
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is greater than $100.00',
+      )
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is greater than $200.00',
+      )
+    })
+
+    it('visibility multiple values and multiple questions', async () => {
+      const {page, adminPrograms, adminPredicates} = ctx
+
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
+
+      const programName = 'Test multiple question and value predicate config'
+      await adminPrograms.addProgram(programName)
+
+      await adminPrograms.editProgramBlock(programName, 'test-block', [
+        'predicate-date',
+        'predicate-currency',
+      ])
+
+      await adminPrograms.addProgramBlock(programName, 'show-hide', [])
+
+      await adminPrograms.goToEditBlockVisibilityPredicatePage(
+        programName,
+        'Screen 2',
+      )
+
+      await adminPredicates.addPredicates([
+        {
+          questionName: 'predicate-date',
+          scalar: 'date',
+          operator: 'is earlier than',
+          values: ['2021-01-01', '2022-02-02'],
+        },
+        {
+          questionName: 'predicate-currency',
+          scalar: 'currency',
+          operator: 'is less than',
+          values: ['10', '20'],
+        },
+      ])
+
+      let predicateDisplay = await page.innerText('.cf-display-predicate')
+      await validateScreenshot(
+        page,
+        'visibility-predicates-multi-values-multi-questions-predicate-saved',
+      )
+      expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is less than $10.00',
+      )
+      expect(predicateDisplay).toContain(
+        '"predicate-date" date is earlier than 2021-01-01',
+      )
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is less than $20.00',
+      )
+      expect(predicateDisplay).toContain(
+        '"predicate-date" date is earlier than 2022-02-02',
+      )
+
+      await adminPredicates.clickEditPredicateButton('visibility')
+      await validateScreenshot(
+        page,
+        'visibility-predicates-multi-values-multi-questions-predicate-edit',
+      )
+
+      await adminPredicates.configurePredicate({
+        questionName: 'predicate-currency',
+        scalar: 'currency',
+        operator: 'is greater than',
+        values: ['100', '200'],
+      })
+
+      await adminPredicates.clickSaveConditionButton()
+      await validateScreenshot(
+        page,
+        'visibility-predicates-multi-values-multi-questions-predicate-updated',
+      )
+      predicateDisplay = await page.innerText('.cf-display-predicate')
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is greater than $100.00',
+      )
+      expect(predicateDisplay).toContain(
+        '"predicate-currency" currency is greater than $200.00',
+      )
+    })
+
     it('every visibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
       await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
       const programName = 'Test all visibility predicate types'
       await adminPrograms.addProgram(programName)
@@ -519,6 +686,7 @@ describe('create and edit predicates', () => {
 
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
       const programName = 'Test all eligibility predicate types'
       await adminPrograms.addProgram(programName)

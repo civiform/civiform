@@ -57,7 +57,7 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a page for editing predicates of a block in a program. */
-public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
+public final class ProgramBlockPredicatesEditView extends ProgramBlockBaseView {
 
   private final AdminLayout layout;
 

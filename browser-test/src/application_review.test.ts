@@ -212,7 +212,7 @@ describe('Program admin review of submitted applications', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'favorite-trees-q',
-      'pine cherry',
+      'pine; cherry',
     )
 
     await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42')
@@ -239,7 +239,7 @@ describe('Program admin review of submitted applications', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'favorite-trees-q',
-      'pine cherry',
+      'pine; cherry',
     )
   })
 

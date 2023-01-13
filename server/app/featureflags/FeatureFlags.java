@@ -36,6 +36,11 @@ public final class FeatureFlags {
 
   private final Config config;
 
+  // Address correction and verifcation flags
+  private static final String ESRI_ADDRESS_CORRECTION_ENABLED = "esri_address_correction_enabled";
+  private static final String ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED =
+      "esri_address_service_area_validation_enabled";
+
   @Inject
   FeatureFlags(Config config) {
     this.config = checkNotNull(config);
@@ -97,6 +102,14 @@ public final class FeatureFlags {
     return getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED);
   }
 
+  public boolean isEsriAddressCorrectionEnabled(Request request) {
+    return getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED);
+  }
+
+  public boolean isEsriAddressServiceAreaValidationEnabled(Request request) {
+    return getFlagEnabled(request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED);
+  }
+
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
     return ImmutableMap.of(
         ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
@@ -105,8 +118,14 @@ public final class FeatureFlags {
         isStatusTrackingEnabled(request),
         PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
         isProgramEligibilityConditionsEnabled(request),
+        PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
+        isPredicatesMultipleQuestionsEnabled(request),
         PROGRAM_READ_ONLY_VIEW_ENABLED,
-        isReadOnlyProgramViewEnabled(request));
+        isReadOnlyProgramViewEnabled(request),
+        ESRI_ADDRESS_CORRECTION_ENABLED,
+        isEsriAddressCorrectionEnabled(request),
+        ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED,
+        isEsriAddressServiceAreaValidationEnabled(request));
   }
 
   /**

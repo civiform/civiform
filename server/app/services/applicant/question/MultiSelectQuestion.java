@@ -62,7 +62,7 @@ public final class MultiSelectQuestion extends Question {
       if (numberOfSelections > maxChoicesAllowed) {
         errors.add(
             ValidationErrorMessage.create(
-                MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, maxChoicesAllowed));
+                MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, maxChoicesAllowed + 1));
       }
     }
     return errors.build();

@@ -28,14 +28,14 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
-import views.admin.programs.ProgramBlockAllAspectsView;
+import views.admin.programs.ProgramBlockView;
 import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {
 
   private final ProgramService programService;
-  private final ProgramBlockAllAspectsView editView;
+  private final ProgramBlockView editView;
   private final QuestionService questionService;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
@@ -44,7 +44,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public AdminProgramBlocksController(
       ProgramService programService,
       QuestionService questionService,
-      ProgramBlockAllAspectsView.Factory editViewFactory,
+      ProgramBlockView.Factory editViewFactory,
       FormFactory formFactory,
       RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
@@ -81,7 +81,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 formFactory
                     .form()
                     .bindFromRequest(request)
-                    .get(ProgramBlockAllAspectsView.ENUMERATOR_ID_FORM_FIELD))
+                    .get(ProgramBlockView.ENUMERATOR_ID_FORM_FIELD))
             .map(Long::valueOf);
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
