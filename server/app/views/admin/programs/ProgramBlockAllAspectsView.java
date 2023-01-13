@@ -31,7 +31,6 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
-import services.program.ProgramNeedsABlockException;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
@@ -80,7 +79,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
-  private static final String NOT_YET_IMPLEMENTED_ERROR =
+  private static final String NOT_YET_IMPLEMENTED_ERROR_MESSAGE =
       " The read only version of ProgramBlockView is not fully implemented. It should only be "
           + "used once issue #3162 is closed.";
 
@@ -96,7 +95,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     this.programDisplayType = programViewType;
 
     if (!programDisplayType.equals(DRAFT)) {
-      throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR);
+      throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
     }
   }
 
@@ -226,7 +225,7 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
         renderBlockList(
-            request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+            request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, /* level= */ 0));
 
     if (viewAllowsEditingProgram()) {
       ret.with(
@@ -266,13 +265,11 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
                   "border-white",
                   StyleUtils.hover("border-gray-300"),
                   selectedClasses);
-
-      // TODO(#3162) use a different route when viewAllowsEditingProgram is
-      //  false once a read only navigation option is available.
-      String switchBlockLink =
-          controllers.admin.routes.AdminProgramBlocksController.edit(
-                  programDefinition.id(), blockDefinition.id())
-              .url();
+      String editUrl = controllers.admin.routes.AdminProgramBlocksController.edit(
+          programDefinition.id(), blockDefinition.id())
+        .url();
+      String switchBlockLink = viewAllowsEditingProgram() ? editUrl :
+        NOT_YET_IMPLEMENTED_ERROR_MESSAGE;
       blockTag.with(
           a().withClasses("flex-grow", "overflow-hidden")
               .withHref(switchBlockLink)
@@ -829,13 +826,8 @@ public final class ProgramBlockAllAspectsView extends ProgramBlockView {
     if (viewAllowsEditingProgram()) {
       return routes.AdminProgramController.edit(programDefinition.id()).url();
     }
-    try {
-      long blockId = programDefinition.getLastBlockDefinition().id();
-      // TODO(#3162) change this route once a read only navigation option is available
-      return routes.AdminProgramBlocksController.edit(programDefinition.id(), blockId).url();
-    } catch (ProgramNeedsABlockException e) {
-      throw new RuntimeException("Error: Trying to display a Program without a screen", e);
-    }
+      // TODO(#3162) add the route once a read only navigation option is available
+      return NOT_YET_IMPLEMENTED_ERROR_MESSAGE;
   }
 
   @Override
