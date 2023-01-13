@@ -15,9 +15,7 @@ import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
 import play.i18n.Messages;
@@ -44,7 +42,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   private final DateConverter dateConverter;
 
   @Inject
-  public ApplicantProgramSummaryView(ApplicantLayout layout,  DateConverter dateConverter) {
+  public ApplicantProgramSummaryView(ApplicantLayout layout, DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
   }

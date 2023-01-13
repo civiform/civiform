@@ -60,7 +60,6 @@ public class DateConverterTest {
   @Test
   public void renderLocalDate_isCorrect() {
     Long timestamp = 1673453292339L;
-    assertThat(dateConverter.renderLocalDate(timestamp))
-      .isEqualTo(LocalDate.of(2023,1,11));
+    assertThat(dateConverter.renderLocalDate(timestamp)).isEqualTo(LocalDate.of(2023, 1, 11));
   }
 }
