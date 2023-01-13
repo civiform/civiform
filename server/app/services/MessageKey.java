@@ -48,6 +48,7 @@ public enum MessageKey {
   CONTENT_OR("content.or"),
   CONTENT_NOT_ELIGIBLE("content.notEligible"),
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
+  CONTENT_PREVIOUSLY_ANSWERED_ON("content.previouslyAnsweredOn"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
   ERROR_ANNOUNCEMENT_SR("validation.errorAnnouncementSr"),
   ERROR_NOT_FOUND_TITLE("error.notFoundTitle"),
