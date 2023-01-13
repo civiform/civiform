@@ -23,6 +23,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.RepeatedEntity;
@@ -40,12 +41,12 @@ import views.style.StyleUtils;
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
-  private final ZoneId zoneId;
+  private final DateConverter dateConverter;
 
   @Inject
-  public ApplicantProgramSummaryView(ApplicantLayout layout, ZoneId zoneId) {
+  public ApplicantProgramSummaryView(ApplicantLayout layout,  DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
-    this.zoneId = checkNotNull(zoneId);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -163,7 +164,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     DivTag actionAndTimestampDiv = div().withClasses("pr-2", "flex", "flex-col", "text-right");
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
-      LocalDate date = Instant.ofEpochMilli(data.timestamp()).atZone(this.zoneId).toLocalDate();
+      LocalDate date = this.dateConverter.renderLocalDate(data.timestamp());
       // TODO(#4003): Translate this text.
       DivTag timestampContent =
           div("Previously answered on " + date)

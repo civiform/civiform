@@ -85,4 +85,9 @@ public final class DateConverter {
   public String formatIso8601Date(LocalDate date) {
     return date.format(DATE_TIME_FORMATTER_WITH_DASH);
   }
+
+  /** Formats a {@link Long} timestamp to a {@link LocalDate}. */
+  public LocalDate renderLocalDate(Long timestamp) {
+    return Instant.ofEpochMilli(timestamp).atZone(this.zoneId).toLocalDate();
+  }
 }
