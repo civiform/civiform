@@ -298,7 +298,7 @@ describe('Applicant navigation flow', () => {
         fullProgramName,
         'Screen 1',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'nav-predicate-number-q',
         /* action= */ null,
         'number',

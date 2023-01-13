@@ -3,7 +3,6 @@ package services.program.predicate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import org.junit.Test;
@@ -36,7 +35,7 @@ public class PredicateExpressionNodeTest {
             456L, Scalar.SELECTION, Operator.EQUAL_TO, PredicateValue.of("hello"));
     AndNode and =
         AndNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(leaf1), PredicateExpressionNode.create(leaf2)));
 
     PredicateExpressionNode node = PredicateExpressionNode.create(and);
@@ -54,7 +53,7 @@ public class PredicateExpressionNodeTest {
             456L, Scalar.SELECTION, Operator.EQUAL_TO, PredicateValue.of("hello"));
     OrNode or =
         OrNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(leaf1), PredicateExpressionNode.create(leaf2)));
 
     PredicateExpressionNode node = PredicateExpressionNode.create(or);
@@ -70,10 +69,27 @@ public class PredicateExpressionNodeTest {
             question.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
 
     assertThat(PredicateExpressionNode.create(leaf).toDisplayString(ImmutableList.of(question)))
-        .isEqualTo(
-            String.format(
-                "question with an admin ID of \"%s\"'s city is equal to \"Seattle\"",
-                question.getName()));
+        .isEqualTo(String.format("\"%s\" city is equal to \"Seattle\"", question.getName()));
+  }
+
+  @Test
+  public void toDisplayString_addressServiceAreaNodeOnly_questionIsPresent() {
+    QuestionDefinition question = testQuestionBank.applicantAddress().getQuestionDefinition();
+    LeafAddressServiceAreaExpressionNode leaf =
+        LeafAddressServiceAreaExpressionNode.create(question.getId(), "Seattle");
+
+    assertThat(PredicateExpressionNode.create(leaf).toDisplayString(ImmutableList.of(question)))
+        .isEqualTo(String.format("\"%s\" is in service area \"Seattle\"", question.getName()));
+  }
+
+  @Test
+  public void toDisplayString_addressServiceAreaNodeOnly_questionIsNotPresent() {
+    QuestionDefinition question = testQuestionBank.applicantAddress().getQuestionDefinition();
+    LeafAddressServiceAreaExpressionNode leaf =
+        LeafAddressServiceAreaExpressionNode.create(question.getId(), "Seattle");
+
+    assertThat(PredicateExpressionNode.create(leaf).toDisplayString(ImmutableList.of()))
+        .isEqualTo(String.format("address is in service area \"Seattle\""));
   }
 
   @Test
@@ -88,7 +104,7 @@ public class PredicateExpressionNodeTest {
             question.getId(), Scalar.NUMBER, Operator.LESS_THAN_OR_EQUAL_TO, PredicateValue.of(72));
     AndNode and =
         AndNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(leaf1), PredicateExpressionNode.create(leaf2)));
 
     PredicateExpressionNode node = PredicateExpressionNode.create(and);
@@ -96,8 +112,8 @@ public class PredicateExpressionNodeTest {
     assertThat(node.toDisplayString(ImmutableList.of(question)))
         .isEqualTo(
             String.format(
-                "question with an admin ID of \"%s\"'s number is greater than 45 and question with"
-                    + " an admin ID of \"%s\"'s number is less than or equal to 72",
+                "\"%s\" number is greater than 45 and "
+                    + "\"%s\" number is less than or equal to 72",
                 question.getName(), question.getName()));
   }
 
@@ -120,7 +136,7 @@ public class PredicateExpressionNodeTest {
                 LocalDate.parse("2021-01-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
     OrNode or =
         OrNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(leaf1), PredicateExpressionNode.create(leaf2)));
 
     PredicateExpressionNode node = PredicateExpressionNode.create(or);
@@ -128,8 +144,8 @@ public class PredicateExpressionNodeTest {
     assertThat(node.toDisplayString(ImmutableList.of(multiOption, date)))
         .isEqualTo(
             String.format(
-                "question with an admin ID of \"%s\"'s selection is one of [chocolate, strawberry]"
-                    + " or question with an admin ID of \"%s\"'s date is earlier than 2021-01-01",
+                "\"%s\" selection is one of [chocolate, strawberry]"
+                    + " or \"%s\" date is earlier than 2021-01-01",
                 multiOption.getName(), date.getName()));
   }
 }
