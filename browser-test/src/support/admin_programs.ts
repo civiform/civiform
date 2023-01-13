@@ -526,6 +526,9 @@ export class AdminPrograms {
     await this.expectActiveProgram(programName)
 
     await this.page.click(
+       this.withinProgramCardSelector(programName, 'Active', '.cf-with-dropdown'),
+    )
+    await this.page.click(
       this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
     await waitForPageJsLoad(this.page)
@@ -537,6 +540,14 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
+  }
+
+  async viewActiveVersion(programName: string) {
+        await this.gotoAdminProgramsPage()
+        await this.expectActiveProgram(programName)
+        await this.page.click(
+          this.withinProgramCardSelector(programName, 'Active', ':text("View")'),
+        )
   }
 
   async viewApplications(programName: string) {
