@@ -5,13 +5,16 @@ import static org.mockito.Mockito.mockStatic;
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import javax.inject.Provider;
 import org.mockito.MockedStatic;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.api.test.Helpers;
 import repository.UserRepository;
+import services.program.predicate.PredicateValue;
 
 public class CfTestHelpers {
 
@@ -78,5 +81,10 @@ public class CfTestHelpers {
   public static OidcClient getOidcClient(String host, int port) {
     OidcConfiguration config = getOidcConfiguration(host, port);
     return new OidcClient(config);
+  }
+
+  public static PredicateValue stringToPredicateDate(String rawDate) {
+    LocalDate localDate = LocalDate.parse(rawDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    return PredicateValue.of(localDate);
   }
 }

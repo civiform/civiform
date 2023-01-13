@@ -11,8 +11,9 @@ import sys
 #
 # Requirements:
 #   Must have creds to login to docker hub as 'civiform' user.
-#   Must have a GitHub API token with repo and read:org scopes located at 'gh-release-token.txt' or
-#   in the GH_TOKEN environment variable.
+#   Must have a GitHub API token with `repo` and `read:org` scopes located at 'gh-release-token.txt' or
+#   in the GH_TOKEN environment variable. To create one follow the instructions (use "classic" version):
+#   https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 #
 # When successful, this script:
 #   1. tags the git commit for the release with the release number
@@ -20,10 +21,13 @@ import sys
 #   3. creates a new draft release on github
 
 
-def shell_cmd(command_string):
+def shell_cmd(command_string, timeout=None):
     try:
         process = subprocess.run(
-            shlex.split(command_string), check=True, capture_output=True)
+            shlex.split(command_string),
+            check=True,
+            capture_output=True,
+            timeout=timeout)
     except subprocess.CalledProcessError as e:
         print(f'Failed to run {command_string}.\nError: {e.stderr}')
         raise
@@ -46,7 +50,7 @@ def main():
         print(
             f'''
         {GH_RELEASE_TOKEN_FILENAME} not found in project base directory and {GH_RELEASE_TOKEN_ENV_VAR_NAME} not found in env
-        Create one with repo and read:org scopes at https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+        Create classic token with `repo` and `read:org` scopes at https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
     ''',
             file=sys.stderr)
         exit(1)
@@ -68,6 +72,7 @@ def main():
     # Resolve and validate GitHub token, check auth
     ################################################################################
 
+    print('Reading GitHub token')
     if GH_RELEASE_TOKEN_ENV_VAR_NAME in os.environ:
         gh_token = os.environ[GH_RELEASE_TOKEN_ENV_VAR_NAME]
     else:
@@ -87,7 +92,8 @@ def main():
     # Check docker hub auth
     ################################################################################
 
-    if not 'Login Succeeded' in shell_cmd('docker login'):
+    print('Checking docker hub auth')
+    if not 'Login Succeeded' in shell_cmd('docker login', timeout=5):
         print('Unable to login to docker hub', file=sys.stderr)
         exit(1)
 

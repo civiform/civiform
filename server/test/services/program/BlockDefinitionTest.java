@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Optional;
 import org.junit.Test;
 import services.applicant.question.Scalar;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -106,6 +107,31 @@ public class BlockDefinitionTest {
 
   @Test
   public void setAndGetEligibilityDefinition() {
+    var visibilityAddress = LeafAddressServiceAreaExpressionNode.create(1L, "");
+    PredicateDefinition visibilityPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(visibilityAddress), PredicateAction.HIDE_BLOCK);
+
+    var eligibilityAddress = LeafAddressServiceAreaExpressionNode.create(2L, "");
+    PredicateDefinition eligibilityPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(eligibilityAddress), PredicateAction.HIDE_BLOCK);
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder().setPredicate(eligibilityPredicate).build();
+
+    BlockDefinition blockDefinition =
+        makeBlockDefinitionWithQuestions().toBuilder()
+            .setEligibilityDefinition(eligibility)
+            .setVisibilityPredicate(visibilityPredicate)
+            .build();
+
+    assertThat(blockDefinition.getAddressServiceAreaPredicateNodes())
+        .containsExactlyInAnyOrder(visibilityAddress, eligibilityAddress);
+    assertThat(blockDefinition.hasAddressServiceAreaPredicateNodes()).isTrue();
+  }
+
+  @Test
+  public void getAddressServiceAreaPredicateNodes() {
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(

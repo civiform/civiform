@@ -35,6 +35,7 @@ public final class ReferenceClasses {
   public static final String EDIT_VISIBILITY_PREDICATE_BUTTON = "cf-edit-visibility-predicate";
   public static final String PREDICATE_DISPLAY = "cf-display-predicate";
   public static final String PREDICATE_ACTION = "cf-predicate-action";
+  public static final String PREDICATE_QUESTION_NAME_FIELD = "cf-question-name-field";
   public static final String PREDICATE_SCALAR_SELECT = "cf-scalar-select";
   public static final String PREDICATE_OPERATOR_SELECT = "cf-operator-select";
   public static final String PREDICATE_OPTIONS = "cf-predicate-options";

@@ -32,8 +32,8 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.19.4",
-      "software.amazon.awssdk" % "ses" % "2.19.4",
+      "software.amazon.awssdk" % "s3" % "2.19.14",
+      "software.amazon.awssdk" % "ses" % "2.19.14",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.7.3",
@@ -82,7 +82,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value-parent" % "1.10.1" pomOnly (),
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.17.0",
+      "com.google.errorprone" % "error_prone_core" % "2.18.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",
