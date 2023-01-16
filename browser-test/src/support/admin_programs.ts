@@ -521,7 +521,16 @@ export class AdminPrograms {
     await dismissModal(this.page)
   }
 
+
   async createNewVersion(programName: string) {
+      createNewVersion(programName, false)
+  }
+
+  async createNewVersionWithReadOnlyViewEnabled(programName: string) {
+      createNewVersion(programName: string, true)
+  }
+
+  async createNewVersion(programName: string, programReadOnlyViewEnabled: boolean) {
     await this.gotoAdminProgramsPage()
     await this.expectActiveProgram(programName)
 
