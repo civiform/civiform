@@ -65,7 +65,7 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   /**
-   * Return a HTML page displaying all programs of the current live version and all programs of the
+   * Returns an HTML page displaying all programs of the current live version and all programs of the
    * current draft version if any.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -79,7 +79,7 @@ public final class AdminProgramController extends CiviFormController {
             profileMaybe));
   }
 
-  /** Return a HTML page containing a form to create a new program in the draft version. */
+  /** Returns an HTML page containing a form to create a new program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request) {
     return ok(newOneView.render(request));
@@ -105,7 +105,7 @@ public final class AdminProgramController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
   }
 
-  /** Return an HTML page containing a form to edit a draft program. */
+  /** Returns an HTML page containing a form to edit a draft program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);

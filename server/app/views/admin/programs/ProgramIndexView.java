@@ -337,24 +337,14 @@ public final class ProgramIndexView extends BaseHtmlView {
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
         if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
-          System.out.println("-----------------------------");
-
-          System.out.println("Feature enabled, adding edit to overflow");
           activeRowExtraActions.add(
               renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         } else {
-          System.out.println("-----------------------------");
-
-          System.out.println("Feature disabled, adding edit  to main row");
-
           activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         }
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
       if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
-        System.out.println("-----------------------------");
-
-        System.out.println("Feature enabled, adding VIEW");
         activeRowActions.add(renderViewLink(activeProgram.get(), request));
       }
       activeRowActions.add(renderShareLink(activeProgram.get()));
