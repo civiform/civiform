@@ -57,6 +57,17 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void index_readOnly_redirectsToView() {
+    Program program = ProgramBuilder.newDraftProgram().build();
+
+    Result result = controller.readOnlyIndex(program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.view(program.id, 1L).url());
+  }
+
+  @Test
   public void create_withInvalidProgram_notFound() {
     Request request = fakeRequest().build();
     assertThatThrownBy(() -> controller.create(request, 1L))
@@ -97,6 +108,74 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     program.refresh();
     assertThat(program.getProgramDefinition().blockDefinitions()).hasSize(3);
+  }
+
+  @Test
+  public void view_throwsError_ifCalledOnNoneActiveProgram() throws Exception {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Program program = ProgramBuilder.newDraftProgram("test program").build();
+
+    assertThatThrownBy(() -> controller.view(request, program.id, 1L))
+        .isInstanceOf(NotViewableException.class);
+  }
+
+  @Test
+  public void view_withInvalidProgram_notFound() {
+    Request request = fakeRequest().build();
+    assertThatThrownBy(() -> controller.view(request, 1L, 1L))
+        .isInstanceOf(NotViewableException.class);
+  }
+
+  @Test
+  public void view_withInvalidBlock_notFound() {
+    Program program = ProgramBuilder.newActiveProgram().build();
+    Request request = fakeRequest().build();
+    Result result = controller.view(request, program.id, 2L);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void view_withProgram_OK()
+      throws UnsupportedQuestionTypeException, InvalidUpdateException {
+    Program program =
+        ProgramBuilder.newActiveProgram("Public name", "Public description")
+            // Override only admin name and description to distinguish from applicant-visible
+            // name/description.
+            .withName("Admin name")
+            .withDescription("Admin description")
+            .build();
+    Question appName = testQuestionBank.applicantName();
+    appName.save();
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result = controller.view(request, program.id, 1L);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String html = Helpers.contentAsString(result);
+    assertThat(html).contains(appName.getQuestionDefinition().getQuestionText().getDefault());
+    assertThat(html).contains(appName.getQuestionDefinition().getQuestionHelpText().getDefault());
+    assertThat(html).contains("Admin ID: " + appName.getQuestionDefinition().getName());
+    assertThat(html)
+        .contains("Public name")
+        .contains("Public description")
+        .contains("Admin description")
+        // Similar to program index page we don't show admin name.
+        .doesNotContain("Admin name");
+
+    QuestionDefinition questionDefinition =
+        new QuestionDefinitionBuilder(appName.getQuestionDefinition())
+            .setQuestionText(LocalizedStrings.withDefaultValue("NEW QUESTION TEXT"))
+            .build();
+
+    questionService.update(questionDefinition);
+    request = addCSRFToken(fakeRequest()).build();
+    result = controller.view(request, program.id, 1L);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(Helpers.contentAsString(result))
+        .doesNotContain(appName.getQuestionDefinition().getQuestionText().getDefault());
+    assertThat(Helpers.contentAsString(result))
+        .contains(questionDefinition.getQuestionText().getDefault());
   }
 
   @Test

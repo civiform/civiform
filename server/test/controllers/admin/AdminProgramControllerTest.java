@@ -174,8 +174,25 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.edit(request, program.id);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit program");
     assertThat(contentAsString(result)).contains("test program");
+
+    assertThat(contentAsString(result)).contains("Edit program");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+  }
+
+  @Test
+  public void view_returnsReadOnlyVersion() throws Exception {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Program program = ProgramBuilder.newActiveProgram("test program").build();
+
+    Result result = controller.view(request, program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("test program");
+
+    // TODO(jhummel) uncomment when the readOnlyView is used before submitting.
+    // assertThat(contentAsString(result)).contains("View program");
+
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 

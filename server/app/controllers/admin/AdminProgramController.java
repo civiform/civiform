@@ -37,6 +37,7 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramIndexView listView;
   private final ProgramNewOneView newOneView;
   private final ProgramEditView editView;
+  private final ProgramEditView readOnlyView;
   private final FormFactory formFactory;
   private final VersionRepository versionRepository;
   private final ProfileUtils profileUtils;
@@ -49,6 +50,7 @@ public final class AdminProgramController extends CiviFormController {
       ProgramIndexView listView,
       ProgramNewOneView newOneView,
       ProgramEditView editView,
+      ProgramEditView readOnlyView,
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
@@ -58,6 +60,7 @@ public final class AdminProgramController extends CiviFormController {
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
+    this.readOnlyView = checkNotNull(readOnlyView);
     this.versionRepository = checkNotNull(versionRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.formFactory = checkNotNull(formFactory);
@@ -127,12 +130,7 @@ public final class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result view(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
-    if (!versionRepository.isActiveProgram(program.id())) {
-      throw new NotViewableException("The program can not be viewed because it is not active");
-    }
-    return redirect(
-        controllers.admin.routes.AdminProgramBlocksController.view(
-            program.id(), /* blockDefinitionId= */ 1));
+    return ok(readOnlyView.render(request, program));
   }
 
   /** POST endpoint for creating a new draft version of the program. */
