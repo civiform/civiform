@@ -5,6 +5,7 @@ import {
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
+  validateScreenshot,
 } from './support'
 
 describe('applicant program index page', () => {
@@ -13,7 +14,7 @@ describe('applicant program index page', () => {
   const primaryProgramName = 'Application index primary program'
   const otherProgramName = 'Application index other program'
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
 
@@ -30,6 +31,9 @@ describe('applicant program index page', () => {
     ])
 
     await adminPrograms.addProgram(otherProgramName)
+    await adminPrograms.addProgramBlock(otherProgramName, 'first block', [
+      'first-q',
+    ])
 
     await adminPrograms.publishAllPrograms()
     await logout(page)
@@ -89,5 +93,57 @@ describe('applicant program index page', () => {
       wantInProgressPrograms: [],
       wantSubmittedPrograms: [],
     })
+  })
+
+  it('shows previously answered on text for program that was previously applied to', async () => {
+    const {page, applicantQuestions} = ctx
+
+    await loginAsTestUser(page)
+    await selectApplicantLanguage(
+      page,
+      'English',
+      /* assertProgramIndexPage= */ true,
+    )
+
+    // Fill out application with one question and confirm it was successfully submitted.
+    await applicantQuestions.applyProgram(otherProgramName)
+    await applicantQuestions.answerTextQuestion('first answer')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.submitFromReviewPage()
+    await applicantQuestions.returnToProgramsFromSubmissionPage()
+    await applicantQuestions.expectPrograms({
+      wantNotStartedPrograms: [primaryProgramName],
+      wantInProgressPrograms: [],
+      wantSubmittedPrograms: [otherProgramName],
+    })
+
+    // Check that the question repeated in the program with two questions shows previously answered.
+    await applicantQuestions.clickApplyProgramButton(primaryProgramName)
+    await validateScreenshot(page, 'question-shows-previously-answered')
+
+    // Fill out second question.
+    await applicantQuestions.clickContinue()
+    await applicantQuestions.answerTextQuestion('second answer')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.submitFromReviewPage()
+
+    // Check that the original program doesn't show previously answered.
+    await applicantQuestions.returnToProgramsFromSubmissionPage()
+    await applicantQuestions.clickApplyProgramButton(otherProgramName)
+    await validateScreenshot(page, 'question-does-not-show-previously-answered')
+    await applicantQuestions.clickSubmit()
+
+    // Change first response on second program.
+    await applicantQuestions.returnToProgramsFromSubmissionPage()
+    await applicantQuestions.clickApplyProgramButton(primaryProgramName)
+    await applicantQuestions.clickEdit()
+    await applicantQuestions.answerTextQuestion('first answer 2')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.submitFromReviewPage()
+
+    // Check that the first program now shows the previously answered text.
+    await applicantQuestions.returnToProgramsFromSubmissionPage()
+    await applicantQuestions.clickApplyProgramButton(otherProgramName)
+    await validateScreenshot(page, 'first-program-shows-previously-answered')
   })
 })
