@@ -100,9 +100,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
-        .thenComposeAsync(
             v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
         .exceptionally(
             ex -> {
@@ -110,16 +107,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
                   return unauthorized();
-                }
-                if (cause instanceof ApplicationOutOfDateException) {
-
-                  String errorMsg =
-                      messagesApi
-                          .preferred(request)
-                          .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
-                  Call reviewPage =
-                      routes.ApplicantProgramReviewController.review(applicantId, programId);
-                  return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 throw new RuntimeException(cause);
               }
@@ -168,6 +155,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
                   return found(reviewPage).flashing("banner", "Error saving application.");
+                }
+                if (cause instanceof ApplicationOutOfDateException) {
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
+                  Call reviewPage =
+                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                  return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 throw new RuntimeException(cause);
               }

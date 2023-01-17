@@ -290,9 +290,7 @@ public final class ApplicantService {
       long applicantId, long programId, CiviFormProfile submitterProfile) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(
-              readOnlyApplicantProgramService ->
-                  validateApplicationForSubmission(readOnlyApplicantProgramService))
+          .thenCompose(this::validateApplicationForSubmission)
           .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
@@ -303,7 +301,12 @@ public final class ApplicantService {
               httpExecutionContext.current());
     }
 
-    return submitApplication(applicantId, programId, /* tiSubmitterEmail= */ Optional.empty());
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenCompose(this::validateApplicationForSubmission)
+        .thenCompose(
+            v ->
+                submitApplication(
+                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
   }
 
   private CompletionStage<Application> submitApplication(
@@ -346,7 +349,7 @@ public final class ApplicantService {
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
-      return CompletableFuture.failedFuture(new ApplicationOutOfDateException());
+      throw new ApplicationOutOfDateException();
     }
     return CompletableFuture.completedFuture(null);
   }
