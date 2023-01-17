@@ -176,9 +176,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale,
               relevantPrograms.inProgress(),
               MessageKey.BUTTON_CONTINUE,
-              // TODO(#3577): Once button.continueSr translations are available, switch to using
-              // those.
-              MessageKey.BUTTON_APPLY_SR));
+              MessageKey.BUTTON_CONTINUE_SR));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
@@ -190,9 +188,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale,
               relevantPrograms.submitted(),
               MessageKey.BUTTON_EDIT,
-              // TODO(#3577): Once button.editSr translations are available, switch to using
-              // those.
-              MessageKey.BUTTON_APPLY_SR));
+              MessageKey.BUTTON_EDIT_SR));
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
