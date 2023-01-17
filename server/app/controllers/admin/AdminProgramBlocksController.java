@@ -30,9 +30,6 @@ import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockEditView;
 import views.components.ToastMessage;
 
-// TODO(jhummel) use readOnlyView when submitted (in constructor)
-// TODO(jhummel) remove test images
-
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {
 

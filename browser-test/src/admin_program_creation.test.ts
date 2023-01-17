@@ -20,7 +20,7 @@ describe('program creation', () => {
     await validateScreenshot(page, 'program-description-page')
   })
 
-  fit('View active program, without draft and after creating draft', async () => {
+  it('View active program, without draft and after creating draft', async () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
