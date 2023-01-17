@@ -8,13 +8,11 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
-import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
@@ -115,7 +113,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
 
-                  String errorMsg = messagesApi.preferred(request).at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
                   return redirect(reviewPage).flashing("error", errorMsg);
@@ -125,7 +126,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
               throw new RuntimeException(ex);
             });
   }
-
 
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
       ReadOnlyApplicantProgramService roApplicantProgramService) {

@@ -34,14 +34,12 @@ import models.Program;
 import models.StoredFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.i18n.Messages;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
-import services.MessageKey;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationOutOfDateException;
@@ -292,10 +290,10 @@ public final class ApplicantService {
       long applicantId, long programId, CiviFormProfile submitterProfile) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(
-          readOnlyApplicantProgramService ->
-            validateApplicationForSubmission( readOnlyApplicantProgramService))
-        .thenCompose(v -> submitterProfile.getAccount())
+          .thenCompose(
+              readOnlyApplicantProgramService ->
+                  validateApplicationForSubmission(readOnlyApplicantProgramService))
+          .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
                   submitApplication(
@@ -304,7 +302,6 @@ public final class ApplicantService {
                       /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress())),
               httpExecutionContext.current());
     }
-
 
     return submitApplication(applicantId, programId, /* tiSubmitterEmail= */ Optional.empty());
   }
@@ -339,16 +336,17 @@ public final class ApplicantService {
   /**
    * Validates that the application is complete and correct to submit.
    *
-   * <p>An application may be submitted but incomplete if the application view with submit button contains stale data that has changed visibility conditions.
+   * <p>An application may be submitted but incomplete if the application view with submit button
+   * contains stale data that has changed visibility conditions.
    *
    * @return a {@link ApplicationOutOfDateException} wrapped in a failed future with a user visible
    *     message for the issue.
    */
-  private CompletableFuture<Void> validateApplicationForSubmission(ReadOnlyApplicantProgramService roApplicantProgramService) {
+  private CompletableFuture<Void> validateApplicationForSubmission(
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
-      return CompletableFuture.failedFuture(
-        new ApplicationOutOfDateException());
+      return CompletableFuture.failedFuture(new ApplicationOutOfDateException());
     }
     return CompletableFuture.completedFuture(null);
   }
