@@ -1,7 +1,6 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
@@ -96,6 +95,5 @@ describe('applicant application previously answered', () => {
     await applicantQuestions.returnToProgramsFromSubmissionPage()
     await applicantQuestions.clickApplyProgramButton(primaryProgramName)
     await validateScreenshot(page, 'first-program-shows-previously-answered')
-
   })
 })

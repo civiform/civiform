@@ -291,7 +291,6 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-
   async deleteEnumeratorEntity(entityName: string) {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
