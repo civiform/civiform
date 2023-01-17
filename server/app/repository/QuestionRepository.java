@@ -37,7 +37,6 @@ public final class QuestionRepository {
   @Inject
   public QuestionRepository(
       DatabaseExecutionContext executionContext,
-      ProgramRepository programRepository,
       Provider<VersionRepository> versionRepositoryProvider) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);

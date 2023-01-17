@@ -58,6 +58,12 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
     return PredicateExpressionNodeType.LEAF_OPERATION;
   }
 
+  @Override
+  @JsonIgnore
+  public void accept(PredicateExpressionNodeVisitor visitor) {
+    visitor.visit(this);
+  }
+
   /**
    * Displays a human-readable representation of this expression, in the format "[question name]'s
    * [scalar] [operator] [value]". For example: "home address's city is one of ["Seattle",
@@ -75,8 +81,7 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
         Joiner.on(' ').join(scalar().toDisplayString(), operator().toDisplayString(), displayValue);
     return question.isEmpty()
         ? phrase
-        : String.format(
-            "question with an admin ID of \"%s\"'s %s", question.get().getName(), phrase);
+        : String.format("\"%s\" %s", question.get().getName(), phrase);
   }
 
   public static Builder builder() {

@@ -138,7 +138,7 @@ public class MultiSelectQuestionTest {
             validationErrors.getOrDefault(
                 applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
         .containsOnly(
-            ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 3));
+            ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 4));
   }
 
   @Test

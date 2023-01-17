@@ -19,6 +19,7 @@ import play.test.Helpers;
 import repository.ResetPostgres;
 import services.applicant.question.Scalar;
 import services.program.predicate.Operator;
+import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateValue;
 import support.ProgramBuilder;
 
@@ -572,7 +573,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void testParsePredicateValue_currency() {
     PredicateValue got =
-        AdminProgramBlockPredicatesController.parsePredicateValue(
+        PredicateGenerator.parsePredicateValue(
             Scalar.CURRENCY_CENTS, Operator.EQUAL_TO, "100.01", ImmutableList.of());
 
     assertThat(
