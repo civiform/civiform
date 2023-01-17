@@ -261,6 +261,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickContinue() {
+    await this.page.click('text="Continue"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickPrevious() {
     await this.page.click('text="Previous"')
     await waitForPageJsLoad(this.page)
@@ -275,6 +280,17 @@ export class ApplicantQuestions {
     await this.page.click('text="Review"')
     await waitForPageJsLoad(this.page)
   }
+
+  async clickSubmit() {
+    await this.page.click('text="Submit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickEdit() {
+    await this.page.click('text="Edit"')
+    await waitForPageJsLoad(this.page)
+  }
+
 
   async deleteEnumeratorEntity(entityName: string) {
     this.page.once('dialog', (dialog) => {
@@ -348,8 +364,7 @@ export class ApplicantQuestions {
     await this.expectReviewPage()
 
     // Click on submit button.
-    await this.page.click('text="Submit"')
-    await waitForPageJsLoad(this.page)
+    await this.clickSubmit()
   }
 
   async validateHeader(lang: string) {

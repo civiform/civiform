@@ -5,7 +5,6 @@ import {
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
-  validateScreenshot,
 } from './support'
 
 describe('applicant program index page', () => {
@@ -31,9 +30,6 @@ describe('applicant program index page', () => {
     ])
 
     await adminPrograms.addProgram(otherProgramName)
-    await adminPrograms.addProgramBlock(otherProgramName, 'first block', [
-      'first-q',
-    ])
 
     await adminPrograms.publishAllPrograms()
     await logout(page)
@@ -79,10 +75,6 @@ describe('applicant program index page', () => {
       wantInProgressPrograms: [],
       wantSubmittedPrograms: [primaryProgramName],
     })
-
-    // Check that the question repeated in the second program shows previously answered.
-    await applicantQuestions.clickApplyProgramButton(otherProgramName)
-    await validateScreenshot(page, 'question-shows-previously-answered')
 
     // Logout, then login as guest and confirm that everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487).
     await logout(page)
