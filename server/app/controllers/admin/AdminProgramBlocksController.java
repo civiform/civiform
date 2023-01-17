@@ -30,10 +30,8 @@ import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockEditView;
 import views.components.ToastMessage;
 
-
-// TODO(jhummel) use flag
-// TODO(jhummel) add browser test
 // TODO(jhummel) use readOnlyView when submitted (in constructor)
+// TODO(jhummel) remove test images
 
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {
@@ -64,13 +62,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Return a HTML page displaying all configurations of the specified program.
-   *
-   * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
-   * (blocks) if applicable through links on the page.
-   */
-  /**
-   * Return a HTML page displaying all configurations of the specified program.
+   * Returns an HTML page displaying all configurations of the specified program and UI elements to
+   * start editing aspects of the program.
    *
    * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
    * (blocks) if applicable through links on the page.
@@ -80,21 +73,34 @@ public final class AdminProgramBlocksController extends CiviFormController {
     return index(programId, !READONLY);
   }
 
-  // TODO(jhummel) update comments
+  /**
+   * Returns an HTML page displaying a read only version of all configurations of the specified
+   * program.
+   *
+   * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
+   * (blocks) if applicable through links on the page.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result readOnlyIndex(long programId) {
     return index(programId, READONLY);
   }
 
+  /**
+   * Returns an HTML page that displays all configurations of a specified program either as an
+   * editable or read-only version.
+   *
+   * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
+   * (blocks) if applicable through links on the page.
+   */
   private Result index(long programId, boolean readOnly) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
 
-
-      String redirectUrl = readOnly ?
-        routes.AdminProgramBlocksController.view(programId, blockId).url()
-        : routes.AdminProgramBlocksController.edit(programId, blockId).url();
+      String redirectUrl =
+          readOnly
+              ? routes.AdminProgramBlocksController.view(programId, blockId).url()
+              : routes.AdminProgramBlocksController.edit(programId, blockId).url();
 
       return redirect(redirectUrl);
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
@@ -172,7 +178,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       BlockDefinition block = program.getBlockDefinition(blockId);
 
       Optional<ToastMessage> maybeToastMessage =
-        request.flash().get("success").map(ToastMessage::success);
+          request.flash().get("success").map(ToastMessage::success);
       return renderReadOnlyViewWithMessage(request, program, block, maybeToastMessage);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
@@ -181,7 +187,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
   /** POST endpoint for updating a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-
   public Result update(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
@@ -251,24 +256,24 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   private Result renderReadOnlyViewWithMessage(
-    Request request,
-    ProgramDefinition program,
-    BlockDefinition block,
-    Optional<ToastMessage> message) {
+      Request request,
+      ProgramDefinition program,
+      BlockDefinition block,
+      Optional<ToastMessage> message) {
     ReadOnlyQuestionService roQuestionService =
-      questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     return ok(
-      readOnlyView.render(
-        request, program, block, message, roQuestionService.getUpToDateQuestions()));
+        readOnlyView.render(
+            request, program, block, message, roQuestionService.getUpToDateQuestions()));
   }
 
   private Result renderEditViewWithMessage(
-    Request request,
-    ProgramDefinition program,
-    long blockId,
-    BlockForm blockForm,
-    Optional<ToastMessage> message) {
+      Request request,
+      ProgramDefinition program,
+      long blockId,
+      BlockForm blockForm,
+      Optional<ToastMessage> message) {
     try {
       BlockDefinition blockDefinition = program.getBlockDefinition(blockId);
       ReadOnlyQuestionService roQuestionService =

@@ -14,7 +14,7 @@ import {AdminProgramStatuses} from './admin_program_statuses'
  * program admins. To see all fields check buildJsonApplication() method in
  * JsonExporter.java.
  */
- export interface DownloadedApplication {
+export interface DownloadedApplication {
   program_name: string
   program_version_id: number
   applicant_id: number
@@ -521,22 +521,30 @@ export class AdminPrograms {
     await dismissModal(this.page)
   }
 
-
   async createNewVersion(programName: string) {
-      this.createNewVersionWithFlag(programName, false)
+    await this.createNewVersionWithFlag(programName, false)
   }
 
   async createNewVersionWithReadOnlyViewEnabled(programName: string) {
-      this.createNewVersionWithFlag(programName, true)
+    await this.createNewVersionWithFlag(programName, true)
   }
 
-  async createNewVersionWithFlag(programName: string, programReadOnlyViewEnabled: boolean) {
+  async createNewVersionWithFlag(
+    programName: string,
+    programReadOnlyViewEnabled: boolean,
+  ) {
     await this.gotoAdminProgramsPage()
     await this.expectActiveProgram(programName)
 
-    await this.page.click(
-       this.withinProgramCardSelector(programName, 'Active', '.cf-with-dropdown'),
-    )
+    if (programReadOnlyViewEnabled) {
+      await this.page.click(
+        this.withinProgramCardSelector(
+          programName,
+          'Active',
+          '.cf-with-dropdown',
+        ),
+      )
+    }
     await this.page.click(
       this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
@@ -552,11 +560,11 @@ export class AdminPrograms {
   }
 
   async viewActiveVersion(programName: string) {
-        await this.gotoAdminProgramsPage()
-        await this.expectActiveProgram(programName)
-        await this.page.click(
-          this.withinProgramCardSelector(programName, 'Active', ':text("View")'),
-        )
+    await this.gotoAdminProgramsPage()
+    await this.expectActiveProgram(programName)
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Active', ':text("View")'),
+    )
   }
 
   async viewApplications(programName: string) {

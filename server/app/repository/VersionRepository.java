@@ -285,10 +285,10 @@ public final class VersionRepository {
     return getDraftVersion().getPrograms().stream()
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
   }
-  
+
   public boolean isActiveProgram(Long programId) {
     return getActiveVersion().getPrograms().stream()
-      .anyMatch(activeProgram -> activeProgram.id.equals(programId));
+        .anyMatch(activeProgram -> activeProgram.id.equals(programId));
   }
 
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {

@@ -123,19 +123,16 @@ public final class AdminProgramController extends CiviFormController {
     }
   }
 
-  /**
-   * Returns an HTML page containing the active version of a program for
-   * viewing only.
-   */
+  /** Returns an HTML page containing the active version of a program for viewing only. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result view(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
     if (!versionRepository.isActiveProgram(program.id())) {
-      throw new NotViewableException(
-        "The program can not be viewed because it is not active");
+      throw new NotViewableException("The program can not be viewed because it is not active");
     }
     return redirect(
-      controllers.admin.routes.AdminProgramBlocksController.view(program.id(), 1/* blockId*/));
+        controllers.admin.routes.AdminProgramBlocksController.view(
+            program.id(), /* blockDefinitionId= */ 1));
   }
 
   /** POST endpoint for creating a new draft version of the program. */
@@ -157,7 +154,8 @@ public final class AdminProgramController extends CiviFormController {
         idToEdit = programService.newDraftOf(id).id();
       }
       return redirect(
-        controllers.admin.routes.AdminProgramBlocksController.edit(idToEdit, 1 /* blockId*/));
+          controllers.admin.routes.AdminProgramBlocksController.edit(
+              idToEdit, /* blockDefinitionId = */ 1));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (Exception e) {

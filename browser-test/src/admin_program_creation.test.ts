@@ -20,29 +20,25 @@ describe('program creation', () => {
     await validateScreenshot(page, 'program-description-page')
   })
 
-    fit('View active program, without draft and after creating draft', async () => {
-      const {page, adminPrograms} = ctx
+  fit('View active program, without draft and after creating draft', async () => {
+    const {page, adminPrograms} = ctx
 
-      await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_read_only_view_enabled')
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_read_only_view_enabled')
 
-      await validateScreenshot(page, 'test1')
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoAdminProgramsPage()
 
-
-      const programName = 'Apc program'
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.gotoAdminProgramsPage()
-            await validateScreenshot(page, 'test2')
-
-      await adminPrograms.publishAllPrograms()
-      await validateScreenshot(page, 'program-list-only-one-active-program')
-      await adminPrograms.viewActiveVersion(programName)
-      // TODO(jhummel) add screenshot here when the other pull request is submitted
-       // await validateScreenshot(page, 'program-read-only-viewer')
-       await adminPrograms.createNewVersionWithReadOnlyViewEnabled(programName)
-       await validateScreenshot(page, 'program-list-active-and-draft-program')
-       await adminPrograms.viewActiveVersion(programName)
-    })
+    await adminPrograms.publishAllPrograms()
+    await validateScreenshot(page, 'program-list-only-one-active-program')
+    await adminPrograms.viewActiveVersion(programName)
+    // TODO(jhummel) add screenshot here when the other pull request is submitted
+    // await validateScreenshot(page, 'program-read-only-viewer')
+    await adminPrograms.createNewVersionWithReadOnlyViewEnabled(programName)
+    await validateScreenshot(page, 'program-list-active-and-draft-program')
+    await adminPrograms.viewActiveVersion(programName)
+  })
 
   it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx

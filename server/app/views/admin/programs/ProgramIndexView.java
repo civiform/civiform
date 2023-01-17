@@ -332,23 +332,29 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> activeRowActions = Lists.newArrayList();
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
 
-      // TODO(jhummel) check what this does
       Optional<ButtonTag> applicationsLink =
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
-        if (featureFlags.isReadOnlyProgramViewEnabled()) {
+        if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+          System.out.println("-----------------------------");
+
+          System.out.println("Feature enabled, adding edit to overflow");
           activeRowExtraActions.add(
-            renderEditLink(/* isActive = */ true, activeProgram.get(),
-              request));
-          } else {
-              activeRowActions.add(
-               renderEditLink(/* isActive = */ true, activeProgram.get(),
-                 request));
-      }
+              renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        } else {
+          System.out.println("-----------------------------");
+
+          System.out.println("Feature disabled, adding edit  to main row");
+
+          activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        }
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
-      if (featureFlags.isReadOnlyProgramViewEnabled()) {
+      if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+        System.out.println("-----------------------------");
+
+        System.out.println("Feature enabled, adding VIEW");
         activeRowActions.add(renderViewLink(activeProgram.get(), request));
       }
       activeRowActions.add(renderShareLink(activeProgram.get()));
@@ -378,7 +384,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
     String editLink =
-      controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
+        controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
     String editLinkId = "program-edit-link-" + program.id();
     if (isActive) {
       editLink = controllers.admin.routes.AdminProgramController.newVersionFrom(program.id()).url();
@@ -386,23 +392,23 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     ButtonTag button =
-      makeSvgTextButton("Edit", Icons.EDIT)
-        .withId(editLinkId)
-        .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+        makeSvgTextButton("Edit", Icons.EDIT)
+            .withId(editLinkId)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     return isActive
-      ? toLinkButtonForPost(button, editLink, request)
-      : asRedirectElement(button, editLink);
+        ? toLinkButtonForPost(button, editLink, request)
+        : asRedirectElement(button, editLink);
   }
 
   ButtonTag renderViewLink(ProgramDefinition program, Http.Request request) {
     String viewLink =
-      controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
+        controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
     String viewLinkId = "program-view-link-" + program.id();
 
     ButtonTag button =
-      makeSvgTextButton("View", Icons.VIEW)
-        .withId(viewLinkId)
-        .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+        makeSvgTextButton("View", Icons.VIEW)
+            .withId(viewLinkId)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectElement(button, viewLink);
   }
 
