@@ -190,7 +190,7 @@ link.edit=Edit
 link.answer=Answer
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
-content.previouslyAnsweredOn=Previously answered on
+content.previouslyAnsweredOn=Previously answered on {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
