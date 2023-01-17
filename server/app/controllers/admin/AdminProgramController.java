@@ -65,8 +65,8 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   /**
-   * Returns an HTML page displaying all programs of the current live version and all programs of the
-   * current draft version if any.
+   * Returns an HTML page displaying all programs of the current live version and all programs of
+   * the current draft version if any.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
