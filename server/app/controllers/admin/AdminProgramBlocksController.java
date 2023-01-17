@@ -34,7 +34,6 @@ import views.components.ToastMessage;
 // TODO(jhummel) use flag
 // TODO(jhummel) add browser test
 // TODO(jhummel) use readOnlyView when submitted (in constructor)
-// Todo(jhummel) get icon for view
 
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {

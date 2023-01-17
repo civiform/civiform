@@ -14,7 +14,7 @@ import {AdminProgramStatuses} from './admin_program_statuses'
  * program admins. To see all fields check buildJsonApplication() method in
  * JsonExporter.java.
  */
-export interface DownloadedApplication {
+ export interface DownloadedApplication {
   program_name: string
   program_version_id: number
   applicant_id: number
@@ -523,14 +523,14 @@ export class AdminPrograms {
 
 
   async createNewVersion(programName: string) {
-      createNewVersion(programName, false)
+      this.createNewVersionWithFlag(programName, false)
   }
 
   async createNewVersionWithReadOnlyViewEnabled(programName: string) {
-      createNewVersion(programName: string, true)
+      this.createNewVersionWithFlag(programName, true)
   }
 
-  async createNewVersion(programName: string, programReadOnlyViewEnabled: boolean) {
+  async createNewVersionWithFlag(programName: string, programReadOnlyViewEnabled: boolean) {
     await this.gotoAdminProgramsPage()
     await this.expectActiveProgram(programName)
 

@@ -337,20 +337,20 @@ public final class ProgramIndexView extends BaseHtmlView {
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
-      //  if (featureFlags.isReadOnlyProgramViewEnabled()) {
+        if (featureFlags.isReadOnlyProgramViewEnabled()) {
           activeRowExtraActions.add(
             renderEditLink(/* isActive = */ true, activeProgram.get(),
               request));
-      //    } else {
-      //        activeRowActions.add(
-      //         renderEditLink(/* isActive = */ true, activeProgram.get(),
-      //           request));
-      // }
+          } else {
+              activeRowActions.add(
+               renderEditLink(/* isActive = */ true, activeProgram.get(),
+                 request));
+      }
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
-    //  if (featureFlags.isReadOnlyProgramViewEnabled()) {
+      if (featureFlags.isReadOnlyProgramViewEnabled()) {
         activeRowActions.add(renderViewLink(activeProgram.get(), request));
-      //}
+      }
       activeRowActions.add(renderShareLink(activeProgram.get()));
       activeRow =
           Optional.of(
