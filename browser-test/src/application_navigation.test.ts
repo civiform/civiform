@@ -1,6 +1,7 @@
 import {
   AdminQuestions,
   createTestContext,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
@@ -278,6 +279,7 @@ describe('Applicant navigation flow', () => {
     beforeAll(async () => {
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
       await adminQuestions.addNumberQuestion({
@@ -298,7 +300,7 @@ describe('Applicant navigation flow', () => {
         fullProgramName,
         'Screen 1',
       )
-      await adminPredicates.addPredicate(
+      await adminPredicates.addLegacyPredicate(
         'nav-predicate-number-q',
         /* action= */ null,
         'number',

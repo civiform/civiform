@@ -419,10 +419,10 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       Optional<PredicateDefinition> predicate,
       String blockName,
       ImmutableList<QuestionDefinition> questions) {
-    String currentBlockStatus =
+    DivTag currentBlockStatus =
         predicate.isEmpty()
-            ? "This screen is always shown."
-            : predicate.get().toDisplayString(blockName, questions);
+            ? div("This screen is always shown.")
+            : renderExistingPredicate(blockName, predicate.get(), questions);
 
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
@@ -431,7 +431,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     return div()
         .withClasses("my-4")
         .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
-        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"))
+        .with(currentBlockStatus.withClasses("text-lg", "max-w-prose"))
         .with(
             asRedirectElement(
                 editScreenButton,
@@ -445,12 +445,13 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       Optional<EligibilityDefinition> predicate,
       String blockName,
       ImmutableList<QuestionDefinition> questions) {
-    String currentBlockStatus =
+    DivTag currentBlockStatus =
         predicate.isEmpty()
-            ? "You can add eligibility conditions to help you screen out applicants who do not"
-                + " meet the minimum requirements for a program early in the application"
-                + " process."
-            : predicate.get().predicate().toDisplayString(blockName, questions);
+            ? div(
+                "You can add eligibility conditions to help you screen out applicants who do not"
+                    + " meet the minimum requirements for a program early in the application"
+                    + " process.")
+            : renderExistingPredicate(blockName, predicate.get().predicate(), questions);
 
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
@@ -459,7 +460,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     return div()
         .withClasses("my-4")
         .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"))
+        .with(currentBlockStatus.withClasses("text-lg", "max-w-prose"))
         .with(
             asRedirectElement(
                 editScreenButton,

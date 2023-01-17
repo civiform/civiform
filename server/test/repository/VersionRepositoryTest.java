@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import java.time.Instant;
@@ -18,6 +17,7 @@ import org.junit.Test;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.OrNode;
@@ -301,7 +301,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     //      /     \
     //   LEAF1    OR
     //          /    \
-    //       LEAF2   LEAF3
+    //       LEAF2   LEAF_ADDRESS
     PredicateExpressionNode leafOne =
         PredicateExpressionNode.create(
             LeafOperationExpressionNode.create(
@@ -310,14 +310,12 @@ public class VersionRepositoryTest extends ResetPostgres {
         PredicateExpressionNode.create(
             LeafOperationExpressionNode.create(
                 oldTwo.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("")));
-    PredicateExpressionNode leafThree =
-        PredicateExpressionNode.create(
-            LeafOperationExpressionNode.create(
-                oldOne.id, Scalar.NUMBER, Operator.LESS_THAN, PredicateValue.of(12)));
+    PredicateExpressionNode leafAddress =
+        PredicateExpressionNode.create(LeafAddressServiceAreaExpressionNode.create(oldOne.id, ""));
     PredicateExpressionNode or =
-        PredicateExpressionNode.create(OrNode.create(ImmutableSet.of(leafTwo, leafThree)));
+        PredicateExpressionNode.create(OrNode.create(ImmutableList.of(leafTwo, leafAddress)));
     PredicateExpressionNode and =
-        PredicateExpressionNode.create(AndNode.create(ImmutableSet.of(leafOne, or)));
+        PredicateExpressionNode.create(AndNode.create(ImmutableList.of(leafOne, or)));
 
     PredicateExpressionNode updated = versionRepository.updatePredicateNodeVersions(and);
 
@@ -330,13 +328,13 @@ public class VersionRepositoryTest extends ResetPostgres {
             leafTwo.getLeafNode().toBuilder().setQuestionId(newTwo.id).build());
     PredicateExpressionNode expectedLeafThree =
         PredicateExpressionNode.create(
-            leafThree.getLeafNode().toBuilder().setQuestionId(newOne.id).build());
+            leafAddress.getLeafAddressNode().toBuilder().setQuestionId(newOne.id).build());
     PredicateExpressionNode expectedOr =
         PredicateExpressionNode.create(
-            OrNode.create(ImmutableSet.of(expectedLeafTwo, expectedLeafThree)));
+            OrNode.create(ImmutableList.of(expectedLeafTwo, expectedLeafThree)));
     PredicateExpressionNode expectedAnd =
         PredicateExpressionNode.create(
-            AndNode.create(ImmutableSet.of(expectedLeafOne, expectedOr)));
+            AndNode.create(ImmutableList.of(expectedLeafOne, expectedOr)));
 
     assertThat(updated.getType()).isEqualTo(PredicateExpressionNodeType.AND);
     assertThat(updated).isEqualTo(expectedAnd);
