@@ -302,9 +302,11 @@ describe('create and edit predicates', () => {
       await adminQuestions.addCurrencyQuestion({
         questionName: 'predicate-currency',
       })
-      await adminQuestions.addDateQuestion({questionName: 'predicate-date'})
       await adminQuestions.addDateQuestion({
-        questionName: 'on-or-after-date-question',
+        questionName: 'predicate-date-is-earlier-than',
+      })
+      await adminQuestions.addDateQuestion({
+        questionName: 'predicate-date-on-or-after',
       })
       await adminQuestions.addCheckboxQuestion({
         questionName: 'both sides are lists',
@@ -336,13 +338,15 @@ describe('create and edit predicates', () => {
       await adminPrograms.addProgramBlock(programName, 'currency', [
         'predicate-currency',
       ])
-      await adminPrograms.addProgramBlock(programName, 'date', [
-        'predicate-date',
-      ])
+      await adminPrograms.addProgramBlock(
+        programName,
+        'is earlier than date question',
+        ['predicate-date-is-earlier-than'],
+      )
       await adminPrograms.addProgramBlock(
         programName,
         'on or after date question',
-        ['on-or-after-date-question'],
+        ['predicate-date-on-or-after'],
       )
       await adminPrograms.addProgramBlock(programName, 'two lists', [
         'both sides are lists',
@@ -422,7 +426,7 @@ describe('create and edit predicates', () => {
         'Screen 7',
       )
       await adminPredicates.addPredicate(
-        'predicate-date',
+        'predicate-date-is-earlier-than',
         'shown if',
         'date',
         'is earlier than',
@@ -435,7 +439,7 @@ describe('create and edit predicates', () => {
         'Screen 8',
       )
       await adminPredicates.addPredicate(
-        'on-or-after-date-question',
+        'predicate-date-on-or-after',
         'shown if',
         'date',
         'is on or later than',
@@ -561,13 +565,15 @@ describe('create and edit predicates', () => {
       await adminPrograms.addProgramBlock(programName, 'currency', [
         'predicate-currency',
       ])
-      await adminPrograms.addProgramBlock(programName, 'date', [
-        'predicate-date',
-      ])
+      await adminPrograms.addProgramBlock(
+        programName,
+        'is earlier than date question',
+        ['predicate-date-is-earlier-than'],
+      )
       await adminPrograms.addProgramBlock(
         programName,
         'on or after date question',
-        ['on-or-after-date-question'],
+        ['predicate-date-on-or-after'],
       )
       await adminPrograms.addProgramBlock(programName, 'two lists', [
         'both sides are lists',
@@ -644,7 +650,7 @@ describe('create and edit predicates', () => {
         'Screen 6',
       )
       await adminPredicates.addPredicate(
-        'predicate-date',
+        'predicate-date-is-earlier-than',
         /* action= */ null,
         'date',
         'is earlier than',
@@ -657,7 +663,7 @@ describe('create and edit predicates', () => {
         'Screen 7',
       )
       await adminPredicates.addPredicate(
-        'on-or-after-date-question',
+        'predicate-date-on-or-after',
         /* action= */ null,
         'date',
         'is on or later than',
