@@ -34,14 +34,17 @@ import models.Program;
 import models.StoredFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.i18n.Messages;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
+import services.MessageKey;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.ApplicantQuestion;
@@ -288,8 +291,11 @@ public final class ApplicantService {
   public CompletionStage<Application> submitApplication(
       long applicantId, long programId, CiviFormProfile submitterProfile) {
     if (submitterProfile.isTrustedIntermediary()) {
-      return submitterProfile
-          .getAccount()
+      return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenCompose(
+          readOnlyApplicantProgramService ->
+            validateApplicationForSubmission( readOnlyApplicantProgramService))
+        .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
                   submitApplication(
@@ -298,6 +304,7 @@ public final class ApplicantService {
                       /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress())),
               httpExecutionContext.current());
     }
+
 
     return submitApplication(applicantId, programId, /* tiSubmitterEmail= */ Optional.empty());
   }
@@ -327,6 +334,23 @@ public final class ApplicantService {
                   .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
             },
             httpExecutionContext.current());
+  }
+
+  /**
+   * Validates that the application is complete and correct to submit.
+   *
+   * <p>An application may be submitted but incomplete if the application view with submit button contains stale data that has changed visibility conditions.
+   *
+   * @return a {@link ApplicationOutOfDateException} wrapped in a failed future with a user visible
+   *     message for the issue.
+   */
+  private CompletableFuture<Void> validateApplicationForSubmission(ReadOnlyApplicantProgramService roApplicantProgramService) {
+    // Check that all blocks have been answered.
+    if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
+      return CompletableFuture.failedFuture(
+        new ApplicationOutOfDateException());
+    }
+    return CompletableFuture.completedFuture(null);
   }
 
   /**

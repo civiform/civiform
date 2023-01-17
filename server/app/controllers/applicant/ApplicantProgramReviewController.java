@@ -105,10 +105,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
         .thenComposeAsync(
-            readOnlyApplicantProgramService ->
-                validateApplication(
-                    readOnlyApplicantProgramService, messagesApi.preferred(request)))
-        .thenComposeAsync(
             v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
         .exceptionally(
             ex -> {
@@ -118,9 +114,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return unauthorized();
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
+
+                  String errorMsg = messagesApi.preferred(request).at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
-                  return redirect(reviewPage).flashing("error", cause.getMessage());
+                  return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 throw new RuntimeException(cause);
               }
@@ -128,29 +126,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
-  /**
-   * Validates that the application is complete and correct to submit.
-   *
-   * <p>An application may be submitted but incomplete for a variety of reason:
-   *
-   * <ul>
-   *   <li>The application view with submit button contains stale data that has changed visibility
-   *       or eligibility conditions that result in the application being incomplete or ineligible.
-   * </ul>
-   *
-   * @return a {@link ApplicationOutOfDateException} wrapped in a failed future with a user visible
-   *     message for the issue.
-   */
-  private CompletableFuture<Void> validateApplication(
-      ReadOnlyApplicantProgramService roApplicantProgramService, Messages messages) {
-    // Check that all blocks have been answered.
-    if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
-      return CompletableFuture.failedFuture(
-          new ApplicationOutOfDateException(
-              messages.at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName())));
-    }
-    return CompletableFuture.completedFuture(null);
-  }
 
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
       ReadOnlyApplicantProgramService roApplicantProgramService) {
