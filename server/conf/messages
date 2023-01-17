@@ -288,6 +288,9 @@ placeholder.entityName={0} name
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Please select a file.
 
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=Choose File
+
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
 #---------------------------------------------------------------------#

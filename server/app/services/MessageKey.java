@@ -22,6 +22,7 @@ public enum MessageKey {
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_SR("button.applySr"),
+  BUTTON_CHOOSE_FILE("button.chooseFile"),
   BUTTON_CONTINUE("button.continue"),
   BUTTON_CONTINUE_SR("button.continueSr"),
   BUTTON_CREATE_ACCOUNT("button.createAccount"),
