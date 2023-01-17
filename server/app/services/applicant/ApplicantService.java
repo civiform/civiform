@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -309,7 +310,8 @@ public final class ApplicantService {
                     applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
   }
 
-  private CompletionStage<Application> submitApplication(
+  @VisibleForTesting
+  CompletionStage<Application> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     return applicationRepository
         .submitApplication(applicantId, programId, tiSubmitterEmail)
