@@ -374,11 +374,15 @@ export class ApplicantQuestions {
   }
 
   async validatePreviouslyAnsweredText() {
-    expect(await this.page.textContent('html')).toContain("Previously answered on")
+    expect(await this.page.textContent('html')).toContain(
+      'Previously answered on',
+    )
   }
 
   async validateNoPreviouslyAnsweredText() {
-    expect(await this.page.textContent('html')).not.toContain("Previously answered on")
+    expect(await this.page.textContent('html')).not.toContain(
+      'Previously answered on',
+    )
   }
 
   async seeStaticQuestion(questionText: string) {
