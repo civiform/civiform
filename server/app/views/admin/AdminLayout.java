@@ -94,7 +94,6 @@ public final class AdminLayout extends BaseHtmlLayout {
     DivTag headerIcon =
       div(a()
         .withHref(controllers.routes.HomeController.index().url())
-        .withId("home-link")
         .with(
           div(span("C"), span("F").withClasses("font-thin"))
             .withClasses(AdminStyles.ADMIN_NAV_BAR_LOGO)));
