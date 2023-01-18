@@ -276,8 +276,10 @@ describe('Applicant navigation flow', () => {
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programName)
 
-      // The UI correctly won't let us submit, so add a submit button and click it.
+      // The UI correctly won't let us submit because the application isn't complete.
+      // To fake submitting an incomplete application add a submit button and click it.
       // Note the form already triggers for the submit action.
+      // A clearer way to set this up would be to have two browser contexts but that isn't doable in our setup.
       await page.evaluate(() => {
         const buttonEl = document.createElement('button')
         buttonEl.id = 'test-form-submit'
