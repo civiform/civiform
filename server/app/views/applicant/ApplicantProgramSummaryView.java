@@ -165,7 +165,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       LocalDate date = this.dateConverter.renderLocalDate(data.timestamp());
       // TODO(#4003): Translate this text.
       DivTag timestampContent =
-          div("Previously answered on " + date)
+          div(messages.at(MessageKey.CONTENT_PREVIOUSLY_ANSWERED_ON.getKeyName(), date))
               .withClasses(ReferenceClasses.BT_DATE, "font-light", "text-xs", "flex-grow");
       actionAndTimestampDiv.with(timestampContent);
     }
