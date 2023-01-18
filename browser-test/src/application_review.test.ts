@@ -7,6 +7,7 @@ import {
   logout,
   selectApplicantLanguage,
   testUserDisplayName,
+  validateScreenshot,
 } from './support'
 
 describe('Program admin review of submitted applications', () => {
@@ -271,6 +272,12 @@ describe('Program admin review of submitted applications', () => {
 
       await logout(page)
     }
+
+    //Expect CF logo to route ProgramAdmins back to their homepage
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+    await page.click('#home-link')
+    await validateScreenshot(page, 'applications-page')
 
     // Expect applications to be presented in reverse chronological order to program admin.
     await loginAsProgramAdmin(page)
