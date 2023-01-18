@@ -1,10 +1,11 @@
 import {
-  dismissModal,
-  startSession,
-  loginAsAdmin,
-  validateScreenshot,
   AdminPrograms,
   AdminQuestions,
+  dismissModal,
+  disableFeatureFlag,
+  loginAsAdmin,
+  startSession,
+  validateScreenshot,
 } from './support'
 import {Page} from 'playwright'
 
@@ -27,6 +28,7 @@ describe('publishing all draft questions and programs', () => {
     adminQuestions = new AdminQuestions(pageObject)
 
     await loginAsAdmin(pageObject)
+    await disableFeatureFlag(page, 'program_read_only_view_enabled')
 
     // Create a hidden program with no questions
     await adminPrograms.addProgram(

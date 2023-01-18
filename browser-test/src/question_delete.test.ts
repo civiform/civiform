@@ -1,4 +1,7 @@
-import {createTestContext, loginAsAdmin} from './support'
+import {
+createTestContext,
+disableFeatureFlag,
+loginAsAdmin} from './support'
 import {QuestionType} from './support/admin_questions'
 
 describe('deleting question lifecycle', () => {
@@ -8,6 +11,8 @@ describe('deleting question lifecycle', () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_read_only_view_enabled')
+
     const programName = 'Deleting program'
     const onlyUsedQuestion = 'delete-address'
     await adminQuestions.addQuestionForType(

@@ -111,6 +111,7 @@ public final class AdminProgramController extends CiviFormController {
   /** Returns an HTML page containing a form to edit a draft program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id) throws ProgramNotFoundException {
+    requestChecker.throwIfProgramNotDraft(id);
     ProgramDefinition program = programService.getProgramDefinition(id);
     return ok(editView.render(request, program));
   }
@@ -129,6 +130,7 @@ public final class AdminProgramController extends CiviFormController {
   /** Returns an HTML page containing the active version of a program for viewing only. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result view(Request request, long id) throws ProgramNotFoundException {
+    requestChecker.throwIfProgramNotActive(id);
     ProgramDefinition program = programService.getProgramDefinition(id);
     return ok(readOnlyView.render(request, program));
   }

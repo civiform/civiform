@@ -1,11 +1,12 @@
 import {
-  loginAsAdmin,
   AdminQuestions,
-  seedCanonicalQuestions,
-  waitForPageJsLoad,
-  validateScreenshot,
-  dropTables,
   createTestContext,
+  disableFeatureFlag,
+  dropTables,
+  loginAsAdmin,
+  seedCanonicalQuestions,
+  validateScreenshot,
+  waitForPageJsLoad,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
@@ -33,6 +34,9 @@ describe('normal question lifecycle', () => {
       const {page, adminQuestions, adminPrograms} = ctx
 
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'program_read_only_view_enabled')
+
+      await disableFeatureFlag(page, 'program_read_only_view_enabled')
 
       const questionName = `qlc-${type}`
       // for most question types there will be only 1 question. But for

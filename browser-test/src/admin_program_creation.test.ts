@@ -20,7 +20,7 @@ describe('program creation', () => {
     await validateScreenshot(page, 'program-description-page')
   })
 
-  it('View active program, without draft and after creating draft', async () => {
+  it('view active program, without draft and after creating draft', async () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -35,7 +35,8 @@ describe('program creation', () => {
     await adminPrograms.viewActiveVersion(programName)
     // TODO(jhummel) add screenshot here when the other pull request is submitted
     // await validateScreenshot(page, 'program-read-only-viewer')
-    await adminPrograms.createNewVersionWithReadOnlyViewEnabled(programName)
+    await adminPrograms.createNewVersionMaybeReadOnlyViewEnabled(programName, true)
+
     await validateScreenshot(page, 'program-list-active-and-draft-program')
     await adminPrograms.viewActiveVersion(programName)
   })

@@ -33,7 +33,7 @@ import views.components.ToastMessage;
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {
 
-  private static final boolean READONLY = true;
+  private static final boolean READ_ONLY = true;
 
   private final ProgramService programService;
   private final ProgramBlockEditView editView;
@@ -67,7 +67,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(long programId) {
-    return index(programId, !READONLY);
+    return index(programId, !READ_ONLY);
   }
 
   /**
@@ -79,7 +79,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result readOnlyIndex(long programId) {
-    return index(programId, READONLY);
+    return index(programId, READ_ONLY);
   }
 
   /**
@@ -163,8 +163,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Return a HTML page displaying all configurations of the specified program screen (block) and
-   * forms to update them.
+   * Returns an HTML page displaying all configurations of the specified program screen (block)
+   * as a read only view.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result view(Request request, long programId, long blockId) {
@@ -173,10 +173,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
-
-      Optional<ToastMessage> maybeToastMessage =
-          request.flash().get("success").map(ToastMessage::success);
-      return renderReadOnlyViewWithMessage(request, program, block, maybeToastMessage);
+      return renderReadOnlyViewWithMessage(request, program, block);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
@@ -255,14 +252,13 @@ public final class AdminProgramBlocksController extends CiviFormController {
   private Result renderReadOnlyViewWithMessage(
       Request request,
       ProgramDefinition program,
-      BlockDefinition block,
-      Optional<ToastMessage> message) {
+      BlockDefinition block) {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     return ok(
         readOnlyView.render(
-            request, program, block, message, roQuestionService.getUpToDateQuestions()));
+            request, program, block, Optional.empty(), roQuestionService.getUpToDateQuestions()));
   }
 
   private Result renderEditViewWithMessage(

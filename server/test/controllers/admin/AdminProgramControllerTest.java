@@ -181,6 +181,15 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void edit_withNoneDraftProgram_throwsNotChangeableException() throws Exception {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Program program = ProgramBuilder.newActiveProgram("test program").build();
+
+    assertThatThrownBy(() -> controller.edit(request, program.id))
+      .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
   public void view_returnsReadOnlyVersion() throws Exception {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Program program = ProgramBuilder.newActiveProgram("test program").build();
@@ -194,6 +203,15 @@ public class AdminProgramControllerTest extends ResetPostgres {
     // assertThat(contentAsString(result)).contains("View program");
 
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+  }
+
+  @Test
+  public void view_withNoneActiveProgram_throwsNotViewableException() throws Exception {
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Program program = ProgramBuilder.newDraftProgram("test program").build();
+
+    assertThatThrownBy(() -> controller.view(request, program.id))
+      .isInstanceOf(NotViewableException.class);
   }
 
   @Test
@@ -247,7 +265,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
             .build();
 
-    assertThatThrownBy(() -> controller.update(request, 1L))
+    assertThatThrownBy(() -> controller.update(request, /*programId =*/ 1L))
         .isInstanceOf(NotChangeableException.class);
   }
 

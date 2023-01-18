@@ -522,14 +522,10 @@ export class AdminPrograms {
   }
 
   async createNewVersion(programName: string) {
-    await this.createNewVersionWithFlag(programName, false)
+    await this.createNewVersionMaybeReadOnlyViewEnabled(programName, false)
   }
 
-  async createNewVersionWithReadOnlyViewEnabled(programName: string) {
-    await this.createNewVersionWithFlag(programName, true)
-  }
-
-  async createNewVersionWithFlag(
+  async createNewVersionMaybeReadOnlyViewEnabled(
     programName: string,
     programReadOnlyViewEnabled: boolean,
   ) {

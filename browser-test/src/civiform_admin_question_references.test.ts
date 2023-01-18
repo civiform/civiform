@@ -1,4 +1,8 @@
-import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
+import {
+createTestContext,
+disableFeatureFlag,
+loginAsAdmin,
+validateScreenshot} from './support'
 
 describe('view program references from question view', () => {
   const ctx = createTestContext()
@@ -19,6 +23,7 @@ describe('view program references from question view', () => {
     const {page, adminQuestions, adminPrograms} = ctx
     const questionName = 'question-references-q'
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_read_only_view_enabled')
     await adminQuestions.addAddressQuestion({questionName})
 
     // Add a reference to the question in the second block. We'll later assert

@@ -1,4 +1,4 @@
-import {AdminPrograms, createTestContext, loginAsAdmin} from './support'
+import {AdminPrograms, createTestContext, disableFeatureFlag, loginAsAdmin} from './support'
 
 describe('Most recently updated program is at top of list.', () => {
   const ctx = createTestContext()
@@ -6,6 +6,7 @@ describe('Most recently updated program is at top of list.', () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_read_only_view_enabled')
 
     const programOne = 'List test program one'
     const programTwo = 'List test program two'
