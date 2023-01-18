@@ -1,12 +1,11 @@
 package views.admin;
-import static com.google.common.base.Preconditions.checkNotNull;
+
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
-//import auth.FakeAdminClient;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import featureflags.FeatureFlags;
@@ -19,11 +18,8 @@ import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
 import views.style.AdminStyles;
-import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
-
-import java.util.Locale;
 
 /** Contains methods rendering common compoments used across admin pages. */
 public final class AdminLayout extends BaseHtmlLayout {
@@ -43,14 +39,12 @@ public final class AdminLayout extends BaseHtmlLayout {
   private final NavPage activeNavPage;
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
-  //private final FakeAdminClient fakeAdminClient;
+  // private final FakeAdminClient fakeAdminClient;
 
   AdminLayout(
-      ViewUtils viewUtils, Config configuration, NavPage activeNavPage, FeatureFlags featureFlags//,FakeAdminClient fakeAdminClient
-       ) {
+      ViewUtils viewUtils, Config configuration, NavPage activeNavPage, FeatureFlags featureFlags) {
     super(viewUtils, configuration, featureFlags);
     this.activeNavPage = activeNavPage;
-    //this.fakeAdminClient = checkNotNull(fakeAdminClient);
   }
 
   /**
@@ -92,11 +86,11 @@ public final class AdminLayout extends BaseHtmlLayout {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     DivTag headerIcon =
-      div(a()
-        .withHref(controllers.routes.HomeController.index().url())
-        .with(
-          div(span("C"), span("F").withClasses("font-thin"))
-            .withClasses(AdminStyles.ADMIN_NAV_BAR_LOGO)));
+        div(
+            a().withHref(controllers.routes.HomeController.index().url())
+                .with(
+                    div(span("C"), span("F").withClasses("font-thin"))
+                        .withClasses(AdminStyles.ADMIN_NAV_BAR_LOGO)));
     DivTag headerTitle =
         div()
             .withClasses("font-normal", "text-xl", "inline", "pl-10", "py-0", "mr-4")
