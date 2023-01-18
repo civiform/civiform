@@ -21,6 +21,7 @@ lazy val root = (project in file("."))
       caffeine,
       guice,
       javaJdbc,
+      javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.7.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.14.1",
@@ -56,6 +57,9 @@ lazy val root = (project in file("."))
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "31.1-jre" % Test,
+      // Play MockWS is a mock WS client for Play Framework
+      // https://github.com/leanovate/play-mockws
+      "de.leanovate.play-mockws" %% "play-mockws" % "2.8.0" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",

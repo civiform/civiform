@@ -1,0 +1,5 @@
+package services;
+
+class MockWsClient {
+  
+}
