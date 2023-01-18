@@ -242,7 +242,8 @@ class PreviewController {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
     const questionType = document.querySelector('.cf-question-type')
     const useAdvancedFormatting =
-      questionType && questionType.textContent === PreviewController.STATIC_QUESTION_TYPE
+      questionType &&
+      questionType.textContent === PreviewController.STATIC_QUESTION_TYPE
     if (useAdvancedFormatting) {
       const contentElement = PreviewController.formatText(text, true)
       contentElement.classList.add('text-sm')

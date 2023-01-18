@@ -789,6 +789,26 @@ export class AdminQuestions {
     questionText = 'static question text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
   }: QuestionParams) {
+    await this.createStaticQuestion({
+      questionName,
+      description,
+      questionText,
+      enumeratorName,
+    })
+
+    await this.clickSubmitButtonAndNavigate('Create')
+
+    await this.expectAdminQuestionsPage()
+
+    await this.expectDraftQuestionExist(questionName, questionText)
+  }
+
+  async createStaticQuestion({
+    questionName,
+    description = 'static description',
+    questionText = 'static question text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+  }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
     await this.page.click('#create-question-button')
@@ -807,12 +827,6 @@ export class AdminQuestions {
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })
-
-    await this.clickSubmitButtonAndNavigate('Create')
-
-    await this.expectAdminQuestionsPage()
-
-    await this.expectDraftQuestionExist(questionName, questionText)
   }
 
   async addNameQuestion({
