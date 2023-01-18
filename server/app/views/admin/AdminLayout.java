@@ -1,6 +1,5 @@
 package views.admin;
 
-
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
