@@ -57,9 +57,6 @@ lazy val root = (project in file("."))
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "31.1-jre" % Test,
-      // Play MockWS is a mock WS client for Play Framework
-      // https://github.com/leanovate/play-mockws
-      "de.leanovate.play-mockws" %% "play-mockws" % "2.8.0" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
@@ -105,7 +102,10 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.5"
+      "ch.qos.logback" % "logback-classic" % "1.4.5",
+
+      // Scala Utilities & Wrappers
+      "com.twitter" %% "util-core" % "22.12.0",
     ),
     javacOptions ++= Seq(
       "-encoding",
