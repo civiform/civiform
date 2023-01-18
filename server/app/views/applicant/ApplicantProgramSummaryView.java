@@ -113,6 +113,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                     .with(continueOrSubmitButton));
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
+    params
+        .request()
+        .flash()
+        .get("error")
+        .map(ToastMessage::error)
+        .ifPresent(bundle::addToastMessages);
 
     String pageTitle = messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));

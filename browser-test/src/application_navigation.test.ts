@@ -269,6 +269,33 @@ describe('Applicant navigation flow', () => {
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-submission')
     })
+
+    it('shows error with incomplete submission', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.clickApplyProgramButton(programName)
+
+      // The UI correctly won't let us submit because the application isn't complete.
+      // To fake submitting an incomplete application add a submit button and click it.
+      // Note the form already triggers for the submit action.
+      // A clearer way to set this up would be to have two browser contexts but that isn't doable in our setup.
+      await page.evaluate(() => {
+        const buttonEl = document.createElement('button')
+        buttonEl.id = 'test-form-submit'
+        buttonEl.type = 'SUBMIT'
+        const formEl = document.querySelector('.cf-debounced-form')!
+        formEl.appendChild(buttonEl)
+      })
+      const submitButton = page.locator('#test-form-submit')!
+      await submitButton.click()
+
+      const toastMessages = await page.innerText('#toast-container')
+      expect(toastMessages).toContain(
+        "There's been an update to the application",
+      )
+      await validateScreenshot(page, 'program-out-of-date')
+    })
   })
 
   describe('navigation with eligibility conditions', () => {
