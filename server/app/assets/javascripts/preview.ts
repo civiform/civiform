@@ -34,6 +34,8 @@ class PreviewController {
   private static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
   private static readonly DEFAULT_OPTION_TEXT = 'Sample question option'
 
+  private static readonly STATIC_QUESTION_TYPE = 'Static Text'
+
   // This regex is used to match $this and $this.parent (etc) strings so we can
   // highlight them in the question preview.
   private static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g
@@ -240,7 +242,7 @@ class PreviewController {
     text = text || PreviewController.DEFAULT_QUESTION_TEXT
     const questionType = document.querySelector('.cf-question-type')
     const useAdvancedFormatting =
-      questionType && questionType.textContent === 'STATIC'
+      questionType && questionType.textContent === PreviewController.STATIC_QUESTION_TYPE
     if (useAdvancedFormatting) {
       const contentElement = PreviewController.formatText(text, true)
       contentElement.classList.add('text-sm')
