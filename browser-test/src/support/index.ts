@@ -446,6 +446,10 @@ export const seedCanonicalQuestions = async (page: Page) => {
   await page.click('#canonical-questions')
 }
 
+export const disableFeatureFlag = async (page: Page, flag: string) => {
+  await page.goto(BASE_URL + `/dev/feature/${flag}/disable`)
+}
+
 export const enableFeatureFlag = async (page: Page, flag: string) => {
   await page.goto(BASE_URL + `/dev/feature/${flag}/enable`)
 }

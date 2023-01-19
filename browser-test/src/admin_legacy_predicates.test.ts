@@ -1,5 +1,6 @@
 import {
   createTestContext,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -25,6 +26,7 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
@@ -118,6 +120,7 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'show-predicate-q'})
@@ -214,6 +217,7 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
     await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
     // Add a program with two screens
@@ -296,6 +300,7 @@ describe('create and edit predicates', () => {
       const {page, adminQuestions} = ctx
 
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
       // DATE, STRING, LONG, LIST_OF_STRINGS, LIST_OF_LONGS
       await adminQuestions.addNameQuestion({questionName: 'single-string'})
@@ -321,6 +326,7 @@ describe('create and edit predicates', () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
 
       const programName = 'Test all visibility predicate types'
       await adminPrograms.addProgram(programName)
@@ -521,6 +527,7 @@ describe('create and edit predicates', () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
       const programName = 'Test all eligibility predicate types'

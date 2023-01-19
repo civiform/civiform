@@ -59,7 +59,7 @@ public interface ReadOnlyApplicantProgramService {
    * Get the program block with the lowest index that has missing answer data if there is one.
    * Static questions are marked as incomplete.
    */
-  Optional<Block> getFirstIncompleteBlock();
+  Optional<Block> getFirstIncompleteOrStaticBlock();
 
   /**
    * Get the program block with the lowest index that has missing answer data if there is one.

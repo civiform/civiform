@@ -15,14 +15,13 @@ import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.RepeatedEntity;
@@ -40,10 +39,12 @@ import views.style.StyleUtils;
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
+  private final DateConverter dateConverter;
 
   @Inject
-  public ApplicantProgramSummaryView(ApplicantLayout layout) {
+  public ApplicantProgramSummaryView(ApplicantLayout layout, DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -112,6 +113,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                     .with(continueOrSubmitButton));
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
+    params
+        .request()
+        .flash()
+        .get("error")
+        .map(ToastMessage::error)
+        .ifPresent(bundle::addToastMessages);
 
     String pageTitle = messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
@@ -161,11 +168,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     DivTag actionAndTimestampDiv = div().withClasses("pr-2", "flex", "flex-col", "text-right");
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
-      LocalDate date =
-          Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
+      LocalDate date = this.dateConverter.renderLocalDate(data.timestamp());
       // TODO(#4003): Translate this text.
       DivTag timestampContent =
-          div("Previously answered on " + date)
+          div(messages.at(MessageKey.CONTENT_PREVIOUSLY_ANSWERED_ON.getKeyName(), date))
               .withClasses(ReferenceClasses.BT_DATE, "font-light", "text-xs", "flex-grow");
       actionAndTimestampDiv.with(timestampContent);
     }

@@ -32,6 +32,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
@@ -834,10 +835,28 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .submitApplication(9999L, 9999L, trustedIntermediaryProfile)
+                    .submitApplication(9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
+        .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void submitApplication_failsWithApplicationOutOfDateException() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(
+                        applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicationOutOfDateException.class)
         .withMessageContaining("Application", "failed to save");
   }
 
