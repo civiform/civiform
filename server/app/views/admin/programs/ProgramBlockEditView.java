@@ -527,11 +527,11 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             addressCorrectionEnabled);
 
     ret.with(icon, content);
+    if (maybeAddressCorrectionEnabledToggle.isPresent()) {
+        ret.with(maybeAddressCorrectionEnabledToggle.get());
+    }
     if (maybeOptionalToggle.isPresent()) {
       ret.with(maybeOptionalToggle.get());
-    }
-    if (maybeAddressCorrectionEnabledToggle.isPresent()) {
-      ret.with(maybeAddressCorrectionEnabledToggle.get());
     }
     ret.with(
         this.createMoveQuestionButtonsSection(
@@ -670,15 +670,17 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean addressCorrectionEnabled) {
-    if (!questionDefinition.isAddress()
-        || (questionDefinition.isAddress()
-            && !featureFlags.isEsriAddressCorrectionEnabled(request))) {
+    if (!questionDefinition.isAddress()) {
       return Optional.empty();
     }
     if (questionDefinition instanceof StaticContentQuestionDefinition) {
       return Optional.empty();
     }
-    ButtonTag optionalButton =
+    String toolTipText = "Enabling address correction will check the resident's address to ensure it is accurate.";
+    if (!featureFlags.isEsriAddressCorrectionEnabled(request)) {
+        toolTipText += " To use this feature, you will need to have your IT manager configure the GIS service.";
+    }
+    ButtonTag addressCorrectionButton =
         TagCreator.button()
             .withClasses(
                 "flex",
@@ -688,12 +690,13 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 "font-medium",
                 "bg-transparent",
                 "rounded-full",
-                StyleUtils.hover("bg-gray-400", "text-gray-300"))
+                StyleUtils.hover("bg-gray-400", "text-gray-300"),
+                "disabled")
             .withType("submit")
             .with(p("Address correction").withClasses("hover-group:text-white"))
             .with(
                 div()
-                    .withClasses("relative")
+                    .withClasses("relative", "disabled")
                     .with(
                         div()
                             .withClasses(
@@ -713,10 +716,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                                 "rounded-full")))
             .with(
                 div(
-                    ViewUtils.makeSvgToolTip(
-                        "Enabling address correction will check the reader's address to ensure it"
-                            + " is accurate.",
-                        Icons.HELP)));
+                    ViewUtils.makeSvgToolTip(toolTipText, Icons.HELP)));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
@@ -724,13 +724,14 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     return Optional.of(
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
+            .withCondOnsubmit(!featureFlags.isEsriAddressCorrectionEnabled(request), "return false;")
             .withAction(toggleAddressCorrectionAction)
             .with(
                 input()
                     .isHidden()
                     .withName("addressCorrectionEnabled")
                     .withValue(addressCorrectionEnabled ? "false" : "true"))
-            .with(optionalButton));
+            .with(addressCorrectionButton));
   }
 
   private FormTag deleteQuestionForm(

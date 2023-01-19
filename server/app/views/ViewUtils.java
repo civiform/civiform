@@ -105,7 +105,7 @@ public final class ViewUtils {
                     "hidden",
                     "group-hover:block",
                     "bg-white",
-                    "rounded-full",
+                    "rounded-3xl",
                     "p-2",
                     "px-4",
                     "text-black",
@@ -113,7 +113,11 @@ public final class ViewUtils {
                     "mt-2.5",
                     "border-gray-200",
                     "border",
-                    "text-left"));
+                    "text-left",
+                    "right-1/2",
+                    "w-96",
+                    "text-sm",
+                    "font-normal"));
   }
 
   /**
