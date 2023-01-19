@@ -7,17 +7,37 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-describe('program creation', () => {
+describe('program viewing', () => {
   const ctx = createTestContext()
 
-  it('program details page screenshot', async () => {
+      beforeAll(async () => {
+              await loginAsAdmin(page)
+              await enableFeatureFlag(page, 'program_read_only_view_enabled')
+
+              const programName = 'Apc program'
+              await adminPrograms.addProgram(programName)
+              await adminPrograms.gotoAdminProgramsPage()
+
+      })
+
+    it('view active program, without draft and after creating draft', async () => {
+      const {page, adminPrograms} = ctx
+      await validateScreenshot(page, 'program-list-only-one-active-program')
+      await adminPrograms.viewActiveVersion(programName)
+      // TODO(jhummel) add screenshot here when the other pull request is submitted
+      // await validateScreenshot(page, 'program-read-only-viewer')
+      await adminPrograms.createNewVersionMaybeReadOnlyViewEnabled(programName, true)
+
+      await validateScreenshot(page, 'program-list-active-and-draft-program')
+      await adminPrograms.viewActiveVersion(programName)
+    })
+
+  it('program viewing, for multiple blocks, then start editing', async () => {
     const {page, adminPrograms} = ctx
 
-    await loginAsAdmin(page)
-    const programName = 'Apc program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramDescriptionPage(programName)
-    await validateScreenshot(page, 'program-description-page')
+    await adminPrograms.viewActiveVersion(programName)
+
+
   })
 
   it('create program with enumerator and repeated questions', async () => {

@@ -105,6 +105,10 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
+  async selectBlock(blockName: string) {
+    await this.page.click(programBlockSelector(blockName))
+  }
+
   // Question card within a program edit page
   questionCardSelectorInProgramEditor(questionName: string) {
     return `.cf-program-question:has(:text("Admin ID: ${questionName}"))`
@@ -118,6 +122,10 @@ export class AdminPrograms {
     return (
       this.questionCardSelectorInProgramEditor(questionName) + ' ' + selector
     )
+  }
+
+  programBlockSelector(blockName: string) {
+    return'.cf???:has(:text("${programName}"))'
   }
 
   programCardSelector(programName: string, lifecycle: string) {
