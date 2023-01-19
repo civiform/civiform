@@ -377,18 +377,22 @@ export class ApplicantQuestions {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.locator('.cf-bt-date').isVisible()).toEqual(
-      true,
-    )
+    expect(
+      await questionLocator
+        .locator('.cf-applicant-question-previously-answered')
+        .isVisible(),
+    ).toEqual(true)
   }
 
   async validateNoPreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.locator('.cf-bt-date').isVisible()).toEqual(
-      false,
-    )
+    expect(
+      await questionLocator
+        .locator('.cf-applicant-question-previously-answered')
+        .isVisible(),
+    ).toEqual(false)
   }
 
   async seeStaticQuestion(questionText: string) {
