@@ -348,8 +348,8 @@ export class ApplicantQuestions {
     )
   }
 
-  private locateApplicantSummaryRow(questionText: string): Promise<Locator> {
-    return this.page.locator('.cf-applicant-summary-row', {
+  async locateApplicantSummaryRow(questionText: string): Promise<Locator> {
+    return await this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
   }
