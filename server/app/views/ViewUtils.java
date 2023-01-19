@@ -2,6 +2,7 @@ package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.button;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.p;
@@ -11,6 +12,7 @@ import static j2html.TagCreator.span;
 import com.google.common.base.Joiner;
 import controllers.AssetsFinder;
 import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.PTag;
@@ -91,6 +93,16 @@ public final class ViewUtils {
   public enum BadgeStatus {
     ACTIVE,
     DRAFT
+  }
+
+  public static DivTag makeSvgToolTip(String toolTipText, Icons icon) {
+    return div()
+        .withClasses("group")
+        .with(
+            Icons.svg(icon)
+                .withClasses("inline-block", "w-5", "relative"),
+            span(toolTipText)
+                .withClasses("hidden", "group-hover:block", "bg-white", "rounded-full", "p-2", "px-4", "text-black", "absolute", "mt-2.5", "border-gray-200", "border", "text-left"));
   }
 
   /**

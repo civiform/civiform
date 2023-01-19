@@ -703,7 +703,9 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                                 "top-1",
                                 "w-6",
                                 "h-6",
-                                "rounded-full")));
+                                "rounded-full")))
+            .with(
+                div(ViewUtils.makeSvgToolTip("Enabling address correction will check the reader's address to ensure it is accurate.", Icons.HELP)));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
