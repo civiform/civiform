@@ -99,10 +99,21 @@ public final class ViewUtils {
     return div()
         .withClasses("group")
         .with(
-            Icons.svg(icon)
-                .withClasses("inline-block", "w-5", "relative"),
+            Icons.svg(icon).withClasses("inline-block", "w-5", "relative"),
             span(toolTipText)
-                .withClasses("hidden", "group-hover:block", "bg-white", "rounded-full", "p-2", "px-4", "text-black", "absolute", "mt-2.5", "border-gray-200", "border", "text-left"));
+                .withClasses(
+                    "hidden",
+                    "group-hover:block",
+                    "bg-white",
+                    "rounded-full",
+                    "p-2",
+                    "px-4",
+                    "text-black",
+                    "absolute",
+                    "mt-2.5",
+                    "border-gray-200",
+                    "border",
+                    "text-left"));
   }
 
   /**

@@ -4,8 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
-import forms.ProgramQuestionDefinitionOptionalityForm;
 import forms.ProgramQuestionDefinitionAddressCorrectionEnabledForm;
+import forms.ProgramQuestionDefinitionOptionalityForm;
 import java.util.Map.Entry;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -155,11 +155,12 @@ public class AdminProgramBlockQuestionsController extends Controller {
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    ProgramQuestionDefinitionAddressCorrectionEnabledForm programQuestionDefinitionAddressCorrectionEnabledForm =
-        formFactory
-            .form(ProgramQuestionDefinitionAddressCorrectionEnabledForm.class)
-            .bindFromRequest(request)
-            .get();
+    ProgramQuestionDefinitionAddressCorrectionEnabledForm
+        programQuestionDefinitionAddressCorrectionEnabledForm =
+            formFactory
+                .form(ProgramQuestionDefinitionAddressCorrectionEnabledForm.class)
+                .bindFromRequest(request)
+                .get();
 
     try {
       programService.setProgramQuestionDefinitionAddressCorrectionEnabled(

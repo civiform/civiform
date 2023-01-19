@@ -516,17 +516,22 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     Optional<FormTag> maybeOptionalToggle =
         optionalToggle(
             csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional);
-    
+
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         addressCorrectionEnabledToggle(
-            request, csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, addressCorrectionEnabled);
+            request,
+            csrfTag,
+            programDefinitionId,
+            blockDefinitionId,
+            questionDefinition,
+            addressCorrectionEnabled);
 
     ret.with(icon, content);
     if (maybeOptionalToggle.isPresent()) {
       ret.with(maybeOptionalToggle.get());
     }
     if (maybeAddressCorrectionEnabledToggle.isPresent()) {
-        ret.with(maybeAddressCorrectionEnabledToggle.get());
+      ret.with(maybeAddressCorrectionEnabledToggle.get());
     }
     ret.with(
         this.createMoveQuestionButtonsSection(
@@ -665,7 +670,9 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean addressCorrectionEnabled) {
-    if (!questionDefinition.isAddress() || (questionDefinition.isAddress() && !featureFlags.isEsriAddressCorrectionEnabled(request))) {
+    if (!questionDefinition.isAddress()
+        || (questionDefinition.isAddress()
+            && !featureFlags.isEsriAddressCorrectionEnabled(request))) {
       return Optional.empty();
     }
     if (questionDefinition instanceof StaticContentQuestionDefinition) {
@@ -705,7 +712,11 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                                 "h-6",
                                 "rounded-full")))
             .with(
-                div(ViewUtils.makeSvgToolTip("Enabling address correction will check the reader's address to ensure it is accurate.", Icons.HELP)));
+                div(
+                    ViewUtils.makeSvgToolTip(
+                        "Enabling address correction will check the reader's address to ensure it"
+                            + " is accurate.",
+                        Icons.HELP)));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
@@ -714,7 +725,11 @@ public final class ProgramBlockEditView extends ProgramBlockView {
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .withAction(toggleAddressCorrectionAction)
-            .with(input().isHidden().withName("addressCorrectionEnabled").withValue(addressCorrectionEnabled ? "false" : "true"))
+            .with(
+                input()
+                    .isHidden()
+                    .withName("addressCorrectionEnabled")
+                    .withValue(addressCorrectionEnabled ? "false" : "true"))
             .with(optionalButton));
   }
 

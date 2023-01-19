@@ -346,14 +346,15 @@ public interface ProgramService {
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           ProgramQuestionDefinitionNotFoundException;
 
-    /**
-   * Set a program question definition to enable address correction. If the question definition ID is not
-   * present in the program's block, then nothing is changed.
+  /**
+   * Set a program question definition to enable address correction. If the question definition ID
+   * is not present in the program's block, then nothing is changed.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
    * @param questionDefinitionId the ID of the question to update
-   * @param addressCorrectionEnabled boolean representing whether the question has address correction enabled
+   * @param addressCorrectionEnabled boolean representing whether the question has address
+   *     correction enabled
    * @return the updated program definition
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
@@ -362,9 +363,12 @@ public interface ProgramService {
    *     correspond to a real question in the block
    */
   ProgramDefinition setProgramQuestionDefinitionAddressCorrectionEnabled(
-    long programId, long blockDefinitionId, long questionDefinitionId, boolean addressCorrectionEnabled)
-    throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-        ProgramQuestionDefinitionNotFoundException;
+      long programId,
+      long blockDefinitionId,
+      long questionDefinitionId,
+      boolean addressCorrectionEnabled)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException;
 
   /**
    * Set position of a program question within its block. Used to reorder questions.

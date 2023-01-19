@@ -41,9 +41,11 @@ public abstract class ProgramQuestionDefinition {
   abstract Optional<QuestionDefinition> questionDefinition();
 
   /**
-   * True if this program question deinition has address correction enabled. Otherwise it is not enabled
-   * 
-   * <p>This field was added in January 2023. Program question definitions created before this field will default to address correction disabled (false).
+   * True if this program question deinition has address correction enabled. Otherwise it is not
+   * enabled
+   *
+   * <p>This field was added in January 2023. Program question definitions created before this field
+   * will default to address correction disabled (false).
    */
   @JsonProperty("addressCorrectionEnabled")
   public abstract boolean addressCorrectionEnabled();
@@ -65,7 +67,9 @@ public abstract class ProgramQuestionDefinition {
 
   @JsonCreator
   static ProgramQuestionDefinition create(
-      @JsonProperty("id") long id, @JsonProperty("optional") boolean optional, @JsonProperty("addressCorrectionEnabled") boolean addressCorrectionEnabled) {
+      @JsonProperty("id") long id,
+      @JsonProperty("optional") boolean optional,
+      @JsonProperty("addressCorrectionEnabled") boolean addressCorrectionEnabled) {
     return new AutoValue_ProgramQuestionDefinition(
         id, Optional.empty(), optional, Optional.empty(), addressCorrectionEnabled);
   }
@@ -78,9 +82,16 @@ public abstract class ProgramQuestionDefinition {
 
   /** Create a program question definition. */
   private static ProgramQuestionDefinition create(
-      QuestionDefinition questionDefinition, Optional<Long> programDefinitionId, boolean optional, boolean addressCorrectionEnabled) {
+      QuestionDefinition questionDefinition,
+      Optional<Long> programDefinitionId,
+      boolean optional,
+      boolean addressCorrectionEnabled) {
     return new AutoValue_ProgramQuestionDefinition(
-        questionDefinition.getId(), programDefinitionId, optional, Optional.of(questionDefinition), addressCorrectionEnabled);
+        questionDefinition.getId(),
+        programDefinitionId,
+        optional,
+        Optional.of(questionDefinition),
+        addressCorrectionEnabled);
   }
 
   /**
@@ -99,11 +110,13 @@ public abstract class ProgramQuestionDefinition {
 
   /** Return a program question definition with a new optional setting. */
   public ProgramQuestionDefinition setOptional(boolean optional) {
-    return create(getQuestionDefinition(), programDefinitionId(), optional, addressCorrectionEnabled());
+    return create(
+        getQuestionDefinition(), programDefinitionId(), optional, addressCorrectionEnabled());
   }
 
   /** Return a program question definition with an address correction enabled setting. */
   public ProgramQuestionDefinition setAddressCorrectionEnabled(boolean addressCorrectionEnabled) {
-    return create(getQuestionDefinition(), programDefinitionId(), optional(), addressCorrectionEnabled);
+    return create(
+        getQuestionDefinition(), programDefinitionId(), optional(), addressCorrectionEnabled);
   }
 }
