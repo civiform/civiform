@@ -192,13 +192,20 @@ content.notEligible=Not Eligible
 link.edit=Edit
 link.answer=Answer
 
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn=Previously answered on {0}
+
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
-# question, so this might say "Edit What is your name?". The {0} variable is the question text.
-ariaLabel.edit=Edit {0}
+# question, so this might say "Answer What is your name?". The {0} variable is the question text.
+ariaLabel.answer=Answer {0}
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Start here. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
-ariaLabel.answer=Answer {0}
+ariaLabel.edit=Edit {0}
 
 # Program Summary Title
 title.programSummary=Program application summary
@@ -287,6 +294,9 @@ placeholder.entityName={0} name
 
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Please select a file.
+
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=Choose File
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
