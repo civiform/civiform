@@ -172,7 +172,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       // TODO(#4003): Translate this text.
       DivTag timestampContent =
           div(messages.at(MessageKey.CONTENT_PREVIOUSLY_ANSWERED_ON.getKeyName(), date))
-              .withClasses(ReferenceClasses.BT_DATE, "font-light", "text-xs", "flex-grow");
+              .withClasses(
+                  ReferenceClasses.BT_DATE,
+                  ReferenceClasses.APPLICANT_QUESTION_PREVIOUSLY_ANSWERED,
+                  "font-light",
+                  "text-xs",
+                  "flex-grow");
       actionAndTimestampDiv.with(timestampContent);
     }
 
