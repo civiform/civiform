@@ -348,8 +348,8 @@ export class ApplicantQuestions {
     )
   }
 
-  async locateApplicantSummaryRow(questionText: string) : Promise<Locator> {
-    return await this.page.locator('.cf-applicant-summary-row', {
+  async locateApplicantSummaryRow(questionText: string): Promise<Locator> {
+    return this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
   }
@@ -379,16 +379,16 @@ export class ApplicantQuestions {
 
   async validatePreviouslyAnsweredText(questionText: string) {
     const questionLocator = await this.locateApplicantSummaryRow(questionText)
-    expect(
-      await questionLocator.locator('.cf-bt-date').isVisible(),
-    ).toEqual(true)
+    expect(await questionLocator.locator('.cf-bt-date').isVisible()).toEqual(
+      true,
+    )
   }
 
   async validateNoPreviouslyAnsweredText(questionText: string) {
     const questionLocator = await this.locateApplicantSummaryRow(questionText)
-    expect(
-      await questionLocator.locator('.cf-bt-date').isVisible(),
-    ).toEqual(false)
+    expect(await questionLocator.locator('.cf-bt-date').isVisible()).toEqual(
+      false,
+    )
   }
 
   async seeStaticQuestion(questionText: string) {

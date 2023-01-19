@@ -24,8 +24,14 @@ describe('applicant program index page', () => {
     // Create a program with two questions on separate blocks so that an applicant can partially
     // complete an application.
     await adminPrograms.addProgram(primaryProgramName)
-    await adminQuestions.addTextQuestion({questionName: 'first-q', questionText: firstQuestionText})
-    await adminQuestions.addTextQuestion({questionName: 'second-q', questionText: secondQuestionText})
+    await adminQuestions.addTextQuestion({
+      questionName: 'first-q',
+      questionText: firstQuestionText,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'second-q',
+      questionText: secondQuestionText,
+    })
     await adminPrograms.addProgramBlock(primaryProgramName, 'first block', [
       'first-q',
     ])
@@ -123,7 +129,9 @@ describe('applicant program index page', () => {
     // Check that the question repeated in the program with two questions shows previously answered.
     await applicantQuestions.clickApplyProgramButton(primaryProgramName)
     await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
-    await applicantQuestions.validateNoPreviouslyAnsweredText(secondQuestionText)
+    await applicantQuestions.validateNoPreviouslyAnsweredText(
+      secondQuestionText,
+    )
     await validateScreenshot(page, 'question-shows-previously-answered')
 
     // Fill out second question.
