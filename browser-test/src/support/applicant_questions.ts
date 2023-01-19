@@ -1,4 +1,4 @@
-import {Page} from 'playwright'
+import {Locator, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
@@ -348,10 +348,14 @@ export class ApplicantQuestions {
     )
   }
 
-  async expectQuestionIsNotEligible(questionText: string) {
-    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+  async locateApplicantSummaryRow(questionText: string) : Promise<Locator> {
+    return await this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
+  }
+
+  async expectQuestionIsNotEligible(questionText: string) {
+    const questionLocator = await this.locateApplicantSummaryRow(questionText)
     expect(await questionLocator.count()).toEqual(1)
     expect(
       await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
@@ -373,16 +377,18 @@ export class ApplicantQuestions {
     )
   }
 
-  async validatePreviouslyAnsweredText() {
-    expect(await this.page.textContent('html')).toContain(
-      'Previously answered on',
-    )
+  async validatePreviouslyAnsweredText(questionText: string) {
+    const questionLocator = await this.locateApplicantSummaryRow(questionText)
+    expect(
+      await questionLocator.locator('.cf-bt-date').isVisible(),
+    ).toEqual(true)
   }
 
-  async validateNoPreviouslyAnsweredText() {
-    expect(await this.page.textContent('html')).not.toContain(
-      'Previously answered on',
-    )
+  async validateNoPreviouslyAnsweredText(questionText: string) {
+    const questionLocator = await this.locateApplicantSummaryRow(questionText)
+    expect(
+      await questionLocator.locator('.cf-bt-date').isVisible(),
+    ).toEqual(false)
   }
 
   async seeStaticQuestion(questionText: string) {

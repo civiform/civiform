@@ -14,6 +14,9 @@ describe('applicant program index page', () => {
   const primaryProgramName = 'Application index primary program'
   const otherProgramName = 'Application index other program'
 
+  const firstQuestionText = 'This is the first question'
+  const secondQuestionText = 'This is the second question'
+
   beforeAll(async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
@@ -21,8 +24,8 @@ describe('applicant program index page', () => {
     // Create a program with two questions on separate blocks so that an applicant can partially
     // complete an application.
     await adminPrograms.addProgram(primaryProgramName)
-    await adminQuestions.addTextQuestion({questionName: 'first-q'})
-    await adminQuestions.addTextQuestion({questionName: 'second-q'})
+    await adminQuestions.addTextQuestion({questionName: 'first-q', questionText: firstQuestionText})
+    await adminQuestions.addTextQuestion({questionName: 'second-q', questionText: secondQuestionText})
     await adminPrograms.addProgramBlock(primaryProgramName, 'first block', [
       'first-q',
     ])
@@ -119,7 +122,8 @@ describe('applicant program index page', () => {
 
     // Check that the question repeated in the program with two questions shows previously answered.
     await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-    await applicantQuestions.validatePreviouslyAnsweredText()
+    await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
+    await applicantQuestions.validateNoPreviouslyAnsweredText(secondQuestionText)
     await validateScreenshot(page, 'question-shows-previously-answered')
 
     // Fill out second question.
@@ -131,7 +135,7 @@ describe('applicant program index page', () => {
     // Check that the original program doesn't show previously answered.
     await applicantQuestions.returnToProgramsFromSubmissionPage()
     await applicantQuestions.clickApplyProgramButton(otherProgramName)
-    await applicantQuestions.validateNoPreviouslyAnsweredText()
+    await applicantQuestions.validateNoPreviouslyAnsweredText(firstQuestionText)
     await applicantQuestions.clickSubmit()
 
     // Change first response on second program.
@@ -145,7 +149,7 @@ describe('applicant program index page', () => {
     // Check that the other program now shows the previously answered text.
     await applicantQuestions.returnToProgramsFromSubmissionPage()
     await applicantQuestions.clickApplyProgramButton(otherProgramName)
-    await applicantQuestions.validatePreviouslyAnsweredText()
+    await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
     await validateScreenshot(page, 'other-program-shows-previously-answered')
   })
 })
