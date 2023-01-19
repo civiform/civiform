@@ -38,7 +38,6 @@ public final class AdminLayout extends BaseHtmlLayout {
   private final NavPage activeNavPage;
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
-  // private final FakeAdminClient fakeAdminClient;
 
   AdminLayout(
       ViewUtils viewUtils, Config configuration, NavPage activeNavPage, FeatureFlags featureFlags) {
