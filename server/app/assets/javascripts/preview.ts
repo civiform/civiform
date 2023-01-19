@@ -30,11 +30,13 @@ class PreviewController {
   private static readonly QUESTION_MULTI_OPTION_VALUE_CLASS =
     'cf-multi-option-value'
 
+  // These are defined in {@link ApplicantQuestionRendererFactory}.
   private static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
   private static readonly DEFAULT_ENTITY_TYPE = 'Sample repeated entity type'
   private static readonly DEFAULT_OPTION_TEXT = 'Sample question option'
 
-  private static readonly STATIC_QUESTION_TYPE = 'Static Text'
+  // This is defined in {@link QuestionType}.
+  private static readonly STATIC_QUESTION_TEXT = 'Static Text'
 
   // This regex is used to match $this and $this.parent (etc) strings so we can
   // highlight them in the question preview.
@@ -243,7 +245,7 @@ class PreviewController {
     const questionType = document.querySelector('.cf-question-type')
     const useAdvancedFormatting =
       questionType &&
-      questionType.textContent === PreviewController.STATIC_QUESTION_TYPE
+      questionType.textContent === PreviewController.STATIC_QUESTION_TEXT
     if (useAdvancedFormatting) {
       const contentElement = PreviewController.formatText(text, true)
       contentElement.classList.add('text-sm')
