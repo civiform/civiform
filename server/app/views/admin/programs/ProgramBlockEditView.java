@@ -269,12 +269,16 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   "border-white",
                   StyleUtils.hover("border-gray-300"),
                   selectedClasses);
-      String editUrl =
-          controllers.admin.routes.AdminProgramBlocksController.edit(
-                  programDefinition.id(), blockDefinition.id())
-              .url();
-      String switchBlockLink =
-          viewAllowsEditingProgram() ? editUrl : NOT_YET_IMPLEMENTED_ERROR_MESSAGE;
+      String switchBlockLink;
+      if (viewAllowsEditingProgram()) {
+        switchBlockLink =
+            controllers.admin.routes.AdminProgramBlocksController.edit(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        ;
+      } else {
+        throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
+      }
       blockTag.with(
           a().withClasses("flex-grow", "overflow-hidden")
               .withHref(switchBlockLink)
@@ -830,7 +834,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       return routes.AdminProgramController.edit(programDefinition.id()).url();
     }
     // TODO(#3162) add the route once a read only navigation option is available
-    return NOT_YET_IMPLEMENTED_ERROR_MESSAGE;
+    throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
   }
 
   @Override
