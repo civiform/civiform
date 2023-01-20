@@ -16,7 +16,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.program.ProgramDefinition;
 import views.ViewUtils;
-import views.ViewUtils.BadgeStatus;
+import views.ViewUtils.ProgramDisplayType;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -111,7 +111,7 @@ public final class ProgramCardFactory {
 
     PTag badge =
         ViewUtils.makeBadge(
-            isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
+            isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
     return div()
