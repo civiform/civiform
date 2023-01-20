@@ -1,8 +1,9 @@
 import {
-createTestContext,
-disableFeatureFlag,
-loginAsAdmin,
-validateScreenshot} from './support'
+  createTestContext,
+  disableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+} from './support'
 
 describe('view program references from question view', () => {
   const ctx = createTestContext()

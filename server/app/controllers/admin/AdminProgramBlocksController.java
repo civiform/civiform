@@ -163,8 +163,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Returns an HTML page displaying all configurations of the specified program screen (block)
-   * as a read only view.
+   * Returns an HTML page displaying all configurations of the specified program screen (block) as a
+   * read only view.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result view(Request request, long programId, long blockId) {
@@ -250,9 +250,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   private Result renderReadOnlyViewWithMessage(
-      Request request,
-      ProgramDefinition program,
-      BlockDefinition block) {
+      Request request, ProgramDefinition program, BlockDefinition block) {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 

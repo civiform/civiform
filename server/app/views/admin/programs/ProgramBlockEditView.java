@@ -218,6 +218,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       long focusedBlockId,
       int level) {
     DivTag container = div().withClass("pl-" + level * 2);
+    String genericBlockDivId = "block_list_item_";
     for (BlockDefinition blockDefinition : blockDefinitions) {
       String editBlockLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(
@@ -244,6 +245,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                   "border-white",
                   StyleUtils.hover("border-gray-300"),
                   selectedClasses)
+              .withId(genericBlockDivId + blockDefinition.id())
               .with(
                   a().withClasses("flex-grow", "overflow-hidden")
                       .withHref(editBlockLink)

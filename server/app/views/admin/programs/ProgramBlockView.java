@@ -38,7 +38,8 @@ abstract class ProgramBlockView extends BaseHtmlView {
 
     ButtonTag editDetailsButton =
         ViewUtils.makeSvgTextButton("Edit program details", Icons.EDIT)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-5");
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-5")
+              .withId("header_edit_button");
     asRedirectElement(
         editDetailsButton,
         controllers.admin.routes.AdminProgramController.edit(programDefinition.id()).url());

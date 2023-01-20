@@ -105,8 +105,8 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
-  async selectBlock(blockName: string) {
-    await this.page.click(programBlockSelector(blockName))
+  async selectProgramBlock(blockId: string) {
+    await this.page.click('#block_list_item_' + blockId)
   }
 
   // Question card within a program edit page
@@ -124,9 +124,9 @@ export class AdminPrograms {
     )
   }
 
-  programBlockSelector(blockName: string) {
-    return'.cf???:has(:text("${programName}"))'
-  }
+  //   programBlockSelector(blockName: string) {
+  //     return'.cf???:has(:text("${programName}"))'
+  //   }
 
   programCardSelector(programName: string, lifecycle: string) {
     return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
@@ -302,6 +302,7 @@ export class AdminPrograms {
     expect(toastContainer).toContain(successToastMessage)
   }
 
+  //
   async expectProgramBlockEditPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
@@ -316,6 +317,12 @@ export class AdminPrograms {
     ).toEqual('SCREEN DESCRIPTION')
     expect(await this.page.innerText('h1')).toContain('Add a question')
   }
+  async expectProgramBlockReadOnlyPage(programName = '') {
+      expect(await this.page.innerText('id=program-title')).toContain(programName)
+      // The only element for editing should be one top level button
+      expect(await this.page.innerText('#header_edit_button'))
+      expect(await this.page.innerText('id=block-edit-form')).toBeNull()
+    }
 
   // Removes questions from given block in program.
   async removeQuestionFromProgram(
@@ -569,6 +576,12 @@ export class AdminPrograms {
     await this.page.click(
       this.withinProgramCardSelector(programName, 'Active', ':text("View")'),
     )
+    await this.expectProgramBlockReadOnlyPage(programName)
+
+  }
+  async viewActiveVersionAndStartEditing(programName: string) {
+    await this.viewActiveVersion(programName)
+    await this.page.click('button:has-text("Edit")')
   }
 
   async viewApplications(programName: string) {

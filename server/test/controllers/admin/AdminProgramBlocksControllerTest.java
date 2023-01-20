@@ -51,7 +51,8 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.edit(program.id, /*blockDefinitionId =*/ 1L).url());
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /*blockDefinitionId =*/ 1L).url());
   }
 
   @Test
@@ -62,7 +63,8 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.view(program.id, /*blockDefinitionId =*/ 1L).url());
+        .hasValue(
+            routes.AdminProgramBlocksController.view(program.id, /*blockDefinitionId =*/ 1L).url());
   }
 
   @Test
@@ -80,7 +82,8 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.edit(program.id, /*blockDefinitionId =*/ 2L).url());
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /*blockDefinitionId =*/ 2L).url());
 
     program.refresh();
     assertThat(program.getProgramDefinition().blockDefinitions()).hasSize(2);
@@ -102,7 +105,8 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     // Ensures we're redirected to the newly created block rather than the last
     // block in the program (see issue #1885).
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.edit(program.id, /*blockDefinitionId =*/  3L).url());
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /*blockDefinitionId =*/ 3L).url());
 
     program.refresh();
     assertThat(program.getProgramDefinition().blockDefinitions()).hasSize(3);
@@ -149,10 +153,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     String html = Helpers.contentAsString(result);
-    assertThat(html).contains(
-      applicantName.getQuestionDefinition().getQuestionText().getDefault());
-    assertThat(html).contains(
-      applicantName.getQuestionDefinition().getQuestionHelpText().getDefault());
+    assertThat(html).contains(applicantName.getQuestionDefinition().getQuestionText().getDefault());
+    assertThat(html)
+        .contains(applicantName.getQuestionDefinition().getQuestionHelpText().getDefault());
     assertThat(html).contains("Admin ID: " + applicantName.getQuestionDefinition().getName());
     assertThat(html)
         .contains("Public name")
@@ -209,10 +212,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     String html = Helpers.contentAsString(result);
-    assertThat(html).contains(
-      applicantName.getQuestionDefinition().getQuestionText().getDefault());
-    assertThat(html).contains(
-      applicantName.getQuestionDefinition().getQuestionHelpText().getDefault());
+    assertThat(html).contains(applicantName.getQuestionDefinition().getQuestionText().getDefault());
+    assertThat(html)
+        .contains(applicantName.getQuestionDefinition().getQuestionHelpText().getDefault());
     assertThat(html).contains("Admin ID: " + applicantName.getQuestionDefinition().getName());
     assertThat(html)
         .contains("Public name")
@@ -270,7 +272,10 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .build();
 
     Result result =
-        controller.update(request, program.id(), program.getBlockDefinitionByIndex(/*blockIndex =*/ 0).get().id());
+        controller.update(
+            request,
+            program.id(),
+            program.getBlockDefinitionByIndex(/*blockIndex =*/ 0).get().id());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -289,7 +294,8 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void destroy_withInvalidProgram_notFound() {
-    assertThatThrownBy(() -> controller.destroy(/*programId =*/ 1L, /*blockId =*/ 1L)).isInstanceOf(NotChangeableException.class);
+    assertThatThrownBy(() -> controller.destroy(/*programId =*/ 1L, /*blockId =*/ 1L))
+        .isInstanceOf(NotChangeableException.class);
   }
 
   @Test

@@ -36,8 +36,6 @@ describe('normal question lifecycle', () => {
       await loginAsAdmin(page)
       await disableFeatureFlag(page, 'program_read_only_view_enabled')
 
-      await disableFeatureFlag(page, 'program_read_only_view_enabled')
-
       const questionName = `qlc-${type}`
       // for most question types there will be only 1 question. But for
       // enumerator question we'll create repeated question later.

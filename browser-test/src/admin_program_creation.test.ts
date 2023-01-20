@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,

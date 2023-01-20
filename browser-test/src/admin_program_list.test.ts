@@ -1,4 +1,9 @@
-import {AdminPrograms, createTestContext, disableFeatureFlag, loginAsAdmin} from './support'
+import {
+  AdminPrograms,
+  createTestContext,
+  disableFeatureFlag,
+  loginAsAdmin,
+} from './support'
 
 describe('Most recently updated program is at top of list.', () => {
   const ctx = createTestContext()

@@ -28,7 +28,7 @@ describe('publishing all draft questions and programs', () => {
     adminQuestions = new AdminQuestions(pageObject)
 
     await loginAsAdmin(pageObject)
-    await disableFeatureFlag(page, 'program_read_only_view_enabled')
+    await disableFeatureFlag(pageObject, 'program_read_only_view_enabled')
 
     // Create a hidden program with no questions
     await adminPrograms.addProgram(

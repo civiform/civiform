@@ -186,7 +186,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Program program = ProgramBuilder.newActiveProgram("test program").build();
 
     assertThatThrownBy(() -> controller.edit(request, program.id))
-      .isInstanceOf(NotChangeableException.class);
+        .isInstanceOf(NotChangeableException.class);
   }
 
   @Test
@@ -211,7 +211,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Program program = ProgramBuilder.newDraftProgram("test program").build();
 
     assertThatThrownBy(() -> controller.view(request, program.id))
-      .isInstanceOf(NotViewableException.class);
+        .isInstanceOf(NotViewableException.class);
   }
 
   @Test
