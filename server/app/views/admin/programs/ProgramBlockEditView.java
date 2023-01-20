@@ -528,7 +528,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
 
     ret.with(icon, content);
     if (maybeAddressCorrectionEnabledToggle.isPresent()) {
-        ret.with(maybeAddressCorrectionEnabledToggle.get());
+      ret.with(maybeAddressCorrectionEnabledToggle.get());
     }
     if (maybeOptionalToggle.isPresent()) {
       ret.with(maybeOptionalToggle.get());
@@ -676,9 +676,11 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     if (questionDefinition instanceof StaticContentQuestionDefinition) {
       return Optional.empty();
     }
-    String toolTipText = "Enabling address correction will check the resident's address to ensure it is accurate.";
+    String toolTipText =
+        "Enabling address correction will check the resident's address to ensure it is accurate.";
     if (!featureFlags.isEsriAddressCorrectionEnabled(request)) {
-        toolTipText += " To use this feature, you will need to have your IT manager configure the GIS service.";
+      toolTipText +=
+          " To use this feature, you will need to have your IT manager configure the GIS service.";
     }
     ButtonTag addressCorrectionButton =
         TagCreator.button()
@@ -713,9 +715,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                                 "w-6",
                                 "h-6",
                                 "rounded-full")))
-            .with(
-                div(
-                    ViewUtils.makeSvgToolTip(toolTipText, Icons.HELP)));
+            .with(div(ViewUtils.makeSvgToolTip(toolTipText, Icons.HELP)));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
@@ -723,7 +723,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     return Optional.of(
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
-            .withCondOnsubmit(!featureFlags.isEsriAddressCorrectionEnabled(request), "return false;")
+            .withCondOnsubmit(
+                !featureFlags.isEsriAddressCorrectionEnabled(request), "return false;")
             .withAction(toggleAddressCorrectionAction)
             .with(
                 input()

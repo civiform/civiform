@@ -83,7 +83,7 @@ describe('program creation', () => {
     )
   })
 
-  it('create program with address and address correction feature enabled', async() => {
+  it('create program with address and address correction feature enabled', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -98,20 +98,26 @@ describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-address')
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
-    const addressCorrectionInput = page.locator('input[name=addressCorrectionEnabled]');
-    console.log("addressCorrectionInput = ", addressCorrectionInput)
+    const addressCorrectionInput = page.locator(
+      'input[name=addressCorrectionEnabled]',
+    )
+    console.log('addressCorrectionInput = ', addressCorrectionInput)
     // the input value shows what it will be set to when clicked
-    await expect(await addressCorrectionInput.inputValue()).toBe('true');
+    await expect(await addressCorrectionInput.inputValue()).toBe('true')
 
     await page.click(`:is(button:has-text("Address correction"))`)
 
-    await expect(await addressCorrectionInput.inputValue()).toBe('false');
+    await expect(await addressCorrectionInput.inputValue()).toBe('false')
 
     // ensure that non address question does not contain address correction button
-    expect(await page.innerText(adminPrograms.questionCardSelectorInProgramEditor('ace-name'))).not.toContain('Address correction')
+    expect(
+      await page.innerText(
+        adminPrograms.questionCardSelectorInProgramEditor('ace-name'),
+      ),
+    ).not.toContain('Address correction')
   })
 
-  it('create program with address and address correction feature disabled', async() => {
+  it('create program with address and address correction feature disabled', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -125,14 +131,16 @@ describe('program creation', () => {
 
     await adminPrograms.addQuestionFromQuestionBank('acd-address')
 
-    const addressCorrectionInput = page.locator('input[name=addressCorrectionEnabled]');
-    console.log("addressCorrectionInput = ", addressCorrectionInput)
+    const addressCorrectionInput = page.locator(
+      'input[name=addressCorrectionEnabled]',
+    )
+    console.log('addressCorrectionInput = ', addressCorrectionInput)
     // the input value shows what it will be set to when clicked
-    await expect(await addressCorrectionInput.inputValue()).toBe('true');
+    await expect(await addressCorrectionInput.inputValue()).toBe('true')
 
     await page.click(`:is(button:has-text("Address correction"))`)
     // should be the same as before with button submit disabled
-    await expect(await addressCorrectionInput.inputValue()).toBe('true');
+    await expect(await addressCorrectionInput.inputValue()).toBe('true')
   })
 
   it('change questions order within block', async () => {
