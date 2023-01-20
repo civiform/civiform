@@ -804,8 +804,6 @@ public final class ProgramServiceImpl implements ProgramService {
               .setProgramQuestionDefinitions(programQuestionDefinitions)
               .build());
     } catch (IllegalPredicateOrderingException e) {
-      // Changing a question between required and optional should not affect predicates. If a
-      // question is optional and a predicate depends on its answer, the predicate will be false.
       throw new RuntimeException(
           "Unexpected error: updating this question invalidated a block condition");
     }
