@@ -690,13 +690,12 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                 "font-medium",
                 "bg-transparent",
                 "rounded-full",
-                StyleUtils.hover("bg-gray-400", "text-gray-300"),
-                "disabled")
+                StyleUtils.hover("bg-gray-400", "text-gray-300"))
             .withType("submit")
             .with(p("Address correction").withClasses("hover-group:text-white"))
             .with(
                 div()
-                    .withClasses("relative", "disabled")
+                    .withClasses("relative")
                     .with(
                         div()
                             .withClasses(

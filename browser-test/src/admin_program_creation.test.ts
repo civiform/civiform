@@ -1,5 +1,6 @@
 import {
   createTestContext,
+  disableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -80,6 +81,58 @@ describe('program creation', () => {
     expect(await page.innerText('id=question-bank-questions')).toContain(
       'apc-repeated',
     )
+  })
+
+  it('create program with address and address correction feature enabled', async() => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.addAddressQuestion({questionName: 'ace-address'})
+    await adminQuestions.addNameQuestion({questionName: 'ace-name'})
+
+    const programName = 'Ace program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'ace program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('ace-address')
+    await adminPrograms.addQuestionFromQuestionBank('ace-name')
+
+    const addressCorrectionInput = page.locator('input[name=addressCorrectionEnabled]');
+    console.log("addressCorrectionInput = ", addressCorrectionInput)
+    // the input value shows what it will be set to when clicked
+    await expect(await addressCorrectionInput.inputValue()).toBe('true');
+
+    await page.click(`:is(button:has-text("Address correction"))`)
+
+    await expect(await addressCorrectionInput.inputValue()).toBe('false');
+
+    // ensure that non address question does not contain address correction button
+    expect(await page.innerText(adminPrograms.questionCardSelectorInProgramEditor('ace-name'))).not.toContain('Address correction')
+  })
+
+  it('create program with address and address correction feature disabled', async() => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'esri_address_correction_enabled')
+
+    await adminQuestions.addAddressQuestion({questionName: 'acd-address'})
+
+    const programName = 'Acd program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'acd program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('acd-address')
+
+    const addressCorrectionInput = page.locator('input[name=addressCorrectionEnabled]');
+    console.log("addressCorrectionInput = ", addressCorrectionInput)
+    // the input value shows what it will be set to when clicked
+    await expect(await addressCorrectionInput.inputValue()).toBe('true');
+
+    await page.click(`:is(button:has-text("Address correction"))`)
+    // should be the same as before with button submit disabled
+    await expect(await addressCorrectionInput.inputValue()).toBe('true');
   })
 
   it('change questions order within block', async () => {
