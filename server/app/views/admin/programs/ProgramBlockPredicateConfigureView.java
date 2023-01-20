@@ -12,6 +12,7 @@ import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -52,6 +53,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
+import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
@@ -75,7 +77,7 @@ import views.style.ReferenceClasses;
  * node, with one leaf node per question. If multiple groups or questions are specified an
  * OR_OF_SINGLE_LAYER_ANDS {@link PredicateDefinition.PredicateFormat} will result.
  */
-public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
+public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseView {
 
   private static final String COLUMN_WIDTH = "w-48";
 
@@ -641,5 +643,20 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockView {
               String.format("Unknown scalar type: %s", scalar.toScalarType()));
         }
     }
+  }
+
+  @Override
+  protected String getEditButtonText() {
+    return "Edit program details";
+  }
+
+  @Override
+  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
+    return routes.AdminProgramController.edit(programDefinition.id()).url();
+  }
+
+  @Override
+  protected ProgramDisplayType getProgramDisplayStatus() {
+    return DRAFT;
   }
 }

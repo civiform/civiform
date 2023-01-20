@@ -19,6 +19,23 @@ describe('program creation', () => {
     await validateScreenshot(page, 'program-description-page')
   })
 
+  it('shows correct formatting during question creation', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.createStaticQuestion({
+      questionName: 'static-question',
+      questionText:
+        '### This is an example of some static text with formatting',
+    })
+
+    await validateScreenshot(
+      page,
+      'program-creation-static-question-with-formatting',
+    )
+  })
+
   it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 

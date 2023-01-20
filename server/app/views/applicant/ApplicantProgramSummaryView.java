@@ -113,6 +113,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                     .with(continueOrSubmitButton));
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
+    params
+        .request()
+        .flash()
+        .get("error")
+        .map(ToastMessage::error)
+        .ifPresent(bundle::addToastMessages);
 
     String pageTitle = messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
@@ -166,7 +172,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       // TODO(#4003): Translate this text.
       DivTag timestampContent =
           div(messages.at(MessageKey.CONTENT_PREVIOUSLY_ANSWERED_ON.getKeyName(), date))
-              .withClasses(ReferenceClasses.BT_DATE, "font-light", "text-xs", "flex-grow");
+              .withClasses(
+                  ReferenceClasses.BT_DATE,
+                  ReferenceClasses.APPLICANT_QUESTION_PREVIOUSLY_ANSWERED,
+                  "font-light",
+                  "text-xs",
+                  "flex-grow");
       actionAndTimestampDiv.with(timestampContent);
     }
 

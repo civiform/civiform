@@ -16,11 +16,11 @@ import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.ViewUtils;
-import views.ViewUtils.BadgeStatus;
+import views.ViewUtils.ProgramDisplayType;
 import views.components.Icons;
 import views.style.AdminStyles;
 
-abstract class ProgramBlockView extends BaseHtmlView {
+abstract class ProgramBlockBaseView extends BaseHtmlView {
 
   /** Renders a div with internal/admin program information. */
   protected final DivTag renderProgramInfo(ProgramDefinition programDefinition) {
@@ -37,15 +37,12 @@ abstract class ProgramBlockView extends BaseHtmlView {
             .with(span(programDefinition.adminDescription()));
 
     ButtonTag editDetailsButton =
-        ViewUtils.makeSvgTextButton("Edit program details", Icons.EDIT)
+        ViewUtils.makeSvgTextButton(getEditButtonText(), Icons.EDIT)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-5")
-              .withId("header_edit_button");
-    asRedirectElement(
-        editDetailsButton,
-        controllers.admin.routes.AdminProgramController.edit(programDefinition.id()).url());
-
+          .withId("header_edit_button");
+    asRedirectElement(editDetailsButton, getEditButtonUrl(programDefinition));
     return div(
-            ViewUtils.makeBadge(BadgeStatus.DRAFT),
+            ViewUtils.makeBadge(getProgramDisplayStatus()),
             title,
             description,
             adminNote,
@@ -96,4 +93,16 @@ abstract class ProgramBlockView extends BaseHtmlView {
 
     return container.with(conditionList);
   }
+
+  /** Returns the string that will be shown on the Edit button */
+  protected abstract String getEditButtonText();
+
+  /** Returns the navigation destination for the Edit button */
+  protected abstract String getEditButtonUrl(ProgramDefinition programDefinition);
+
+  /**
+   * Returns the Program display type which represents the status of the program. It will be shown
+   * at the top of the page.
+   */
+  protected abstract ProgramDisplayType getProgramDisplayStatus();
 }

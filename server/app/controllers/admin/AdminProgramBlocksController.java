@@ -1,6 +1,8 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.ViewUtils.ProgramDisplayType.ACTIVE;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
@@ -46,14 +48,14 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public AdminProgramBlocksController(
       ProgramService programService,
       QuestionService questionService,
-      ProgramBlockEditView editView,
-      ProgramBlockEditView readOnlyView,
+      ProgramBlockEditView.Factory editViewFactory,
+      ProgramBlockEditView.Factory readOnlyViewFactory,
       FormFactory formFactory,
       RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.editView = checkNotNull(editView);
-    this.readOnlyView = checkNotNull(readOnlyView);
+    this.editView = checkNotNull(editViewFactory.create(DRAFT));
+    this.readOnlyView = checkNotNull(editViewFactory.create(ACTIVE));
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
   }
@@ -162,11 +164,11 @@ public final class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
-  /**
+  /**f
    * Returns an HTML page displaying all configurations of the specified program screen (block) as a
    * read only view.
    */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)fn
   public Result view(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotActive(programId);
 
