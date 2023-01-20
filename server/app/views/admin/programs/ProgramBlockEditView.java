@@ -275,7 +275,6 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
             controllers.admin.routes.AdminProgramBlocksController.edit(
                     programDefinition.id(), blockDefinition.id())
                 .url();
-        ;
       } else {
         throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
       }
