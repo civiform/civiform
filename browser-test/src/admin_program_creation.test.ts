@@ -101,13 +101,13 @@ describe('program creation', () => {
     const addressCorrectionInput = page.locator(
       'input[name=addressCorrectionEnabled]',
     )
-    console.log('addressCorrectionInput = ', addressCorrectionInput)
+
     // the input value shows what it will be set to when clicked
-    await expect(await addressCorrectionInput.inputValue()).toBe('true')
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
 
     await page.click(`:is(button:has-text("Address correction"))`)
 
-    await expect(await addressCorrectionInput.inputValue()).toBe('false')
+    expect(await addressCorrectionInput.inputValue()).toBe('false')
 
     // ensure that non address question does not contain address correction button
     expect(
@@ -134,13 +134,13 @@ describe('program creation', () => {
     const addressCorrectionInput = page.locator(
       'input[name=addressCorrectionEnabled]',
     )
-    console.log('addressCorrectionInput = ', addressCorrectionInput)
+
     // the input value shows what it will be set to when clicked
-    await expect(await addressCorrectionInput.inputValue()).toBe('true')
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
 
     await page.click(`:is(button:has-text("Address correction"))`)
     // should be the same as before with button submit disabled
-    await expect(await addressCorrectionInput.inputValue()).toBe('true')
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
   })
 
   it('change questions order within block', async () => {
