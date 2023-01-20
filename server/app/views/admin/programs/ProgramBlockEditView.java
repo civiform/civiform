@@ -65,9 +65,9 @@ import views.style.StyleUtils;
  * </ul>
  *
  * For viewing an active program, it contains the same elements, but without UI elements that can be
- * used for editing.
+ * used for editing. TODO(#4019) Rename this to ProgramBlockView
  */
-public final class ProgramBlockView extends ProgramBlockBaseView {
+public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
   private final AdminLayout layout;
   private final FeatureFlags featureFlags;
@@ -80,11 +80,11 @@ public final class ProgramBlockView extends ProgramBlockBaseView {
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final String NOT_YET_IMPLEMENTED_ERROR_MESSAGE =
-      " The read only version of ProgramBlockView is not fully implemented. It should only be "
+      "The read only version of ProgramBlockView is not fully implemented. It should only be "
           + "used once issue #3162 is closed.";
 
   @Inject
-  public ProgramBlockView(
+  public ProgramBlockEditView(
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
       Config config,
@@ -839,6 +839,6 @@ public final class ProgramBlockView extends ProgramBlockBaseView {
   }
 
   public interface Factory {
-    ProgramBlockView create(ProgramDisplayType type);
+    ProgramBlockEditView create(ProgramDisplayType type);
   }
 }

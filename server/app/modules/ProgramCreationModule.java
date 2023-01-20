@@ -2,7 +2,7 @@ package modules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import views.admin.programs.ProgramBlockView;
+import views.admin.programs.ProgramBlockEditView;
 
 /*
  * This class is a Guice module which handles bindings and dependency injections
@@ -13,6 +13,6 @@ public class ProgramCreationModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    install(new FactoryModuleBuilder().build(ProgramBlockView.Factory.class));
+    install(new FactoryModuleBuilder().build(ProgramBlockEditView.Factory.class));
   }
 }

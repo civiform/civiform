@@ -101,8 +101,8 @@ abstract class ProgramBlockBaseView extends BaseHtmlView {
   protected abstract String getEditButtonUrl(ProgramDefinition programDefinition);
 
   /**
-   * Returns the badge which represents the status of the program. It will be shown at the top of
-   * the page.
+   * Returns the Program display type which represents the status of the program. It will be shown
+   * at the top of the page.
    */
   protected abstract ProgramDisplayType getProgramDisplayStatus();
 }
