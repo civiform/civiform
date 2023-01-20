@@ -2,29 +2,43 @@ package services.geo.esri;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableList;
-import com.typesafe.config.Config;
+import java.io.ObjectInputFilter.Config;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+
 import javax.inject.Inject;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableList;
+
 import play.libs.Json;
-import play.libs.ws.*;
+import play.libs.ws.WSBodyReadables;
+import play.libs.ws.WSBodyWritables;
+import play.libs.ws.WSClient;
+import play.libs.ws.WSRequest;
 import services.Address;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 
+/**
+ * Provides methods for handling reqeusts to Esri geo services
+ * 
+ * <p> @see a href="https://gisdata.seattle.gov/server/sdk/rest/index.html#/Find_Address_Candidates/02ss00000015000000/">Find Address Candidates</a>
+ * 
+ * @see a href="https://gisdata.seattle.gov/server/sdk/rest/index.html#/Query_Map_Service_Layer/02ss0000000r000000/">Query (Map Service/Layer)</a>
+ */
 public class EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
 
   public static final String ESRI_CONTENT_TYPE = "application/json";
+  // Out Fields are passed to Esri geo services to indicate which fields should return in the response
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
       "Address, SubAddr, City, Region, Postal";
-  public static final String ESRI_FIND_ADDRESS_CANDIDATES_FORMAT = "pjson";
+  public static final String ESRI_FIND_ADDRESS_CANDIDATES_FORMAT = "json";
   public final String ESRI_FIND_ADDRESS_CANDIDATES_URL;
 
   @Inject
@@ -34,12 +48,17 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         checkNotNull(configuration).getString("esri_find_address_candidates_url");
   }
 
+  /**
+   * Returns address candidates from Esri's findAddressCandidates service
+   * 
+   * <p> @see <a href="https://gisdata.seattle.gov/server/sdk/rest/index.html#/Find_Address_Candidates/02ss00000015000000/">Find Address Candidates</a>
+   */
   public CompletionStage<JsonNode> fetchAddressSuggestions(ObjectNode addressJson) {
     WSRequest request = ws.url(this.ESRI_FIND_ADDRESS_CANDIDATES_URL);
     request.setContentType(ESRI_CONTENT_TYPE);
     request.addQueryParameter("outFields", ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS);
+    // "f" stands for "format", options are json and pjson (PrettyJson)
     request.addQueryParameter("f", ESRI_FIND_ADDRESS_CANDIDATES_FORMAT);
-    // JsonNode json = Json.parse(jsonString);
     String address = addressJson.findPath("street").textValue();
     String address2 = addressJson.findPath("line2").textValue();
     String city = addressJson.findPath("city").textValue();
@@ -64,6 +83,9 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     return jsonFuture;
   }
 
+  /**
+   * Returns an {@link AddressSuggestionGroup} future and is the primary way CiviForm services should interact with the Esri API
+   */
   public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Address address) {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", address.getStreet());
