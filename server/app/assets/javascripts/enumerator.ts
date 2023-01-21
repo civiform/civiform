@@ -149,7 +149,7 @@ function setFocusAfterEnumeratorRemoval() {
     addButton.focus()
   } else {
     // Other entries, set to last remove button.
-    (deleteButtons[deleteButtons.length - 1] as HTMLElement).focus()
+    ;(deleteButtons[deleteButtons.length - 1] as HTMLElement).focus()
   }
 }
 
