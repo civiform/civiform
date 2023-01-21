@@ -84,6 +84,8 @@ function removeEnumeratorField(event: Event) {
     (event.currentTarget as HTMLElement).parentNode,
   ) as HTMLElement
   enumeratorFieldDiv.remove()
+
+  setFocusAfterEnumeratorRemoval()
 }
 
 /**
@@ -119,6 +121,36 @@ function removeExistingEnumeratorField(event: Event) {
 
   // Add the hidden deleted entity input to the page.
   enumeratorFieldDiv.appendChild(deletedEntityInput)
+
+  setFocusAfterEnumeratorRemoval()
+}
+
+/**
+ * Set focus after an enumerator entity is removed. If no other entries are
+ * present, will set to the add button, otherwise will set to the last entity's
+ * remove button. Setting focus is important for a11y (e.g. for keyboard only
+ * or screenreader users).
+ */
+function setFocusAfterEnumeratorRemoval() {
+  const deleteButtons = document.querySelectorAll(
+    '.cf-enumerator-field:not(.hidden) .cf-enumerator-delete-button',
+  )
+  if (deleteButtons.length == 0) {
+    // No entries, set focus to add button.
+    const enumeratorQuestion = assertNotNull(
+      document.querySelector('.cf-question-enumerator'),
+    )
+    // Enable button before setting focus. The mutation observer that sets this
+    // isn't guaranteed to run first.
+    maybeToggleEnumeratorAddButton(enumeratorQuestion)
+    const addButton = assertNotNull(
+      document.getElementById('enumerator-field-add-button'),
+    )
+    addButton.focus()
+  } else {
+    // Other entries, set to last remove button.
+    ;(deleteButtons[deleteButtons.length - 1] as HTMLElement).focus()
+  }
 }
 
 /** Add listeners to all enumerator inputs to update validation on changes. */
@@ -134,7 +166,7 @@ function addEnumeratorListeners() {
   // Whenever an input changes we need to revalidate.
   enumeratorInputs.forEach((enumeratorInput) => {
     enumeratorInput.addEventListener('input', () => {
-      maybeHideEnumeratorAddButton(enumeratorQuestion)
+      maybeToggleEnumeratorAddButton(enumeratorQuestion)
     })
   })
 
@@ -147,12 +179,12 @@ function addEnumeratorListeners() {
         )
         newInputs.forEach((newInput) => {
           newInput.addEventListener('input', () => {
-            maybeHideEnumeratorAddButton(enumeratorQuestion)
+            maybeToggleEnumeratorAddButton(enumeratorQuestion)
           })
         })
       }
     }
-    maybeHideEnumeratorAddButton(enumeratorQuestion)
+    maybeToggleEnumeratorAddButton(enumeratorQuestion)
   })
 
   mutationObserver.observe(enumeratorQuestion, {
@@ -162,10 +194,12 @@ function addEnumeratorListeners() {
   })
 }
 
-/** If we have empty inputs then disable the add input button. (We don't need two blank inputs.)
+/**
+ * Disable the add button if there are empty inputs, re-enable the add button otherwise.
+ * (We don't need two blank inputs.)
  * @param {Element} enumeratorQuestion The question to hide/show the add button for.
  */
-function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
+function maybeToggleEnumeratorAddButton(enumeratorQuestion: Element) {
   if (enumeratorQuestion) {
     const enumeratorInputValues = Array.from(
       enumeratorQuestion.querySelectorAll('input[data-entity-input]'),
