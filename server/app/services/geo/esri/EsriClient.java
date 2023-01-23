@@ -2,10 +2,12 @@ package services.geo.esri;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.ObjectInputFilter.Config;
+import com.typesafe.config.Config;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import javax.inject.Inject;
@@ -39,13 +41,12 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
       "Address, SubAddr, City, Region, Postal";
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_FORMAT = "json";
-  public final String ESRI_FIND_ADDRESS_CANDIDATES_URL;
+  public final Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
 
   @Inject
   public EsriClient(Config configuration, WSClient ws) {
     this.ws = ws;
-    this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
-        checkNotNull(configuration).getString("esri_find_address_candidates_url");
+    this.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.ofNullable(configuration.getString("esri_find_address_candidates_url"));
   }
 
   /**
@@ -53,8 +54,11 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
    * 
    * <p> @see <a href="https://gisdata.seattle.gov/server/sdk/rest/index.html#/Find_Address_Candidates/02ss00000015000000/">Find Address Candidates</a>
    */
-  public CompletionStage<JsonNode> fetchAddressSuggestions(ObjectNode addressJson) {
-    WSRequest request = ws.url(this.ESRI_FIND_ADDRESS_CANDIDATES_URL);
+  public CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson) {
+    if (this.ESRI_FIND_ADDRESS_CANDIDATES_URL.isEmpty()) {
+      return CompletableFuture.supplyAsync(() -> Optional.empty());
+    }
+    WSRequest request = ws.url(this.ESRI_FIND_ADDRESS_CANDIDATES_URL.get());
     request.setContentType(ESRI_CONTENT_TYPE);
     request.addQueryParameter("outFields", ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS);
     // "f" stands for "format", options are json and pjson (PrettyJson)
@@ -79,14 +83,14 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     if (postal != null) {
       request.addQueryParameter("postal", postal);
     }
-    CompletionStage<JsonNode> jsonFuture = request.get().thenApply(res -> res.getBody(json()));
+    CompletionStage<Optional<JsonNode>> jsonFuture = request.get().thenApply(res -> Optional.of(res.getBody(json())));
     return jsonFuture;
   }
 
   /**
    * Returns an {@link AddressSuggestionGroup} future and is the primary way CiviForm services should interact with the Esri API
    */
-  public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Address address) {
+  public CompletionStage<Optional<AddressSuggestionGroup>> getAddressSuggestionGroup(Address address) {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", address.getStreet());
     addressJson.put("line2", address.getLine2());
@@ -94,9 +98,14 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     addressJson.put("state", address.getState());
     addressJson.put("zip", address.getZip());
 
-    CompletionStage<JsonNode> addressSuggestionGroupFuture = fetchAddressSuggestions(addressJson);
+    CompletionStage<Optional<JsonNode>> addressSuggestionGroupFuture = fetchAddressSuggestions(addressJson);
+    System.out.println(addressSuggestionGroupFuture);
     return addressSuggestionGroupFuture.thenApply(
-        (JsonNode json) -> {
+        (maybeJson) -> {
+          if (maybeJson.isEmpty()) {
+            return Optional.empty();
+          }
+          JsonNode json = maybeJson.get();
           int wkid = json.get("spatialReference").get("wkid").asInt();
           List<AddressSuggestion> candidates = new ArrayList<>();
           for (Iterator<JsonNode> iterator = json.get("candidates").iterator();
@@ -133,7 +142,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                   .setWellKnownId(wkid)
                   .setAddressSuggestions(ImmutableList.copyOf(candidates))
                   .build();
-          return addressCandidates;
+          return Optional.of(addressCandidates);
         });
   }
 }

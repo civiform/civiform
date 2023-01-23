@@ -1,7 +1,7 @@
 package services.geo.esri;
 
-import static org.junit.Assert.*;
-import static play.mvc.Results.*;
+import static org.junit.Assert.assertEquals;
+import static play.mvc.Results.ok;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -9,11 +9,13 @@ import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
-import java.util.*;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import play.libs.Json;
-import play.libs.ws.*;
+import play.libs.ws.WSClient;
 import play.routing.RoutingDsl;
 import play.server.Server;
 import services.Address;
@@ -53,7 +55,8 @@ public class EsriClientTest {
   public void fetchAddressSuggestions() throws Exception {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
-    JsonNode resp = client.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    Optional<JsonNode> maybeResp = client.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    JsonNode resp = maybeResp.get();
     assertEquals(4326, resp.get("spatialReference").get("wkid").asInt());
   }
 
@@ -68,10 +71,9 @@ public class EsriClientTest {
             .setZip("92373")
             .build();
 
-    CompletionStage<AddressSuggestionGroup> group = client.getAddressSuggestionGroup(address);
-    System.out.println(group.toCompletableFuture().join());
+    CompletionStage<Optional<AddressSuggestionGroup>> group = client.getAddressSuggestionGroup(address);
     ImmutableList<AddressSuggestion> suggestions =
-        group.toCompletableFuture().join().getAddressSuggestions();
+        group.toCompletableFuture().join().get().getAddressSuggestions();
     String street = suggestions.stream().findFirst().get().getAddress().getStreet();
     assertEquals("\"380 New York St\"", street);
   }
