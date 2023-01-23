@@ -44,6 +44,7 @@ import repository.UserRepository;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
