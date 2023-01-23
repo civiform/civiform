@@ -104,7 +104,7 @@ describe('applicant program index page', () => {
     })
   })
 
-  it('shows previously answered on text for program that was previously applied to', async () => {
+  it('shows previously answered on text for questions that had been answered', async () => {
     const {page, applicantQuestions} = ctx
 
     await loginAsGuest(page)
@@ -114,10 +114,11 @@ describe('applicant program index page', () => {
       /* assertProgramIndexPage= */ true,
     )
 
-    // Fill out application with one question and confirm it was successfully submitted.
+    // Fill out application with one question and confirm it shows previously answered at the end.
     await applicantQuestions.applyProgram(otherProgramName)
     await applicantQuestions.answerTextQuestion('first answer')
     await applicantQuestions.clickNext()
+    await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
     await applicantQuestions.submitFromReviewPage()
     await applicantQuestions.returnToProgramsFromSubmissionPage()
     await applicantQuestions.expectPrograms({
@@ -140,10 +141,10 @@ describe('applicant program index page', () => {
     await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage()
 
-    // Check that the original program doesn't show previously answered.
+    // Check that the original program shows previously answered.
     await applicantQuestions.returnToProgramsFromSubmissionPage()
     await applicantQuestions.clickApplyProgramButton(otherProgramName)
-    await applicantQuestions.validateNoPreviouslyAnsweredText(firstQuestionText)
+    await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
     await applicantQuestions.clickSubmit()
 
     // Change first response on second program.
@@ -154,7 +155,7 @@ describe('applicant program index page', () => {
     await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage()
 
-    // Check that the other program now shows the previously answered text.
+    // Check that the other program shows the previously answered text too.
     await applicantQuestions.returnToProgramsFromSubmissionPage()
     await applicantQuestions.clickApplyProgramButton(otherProgramName)
     await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
