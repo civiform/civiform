@@ -16,8 +16,10 @@ public enum Operator {
       "is greater than or equal to",
       ImmutableSet.of(ScalarType.CURRENCY_CENTS, ScalarType.LONG)),
   IN("in", "is one of", ImmutableSet.of(ScalarType.STRING, ScalarType.LONG)),
-  IS_AFTER(">=", "is later than", ImmutableSet.of(ScalarType.DATE)),
-  IS_BEFORE("<=", "is earlier than", ImmutableSet.of(ScalarType.DATE)),
+  IS_AFTER(">", "is later than", ImmutableSet.of(ScalarType.DATE)),
+  IS_ON_OR_AFTER(">=", "is on or later than", ImmutableSet.of(ScalarType.DATE)),
+  IS_BEFORE("<", "is earlier than", ImmutableSet.of(ScalarType.DATE)),
+  IS_ON_OR_BEFORE("<=", "is on or earlier than", ImmutableSet.of(ScalarType.DATE)),
   LESS_THAN("<", "is less than", ImmutableSet.of(ScalarType.CURRENCY_CENTS, ScalarType.LONG)),
   LESS_THAN_OR_EQUAL_TO(
       "<=",
