@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
@@ -77,6 +78,7 @@ public final class ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final HttpExecutionContext httpExecutionContext;
+  private final FeatureFlags featureFlags;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -91,7 +93,8 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext httpExecutionContext,
+      FeatureFlags featureFlags) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
@@ -100,6 +103,7 @@ public final class ApplicantService {
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.featureFlags = checkNotNull(featureFlags);
 
     String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.baseUrl = checkNotNull(configuration).getString("base_url");
@@ -352,6 +356,10 @@ public final class ApplicantService {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
       throw new ApplicationOutOfDateException();
+    }
+    if (featureFlags.isProgramEligibilityConditionsEnabled()
+        && !roApplicantProgramService.isApplicationEligible()) {
+      throw new ApplicationNotEligibleException();
     }
     return CompletableFuture.completedFuture(null);
   }

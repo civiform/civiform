@@ -22,10 +22,12 @@ import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
+import views.applicant.IneligibleBlockView;
 import views.components.ToastMessage;
 
 /**
@@ -40,6 +42,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
+  private final IneligibleBlockView ineligibleBlockView;
   private final ProfileUtils profileUtils;
 
   @Inject
@@ -48,11 +51,13 @@ public class ApplicantProgramReviewController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
+      IneligibleBlockView ineligibleBlockView,
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
+    this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.profileUtils = checkNotNull(profileUtils);
   }
 
@@ -164,6 +169,20 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
                   return redirect(reviewPage).flashing("error", errorMsg);
+                }
+                if (cause instanceof ApplicationNotEligibleException) {
+
+                  String programTitle =
+                      applicantService
+                          .getReadOnlyApplicantProgramService(applicantId, programId)
+                          .toCompletableFuture()
+                          .join()
+                          .getProgramTitle();
+                  Optional<String> applicantName =
+                      applicantService.getName(applicantId).toCompletableFuture().join();
+                  return ok(
+                      ineligibleBlockView.render(
+                          request, programTitle, applicantName, messagesApi.preferred(request)));
                 }
                 throw new RuntimeException(cause);
               }
