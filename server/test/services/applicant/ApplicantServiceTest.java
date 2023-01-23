@@ -31,17 +31,12 @@ import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantService.ApplicantProgramData;
-import services.applicant.exception.ApplicantNotFoundException;
-import services.applicant.exception.ApplicationOutOfDateException;
-import services.applicant.exception.ApplicationSubmissionException;
-import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.exception.*;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.program.PathNotInBlockException;
-import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
-import services.program.StatusDefinitions;
+import services.program.*;
+import services.program.predicate.*;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.CheckboxQuestionDefinition;
@@ -843,6 +838,38 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void submitApplication_failsWithApplicationNotEligibleException() {
+    createProgramWithEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // First name is matched for eligibility.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(
+                        applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicationNotEligibleException.class)
+        .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
   public void submitApplication_failsWithApplicationOutOfDateException() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
@@ -1432,6 +1459,31 @@ public class ApplicantServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
             .withOptionalQuestion(question)
+            .buildDefinition();
+  }
+
+  /**
+   * Makes a program with a {@link NameQuestionDefinition} and an eligibility condition that the
+   * question's {@link Scalar.FIRST_NAME} be "eligible name"
+   */
+  private void createProgramWithEligibility(NameQuestionDefinition question) {
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("eligible name"))),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(question))
+            .withEligibilityDefinition(eligibilityDef)
             .buildDefinition();
   }
 }
