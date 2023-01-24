@@ -7,6 +7,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
 import com.google.auto.value.AutoValue;
@@ -16,6 +17,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
@@ -120,12 +122,13 @@ public final class QuestionBank {
                         ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON))
             .with(headerDiv));
 
+    LabelTag searchLabel =
+        label().withText("Search questions").withClasses("mx-2", "text-gray-500");
     InputTag filterInput =
         input()
             .withId("question-bank-filter")
             .withType("text")
             .withName("questionFilter")
-            .withPlaceholder("Search questions")
             .withClasses(
                 "h-10",
                 "px-10",
@@ -140,7 +143,8 @@ public final class QuestionBank {
 
     SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses("h-4", "w-4");
     DivTag filterIconDiv = div().withClasses("absolute", "ml-4", "mt-3", "mr-4").with(filterIcon);
-    DivTag filterDiv = div().withClasses("mb-2", "relative").with(filterIconDiv, filterInput);
+    DivTag filterDiv =
+        div().withClasses("mb-2", "relative").with(searchLabel, filterIconDiv, filterInput);
     contentDiv.with(filterDiv);
     contentDiv.with(
         div()
