@@ -15,12 +15,13 @@ import javax.inject.Inject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
-
+import org.apache.commons.lang3.mutable.MutableInt;
 import play.libs.Json;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSBodyWritables;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
+import play.libs.ws.WSResponse;
 import services.Address;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
@@ -41,12 +42,33 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
       "Address, SubAddr, City, Region, Postal";
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_FORMAT = "json";
-  public final Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
+  public Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
 
   @Inject
   public EsriClient(Config configuration, WSClient ws) {
     this.ws = ws;
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.ofNullable(configuration.getString("esri_find_address_candidates_url"));
+  }
+
+  /**
+   * Retries failed requests up to the provided value
+   */
+  private CompletionStage<WSResponse> tryRequest(WSRequest request, MutableInt retries) {
+    CompletionStage<WSResponse> responsePromise = request.get();
+    responsePromise.handle((result, error) -> {
+      if (error != null || result.getStatus() != 200) {
+        if (retries.compareTo(new MutableInt(0)) > 0) {
+          retries.decrement();
+          return tryRequest(request, retries);
+        } else {
+          return responsePromise;
+        }
+      } else {
+        return CompletableFuture.completedFuture(result);
+      }
+    });
+
+    return responsePromise;
   }
 
   /**
@@ -56,7 +78,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
    */
   public CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson) {
     if (this.ESRI_FIND_ADDRESS_CANDIDATES_URL.isEmpty()) {
-      return CompletableFuture.supplyAsync(() -> Optional.empty());
+      return CompletableFuture.completedFuture(Optional.empty());
     }
     WSRequest request = ws.url(this.ESRI_FIND_ADDRESS_CANDIDATES_URL.get());
     request.setContentType(ESRI_CONTENT_TYPE);
@@ -83,14 +105,20 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     if (postal != null) {
       request.addQueryParameter("postal", postal);
     }
-    CompletionStage<Optional<JsonNode>> jsonFuture = request.get().thenApply(res -> Optional.of(res.getBody(json())));
-    return jsonFuture;
+    MutableInt tries = new MutableInt(3);
+    return tryRequest(request, tries).thenApply(res -> {
+      // return empty if still failing after retries
+      if (res.getStatus() != 200) {
+        return Optional.empty();
+      }
+      return Optional.of(res.getBody(json()));
+    });
   }
 
   /**
    * Returns an {@link AddressSuggestionGroup} future and is the primary way CiviForm services should interact with the Esri API
    */
-  public CompletionStage<Optional<AddressSuggestionGroup>> getAddressSuggestionGroup(Address address) {
+  public CompletionStage<Optional<AddressSuggestionGroup>> getAddressSuggestions(Address address) {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", address.getStreet());
     addressJson.put("line2", address.getLine2());
@@ -99,7 +127,6 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     addressJson.put("zip", address.getZip());
 
     CompletionStage<Optional<JsonNode>> addressSuggestionGroupFuture = fetchAddressSuggestions(addressJson);
-    System.out.println(addressSuggestionGroupFuture);
     return addressSuggestionGroupFuture.thenApply(
         (maybeJson) -> {
           if (maybeJson.isEmpty()) {
