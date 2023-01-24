@@ -23,6 +23,7 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import services.Address;
+import services.AddressField;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -85,11 +86,12 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     request.addQueryParameter("outFields", ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS);
     // "f" stands for "format", options are json and pjson (PrettyJson)
     request.addQueryParameter("f", ESRI_FIND_ADDRESS_CANDIDATES_FORMAT);
-    String address = addressJson.findPath("street").textValue();
-    String address2 = addressJson.findPath("line2").textValue();
-    String city = addressJson.findPath("city").textValue();
-    String region = addressJson.findPath("state").textValue();
-    String postal = addressJson.findPath("zip").textValue();
+    String address = addressJson.findPath(AddressField.STREET.getValue()).textValue();
+    System.out.println(address);
+    String address2 = addressJson.findPath(AddressField.LINE2.getValue()).textValue();
+    String city = addressJson.findPath(AddressField.CITY.getValue()).textValue();
+    String region = addressJson.findPath(AddressField.STATE.getValue()).textValue();
+    String postal = addressJson.findPath(AddressField.ZIP.getValue()).textValue();
     if (address != null) {
       request.addQueryParameter("address", address);
     }
@@ -126,8 +128,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     addressJson.put("state", address.getState());
     addressJson.put("zip", address.getZip());
 
-    CompletionStage<Optional<JsonNode>> addressSuggestionGroupFuture = fetchAddressSuggestions(addressJson);
-    return addressSuggestionGroupFuture.thenApply(
+    return fetchAddressSuggestions(addressJson).thenApply(
         (maybeJson) -> {
           if (maybeJson.isEmpty()) {
             return Optional.empty();
