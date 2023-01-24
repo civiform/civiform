@@ -140,8 +140,7 @@ public final class QuestionConfig {
         FieldWithLabel.input()
             .setId("enumerator-question-entity-type-input")
             .setFieldName("entityType")
-            .setLabelText("Repeated entity type*")
-            .setPlaceholderText("What are we enumerating?")
+            .setLabelText("Repeated entity type* (What are we enumerating?)")
             .setValue(enumeratorQuestionForm.getEntityType())
             .getInputTag());
     return this;
