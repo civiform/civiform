@@ -1,6 +1,6 @@
 import {
   createTestContext,
-  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -87,6 +87,7 @@ describe('program creation', () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
     await adminQuestions.addAddressQuestion({questionName: 'ace-address'})
     await adminQuestions.addNameQuestion({questionName: 'ace-name'})
@@ -98,14 +99,14 @@ describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-address')
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
-    const addressCorrectionInput = page.locator(
-      'input[name=addressCorrectionEnabled]',
+    const addressCorrectionInput = adminPrograms.getInputByName(
+      'addressCorrectionEnabled',
     )
 
     // the input value shows what it will be set to when clicked
     expect(await addressCorrectionInput.inputValue()).toBe('true')
 
-    await page.click(`:is(button:has-text("Address correction"))`)
+    await adminPrograms.clickButtonWithText('Address correction')
 
     expect(await addressCorrectionInput.inputValue()).toBe('false')
 
@@ -121,7 +122,6 @@ describe('program creation', () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
-    await disableFeatureFlag(page, 'esri_address_correction_enabled')
 
     await adminQuestions.addAddressQuestion({questionName: 'acd-address'})
 
@@ -131,14 +131,14 @@ describe('program creation', () => {
 
     await adminPrograms.addQuestionFromQuestionBank('acd-address')
 
-    const addressCorrectionInput = page.locator(
-      'input[name=addressCorrectionEnabled]',
+    const addressCorrectionInput = adminPrograms.getInputByName(
+      'addressCorrectionEnabled',
     )
 
     // the input value shows what it will be set to when clicked
     expect(await addressCorrectionInput.inputValue()).toBe('true')
 
-    await page.click(`:is(button:has-text("Address correction"))`)
+    await adminPrograms.clickButtonWithText('Address correction')
     // should be the same as before with button submit disabled
     expect(await addressCorrectionInput.inputValue()).toBe('true')
   })

@@ -347,8 +347,7 @@ public interface ProgramService {
           ProgramQuestionDefinitionNotFoundException;
 
   /**
-   * Set a program question definition to enable address correction. If the question definition ID
-   * is not present in the program's block, then nothing is changed.
+   * Set a program question definition to enable address correction.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update

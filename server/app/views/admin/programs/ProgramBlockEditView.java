@@ -527,12 +527,8 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             addressCorrectionEnabled);
 
     ret.with(icon, content);
-    if (maybeAddressCorrectionEnabledToggle.isPresent()) {
-      ret.with(maybeAddressCorrectionEnabledToggle.get());
-    }
-    if (maybeOptionalToggle.isPresent()) {
-      ret.with(maybeOptionalToggle.get());
-    }
+    maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
+    maybeOptionalToggle.ifPresent(toggle -> ret.with(toggle));
     ret.with(
         this.createMoveQuestionButtonsSection(
             csrfTag,
@@ -673,9 +669,7 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     if (!questionDefinition.isAddress()) {
       return Optional.empty();
     }
-    if (questionDefinition instanceof StaticContentQuestionDefinition) {
-      return Optional.empty();
-    }
+
     String toolTipText =
         "Enabling address correction will check the resident's address to ensure it is accurate.";
     if (!featureFlags.isEsriAddressCorrectionEnabled(request)) {

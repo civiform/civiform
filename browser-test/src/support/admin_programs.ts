@@ -857,4 +857,12 @@ export class AdminPrograms {
 
     await this.publishProgram(programName)
   }
+
+  getInputByName(name: string) {
+    return this.page.locator(`input[name=${name}]`)
+  }
+
+  async clickButtonWithText(text: string) {
+    await this.page.click(`:is(button:has-text("${text}"))`)
+  }
 }

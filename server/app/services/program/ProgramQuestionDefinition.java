@@ -42,7 +42,7 @@ public abstract class ProgramQuestionDefinition {
 
   /**
    * True if this program question deinition has address correction enabled. Otherwise it is not
-   * enabled
+   * enabled.
    *
    * <p>This field was added in January 2023. Program question definitions created before this field
    * will default to address correction disabled (false).
@@ -77,7 +77,11 @@ public abstract class ProgramQuestionDefinition {
   /** Create a required program question definition. */
   public static ProgramQuestionDefinition create(
       QuestionDefinition questionDefinition, Optional<Long> programDefinitionId) {
-    return create(questionDefinition, programDefinitionId, false, false);
+    return create(
+        questionDefinition,
+        programDefinitionId, /* optional */
+        false, /* addressCorrectionEnabled */
+        false);
   }
 
   /** Create a program question definition. */
