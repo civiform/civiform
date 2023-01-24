@@ -7,6 +7,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -44,6 +45,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ApplicantProgramSummaryView summaryView;
   private final IneligibleBlockView ineligibleBlockView;
   private final ProfileUtils profileUtils;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -52,13 +54,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
       IneligibleBlockView ineligibleBlockView,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      FeatureFlags featureFlags) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.profileUtils = checkNotNull(profileUtils);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
@@ -138,7 +142,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
     CompletionStage<Application> submitApp =
-        applicantService.submitApplication(applicantId, programId, submittingProfile);
+        applicantService.submitApplication(
+            applicantId,
+            programId,
+            submittingProfile,
+            featureFlags.isProgramEligibilityConditionsEnabled(request));
     return submitApp
         .thenApplyAsync(
             application -> {

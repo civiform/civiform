@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
@@ -79,7 +78,6 @@ public final class ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final HttpExecutionContext httpExecutionContext;
-  private final FeatureFlags featureFlags;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -94,8 +92,7 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext httpExecutionContext,
-      FeatureFlags featureFlags) {
+      HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
@@ -104,7 +101,6 @@ public final class ApplicantService {
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
-    this.featureFlags = checkNotNull(featureFlags);
 
     String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.baseUrl = checkNotNull(configuration).getString("base_url");
@@ -293,10 +289,13 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<Application> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile) {
+      long applicantId,
+      long programId,
+      CiviFormProfile submitterProfile,
+      boolean eligibilityFeatureEnabled) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(this::validateApplicationForSubmission)
+          .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
           .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
@@ -308,7 +307,7 @@ public final class ApplicantService {
     }
 
     return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(this::validateApplicationForSubmission)
+        .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
         .thenCompose(
             v ->
                 submitApplication(
@@ -353,13 +352,13 @@ public final class ApplicantService {
    *     message for the issue.
    */
   private CompletableFuture<Void> validateApplicationForSubmission(
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      boolean eligibilityFeatureEnabled) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
       throw new ApplicationOutOfDateException();
     }
-    if (featureFlags.isProgramEligibilityConditionsEnabled()
-        && !roApplicantProgramService.isApplicationEligible()) {
+    if (eligibilityFeatureEnabled && !roApplicantProgramService.isApplicationEligible()) {
       throw new ApplicationNotEligibleException();
     }
     return CompletableFuture.completedFuture(null);

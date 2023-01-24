@@ -49,7 +49,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   private ApplicantService subject;
   private QuestionService questionService;
-  private QuestionDefinition questionDefinition;
+  private NameQuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
   private UserRepository userRepository;
   private ApplicationRepository applicationRepository;
@@ -695,7 +695,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -753,7 +757,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     storedFile.save();
 
     subject
-        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile)
+        .submitApplication(
+            applicant.id,
+            firstProgram.id,
+            trustedIntermediaryProfile,
+            /* eligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -762,7 +770,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsOnly(firstProgram.getProgramDefinition().adminName());
 
     subject
-        .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile)
+        .submitApplication(
+            applicant.id,
+            secondProgram.id,
+            trustedIntermediaryProfile,
+            /* eligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -790,7 +802,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application oldApplication =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -806,7 +822,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application newApplication =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -862,7 +882,10 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .submitApplication(
-                        applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        /* eligibilityFeatureEnabled= */ true)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationNotEligibleException.class)
@@ -880,7 +903,10 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .submitApplication(
-                        applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        /* eligibilityFeatureEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationOutOfDateException.class)
@@ -1431,15 +1457,16 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   private void createQuestions() {
     questionDefinition =
-        questionService
-            .create(
-                new NameQuestionDefinition(
-                    "name",
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text")))
-            .getResult();
+        (NameQuestionDefinition)
+            questionService
+                .create(
+                    new NameQuestionDefinition(
+                        "name",
+                        Optional.empty(),
+                        "description",
+                        LocalizedStrings.of(Locale.US, "question?"),
+                        LocalizedStrings.of(Locale.US, "help text")))
+                .getResult();
   }
 
   private void createProgram() {
