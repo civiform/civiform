@@ -48,14 +48,13 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public AdminProgramBlocksController(
       ProgramService programService,
       QuestionService questionService,
-      ProgramBlockEditView.Factory editViewFactory,
-      ProgramBlockEditView.Factory readOnlyViewFactory,
+      ProgramBlockEditView.Factory programBlockViewFactory,
       FormFactory formFactory,
       RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.editView = checkNotNull(editViewFactory.create(DRAFT));
-    this.readOnlyView = checkNotNull(editViewFactory.create(ACTIVE));
+    this.editView = checkNotNull(programBlockViewFactory.create(DRAFT));
+    this.readOnlyView = checkNotNull(programBlockViewFactory.create(ACTIVE));
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
   }
@@ -110,7 +109,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   /** POST endpoint for creating a new screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId) {
-    requestChecker.throwIfProgramNotDraft(programId);
+    // requestChecker.throwIfProgramNotDraft(programId);
 
     Optional<Long> enumeratorId =
         Optional.ofNullable(
@@ -164,11 +163,11 @@ public final class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
-  /**f
-   * Returns an HTML page displaying all configurations of the specified program screen (block) as a
-   * read only view.
+  /**
+   * f Returns an HTML page displaying all configurations of the specified program screen (block) as
+   * a read only view.
    */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)fn
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result view(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotActive(programId);
 

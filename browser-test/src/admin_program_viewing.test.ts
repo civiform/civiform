@@ -18,17 +18,16 @@ describe('program viewing', () => {
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishAllPrograms()
-    await adminPrograms.viewActiveVersion(programName)
-    // TODO(jhummel) add screenshot here when the other pull request is submitted
-    // await validateScreenshot(page, 'program-read-only-viewer')
+    await adminPrograms.gotoViewActiveProgramPage(programName)
+    await validateScreenshot(page, 'program-read-only-viewer')
     await adminPrograms.gotoAdminProgramsPage()
     await validateScreenshot(page, 'program-list-only-one-active-program')
-    await adminPrograms.createNewVersionMaybeReadOnlyViewEnabled(
+    await adminPrograms.createNewVersion(
       programName,
-      true,
+      /* programReadOnlyViewEnabled = */ true,
     )
 
-    await adminPrograms.viewActiveVersion(programName)
+    await adminPrograms.gotoViewActiveProgramPage(programName)
     await adminPrograms.gotoAdminProgramsPage()
     await validateScreenshot(page, 'program-list-active-and-draft-program')
   })
@@ -43,16 +42,20 @@ describe('program viewing', () => {
     await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
     await adminPrograms.publishAllPrograms()
 
-    await adminPrograms.viewActiveVersion(programName)
+    await adminPrograms.gotoViewActiveProgramPage(programName)
 
-    // TODO(jhummel) complete this test before submitting when the read only view is available
-    // await adminPrograms.selectProgramBlock('1')
-    // TODO(jhummel) expect content of block to show
-    // await validateScreenshot(page, 'view_program_block_1')
-    // await adminPrograms.selectProgramBlock('2')
-    // TODO(jhummel) expect content of block to show
-    // await validateScreenshot(page, 'view_program_block_2')
-    // await adminPrograms.viewActiveVersionAndStartEditing
+    await adminPrograms.gotoToBlockInReadOnlyProgram('1')
+    await adminPrograms.expectReadOnlyProgramBlock('1')
+    await adminPrograms.gotoToBlockInReadOnlyProgram('2')
+    await adminPrograms.expectReadOnlyProgramBlock('2')
+    await validateScreenshot(page, 'view-program-block-2')
+
+    await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
+    await validateScreenshot(page, 'test-edit-2')
+
+    await adminPrograms.expectProgramBlockEditPage(programName)
+
+    // await adminPrograms.gotoViewActiveProgramPage
     // TODO(jhummel) expect one of the edit elements to show
     // await validateScreenshot(page, 'view_program_start_editing')
   })

@@ -14,6 +14,7 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -233,7 +234,10 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(renderProgramInfo(programDefinition), content);
+            .addMainContent(
+                renderProgramInfo(programDefinition)
+                    .with(renderEditProgramDetailsButton(programDefinition)),
+                content);
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
@@ -275,14 +279,10 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
                         .withClasses("mt-1", "text-sm")));
   }
 
-  @Override
-  protected String getEditButtonText() {
-    return "Edit program details";
-  }
-
-  @Override
-  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
-    return routes.AdminProgramController.edit(programDefinition.id()).url();
+  private ButtonTag renderEditProgramDetailsButton(ProgramDefinition programDefinition) {
+    ButtonTag editButton = getStandardizedEditButton("Edit program details");
+    String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
+    return asRedirectElement(editButton, editLink);
   }
 
   @Override

@@ -105,8 +105,11 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
-  async selectProgramBlock(blockId: string) {
-    await this.page.click('#block_list_item_' + blockId)
+  async expectReadOnlyProgramBlock(blockId: string) {
+    expect(
+      await this.page.locator('id=block-description-modal-button').count(),
+    ).toEqual(0)
+    expect(this.page.locator('id=block-info-display-' + blockId)).not.toBeNull()
   }
 
   // Question card within a program edit page
@@ -192,7 +195,7 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
-  async goToManageQuestionsPage(programName: string) {
+  async gotoEditDraftProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
     await this.page.click(
@@ -206,11 +209,31 @@ export class AdminPrograms {
     await this.expectProgramBlockEditPage(programName)
   }
 
-  async goToBlockInProgram(programName: string, blockName: string) {
-    await this.goToManageQuestionsPage(programName)
+  async gotoViewActiveProgramPage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectActiveProgram(programName)
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Active', ':text("View")'),
+    )
+    await waitForPageJsLoad(this.page)
+    await this.expectProgramBlockReadOnlyPage(programName)
+  }
 
+  async gotoViewActiveProgramPageAndStartEditing(programName: string) {
+    await this.gotoViewActiveProgramPage(programName)
+    await this.page.click('button:has-text("Edit")')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async goToBlockInProgram(programName: string, blockName: string) {
+    await this.gotoEditDraftProgramPage(programName)
     // Click on the block to edit
     await this.page.click(`a:has-text("${blockName}")`)
+    await waitForPageJsLoad(this.page)
+  }
+
+  async gotoToBlockInReadOnlyProgram(blockId: string) {
+    await this.page.click('#block_list_item_' + blockId)
     await waitForPageJsLoad(this.page)
   }
 
@@ -239,7 +262,7 @@ export class AdminPrograms {
   }
 
   async goToProgramDescriptionPage(programName: string) {
-    await this.goToManageQuestionsPage(programName)
+    await this.gotoEditDraftProgramPage(programName)
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
   }
@@ -318,11 +341,11 @@ export class AdminPrograms {
     expect(await this.page.innerText('h1')).toContain('Add a question')
   }
   async expectProgramBlockReadOnlyPage(programName = '') {
-      expect(await this.page.innerText('id=program-title')).toContain(programName)
-      // The only element for editing should be one top level button
-      expect(await this.page.innerText('#header_edit_button'))
-      expect(await this.page.innerText('id=block-edit-form')).toBeNull()
-    }
+    expect(await this.page.innerText('id=program-title')).toContain(programName)
+    // The only element for editing should be one top level button
+    expect(await this.page.innerText('#header_edit_button'))
+    expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
+  }
 
   // Removes questions from given block in program.
   async removeQuestionFromProgram(
@@ -347,7 +370,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.goToManageQuestionsPage(programName)
+    await this.gotoEditDraftProgramPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -409,7 +432,7 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    await this.goToManageQuestionsPage(programName)
+    await this.gotoEditDraftProgramPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -431,7 +454,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.goToManageQuestionsPage(programName)
+    await this.gotoEditDraftProgramPage(programName)
 
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
@@ -458,7 +481,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.goToManageQuestionsPage(programName)
+    await this.gotoEditDraftProgramPage(programName)
 
     await this.page.click(`text=${enumeratorBlockName}`)
     await waitForPageJsLoad(this.page)
@@ -536,13 +559,9 @@ export class AdminPrograms {
     await dismissModal(this.page)
   }
 
-  async createNewVersion(programName: string) {
-    await this.createNewVersionMaybeReadOnlyViewEnabled(programName, false)
-  }
-
-  async createNewVersionMaybeReadOnlyViewEnabled(
+  async createNewVersion(
     programName: string,
-    programReadOnlyViewEnabled: boolean,
+    programReadOnlyViewEnabled = false,
   ) {
     await this.gotoAdminProgramsPage()
     await this.expectActiveProgram(programName)
@@ -568,20 +587,6 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
-  }
-
-  async viewActiveVersion(programName: string) {
-    await this.gotoAdminProgramsPage()
-    await this.expectActiveProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Active', ':text("View")'),
-    )
-    await this.expectProgramBlockReadOnlyPage(programName)
-
-  }
-  async viewActiveVersionAndStartEditing(programName: string) {
-    await this.viewActiveVersion(programName)
-    await this.page.click('button:has-text("Edit")')
   }
 
   async viewApplications(programName: string) {
@@ -899,7 +904,6 @@ export class AdminPrograms {
   ) {
     await this.addProgram(programName)
     await this.editProgramBlock(programName, 'dummy description', questionNames)
-
     await this.publishProgram(programName)
   }
 }

@@ -137,7 +137,9 @@ public final class AdminProgramController extends CiviFormController {
 
   /** POST endpoint for creating a new draft version of the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result newVersionFrom(Request request, long id) {
+  public Result newVersionFrom(Request request, long programId) {
+    System.out.println("-------newVersionFrom-------");
+
     try {
       // If there's already a draft then use that, likely the client is out of date and unaware a
       // draft exists.
@@ -145,13 +147,17 @@ public final class AdminProgramController extends CiviFormController {
       Optional<Program> existingDraft =
           versionRepository
               .getDraftVersion()
-              .getProgramByName(programService.getProgramDefinition(id).adminName());
+              .getProgramByName(programService.getProgramDefinition(programId).adminName());
       final Long idToEdit;
       if (existingDraft.isPresent()) {
+        System.out.println("--------------");
+        System.out.println(" existing draft ");
         idToEdit = existingDraft.get().id;
       } else {
         // Make a new draft from the provided id.
-        idToEdit = programService.newDraftOf(id).id();
+        idToEdit = programService.newDraftOf(programId).id();
+        System.out.println("--------------");
+        System.out.println(" new draft if " + idToEdit);
       }
       return redirect(
           controllers.admin.routes.AdminProgramBlocksController.edit(
