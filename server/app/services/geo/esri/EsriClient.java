@@ -2,6 +2,7 @@ package services.geo.esri;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,9 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
 import javax.inject.Inject;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
@@ -135,10 +134,8 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
           }
           JsonNode json = maybeJson.get();
           int wkid = json.get("spatialReference").get("wkid").asInt();
-          List<AddressSuggestion> candidates = new ArrayList<>();
-          for (Iterator<JsonNode> iterator = json.get("candidates").iterator();
-              iterator.hasNext(); ) {
-            JsonNode candidateJson = (JsonNode) iterator.next();
+          ImmutableList.Builder<AddressSuggestion> suggestionBuilder = ImmutableList.builder();
+          for (JsonNode candidateJson: json.get("candidates")) {
             JsonNode location = candidateJson.get("location");
             JsonNode attributes = candidateJson.get("attributes");
             AddressLocation addressLocation =
@@ -162,13 +159,13 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                     .setScore(candidateJson.get("score").asInt())
                     .setAddress(candidateAddress)
                     .build();
-            candidates.add(addressCandidate);
+                suggestionBuilder.add(addressCandidate);
           }
 
           AddressSuggestionGroup addressCandidates =
               AddressSuggestionGroup.builder()
                   .setWellKnownId(wkid)
-                  .setAddressSuggestions(ImmutableList.copyOf(candidates))
+                  .setAddressSuggestions(suggestionBuilder.build())
                   .build();
           return Optional.of(addressCandidates);
         });
