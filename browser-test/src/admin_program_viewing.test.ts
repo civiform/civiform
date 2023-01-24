@@ -19,7 +19,7 @@ describe('program viewing', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishAllPrograms()
     await adminPrograms.gotoViewActiveProgramPage(programName)
-    await validateScreenshot(page, 'program-read-only-viewer')
+    await validateScreenshot(page, 'program-read-only-view')
     await adminPrograms.gotoAdminProgramsPage()
     await validateScreenshot(page, 'program-list-only-one-active-program')
     await adminPrograms.createNewVersion(
@@ -51,12 +51,7 @@ describe('program viewing', () => {
     await validateScreenshot(page, 'view-program-block-2')
 
     await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
-    await validateScreenshot(page, 'test-edit-2')
-
     await adminPrograms.expectProgramBlockEditPage(programName)
-
-    // await adminPrograms.gotoViewActiveProgramPage
-    // TODO(jhummel) expect one of the edit elements to show
-    // await validateScreenshot(page, 'view_program_start_editing')
+    await validateScreenshot(page, 'view-program-start-editing')
   })
 })

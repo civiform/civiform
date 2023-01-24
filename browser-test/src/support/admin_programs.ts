@@ -127,10 +127,6 @@ export class AdminPrograms {
     )
   }
 
-  //   programBlockSelector(blockName: string) {
-  //     return'.cf???:has(:text("${programName}"))'
-  //   }
-
   programCardSelector(programName: string, lifecycle: string) {
     return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
   }
@@ -325,7 +321,6 @@ export class AdminPrograms {
     expect(toastContainer).toContain(successToastMessage)
   }
 
-  //
   async expectProgramBlockEditPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
@@ -340,6 +335,7 @@ export class AdminPrograms {
     ).toEqual('SCREEN DESCRIPTION')
     expect(await this.page.innerText('h1')).toContain('Add a question')
   }
+
   async expectProgramBlockReadOnlyPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     // The only element for editing should be one top level button
