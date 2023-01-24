@@ -109,7 +109,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   /** POST endpoint for creating a new screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId) {
-     requestChecker.throwIfProgramNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     Optional<Long> enumeratorId =
         Optional.ofNullable(
