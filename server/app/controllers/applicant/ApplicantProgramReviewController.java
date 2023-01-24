@@ -18,9 +18,11 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
@@ -153,6 +155,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
                   return found(reviewPage).flashing("banner", "Error saving application.");
+                }
+                if (cause instanceof ApplicationOutOfDateException) {
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
+                  Call reviewPage =
+                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                  return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 throw new RuntimeException(cause);
               }

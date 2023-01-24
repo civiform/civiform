@@ -142,7 +142,7 @@ public final class ApplicantProgramsController extends CiviFormController {
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId))
         .thenApplyAsync(
             roApplicantService -> {
-              Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteBlock();
+              Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteOrStaticBlock();
               return blockMaybe.flatMap(
                   block ->
                       Optional.of(

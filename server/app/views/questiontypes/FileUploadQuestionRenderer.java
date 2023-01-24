@@ -8,6 +8,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import org.apache.commons.lang3.RandomStringUtils;
+import play.i18n.Messages;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -55,6 +57,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {
+    Messages messages = params.messages();
     boolean hasErrors = !validationErrors.isEmpty();
     return div()
         .with(
@@ -68,7 +71,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
         .with(
             label()
                 .withFor(fileInputId)
-                .withText("Choose File")
+                .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
                 .withClasses(ApplicantStyles.BUTTON_UPLOAD, "w-44", "mt-2", "cursor-pointer"));
   }
 

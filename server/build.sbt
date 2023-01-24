@@ -33,12 +33,12 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.19.14",
-      "software.amazon.awssdk" % "ses" % "2.19.14",
+      "software.amazon.awssdk" % "s3" % "2.19.22",
+      "software.amazon.awssdk" % "ses" % "2.19.22",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.7.3",
-      "com.azure" % "azure-storage-blob" % "12.20.1",
+      "com.azure" % "azure-storage-blob" % "12.20.2",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.5.1",
@@ -51,9 +51,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.24.1" % Test,
-      "org.mockito" % "mockito-inline" % "4.11.0",
-      "org.assertj" % "assertj-core" % "3.24.1" % Test,
+      "org.assertj" % "assertj-core" % "3.24.2" % Test,
+      "org.mockito" % "mockito-inline" % "5.0.0",
+      "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "31.1-jre" % Test,
@@ -75,7 +75,7 @@ lazy val root = (project in file("."))
       "org.pac4j" % "pac4j-saml" % "5.7.0",
 
       // Encrypted cookies require encryption.
-      "org.apache.shiro" % "shiro-crypto-cipher" % "1.10.1",
+      "org.apache.shiro" % "shiro-crypto-cipher" % "1.11.0",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.10.1",

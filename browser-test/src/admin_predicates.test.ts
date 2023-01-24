@@ -305,7 +305,12 @@ describe('create and edit predicates', () => {
       await adminQuestions.addCurrencyQuestion({
         questionName: 'predicate-currency',
       })
-      await adminQuestions.addDateQuestion({questionName: 'predicate-date'})
+      await adminQuestions.addDateQuestion({
+        questionName: 'predicate-date-is-earlier-than',
+      })
+      await adminQuestions.addDateQuestion({
+        questionName: 'predicate-date-on-or-after',
+      })
       await adminQuestions.addCheckboxQuestion({
         questionName: 'both sides are lists',
         options: ['dog', 'rabbit', 'cat'],
@@ -328,7 +333,7 @@ describe('create and edit predicates', () => {
       await adminPrograms.addProgram(programName)
 
       await adminPrograms.editProgramBlock(programName, 'test-block', [
-        'predicate-date',
+        'predicate-date-is-earlier-than',
         'predicate-currency',
       ])
 
@@ -339,7 +344,7 @@ describe('create and edit predicates', () => {
 
       await adminPredicates.addPredicates([
         {
-          questionName: 'predicate-date',
+          questionName: 'predicate-date-is-earlier-than',
           scalar: 'date',
           operator: 'is earlier than',
           values: ['2021-01-01', '2022-02-02'],
@@ -362,13 +367,13 @@ describe('create and edit predicates', () => {
         '"predicate-currency" currency is less than $10.00',
       )
       expect(predicateDisplay).toContain(
-        '"predicate-date" date is earlier than 2021-01-01',
+        '"predicate-date-is-earlier-than" date is earlier than 2021-01-01',
       )
       expect(predicateDisplay).toContain(
         '"predicate-currency" currency is less than $20.00',
       )
       expect(predicateDisplay).toContain(
-        '"predicate-date" date is earlier than 2022-02-02',
+        '"predicate-date-is-earlier-than" date is earlier than 2022-02-02',
       )
 
       await adminPredicates.clickEditPredicateButton('eligibility')
@@ -408,7 +413,7 @@ describe('create and edit predicates', () => {
       await adminPrograms.addProgram(programName)
 
       await adminPrograms.editProgramBlock(programName, 'test-block', [
-        'predicate-date',
+        'predicate-date-is-earlier-than',
         'predicate-currency',
       ])
 
@@ -421,7 +426,7 @@ describe('create and edit predicates', () => {
 
       await adminPredicates.addPredicates([
         {
-          questionName: 'predicate-date',
+          questionName: 'predicate-date-is-earlier-than',
           scalar: 'date',
           operator: 'is earlier than',
           values: ['2021-01-01', '2022-02-02'],
@@ -444,13 +449,13 @@ describe('create and edit predicates', () => {
         '"predicate-currency" currency is less than $10.00',
       )
       expect(predicateDisplay).toContain(
-        '"predicate-date" date is earlier than 2021-01-01',
+        '"predicate-date-is-earlier-than" date is earlier than 2021-01-01',
       )
       expect(predicateDisplay).toContain(
         '"predicate-currency" currency is less than $20.00',
       )
       expect(predicateDisplay).toContain(
-        '"predicate-date" date is earlier than 2022-02-02',
+        '"predicate-date-is-earlier-than" date is earlier than 2022-02-02',
       )
 
       await adminPredicates.clickEditPredicateButton('visibility')
@@ -501,9 +506,16 @@ describe('create and edit predicates', () => {
       await adminPrograms.addProgramBlock(programName, 'currency', [
         'predicate-currency',
       ])
-      await adminPrograms.addProgramBlock(programName, 'date', [
-        'predicate-date',
-      ])
+      await adminPrograms.addProgramBlock(
+        programName,
+        'is earlier than date question',
+        ['predicate-date-is-earlier-than'],
+      )
+      await adminPrograms.addProgramBlock(
+        programName,
+        'on or after date question',
+        ['predicate-date-on-or-after'],
+      )
       await adminPrograms.addProgramBlock(programName, 'two lists', [
         'both sides are lists',
       ])
@@ -576,23 +588,36 @@ describe('create and edit predicates', () => {
         '100.01',
       )
 
-      // Date predicate
+      // Date predicate is before
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 7',
       )
       await adminPredicates.addPredicate(
-        'predicate-date',
+        'predicate-date-is-earlier-than',
         'shown if',
         'date',
         'is earlier than',
         '2021-01-01',
       )
 
-      // Lists of strings on both sides (multi-option question checkbox)
+      // Date predicate is on or after
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 8',
+      )
+      await adminPredicates.addPredicate(
+        'predicate-date-on-or-after',
+        'shown if',
+        'date',
+        'is on or later than',
+        '2023-01-01',
+      )
+
+      // Lists of strings on both sides (multi-option question checkbox)
+      await adminPrograms.goToEditBlockVisibilityPredicatePage(
+        programName,
+        'Screen 9',
       )
       await adminPredicates.addPredicate(
         'both sides are lists',
@@ -658,12 +683,19 @@ describe('create and edit predicates', () => {
       await applicantQuestions.clickNext()
 
       // Earlier than 2021-01-01 is allowed
-      // TODO(#3859): 2021-01-01 evaluates as earlier, but it shouldn't.
-      await applicantQuestions.answerDateQuestion('2021-01-02')
+      await applicantQuestions.answerDateQuestion('2021-01-01')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2020-12-31')
+      await applicantQuestions.clickNext()
+
+      // On or later than 2023-01-01 is allowed
+      await applicantQuestions.answerDateQuestion('2022-12-31')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectReviewPage()
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('2023-01-01')
       await applicantQuestions.clickNext()
 
       // "dog" or "cat" are allowed.
@@ -680,7 +712,6 @@ describe('create and edit predicates', () => {
       // We should now be on the summary page
       await applicantQuestions.submitFromReviewPage()
     })
-
     it('every eligibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
@@ -703,9 +734,16 @@ describe('create and edit predicates', () => {
       await adminPrograms.addProgramBlock(programName, 'currency', [
         'predicate-currency',
       ])
-      await adminPrograms.addProgramBlock(programName, 'date', [
-        'predicate-date',
-      ])
+      await adminPrograms.addProgramBlock(
+        programName,
+        'is earlier than date question',
+        ['predicate-date-is-earlier-than'],
+      )
+      await adminPrograms.addProgramBlock(
+        programName,
+        'on or after date question',
+        ['predicate-date-on-or-after'],
+      )
       await adminPrograms.addProgramBlock(programName, 'two lists', [
         'both sides are lists',
       ])
@@ -781,17 +819,30 @@ describe('create and edit predicates', () => {
         'Screen 6',
       )
       await adminPredicates.addPredicate(
-        'predicate-date',
+        'predicate-date-is-earlier-than',
         /* action= */ null,
         'date',
         'is earlier than',
         '2021-01-01',
       )
 
-      // Lists of strings on both sides (multi-option question checkbox)
+      // Date predicate is on or after
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 7',
+      )
+      await adminPredicates.addPredicate(
+        'predicate-date-on-or-after',
+        /* action= */ null,
+        'date',
+        'is on or later than',
+        '2023-01-01',
+      )
+
+      // Lists of strings on both sides (multi-option question checkbox)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 8',
       )
       await adminPredicates.addPredicate(
         'both sides are lists',
@@ -858,12 +909,19 @@ describe('create and edit predicates', () => {
       await applicantQuestions.clickNext()
 
       // Earlier than 2021-01-01 is allowed
-      // TODO(#3859): 2021-01-01 evaluates as earlier, but it shouldn't.
-      await applicantQuestions.answerDateQuestion('2021-01-02')
+      await applicantQuestions.answerDateQuestion('2021-01-01')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2020-12-31')
+      await applicantQuestions.clickNext()
+
+      // On or later than 2023-01-01 is allowed
+      await applicantQuestions.answerDateQuestion('2022-12-31')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('2023-01-01')
       await applicantQuestions.clickNext()
 
       // "dog" or "cat" are allowed.

@@ -524,13 +524,15 @@ public abstract class ProgramDefinition {
    * Returns a list of the question definitions that may be used to define eligibility predicates on
    * the block definition with the id {@code blockId}.
    *
-   * <p>This is the same as {@link #getAvailableVisibilityPredicateQuestionDefinitions} but it
-   * includes questions in the provided {@code blockId}.
+   * <p>The questions will be the valid predicate questions in the block {@code blockId}.
    */
   public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
       long blockId) throws ProgramBlockDefinitionNotFoundException {
-    // Questions through the block are available for this block's eligibility conditions.
-    return getAvailablePredicateQuestionDefinitions(blockId);
+    // Only questions in the block are available.
+    return getBlockDefinition(blockId).programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**
