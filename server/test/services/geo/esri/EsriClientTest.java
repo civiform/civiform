@@ -1,8 +1,8 @@
 package services.geo.esri;
 
 import static org.junit.Assert.assertEquals;
-import static play.mvc.Results.ok;
 import static play.mvc.Results.internalServerError;
+import static play.mvc.Results.ok;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -26,21 +26,22 @@ import services.geo.AddressSuggestionGroup;
 
 public class EsriClientTest {
   private Config config;
-  private EsriClient client;
   private Server server;
   private WSClient ws;
+  private EsriClient client;
 
   // setup for no canidates in response
-  private EsriClient clientNoCandidates;
   private Server serverNoCandidates;
   private WSClient wsNoCandidates;
+  private EsriClient clientNoCandidates;
 
   // setup for internal server error returned from response
-  private EsriClient clientError;
   private Server serverError;
   private WSClient wsError;
+  private EsriClient clientError;
 
   @Before
+  // setup Servers to return mock data from JSON files
   public void setup() {
     config = ConfigFactory.load();
     server =
@@ -56,27 +57,31 @@ public class EsriClientTest {
     client.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
     // create a server that returns no candidates
-    serverNoCandidates = Server.forRouter(
-      (components) ->
-          RoutingDsl.fromComponents(components)
-              .GET("/findAddressCandidates")
-              .routingTo(request -> ok().sendResource("esri/findAddressCandidatesNoCandidates.json"))
-              .build());
+    serverNoCandidates =
+        Server.forRouter(
+            (components) ->
+                RoutingDsl.fromComponents(components)
+                    .GET("/findAddressCandidates")
+                    .routingTo(
+                        request -> ok().sendResource("esri/findAddressCandidatesNoCandidates.json"))
+                    .build());
     wsNoCandidates = play.test.WSTestClient.newClient(serverNoCandidates.httpPort());
-    
+
     clientNoCandidates = new EsriClient(config, wsNoCandidates);
     // overwrite to not include base URL so it uses the mock service
     clientNoCandidates.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
     // create a server that returns an internal server error
-    serverError = Server.forRouter(
-      (components) ->
-          RoutingDsl.fromComponents(components)
-              .GET("/findAddressCandidates")
-              .routingTo(request -> internalServerError("{ \"Error\": \"An error has occurred\"}"))
-              .build());
+    serverError =
+        Server.forRouter(
+            (components) ->
+                RoutingDsl.fromComponents(components)
+                    .GET("/findAddressCandidates")
+                    .routingTo(
+                        request -> internalServerError("{ \"Error\": \"An error has occurred\"}"))
+                    .build());
     wsError = play.test.WSTestClient.newClient(serverError.httpPort());
-    
+
     clientError = new EsriClient(config, wsError);
     // overwrite to not include base URL so it uses the mock service
     clientError.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
@@ -97,9 +102,10 @@ public class EsriClientTest {
   public void fetchAddressSuggestions() throws Exception {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
-    Optional<JsonNode> maybeResp = client.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    Optional<JsonNode> maybeResp =
+        client.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     JsonNode resp = maybeResp.get();
-    ArrayNode candidates = (ArrayNode)resp.get("candidates");
+    ArrayNode candidates = (ArrayNode) resp.get("candidates");
     assertEquals(4326, resp.get("spatialReference").get("wkid").asInt());
     assertEquals(1, candidates.size());
   }
@@ -108,9 +114,10 @@ public class EsriClientTest {
   public void fetchAddressSuggestionsWithNoCandidates() throws Exception {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
-    Optional<JsonNode> maybeResp = clientNoCandidates.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    Optional<JsonNode> maybeResp =
+        clientNoCandidates.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     JsonNode resp = maybeResp.get();
-    ArrayNode candidates = (ArrayNode)resp.get("candidates");
+    ArrayNode candidates = (ArrayNode) resp.get("candidates");
     assertEquals(0, candidates.size());
   }
 
@@ -118,7 +125,8 @@ public class EsriClientTest {
   public void fetchAddressSuggestionsWithError() throws Exception {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
-    Optional<JsonNode> maybeResp = clientError.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    Optional<JsonNode> maybeResp =
+        clientError.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     assertEquals(Optional.empty(), maybeResp);
   }
 
@@ -135,7 +143,7 @@ public class EsriClientTest {
 
     CompletionStage<Optional<AddressSuggestionGroup>> group = client.getAddressSuggestions(address);
     ImmutableList<AddressSuggestion> suggestions =
-    group.toCompletableFuture().join().get().getAddressSuggestions();
+        group.toCompletableFuture().join().get().getAddressSuggestions();
     // first item is guaranteed to be here since the response is taken from  JSON file
     String street = suggestions.stream().findFirst().get().getAddress().getStreet();
     assertEquals("\"380 New York St\"", street);
@@ -152,9 +160,10 @@ public class EsriClientTest {
             .setZip("92373")
             .build();
 
-    CompletionStage<Optional<AddressSuggestionGroup>> group = clientNoCandidates.getAddressSuggestions(address);
+    CompletionStage<Optional<AddressSuggestionGroup>> group =
+        clientNoCandidates.getAddressSuggestions(address);
     ImmutableList<AddressSuggestion> suggestions =
-    group.toCompletableFuture().join().get().getAddressSuggestions();
+        group.toCompletableFuture().join().get().getAddressSuggestions();
     assertEquals(0, suggestions.size());
   }
 
@@ -169,7 +178,8 @@ public class EsriClientTest {
             .setZip("92373")
             .build();
 
-    CompletionStage<Optional<AddressSuggestionGroup>> group = clientError.getAddressSuggestions(address);
+    CompletionStage<Optional<AddressSuggestionGroup>> group =
+        clientError.getAddressSuggestions(address);
     assertEquals(Optional.empty(), group.toCompletableFuture().join());
   }
 }

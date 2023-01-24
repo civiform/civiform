@@ -1,11 +1,11 @@
 package services;
 
 public enum AddressField {
-  STREET ("street"),
-  LINE2 ("line2"),
-  CITY ("city"),
-  STATE ("state"),
-  ZIP ("zip");
+  STREET("street"),
+  LINE2("line2"),
+  CITY("city"),
+  STATE("state"),
+  ZIP("zip");
 
   private final String addressFieldString;
 
@@ -15,5 +15,5 @@ public enum AddressField {
 
   public String getValue() {
     return addressFieldString;
- }
+  }
 }
