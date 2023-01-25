@@ -858,11 +858,11 @@ export class AdminPrograms {
     await this.publishProgram(programName)
   }
 
-  getInputByName(name: string) {
-    return this.page.locator(`input[name=${name}]`)
+  getAddressCorrectionToggle() {
+    return this.page.locator('input[name=addressCorrectionEnabled]')
   }
 
-  async clickButtonWithText(text: string) {
-    await this.page.click(`:is(button:has-text("${text}"))`)
+  async clickAddressCorrectionToggle() {
+    await this.page.click(':is(button:has-text("Address correction"))')
   }
 }

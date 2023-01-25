@@ -121,14 +121,12 @@ describe('program creation', () => {
       'program-detail-page-with-address-correction-false',
     )
 
-    const addressCorrectionInput = adminPrograms.getInputByName(
-      'addressCorrectionEnabled',
-    )
+    const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
     // the input value shows what it will be set to when clicked
     expect(await addressCorrectionInput.inputValue()).toBe('true')
 
-    await adminPrograms.clickButtonWithText('Address correction')
+    await adminPrograms.clickAddressCorrectionToggle()
 
     expect(await addressCorrectionInput.inputValue()).toBe('false')
 
@@ -158,14 +156,12 @@ describe('program creation', () => {
 
     await adminPrograms.addQuestionFromQuestionBank('acd-address')
 
-    const addressCorrectionInput = adminPrograms.getInputByName(
-      'addressCorrectionEnabled',
-    )
+    const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
     // the input value shows what it will be set to when clicked
     expect(await addressCorrectionInput.inputValue()).toBe('true')
 
-    await adminPrograms.clickButtonWithText('Address correction')
+    await adminPrograms.clickAddressCorrectionToggle()
     // should be the same as before with button submit disabled
     expect(await addressCorrectionInput.inputValue()).toBe('true')
   })
