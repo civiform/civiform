@@ -404,6 +404,35 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(page, 'application-ineligible-preexisting-data')
       await validateAccessibility(page)
     })
+
+    it('shows not eligible upon submit with ineligible answer', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+
+      // Verify the question is marked ineligible.
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.expectQuestionIsNotEligible(
+        AdminQuestions.NUMBER_QUESTION_TEXT,
+      )
+
+      // Answer the other question.
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.answerEmailQuestion('email@email.com')
+
+      // Submit and expect to be told it's ineligible.
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickSubmit()
+      await applicantQuestions.expectIneligiblePage()
+    })
   })
   // TODO: Add tests for "next" navigation
 })

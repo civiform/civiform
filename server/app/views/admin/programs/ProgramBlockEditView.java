@@ -161,7 +161,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                     blockDefinition.isEnumerator(),
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
-                                    featureFlags.isProgramEligibilityConditionsEnabled(request)))));
+                                    featureFlags.isProgramEligibilityConditionsEnabled(request),
+                                    request))));
 
     // Add top level UI that is only visible in the editable version.
     if (viewAllowsEditingProgram()) {
@@ -353,7 +354,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       boolean blockDefinitionIsEnumerator,
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
-      boolean isProgramEligibilityConditionsEnabled) {
+      boolean isProgramEligibilityConditionsEnabled,
+      Request request) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete =
@@ -398,8 +400,10 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                       question.getQuestionDefinition(),
                       canDelete,
                       question.optional(),
+                      question.addressCorrectionEnabled(),
                       index,
-                      blockQuestions.size()));
+                      blockQuestions.size(),
+                      request));
             });
 
     DivTag div = div().withClasses("w-7/12", "py-6", "px-4");
@@ -537,8 +541,10 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       QuestionDefinition questionDefinition,
       boolean canRemove,
       boolean isOptional,
+      boolean addressCorrectionEnabled,
       int questionIndex,
-      int questionsCount) {
+      int questionsCount,
+      Request request) {
     DivTag ret =
         div()
             .withClasses(
@@ -573,8 +579,17 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
         optionalToggle(
             csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional);
 
-    ret.with(icon, content);
+    Optional<FormTag> maybeAddressCorrectionEnabledToggle =
+        addressCorrectionEnabledToggle(
+            request,
+            csrfTag,
+            programDefinitionId,
+            blockDefinitionId,
+            questionDefinition,
+            addressCorrectionEnabled);
 
+    ret.with(icon, content);
+    maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
     // UI for editing is only added if we are viewing a draft.
     if (viewAllowsEditingProgram()) {
       maybeOptionalToggle.ifPresent(ret::with);
@@ -708,6 +723,75 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
             .withAction(toggleOptionalAction)
             .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
             .with(optionalButton));
+  }
+
+  private Optional<FormTag> addressCorrectionEnabledToggle(
+      Request request,
+      InputTag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      boolean addressCorrectionEnabled) {
+    if (!questionDefinition.isAddress()) {
+      return Optional.empty();
+    }
+
+    String toolTipText =
+        "Enabling address correction will check the resident's address to ensure it is accurate.";
+    if (!featureFlags.isEsriAddressCorrectionEnabled(request)) {
+      toolTipText +=
+          " To use this feature, you will need to have your IT manager configure the GIS service.";
+    }
+    ButtonTag addressCorrectionButton =
+        TagCreator.button()
+            .withClasses(
+                "flex",
+                "gap-2",
+                "items-center",
+                addressCorrectionEnabled ? "text-black" : "text-gray-400",
+                "font-medium",
+                "bg-transparent",
+                "rounded-full",
+                StyleUtils.hover("bg-gray-400", "text-gray-300"))
+            .withType("submit")
+            .with(p("Address correction").withClasses("hover-group:text-white"))
+            .with(
+                div()
+                    .withClasses("relative")
+                    .with(
+                        div()
+                            .withClasses(
+                                addressCorrectionEnabled ? "bg-blue-600" : "bg-gray-600",
+                                "w-14",
+                                "h-8",
+                                "rounded-full"))
+                    .with(
+                        div()
+                            .withClasses(
+                                "absolute",
+                                "bg-white",
+                                addressCorrectionEnabled ? "right-1" : "left-1",
+                                "top-1",
+                                "w-6",
+                                "h-6",
+                                "rounded-full")))
+            .with(div(ViewUtils.makeSvgToolTip(toolTipText, Icons.HELP)));
+    String toggleAddressCorrectionAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
+                programDefinitionId, blockDefinitionId, questionDefinition.getId())
+            .url();
+    return Optional.of(
+        form(csrfTag)
+            .withMethod(HttpVerbs.POST)
+            .withCondOnsubmit(
+                !featureFlags.isEsriAddressCorrectionEnabled(request), "return false;")
+            .withAction(toggleAddressCorrectionAction)
+            .with(
+                input()
+                    .isHidden()
+                    .withName("addressCorrectionEnabled")
+                    .withValue(addressCorrectionEnabled ? "false" : "true"))
+            .with(addressCorrectionButton));
   }
 
   private FormTag deleteQuestionForm(

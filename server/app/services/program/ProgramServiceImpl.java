@@ -767,6 +767,49 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition setProgramQuestionDefinitionAddressCorrectionEnabled(
+      long programId,
+      long blockDefinitionId,
+      long questionDefinitionId,
+      boolean addressCorrectionEnabled)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+    if (!blockDefinition.programQuestionDefinitions().stream()
+        .anyMatch(pqd -> pqd.id() == questionDefinitionId)) {
+      throw new ProgramQuestionDefinitionNotFoundException(
+          programId, blockDefinitionId, questionDefinitionId);
+    }
+
+    if (!blockDefinition.hasAddress()) {
+      throw new RuntimeException(
+          "Unexpected error: updating a non address question with address correction enabled");
+    }
+
+    ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
+        blockDefinition.programQuestionDefinitions().stream()
+            .map(
+                pqd ->
+                    pqd.id() == questionDefinitionId
+                        ? pqd.setAddressCorrectionEnabled(addressCorrectionEnabled)
+                        : pqd)
+            .collect(ImmutableList.toImmutableList());
+
+    try {
+      return updateProgramDefinitionWithBlockDefinition(
+          programDefinition,
+          blockDefinition.toBuilder()
+              .setProgramQuestionDefinitions(programQuestionDefinitions)
+              .build());
+    } catch (IllegalPredicateOrderingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  @Transactional
   public ProgramDefinition setProgramQuestionDefinitionPosition(
       long programId, long blockDefinitionId, long questionDefinitionId, int newPosition)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
