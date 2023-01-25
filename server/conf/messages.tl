@@ -219,13 +219,6 @@ label.state=Estado
 label.street=Linya ng adres 1
 label.zipcode=Zip code
 
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=Lungsod
-placeholder.line2=Apartment, suite, unit, gusali, palapag, atbp.
-placeholder.state=Estado
-placeholder.street=Adres ng kalye
-placeholder.zipcode=Zip code
-
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Maaari lamang na ilagay ang wasto na pangalan ng kalye, at ang numero.
 validation.cityRequired=Maaari lamang na ilagay ang Lungsod.
