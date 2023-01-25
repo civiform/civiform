@@ -56,10 +56,8 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   @Inject
   public EsriClient(Config configuration, WSClient ws) {
     this.ws = checkNotNull(ws);
-    this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
-        Optional.ofNullable(configuration.getString("esri_find_address_candidates_url"));
-    this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES =
-        Optional.ofNullable(configuration.getInt("esri_find_address_candidates_tries")).orElse(3);
+    this.ESRI_FIND_ADDRESS_CANDIDATES_URL = configuration.hasPath("esri_find_address_candidates_url") ? Optional.of(configuration.getString("esri_find_address_candidates_url")) : Optional.empty();
+    this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES = configuration.hasPath("esri_find_address_candidates_tries") ? configuration.getInt("esri_find_address_candidates_tries") : 3;
   }
 
   /** Retries failed requests up to the provided value */
@@ -146,8 +144,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
    * Calls an external Esri service to get address suggestions given the provided {@link Address}.
    * Takes the returned address suggestions to build an {@link AddressSuggestionGroup}.
    *
-   * <p>Returns an optional {@link AddressSuggestionGroup}. Returns an empty optional if {@link
-   * fetchAddressSuggestions} returns an empty optional.
+   * @return an optional {@link AddressSuggestionGroup} if successful, or an empty optional if the request fails.
    */
   public CompletionStage<Optional<AddressSuggestionGroup>> getAddressSuggestions(Address address) {
     ObjectNode addressJson = Json.newObject();
