@@ -1,5 +1,6 @@
 package services.geo.esri;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -10,6 +11,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.Json;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSBodyWritables;
@@ -25,12 +28,12 @@ import services.geo.AddressSuggestionGroup;
 /**
  * Provides methods for handling reqeusts to Esri geo services
  *
- * <p>@see a
- * href="https://gisdata.seattle.gov/server/sdk/rest/index.html#/Find_Address_Candidates/02ss00000015000000/">Find
+ * <p>@see <a
+ * href="https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm">Find
  * Address Candidates</a>
  *
- * @see a
- *     href="https://gisdata.seattle.gov/server/sdk/rest/index.html#/Query_Map_Service_Layer/02ss0000000r000000/">Query
+ * @see <a
+ *     href="https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm">Query
  *     (Map Service/Layer)</a>
  */
 public class EsriClient implements WSBodyReadables, WSBodyWritables {
@@ -43,12 +46,16 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
       "Address, SubAddr, City, Region, Postal";
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_FORMAT = "json";
   public Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
+  public int ESRI_FIND_ADDRESS_CANDIDATES_TRIES;
+
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public EsriClient(Config configuration, WSClient ws) {
-    this.ws = ws;
+    this.ws = checkNotNull(ws);
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
         Optional.ofNullable(configuration.getString("esri_find_address_candidates_url"));
+    this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES = Optional.ofNullable(configuration.getInt("esri_find_address_candidates_tries")).orElse(3);
   }
 
   /** Retries failed requests up to the provided value */
@@ -57,6 +64,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     responsePromise.handle(
         (result, error) -> {
           if (error != null || result.getStatus() != 200) {
+            logger.error("Esri API error: %s", error != null ? error.toString() : result.getStatusText());
             if (retries.compareTo(new MutableInt(0)) > 0) {
               retries.decrement();
               return tryRequest(request, retries);
@@ -72,11 +80,20 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   }
 
   /**
-   * Returns address candidates from Esri's findAddressCandidates service
+   * Calls the external ESRI findAddressCandidates service to retrieve address correction suggestions for the given address.
    *
    * <p>@see <a
    * href="https://gisdata.seattle.gov/server/sdk/rest/index.html#/Find_Address_Candidates/02ss00000015000000/">Find
    * Address Candidates</a>
+   * 
+   * Returns an empty optional under the following conditions:
+   * <ul>
+   *    <li>ESRI_FIND_ADDRESS_CANDIDATES_URL is not configured.</li>
+   *    <li>The external ESRI service returns an error.</li>
+   *    <li>The external ESRI services returns a non 200 status.</li>
+   * </ul>
+   * 
+   * If the external ESRI serice returns an error or non 200 status, then the request is retried up to the configured ESRI_FIND_ADDRESS_CANDIDATES_TRIES. If ESRI_FIND_ADDRESS_CANDIDATES_TRIES is not configured, the tries default to 3.
    */
   public CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson) {
     if (this.ESRI_FIND_ADDRESS_CANDIDATES_URL.isEmpty()) {
@@ -108,7 +125,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     if (postal != null) {
       request.addQueryParameter("postal", postal);
     }
-    MutableInt tries = new MutableInt(3);
+    MutableInt tries = new MutableInt(this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES);
     return tryRequest(request, tries)
         .thenApply(
             res -> {
@@ -121,8 +138,10 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   }
 
   /**
-   * Returns an {@link AddressSuggestionGroup} future and is the primary way CiviForm services
-   * should interact with the Esri API
+   * Calls {@link fetchAddressSuggestions} and takes the returned address suggestions to build an {@link AddressSuggestionGroup}.
+   * 
+   * <p>Returns an optional {@link AddressSuggestionGroup}. Returns an empty optional if {@link fetchAddressSuggestions} returns an empty optional.
+   * 
    */
   public CompletionStage<Optional<AddressSuggestionGroup>> getAddressSuggestions(Address address) {
     ObjectNode addressJson = Json.newObject();
