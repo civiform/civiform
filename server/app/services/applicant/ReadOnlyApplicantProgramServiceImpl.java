@@ -86,6 +86,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public boolean isApplicationEligible() {
+    return getAllActiveBlocks().stream().allMatch(block -> isBlockEligible(block.getId()));
+  }
+
+  @Override
   public boolean isBlockEligible(String blockId) {
     Block block = getBlock(blockId).get();
     Optional<PredicateDefinition> predicate =
