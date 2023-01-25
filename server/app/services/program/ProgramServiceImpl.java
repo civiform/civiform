@@ -804,8 +804,7 @@ public final class ProgramServiceImpl implements ProgramService {
               .setProgramQuestionDefinitions(programQuestionDefinitions)
               .build());
     } catch (IllegalPredicateOrderingException e) {
-      throw new RuntimeException(
-          "Unexpected error: updating this question invalidated a block condition");
+      throw new RuntimeException(e);
     }
   }
 

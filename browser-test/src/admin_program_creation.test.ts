@@ -99,6 +99,11 @@ describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-address')
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-address-correction-false',
+    )
+
     const addressCorrectionInput = adminPrograms.getInputByName(
       'addressCorrectionEnabled',
     )
@@ -109,6 +114,11 @@ describe('program creation', () => {
     await adminPrograms.clickButtonWithText('Address correction')
 
     expect(await addressCorrectionInput.inputValue()).toBe('false')
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-address-correction-true',
+    )
 
     // ensure that non address question does not contain address correction button
     expect(
