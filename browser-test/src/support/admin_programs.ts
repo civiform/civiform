@@ -105,11 +105,17 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
+  /**
+   * Expects a specific program block to be selected inside the read only view
+   * that is used to view the configuration of an active program.
+   */
   async expectReadOnlyProgramBlock(blockId: string) {
+    // The block info shows us we are viewing a block.
+    expect(this.page.locator('id=block-info-display-' + blockId)).not.toBeNull()
+    // The absence of one of the edit buttons ensures it is the read only view.
     expect(
       await this.page.locator('id=block-description-modal-button').count(),
     ).toEqual(0)
-    expect(this.page.locator('id=block-info-display-' + blockId)).not.toBeNull()
   }
 
   // Question card within a program edit page

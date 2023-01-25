@@ -5,9 +5,7 @@ import {
   validateScreenshot,
 } from './support'
 
-// TODO introduce BeforeAll and possibly several describes in one file https://sourcegraph.com/github.com/civiform/civiform/-/blob/browser-test/src/civiform_admin_program_statuses.test.ts?subtree=true
-
-describe('program viewing', () => {
+describe('admin program view page', () => {
   const ctx = createTestContext()
 
   it('view active program, without draft and after creating draft', async () => {

@@ -85,9 +85,14 @@ abstract class ProgramBlockBaseView extends BaseHtmlView {
 
   /**
    * Returns a standardized Edit Button that can be added to the program info. A typical use case
-   * would be for a subclass to - create a button with this method - add subclass specific
-   * navigation behaviour to the button - add the button to the program info after creating it with
-   * renderProductInfo()
+   * would be for a subclass to
+   *
+   * <ul>
+   *   <li><create a button with this method
+   *   <li>add subclass specific
+   *   <li>navigation behaviour to the button
+   *   <li>add the button to the program info after creating it with renderProductInfo()
+   * </ul>
    */
   protected ButtonTag getStandardizedEditButton(String buttonText) {
     return ViewUtils.makeSvgTextButton(buttonText, Icons.EDIT)

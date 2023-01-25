@@ -111,8 +111,8 @@ public final class AdminProgramController extends CiviFormController {
   /** Returns an HTML page containing a form to edit a draft program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id) throws ProgramNotFoundException {
-    requestChecker.throwIfProgramNotDraft(id);
     ProgramDefinition program = programService.getProgramDefinition(id);
+    requestChecker.throwIfProgramNotDraft(id);
     return ok(editView.render(request, program));
   }
 

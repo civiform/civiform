@@ -153,31 +153,15 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     String html = Helpers.contentAsString(result);
-    assertThat(html).contains(applicantName.getQuestionDefinition().getQuestionText().getDefault());
-    assertThat(html)
-        .contains(applicantName.getQuestionDefinition().getQuestionHelpText().getDefault());
-    assertThat(html).contains("Admin ID: " + applicantName.getQuestionDefinition().getName());
     assertThat(html)
         .contains("Public name")
         .contains("Public description")
         .contains("Admin description")
         // Similar to program index page we don't show admin name.
         .doesNotContain("Admin name");
-
-    QuestionDefinition otherQuestionDef =
-        new QuestionDefinitionBuilder(applicantName.getQuestionDefinition())
-            .setQuestionText(LocalizedStrings.withDefaultValue("NEW QUESTION TEXT"))
-            .build();
-
-    questionService.update(otherQuestionDef);
-    request = addCSRFToken(fakeRequest()).build();
-    result = controller.view(request, program.id, 1L);
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(Helpers.contentAsString(result))
+    // The read only program viewing does not include the quesiton bank
+    assertThat(html)
         .doesNotContain(applicantName.getQuestionDefinition().getQuestionText().getDefault());
-    assertThat(Helpers.contentAsString(result))
-        .contains(otherQuestionDef.getQuestionText().getDefault());
   }
 
   @Test
