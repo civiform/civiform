@@ -347,6 +347,29 @@ public interface ProgramService {
           ProgramQuestionDefinitionNotFoundException;
 
   /**
+   * Set a program question definition to enable address correction.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionDefinitionId the ID of the question to update
+   * @param addressCorrectionEnabled boolean representing whether the question has address
+   *     correction enabled
+   * @return the updated program definition
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block
+   * @throws ProgramQuestionDefinitionNotFoundException when questionDefinitionId does not
+   *     correspond to a real question in the block
+   */
+  ProgramDefinition setProgramQuestionDefinitionAddressCorrectionEnabled(
+      long programId,
+      long blockDefinitionId,
+      long questionDefinitionId,
+      boolean addressCorrectionEnabled)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException;
+
+  /**
    * Set position of a program question within its block. Used to reorder questions.
    *
    * @param programId the ID of the program to update
