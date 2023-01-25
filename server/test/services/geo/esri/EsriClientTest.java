@@ -1,5 +1,6 @@
 package services.geo.esri;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Results.internalServerError;
 import static play.mvc.Results.ok;
@@ -145,7 +146,9 @@ public class EsriClientTest {
     ImmutableList<AddressSuggestion> suggestions =
         group.toCompletableFuture().join().get().getAddressSuggestions();
     // first item is guaranteed to be here since the response is taken from  JSON file
-    String street = suggestions.stream().findFirst().get().getAddress().getStreet();
+    Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
+    assertThat(addressSuggestion.isPresent()).isTrue();
+    String street = addressSuggestion.get().getAddress().getStreet();
     assertEquals("\"380 New York St\"", street);
   }
 
