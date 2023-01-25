@@ -27,7 +27,8 @@ import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 
 /**
- * Provides methods for handling reqeusts to external Esri geo and map layer services for getting address suggestions and service area validation for a given address.
+ * Provides methods for handling reqeusts to external Esri geo and map layer services for getting
+ * address suggestions and service area validation for a given address.
  *
  * <p>@see <a
  * href="https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm">Find
@@ -44,7 +45,8 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   // Specify output fields to return in the geocoding response with the outFields parameter
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
       "Address, SubAddr, City, Region, Postal";
-  // The service supports responses in JSON or PJSON format. You can specify the response format using the f parameter. This is a required parameter
+  // The service supports responses in JSON or PJSON format. You can specify the response format
+  // using the f parameter. This is a required parameter
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_FORMAT = "json";
   public Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
   public int ESRI_FIND_ADDRESS_CANDIDATES_TRIES;
@@ -56,7 +58,8 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     this.ws = checkNotNull(ws);
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
         Optional.ofNullable(configuration.getString("esri_find_address_candidates_url"));
-    this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES = Optional.ofNullable(configuration.getInt("esri_find_address_candidates_tries")).orElse(3);
+    this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES =
+        Optional.ofNullable(configuration.getInt("esri_find_address_candidates_tries")).orElse(3);
   }
 
   /** Retries failed requests up to the provided value */
@@ -65,7 +68,8 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     responsePromise.handle(
         (result, error) -> {
           if (error != null || result.getStatus() != 200) {
-            logger.error("Esri API error: {}", error != null ? error.toString() : result.getStatusText());
+            logger.error(
+                "Esri API error: {}", error != null ? error.toString() : result.getStatusText());
             if (retries.compareTo(new MutableInt(0)) > 0) {
               retries.decrement();
               return tryRequest(request, retries);
@@ -81,20 +85,24 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   }
 
   /**
-   * Calls the external Esri findAddressCandidates service to retrieve address correction suggestions for the given address.
+   * Calls the external Esri findAddressCandidates service to retrieve address correction
+   * suggestions for the given address.
    *
    * <p>@see <a
    * href="https://gisdata.seattle.gov/server/sdk/rest/index.html#/Find_Address_Candidates/02ss00000015000000/">Find
    * Address Candidates</a>
-   * 
-   * Returns an empty optional under the following conditions:
+   *
+   * <p>Returns an empty optional under the following conditions:
+   *
    * <ul>
-   *    <li>ESRI_FIND_ADDRESS_CANDIDATES_URL is not configured.</li>
-   *    <li>The external ESRI service returns an error.</li>
-   *    <li>The external ESRI services returns a non 200 status.</li>
+   *   <li>ESRI_FIND_ADDRESS_CANDIDATES_URL is not configured.
+   *   <li>The external ESRI service returns an error.
+   *   <li>The external ESRI services returns a non 200 status.
    * </ul>
-   * 
-   * If the external ESRI serice returns an error or non 200 status, then the request is retried up to the configured ESRI_FIND_ADDRESS_CANDIDATES_TRIES. If ESRI_FIND_ADDRESS_CANDIDATES_TRIES is not configured, the tries default to 3.
+   *
+   * If the external ESRI serice returns an error or non 200 status, then the request is retried up
+   * to the configured ESRI_FIND_ADDRESS_CANDIDATES_TRIES. If ESRI_FIND_ADDRESS_CANDIDATES_TRIES is
+   * not configured, the tries default to 3.
    */
   @VisibleForTesting
   CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson) {
@@ -106,11 +114,16 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     request.addQueryParameter("outFields", ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS);
     // "f" stands for "format", options are json and pjson (PrettyJson)
     request.addQueryParameter("f", ESRI_FIND_ADDRESS_CANDIDATES_FORMAT);
-    Optional<String> address = Optional.ofNullable(addressJson.findPath(AddressField.STREET.getValue()).textValue());
-    Optional<String> address2 = Optional.ofNullable(addressJson.findPath(AddressField.LINE2.getValue()).textValue());
-    Optional<String> city = Optional.ofNullable(addressJson.findPath(AddressField.CITY.getValue()).textValue());
-    Optional<String> region = Optional.ofNullable(addressJson.findPath(AddressField.STATE.getValue()).textValue());
-    Optional<String> postal = Optional.ofNullable(addressJson.findPath(AddressField.ZIP.getValue()).textValue());
+    Optional<String> address =
+        Optional.ofNullable(addressJson.findPath(AddressField.STREET.getValue()).textValue());
+    Optional<String> address2 =
+        Optional.ofNullable(addressJson.findPath(AddressField.LINE2.getValue()).textValue());
+    Optional<String> city =
+        Optional.ofNullable(addressJson.findPath(AddressField.CITY.getValue()).textValue());
+    Optional<String> region =
+        Optional.ofNullable(addressJson.findPath(AddressField.STATE.getValue()).textValue());
+    Optional<String> postal =
+        Optional.ofNullable(addressJson.findPath(AddressField.ZIP.getValue()).textValue());
     address.ifPresent(val -> request.addQueryParameter("address", val));
     address2.ifPresent(val -> request.addQueryParameter("address2", val));
     city.ifPresent(val -> request.addQueryParameter("city", val));
@@ -130,10 +143,11 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   }
 
   /**
-   * Calls an external Esri service to get address suggestions given the provided {@link Address}. Takes the returned address suggestions to build an {@link AddressSuggestionGroup}.
-   * 
-   * <p>Returns an optional {@link AddressSuggestionGroup}. Returns an empty optional if {@link fetchAddressSuggestions} returns an empty optional.
-   * 
+   * Calls an external Esri service to get address suggestions given the provided {@link Address}.
+   * Takes the returned address suggestions to build an {@link AddressSuggestionGroup}.
+   *
+   * <p>Returns an optional {@link AddressSuggestionGroup}. Returns an empty optional if {@link
+   * fetchAddressSuggestions} returns an empty optional.
    */
   public CompletionStage<Optional<AddressSuggestionGroup>> getAddressSuggestions(Address address) {
     ObjectNode addressJson = Json.newObject();

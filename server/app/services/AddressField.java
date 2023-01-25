@@ -2,9 +2,7 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * Defines address fields supported by {@link Address}
- */
+/** Defines address fields supported by {@link Address} */
 public enum AddressField {
   STREET("street"),
   LINE2("line2"),
