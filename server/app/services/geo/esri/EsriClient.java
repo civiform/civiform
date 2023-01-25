@@ -10,8 +10,8 @@ import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
@@ -67,16 +67,16 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   }
 
   /** Retries failed requests up to the provided value */
-  private CompletionStage<WSResponse> tryRequest(WSRequest request, MutableInt retries) {
+  private CompletionStage<WSResponse> tryRequest(WSRequest request, int retries) {
     CompletionStage<WSResponse> responsePromise = request.get();
+    AtomicInteger retryCount = new AtomicInteger(retries);
     responsePromise.handle(
         (result, error) -> {
           if (error != null || result.getStatus() != 200) {
             logger.error(
                 "Esri API error: {}", error != null ? error.toString() : result.getStatusText());
-            if (retries.compareTo(new MutableInt(0)) > 0) {
-              retries.decrement();
-              return tryRequest(request, retries);
+            if (retries > 0) {
+              return tryRequest(request, retryCount.decrementAndGet());
             } else {
               return responsePromise;
             }
@@ -134,8 +134,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     region.ifPresent(val -> request.addQueryParameter("region", val));
     postal.ifPresent(val -> request.addQueryParameter("postal", val));
 
-    MutableInt tries = new MutableInt(this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES);
-    return tryRequest(request, tries)
+    return tryRequest(request, this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES)
         .thenApply(
             res -> {
               // return empty if still failing after retries
