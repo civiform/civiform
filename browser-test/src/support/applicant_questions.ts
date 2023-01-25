@@ -261,6 +261,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickContinue() {
+    await this.page.click('text="Continue"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickPrevious() {
     await this.page.click('text="Previous"')
     await waitForPageJsLoad(this.page)
@@ -273,6 +278,16 @@ export class ApplicantQuestions {
 
   async clickReview() {
     await this.page.click('text="Review"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickSubmit() {
+    await this.page.click('text="Submit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickEdit() {
+    await this.page.click('text="Edit"')
     await waitForPageJsLoad(this.page)
   }
 
@@ -348,8 +363,7 @@ export class ApplicantQuestions {
     await this.expectReviewPage()
 
     // Click on submit button.
-    await this.page.click('text="Submit"')
-    await waitForPageJsLoad(this.page)
+    await this.clickSubmit()
   }
 
   async validateHeader(lang: string) {
@@ -357,6 +371,28 @@ export class ApplicantQuestions {
     expect(await this.page.innerHTML('head')).toContain(
       '<meta name="viewport" content="width=device-width, initial-scale=1">',
     )
+  }
+
+  async validatePreviouslyAnsweredText(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(
+      await questionLocator
+        .locator('.cf-applicant-question-previously-answered')
+        .isVisible(),
+    ).toEqual(true)
+  }
+
+  async validateNoPreviouslyAnsweredText(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(
+      await questionLocator
+        .locator('.cf-applicant-question-previously-answered')
+        .isVisible(),
+    ).toEqual(false)
   }
 
   async seeStaticQuestion(questionText: string) {

@@ -10,6 +10,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
@@ -26,6 +27,7 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
+import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -35,7 +37,7 @@ import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 
 /** Renders a page for editing predicates of a block in a program. */
-public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
+public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView {
 
   private final AdminLayout layout;
 
@@ -271,5 +273,20 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockView {
                     div(questionHelpText).withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));
+  }
+
+  @Override
+  protected String getEditButtonText() {
+    return "Edit program details";
+  }
+
+  @Override
+  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
+    return routes.AdminProgramController.edit(programDefinition.id()).url();
+  }
+
+  @Override
+  protected ProgramDisplayType getProgramDisplayStatus() {
+    return DRAFT;
   }
 }

@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.DivTag;
@@ -8,6 +9,7 @@ import junitparams.JUnitParamsRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.applicant.question.Scalar;
+import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -19,9 +21,10 @@ import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
 import support.CfTestHelpers;
 import support.TestQuestionBank;
+import views.ViewUtils.ProgramDisplayType;
 
 @RunWith(JUnitParamsRunner.class)
-public class ProgramBlockViewTest {
+public class ProgramBlockBaseViewTest {
 
   private static final String BLOCK_NAME = "Block_name";
   private TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */ false);
@@ -44,7 +47,7 @@ public class ProgramBlockViewTest {
             PredicateAction.HIDE_BLOCK);
 
     DivTag result =
-        new ProgramBlockViewTestChild()
+        new ProgramBlockBaseViewTestChild()
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
@@ -82,7 +85,7 @@ public class ProgramBlockViewTest {
             PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
 
     DivTag result =
-        new ProgramBlockViewTestChild()
+        new ProgramBlockBaseViewTestChild()
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
@@ -140,7 +143,7 @@ public class ProgramBlockViewTest {
             PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
 
     DivTag result =
-        new ProgramBlockViewTestChild()
+        new ProgramBlockBaseViewTestChild()
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
@@ -153,5 +156,20 @@ public class ProgramBlockViewTest {
                 + " equal to 2023-03-03</li></ul></div>");
   }
 
-  private static final class ProgramBlockViewTestChild extends ProgramBlockView {}
+  private static final class ProgramBlockBaseViewTestChild extends ProgramBlockBaseView {
+    @Override
+    protected String getEditButtonText() {
+      return "Edit program details";
+    }
+
+    @Override
+    protected String getEditButtonUrl(ProgramDefinition programDefinition) {
+      return "fake_routing_url";
+    }
+
+    @Override
+    protected ProgramDisplayType getProgramDisplayStatus() {
+      return DRAFT;
+    }
+  }
 }
