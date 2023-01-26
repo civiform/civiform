@@ -26,8 +26,6 @@ public final class FeatureFlags {
       "allow_civiform_admin_access_programs";
 
   // Launch Flags, these will eventually be removed.
-  public static final String APPLICATION_STATUS_TRACKING_ENABLED =
-      "application_status_tracking_enabled";
   public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
       "program_eligibility_conditions_enabled";
   public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
@@ -74,20 +72,6 @@ public final class FeatureFlags {
     return getFlagEnabled(request, PREDICATES_MULTIPLE_QUESTIONS_ENABLED);
   }
 
-  /**
-   * If the Status Tracking feature is enabled.
-   *
-   * <p>Allows for overrides set in {@code request}.
-   */
-  public boolean isStatusTrackingEnabled(Request request) {
-    return getFlagEnabled(request, APPLICATION_STATUS_TRACKING_ENABLED);
-  }
-
-  /** If the Status Tracking feature is enabled in the system configuration. */
-  public boolean isStatusTrackingEnabled() {
-    return config.getBoolean(APPLICATION_STATUS_TRACKING_ENABLED);
-  }
-
   public boolean allowCiviformAdminAccessPrograms(Request request) {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
@@ -114,8 +98,6 @@ public final class FeatureFlags {
     return ImmutableMap.of(
         ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
         allowCiviformAdminAccessPrograms(request),
-        APPLICATION_STATUS_TRACKING_ENABLED,
-        isStatusTrackingEnabled(request),
         PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
         isProgramEligibilityConditionsEnabled(request),
         PREDICATES_MULTIPLE_QUESTIONS_ENABLED,

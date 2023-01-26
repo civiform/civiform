@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -21,7 +20,6 @@ describe('with program statuses', () => {
     const {page, adminPrograms, adminProgramStatuses, applicantQuestions} = ctx
     await loginAsAdmin(page)
 
-    await enableFeatureFlag(page, 'application_status_tracking_enabled')
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     await adminProgramStatuses.createStatus(approvedStatusName)

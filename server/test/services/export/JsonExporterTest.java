@@ -2,24 +2,16 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import featureflags.FeatureFlags;
 import java.util.Optional;
 import models.Application;
 import models.Program;
 import org.junit.Test;
-import org.mockito.Mockito;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
-import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
-import services.applicant.ApplicantService;
-import services.program.ProgramService;
 
 public class JsonExporterTest extends AbstractExporterTest {
-  private static final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
-
-  private final DateConverter dateConverter = instanceOf(DateConverter.class);
 
   @Test
   public void testAllQuestionTypesWithoutEnumerators() throws Exception {
@@ -159,33 +151,6 @@ public class JsonExporterTest extends AbstractExporterTest {
         0,
         ".applicant_household_members[0].household_members_jobs[2].household_members_days_worked.number",
         333);
-  }
-
-  @Test
-  public void testStatusTrackingDisabled() throws Exception {
-    createFakeQuestions();
-    createFakeProgram();
-    createFakeApplications();
-
-    JsonExporter exporter =
-        new JsonExporter(
-            instanceOf(ApplicantService.class),
-            instanceOf(ProgramService.class),
-            featureFlags,
-            dateConverter);
-
-    String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
-    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
-
-    resultAsserter.assertLengthOf(3);
-    testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationOne, 2);
-    resultAsserter.assertDoesNotHavePath("$[0].status");
   }
 
   private void testApplicationTopLevelAnswers(
