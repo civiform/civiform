@@ -357,17 +357,21 @@ describe('create and edit predicates', () => {
           operator: 'is less than',
           values: ['10', '20'],
         },
+        // Question itself is a number question (single scalar answer)
+        // but we specify multiple values for comparison.
         {
           questionName: 'list of longs',
           scalar: 'number',
           operator: 'is one of',
-          values: ['1', '2'],
+          values: ['1,2', '3,4'],
         },
+        // Question itself is a text question (single scalar answer)
+        // but we specify multiple values for comparison.
         {
           questionName: 'list of strings',
           scalar: 'text',
           operator: 'is not one of',
-          values: ['one', 'two'],
+          values: ['one,two', 'three,four'],
         },
       ])
 
