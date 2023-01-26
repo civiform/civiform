@@ -62,7 +62,7 @@ public class EsriClientTest {
 
   // setup for service area validation with no features in response
   private Server serverValidationNoFeatures;
-  private WSClient wsValidationNoFfeatures;
+  private WSClient wsValidationNoFeatures;
   private EsriClient clientValidationNoFeatures;
 
   @Before
