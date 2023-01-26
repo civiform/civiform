@@ -176,10 +176,6 @@ public class JsonExporterTest extends AbstractExporterTest {
       assertThat((int) resultJson.getDocumentContext().read("$.length()")).isEqualTo(num);
     }
 
-    void assertDoesNotHavePath(String path) {
-      assertThat(resultJson.hasPath(Path.create(path))).isFalse();
-    }
-
     void assertValueAtPath(String path, String value) {
       assertThat(resultJson.readString(Path.create(path)).get()).isEqualTo(value);
     }
