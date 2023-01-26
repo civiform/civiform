@@ -335,6 +335,8 @@ describe('create and edit predicates', () => {
       await adminPrograms.editProgramBlock(programName, 'test-block', [
         'predicate-date-is-earlier-than',
         'predicate-currency',
+        'list of longs',
+        'list of strings',
       ])
 
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -354,6 +356,22 @@ describe('create and edit predicates', () => {
           scalar: 'currency',
           operator: 'is less than',
           values: ['10', '20'],
+        },
+        // Question itself is a number question (single scalar answer)
+        // but we specify multiple values for comparison.
+        {
+          questionName: 'list of longs',
+          scalar: 'number',
+          operator: 'is one of',
+          values: ['1,2', '3,4'],
+        },
+        // Question itself is a text question (single scalar answer)
+        // but we specify multiple values for comparison.
+        {
+          questionName: 'list of strings',
+          scalar: 'text',
+          operator: 'is not one of',
+          values: ['one,two', 'three,four'],
         },
       ])
 
@@ -712,6 +730,7 @@ describe('create and edit predicates', () => {
       // We should now be on the summary page
       await applicantQuestions.submitFromReviewPage()
     })
+
     it('every eligibility right hand type evaluates correctly', async () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
