@@ -9,9 +9,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.junit.After;
@@ -22,6 +25,7 @@ import play.libs.ws.WSClient;
 import play.routing.RoutingDsl;
 import play.server.Server;
 import services.Address;
+import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 
@@ -40,6 +44,26 @@ public class EsriClientTest {
   private Server serverError;
   private WSClient wsError;
   private EsriClient clientError;
+
+  // setup for service area validation
+  private Server serverValidation;
+  private WSClient wsValidation;
+  private EsriClient clientValidation;
+
+  // setup for service area validation with error returned from response
+  private Server serverValidationError;
+  private WSClient wsValidationError;
+  private EsriClient clientValidationError;
+
+  // setup for service area validation with service area not in response features
+  private Server serverValidationNotIncluded;
+  private WSClient wsValidationNotIncluded;
+  private EsriClient clientValidationNotIncluded;
+
+  // setup for service area validation with no features in response
+  private Server serverValidationNoFeatures;
+  private WSClient wsValidationNoFfeatures;
+  private EsriClient clientValidationNoFeatures;
 
   @Before
   // setup Servers to return mock data from JSON files
@@ -86,6 +110,59 @@ public class EsriClientTest {
     clientError = new EsriClient(config, wsError);
     // overwrite to not include base URL so it uses the mock service
     clientError.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
+
+    // create a server for service area validation
+    serverValidation =
+        Server.forRouter(
+            (components) ->
+                RoutingDsl.fromComponents(components)
+                    .GET("/query")
+                    .routingTo(request -> ok().sendResource("esri/serviceAreaFeatures.json"))
+                    .build());
+    wsValidation = play.test.WSTestClient.newClient(serverValidation.httpPort());
+
+    clientValidation = new EsriClient(config, wsValidation);
+
+    // create a server for service area validation with error returned
+    serverValidationError =
+        Server.forRouter(
+            (components) ->
+                RoutingDsl.fromComponents(components)
+                    .GET("/query")
+                    .routingTo(
+                        request -> internalServerError("{ \"Error\": \"An error has occurred\"}"))
+                    .build());
+    wsValidationError = play.test.WSTestClient.newClient(serverValidationError.httpPort());
+
+    clientValidationError = new EsriClient(config, wsValidationError);
+
+    // create a server for service area validation with service area not in response
+    serverValidationNotIncluded =
+        Server.forRouter(
+            (components) ->
+                RoutingDsl.fromComponents(components)
+                    .GET("/query")
+                    .routingTo(
+                        request -> ok().sendResource("esri/serviceAreaFeaturesNotInArea.json"))
+                    .build());
+    wsValidationNotIncluded =
+        play.test.WSTestClient.newClient(serverValidationNotIncluded.httpPort());
+
+    clientValidationNotIncluded = new EsriClient(config, wsValidationNotIncluded);
+
+    // create a server for service area validation with no features in response
+    serverValidationNoFeatures =
+        Server.forRouter(
+            (components) ->
+                RoutingDsl.fromComponents(components)
+                    .GET("/query")
+                    .routingTo(
+                        request -> ok().sendResource("esri/serviceAreaFeaturesNoFeatures.json"))
+                    .build());
+    wsValidationNoFeatures =
+        play.test.WSTestClient.newClient(serverValidationNoFeatures.httpPort());
+
+    clientValidationNoFeatures = new EsriClient(config, wsValidationNoFeatures);
   }
 
   @After
@@ -184,5 +261,92 @@ public class EsriClientTest {
     CompletionStage<Optional<AddressSuggestionGroup>> group =
         clientError.getAddressSuggestions(address);
     assertEquals(Optional.empty(), group.toCompletableFuture().join());
+  }
+
+  @Test
+  public void fetchServiceAreaFeatures() {
+    AddressLocation location =
+        AddressLocation.builder()
+            .setLongitude(-122.3360380354971)
+            .setLatitude(47.578374020558954)
+            .setWellKnownId(4326)
+            .build();
+
+    Optional<JsonNode> maybeResp =
+        clientValidation.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
+    JsonNode resp = maybeResp.get();
+    ReadContext ctx = JsonPath.parse(resp.toString());
+    List<String> features = ctx.read("features[*].attributes.CITYNAME");
+    Optional<String> feature = features.stream().filter(val -> "Seattle".equals(val)).findFirst();
+    assertThat(feature.isPresent()).isTrue();
+    assertEquals("Seattle", feature.get());
+  }
+
+  @Test
+  public void fetchServiceAreaFeaturesWithError() {
+    AddressLocation location =
+        AddressLocation.builder()
+            .setLongitude(-122.3360380354971)
+            .setLatitude(47.578374020558954)
+            .setWellKnownId(4326)
+            .build();
+
+    Optional<JsonNode> maybeResp =
+        clientValidationError
+            .fetchServiceAreaFeatures(location, "/query")
+            .toCompletableFuture()
+            .join();
+    assertEquals(Optional.empty(), maybeResp);
+  }
+
+  @Test
+  public void isAddressLocationInServiceAreaShouldBeTrue() {
+    AddressLocation location =
+        AddressLocation.builder()
+            .setLongitude(-122.3360380354971)
+            .setLatitude(47.578374020558954)
+            .setWellKnownId(4326)
+            .build();
+
+    Optional<Boolean> isInServiceArea =
+        clientValidation
+            .isAddressLocationInServiceArea("Seattle", location)
+            .toCompletableFuture()
+            .join();
+    assertEquals(true, isInServiceArea.get());
+  }
+
+  @Test
+  public void isAddressLocationInServiceAreaNotIncluded() {
+    AddressLocation location =
+        AddressLocation.builder()
+            .setLongitude(-122.3360380354971)
+            .setLatitude(47.578374020558954)
+            .setWellKnownId(4326)
+            .build();
+
+    Optional<Boolean> isInServiceArea =
+        clientValidationNotIncluded
+            .isAddressLocationInServiceArea("Seattle", location)
+            .toCompletableFuture()
+            .join();
+    assertEquals(false, isInServiceArea.get());
+  }
+
+  @Test
+  public void isAddressLocationInServiceAreaNoFeatures() {
+    AddressLocation location =
+        AddressLocation.builder()
+            .setLongitude(-122.3360380354971)
+            .setLatitude(47.578374020558954)
+            .setWellKnownId(4326)
+            .build();
+
+    Optional<Boolean> isInServiceArea =
+        clientValidationNoFeatures
+            .isAddressLocationInServiceArea("Seattle", location)
+            .toCompletableFuture()
+            .join();
+    assertEquals(false, isInServiceArea.get());
   }
 }
