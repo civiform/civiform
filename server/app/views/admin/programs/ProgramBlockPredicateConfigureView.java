@@ -687,7 +687,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
               .orElse(false)) {
             String value = predicateValue.value();
 
-            // Lists of longs are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
+            // Lists of longs are serialized as JSON arrays e.g. "[1, 2]"
             return Splitter.on(", ")
                 // Remove opening and closing brackets
                 .splitToStream(value.substring(1, value.length() - 1))
@@ -708,7 +708,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
               .orElse(false)) {
             String value = predicateValue.value();
 
-            // Lists of strings are serialized as JSON arrays e.g. "[1, 2]"
+            // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
             return Splitter.on(", ")
                 // Remove opening and closing brackets
                 .splitToStream(value.substring(1, value.length() - 1))
