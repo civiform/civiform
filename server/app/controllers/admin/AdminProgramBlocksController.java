@@ -164,7 +164,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * f Returns an HTML page displaying all configurations of the specified program screen (block) as
+   * Returns an HTML page displaying all configurations of the specified program screen (block) as
    * a read only view.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
