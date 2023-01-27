@@ -51,6 +51,16 @@ public class TextFormatterTest {
   }
 
   @Test
+  public void emailsDoNotGetDetectedAsUrls() {
+    String text = "hello @example@, other@example.com. first.last@example.com!";
+    ImmutableList<DomContent> content =
+        TextFormatter.createLinksAndEscapeText(
+            text, TextFormatter.UrlOpenAction.SameTab, /*addRequiredIndicator=*/ false);
+    assertThat(content).hasSize(1);
+    assertThat(content.get(0).render()).isEqualTo(new Text(text).render());
+  }
+
+  @Test
   public void rendersRequiredIndicator() {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(

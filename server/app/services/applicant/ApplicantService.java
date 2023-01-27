@@ -43,6 +43,7 @@ import repository.UserRepository;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
@@ -288,10 +289,13 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<Application> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile) {
+      long applicantId,
+      long programId,
+      CiviFormProfile submitterProfile,
+      boolean eligibilityFeatureEnabled) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(this::validateApplicationForSubmission)
+          .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
           .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
@@ -303,7 +307,7 @@ public final class ApplicantService {
     }
 
     return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(this::validateApplicationForSubmission)
+        .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
         .thenCompose(
             v ->
                 submitApplication(
@@ -348,10 +352,14 @@ public final class ApplicantService {
    *     message for the issue.
    */
   private CompletableFuture<Void> validateApplicationForSubmission(
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      boolean eligibilityFeatureEnabled) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
       throw new ApplicationOutOfDateException();
+    }
+    if (eligibilityFeatureEnabled && !roApplicantProgramService.isApplicationEligible()) {
+      throw new ApplicationNotEligibleException();
     }
     return CompletableFuture.completedFuture(null);
   }

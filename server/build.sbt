@@ -21,6 +21,7 @@ lazy val root = (project in file("."))
       caffeine,
       guice,
       javaJdbc,
+      javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.7.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.14.1",
@@ -86,6 +87,7 @@ lazy val root = (project in file("."))
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",
+      "commons-validator" % "commons-validator" % "1.7",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
