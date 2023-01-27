@@ -69,7 +69,6 @@ public final class TextFormatter {
     ImmutableList.Builder<DomContent> contentBuilder = ImmutableList.builder();
     for (int i = 0; i < urls.size(); i++) {
       Url url = urls.get(i);
-      System.out.println(url.getOriginalUrl());
       try {
         // While technically they could be part of the URL, trailing punctuation
         // is more likely to be part of the surrounding text, so we strip.
