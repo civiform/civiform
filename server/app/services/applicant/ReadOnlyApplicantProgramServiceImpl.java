@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -125,6 +127,23 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                       && showBlock(block));
     }
     return currentBlockList;
+  }
+
+  @Override
+  public ImmutableList<String> getEligibilityQuestionsForProgram() {
+    ImmutableList<Block> blocks = getAllActiveBlocks();
+    List<String> questionList = new ArrayList<>();
+    for (Block block : blocks) {
+      if (block.getEligibilityDefinition().isPresent()) {
+        ImmutableList<Long> eligibilityQuestions =
+            block.getEligibilityDefinition().get().predicate().getQuestions();
+        eligibilityQuestions.forEach(
+            question ->
+                questionList.add(
+                    block.getQuestionWithId(question.longValue()).get().getQuestionText()));
+      }
+    }
+    return questionList.stream().distinct().collect(toImmutableList());
   }
 
   @Override

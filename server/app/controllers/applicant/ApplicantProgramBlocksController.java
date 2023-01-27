@@ -408,7 +408,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       request,
                       roApplicantProgramService.getProgramTitle(),
                       applicantName,
-                      messagesApi.preferred(request))));
+                      messagesApi.preferred(request),
+                      roApplicantProgramService.getEligibilityQuestionsForProgram(),
+                      routes.ApplicantProgramsController.index(applicantId).url(),
+                      routes.ApplicantProgramReviewController.review(applicantId, programId).url(),
+                      routes.ApplicantProgramsController.view(applicantId, programId).url())));
     }
 
     Optional<String> nextBlockIdMaybe =

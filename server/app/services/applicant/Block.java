@@ -130,6 +130,12 @@ public final class Block {
     return questionsMemo.get();
   }
 
+  public Optional<ApplicantQuestion> getQuestionWithId(Long id) {
+    return getQuestions().stream()
+        .filter(question -> question.getQuestionDefinition().getId() == id)
+        .findFirst();
+  }
+
   /**
    * Returns the {@link ScalarType} of the path if the path exists in this block. Returns empty if
    * the path does not exist.

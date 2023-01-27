@@ -44,6 +44,8 @@ public interface ReadOnlyApplicantProgramService {
    */
   int getActiveAndCompletedInProgramBlockCount();
 
+  ImmutableList<String> getEligibilityQuestionsForProgram();
+
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);
 
