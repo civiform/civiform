@@ -96,7 +96,9 @@ public final class TextFormatter {
       }
       // If immediately following this URL there's an '@' and another URL, they could
       // be two parts of an email address, so skip them both in case.
-      if (i < (urls.size() - 2)) {
+      // [0] [1] [2]
+      // len: 3
+      if (i < (urls.size() - 1)) {
         int nextUrlStartIndex = content.indexOf(urls.get(i + 1).getOriginalUrl());
         if (content.charAt(nextUrlStartIndex - 1) == '@') {
           i = i + 1;

@@ -52,7 +52,7 @@ public class TextFormatterTest {
 
   @Test
   public void emailsDoNotGetDetectedAsUrls() {
-    String text = "hello first.last@example.com other@example.com. Tag @example!";
+    String text = "hello @example@, other@example.com. first.last@example.com!";
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
             text, TextFormatter.UrlOpenAction.SameTab, /*addRequiredIndicator=*/ false);
