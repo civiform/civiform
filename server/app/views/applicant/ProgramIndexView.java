@@ -297,29 +297,26 @@ public final class ProgramIndexView extends BaseHtmlView {
               .opensInNewTab()
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
               .asAnchorText()
-              .attr(
-                  "aria-label",
-                  messages.at(MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName()));
+              .attr("aria-label", messages.at(MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName()));
 
       programData.with(div(externalLink));
-    }
-    else {
+    } else {
       // Add info link.
       String infoUrl =
-        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
-          .url();
+          controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
+              .url();
       ATag infoLink =
-        new LinkElement()
-          .setId(baseId + "-info-link")
-          .setStyles("mb-2", "text-sm", "underline")
-          .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-          .setHref(infoUrl)
-          .asAnchorText()
-          .attr(
-            "aria-label",
-            messages.at(
-              MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
-              program.localizedName().getOrDefault(preferredLocale)));
+          new LinkElement()
+              .setId(baseId + "-info-link")
+              .setStyles("mb-2", "text-sm", "underline")
+              .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
+              .setHref(infoUrl)
+              .asAnchorText()
+              .attr(
+                  "aria-label",
+                  messages.at(
+                      MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
+                      program.localizedName().getOrDefault(preferredLocale)));
       programData.with(div(infoLink));
     }
 
