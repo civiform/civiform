@@ -135,7 +135,7 @@ function setFocusAfterEnumeratorRemoval() {
   const deleteButtons = document.querySelectorAll(
     '.cf-enumerator-field:not(.hidden) .cf-enumerator-delete-button',
   )
-  if (deleteButtons.length == 0) {
+  if (deleteButtons.length === 0) {
     // No entries, set focus to add button.
     const enumeratorQuestion = assertNotNull(
       document.querySelector('.cf-question-enumerator'),
