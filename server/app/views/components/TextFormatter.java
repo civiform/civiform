@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.style.BaseStyles;
@@ -66,7 +67,9 @@ public final class TextFormatter {
     List<Url> urls = new UrlDetector(content, UrlDetectorOptions.JAVASCRIPT).detect();
 
     ImmutableList.Builder<DomContent> contentBuilder = ImmutableList.builder();
-    for (Url url : urls) {
+    for (int i = 0; i < urls.size(); i++) {
+      Url url = urls.get(i);
+      System.out.println(url.getOriginalUrl());
       try {
         // While technically they could be part of the URL, trailing punctuation
         // is more likely to be part of the surrounding text, so we strip.
@@ -78,18 +81,33 @@ public final class TextFormatter {
                 url.getOriginalUrl()));
       }
 
-      int index = content.indexOf(url.getOriginalUrl());
+      int urlStartIndex = content.indexOf(url.getOriginalUrl());
       // Find where this URL is in the text.
-      if (index == -1) {
+      if (urlStartIndex == -1) {
         logger.error(
             String.format(
                 "Detected URL %s not present in actual content, %s.",
                 url.getOriginalUrl(), content));
         continue;
       }
-      if (index > 0) {
+
+      // If this URL looks like it's actually an email address, skip it.
+      if (EmailValidator.getInstance().isValid(url.getOriginalUrl())) {
+        continue;
+      }
+      // If immediately following this URL there's an '@' and another URL, they could
+      // be two parts of an email address, so skip them both in case.
+      if (i < (urls.size() - 2)) {
+        int nextUrlStartIndex = content.indexOf(urls.get(i + 1).getOriginalUrl());
+        if (content.charAt(nextUrlStartIndex - 1) == '@') {
+          i = i + 1;
+          continue;
+        }
+      }
+
+      if (urlStartIndex > 0) {
         // If it's not at the beginning, add the text from before the URL.
-        contentBuilder.add(text(content.substring(0, index)));
+        contentBuilder.add(text(content.substring(0, urlStartIndex)));
       }
       // Add the URL.
       var urlTag =
@@ -106,7 +124,7 @@ public final class TextFormatter {
       }
       contentBuilder.add(urlTag);
 
-      content = content.substring(index + url.getOriginalUrl().length());
+      content = content.substring(urlStartIndex + url.getOriginalUrl().length());
     }
     // If there's content leftover, add it.
     if (!Strings.isNullOrEmpty(content)) {
