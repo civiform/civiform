@@ -155,22 +155,12 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program list page.
       expect(await page.innerText('h1')).toContain('Get benefits')
       expect(
-        await page.locator('a:has-text("External site")').getAttribute('href'),
+        await page
+          .locator('a:has-text("Program Details")')
+          .getAttribute('href'),
       ).toEqual('https://external.com')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-list-page')
-    })
-
-    it('verify program details page', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-      await applicantQuestions.clickProgramDetails(programName)
-
-      // Verify we are on program details page. Url should end in "/programs/{program ID}"
-      expect(page.url()).toMatch(/\/programs\/[0-9]+$/)
-      await validateAccessibility(page)
-      await validateScreenshot(page, 'program-details-page')
     })
 
     it('verify program preview page', async () => {

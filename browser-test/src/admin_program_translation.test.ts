@@ -194,7 +194,7 @@ describe('Admin can manage translations', () => {
     // Expect program details link to contain 'Detalles del programa' with link to 'http://seattle.gov'
     expect(
       await page.innerText('.cf-application-card a[href="http://seattle.gov"]'),
-    ).toContain('Sitio externo')
+    ).toContain('Detalles del programa')
 
     await applicantQuestions.applyProgram(programName)
 
