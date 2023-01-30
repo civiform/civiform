@@ -148,12 +148,6 @@ link.programDetails=Program details
 # The same text, read for screen readers.
 link.programDetailsSr=Program details for {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=External site
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=Opens in a new tab
-
 # The title of the page for the list of programs.
 title.programs=Programs & services
 

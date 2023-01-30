@@ -143,12 +143,6 @@ link.programDetails=Chi tiết chương trình
 # The same text, read for screen readers.
 link.programDetailsSr=Chi tiết chương trình {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=Trang web bên ngoài
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=Mở trong thẻ mới
-
 # The title of the page for the list of programs.
 title.programs=Chương trình và dịch vụ
 

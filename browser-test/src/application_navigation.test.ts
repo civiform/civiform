@@ -154,11 +154,16 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program list page.
       expect(await page.innerText('h1')).toContain('Get benefits')
-      expect(
-        await page
-          .locator('a:has-text("Program Details")')
-          .getAttribute('href'),
-      ).toEqual('https://external.com')
+
+      const cardHtml = await page.innerHTML(
+        '.cf-application-card:has-text("' + programWithExternalLink + '")',
+      )
+      expect(cardHtml).toContain('https://external.com')
+      // there shouldn't be any external Links
+      const cardText = await page.innerText(
+        '.cf-application-card:has-text("' + programWithExternalLink + '")',
+      )
+      expect(cardText).not.toContain('External site')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-list-page')
     })
