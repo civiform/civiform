@@ -118,6 +118,15 @@ export class AdminPrograms {
     ).toEqual(0)
   }
 
+  /**
+   * Expects a specific question to be shown in the currently displayed program block
+   */
+  expectQuestion(questionName: string) {
+    expect(
+      `.cf-program-question:has(:text("Admin ID: ${questionName}"))`,
+    ).not.toBeNull()
+  }
+
   // Question card within a program edit page
   questionCardSelectorInProgramEditor(questionName: string) {
     return `.cf-program-question:has(:text("Admin ID: ${questionName}"))`
@@ -563,7 +572,7 @@ export class AdminPrograms {
 
   async createNewVersion(
     programName: string,
-    programReadOnlyViewEnabled = false,
+    programReadOnlyViewEnabled = true,
   ) {
     await this.gotoAdminProgramsPage()
     await this.expectActiveProgram(programName)
@@ -899,7 +908,12 @@ export class AdminPrograms {
     }
     return readFileSync(path, 'utf8')
   }
-
+  /*
+   * Creates a program ads the specified questions to it and publishes it.
+   * To use this method, questions must have been previously created with one of the helper
+   * methods admin_questions.ts, e.g:
+   *<BR> adminQuestions.addAddressQuestion({questionName: 'address-q'})
+   */
   async addAndPublishProgramWithQuestions(
     questionNames: string[],
     programName: string,

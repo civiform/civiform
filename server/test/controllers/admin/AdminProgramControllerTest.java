@@ -198,9 +198,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("test program");
-
-    // TODO(jhummel) uncomment when the readOnlyView is used before submitting.
-    // assertThat(contentAsString(result)).contains("View program");
+    assertThat(contentAsString(result)).contains("View program");
 
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }

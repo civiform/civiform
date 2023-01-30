@@ -35,8 +35,6 @@ import views.components.ToastMessage;
 /** Controller for admins editing screens (blocks) of a program. */
 public final class AdminProgramBlocksController extends CiviFormController {
 
-  private static final boolean READ_ONLY = true;
-
   private final ProgramService programService;
   private final ProgramBlockEditView editView;
   private final ProgramBlockEditView readOnlyView;
@@ -68,7 +66,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(long programId) {
-    return index(programId, !READ_ONLY);
+    return index(programId, /* readOnly= */ false);
   }
 
   /**
@@ -80,7 +78,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result readOnlyIndex(long programId) {
-    return index(programId, READ_ONLY);
+    return index(programId, /* readOnly=*/ true);
   }
 
   /**
@@ -164,8 +162,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Returns an HTML page displaying all configurations of the specified program screen (block) as
-   * a read only view.
+   * Returns an HTML page displaying all configurations of the specified program screen (block) as a
+   * read only view.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result view(Request request, long programId, long blockId) {

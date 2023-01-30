@@ -88,9 +88,8 @@ abstract class ProgramBlockBaseView extends BaseHtmlView {
    * would be for a subclass to
    *
    * <ul>
-   *   <li><create a button with this method
-   *   <li>add subclass specific
-   *   <li>navigation behaviour to the button
+   *   <li>create a button with this method
+   *   <li>add subclass specific navigation behaviour to the button
    *   <li>add the button to the program info after creating it with renderProductInfo()
    * </ul>
    */

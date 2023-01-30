@@ -79,12 +79,16 @@ public enum Icons {
       24,
       "M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10"
           + " 10 10-4.48 10-10S17.52 2 12 2zm0 13l-4-4h8z"),
+  // An icon that looks like a pen and is used as a visual representation for edit actions
+  // See the "edit" icon at https://fonts.google.com/icons?icon.query=edit
   EDIT(
       20,
       "M4.25 15.75H5.479L13.5 7.729L12.896 7.104L12.271 6.5L4.25 14.521ZM2.5 17.5V13.771L13.479"
           + " 2.792Q14 2.271 14.719 2.271Q15.438 2.271 15.958 2.792L17.208 4.042Q17.708 4.542"
           + " 17.708 5.281Q17.708 6.021 17.208 6.521L6.229 17.5ZM15.958 5.271 14.729 4.042ZM13.5"
           + " 7.729 12.896 7.104 12.271 6.5V6.479L13.5 7.729Z"),
+  // An icon that looks like an eye and is used as a visual representation for view actions
+  // See the "visibility" icon at https://fonts.google.com/icons?icon.query=view
   VIEW(
       48,
       "M24 31.5q3.55 0 6.025-2.475Q32.5 26.55 32.5 23q0-3.55-2.475-6.025Q27.55 14.5 24 14.5q-3.55"

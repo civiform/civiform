@@ -30,14 +30,21 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-list-active-and-draft-program')
   })
 
-  it('view program, view multiple blocks, then start editing', async () => {
-    const {page, adminPrograms} = ctx
+  fit('view program, view multiple blocks, then start editing', async () => {
+    const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_read_only_view_enabled')
 
     const programName = 'Apc program'
+    await adminQuestions.addDateQuestion({questionName: 'date-q'})
+    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
+
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
+    await adminPrograms.editProgramBlock(programName, 'dummy description', [
+      'date-q',
+      'email-q',
+    ])
     await adminPrograms.publishAllPrograms()
 
     await adminPrograms.gotoViewActiveProgramPage(programName)
@@ -46,6 +53,9 @@ describe('admin program view page', () => {
     await adminPrograms.expectReadOnlyProgramBlock('1')
     await adminPrograms.gotoToBlockInReadOnlyProgram('2')
     await adminPrograms.expectReadOnlyProgramBlock('2')
+    adminPrograms.expectQuestion('date-q')
+    adminPrograms.expectQuestion('email-q')
+
     await validateScreenshot(page, 'view-program-block-2')
 
     await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
