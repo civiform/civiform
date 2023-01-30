@@ -137,8 +137,8 @@ public class BlockTest {
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
     assertThatThrownBy(() -> block.getQuestion(3L))
-      .isInstanceOf(QuestionNotFoundException.class)
-      .hasMessageContaining("Question not found for ID: 3");
+        .isInstanceOf(QuestionNotFoundException.class)
+        .hasMessageContaining("Question not found for ID: 3");
   }
 
   @Test

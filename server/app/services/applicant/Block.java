@@ -133,9 +133,9 @@ public final class Block {
 
   public ApplicantQuestion getQuestion(Long id) throws QuestionNotFoundException {
     Optional<ApplicantQuestion> questionResult =
-      getQuestions().stream()
-        .filter(question -> question.getQuestionDefinition().getId() == id)
-        .findFirst();
+        getQuestions().stream()
+            .filter(question -> question.getQuestionDefinition().getId() == id)
+            .findFirst();
     if (questionResult.isPresent()) {
       return questionResult.get();
     } else {
