@@ -947,6 +947,7 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerCheckboxQuestion(['rabbit'])
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await validateScreenshot(page, 'ineligible-multiple-eligibility-questions')
       await page.goBack()
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickNext()

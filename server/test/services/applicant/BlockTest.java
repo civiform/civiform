@@ -112,6 +112,32 @@ public class BlockTest {
   }
 
   @Test
+  public void getQuestionWithId_returnsCorrectQuestion() {
+    BlockDefinition definition = setUpBlockWithQuestions();
+    ApplicantData applicantData = new ApplicantData();
+
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    Optional<ApplicantQuestion> expectedQuestion1 =
+        Optional.of(new ApplicantQuestion(NAME_QUESTION, applicantData, Optional.empty()));
+    Optional<ApplicantQuestion> expectedQuestion2 =
+        Optional.of(new ApplicantQuestion(COLOR_QUESTION, applicantData, Optional.empty()));
+
+    assertThat(block.getQuestionWithId(1L)).isEqualTo(expectedQuestion1);
+    assertThat(block.getQuestionWithId(2L)).isEqualTo(expectedQuestion2);
+  }
+
+  @Test
+  public void getQuestionWithId_returnsEmptyIfIdNotPresent() {
+    BlockDefinition definition = setUpBlockWithQuestions();
+    ApplicantData applicantData = new ApplicantData();
+
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    assertThat(block.getQuestionWithId(3L)).isEqualTo(Optional.empty());
+  }
+
+  @Test
   public void getScalarType_returnsAllScalarTypes() {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantData applicantData = new ApplicantData();

@@ -641,6 +641,80 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
+  public void getEligibilityQuestionsForProgram_returnsQuestionWithEligibilityPredicate() {
+    // Create an eligibility condition with number question == 5.
+    QuestionDefinition numberQuestionDefinition =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition numberPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.SHOW_BLOCK);
+
+    EligibilityDefinition eligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(numberPredicate).build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(eligibilityDefinition)
+            .buildDefinition();
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+
+    ImmutableList<String> eligibilityQuestions = subject.getEligibilityQuestionsForProgram();
+
+    // The number question should be in the list of eligibility questions.
+    assertThat(eligibilityQuestions).hasSize(1);
+    assertThat(eligibilityQuestions.get(0))
+        .isEqualTo(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionText()
+                .getDefault());
+  }
+
+  @Test
+  public void getEligibilityQuestionsForProgram_doesNotReturnQuestionsWhenBlockHidden() {
+    // Create an eligibility condition with number question == 5 on a hidden block.
+    QuestionDefinition numberQuestionDefinition =
+      testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition numberPredicate =
+      PredicateDefinition.create(
+        PredicateExpressionNode.create(
+          LeafOperationExpressionNode.create(
+            numberQuestionDefinition.getId(),
+            Scalar.NUMBER,
+            Operator.EQUAL_TO,
+            PredicateValue.of("5"))),
+        PredicateAction.HIDE_BLOCK);
+
+    EligibilityDefinition eligibilityDefinition =
+      EligibilityDefinition.builder().setPredicate(numberPredicate).build();
+    programDefinition =
+      ProgramBuilder.newDraftProgram("My Program")
+        .withBlock("Block one")
+        .withRequiredQuestionDefinition(numberQuestionDefinition)
+        .withEligibilityDefinition(eligibilityDefinition)
+        .withVisibilityPredicate(numberPredicate)
+        .buildDefinition();
+
+    ReadOnlyApplicantProgramService subject =
+      new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+
+    ImmutableList<String> eligibilityQuestions = subject.getEligibilityQuestionsForProgram();
+
+    // No eligibility questions are returned, since the block is hidden.
+    assertThat(eligibilityQuestions).hasSize(0);
+  }
+
+  @Test
   public void getActiveAndCompletedInProgramBlockCount_withSkippedOptional() {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
