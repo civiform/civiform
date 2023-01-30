@@ -46,10 +46,9 @@ public interface ReadOnlyApplicantProgramService {
   int getActiveAndCompletedInProgramBlockCount();
 
   /**
-   * Get a list of questions that have eligibility requirements in the program. Throws a runtime
-   * exception if questions are not found.
+   * Get a list of questions that have eligibility requirements from active blocks in the program.
    */
-  ImmutableList<ApplicantQuestion> getActiveEligibilityQuestions() throws RuntimeException;
+  ImmutableList<ApplicantQuestion> getActiveEligibilityQuestions();
 
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);

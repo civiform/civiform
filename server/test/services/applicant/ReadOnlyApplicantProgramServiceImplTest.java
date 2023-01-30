@@ -668,8 +668,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
-    ImmutableList<ApplicantQuestion> eligibilityQuestions =
-        subject.getEligibilityQuestionsForProgram();
+    ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getActiveEligibilityQuestions();
 
     // The number question should be in the list of eligibility questions.
     assertThat(eligibilityQuestions).hasSize(1);

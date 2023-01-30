@@ -136,8 +136,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public ImmutableList<ApplicantQuestion> getEligibilityQuestionsForProgram()
-      throws RuntimeException {
+  public ImmutableList<ApplicantQuestion> getActiveEligibilityQuestions() {
     ImmutableList<Block> blocks = getAllActiveBlocks();
     List<ApplicantQuestion> questionList = new ArrayList<>();
     for (Block block : blocks) {

@@ -47,7 +47,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .attr("aria-label", "program details");
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     roApplicantProgramService
-        .getEligibilityQuestionsForProgram()
+        .getActiveEligibilityQuestions()
         .forEach(question -> listTag.with(li().withText(question.getQuestionText())));
 
     DivTag content =
