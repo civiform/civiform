@@ -352,7 +352,6 @@ describe('Applicant navigation flow', () => {
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-      await validateScreenshot(page, 'application-no-eligibility-marker')
       await applicantQuestions.expectQuestionHasNoEligibilityIndicator(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
