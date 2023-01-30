@@ -332,15 +332,38 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
+      let startMs = new Date().getTime()
     await this.goToManageQuestionsPage(programName)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time goToManageQuestionsPage ${elapsedMs}`)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time clickAndWaitForModal ${elapsedMs}`)
+
     await this.page.fill('textarea', blockDescription)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time fill description ${elapsedMs}`)
+
     // Make sure input validation enables the button before clicking.
     await this.page.click('#update-block-button:not([disabled])')
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time click update block ${elapsedMs}`)
 
     for (const questionName of questionNames) {
       await this.addQuestionFromQuestionBank(questionName)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time add question ${questionName} ${elapsedMs}`)
     }
   }
 
@@ -354,12 +377,21 @@ export class AdminPrograms {
   private async waitForQuestionBankAnimationToFinish() {
     // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
     // https://tailwindcss.com/docs/transition-property
-    await this.page.waitForTimeout(1000)
+    await this.page.waitForTimeout(250)
   }
 
   async openQuestionBank() {
+      let startMs = new Date().getTime()
     await this.page.click('button:has-text("Add a question")')
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time openQuestionBank click add ${elapsedMs}`)
     await this.waitForQuestionBankAnimationToFinish()
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time openQuestionBank wait animation ${elapsedMs}`)
   }
 
   async closeQuestionBank() {
@@ -368,17 +400,43 @@ export class AdminPrograms {
   }
 
   async addQuestionFromQuestionBank(questionName: string) {
+      let startMs = new Date().getTime()
     await this.openQuestionBank()
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time openQuestionBank ${elapsedMs}`)
+
     await this.page.click(
       `.cf-question-bank-element:has-text("Admin ID: ${questionName}") button:has-text("Add")`,
     )
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time click add question from bank ${elapsedMs}`)
+
     await waitForPageJsLoad(this.page)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time waitForPageJsLoad ${elapsedMs}`)
+
     // After question was added question bank is still open. Close it first.
     await this.closeQuestionBank()
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time closeQuestionBank ${elapsedMs}`)
+
     // Make sure the question is successfully added to the screen.
     await this.page.waitForSelector(
       `div.cf-program-question p:text("Admin ID: ${questionName}")`,
     )
+
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time waitForSelector question ${elapsedMs}`)
   }
 
   async questionBankNames(): Promise<string[]> {

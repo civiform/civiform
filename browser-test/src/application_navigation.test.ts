@@ -304,29 +304,63 @@ describe('Applicant navigation flow', () => {
     const eligibilityQuestionId = 'nav-predicate-number-q'
 
     beforeAll(async () => {
+      let startMs = new Date().getTime()
+      console.log(`Start time ${startMs}`)
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time ctx ${elapsedMs}`)
       await loginAsAdmin(page)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time admin login ${elapsedMs}`)
       await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time feature flags ${elapsedMs}`)
 
       await adminQuestions.addNumberQuestion({
         questionName: eligibilityQuestionId,
       })
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time add number q ${elapsedMs}`)
       await adminQuestions.addEmailQuestion({
         questionName: 'nav-predicate-email-q',
       })
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time add email q ${elapsedMs}`)
 
       // Add the full program.
       await adminPrograms.addProgram(fullProgramName)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time add program ${elapsedMs}`)
       await adminPrograms.editProgramBlock(
         fullProgramName,
         'first description',
         ['nav-predicate-number-q'],
       )
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time edit program block ${elapsedMs}`)
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         fullProgramName,
         'Screen 1',
       )
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time goto eligibility page ${elapsedMs}`)
       await adminPredicates.addLegacyPredicate(
         'nav-predicate-number-q',
         /* action= */ null,
@@ -334,15 +368,35 @@ describe('Applicant navigation flow', () => {
         'is equal to',
         '5',
       )
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time add eligibility ${elapsedMs}`)
 
       await adminPrograms.addProgramBlock(
         fullProgramName,
         'second description',
         ['nav-predicate-email-q'],
       )
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time add second block ${elapsedMs}`)
 
       await adminPrograms.gotoAdminProgramsPage()
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time program page ${elapsedMs}`)
       await adminPrograms.publishProgram(fullProgramName)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time publish ${elapsedMs}`)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      console.log(`End time ${stopMs}`)
+      console.log(`Total time ${elapsedMs}`)
     })
 
     it('does not show Not Eligible when there is no answer', async () => {
@@ -358,6 +412,8 @@ describe('Applicant navigation flow', () => {
     })
 
     it('shows not eligible with ineligible answer', async () => {
+      let startMs = new Date().getTime()
+      console.log(`Start time ${startMs}`)
       const {page, applicantQuestions} = ctx
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
@@ -377,6 +433,10 @@ describe('Applicant navigation flow', () => {
       )
       await validateScreenshot(page, 'application-ineligible-same-application')
       await validateAccessibility(page)
+      let stopMs = new Date().getTime()
+      let elapsedMs = stopMs - startMs
+      console.log(`End time ${stopMs}`)
+      console.log(`Total time ${elapsedMs}`)
     })
 
     it('shows not eligible with ineligible answer from another application', async () => {
