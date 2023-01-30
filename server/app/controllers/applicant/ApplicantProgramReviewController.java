@@ -179,6 +179,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
+                  // TODO(#3744) Make asynchronous.
                   ReadOnlyApplicantProgramService roApplicantProgramService =
                       applicantService
                           .getReadOnlyApplicantProgramService(applicantId, programId)
@@ -193,10 +194,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           roApplicantProgramService,
                           applicantName,
                           messagesApi.preferred(request),
-                          routes.ApplicantProgramsController.index(applicantId).url(),
-                          routes.ApplicantProgramReviewController.review(applicantId, programId)
-                              .url(),
-                          routes.ApplicantProgramsController.view(applicantId, programId).url()));
+                          applicantId,
+                          programId));
                 }
                 throw new RuntimeException(cause);
               }

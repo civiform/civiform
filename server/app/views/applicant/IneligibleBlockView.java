@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
+import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
@@ -34,15 +35,14 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Optional<String> applicantName,
       Messages messages,
-      String redirectToApply,
-      String redirectToEdit,
-      String redirectToProgramDetails) {
+      long applicantId,
+      long programId) {
     // TODO(#3744): Translate these strings.
     ATag infoLink =
         new LinkElement()
             .setStyles("mb-4", "underline")
             .setText(messages.at("program details"))
-            .setHref(redirectToProgramDetails)
+            .setHref(routes.ApplicantProgramsController.view(applicantId, programId).url())
             .asAnchorText()
             .attr("aria-label", "program details");
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
@@ -77,14 +77,17 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .with(div().withClasses("flex-grow"))
                     .with(
                         new LinkElement()
-                            .setHref(redirectToApply)
+                            .setHref(routes.ApplicantProgramsController.index(applicantId).url())
                             .setText(
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                             .asButton()
                             .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
                     .with(
                         new LinkElement()
-                            .setHref(redirectToEdit)
+                            .setHref(
+                                routes.ApplicantProgramReviewController.review(
+                                        applicantId, programId)
+                                    .url())
                             .setText(messages.at("Go back and edit"))
                             .asButton()
                             .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
