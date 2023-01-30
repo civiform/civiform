@@ -673,7 +673,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     // The number question should be in the list of eligibility questions.
     assertThat(eligibilityQuestions).hasSize(1);
-    assertThat(eligibilityQuestions)
+    assertThat(eligibilityQuestions.stream().findFirst().get().getQuestionDefinition())
         .isEqualTo(testQuestionBank.applicantJugglingNumber().getQuestionDefinition());
   }
 
