@@ -320,6 +320,36 @@ validation.stateRequired=Please enter state.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=Verify address
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=We could not verify the address that you provided, but found something similar.
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=Address entered:
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName={0} entered:
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Suggested address:
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=Suggested addresses:
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=Edit address
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=No valid address found
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
+
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
 #----------------------------------------------------------------------------------------------------------#
