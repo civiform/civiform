@@ -33,6 +33,7 @@ public final class EsriServiceAreaValidationConfig {
             : Optional.empty();
   }
 
+  /** Checks if each element necessary for Esri address service area validation is present. */
   public Boolean hasAllElements() {
     if (this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS.isEmpty()
         || this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES.isEmpty()
@@ -55,22 +56,30 @@ public final class EsriServiceAreaValidationConfig {
     return Optional.of(listBuilder.build());
   }
 
+  /** Returns the labels specified for Esri address service area validation. */
   public Optional<ImmutableList<String>> getLabels() {
     return getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS);
   }
 
+  /** Returns the values specified for Esri address service area validation. */
   public Optional<ImmutableList<String>> getValues() {
     return getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES);
   }
 
+  /** Returns the urls specified for Esri address service area validation. */
   public Optional<ImmutableList<String>> getUrls() {
     return getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS);
   }
 
+  /** Returns the paths specified for Esri address service area validation. */
   public Optional<ImmutableList<String>> getPaths() {
     return getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_PATHS);
   }
 
+  /**
+   * Transforms the config settings for Esri address service area validation into an optional
+   * immutable list of {@link EsriServiceAreaValidationOption}s.
+   */
   private Optional<ImmutableList<EsriServiceAreaValidationOption>> toImmutableList() {
     if (!hasAllElements()) {
       return Optional.empty();
@@ -98,6 +107,10 @@ public final class EsriServiceAreaValidationConfig {
     return Optional.of(listBuilder.build());
   }
 
+  /**
+   * Returns an {@link EsriServiceAreaValidationOption} from the config list for Esri address
+   * service area settings given a service area.
+   */
   public Optional<EsriServiceAreaValidationOption> getOptionByServiceArea(String serviceArea) {
     Optional<ImmutableList<EsriServiceAreaValidationOption>> list = toImmutableList();
 
