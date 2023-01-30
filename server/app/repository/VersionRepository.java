@@ -277,7 +277,7 @@ public final class VersionRepository {
         .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
 
-  /** Returns true if the program is a member of the current draft version. */
+  /** Returns true if the program is a member of the current draft versions. */
   public boolean isDraft(Program program) {
     return isDraftProgram(program.id);
   }
@@ -288,9 +288,7 @@ public final class VersionRepository {
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
   }
 
-  /**
-   * Returns true if the program with the provided id is a member of the current active versions.
-   */
+  /** Returns true if the program with the provided id is a member of the current active versions. */
   public boolean isActiveProgram(Long programId) {
     return getActiveVersion().getPrograms().stream()
         .anyMatch(activeProgram -> activeProgram.id.equals(programId));

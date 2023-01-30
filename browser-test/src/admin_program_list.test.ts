@@ -41,7 +41,7 @@ describe('Most recently updated program is at top of list.', () => {
     ])
   })
 
-  // This test case is a duplicate of the test above and should be removed once the program_read_only_view
+  // TODO(#4125) This test case is a duplicate of the test above and should be removed once the program_read_only_view
   // flag has been removed.
   it('sorts by last updated, preferring draft over active with program read only view disabled', async () => {
     const {page, adminPrograms} = ctx

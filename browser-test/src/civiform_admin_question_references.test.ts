@@ -21,7 +21,7 @@ describe('view program references from question view', () => {
     })
   })
 
-  // This test case is a duplicate of the test below and should be removed once the program_read_only_view
+  // TODO(#4125) This test case is a duplicate of the test below and should be removed once the program_read_only_view
   // flag has been removed.
   it('shows results for referencing programs with program read only view disabled', async () => {
     const {page, adminQuestions, adminPrograms} = ctx

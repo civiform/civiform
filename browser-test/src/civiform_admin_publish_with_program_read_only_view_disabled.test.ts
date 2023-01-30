@@ -9,7 +9,7 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-// This test suite is a duplicate of civiform_admin_publish.test.ts should be removed once the program_read_only_view
+// TODO(#4125) This test suite is a duplicate of civiform_admin_publish.test.ts should be removed once the program_read_only_view
 // flag has been removed. If you make changes to this file, please consider updating the other test too.
 describe('publishing all draft questions and programs with program read only view disabled', () => {
   let pageObject: Page

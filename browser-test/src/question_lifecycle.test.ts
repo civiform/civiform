@@ -31,7 +31,7 @@ describe('normal question lifecycle', () => {
   // Run create-update-publish test for each question type individually to keep
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
-    // Each of these test cases is a duplicate of a test case in the loop further down and should be removed once the program_read_only_view
+    // TODO(#4125) Each of these test cases is a duplicate of a test case in the loop further down and should be removed once the program_read_only_view
     // flag has been removed.
     it(`${type} question: create, update, publish, create a new version, and update`, async () => {
       const {page, adminQuestions, adminPrograms} = ctx

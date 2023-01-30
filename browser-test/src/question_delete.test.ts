@@ -9,7 +9,7 @@ import {QuestionType} from './support/admin_questions'
 describe('deleting question lifecycle', () => {
   const ctx = createTestContext()
 
-  // This test case is a duplicate of the test below and should be removed once the program_read_only_view
+  // TODO(#4125) This test case is a duplicate of the test below and should be removed once the program_read_only_view
   // flag has been removed.
   it('create, publish, delete unused questions with read only program view disabled', async () => {
     const {page, adminQuestions, adminPrograms} = ctx

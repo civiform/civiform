@@ -909,10 +909,10 @@ export class AdminPrograms {
     return readFileSync(path, 'utf8')
   }
   /*
-   * Creates a program ads the specified questions to it and publishes it.
-   * To use this method, questions must have been previously created with one of the helper
-   * methods admin_questions.ts, e.g:
-   *<BR> adminQuestions.addAddressQuestion({questionName: 'address-q'})
+   * Creates a program, ads the specified questions to it and publishes it.
+   * To use this method, questions must have been previously created for example by using one of the helper methods in admin_questions.ts.
+   * <BR>Example:
+   * <BR> adminQuestions.addAddressQuestion({questionName: 'address-q'})
    */
   async addAndPublishProgramWithQuestions(
     questionNames: string[],

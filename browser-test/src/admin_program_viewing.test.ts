@@ -30,7 +30,7 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-list-active-and-draft-program')
   })
 
-  fit('view program, view multiple blocks, then start editing', async () => {
+  it('view program, view multiple blocks, then start editing', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_read_only_view_enabled')
