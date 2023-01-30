@@ -119,7 +119,11 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
-    String title = String.format("Edit %s", blockDefinition.name());
+
+    String title =
+        viewAllowsEditingProgram()
+            ? String.format("Edit %s", blockDefinition.name())
+            : String.format("View %s", blockDefinition.name());
 
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(

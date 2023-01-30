@@ -17,7 +17,6 @@ GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 # A controller for pages for an admin to create and maintain programs
 GET     /admin/programs                                         controllers.admin.AdminProgramController.index(request: Request)
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
-GET     /admin/programs/:programId/view                         controllers.admin.AdminProgramController.view(request: Request, programId: Long)
 GET     /admin/programs/:programId/edit                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long)
 POST    /admin/programs/:programId/newVersion                   controllers.admin.AdminProgramController.newVersionFrom(request: Request, programId: Long)
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)

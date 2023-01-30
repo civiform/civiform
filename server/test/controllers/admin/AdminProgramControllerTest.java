@@ -190,29 +190,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void view_returnsReadOnlyVersion() throws Exception {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Program program = ProgramBuilder.newActiveProgram("test program").build();
-
-    Result result = controller.view(request, program.id);
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("test program");
-    assertThat(contentAsString(result)).contains("View program");
-
-    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-  }
-
-  @Test
-  public void view_withNoneActiveProgram_throwsNotViewableException() throws Exception {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Program program = ProgramBuilder.newDraftProgram("test program").build();
-
-    assertThatThrownBy(() -> controller.view(request, program.id))
-        .isInstanceOf(NotViewableException.class);
-  }
-
-  @Test
   public void newVersionFrom_onlyActive_editActiveReturnsNewDraft() {
     // When there's a draft, editing the active one instead edits the existing draft.
     String programName = "test program";
