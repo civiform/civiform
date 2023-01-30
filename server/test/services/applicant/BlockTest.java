@@ -1,6 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -15,6 +16,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
@@ -112,29 +114,31 @@ public class BlockTest {
   }
 
   @Test
-  public void getQuestion_returnsCorrectQuestion() {
+  public void getQuestion_returnsCorrectQuestion() throws QuestionNotFoundException {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantData applicantData = new ApplicantData();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
-    Optional<ApplicantQuestion> expectedQuestion1 =
-        Optional.of(new ApplicantQuestion(NAME_QUESTION, applicantData, Optional.empty()));
-    Optional<ApplicantQuestion> expectedQuestion2 =
-        Optional.of(new ApplicantQuestion(COLOR_QUESTION, applicantData, Optional.empty()));
+    ApplicantQuestion expectedQuestion1 =
+        new ApplicantQuestion(NAME_QUESTION, applicantData, Optional.empty());
+    ApplicantQuestion expectedQuestion2 =
+        new ApplicantQuestion(COLOR_QUESTION, applicantData, Optional.empty());
 
     assertThat(block.getQuestion(1L)).isEqualTo(expectedQuestion1);
     assertThat(block.getQuestion(2L)).isEqualTo(expectedQuestion2);
   }
 
   @Test
-  public void getQuestion_returnsEmptyIfIdNotPresent() {
+  public void getQuestion_throwsExceptionIfIdNotPresent() {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantData applicantData = new ApplicantData();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
-    assertThat(block.getQuestion(3L)).isEqualTo(Optional.empty());
+    assertThatThrownBy(() -> block.getQuestion(3L))
+      .isInstanceOf(QuestionNotFoundException.class)
+      .hasMessageContaining("Question not found for ID: 3");
   }
 
   @Test
