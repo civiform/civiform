@@ -684,29 +684,29 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getEligibilityQuestionsForProgram_doesNotReturnQuestionsWhenBlockHidden() {
     // Create an eligibility condition with number question == 5 on a hidden block.
     QuestionDefinition numberQuestionDefinition =
-      testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
     PredicateDefinition numberPredicate =
-      PredicateDefinition.create(
-        PredicateExpressionNode.create(
-          LeafOperationExpressionNode.create(
-            numberQuestionDefinition.getId(),
-            Scalar.NUMBER,
-            Operator.EQUAL_TO,
-            PredicateValue.of("5"))),
-        PredicateAction.HIDE_BLOCK);
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.HIDE_BLOCK);
 
     EligibilityDefinition eligibilityDefinition =
-      EligibilityDefinition.builder().setPredicate(numberPredicate).build();
+        EligibilityDefinition.builder().setPredicate(numberPredicate).build();
     programDefinition =
-      ProgramBuilder.newDraftProgram("My Program")
-        .withBlock("Block one")
-        .withRequiredQuestionDefinition(numberQuestionDefinition)
-        .withEligibilityDefinition(eligibilityDefinition)
-        .withVisibilityPredicate(numberPredicate)
-        .buildDefinition();
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(eligibilityDefinition)
+            .withVisibilityPredicate(numberPredicate)
+            .buildDefinition();
 
     ReadOnlyApplicantProgramService subject =
-      new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     ImmutableList<String> eligibilityQuestions = subject.getEligibilityQuestionsForProgram();
 
