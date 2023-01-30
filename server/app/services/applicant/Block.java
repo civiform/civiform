@@ -132,15 +132,10 @@ public final class Block {
   }
 
   public ApplicantQuestion getQuestion(Long id) throws QuestionNotFoundException {
-    Optional<ApplicantQuestion> questionResult =
-        getQuestions().stream()
+    return getQuestions().stream()
             .filter(question -> question.getQuestionDefinition().getId() == id)
-            .findFirst();
-    if (questionResult.isPresent()) {
-      return questionResult.get();
-    } else {
-      throw new QuestionNotFoundException(id);
-    }
+            .findFirst()
+            .orElseThrow(new QuestionNotFoundException(id));
   }
 
   /**
