@@ -76,6 +76,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public Long getProgramId() {
+    return this.programDefinition.id();
+  }
+
+  @Override
   public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)

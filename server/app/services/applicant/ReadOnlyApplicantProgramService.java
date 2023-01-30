@@ -13,6 +13,9 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns the program title, localized to the applicant's preferred locale. */
   String getProgramTitle();
 
+  /** Returns the ID of the program. */
+  Long getProgramId();
+
   /**
    * Get the {@link Block}s for this program and applicant. This includes all blocks an applicant
    * must complete for this program, regardless of whether the block was filled out in this program
