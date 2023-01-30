@@ -112,7 +112,7 @@ public class BlockTest {
   }
 
   @Test
-  public void getQuestionWithId_returnsCorrectQuestion() {
+  public void getQuestion_returnsCorrectQuestion() {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantData applicantData = new ApplicantData();
 
@@ -123,18 +123,18 @@ public class BlockTest {
     Optional<ApplicantQuestion> expectedQuestion2 =
         Optional.of(new ApplicantQuestion(COLOR_QUESTION, applicantData, Optional.empty()));
 
-    assertThat(block.getQuestionWithId(1L)).isEqualTo(expectedQuestion1);
-    assertThat(block.getQuestionWithId(2L)).isEqualTo(expectedQuestion2);
+    assertThat(block.getQuestion(1L)).isEqualTo(expectedQuestion1);
+    assertThat(block.getQuestion(2L)).isEqualTo(expectedQuestion2);
   }
 
   @Test
-  public void getQuestionWithId_returnsEmptyIfIdNotPresent() {
+  public void getQuestion_returnsEmptyIfIdNotPresent() {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantData applicantData = new ApplicantData();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
-    assertThat(block.getQuestionWithId(3L)).isEqualTo(Optional.empty());
+    assertThat(block.getQuestion(3L)).isEqualTo(Optional.empty());
   }
 
   @Test
