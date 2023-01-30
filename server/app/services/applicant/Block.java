@@ -15,6 +15,7 @@ import services.applicant.question.Question;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.predicate.PredicateDefinition;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 
@@ -130,10 +131,16 @@ public final class Block {
     return questionsMemo.get();
   }
 
-  public Optional<ApplicantQuestion> getQuestionWithId(Long id) {
-    return getQuestions().stream()
-        .filter(question -> question.getQuestionDefinition().getId() == id)
-        .findFirst();
+  public ApplicantQuestion getQuestion(Long id) throws QuestionNotFoundException {
+    Optional<ApplicantQuestion> questionResult =
+        getQuestions().stream()
+            .filter(question -> question.getQuestionDefinition().getId() == id)
+            .findFirst();
+    if (questionResult.isPresent()) {
+      return questionResult.get();
+    } else {
+      throw new QuestionNotFoundException(id);
+    }
   }
 
   /**

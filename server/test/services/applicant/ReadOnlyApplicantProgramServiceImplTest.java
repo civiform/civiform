@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -667,17 +668,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
-    ImmutableList<String> eligibilityQuestions = subject.getEligibilityQuestionsForProgram();
+    ImmutableList<ApplicantQuestion> eligibilityQuestions =
+        subject.getEligibilityQuestionsForProgram();
 
     // The number question should be in the list of eligibility questions.
     assertThat(eligibilityQuestions).hasSize(1);
-    assertThat(eligibilityQuestions.get(0))
-        .isEqualTo(
-            testQuestionBank
-                .applicantJugglingNumber()
-                .getQuestionDefinition()
-                .getQuestionText()
-                .getDefault());
+    assertThat(eligibilityQuestions)
+        .isEqualTo(testQuestionBank.applicantJugglingNumber().getQuestionDefinition());
   }
 
   @Test

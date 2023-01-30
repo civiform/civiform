@@ -406,10 +406,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ok(
                   ineligibleBlockView.render(
                       request,
-                      roApplicantProgramService.getProgramTitle(),
+                      roApplicantProgramService,
                       applicantName,
                       messagesApi.preferred(request),
-                      roApplicantProgramService.getEligibilityQuestionsForProgram(),
                       routes.ApplicantProgramsController.index(applicantId).url(),
                       routes.ApplicantProgramReviewController.review(applicantId, programId).url(),
                       routes.ApplicantProgramsController.view(applicantId, programId).url())));

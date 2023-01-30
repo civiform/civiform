@@ -190,10 +190,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return ok(
                       ineligibleBlockView.render(
                           request,
-                          roApplicantProgramService.getProgramTitle(),
+                          roApplicantProgramService,
                           applicantName,
                           messagesApi.preferred(request),
-                          roApplicantProgramService.getEligibilityQuestionsForProgram(),
                           routes.ApplicantProgramsController.index(applicantId).url(),
                           routes.ApplicantProgramReviewController.review(applicantId, programId)
                               .url(),

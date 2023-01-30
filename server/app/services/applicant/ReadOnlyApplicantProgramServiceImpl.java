@@ -27,6 +27,7 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -135,17 +136,22 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public ImmutableList<String> getEligibilityQuestionsForProgram() {
+  public ImmutableList<ApplicantQuestion> getEligibilityQuestionsForProgram()
+      throws RuntimeException {
     ImmutableList<Block> blocks = getAllActiveBlocks();
-    List<String> questionList = new ArrayList<>();
+    List<ApplicantQuestion> questionList = new ArrayList<>();
     for (Block block : blocks) {
       if (block.getEligibilityDefinition().isPresent()) {
         ImmutableList<Long> eligibilityQuestions =
             block.getEligibilityDefinition().get().predicate().getQuestions();
         eligibilityQuestions.forEach(
-            question ->
-                questionList.add(
-                    block.getQuestionWithId(question.longValue()).get().getQuestionText()));
+            question -> {
+              try {
+                questionList.add(block.getQuestion(question.longValue()));
+              } catch (QuestionNotFoundException e) {
+                throw new RuntimeException(e);
+              }
+            });
       }
     }
     return questionList.stream().distinct().collect(toImmutableList());

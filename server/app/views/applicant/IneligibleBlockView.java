@@ -3,7 +3,6 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
-import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
@@ -13,6 +12,7 @@ import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.MessageKey;
+import services.applicant.ReadOnlyApplicantProgramService;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.LinkElement;
@@ -31,10 +31,9 @@ public final class IneligibleBlockView extends ApplicationBaseView {
 
   public Content render(
       Request request,
-      String programTitle,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
       Optional<String> applicantName,
       Messages messages,
-      ImmutableList<String> questions,
       String redirectToApply,
       String redirectToEdit,
       String redirectToProgramDetails) {
@@ -47,14 +46,17 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .asAnchorText()
             .attr("aria-label", "program details");
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
-    questions.forEach(question -> listTag.with(li().withText(question)));
+    roApplicantProgramService
+        .getEligibilityQuestionsForProgram()
+        .forEach(question -> listTag.with(li().withText(question.getQuestionText())));
 
     DivTag content =
         div()
             .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(
                 h2(String.format(
-                        "Based on your responses, you may not qualify for the %s", programTitle))
+                        "Based on your responses, you may not qualify for the %s",
+                        roApplicantProgramService.getProgramTitle()))
                     .withClasses("mb-4"))
             .with(div(messages.at("You must meet these program requirements:")).withClasses("mb-4"))
             .with(div().with(listTag).withClasses("mb-4"))
