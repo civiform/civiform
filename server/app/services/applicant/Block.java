@@ -135,7 +135,7 @@ public final class Block {
     return getQuestions().stream()
         .filter(question -> question.getQuestionDefinition().getId() == id)
         .findFirst()
-        .orElseThrow(new QuestionNotFoundException(id));
+        .orElseThrow(() -> new QuestionNotFoundException(id));
   }
 
   /**
