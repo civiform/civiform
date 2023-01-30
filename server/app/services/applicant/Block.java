@@ -130,7 +130,7 @@ public final class Block {
     return questionsMemo.get();
   }
 
-  public Optional<ApplicantQuestion> getQuestionWithId(Long id) {
+  public Optional<ApplicantQuestion> getQuestion(Long id) {
     return getQuestions().stream()
         .filter(question -> question.getQuestionDefinition().getId() == id)
         .findFirst();
