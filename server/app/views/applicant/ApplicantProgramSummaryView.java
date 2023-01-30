@@ -181,7 +181,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       actionAndTimestampDiv.with(timestampContent);
     }
 
-    if (!data.isEligible()) {
+    // Show that the question makes the application ineligible if it is answered and is a reason the
+    // application is ineligible.
+    if (!data.isEligible() && data.isAnswered()) {
       actionAndTimestampDiv.with(
           div(messages.at(MessageKey.CONTENT_NOT_ELIGIBLE.getKeyName()))
               .withClasses(

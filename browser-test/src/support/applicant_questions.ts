@@ -358,6 +358,16 @@ export class ApplicantQuestions {
     ).toEqual(1)
   }
 
+  async expectQuestionHasNoEligibilityIndicator(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    expect(
+      await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
+    ).toEqual(0)
+  }
+
   async submitFromReviewPage() {
     // Assert that we're on the review page.
     await this.expectReviewPage()

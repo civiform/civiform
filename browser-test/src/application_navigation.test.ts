@@ -345,6 +345,18 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(fullProgramName)
     })
 
+    it('does not show Not Eligible when there is no answer', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+
+      await applicantQuestions.expectQuestionHasNoEligibilityIndicator(
+        AdminQuestions.NUMBER_QUESTION_TEXT,
+      )
+    })
+
     it('shows not eligible with ineligible answer', async () => {
       const {page, applicantQuestions} = ctx
       await loginAsGuest(page)
