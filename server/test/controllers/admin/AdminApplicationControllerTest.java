@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
@@ -147,22 +146,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* applicationStatus= */ Optional.empty(),
             /* selectedApplicationUri= */ Optional.empty());
     assertThat(result.status()).isEqualTo(OK);
-  }
-
-  @Test
-  public void updateStatus_flagDisabled() throws Exception {
-    Program program = ProgramBuilder.newActiveProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
-
-    Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .session(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "false"))
-            .build();
-    Result result = controller.updateStatus(request, program.id, application.id);
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
@@ -494,22 +477,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateNote_flagDisabled() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
-    Application application =
-        Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
-
-    Request request =
-        addCSRFToken(
-                Helpers.fakeRequest()
-                    .session(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "false"))
-            .build();
-    Result result = controller.updateNote(request, program.id, application.id);
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
   public void updateNote_programNotFound() {
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
@@ -635,8 +602,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         profileUtilsNoOpTester,
         instanceOf(MessagesApi.class),
         instanceOf(DateConverter.class),
-        Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
-        instanceOf(FeatureFlags.class));
+        Providers.of(LocalDateTime.now(ZoneId.systemDefault())));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard

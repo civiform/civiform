@@ -14,7 +14,6 @@ import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
-import featureflags.FeatureFlags;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -79,7 +78,6 @@ public final class AdminApplicationController extends CiviFormController {
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
-  private final FeatureFlags featureFlags;
 
   @Inject
   public AdminApplicationController(
@@ -95,8 +93,7 @@ public final class AdminApplicationController extends CiviFormController {
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       DateConverter dateConverter,
-      @Now Provider<LocalDateTime> nowProvider,
-      FeatureFlags featureFlags) {
+      @Now Provider<LocalDateTime> nowProvider) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationListView = checkNotNull(applicationListView);
@@ -110,7 +107,6 @@ public final class AdminApplicationController extends CiviFormController {
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
-    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -345,9 +341,6 @@ public final class AdminApplicationController extends CiviFormController {
   public Result updateStatus(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException, StatusEmailNotFoundException, StatusNotFoundException,
           AccountHasNoEmailException {
-    if (!featureFlags.isStatusTrackingEnabled(request)) {
-      return notFound("status tracking is not enabled");
-    }
     ProgramDefinition program = programService.getProgramDefinition(programId);
     String programName = program.adminName();
 
@@ -426,9 +419,6 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateNote(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    if (!featureFlags.isStatusTrackingEnabled(request)) {
-      return notFound("status tracking is not enabled");
-    }
     ProgramDefinition program = programService.getProgramDefinition(programId);
     String programName = program.adminName();
 

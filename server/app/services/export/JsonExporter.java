@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
-import featureflags.FeatureFlags;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -37,18 +36,15 @@ public final class JsonExporter {
 
   private final ApplicantService applicantService;
   private final ProgramService programService;
-  private final FeatureFlags featureFlags;
   private final DateConverter dateConverter;
 
   @Inject
   JsonExporter(
       ApplicantService applicantService,
       ProgramService programService,
-      FeatureFlags featureFlags,
       DateConverter dateConverter) {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
-    this.featureFlags = checkNotNull(featureFlags);
     this.dateConverter = dateConverter;
   }
 
@@ -110,14 +106,12 @@ public final class JsonExporter {
                     submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
             () -> jsonApplication.putNull(submitTimePath));
 
-    if (featureFlags.isStatusTrackingEnabled()) {
-      Path statusPath = Path.create("status");
-      application
-          .getLatestStatus()
-          .ifPresentOrElse(
-              status -> jsonApplication.putString(statusPath, status),
-              () -> jsonApplication.putNull(statusPath));
-    }
+    Path statusPath = Path.create("status");
+    application
+        .getLatestStatus()
+        .ifPresentOrElse(
+            status -> jsonApplication.putString(statusPath, status),
+            () -> jsonApplication.putNull(statusPath));
 
     for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {
       // Answers to enumerator questions should not be included because the path is incompatible
