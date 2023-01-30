@@ -286,7 +286,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
     programData.with(title, description);
-    // Add external link if it is set.
+    // Add external link if it is set else info link.
     if (!program.externalLink().isEmpty()) {
       ATag externalLink =
           new LinkElement()
@@ -301,7 +301,6 @@ public final class ProgramIndexView extends BaseHtmlView {
 
       programData.with(div(externalLink));
     } else {
-      // Add info link.
       String infoUrl =
           controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
               .url();
