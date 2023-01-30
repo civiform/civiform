@@ -354,7 +354,7 @@ export class AdminPrograms {
   private async waitForQuestionBankAnimationToFinish() {
     // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
     // https://tailwindcss.com/docs/transition-property
-    await this.page.waitForTimeout(1000)
+    await this.page.waitForTimeout(250)
   }
 
   async openQuestionBank() {
