@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +58,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   public Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES;
   public Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS;
   public Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_PATHS;
+  public EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -73,22 +73,15 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         configuration.hasPath("esri_external_call_tries")
             ? configuration.getInt("esri_external_call_tries")
             : 3;
+    this.esriServiceAreaValidationConfig = new EsriServiceAreaValidationConfig(configuration);
     this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS =
-        configuration.hasPath("esri_address_service_area_validation_labels")
-            ? Optional.of(configuration.getList("esri_address_service_area_validation_labels"))
-            : Optional.empty();
+        this.esriServiceAreaValidationConfig.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS;
     this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES =
-        configuration.hasPath("esri_address_service_area_validation_values")
-            ? Optional.of(configuration.getList("esri_address_service_area_validation_values"))
-            : Optional.empty();
+        this.esriServiceAreaValidationConfig.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES;
     this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS =
-        configuration.hasPath("esri_address_service_area_validation_urls")
-            ? Optional.of(configuration.getList("esri_address_service_area_validation_urls"))
-            : Optional.empty();
+        this.esriServiceAreaValidationConfig.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS;
     this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_PATHS =
-        configuration.hasPath("esri_address_service_area_validation_paths")
-            ? Optional.of(configuration.getList("esri_address_service_area_validation_paths"))
-            : Optional.empty();
+        this.esriServiceAreaValidationConfig.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_PATHS;
   }
 
   /** Retries failed requests up to the provided value */
@@ -289,33 +282,14 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
    */
   public CompletionStage<Optional<Boolean>> isAddressLocationInServiceArea(
       String serviceArea, AddressLocation location) {
-    if (this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES.isEmpty()
-        || this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_PATHS.isEmpty()
-        || this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS.isEmpty()) {
+    if (!this.esriServiceAreaValidationConfig.hasAllElements()) {
       return CompletableFuture.completedFuture(Optional.empty());
     }
 
-    List<String> serviceAreas =
-        this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES.get().stream()
-            .map(configValue -> (String) configValue.unwrapped())
-            .collect(Collectors.toList());
-    int validationIndex = serviceAreas.indexOf(serviceArea);
+    EsriServiceAreaValidationOption serviceAreaOption =
+        this.esriServiceAreaValidationConfig.getOptionByServiceArea(serviceArea).get();
 
-    String validationPath =
-        this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_PATHS
-            .get()
-            .get(validationIndex)
-            .unwrapped()
-            .toString();
-
-    String validationUrl =
-        this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS
-            .get()
-            .get(validationIndex)
-            .unwrapped()
-            .toString();
-
-    return fetchServiceAreaFeatures(location, validationUrl)
+    return fetchServiceAreaFeatures(location, serviceAreaOption.getUrl())
         .thenApply(
             (maybeJson) -> {
               if (maybeJson.isEmpty()) {
@@ -324,7 +298,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
 
               JsonNode json = maybeJson.get();
               ReadContext ctx = JsonPath.parse(json.toString());
-              List<String> features = ctx.read(validationPath);
+              List<String> features = ctx.read(serviceAreaOption.getPath());
               Optional<String> feature =
                   features.stream().filter(val -> serviceArea.equals(val)).findFirst();
               return Optional.of(feature.isPresent());
