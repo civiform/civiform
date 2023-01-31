@@ -194,8 +194,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           roApplicantProgramService,
                           applicantName,
                           messagesApi.preferred(request),
-                          applicantId,
-                          programId));
+                          applicantId));
                 }
                 throw new RuntimeException(cause);
               }

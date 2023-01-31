@@ -409,8 +409,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       roApplicantProgramService,
                       applicantName,
                       messagesApi.preferred(request),
-                      applicantId,
-                      programId)));
+                      applicantId)));
     }
 
     Optional<String> nextBlockIdMaybe =

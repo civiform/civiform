@@ -35,9 +35,9 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Optional<String> applicantName,
       Messages messages,
-      long applicantId,
-      long programId) {
+      long applicantId) {
     // TODO(#3744): Translate these strings.
+    long programId = roApplicantProgramService.getProgramId();
     ATag infoLink =
         new LinkElement()
             .setStyles("mb-4", "underline")
