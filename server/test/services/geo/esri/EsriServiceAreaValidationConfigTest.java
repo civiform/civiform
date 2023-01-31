@@ -2,7 +2,7 @@ package services.geo.esri;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Optional;
@@ -26,41 +26,32 @@ public class EsriServiceAreaValidationConfigTest {
   }
 
   @Test
-  public void getLabels() {
-    Optional<ImmutableList<String>> maybeLabels = esriServiceAreaValidationConfig.getLabels();
-    assertEquals(true, maybeLabels.isPresent());
-    assertEquals("Seattle", maybeLabels.get().get(0));
+  public void getImmutableMap() {
+    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> maybeMap =
+        esriServiceAreaValidationConfig.getImmutableMap();
+    assertEquals(true, maybeMap.isPresent());
+    EsriServiceAreaValidationOption option = maybeMap.get().get("Seattle");
+    assertEquals("Seattle", option.getLabel());
+    assertEquals("Seattle", option.getId());
+    assertEquals("/query", option.getUrl());
+    assertEquals("CITYNAME", option.getAttribute());
   }
 
   @Test
-  public void getValues() {
-    Optional<ImmutableList<String>> maybeValues = esriServiceAreaValidationConfig.getValues();
-    assertEquals(true, maybeValues.isPresent());
-    assertEquals("Seattle", maybeValues.get().get(0));
-  }
-
-  @Test
-  public void getUrls() {
-    Optional<ImmutableList<String>> maybeUrls = esriServiceAreaValidationConfig.getUrls();
-    assertEquals(true, maybeUrls.isPresent());
-    assertEquals("/query", maybeUrls.get().get(0));
-  }
-
-  @Test
-  public void getPaths() {
-    Optional<ImmutableList<String>> maybePaths = esriServiceAreaValidationConfig.getPaths();
-    assertEquals(true, maybePaths.isPresent());
-    assertEquals("features[*].attributes.CITYNAME", maybePaths.get().get(0));
-  }
-
-  @Test
-  public void getOptionByServiceArea() {
+  public void getOptionByServiceAreaId() {
     Optional<EsriServiceAreaValidationOption> serviceAreaOption =
-        esriServiceAreaValidationConfig.getOptionByServiceArea("Seattle");
+        esriServiceAreaValidationConfig.getOptionByServiceAreaId("Seattle");
     assertEquals(true, serviceAreaOption.isPresent());
     assertEquals("Seattle", serviceAreaOption.get().getLabel());
-    assertEquals("Seattle", serviceAreaOption.get().getValue());
+    assertEquals("Seattle", serviceAreaOption.get().getId());
     assertEquals("/query", serviceAreaOption.get().getUrl());
-    assertEquals("features[*].attributes.CITYNAME", serviceAreaOption.get().getPath());
+    assertEquals("CITYNAME", serviceAreaOption.get().getAttribute());
+  }
+
+  @Test
+  public void getOptionByServiceAreaIdDoesNotExist() {
+    Optional<EsriServiceAreaValidationOption> serviceAreaOption =
+        esriServiceAreaValidationConfig.getOptionByServiceAreaId("Mars");
+    assertEquals(true, serviceAreaOption.isEmpty());
   }
 }

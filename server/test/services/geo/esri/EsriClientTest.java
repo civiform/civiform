@@ -31,6 +31,8 @@ import services.geo.AddressSuggestionGroup;
 
 public class EsriClientTest {
   private Config config;
+  private EsriServiceAreaValidationOption esriServiceAreaValidationOption;
+  private AddressLocation location;
   private Server server;
   private WSClient ws;
   private EsriClient client;
@@ -69,6 +71,20 @@ public class EsriClientTest {
   // setup Servers to return mock data from JSON files
   public void setup() {
     config = ConfigFactory.load();
+    esriServiceAreaValidationOption =
+        EsriServiceAreaValidationOption.builder()
+            .setLabel("Seattle")
+            .setId("Seattle")
+            .setUrl("/query")
+            .setAttribute("CITYNAME")
+            .build();
+
+    location =
+        AddressLocation.builder()
+            .setLongitude(-122.3360380354971)
+            .setLatitude(47.578374020558954)
+            .setWellKnownId(4326)
+            .build();
     server =
         Server.forRouter(
             (components) ->
@@ -265,13 +281,6 @@ public class EsriClientTest {
 
   @Test
   public void fetchServiceAreaFeatures() {
-    AddressLocation location =
-        AddressLocation.builder()
-            .setLongitude(-122.3360380354971)
-            .setLatitude(47.578374020558954)
-            .setWellKnownId(4326)
-            .build();
-
     Optional<JsonNode> maybeResp =
         clientValidation.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
     JsonNode resp = maybeResp.get();
@@ -284,13 +293,6 @@ public class EsriClientTest {
 
   @Test
   public void fetchServiceAreaFeaturesWithError() {
-    AddressLocation location =
-        AddressLocation.builder()
-            .setLongitude(-122.3360380354971)
-            .setLatitude(47.578374020558954)
-            .setWellKnownId(4326)
-            .build();
-
     Optional<JsonNode> maybeResp =
         clientValidationError
             .fetchServiceAreaFeatures(location, "/query")
@@ -301,16 +303,9 @@ public class EsriClientTest {
 
   @Test
   public void isAddressLocationInServiceAreaShouldBeTrue() {
-    AddressLocation location =
-        AddressLocation.builder()
-            .setLongitude(-122.3360380354971)
-            .setLatitude(47.578374020558954)
-            .setWellKnownId(4326)
-            .build();
-
     Optional<Boolean> isInServiceArea =
         clientValidation
-            .isAddressLocationInServiceArea("Seattle", location)
+            .isAddressLocationInServiceArea(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
     assertEquals(true, isInServiceArea.get());
@@ -318,16 +313,9 @@ public class EsriClientTest {
 
   @Test
   public void isAddressLocationInServiceAreaNotIncluded() {
-    AddressLocation location =
-        AddressLocation.builder()
-            .setLongitude(-122.3360380354971)
-            .setLatitude(47.578374020558954)
-            .setWellKnownId(4326)
-            .build();
-
     Optional<Boolean> isInServiceArea =
         clientValidationNotIncluded
-            .isAddressLocationInServiceArea("Seattle", location)
+            .isAddressLocationInServiceArea(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
     assertEquals(false, isInServiceArea.get());
@@ -335,16 +323,9 @@ public class EsriClientTest {
 
   @Test
   public void isAddressLocationInServiceAreaNoFeatures() {
-    AddressLocation location =
-        AddressLocation.builder()
-            .setLongitude(-122.3360380354971)
-            .setLatitude(47.578374020558954)
-            .setWellKnownId(4326)
-            .build();
-
     Optional<Boolean> isInServiceArea =
         clientValidationNoFeatures
-            .isAddressLocationInServiceArea("Seattle", location)
+            .isAddressLocationInServiceArea(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
     assertEquals(false, isInServiceArea.get());

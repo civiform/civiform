@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -45,20 +44,15 @@ import services.geo.AddressSuggestionGroup;
 public class EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
 
-  public static final String ESRI_CONTENT_TYPE = "application/json";
+  private static final String ESRI_CONTENT_TYPE = "application/json";
   // Specify output fields to return in the geocoding response with the outFields parameter
-  public static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
+  private static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
       "Address, SubAddr, City, Region, Postal";
   // The service supports responses in JSON or PJSON format. You can specify the response format
   // using the f parameter. This is a required parameter
-  public static final String ESRI_RESPONSE_FORMAT = "json";
-  public Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
-  public int ESRI_EXTERNAL_CALL_TRIES;
-  public Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS;
-  public Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES;
-  public Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS;
-  public Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_PATHS;
-  public EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
+  private static final String ESRI_RESPONSE_FORMAT = "json";
+  @VisibleForTesting Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
+  private int ESRI_EXTERNAL_CALL_TRIES;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -73,15 +67,6 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         configuration.hasPath("esri_external_call_tries")
             ? configuration.getInt("esri_external_call_tries")
             : 3;
-    this.esriServiceAreaValidationConfig = new EsriServiceAreaValidationConfig(configuration);
-    this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS =
-        this.esriServiceAreaValidationConfig.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS;
-    this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES =
-        this.esriServiceAreaValidationConfig.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES;
-    this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS =
-        this.esriServiceAreaValidationConfig.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS;
-    this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_PATHS =
-        this.esriServiceAreaValidationConfig.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_PATHS;
   }
 
   /** Retries failed requests up to the provided value */
@@ -118,7 +103,6 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
    *
    * <ul>
    *   <li>ESRI_FIND_ADDRESS_CANDIDATES_URL is not configured.
-   *   <li>The external ESRI service returns an error.
    *   <li>The external ESRI services returns a non 200 status.
    * </ul>
    *
@@ -182,6 +166,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         .thenApply(
             (maybeJson) -> {
               if (maybeJson.isEmpty()) {
+                logger.error("fetchAddressSuggestions JSON response is empty");
                 return Optional.empty();
               }
               JsonNode json = maybeJson.get();
@@ -225,7 +210,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
 
   /**
    * Calls the external Esri query feature service layer to retrieve features of given address
-   * coordinates
+   * coordinates.
    *
    * <p>@see <a
    * href="https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm">Query
@@ -234,9 +219,8 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
    * <p>Returns an empty optional under the following conditions:
    *
    * <ul>
-   *   <li>ESRI_ADDRESS_SERVICE_AREA_VALIDATION_VALUES or ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS
-   *       is not configured.
-   *   <li>The external ESRI service returns an error.
+   *   <li>ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS or ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS is
+   *       not configured.
    *   <li>The external ESRI services returns a non 200 status.
    * </ul>
    *
@@ -281,26 +265,24 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
    * @return an optional boolean if successful, or an empty optional if the request fails.
    */
   public CompletionStage<Optional<Boolean>> isAddressLocationInServiceArea(
-      String serviceArea, AddressLocation location) {
-    if (!this.esriServiceAreaValidationConfig.hasAllElements()) {
-      return CompletableFuture.completedFuture(Optional.empty());
-    }
-
-    EsriServiceAreaValidationOption serviceAreaOption =
-        this.esriServiceAreaValidationConfig.getOptionByServiceArea(serviceArea).get();
-
-    return fetchServiceAreaFeatures(location, serviceAreaOption.getUrl())
+      EsriServiceAreaValidationOption esriServiceAreaValidationOption, AddressLocation location) {
+    return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
         .thenApply(
             (maybeJson) -> {
               if (maybeJson.isEmpty()) {
+                logger.error("fetchServiceAreaFeatures JSON response is empty");
                 return Optional.empty();
               }
 
               JsonNode json = maybeJson.get();
               ReadContext ctx = JsonPath.parse(json.toString());
-              List<String> features = ctx.read(serviceAreaOption.getPath());
+              List<String> features =
+                  ctx.read(
+                      "features[*].attributes." + esriServiceAreaValidationOption.getAttribute());
               Optional<String> feature =
-                  features.stream().filter(val -> serviceArea.equals(val)).findFirst();
+                  features.stream()
+                      .filter(val -> esriServiceAreaValidationOption.getId().equals(val))
+                      .findFirst();
               return Optional.of(feature.isPresent());
             });
   }
