@@ -183,7 +183,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                         .setStreet(attributes.get("Address").toString())
                         .setLine2(attributes.get("SubAddr").toString())
                         .setCity(attributes.get("City").toString())
-                        .setState(attributes.get("Region").toString())
+                        .setState(attributes.get("RegionAbbr").toString())
                         .setZip(attributes.get("Postal").toString())
                         .build();
                 AddressSuggestion addressCandidate =
