@@ -342,7 +342,7 @@ content.suggestedAddresses=Suggested addresses:
 button.editAddress=Edit address
 
 # Button for applicant to save and confirm the address suggested in the dialog.
-button.saveAndConfirm
+button.saveAndConfirm=Save and confirm
 
 # Title on address correction dialog when no address is found.
 title.noValidAddress=No valid address found
