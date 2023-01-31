@@ -8,10 +8,10 @@ IMAGE="oidc-provider"
 LOCATION="test-support/"
 DOCKERFILE="test-support/oidc.Dockerfile"
 
-BUILD_ARGS=(-f "${DOCKERFILE}"
-  -t "civiform/${IMAGE}:latest"
-  --cache-from "civiform/${IMAGE}"
-  --build-arg BUILDKIT_INLINE_CACHE=1
+BUILD_ARGS=(-f "${DOCKERFILE}" \
+  -t "civiform/${IMAGE}:latest" \
+  --cache-from "civiform/${IMAGE}" \
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
   "${LOCATION}")
 
 PLATFORM_ARG=()
