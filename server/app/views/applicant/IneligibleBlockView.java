@@ -64,8 +64,9 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .withClasses("mb-4"))
             .with(div().with(listTag).withClasses("mb-4"))
             .with(
-                div(messages.at(MessageKey.CONTENT_ELIGIBILITY_CRITERIA.getKeyName(), ""))
-                    .with(infoLink)
+                div(rawHtml(
+                        messages.at(
+                            MessageKey.CONTENT_ELIGIBILITY_CRITERIA.getKeyName(), infoLink)))
                     .withClasses("mb-4"))
             .with(
                 div(messages.at(MessageKey.CONTENT_CHANGE_ELIGIBILITY_ANSWERS.getKeyName()))
