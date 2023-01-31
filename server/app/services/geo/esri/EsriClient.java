@@ -44,7 +44,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   public static final String ESRI_CONTENT_TYPE = "application/json";
   // Specify output fields to return in the geocoding response with the outFields parameter
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
-      "Address, SubAddr, City, Region, Postal";
+      "Address, SubAddr, City, RegionAbbr, Postal";
   // The service supports responses in JSON or PJSON format. You can specify the response format
   // using the f parameter. This is a required parameter
   public static final String ESRI_FIND_ADDRESS_CANDIDATES_FORMAT = "json";
