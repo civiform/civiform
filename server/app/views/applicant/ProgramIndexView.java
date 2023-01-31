@@ -286,38 +286,28 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
     programData.with(title, description);
-    // Add external link if it is set else info link.
-    if (!program.externalLink().isEmpty()) {
-      ATag externalLink =
-          new LinkElement()
-              .setId(baseId + "-external-link")
-              .setStyles("mb-2", "text-sm", "underline")
-              .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-              .setHref(program.externalLink())
-              .opensInNewTab()
-              .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
-              .asAnchorText()
-              .attr("aria-label", messages.at(MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName()));
-
-      programData.with(div(externalLink));
-    } else {
-      String infoUrl =
-          controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
-              .url();
-      ATag infoLink =
-          new LinkElement()
-              .setId(baseId + "-info-link")
-              .setStyles("mb-2", "text-sm", "underline")
-              .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-              .setHref(infoUrl)
-              .asAnchorText()
-              .attr(
-                  "aria-label",
-                  messages.at(
-                      MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
-                      program.localizedName().getOrDefault(preferredLocale)));
-      programData.with(div(infoLink));
-    }
+    // Add external link if it is present else use the default Program details page
+    String programDetailsLink =
+        program.externalLink().isEmpty()
+            ? controllers.applicant.routes.ApplicantProgramsController.view(
+                    applicantId, program.id())
+                .url()
+            : program.externalLink();
+    ATag infoLink =
+        new LinkElement()
+            .setId(baseId + "-info-link")
+            .setStyles("mb-2", "text-sm", "underline")
+            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
+            .setHref(programDetailsLink)
+            .opensInNewTab()
+            .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
+            .asAnchorText()
+            .attr(
+                "aria-label",
+                messages.at(
+                    MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
+                    program.localizedName().getOrDefault(preferredLocale)));
+    programData.with(div(infoLink));
 
     if (cardData.latestSubmittedApplicationTime().isPresent()) {
       programData.with(
