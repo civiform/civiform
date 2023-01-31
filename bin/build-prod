@@ -15,22 +15,23 @@ readonly DOCKERFILE="prod.Dockerfile"
 
 echo "Building ${SNAPSHOT_TAG}..."
 
-BUILD_ARGS=(-f "${DOCKERFILE}"
-  -t "civiform/${IMAGE}" \
-  -t "civiform/${IMAGE}:latest" \
-  -t "civiform/${IMAGE}:${SNAPSHOT_TAG}" \
-  --cache-from "civiform/${IMAGE}" \
-  --build-arg BUILDKIT_INLINE_CACHE=1 \
-  --build-arg "git_commit_sha=${GIT_SHA}" \
-  --build-arg "image_tag=${SNAPSHOT_TAG}" \
-  "${LOCATION}")
+BUILD_ARGS="-f ${DOCKERFILE}
+  -t civiform/${IMAGE}
+  -t civiform/${IMAGE}:latest
+  -t civiform/${IMAGE}:${SNAPSHOT_TAG}
+  --cache-from civiform/${IMAGE}
+  --build-arg BUILDKIT_INLINE_CACHE=1
+  --build-arg git_commit_sha=${GIT_SHA}
+  --build-arg image_tag=${SNAPSHOT_TAG}
+  ${LOCATION}"
 
 readonly PLATFORM="${PLATFORM:-"linux/amd64"}" # default to x86-64 when platform not specified
 readonly PLATFORM_ARG=(--platform "${PLATFORM}")
 
 # Build the multi-platform image
 echo "start ${IMAGE} build"
-docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+cmd="docker buildx build ${PLATFORM_ARG[@]} ${BUILD_ARGS[@]}"
+$cmd
 
 # Load the image from the cache
 echo "load ${IMAGE} build"
