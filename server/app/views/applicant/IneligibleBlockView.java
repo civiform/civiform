@@ -1,19 +1,24 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.h1;
-import static j2html.TagCreator.p;
+import static j2html.TagCreator.*;
 
+import controllers.applicant.routes;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.UlTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.MessageKey;
+import services.applicant.ReadOnlyApplicantProgramService;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
+import views.components.LinkElement;
 import views.style.ApplicantStyles;
+import views.style.StyleUtils;
 
 /** Renders a page indicating the applicant is not eligible for a program. */
 public final class IneligibleBlockView extends ApplicationBaseView {
@@ -26,19 +31,66 @@ public final class IneligibleBlockView extends ApplicationBaseView {
   }
 
   public Content render(
-      Request request, String programTitle, Optional<String> applicantName, Messages messages) {
+      Request request,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Optional<String> applicantName,
+      Messages messages,
+      long applicantId) {
     // TODO(#3744): Translate these strings.
+    long programId = roApplicantProgramService.getProgramId();
+    ATag infoLink =
+        new LinkElement()
+            .setStyles("mb-4", "underline")
+            .setText(messages.at("program details"))
+            .setHref(routes.ApplicantProgramsController.view(applicantId, programId).url())
+            .asAnchorText()
+            .attr("aria-label", "program details");
+    UlTag listTag = ul().withClasses("list-disc", "mx-8");
+    roApplicantProgramService
+        .getActiveEligibilityQuestions()
+        .forEach(question -> listTag.with(li().withText(question.getQuestionText())));
+
     DivTag content =
         div()
+            .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(
-                h1(
-                    String.format(
-                        "Based on your responses, you are not eligible for the %s", programTitle)))
-            .with(p("You are not eligible for this program."))
+                h2(String.format(
+                        "Based on your responses, you may not qualify for the %s",
+                        roApplicantProgramService.getProgramTitle()))
+                    .withClasses("mb-4"))
+            .with(div(messages.at("You must meet these program requirements:")).withClasses("mb-4"))
+            .with(div().with(listTag).withClasses("mb-4"))
             .with(
-                p(
-                    "You can return to the previous page to edit your answers, or apply to another"
-                        + " program."));
+                div(messages.at("For eligibility criteria please refer to "))
+                    .with(infoLink)
+                    .withClasses("mb-4"))
+            .with(
+                div(messages.at(
+                        "You can return to the previous page to edit your answers. Or apply to"
+                            + " another program."))
+                    .withClasses("mb-4"))
+            .with(
+                div()
+                    .withClasses(
+                        "flex", "flex-col", "gap-4", StyleUtils.responsiveSmall("flex-row"))
+                    // Empty div to push buttons to the right on desktop.
+                    .with(div().withClasses("flex-grow"))
+                    .with(
+                        new LinkElement()
+                            .setHref(routes.ApplicantProgramsController.index(applicantId).url())
+                            .setText(
+                                messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
+                            .asButton()
+                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
+                    .with(
+                        new LinkElement()
+                            .setHref(
+                                routes.ApplicantProgramReviewController.review(
+                                        applicantId, programId)
+                                    .url())
+                            .setText(messages.at("Go back and edit"))
+                            .asButton()
+                            .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
     String title = "Ineligible for program";
     HtmlBundle bundle =
         layout

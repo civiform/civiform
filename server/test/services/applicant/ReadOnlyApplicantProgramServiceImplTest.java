@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -638,6 +639,41 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramServiceImpl service =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
     assertThat(service.getInProgressBlocks()).hasSize(3);
+  }
+
+  @Test
+  public void getEligibilityQuestionsForProgram_returnsQuestionWithEligibilityPredicate() {
+    // Create an eligibility condition with number question == 5.
+    QuestionDefinition numberQuestionDefinition =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition numberPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.SHOW_BLOCK);
+
+    EligibilityDefinition eligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(numberPredicate).build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(eligibilityDefinition)
+            .buildDefinition();
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+
+    ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getActiveEligibilityQuestions();
+
+    // The number question should be in the list of eligibility questions.
+    assertThat(eligibilityQuestions).hasSize(1);
+    assertThat(eligibilityQuestions.stream().findFirst().get().getQuestionDefinition())
+        .isEqualTo(testQuestionBank.applicantJugglingNumber().getQuestionDefinition());
   }
 
   @Test

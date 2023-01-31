@@ -179,18 +179,22 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
-
-                  String programTitle =
+                  // TODO(#3744) Make asynchronous.
+                  ReadOnlyApplicantProgramService roApplicantProgramService =
                       applicantService
                           .getReadOnlyApplicantProgramService(applicantId, programId)
                           .toCompletableFuture()
-                          .join()
-                          .getProgramTitle();
+                          .join();
+
                   Optional<String> applicantName =
                       applicantService.getName(applicantId).toCompletableFuture().join();
                   return ok(
                       ineligibleBlockView.render(
-                          request, programTitle, applicantName, messagesApi.preferred(request)));
+                          request,
+                          roApplicantProgramService,
+                          applicantName,
+                          messagesApi.preferred(request),
+                          applicantId));
                 }
                 throw new RuntimeException(cause);
               }
