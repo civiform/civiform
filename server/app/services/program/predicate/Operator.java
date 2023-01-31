@@ -83,7 +83,12 @@ public enum Operator {
       "subsetof",
       "is a subset of",
       ImmutableSet.of(ScalarType.LIST_OF_STRINGS),
-      ImmutableSet.of(OperatorRightHandType.LIST_OF_LONGS, OperatorRightHandType.LIST_OF_STRINGS));
+      ImmutableSet.of(OperatorRightHandType.LIST_OF_LONGS, OperatorRightHandType.LIST_OF_STRINGS)),
+  IN_SERVICE_AREA(
+      "n/a",
+      "in service area",
+      ImmutableSet.of(ScalarType.SERVICE_AREA),
+      ImmutableSet.of(OperatorRightHandType.SERVICE_AREA));
 
   private final String jsonPathOperator;
   private final String displayString;

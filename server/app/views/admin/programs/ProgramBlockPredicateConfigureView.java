@@ -54,6 +54,7 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import views.HtmlBundle;
 import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
@@ -89,10 +90,31 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
   }
 
   private final AdminLayout layout;
+  private final ImmutableList<FakeServiceAreaOption> serviceAreaOptions;
+
+  private static final class FakeServiceAreaOption {
+
+    private final String label;
+    private final String id;
+
+    FakeServiceAreaOption(String label, String id) {
+      this.label = label;
+      this.id = id;
+    }
+
+    String id() {
+      return this.id;
+    }
+
+    String label() {
+      return this.label;
+    }
+  }
 
   @Inject
   public ProgramBlockPredicateConfigureView(AdminLayoutFactory layoutFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
+    this.serviceAreaOptions = ImmutableList.of(new FakeServiceAreaOption("Seattle", "seattle"));
   }
 
   public Content renderNewVisibility(
@@ -494,12 +516,17 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
   private DivTag createScalarDropdown(
       QuestionDefinition questionDefinition, Optional<Scalar> maybeScalar) {
     ImmutableSet<Scalar> scalars;
-    try {
-      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
-    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-      // This should never happen since we filter out Enumerator questions before this point.
-      return div()
-          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
+
+    if (questionDefinition.isAddress()) {
+      scalars = ImmutableSet.of(Scalar.SERVICE_AREA);
+    } else {
+      try {
+        scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+      } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+        // This should never happen since we filter out Enumerator questions before this point.
+        return div()
+            .withText("Sorry, you cannot create a show/hide predicate with this question type.");
+      }
     }
 
     ImmutableList<OptionTag> options =
@@ -540,14 +567,18 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
       QuestionDefinition questionDefinition,
       Optional<Scalar> maybeSelectedScalar,
       Optional<Operator> maybeOperator) {
-    try {
-      ImmutableSet<Scalar> scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+    if (questionDefinition.isAddress()) {
+      maybeSelectedScalar = Optional.of(Scalar.SERVICE_AREA);
+    } else {
+      try {
+        ImmutableSet<Scalar> scalars = Scalar.getScalars(questionDefinition.getQuestionType());
 
-      if (scalars.size() == 1) {
-        maybeSelectedScalar = scalars.stream().findFirst();
+        if (scalars.size() == 1) {
+          maybeSelectedScalar = scalars.stream().findFirst();
+        }
+      } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+        throw new RuntimeException(e);
       }
-    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-      throw new RuntimeException(e);
     }
 
     // Copying to a final variable because variables referenced within
@@ -598,7 +629,34 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
       Optional<PredicateValue> maybePredicateValue) {
     DivTag valueField = div().withClasses(COLUMN_WIDTH);
 
-    if (questionDefinition.getQuestionType().isMultiOptionType()) {
+    if (questionDefinition.getQuestionType().equals(QuestionType.ADDRESS)) {
+      // Address questions only support service area predicates.
+
+      SelectWithLabel select =
+          new SelectWithLabel()
+              .setFieldName(
+                  String.format(
+                      "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
+              .setOptions(
+                  this.serviceAreaOptions.stream()
+                      .map(
+                          option ->
+                              SelectWithLabel.OptionValue.builder()
+                                  .setLabel(option.label())
+                                  .setValue(option.id())
+                                  .build())
+                      .collect(ImmutableList.toImmutableList()));
+
+      if (maybePredicateValue.isPresent()) {
+        select.setValue(maybePredicateValue.get().value());
+      } else if (this.serviceAreaOptions.size() == 1) {
+        select.setValue(this.serviceAreaOptions.get(0).id());
+      }
+
+      return valueField
+          .with(select.getSelectTag())
+          .withData("question-id", String.valueOf(questionDefinition.getId()));
+    } else if (questionDefinition.getQuestionType().isMultiOptionType()) {
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
       // ID of the options rather than the display strings since the option display strings are
