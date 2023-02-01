@@ -149,7 +149,7 @@ public class EsriClientTest {
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
-    assertEquals("\"380 New York St\"", street);
+    assertEquals("380 New York St", street);
   }
 
   @Test
