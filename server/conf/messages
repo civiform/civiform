@@ -277,6 +277,9 @@ toast.mayNotQualify=Based on your responses, you may not qualify for the {0}. If
 # Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client's behalf.
 toast.mayNotQualifyTi=Based on your responses, your client may not qualify for the {0}. If your client's information has changed you can edit your answers and then proceed with the application.
 
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=Error saving application
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
