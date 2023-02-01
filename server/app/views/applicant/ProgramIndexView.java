@@ -286,7 +286,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
     programData.with(title, description);
-    // Add external link if it is present else use the default Program details page
+    // Use external link if it is present else use the default Program details page
     String programDetailsLink =
         program.externalLink().isEmpty()
             ? controllers.applicant.routes.ApplicantProgramsController.view(

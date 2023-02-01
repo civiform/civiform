@@ -154,18 +154,23 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program list page.
       expect(await page.innerText('h1')).toContain('Get benefits')
-
-      const cardHtml = await page.innerHTML(
-        '.cf-application-card:has-text("' + programWithExternalLink + '")',
-      )
-      expect(cardHtml).toContain('https://external.com')
-      // there shouldn't be any external Links
-      const cardText = await page.innerText(
-        '.cf-application-card:has-text("' + programWithExternalLink + '")',
-      )
-      expect(cardText).not.toContain('External site')
+      expect(
+        await page.locator('a:has-text("External site")').getAttribute('href'),
+      ).toEqual('https://external.com')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-list-page')
+    })
+
+    it('verify program details page', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.clickProgramDetails(programName)
+
+      // Verify we are on program details page. Url should end in "/programs/{program ID}"
+      expect(page.url()).toMatch(/\/programs\/[0-9]+$/)
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'program-details-page')
     })
 
     it('verify program preview page', async () => {
@@ -338,6 +343,18 @@ describe('Applicant navigation flow', () => {
 
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(fullProgramName)
+    })
+
+    it('does not show Not Eligible when there is no answer', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+
+      await applicantQuestions.expectQuestionHasNoEligibilityIndicator(
+        AdminQuestions.NUMBER_QUESTION_TEXT,
+      )
     })
 
     it('shows not eligible with ineligible answer', async () => {
