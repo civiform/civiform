@@ -166,7 +166,10 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         .thenApply(
             (maybeJson) -> {
               if (maybeJson.isEmpty()) {
-                logger.error("fetchAddressSuggestions JSON response is empty");
+                logger.error(
+                    "EsriClient.fetchAddressSuggestions JSON response is empty. Called by"
+                        + " EsriClient.getAddressSuggestions. Address = {}",
+                    address);
                 return Optional.empty();
               }
               JsonNode json = maybeJson.get();
@@ -270,7 +273,12 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         .thenApply(
             (maybeJson) -> {
               if (maybeJson.isEmpty()) {
-                logger.error("fetchServiceAreaFeatures JSON response is empty");
+                logger.error(
+                    "EsriClient.fetchServiceAreaFeatures JSON response is empty. Called by"
+                        + " EsriClient.isAddressLocationInServiceArea."
+                        + " EsriServiceAreaValidationOption = {}. AddressLocation = {}",
+                    esriServiceAreaValidationOption,
+                    location);
                 return Optional.empty();
               }
 

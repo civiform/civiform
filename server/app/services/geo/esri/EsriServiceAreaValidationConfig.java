@@ -11,9 +11,6 @@ import org.slf4j.LoggerFactory;
 
 /** Provides methods for handling Esri address service area validation config. */
 public final class EsriServiceAreaValidationConfig {
-  private static final String CONFIG_ERROR_STRING =
-      "Esri address service area validation config not added properly.";
-
   private Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS;
   private Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS;
   private Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS;
@@ -51,6 +48,9 @@ public final class EsriServiceAreaValidationConfig {
         || this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS.isEmpty()
         || this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS.isEmpty()
         || this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES.isEmpty()) {
+      logger.error(
+          "EsriServiceAreaValidationConfig Error: Esri Address Service Area Validation is missing"
+              + " settings.");
       return false;
     } else {
       // check for same size
@@ -62,6 +62,9 @@ public final class EsriServiceAreaValidationConfig {
               == this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES.get().size()) {
         return true;
       } else {
+        logger.error(
+            "EsriServiceAreaValidationConfig Error: Esri Address Service Area Validation Config"
+                + " expects settings of the same length.");
         return false;
       }
     }
@@ -69,7 +72,8 @@ public final class EsriServiceAreaValidationConfig {
 
   private Optional<ImmutableList<String>> getConfigListSetting(Optional<ConfigList> setting) {
     if (setting.isEmpty()) {
-      logger.error(CONFIG_ERROR_STRING);
+      logger.error(
+          "Error calling getConfigListSetting. Error: Config setting {}, is empty.", setting);
       return Optional.empty();
     }
 
@@ -90,7 +94,9 @@ public final class EsriServiceAreaValidationConfig {
     }
 
     if (!hasAllElements()) {
-      logger.error(CONFIG_ERROR_STRING);
+      logger.error(
+          "Error calling EsriServiceAreaValidationConfig.getImmutableMap. Error: Esri Address"
+              + " Service Area Config is missing settings.");
       return Optional.empty();
     }
 
@@ -128,7 +134,9 @@ public final class EsriServiceAreaValidationConfig {
     Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> options = getImmutableMap();
 
     if (options.isEmpty()) {
-      logger.error(CONFIG_ERROR_STRING);
+      logger.error(
+          "Error calling EsriServiceAreaValidationConfig.getOptionByServiceAreaId. Error:"
+              + " EsriServiceAreaValidationConfig.getImmutableMap() returned empty.");
       return Optional.empty();
     }
 
@@ -136,7 +144,8 @@ public final class EsriServiceAreaValidationConfig {
 
     if (option == null) {
       logger.error(
-          "Esri Service Area Validation Config Error: No service area specified for {}",
+          "Error calling EsriServiceAreaValidationConfig.getOptionByServiceAreaId. Error: No"
+              + " service area specified for {}",
           serviceAreaId);
       return Optional.empty();
     }
