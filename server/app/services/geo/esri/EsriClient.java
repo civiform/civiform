@@ -180,15 +180,15 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                         .build();
                 Address candidateAddress =
                     Address.builder()
-                        .setStreet(attributes.get("Address").toString())
-                        .setLine2(attributes.get("SubAddr").toString())
-                        .setCity(attributes.get("City").toString())
-                        .setState(attributes.get("RegionAbbr").toString())
-                        .setZip(attributes.get("Postal").toString())
+                        .setStreet(attributes.get("Address").asText())
+                        .setLine2(attributes.get("SubAddr").asText())
+                        .setCity(attributes.get("City").asText())
+                        .setState(attributes.get("RegionAbbr").asText())
+                        .setZip(attributes.get("Postal").asText())
                         .build();
                 AddressSuggestion addressCandidate =
                     AddressSuggestion.builder()
-                        .setSingleLineAddress(candidateJson.get("address").toString())
+                        .setSingleLineAddress(candidateJson.get("address").asText())
                         .setLocation(addressLocation)
                         .setScore(candidateJson.get("score").asInt())
                         .setAddress(candidateAddress)
