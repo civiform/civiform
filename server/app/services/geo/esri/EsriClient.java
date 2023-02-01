@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -41,15 +44,15 @@ import services.geo.AddressSuggestionGroup;
 public class EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
 
-  public static final String ESRI_CONTENT_TYPE = "application/json";
+  private static final String ESRI_CONTENT_TYPE = "application/json";
   // Specify output fields to return in the geocoding response with the outFields parameter
-  public static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
+  private static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
       "Address, SubAddr, City, RegionAbbr, Postal";
   // The service supports responses in JSON or PJSON format. You can specify the response format
   // using the f parameter. This is a required parameter
-  public static final String ESRI_FIND_ADDRESS_CANDIDATES_FORMAT = "json";
-  public Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
-  public int ESRI_FIND_ADDRESS_CANDIDATES_TRIES;
+  private static final String ESRI_RESPONSE_FORMAT = "json";
+  @VisibleForTesting Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
+  private int ESRI_EXTERNAL_CALL_TRIES;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,9 +63,9 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         configuration.hasPath("esri_find_address_candidates_url")
             ? Optional.of(configuration.getString("esri_find_address_candidates_url"))
             : Optional.empty();
-    this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES =
-        configuration.hasPath("esri_find_address_candidates_tries")
-            ? configuration.getInt("esri_find_address_candidates_tries")
+    this.ESRI_EXTERNAL_CALL_TRIES =
+        configuration.hasPath("esri_external_call_tries")
+            ? configuration.getInt("esri_external_call_tries")
             : 3;
   }
 
@@ -93,20 +96,19 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
    * suggestions for the given address.
    *
    * <p>@see <a
-   * href="https://gisdata.seattle.gov/server/sdk/rest/index.html#/Find_Address_Candidates/02ss00000015000000/">Find
+   * href="https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm">Find
    * Address Candidates</a>
    *
    * <p>Returns an empty optional under the following conditions:
    *
    * <ul>
    *   <li>ESRI_FIND_ADDRESS_CANDIDATES_URL is not configured.
-   *   <li>The external ESRI service returns an error.
    *   <li>The external ESRI services returns a non 200 status.
    * </ul>
    *
    * If the external ESRI serice returns an error or non 200 status, then the request is retried up
-   * to the configured ESRI_FIND_ADDRESS_CANDIDATES_TRIES. If ESRI_FIND_ADDRESS_CANDIDATES_TRIES is
-   * not configured, the tries default to 3.
+   * to the configured ESRI_EXTERNAL_CALL_TRIES. If ESRI_EXTERNAL_CALL_TRIES is not configured, the
+   * tries default to 3.
    */
   @VisibleForTesting
   CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson) {
@@ -117,7 +119,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     request.setContentType(ESRI_CONTENT_TYPE);
     request.addQueryParameter("outFields", ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS);
     // "f" stands for "format", options are json and pjson (PrettyJson)
-    request.addQueryParameter("f", ESRI_FIND_ADDRESS_CANDIDATES_FORMAT);
+    request.addQueryParameter("f", ESRI_RESPONSE_FORMAT);
     Optional<String> address =
         Optional.ofNullable(addressJson.findPath(AddressField.STREET.getValue()).textValue());
     Optional<String> address2 =
@@ -134,7 +136,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     region.ifPresent(val -> request.addQueryParameter("region", val));
     postal.ifPresent(val -> request.addQueryParameter("postal", val));
 
-    return tryRequest(request, this.ESRI_FIND_ADDRESS_CANDIDATES_TRIES)
+    return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
         .thenApply(
             res -> {
               // return empty if still failing after retries
@@ -164,6 +166,10 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         .thenApply(
             (maybeJson) -> {
               if (maybeJson.isEmpty()) {
+                logger.error(
+                    "EsriClient.fetchAddressSuggestions JSON response is empty. Called by"
+                        + " EsriClient.getAddressSuggestions. Address = {}",
+                    address);
                 return Optional.empty();
               }
               JsonNode json = maybeJson.get();
@@ -174,8 +180,8 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                 JsonNode attributes = candidateJson.get("attributes");
                 AddressLocation addressLocation =
                     AddressLocation.builder()
-                        .setLongitude(location.get("x").asLong())
-                        .setLatitude(location.get("y").asLong())
+                        .setLongitude(location.get("x").asDouble())
+                        .setLatitude(location.get("y").asDouble())
                         .setWellKnownId(wkid)
                         .build();
                 Address candidateAddress =
@@ -202,6 +208,90 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                       .setAddressSuggestions(suggestionBuilder.build())
                       .build();
               return Optional.of(addressCandidates);
+            });
+  }
+
+  /**
+   * Calls the external Esri query feature service layer to retrieve features of given address
+   * coordinates.
+   *
+   * <p>@see <a
+   * href="https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm">Query
+   * (Feature Service/Layer)</a>
+   *
+   * <p>Returns an empty optional under the following conditions:
+   *
+   * <ul>
+   *   <li>ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS or ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS is
+   *       not configured.
+   *   <li>The external ESRI services returns a non 200 status.
+   * </ul>
+   *
+   * If the external ESRI serice returns an error or non 200 status, then the request is retried up
+   * to the configured ESRI_EXTERNAL_CALL_TRIES. If ESRI_EXTERNAL_CALL_TRIES is not configured, the
+   * tries default to 3.
+   */
+  @VisibleForTesting
+  CompletionStage<Optional<JsonNode>> fetchServiceAreaFeatures(
+      AddressLocation location, String validationUrl) {
+    WSRequest request = ws.url(validationUrl);
+    request.setContentType(ESRI_CONTENT_TYPE);
+    // "f" stands for "format", options are json and pjson (PrettyJson)
+    request.addQueryParameter("f", ESRI_RESPONSE_FORMAT);
+    request.addQueryParameter("geometryType", "esriGeometryPoint");
+    request.addQueryParameter("returnGeometry", "false");
+    request.addQueryParameter("outFields", "*");
+    String geo = "{'x':";
+    geo += location.getLongitude();
+    geo += ",'y':";
+    geo += location.getLatitude();
+    geo += ",'spatialReference':";
+    geo += location.getWellKnownId();
+    request.addQueryParameter("geometry", geo);
+
+    return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
+        .thenApply(
+            res -> {
+              // return empty if still failing after retries
+              if (res.getStatus() != 200) {
+                return Optional.empty();
+              }
+              return Optional.of(res.getBody(json()));
+            });
+  }
+
+  /**
+   * Calls an external Esri service to get the service areas of the provided {@link
+   * AddressLocation}. Takes the returned service areas and returns a boolean specifying if the
+   * service area is included.
+   *
+   * @return an optional boolean if successful, or an empty optional if the request fails.
+   */
+  public CompletionStage<Optional<Boolean>> isAddressLocationInServiceArea(
+      EsriServiceAreaValidationOption esriServiceAreaValidationOption, AddressLocation location) {
+    return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
+        .thenApply(
+            (maybeJson) -> {
+              if (maybeJson.isEmpty()) {
+                logger.error(
+                    "EsriClient.fetchServiceAreaFeatures JSON response is empty. Called by"
+                        + " EsriClient.isAddressLocationInServiceArea."
+                        + " EsriServiceAreaValidationOption = {}. AddressLocation = {}",
+                    esriServiceAreaValidationOption,
+                    location);
+                return Optional.empty();
+              }
+
+              JsonNode json = maybeJson.get();
+              ReadContext ctx = JsonPath.parse(json.toString());
+              List<String> features =
+                  ctx.read(
+                      "features[*].attributes." + esriServiceAreaValidationOption.getAttribute());
+              Optional<String> feature =
+                  features.stream()
+                      .filter(val -> esriServiceAreaValidationOption.getId().equals(val))
+                      .findFirst();
+              return Optional.of(feature.isPresent());
             });
   }
 }
