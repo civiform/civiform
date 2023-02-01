@@ -180,6 +180,12 @@ button.submit=Enviar
 # Continue application button
 button.continue=Continuar
 
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=Se actualizó la aplicación; revisa y responde las preguntas para proceder
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=No apto
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Editar
 link.answer=Responder
@@ -219,6 +225,7 @@ content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardar�
 label.addressLine2=Número de departamento o unidad
 label.city=Ciudad
 label.state=Estado
+label.selectState=Selecciona un estado
 label.street=Línea de dirección 1
 label.zipcode=Código postal
 

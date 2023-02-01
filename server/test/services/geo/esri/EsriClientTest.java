@@ -231,7 +231,7 @@ public class EsriClientTest {
             .setStreet("380 New York St")
             .setLine2("")
             .setCity("Redlands")
-            .setState("California")
+            .setState("CA")
             .setZip("92373")
             .build();
 
@@ -242,7 +242,7 @@ public class EsriClientTest {
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
-    assertEquals("\"380 New York St\"", street);
+    assertEquals("380 New York St", street);
   }
 
   @Test
@@ -252,7 +252,7 @@ public class EsriClientTest {
             .setStreet("380 New York St")
             .setLine2("")
             .setCity("Redlands")
-            .setState("California")
+            .setState("CA")
             .setZip("92373")
             .build();
 
@@ -270,7 +270,7 @@ public class EsriClientTest {
             .setStreet("380 New York St")
             .setLine2("")
             .setCity("Redlands")
-            .setState("California")
+            .setState("CA")
             .setZip("92373")
             .build();
 

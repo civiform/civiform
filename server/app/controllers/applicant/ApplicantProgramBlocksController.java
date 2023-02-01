@@ -406,9 +406,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ok(
                   ineligibleBlockView.render(
                       request,
-                      roApplicantProgramService.getProgramTitle(),
+                      roApplicantProgramService,
                       applicantName,
-                      messagesApi.preferred(request))));
+                      messagesApi.preferred(request),
+                      applicantId)));
     }
 
     Optional<String> nextBlockIdMaybe =

@@ -2,7 +2,6 @@ import {
   AdminPrograms,
   createTestContext,
   dismissModal,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
@@ -75,7 +74,6 @@ describe('view program statuses', () => {
       const {page, adminPrograms, applicantQuestions, adminProgramStatuses} =
         ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithStatusesName)
@@ -108,7 +106,6 @@ describe('view program statuses', () => {
     beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsProgramAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant('Guest')
     })
@@ -366,7 +363,6 @@ describe('view program statuses', () => {
         adminProgramStatuses,
       } = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
       // Add a program with a single question that is used for asserting downloaded content.
       await adminPrograms.addProgram(programForFilteringName)
@@ -399,7 +395,6 @@ describe('view program statuses', () => {
     beforeEach(async () => {
       const {page} = ctx
       await loginAsProgramAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
     })
 
     it('application without status appears in default filter and without statuses filter', async () => {

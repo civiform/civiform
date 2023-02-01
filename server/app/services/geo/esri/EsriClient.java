@@ -47,7 +47,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   private static final String ESRI_CONTENT_TYPE = "application/json";
   // Specify output fields to return in the geocoding response with the outFields parameter
   private static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
-      "Address, SubAddr, City, Region, Postal";
+      "Address, SubAddr, City, RegionAbbr, Postal";
   // The service supports responses in JSON or PJSON format. You can specify the response format
   // using the f parameter. This is a required parameter
   private static final String ESRI_RESPONSE_FORMAT = "json";
@@ -183,15 +183,15 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                         .build();
                 Address candidateAddress =
                     Address.builder()
-                        .setStreet(attributes.get("Address").toString())
-                        .setLine2(attributes.get("SubAddr").toString())
-                        .setCity(attributes.get("City").toString())
-                        .setState(attributes.get("Region").toString())
-                        .setZip(attributes.get("Postal").toString())
+                        .setStreet(attributes.get("Address").asText())
+                        .setLine2(attributes.get("SubAddr").asText())
+                        .setCity(attributes.get("City").asText())
+                        .setState(attributes.get("RegionAbbr").asText())
+                        .setZip(attributes.get("Postal").asText())
                         .build();
                 AddressSuggestion addressCandidate =
                     AddressSuggestion.builder()
-                        .setSingleLineAddress(candidateJson.get("address").toString())
+                        .setSingleLineAddress(candidateJson.get("address").asText())
                         .setLocation(addressLocation)
                         .setScore(candidateJson.get("score").asInt())
                         .setAddress(candidateAddress)
