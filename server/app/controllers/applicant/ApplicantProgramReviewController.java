@@ -167,7 +167,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
-                  return found(reviewPage).flashing("banner", "Error saving application.");
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName());
+                  return found(reviewPage).flashing("banner", errorMsg);
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
                   String errorMsg =

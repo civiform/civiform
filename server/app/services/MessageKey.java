@@ -20,6 +20,7 @@ public enum MessageKey {
   ADDRESS_VALIDATION_STREET_REQUIRED("validation.streetRequired"),
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
+  BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_SR("button.applySr"),
   BUTTON_CHOOSE_FILE("button.chooseFile"),
