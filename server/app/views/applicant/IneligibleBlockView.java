@@ -16,6 +16,7 @@ import services.MessageKey;
 import services.applicant.ReadOnlyApplicantProgramService;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
@@ -42,6 +43,8 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .setStyles("mb-4", "underline")
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase())
             .setHref(routes.ApplicantProgramsController.view(applicantId, programId).url())
+            .opensInNewTab()
+            .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
             .asAnchorText()
             .attr(
                 "aria-label",
