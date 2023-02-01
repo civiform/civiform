@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
   logout,
@@ -61,7 +60,6 @@ describe('Admin can manage translations', () => {
     const {page, adminPrograms, adminProgramStatuses, adminTranslations} = ctx
 
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
     const programName = 'Program to be translated with statuses'
     await adminPrograms.addProgram(programName)

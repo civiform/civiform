@@ -15,7 +15,7 @@
         "SubAddr": "",
         "Address": "380 New York St",
         "City": "Redlands",
-        "Region": "California",
+        "RegionAbbr": "CA",
         "Postal": "92373"
       },
       "extent": {

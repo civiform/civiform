@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -12,7 +11,6 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import featureflags.FeatureFlags;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -78,22 +76,6 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   public void setup() {
     programService = instanceOf(ProgramService.class);
     controller = instanceOf(AdminProgramStatusesController.class);
-  }
-
-  @Test
-  @Parameters({"GET", "POST"})
-  public void index_flagDisabled(String httpMethod) throws ProgramNotFoundException {
-    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-
-    Result result =
-        controller.index(
-            addCSRFToken(
-                    fakeRequest()
-                        .method(httpMethod)
-                        .session(FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED, "false"))
-                .build(),
-            program.id);
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test

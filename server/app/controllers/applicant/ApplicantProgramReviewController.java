@@ -167,7 +167,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
-                  return found(reviewPage).flashing("banner", "Error saving application.");
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName());
+                  return found(reviewPage).flashing("banner", errorMsg);
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
                   String errorMsg =
@@ -179,18 +183,22 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
-
-                  String programTitle =
+                  // TODO(#3744) Make asynchronous.
+                  ReadOnlyApplicantProgramService roApplicantProgramService =
                       applicantService
                           .getReadOnlyApplicantProgramService(applicantId, programId)
                           .toCompletableFuture()
-                          .join()
-                          .getProgramTitle();
+                          .join();
+
                   Optional<String> applicantName =
                       applicantService.getName(applicantId).toCompletableFuture().join();
                   return ok(
                       ineligibleBlockView.render(
-                          request, programTitle, applicantName, messagesApi.preferred(request)));
+                          request,
+                          roApplicantProgramService,
+                          applicantName,
+                          messagesApi.preferred(request),
+                          applicantId));
                 }
                 throw new RuntimeException(cause);
               }

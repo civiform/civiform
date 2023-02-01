@@ -2,6 +2,7 @@ package services.applicant;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.applicant.question.ApplicantQuestion;
 
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
 public interface ReadOnlyApplicantProgramService {
@@ -11,6 +12,9 @@ public interface ReadOnlyApplicantProgramService {
 
   /** Returns the program title, localized to the applicant's preferred locale. */
   String getProgramTitle();
+
+  /** Returns the ID of the program. */
+  Long getProgramId();
 
   /**
    * Get the {@link Block}s for this program and applicant. This includes all blocks an applicant
@@ -43,6 +47,11 @@ public interface ReadOnlyApplicantProgramService {
    * @return the count of active blocks completed in this program.
    */
   int getActiveAndCompletedInProgramBlockCount();
+
+  /**
+   * Get a list of questions that have eligibility requirements from active blocks in the program.
+   */
+  ImmutableList<ApplicantQuestion> getActiveEligibilityQuestions();
 
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);

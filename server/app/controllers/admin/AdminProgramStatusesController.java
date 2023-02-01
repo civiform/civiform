@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
-import featureflags.FeatureFlags;
 import forms.admin.ProgramStatusesForm;
 import java.util.Optional;
 import org.pac4j.play.java.Secure;
@@ -34,28 +33,22 @@ public final class AdminProgramStatusesController extends CiviFormController {
   private final ProgramStatusesView statusesView;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
-  private final FeatureFlags featureFlags;
 
   @Inject
   public AdminProgramStatusesController(
       ProgramService service,
       ProgramStatusesView statusesView,
       RequestChecker requestChecker,
-      FormFactory formFactory,
-      FeatureFlags featureFlags) {
+      FormFactory formFactory) {
     this.service = checkNotNull(service);
     this.statusesView = checkNotNull(statusesView);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
-    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /** Displays the list of {@link StatusDefinitions} associated with the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, long programId) throws ProgramNotFoundException {
-    if (!featureFlags.isStatusTrackingEnabled(request)) {
-      return notFound("status tracking is not enabled");
-    }
     requestChecker.throwIfProgramNotDraft(programId);
 
     return ok(
@@ -78,9 +71,6 @@ public final class AdminProgramStatusesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result createOrUpdate(Http.Request request, long programId)
       throws ProgramNotFoundException {
-    if (!featureFlags.isStatusTrackingEnabled(request)) {
-      return notFound("status tracking is not enabled");
-    }
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = service.getProgramDefinition(programId);
     int previousStatusCount = program.statusDefinitions().getStatuses().size();
@@ -172,9 +162,6 @@ public final class AdminProgramStatusesController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result delete(Http.Request request, long programId) throws ProgramNotFoundException {
-    if (!featureFlags.isStatusTrackingEnabled(request)) {
-      return notFound("status tracking is not enabled");
-    }
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = service.getProgramDefinition(programId);
 

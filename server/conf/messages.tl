@@ -171,6 +171,12 @@ button.submit=Isumite
 # Continue application button
 button.continue=Magsimula dito
 
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagutan ang mga sagot para magpatuloy
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=Hindi Kwalipikado
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=I-edit
 link.answer=Sagot
@@ -210,6 +216,7 @@ content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng l
 label.addressLine2=Unit/Numero ng Apartment
 label.city=Lungsod
 label.state=Estado
+label.selectState=Pumili ng Estado
 label.street=Linya ng adres 1
 label.zipcode=Zip code
 

@@ -171,6 +171,12 @@ button.submit=提交
 # Continue application button
 button.continue=繼續
 
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請查看並回答問題
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=不符合資格
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=編輯
 link.answer=回答問題
@@ -210,6 +216,7 @@ content.pleaseCreateAccount=如果現在登入城市帳戶，系統會儲存你�
 label.addressLine2=門牌號碼
 label.city=城市
 label.state=州
+label.selectState=請選取州
 label.street=地址 1
 label.zipcode=郵遞區號
 

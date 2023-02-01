@@ -171,6 +171,12 @@ button.submit=አስገባ
 # Continue application button
 button.continue=ቀጥል
 
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=ብቁ አይደለም
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=አርትዕ
 link.answer=መልስ
@@ -210,6 +216,7 @@ content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ �
 label.addressLine2=የክፍል/አፓርታማ ቁጥር
 label.city=ከተማ
 label.state=ግዛት
+label.selectState=ክልል ይምረጡ
 label.street=የአድራሻ መስመር 1
 label.zipcode=ዚፕ ኮድ
 

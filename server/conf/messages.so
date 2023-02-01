@@ -143,6 +143,12 @@ button.submit=Gudbi
 # Continue application button
 button.continue=Sii wad
 
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=Uma Qalmo
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Wax ka beddel
 link.answer=Jawaab
@@ -184,6 +190,7 @@ content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga
 label.addressLine2=Guri dabaq ah / Lambarka Guriga
 label.city=Magaalada
 label.state=Gobolka
+label.selectState=Dooro Gobolka
 label.street=Ciwaanka Xaafada 1
 label.zipcode=Siib Koodhka
 

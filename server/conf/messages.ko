@@ -172,6 +172,12 @@ button.submit=제출
 # Continue application button
 button.continue=계속
 
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=제출을 위해 확인 필요
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=편집
 link.answer=답변
@@ -211,6 +217,7 @@ content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며
 label.addressLine2=단위/아파트 번호
 label.city=시/군/구
 label.state=주/도
+label.selectState=주 선택
 label.street=상세 주소 1
 label.zipcode=우편번호
 
