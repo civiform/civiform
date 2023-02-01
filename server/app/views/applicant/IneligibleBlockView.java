@@ -36,15 +36,16 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       Optional<String> applicantName,
       Messages messages,
       long applicantId) {
-    // TODO(#3744): Translate these strings.
     long programId = roApplicantProgramService.getProgramId();
     ATag infoLink =
         new LinkElement()
             .setStyles("mb-4", "underline")
-            .setText(messages.at("program details"))
+            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase())
             .setHref(routes.ApplicantProgramsController.view(applicantId, programId).url())
             .asAnchorText()
-            .attr("aria-label", "program details");
+            .attr(
+                "aria-label",
+                messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase());
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     roApplicantProgramService
         .getActiveEligibilityQuestions()
@@ -54,20 +55,21 @@ public final class IneligibleBlockView extends ApplicationBaseView {
         div()
             .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(
-                h2(String.format(
-                        "Based on your responses, you may not qualify for the %s",
+                h2(messages.at(
+                        MessageKey.TITLE_APPLICATION_NOT_ELIGIBLE.getKeyName(),
                         roApplicantProgramService.getProgramTitle()))
                     .withClasses("mb-4"))
-            .with(div(messages.at("You must meet these program requirements:")).withClasses("mb-4"))
+            .with(
+                div(messages.at(MessageKey.CONTENT_MUST_MEET_REQUIREMENTS.getKeyName()))
+                    .withClasses("mb-4"))
             .with(div().with(listTag).withClasses("mb-4"))
             .with(
-                div(messages.at("For eligibility criteria please refer to "))
-                    .with(infoLink)
+                div(rawHtml(
+                        messages.at(
+                            MessageKey.CONTENT_ELIGIBILITY_CRITERIA.getKeyName(), infoLink)))
                     .withClasses("mb-4"))
             .with(
-                div(messages.at(
-                        "You can return to the previous page to edit your answers. Or apply to"
-                            + " another program."))
+                div(messages.at(MessageKey.CONTENT_CHANGE_ELIGIBILITY_ANSWERS.getKeyName()))
                     .withClasses("mb-4"))
             .with(
                 div()
@@ -88,7 +90,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                                 routes.ApplicantProgramReviewController.review(
                                         applicantId, programId)
                                     .url())
-                            .setText(messages.at("Go back and edit"))
+                            .setText(messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()))
                             .asButton()
                             .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
     String title = "Ineligible for program";
