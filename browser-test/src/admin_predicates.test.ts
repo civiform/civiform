@@ -7,6 +7,7 @@ import {
   logout,
   selectApplicantLanguage,
   testUserDisplayName,
+  validateAccessibility,
   validateScreenshot,
 } from './support'
 
@@ -947,6 +948,12 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerCheckboxQuestion(['rabbit'])
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await validateScreenshot(
+        page,
+        'ineligible-multiple-eligibility-questions',
+      )
+      // Validate that ineligible page is accessible.
+      await validateAccessibility(page)
       await page.goBack()
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickNext()
