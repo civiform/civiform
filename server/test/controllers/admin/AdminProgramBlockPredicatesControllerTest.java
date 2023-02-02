@@ -36,7 +36,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             .withBlock("Screen 1")
             .withRequiredQuestion(testQuestionBank.applicantName())
             .withBlock("Screen 2")
-            .withRequiredQuestion(testQuestionBank.applicantAddress())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
             .withRequiredQuestion(testQuestionBank.applicantIceCream())
             .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
             .withBlock("Screen 3")

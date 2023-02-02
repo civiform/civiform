@@ -17,6 +17,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
+import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -278,6 +279,21 @@ public class ProgramBuilder {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
               question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId)));
+      return this;
+    }
+
+    /** Add a required address question that has correction enabled to the block. */
+    public BlockBuilder withRequiredCorrectedAddressQuestion(Question question) {
+      if (!(question.getQuestionDefinition() instanceof AddressQuestionDefinition)) {
+        throw new IllegalArgumentException("Only address questions can be address corrected.");
+      }
+
+      blockDefBuilder.addQuestion(
+          ProgramQuestionDefinition.create(
+              question.getQuestionDefinition(),
+              Optional.of(programBuilder.programDefinitionId),
+              /* optional= */ true,
+              /* addressCorrectionEnabled= */ true));
       return this;
     }
 

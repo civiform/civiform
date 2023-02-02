@@ -86,7 +86,7 @@ public abstract class ProgramQuestionDefinition {
   }
 
   /** Create a program question definition. */
-  private static ProgramQuestionDefinition create(
+  public static ProgramQuestionDefinition create(
       QuestionDefinition questionDefinition,
       Optional<Long> programDefinitionId,
       boolean optional,
