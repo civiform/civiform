@@ -1042,11 +1042,6 @@ export class AdminQuestions {
   }: QuestionParams) {
       let startMs = new Date().getTime()
       console.log(`Start time ${startMs}`)
-      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
-      var stopMs = new Date().getTime()
-      var elapsedMs = stopMs - startMs
-      startMs = stopMs
-      console.log(`checkpoint time ctx ${elapsedMs}`)
 
     await this.gotoAdminQuestionsPage()
       var stopMs = new Date().getTime()
