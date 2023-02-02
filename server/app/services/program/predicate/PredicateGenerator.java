@@ -64,64 +64,64 @@ public final class PredicateGenerator {
    * @throws BadRequestException if the form is invalid.
    */
   public PredicateDefinition generatePredicateDefinition(
-    ProgramDefinition programDefinition,
-    DynamicForm predicateForm,
-    ReadOnlyQuestionService roQuestionService)
-    throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
+      ProgramDefinition programDefinition,
+      DynamicForm predicateForm,
+      ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
     final PredicateAction predicateAction;
 
     try {
       predicateAction = PredicateAction.valueOf(predicateForm.get("predicateAction"));
     } catch (IllegalArgumentException e) {
       throw new BadRequestException(
-        String.format(
-          "Missing or unknown predicateAction: %s", predicateForm.get("predicateAction")));
+          String.format(
+              "Missing or unknown predicateAction: %s", predicateForm.get("predicateAction")));
     }
 
     Multimap<Integer, LeafExpressionNode> leafNodes =
-      getLeafNodes(programDefinition, predicateForm, roQuestionService);
+        getLeafNodes(programDefinition, predicateForm, roQuestionService);
 
     switch (detectFormat(leafNodes)) {
       case OR_OF_SINGLE_LAYER_ANDS:
-      {
-        return PredicateDefinition.create(
-          PredicateExpressionNode.create(
-            OrNode.create(
-              leafNodes.keySet().stream()
-                // Sorting here ensures the AND nodes are created in the same order as
-                // value groups/rows in the UI.
-                // This ensures the edit UI will show the value rows in the original
-                // order.
-                .sorted()
-                .map(leafNodes::get)
-                .map(
-                  leafNodeGroup ->
-                    leafNodeGroup.stream()
-                      .map(PredicateExpressionNode::create)
-                      .collect(toImmutableList()))
-                .map(AndNode::create)
-                .map(PredicateExpressionNode::create)
-                .collect(toImmutableList()))),
-          predicateAction,
-          PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
-      }
+        {
+          return PredicateDefinition.create(
+              PredicateExpressionNode.create(
+                  OrNode.create(
+                      leafNodes.keySet().stream()
+                          // Sorting here ensures the AND nodes are created in the same order as
+                          // value groups/rows in the UI.
+                          // This ensures the edit UI will show the value rows in the original
+                          // order.
+                          .sorted()
+                          .map(leafNodes::get)
+                          .map(
+                              leafNodeGroup ->
+                                  leafNodeGroup.stream()
+                                      .map(PredicateExpressionNode::create)
+                                      .collect(toImmutableList()))
+                          .map(AndNode::create)
+                          .map(PredicateExpressionNode::create)
+                          .collect(toImmutableList()))),
+              predicateAction,
+              PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+        }
 
       case SINGLE_QUESTION:
-      {
-        LeafExpressionNode singleQuestionNode =
-          leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
+        {
+          LeafExpressionNode singleQuestionNode =
+              leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
 
-        return PredicateDefinition.create(
-          PredicateExpressionNode.create(singleQuestionNode),
-          predicateAction,
-          PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
-      }
+          return PredicateDefinition.create(
+              PredicateExpressionNode.create(singleQuestionNode),
+              predicateAction,
+              PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        }
 
       default:
-      {
-        throw new BadRequestException(
-          String.format("Unrecognized predicate format: %s", detectFormat(leafNodes)));
-      }
+        {
+          throw new BadRequestException(
+              String.format("Unrecognized predicate format: %s", detectFormat(leafNodes)));
+        }
     }
   }
 
@@ -221,13 +221,6 @@ public final class PredicateGenerator {
     return leafNodes;
   }
 
-  private static PredicateDefinition.PredicateFormat detectFormat(
-      Multimap<Integer, LeafExpressionNode> leafNodes) {
-    return leafNodes.size() > 1
-        ? PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS
-        : PredicateDefinition.PredicateFormat.SINGLE_QUESTION;
-  }
-
   /**
    * Gets the groupId and questionId for the provided predicate value matcher.
    *
@@ -268,6 +261,13 @@ public final class PredicateGenerator {
           String.format(
               "Bad scalar or operator for predicate update form: %s", predicateForm.rawData()));
     }
+  }
+
+  private static PredicateDefinition.PredicateFormat detectFormat(
+    Multimap<Integer, LeafExpressionNode> leafNodes) {
+    return leafNodes.size() > 1
+      ? PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS
+      : PredicateDefinition.PredicateFormat.SINGLE_QUESTION;
   }
 
   /**
