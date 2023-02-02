@@ -143,12 +143,6 @@ link.programDetails=Mga detalya ng programa
 # The same text, read for screen readers.
 link.programDetailsSr=Mga detalya ng programa para sa {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=Panlabas na site
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=Bubukas sa bagong tab
-
 # The title of the page for the list of programs.
 title.programs=Mga programa at mga serbisyo
 
