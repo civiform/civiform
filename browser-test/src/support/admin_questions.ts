@@ -1040,11 +1040,37 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
+      let startMs = new Date().getTime()
+      console.log(`Start time ${startMs}`)
+      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time ctx ${elapsedMs}`)
+
     await this.gotoAdminQuestionsPage()
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time gotoAdminQuestionsPage ${elapsedMs}`)
 
     await this.page.click('#create-question-button')
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time click create question ${elapsedMs}`)
+
     await this.page.click('#create-email-question')
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time click create email question ${elapsedMs}`)
+
     await waitForPageJsLoad(this.page)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time waitForPageJsLoad ${elapsedMs}`)
 
     await this.fillInQuestionBasics({
       questionName,
@@ -1054,12 +1080,28 @@ export class AdminQuestions {
       enumeratorName,
       exportOption,
     })
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time fillInQuestionBasics ${elapsedMs}`)
 
     await this.clickSubmitButtonAndNavigate('Create')
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time clickSubmitButtonAndNavigate ${elapsedMs}`)
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time expectAdminQuestionsPageWithCreateSuccessToast ${elapsedMs}`)
 
     await this.expectDraftQuestionExist(questionName, questionText)
+      var stopMs = new Date().getTime()
+      var elapsedMs = stopMs - startMs
+      startMs = stopMs
+      console.log(`checkpoint time expectDraftQuestionExist ${elapsedMs}`)
   }
 
   async expectEnumeratorPreviewValues({
