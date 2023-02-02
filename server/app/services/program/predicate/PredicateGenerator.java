@@ -31,6 +31,100 @@ public final class PredicateGenerator {
   private static final Pattern MULTI_PREDICATE_VALUE_FORM_KEY_PATTERN =
       Pattern.compile("^group-(\\d+)-question-(\\d+)-predicateValues\\[\\d+\\]$");
 
+  /**
+   * Generates a {@link PredicateDefinition} from the given form.
+   *
+   * <p>Determines {@link PredicateDefinition.PredicateFormat} based on form contents. If the form
+   * contains a single leaf node then it generates a SINGLE_QUESTION, otherwise a
+   * OR_OF_SINGLE_LAYER_ANDS. For each question a single scalar and operator are selected with one
+   * or more values. The values for all questions are grouped into rows containing one value for
+   * each question. Note that the group IDs are not persisted explicitly since they are used for
+   * grouping values which is accomplished structurally in the resulting predicate's AST.
+   *
+   * <p>Requires the form to have the following keys:
+   *
+   * <ul>
+   *   <li>{@code predicateAction} - a {@link PredicateAction}
+   *   <li>{@code question-QID-scalar} - a {@link Scalar} for the question identified by QID
+   *   <li>{@code question-QID-operator} - an {@link Operator} for the question identified by QID
+   *   <li>{@code group-GID-question-QID-predicateValue} - a {@link PredicateValue} identifying a
+   *       leaf node on a given AND node. The GID specifies the AND node and the QID specifies the
+   *       leaf node.
+   *   <li>{@code group-GID-question-QID-predicateValues[VID]} - a single value in a multi-value
+   *       {@link PredicateValue}. The VID distinguishes the key from the others in the same leaf
+   *       node and is otherwise unused.
+   * </ul>
+   *
+   * @param programDefinition the program this predicate is being generated for.
+   * @param predicateForm contains key-value pairs specifying the predicate.
+   * @param roQuestionService a {@link ReadOnlyQuestionService} for validating that questions
+   *     referenced in the form are active or draft.
+   * @throws QuestionNotFoundException if the form references a question ID that is not in the
+   *     {@link ReadOnlyQuestionService}.
+   * @throws BadRequestException if the form is invalid.
+   */
+  public PredicateDefinition generatePredicateDefinition(
+    ProgramDefinition programDefinition,
+    DynamicForm predicateForm,
+    ReadOnlyQuestionService roQuestionService)
+    throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
+    final PredicateAction predicateAction;
+
+    try {
+      predicateAction = PredicateAction.valueOf(predicateForm.get("predicateAction"));
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException(
+        String.format(
+          "Missing or unknown predicateAction: %s", predicateForm.get("predicateAction")));
+    }
+
+    Multimap<Integer, LeafExpressionNode> leafNodes =
+      getLeafNodes(programDefinition, predicateForm, roQuestionService);
+
+    switch (detectFormat(leafNodes)) {
+      case OR_OF_SINGLE_LAYER_ANDS:
+      {
+        return PredicateDefinition.create(
+          PredicateExpressionNode.create(
+            OrNode.create(
+              leafNodes.keySet().stream()
+                // Sorting here ensures the AND nodes are created in the same order as
+                // value groups/rows in the UI.
+                // This ensures the edit UI will show the value rows in the original
+                // order.
+                .sorted()
+                .map(leafNodes::get)
+                .map(
+                  leafNodeGroup ->
+                    leafNodeGroup.stream()
+                      .map(PredicateExpressionNode::create)
+                      .collect(toImmutableList()))
+                .map(AndNode::create)
+                .map(PredicateExpressionNode::create)
+                .collect(toImmutableList()))),
+          predicateAction,
+          PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+      }
+
+      case SINGLE_QUESTION:
+      {
+        LeafExpressionNode singleQuestionNode =
+          leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
+
+        return PredicateDefinition.create(
+          PredicateExpressionNode.create(singleQuestionNode),
+          predicateAction,
+          PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+      }
+
+      default:
+      {
+        throw new BadRequestException(
+          String.format("Unrecognized predicate format: %s", detectFormat(leafNodes)));
+      }
+    }
+  }
+
   private static Multimap<Integer, LeafExpressionNode> getLeafNodes(
       ProgramDefinition programDefinition,
       DynamicForm predicateForm,
@@ -173,100 +267,6 @@ public final class PredicateGenerator {
       throw new BadRequestException(
           String.format(
               "Bad scalar or operator for predicate update form: %s", predicateForm.rawData()));
-    }
-  }
-
-  /**
-   * Generates a {@link PredicateDefinition} from the given form.
-   *
-   * <p>Determines {@link PredicateDefinition.PredicateFormat} based on form contents. If the form
-   * contains a single leaf node then it generates a SINGLE_QUESTION, otherwise a
-   * OR_OF_SINGLE_LAYER_ANDS. For each question a single scalar and operator are selected with one
-   * or more values. The values for all questions are grouped into rows containing one value for
-   * each question. Note that the group IDs are not persisted explicitly since they are used for
-   * grouping values which is accomplished structurally in the resulting predicate's AST.
-   *
-   * <p>Requires the form to have the following keys:
-   *
-   * <ul>
-   *   <li>{@code predicateAction} - a {@link PredicateAction}
-   *   <li>{@code question-QID-scalar} - a {@link Scalar} for the question identified by QID
-   *   <li>{@code question-QID-operator} - an {@link Operator} for the question identified by QID
-   *   <li>{@code group-GID-question-QID-predicateValue} - a {@link PredicateValue} identifying a
-   *       leaf node on a given AND node. The GID specifies the AND node and the QID specifies the
-   *       leaf node.
-   *   <li>{@code group-GID-question-QID-predicateValues[VID]} - a single value in a multi-value
-   *       {@link PredicateValue}. The VID distinguishes the key from the others in the same leaf
-   *       node and is otherwise unused.
-   * </ul>
-   *
-   * @param programDefinition the program this predicate is being generated for.
-   * @param predicateForm contains key-value pairs specifying the predicate.
-   * @param roQuestionService a {@link ReadOnlyQuestionService} for validating that questions
-   *     referenced in the form are active or draft.
-   * @throws QuestionNotFoundException if the form references a question ID that is not in the
-   *     {@link ReadOnlyQuestionService}.
-   * @throws BadRequestException if the form is invalid.
-   */
-  public PredicateDefinition generatePredicateDefinition(
-      ProgramDefinition programDefinition,
-      DynamicForm predicateForm,
-      ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
-    final PredicateAction predicateAction;
-
-    try {
-      predicateAction = PredicateAction.valueOf(predicateForm.get("predicateAction"));
-    } catch (IllegalArgumentException e) {
-      throw new BadRequestException(
-          String.format(
-              "Missing or unknown predicateAction: %s", predicateForm.get("predicateAction")));
-    }
-
-    Multimap<Integer, LeafExpressionNode> leafNodes =
-        getLeafNodes(programDefinition, predicateForm, roQuestionService);
-
-    switch (detectFormat(leafNodes)) {
-      case OR_OF_SINGLE_LAYER_ANDS:
-        {
-          return PredicateDefinition.create(
-              PredicateExpressionNode.create(
-                  OrNode.create(
-                      leafNodes.keySet().stream()
-                          // Sorting here ensures the AND nodes are created in the same order as
-                          // value groups/rows in the UI.
-                          // This ensures the edit UI will show the value rows in the original
-                          // order.
-                          .sorted()
-                          .map(leafNodes::get)
-                          .map(
-                              leafNodeGroup ->
-                                  leafNodeGroup.stream()
-                                      .map(PredicateExpressionNode::create)
-                                      .collect(toImmutableList()))
-                          .map(AndNode::create)
-                          .map(PredicateExpressionNode::create)
-                          .collect(toImmutableList()))),
-              predicateAction,
-              PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
-        }
-
-      case SINGLE_QUESTION:
-        {
-          LeafExpressionNode singleQuestionNode =
-              leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
-
-          return PredicateDefinition.create(
-              PredicateExpressionNode.create(singleQuestionNode),
-              predicateAction,
-              PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
-        }
-
-      default:
-        {
-          throw new BadRequestException(
-              String.format("Unrecognized predicate format: %s", detectFormat(leafNodes)));
-        }
     }
   }
 
