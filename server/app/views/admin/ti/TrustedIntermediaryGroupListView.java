@@ -90,15 +90,13 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .setId("group-name-input")
             .setFieldName("name")
             .setLabelText("Name")
-            .setValue(request.flash().get("providedName").orElse(""))
-            .setPlaceholderText("The name of this Trusted Intermediary Group.");
+            .setValue(request.flash().get("providedName").orElse(""));
     FieldWithLabel descriptionField =
         FieldWithLabel.input()
             .setId("group-description-input")
             .setFieldName("description")
             .setLabelText("Description")
-            .setValue(request.flash().get("providedDescription").orElse(""))
-            .setPlaceholderText("The description of this group.");
+            .setValue(request.flash().get("providedDescription").orElse(""));
     return div()
         .with(
             formTag.with(

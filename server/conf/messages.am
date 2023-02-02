@@ -225,13 +225,6 @@ label.selectState=ክልል ይምረጡ
 label.street=የአድራሻ መስመር 1
 label.zipcode=ዚፕ ኮድ
 
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=ከተማ
-placeholder.line2=አፓርታማ፣ ስዊት፣ ክፍል፣ ሕንፃ፣ ፎቅ፣ ወዘተ።
-placeholder.state=ክልል
-placeholder.street=የጎዳና አድራሻ
-placeholder.zipcode=ዚፕ ኮድ
-
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=እባክዎ ትክክለኛ የጎዳና ስም እና ቁጥር ያስገቡ።
 validation.cityRequired=እባክዎ ከተማ ያስገቡ።
