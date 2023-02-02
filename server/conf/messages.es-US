@@ -229,13 +229,6 @@ label.selectState=Selecciona un estado
 label.street=Línea de dirección 1
 label.zipcode=Código postal
 
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=Ciudad
-placeholder.line2=Departamento, oficina, unidad, edificio, piso, etc.
-placeholder.state=Estado
-placeholder.street=Dirección
-placeholder.zipcode=Código postal
-
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Ingresa un nombre y un número de calle válidos.

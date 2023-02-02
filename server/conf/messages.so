@@ -197,13 +197,6 @@ label.selectState=Dooro Gobolka
 label.street=Ciwaanka Xaafada 1
 label.zipcode=Siib Koodhka
 
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=Magaalada
-placeholder.line2=Abaarmantka, suite-ka, guriga unitka ah, dhismo, dabaq, iwm.
-placeholder.state=Gobolka
-placeholder.street=Cinwaanka wadada
-placeholder.zipcode=Siib Koodhka
-
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Fadlan gali magaca wadada saxda ah iyo lambarka.
 validation.cityRequired=Fadlan magaalada gali.
