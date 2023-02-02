@@ -153,6 +153,18 @@ public class CfJsonDocumentContext {
   }
 
   /**
+   * Parses and writes a Double value, given as a string. If the string is empty, a null value is
+   * written.
+   */
+  public void putDouble(Path path, String value) {
+    if (value.isEmpty()) {
+      putNull(path);
+    } else {
+      put(path, Double.parseDouble(value));
+    }
+  }
+
+  /**
    * Puts the names of the repeated entities at the path. Each element in the JSON array at the path
    * is a JSON object that has at minimum a property {@link Scalar#ENTITY_NAME} that contains a
    * string value, along with possibly other nested answers to questions or repeated entities.
