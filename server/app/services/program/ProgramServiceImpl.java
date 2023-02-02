@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
+import controllers.BadRequestException;
 import forms.BlockForm;
 import java.util.List;
 import java.util.Locale;
@@ -784,8 +785,14 @@ public final class ProgramServiceImpl implements ProgramService {
     }
 
     if (!blockDefinition.hasAddress()) {
-      throw new RuntimeException(
+      throw new BadRequestException(
           "Unexpected error: updating a non address question with address correction enabled");
+    }
+
+    if (!addressCorrectionEnabled
+        && programDefinition.isQuestionUsedInPredicate(questionDefinitionId)) {
+      throw new BadRequestException(
+          String.format("Cannot disable correction for an address used in a predicate."));
     }
 
     ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =

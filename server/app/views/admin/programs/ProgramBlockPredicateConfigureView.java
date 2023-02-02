@@ -15,6 +15,7 @@ import static play.mvc.Http.HttpVerbs.POST;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -38,6 +39,8 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.applicant.question.Scalar;
+import services.geo.esri.EsriServiceAreaValidationConfig;
+import services.geo.esri.EsriServiceAreaValidationOption;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -90,31 +93,14 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
   }
 
   private final AdminLayout layout;
-  private final ImmutableList<FakeServiceAreaOption> serviceAreaOptions;
-
-  private static final class FakeServiceAreaOption {
-
-    private final String label;
-    private final String id;
-
-    FakeServiceAreaOption(String label, String id) {
-      this.label = label;
-      this.id = id;
-    }
-
-    String id() {
-      return this.id;
-    }
-
-    String label() {
-      return this.label;
-    }
-  }
+  private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   @Inject
-  public ProgramBlockPredicateConfigureView(AdminLayoutFactory layoutFactory) {
+  public ProgramBlockPredicateConfigureView(
+      AdminLayoutFactory layoutFactory,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
-    this.serviceAreaOptions = ImmutableList.of(new FakeServiceAreaOption("Seattle", "seattle"));
+    this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
   }
 
   public Content renderNewVisibility(
@@ -632,25 +618,32 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
     if (questionDefinition.getQuestionType().equals(QuestionType.ADDRESS)) {
       // Address questions only support service area predicates.
 
+      if (esriServiceAreaValidationConfig.getImmutableMap().isEmpty()) {
+        return valueField;
+      }
+
+      ImmutableCollection<EsriServiceAreaValidationOption> serviceAreaOptions =
+          esriServiceAreaValidationConfig.getImmutableMap().get().values();
+
       SelectWithLabel select =
           new SelectWithLabel()
               .setFieldName(
                   String.format(
                       "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
               .setOptions(
-                  this.serviceAreaOptions.stream()
+                  serviceAreaOptions.stream()
                       .map(
                           option ->
                               SelectWithLabel.OptionValue.builder()
-                                  .setLabel(option.label())
-                                  .setValue(option.id())
+                                  .setLabel(option.getLabel())
+                                  .setValue(option.getId())
                                   .build())
                       .collect(ImmutableList.toImmutableList()));
 
       if (maybePredicateValue.isPresent()) {
         select.setValue(maybePredicateValue.get().value());
-      } else if (this.serviceAreaOptions.size() == 1) {
-        select.setValue(this.serviceAreaOptions.get(0).id());
+      } else if (serviceAreaOptions.size() == 1) {
+        select.setValue(serviceAreaOptions.stream().findFirst().get().getId());
       }
 
       return valueField

@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import play.data.DynamicForm;
 import services.applicant.question.Scalar;
+import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
+import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 
@@ -29,8 +32,10 @@ public final class PredicateGenerator {
       Pattern.compile("^group-(\\d+)-question-(\\d+)-predicateValues\\[\\d+\\]$");
 
   private static Multimap<Integer, LeafExpressionNode> getLeafNodes(
-      DynamicForm predicateForm, ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
+      ProgramDefinition programDefinition,
+      DynamicForm predicateForm,
+      ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
     Multimap<Integer, LeafExpressionNode> leafNodes = LinkedHashMultimap.create();
     HashSet<String> consumedMultiValueKeys = new HashSet<>();
 
@@ -46,16 +51,27 @@ public final class PredicateGenerator {
 
       if (singleValueMatcher.find()) {
         Pair<Integer, Long> groupIdQuestionIdPair =
-            getGroupIdAndQuestionId(roQuestionService, singleValueMatcher);
+            getGroupIdAndQuestionId(programDefinition, roQuestionService, singleValueMatcher);
         groupId = groupIdQuestionIdPair.getLeft();
         questionId = groupIdQuestionIdPair.getRight();
         Pair<Scalar, Operator> scalarOperatorPair = getScalarAndOperator(predicateForm, questionId);
         scalar = scalarOperatorPair.getLeft();
         operator = scalarOperatorPair.getRight();
 
-        if (scalar.equals(Scalar.SERVICE_AREA)
-            && !roQuestionService.getQuestionDefinition(questionId).isAddress()) {
-          throw new BadRequestException(String.format("%d is not an address question", questionId));
+        if (scalar.equals(Scalar.SERVICE_AREA)) {
+          ProgramQuestionDefinition questionDefinition =
+              programDefinition.getProgramQuestionDefinition(questionId);
+          if (!questionDefinition.getQuestionDefinition().isAddress()) {
+            throw new BadRequestException(
+                String.format("%d is not an address question", questionId));
+          }
+
+          if (!questionDefinition.addressCorrectionEnabled()) {
+            throw new BadRequestException(
+                String.format(
+                    "Address correction not enabled for Question ID %d in program ID %d",
+                    questionId, programDefinition.id()));
+          }
         }
 
         predicateValue =
@@ -64,7 +80,7 @@ public final class PredicateGenerator {
         // For the first encountered key of a multivalued question, we process all the keys now for
         // the question, then skip them later.
         Pair<Integer, Long> groupIdQuestionIdPair =
-            getGroupIdAndQuestionId(roQuestionService, multiValueMatcher);
+            getGroupIdAndQuestionId(programDefinition, roQuestionService, multiValueMatcher);
         groupId = groupIdQuestionIdPair.getLeft();
         questionId = groupIdQuestionIdPair.getRight();
         Pair<Scalar, Operator> scalarOperatorPair = getScalarAndOperator(predicateForm, questionId);
@@ -121,15 +137,21 @@ public final class PredicateGenerator {
   /**
    * Gets the groupId and questionId for the provided predicate value matcher.
    *
-   * @throws QuestionNotFoundException if the resulting questionId is not in the {@link
-   *     ReadOnlyQuestionService}
+   * @throws ProgramQuestionDefinitionNotFoundException if the resulting questionId is not in the
+   *     {@link ProgramDefinition}
+   * @throws QuestionNotFoundException if the resulting questionId is not in the current active or
+   *     draft version.
    */
   private static Pair<Integer, Long> getGroupIdAndQuestionId(
-      ReadOnlyQuestionService roQuestionService, Matcher matcher) throws QuestionNotFoundException {
+      ProgramDefinition programDefinition,
+      ReadOnlyQuestionService readOnlyQuestionService,
+      Matcher matcher)
+      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
     int groupId = Integer.parseInt(matcher.group(1));
     long questionId = Long.parseLong(matcher.group(2));
 
-    roQuestionService.getQuestionDefinition(questionId);
+    readOnlyQuestionService.getQuestionDefinition(questionId);
+    programDefinition.getProgramQuestionDefinition(questionId);
 
     return Pair.of(groupId, questionId);
   }
@@ -178,6 +200,7 @@ public final class PredicateGenerator {
    *       node and is otherwise unused.
    * </ul>
    *
+   * @param programDefinition the program this predicate is being generated for.
    * @param predicateForm contains key-value pairs specifying the predicate.
    * @param roQuestionService a {@link ReadOnlyQuestionService} for validating that questions
    *     referenced in the form are active or draft.
@@ -186,8 +209,10 @@ public final class PredicateGenerator {
    * @throws BadRequestException if the form is invalid.
    */
   public PredicateDefinition generatePredicateDefinition(
-      DynamicForm predicateForm, ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
+      ProgramDefinition programDefinition,
+      DynamicForm predicateForm,
+      ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
     final PredicateAction predicateAction;
 
     try {
@@ -199,7 +224,7 @@ public final class PredicateGenerator {
     }
 
     Multimap<Integer, LeafExpressionNode> leafNodes =
-        getLeafNodes(predicateForm, roQuestionService);
+        getLeafNodes(programDefinition, predicateForm, roQuestionService);
 
     switch (detectFormat(leafNodes)) {
       case OR_OF_SINGLE_LAYER_ANDS:

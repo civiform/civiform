@@ -13,10 +13,12 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import repository.ResetPostgres;
 import services.applicant.question.Scalar;
+import services.program.ProgramDefinition;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import support.CfTestHelpers;
 import support.FakeReadOnlyQuestionService;
+import support.ProgramBuilder;
 import support.TestQuestionBank;
 
 public class PredicateGeneratorTest extends ResetPostgres {
@@ -24,7 +26,13 @@ public class PredicateGeneratorTest extends ResetPostgres {
   private FormFactory formFactory;
   private PredicateGenerator predicateGenerator;
   private TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */ false);
-
+  private ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram("program1")
+        .withBlock()
+        .withRequiredQuestionDefinition(testQuestionBank.applicantAddress().getQuestionDefinition())
+        .withRequiredQuestionDefinition(testQuestionBank.applicantDate().getQuestionDefinition())
+        .withBlock()
+        .withRequiredQuestionDefinition(testQuestionBank.applicantKitchenTools().getQuestionDefinition())
+        .buildDefinition();
   private ReadOnlyQuestionService readOnlyQuestionService =
       new FakeReadOnlyQuestionService(
           ImmutableList.of(
@@ -54,7 +62,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "98144"));
 
     PredicateDefinition predicateDefinition =
-        predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService);
+        predicateGenerator.generatePredicateDefinition(programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat().get())
         .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
@@ -101,7 +109,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "2023-02-02"));
 
     PredicateDefinition predicateDefinition =
-        predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService);
+        predicateGenerator.generatePredicateDefinition(programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat().get())
         .isEqualTo(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
@@ -170,7 +178,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "2"));
 
     PredicateDefinition predicateDefinition =
-        predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService);
+        predicateGenerator.generatePredicateDefinition(programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat().get())
         .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
@@ -204,7 +212,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "98144"));
 
     assertThatThrownBy(
-            () -> predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService))
+            () -> predicateGenerator.generatePredicateDefinition(programDefinition, form, readOnlyQuestionService))
         .isInstanceOf(QuestionNotFoundException.class);
   }
 
@@ -224,7 +232,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "98144"));
 
     assertThatThrownBy(
-            () -> predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService))
+            () -> predicateGenerator.generatePredicateDefinition(programDefinition, form, readOnlyQuestionService))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -242,7 +250,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "98144"));
 
     assertThatThrownBy(
-            () -> predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService))
+            () -> predicateGenerator.generatePredicateDefinition(programDefinition, form, readOnlyQuestionService))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -262,7 +270,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "98144"));
 
     assertThatThrownBy(
-            () -> predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService))
+            () -> predicateGenerator.generatePredicateDefinition(programDefinition, form, readOnlyQuestionService))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -280,7 +288,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "98144"));
 
     assertThatThrownBy(
-            () -> predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService))
+            () -> predicateGenerator.generatePredicateDefinition(programDefinition, form, readOnlyQuestionService))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -300,7 +308,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 "98144"));
 
     assertThatThrownBy(
-            () -> predicateGenerator.generatePredicateDefinition(form, readOnlyQuestionService))
+            () -> predicateGenerator.generatePredicateDefinition(programDefinition, form, readOnlyQuestionService))
         .isInstanceOf(BadRequestException.class);
   }
 
