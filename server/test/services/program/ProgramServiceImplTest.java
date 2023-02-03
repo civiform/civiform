@@ -983,11 +983,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   @Test
   public void setProgramQuestionDefinitionAddressCorrectionEnabled() throws Exception {
-    QuestionDefinition question = addressQuestion;
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withRequiredQuestionDefinition(question)
+            .withRequiredQuestionDefinition(addressQuestion)
+            .withBlock()
             .withVisibilityPredicate(
                 PredicateDefinition.create(
                     PredicateExpressionNode.create(
