@@ -172,7 +172,7 @@ export class ApplicantQuestions {
     await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
 
-  async validateToastMessage(value:string) {
+  async validateToastMessage(value: string) {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(value)
   }
