@@ -100,8 +100,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public boolean isInProgressApplicationNotEligible() {
-    return getAllActiveBlocks().stream()
-        .anyMatch(block -> block.isAnsweredWithoutErrors() && !isBlockEligible(block.getId()));
+    return getSummaryData().stream()
+        .anyMatch(question -> !question.isEligible() && question.isAnswered());
   }
 
   @Override
