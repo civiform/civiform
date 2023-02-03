@@ -264,10 +264,10 @@ public final class PredicateGenerator {
   }
 
   private static PredicateDefinition.PredicateFormat detectFormat(
-    Multimap<Integer, LeafExpressionNode> leafNodes) {
+      Multimap<Integer, LeafExpressionNode> leafNodes) {
     return leafNodes.size() > 1
-      ? PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS
-      : PredicateDefinition.PredicateFormat.SINGLE_QUESTION;
+        ? PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS
+        : PredicateDefinition.PredicateFormat.SINGLE_QUESTION;
   }
 
   /**
@@ -299,6 +299,9 @@ public final class PredicateGenerator {
       case DATE:
         LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         return PredicateValue.of(localDate);
+
+      case SERVICE_AREA:
+        return PredicateValue.serviceArea(value);
 
       case LONG:
         switch (operator) {

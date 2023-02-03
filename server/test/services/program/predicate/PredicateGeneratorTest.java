@@ -28,16 +28,16 @@ public class PredicateGeneratorTest extends ResetPostgres {
   private ProgramDefinition programDefinition =
       ProgramBuilder.newDraftProgram("program1")
           .withBlock()
-          .withRequiredQuestionDefinition(
-              testQuestionBank.applicantAddress().getQuestionDefinition())
-          .withRequiredQuestionDefinition(testQuestionBank.applicantDate().getQuestionDefinition())
+          .withRequiredQuestion(testQuestionBank.applicantJugglingNumber())
+          .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+          .withRequiredQuestion(testQuestionBank.applicantDate())
           .withBlock()
-          .withRequiredQuestionDefinition(
-              testQuestionBank.applicantKitchenTools().getQuestionDefinition())
+          .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
           .buildDefinition();
   private ReadOnlyQuestionService readOnlyQuestionService =
       new FakeReadOnlyQuestionService(
           ImmutableList.of(
+              testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
               testQuestionBank.applicantAddress().getQuestionDefinition(),
               testQuestionBank.applicantDate().getQuestionDefinition(),
               testQuestionBank.applicantKitchenTools().getQuestionDefinition()));
@@ -55,13 +55,48 @@ public class PredicateGeneratorTest extends ResetPostgres {
             ImmutableMap.of(
                 "predicateAction",
                 "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "DATE",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "IS_BEFORE",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "2023-01-01"));
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService);
+
+    assertThat(predicateDefinition.predicateFormat().get())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .isEqualTo(ImmutableList.of(testQuestionBank.applicantDate().id));
+    assertThat(predicateDefinition.rootNode())
+        .isEqualTo(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.applicantDate().id)
+                    .setScalar(Scalar.DATE)
+                    .setOperator(Operator.IS_BEFORE)
+                    .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
+                    .build()));
+  }
+
+  @Test
+  public void generatePredicateDefinition_singleQuestion_serviceArea() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
                 String.format("question-%d-scalar", testQuestionBank.applicantAddress().id),
-                "ZIP",
+                "SERVICE_AREA",
                 String.format("question-%d-operator", testQuestionBank.applicantAddress().id),
-                "EQUAL_TO",
+                "IN_SERVICE_AREA",
                 String.format(
                     "group-1-question-%d-predicateValue", testQuestionBank.applicantAddress().id),
-                "98144"));
+                "seattle"));
 
     PredicateDefinition predicateDefinition =
         predicateGenerator.generatePredicateDefinition(
@@ -72,14 +107,20 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.applicantAddress().id));
+    System.out.println("********");
+    System.out.println(predicateDefinition.rootNode().getLeafAddressNode().serviceAreaId());
+    System.out.println(
+        LeafAddressServiceAreaExpressionNode.builder()
+            .setQuestionId(testQuestionBank.applicantAddress().id)
+            .setServiceAreaId("seattle")
+            .build()
+            .serviceAreaId());
     assertThat(predicateDefinition.rootNode())
         .isEqualTo(
             PredicateExpressionNode.create(
-                LeafOperationExpressionNode.builder()
+                LeafAddressServiceAreaExpressionNode.builder()
                     .setQuestionId(testQuestionBank.applicantAddress().id)
-                    .setScalar(Scalar.ZIP)
-                    .setOperator(Operator.EQUAL_TO)
-                    .setComparedValue(PredicateValue.of("98144"))
+                    .setServiceAreaId("seattle")
                     .build()));
   }
 
@@ -90,16 +131,19 @@ public class PredicateGeneratorTest extends ResetPostgres {
             ImmutableMap.of(
                 "predicateAction",
                 "SHOW_BLOCK",
-                String.format("question-%d-scalar", testQuestionBank.applicantAddress().id),
-                "ZIP",
-                String.format("question-%d-operator", testQuestionBank.applicantAddress().id),
+                String.format("question-%d-scalar", testQuestionBank.applicantJugglingNumber().id),
+                "NUMBER",
+                String.format(
+                    "question-%d-operator", testQuestionBank.applicantJugglingNumber().id),
                 "EQUAL_TO",
                 String.format(
-                    "group-1-question-%d-predicateValue", testQuestionBank.applicantAddress().id),
-                "98144",
+                    "group-1-question-%d-predicateValue",
+                    testQuestionBank.applicantJugglingNumber().id),
+                "1",
                 String.format(
-                    "group-2-question-%d-predicateValue", testQuestionBank.applicantAddress().id),
-                "10001",
+                    "group-2-question-%d-predicateValue",
+                    testQuestionBank.applicantJugglingNumber().id),
+                "2",
                 String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
                 "DATE",
                 String.format("question-%d-operator", testQuestionBank.applicantDate().id),
@@ -120,11 +164,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.SHOW_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .containsExactlyInAnyOrder(
-            testQuestionBank.applicantAddress().id, testQuestionBank.applicantDate().id);
+            testQuestionBank.applicantJugglingNumber().id, testQuestionBank.applicantDate().id);
 
     assertThat(predicateDefinition.rootNode().getType()).isEqualTo(PredicateExpressionNodeType.OR);
     assertThat(predicateDefinition.rootNode().getOrNode().children())
-        .containsExactly(
+        .containsExactlyInAnyOrder(
             PredicateExpressionNode.create(
                 AndNode.create(
                     ImmutableList.of(
@@ -137,10 +181,10 @@ public class PredicateGeneratorTest extends ResetPostgres {
                                 .build()),
                         PredicateExpressionNode.create(
                             LeafOperationExpressionNode.builder()
-                                .setQuestionId(testQuestionBank.applicantAddress().id)
-                                .setScalar(Scalar.ZIP)
+                                .setQuestionId(testQuestionBank.applicantJugglingNumber().id)
+                                .setScalar(Scalar.NUMBER)
                                 .setOperator(Operator.EQUAL_TO)
-                                .setComparedValue(PredicateValue.of("98144"))
+                                .setComparedValue(PredicateValue.of(1))
                                 .build())))),
             PredicateExpressionNode.create(
                 AndNode.create(
@@ -154,10 +198,10 @@ public class PredicateGeneratorTest extends ResetPostgres {
                                 .build()),
                         PredicateExpressionNode.create(
                             LeafOperationExpressionNode.builder()
-                                .setQuestionId(testQuestionBank.applicantAddress().id)
-                                .setScalar(Scalar.ZIP)
+                                .setQuestionId(testQuestionBank.applicantJugglingNumber().id)
+                                .setScalar(Scalar.NUMBER)
                                 .setOperator(Operator.EQUAL_TO)
-                                .setComparedValue(PredicateValue.of("10001"))
+                                .setComparedValue(PredicateValue.of(2))
                                 .build())))));
   }
 
@@ -230,12 +274,14 @@ public class PredicateGeneratorTest extends ResetPostgres {
             ImmutableMap.of(
                 "predicateAction",
                 "invalid",
-                String.format("question-%d-scalar", testQuestionBank.applicantAddress().id),
-                "ZIP",
-                String.format("question-%d-operator", testQuestionBank.applicantAddress().id),
+                String.format("question-%d-scalar", testQuestionBank.applicantJugglingNumber().id),
+                "NUMBER",
+                String.format(
+                    "question-%d-operator", testQuestionBank.applicantJugglingNumber().id),
                 "EQUAL_TO",
                 String.format(
-                    "group-1-question-%d-predicateValue", testQuestionBank.applicantAddress().id),
+                    "group-1-question-%d-predicateValue",
+                    testQuestionBank.applicantJugglingNumber().id),
                 "98144"));
 
     assertThatThrownBy(
@@ -252,11 +298,13 @@ public class PredicateGeneratorTest extends ResetPostgres {
             ImmutableMap.of(
                 "predicateAction",
                 "HIDE_BLOCK",
-                String.format("question-%d-operator", testQuestionBank.applicantAddress().id),
+                String.format(
+                    "question-%d-operator", testQuestionBank.applicantJugglingNumber().id),
                 "EQUAL_TO",
                 String.format(
-                    "group-1-question-%d-predicateValue", testQuestionBank.applicantAddress().id),
-                "98144"));
+                    "group-1-question-%d-predicateValue",
+                    testQuestionBank.applicantJugglingNumber().id),
+                "1"));
 
     assertThatThrownBy(
             () ->
@@ -272,13 +320,15 @@ public class PredicateGeneratorTest extends ResetPostgres {
             ImmutableMap.of(
                 "predicateAction",
                 "HIDE_BLOCK",
-                String.format("question-%d-scalar", testQuestionBank.applicantAddress().id),
+                String.format("question-%d-scalar", testQuestionBank.applicantJugglingNumber().id),
                 "invalid",
-                String.format("question-%d-operator", testQuestionBank.applicantAddress().id),
+                String.format(
+                    "question-%d-operator", testQuestionBank.applicantJugglingNumber().id),
                 "EQUAL_TO",
                 String.format(
-                    "group-1-question-%d-predicateValue", testQuestionBank.applicantAddress().id),
-                "98144"));
+                    "group-1-question-%d-predicateValue",
+                    testQuestionBank.applicantJugglingNumber().id),
+                "1"));
 
     assertThatThrownBy(
             () ->
@@ -297,8 +347,9 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 String.format("question-%d-scalar", testQuestionBank.applicantAddress().id),
                 "ZIP",
                 String.format(
-                    "group-1-question-%d-predicateValue", testQuestionBank.applicantAddress().id),
-                "98144"));
+                    "group-1-question-%d-predicateValue",
+                    testQuestionBank.applicantJugglingNumber().id),
+                "1"));
 
     assertThatThrownBy(
             () ->
@@ -314,12 +365,14 @@ public class PredicateGeneratorTest extends ResetPostgres {
             ImmutableMap.of(
                 "predicateAction",
                 "HIDE_BLOCK",
-                String.format("question-%d-scalar", testQuestionBank.applicantAddress().id),
-                "ZIP",
-                String.format("question-%d-operator", testQuestionBank.applicantAddress().id),
+                String.format("question-%d-scalar", testQuestionBank.applicantJugglingNumber().id),
+                "NUMBER",
+                String.format(
+                    "question-%d-operator", testQuestionBank.applicantJugglingNumber().id),
                 "invalid",
                 String.format(
-                    "group-1-question-%d-predicateValue", testQuestionBank.applicantAddress().id),
+                    "group-1-question-%d-predicateValue",
+                    testQuestionBank.applicantJugglingNumber().id),
                 "98144"));
 
     assertThatThrownBy(

@@ -81,6 +81,8 @@ public abstract class PredicateExpressionNode {
   @Memoized
   public ImmutableList<Long> getQuestions() {
     switch (getType()) {
+      case LEAF_ADDRESS_SERVICE_AREA:
+        return ImmutableList.of(getLeafAddressNode().questionId());
       case LEAF_OPERATION:
         return ImmutableList.of(getLeafNode().questionId());
       case AND:
