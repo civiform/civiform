@@ -322,10 +322,10 @@ public class VersionRepositoryTest extends ResetPostgres {
     // The tree should have the same structure, just with question IDs for the draft version.
     PredicateExpressionNode expectedLeafOne =
         PredicateExpressionNode.create(
-            leafOne.getLeafNode().toBuilder().setQuestionId(newOne.id).build());
+            leafOne.getLeafOperationNode().toBuilder().setQuestionId(newOne.id).build());
     PredicateExpressionNode expectedLeafTwo =
         PredicateExpressionNode.create(
-            leafTwo.getLeafNode().toBuilder().setQuestionId(newTwo.id).build());
+            leafTwo.getLeafOperationNode().toBuilder().setQuestionId(newTwo.id).build());
     PredicateExpressionNode expectedLeafThree =
         PredicateExpressionNode.create(
             leafAddress.getLeafAddressNode().toBuilder().setQuestionId(newOne.id).build());
@@ -402,7 +402,7 @@ public class VersionRepositoryTest extends ResetPostgres {
                 .visibilityPredicate()
                 .get()
                 .rootNode()
-                .getLeafNode()
+                .getLeafOperationNode()
                 .questionId())
         .isEqualTo(newOne.id);
   }
