@@ -85,6 +85,9 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns if the Program eligibility criteria are met. */
   boolean isApplicationEligible();
 
+  /** Returns if any of the completed blocks in the program are not eligible. */
+  boolean isInProgressApplicationNotEligible();
+
   /** Returns if the block eligibility criteria are met. */
   boolean isBlockEligible(String blockId);
 

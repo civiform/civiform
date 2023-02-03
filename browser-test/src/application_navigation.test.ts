@@ -372,6 +372,8 @@ describe('Applicant navigation flow', () => {
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
+
+      await  applicantQuestions.validateToastMessage("may not qualify")
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -410,6 +412,7 @@ describe('Applicant navigation flow', () => {
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await  applicantQuestions.validateToastMessage("may not qualify")
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
