@@ -107,14 +107,6 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.applicantAddress().id));
-    System.out.println("********");
-    System.out.println(predicateDefinition.rootNode().getLeafAddressNode().serviceAreaId());
-    System.out.println(
-        LeafAddressServiceAreaExpressionNode.builder()
-            .setQuestionId(testQuestionBank.applicantAddress().id)
-            .setServiceAreaId("seattle")
-            .build()
-            .serviceAreaId());
     assertThat(predicateDefinition.rootNode())
         .isEqualTo(
             PredicateExpressionNode.create(
