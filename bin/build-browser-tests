@@ -8,11 +8,11 @@ IMAGE="civiform-browser-test"
 LOCATION="browser-test/"
 DOCKERFILE="browser-test/playwright.Dockerfile"
 
-BUILD_ARGS=("-f" "${DOCKERFILE}"
-  -t "civiform/${IMAGE}:latest"
-  --cache-from "civiform/${IMAGE}"
+BUILD_ARGS="-f ${DOCKERFILE}
+  -t civiform/${IMAGE}:latest
+  --cache-from civiform/${IMAGE}
   --build-arg BUILDKIT_INLINE_CACHE=1
-  "${LOCATION}")
+  ${LOCATION}"
 
 PLATFORM_ARG=()
 if [[ "${PLATFORM}" ]]; then
@@ -21,16 +21,19 @@ fi
 
 # Build the multi-platform image
 echo "start ${IMAGE} build"
-docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+cmd="docker buildx build ${PLATFORM_ARG[@]} ${BUILD_ARGS}"
+$cmd
 
 # Load the image from the cache
 echo "load ${IMAGE} build"
-docker buildx build --load "${BUILD_ARGS[@]}"
+cmd="docker buildx build --load ${BUILD_ARGS}"
+$cmd
 
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login
   # Push the image from the cache to dockerhub
-  docker buildx build --push "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
+  cmd="docker buildx build --push ${PLATFORM_ARG[@]} ${BUILD_ARGS}"
+  $cmd
   echo "push ${IMAGE} build"
 fi
 
