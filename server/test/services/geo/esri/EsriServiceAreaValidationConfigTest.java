@@ -38,6 +38,13 @@ public class EsriServiceAreaValidationConfigTest {
   }
 
   @Test
+  public void getImmutableMapStored() {
+    assertEquals(esriServiceAreaValidationConfig.esriServiceAreaValidationMap, null);
+    esriServiceAreaValidationConfig.getImmutableMap();
+    assertEquals(true, esriServiceAreaValidationConfig.esriServiceAreaValidationMap.isPresent());
+  }
+
+  @Test
   public void getOptionByServiceAreaId() {
     Optional<EsriServiceAreaValidationOption> serviceAreaOption =
         esriServiceAreaValidationConfig.getOptionByServiceAreaId("Seattle");

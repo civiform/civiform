@@ -1,5 +1,6 @@
 package services.geo.esri;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -16,8 +17,8 @@ public final class EsriServiceAreaValidationConfig {
   private Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS;
   private Optional<ConfigList> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES;
 
-  private Optional<ImmutableMap<String, EsriServiceAreaValidationOption>>
-      esriServiceAreaValidationMap;
+  @VisibleForTesting
+  Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> esriServiceAreaValidationMap;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -123,7 +124,13 @@ public final class EsriServiceAreaValidationConfig {
 
       mapBuilder.put(values.get(i), option);
     }
-    return Optional.of(mapBuilder.build());
+
+    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> optionalMap =
+        Optional.of(mapBuilder.build());
+
+    esriServiceAreaValidationMap = optionalMap;
+
+    return optionalMap;
   }
 
   /**

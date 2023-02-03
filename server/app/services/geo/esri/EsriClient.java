@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -42,6 +44,7 @@ import services.geo.AddressSuggestionGroup;
  *     (Map Service/Layer)</a>
  */
 public class EsriClient implements WSBodyReadables, WSBodyWritables {
+  private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final WSClient ws;
 
   private static final String ESRI_CONTENT_TYPE = "application/json";
@@ -57,7 +60,10 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
-  public EsriClient(Config configuration, WSClient ws) {
+  public EsriClient(
+      Config configuration,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      WSClient ws) {
     this.ws = checkNotNull(ws);
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
         configuration.hasPath("esri_find_address_candidates_url")
@@ -67,6 +73,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         configuration.hasPath("esri_external_call_tries")
             ? configuration.getInt("esri_external_call_tries")
             : 3;
+    this.esriServiceAreaValidationConfig = esriServiceAreaValidationConfig;
   }
 
   /** Retries failed requests up to the provided value */
@@ -262,16 +269,18 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
 
   /**
    * Calls an external Esri service to get the service areas of the provided {@link
-   * AddressLocation}. Takes the returned service areas and returns a boolean specifying if the
-   * service area is included.
-   *
-   * @return an optional boolean if successful, or an empty optional if the request fails.
+   * AddressLocation}. Takes the returned service areas and returns an immutable list of {@link
+   * EsriServiceAreaInclusion}, filtered by the services areas specified in the application config.
    */
-  public CompletionStage<Optional<Boolean>> isAddressLocationInServiceArea(
+  public CompletionStage<ImmutableList<EsriServiceAreaInclusion>> getServiceAreaInclusionGroup(
       EsriServiceAreaValidationOption esriServiceAreaValidationOption, AddressLocation location) {
     return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
         .thenApply(
             (maybeJson) -> {
+              EsriServiceAreaInclusion.Builder esriServiceAreaInclusionBuilder =
+                  EsriServiceAreaInclusion.builder();
+              ImmutableList.Builder<EsriServiceAreaInclusion> inclusionListBuilder =
+                  ImmutableList.builder();
               if (maybeJson.isEmpty()) {
                 logger.error(
                     "EsriClient.fetchServiceAreaFeatures JSON response is empty. Called by"
@@ -279,19 +288,72 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                         + " EsriServiceAreaValidationOption = {}. AddressLocation = {}",
                     esriServiceAreaValidationOption,
                     location);
-                return Optional.empty();
+                inclusionListBuilder.add(
+                    esriServiceAreaInclusionBuilder
+                        .setArea(esriServiceAreaValidationOption.getId())
+                        .setState(EsriServiceAreaState.FAILED)
+                        .setTimeStamp(Instant.now())
+                        .build());
+                return inclusionListBuilder.build();
               }
+
+              Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> optionMap =
+                  esriServiceAreaValidationConfig.getImmutableMap();
+
+              if (optionMap.isEmpty()) {
+                logger.error(
+                    "Error calling EsriClient.getServiceAreaInclusionGroups. Error:"
+                        + " EsriServiceAreaValidationConfig.getImmutableMap() returned empty.");
+                esriServiceAreaInclusionBuilder
+                    .setArea(esriServiceAreaValidationOption.getId())
+                    .setState(EsriServiceAreaState.FAILED)
+                    .setTimeStamp(Instant.now());
+                inclusionListBuilder.add(esriServiceAreaInclusionBuilder.build());
+                return inclusionListBuilder.build();
+              }
+
+              ImmutableList.Builder<EsriServiceAreaInclusion> listBuilder = ImmutableList.builder();
 
               JsonNode json = maybeJson.get();
               ReadContext ctx = JsonPath.parse(json.toString());
               List<String> features =
                   ctx.read(
                       "features[*].attributes." + esriServiceAreaValidationOption.getAttribute());
-              Optional<String> feature =
-                  features.stream()
-                      .filter(val -> esriServiceAreaValidationOption.getId().equals(val))
-                      .findFirst();
-              return Optional.of(feature.isPresent());
+
+              for (EsriServiceAreaValidationOption option : optionMap.get().values()) {
+                if (features.contains(option.getId())) {
+                  listBuilder.add(
+                      esriServiceAreaInclusionBuilder
+                          .setArea(esriServiceAreaValidationOption.getId())
+                          .setState(EsriServiceAreaState.INAREA)
+                          .setTimeStamp(Instant.now())
+                          .build());
+                } else {
+                  listBuilder.add(
+                      esriServiceAreaInclusionBuilder
+                          .setArea(esriServiceAreaValidationOption.getId())
+                          .setState(EsriServiceAreaState.NOTINAREA)
+                          .setTimeStamp(Instant.now())
+                          .build());
+                }
+              }
+
+              return listBuilder.build();
             });
+  }
+
+  /**
+   * Given a {@link EsriServiceAreaValidationOption}, determine if it is in the provided list of
+   * {@link EsriServiceAreaInclusion}.
+   *
+   * @return boolean.
+   */
+  public Boolean isServiceAreaOptionInInclusionGroup(
+      EsriServiceAreaValidationOption esriServiceAreaValidationOption,
+      ImmutableList<EsriServiceAreaInclusion> inclusionGroup) {
+    return inclusionGroup.stream()
+        .map(EsriServiceAreaInclusion::getArea)
+        .collect(ImmutableList.toImmutableList())
+        .contains(esriServiceAreaValidationOption.getId());
   }
 }

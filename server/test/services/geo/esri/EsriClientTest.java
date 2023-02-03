@@ -14,6 +14,7 @@ import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -31,6 +32,7 @@ import services.geo.AddressSuggestionGroup;
 
 public class EsriClientTest {
   private Config config;
+  EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private EsriServiceAreaValidationOption esriServiceAreaValidationOption;
   private AddressLocation location;
   private Server server;
@@ -71,6 +73,7 @@ public class EsriClientTest {
   // setup Servers to return mock data from JSON files
   public void setup() {
     config = ConfigFactory.load();
+    esriServiceAreaValidationConfig = new EsriServiceAreaValidationConfig(config);
     esriServiceAreaValidationOption =
         EsriServiceAreaValidationOption.builder()
             .setLabel("Seattle")
@@ -93,7 +96,7 @@ public class EsriClientTest {
                     .routingTo(request -> ok().sendResource("esri/findAddressCandidates.json"))
                     .build());
     ws = play.test.WSTestClient.newClient(server.httpPort());
-    client = new EsriClient(config, ws);
+    client = new EsriClient(config, esriServiceAreaValidationConfig, ws);
     // overwrite to not include base URL so it uses the mock service
     client.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
@@ -108,7 +111,7 @@ public class EsriClientTest {
                     .build());
     wsNoCandidates = play.test.WSTestClient.newClient(serverNoCandidates.httpPort());
 
-    clientNoCandidates = new EsriClient(config, wsNoCandidates);
+    clientNoCandidates = new EsriClient(config, esriServiceAreaValidationConfig, wsNoCandidates);
     // overwrite to not include base URL so it uses the mock service
     clientNoCandidates.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
@@ -123,7 +126,7 @@ public class EsriClientTest {
                     .build());
     wsError = play.test.WSTestClient.newClient(serverError.httpPort());
 
-    clientError = new EsriClient(config, wsError);
+    clientError = new EsriClient(config, esriServiceAreaValidationConfig, wsError);
     // overwrite to not include base URL so it uses the mock service
     clientError.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
@@ -137,7 +140,7 @@ public class EsriClientTest {
                     .build());
     wsValidation = play.test.WSTestClient.newClient(serverValidation.httpPort());
 
-    clientValidation = new EsriClient(config, wsValidation);
+    clientValidation = new EsriClient(config, esriServiceAreaValidationConfig, wsValidation);
 
     // create a server for service area validation with error returned
     serverValidationError =
@@ -150,7 +153,8 @@ public class EsriClientTest {
                     .build());
     wsValidationError = play.test.WSTestClient.newClient(serverValidationError.httpPort());
 
-    clientValidationError = new EsriClient(config, wsValidationError);
+    clientValidationError =
+        new EsriClient(config, esriServiceAreaValidationConfig, wsValidationError);
 
     // create a server for service area validation with service area not in response
     serverValidationNotIncluded =
@@ -164,7 +168,8 @@ public class EsriClientTest {
     wsValidationNotIncluded =
         play.test.WSTestClient.newClient(serverValidationNotIncluded.httpPort());
 
-    clientValidationNotIncluded = new EsriClient(config, wsValidationNotIncluded);
+    clientValidationNotIncluded =
+        new EsriClient(config, esriServiceAreaValidationConfig, wsValidationNotIncluded);
 
     // create a server for service area validation with no features in response
     serverValidationNoFeatures =
@@ -178,7 +183,8 @@ public class EsriClientTest {
     wsValidationNoFeatures =
         play.test.WSTestClient.newClient(serverValidationNoFeatures.httpPort());
 
-    clientValidationNoFeatures = new EsriClient(config, wsValidationNoFeatures);
+    clientValidationNoFeatures =
+        new EsriClient(config, esriServiceAreaValidationConfig, wsValidationNoFeatures);
   }
 
   @After
@@ -302,32 +308,91 @@ public class EsriClientTest {
   }
 
   @Test
-  public void isAddressLocationInServiceAreaShouldBeTrue() {
-    Optional<Boolean> isInServiceArea =
+  public void getServiceAreaInclusionGroup() {
+    ImmutableList<EsriServiceAreaInclusion> inclusionList =
         clientValidation
-            .isAddressLocationInServiceArea(esriServiceAreaValidationOption, location)
+            .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
-    assertEquals(true, isInServiceArea.get());
+    Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
+    assertThat(area.isPresent()).isTrue();
+    assertEquals("Seattle", area.get().getArea());
+    assertEquals(EsriServiceAreaState.INAREA, area.get().getState());
+    assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
   }
 
   @Test
-  public void isAddressLocationInServiceAreaNotIncluded() {
-    Optional<Boolean> isInServiceArea =
+  public void getServiceAreaInclusionGroupAreaNotIncluded() {
+    ImmutableList<EsriServiceAreaInclusion> inclusionList =
         clientValidationNotIncluded
-            .isAddressLocationInServiceArea(esriServiceAreaValidationOption, location)
+            .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
-    assertEquals(false, isInServiceArea.get());
+    Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
+    assertThat(area.isPresent()).isTrue();
+    assertEquals("Seattle", area.get().getArea());
+    assertEquals(EsriServiceAreaState.NOTINAREA, area.get().getState());
+    assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
   }
 
   @Test
-  public void isAddressLocationInServiceAreaNoFeatures() {
-    Optional<Boolean> isInServiceArea =
+  public void getServiceAreaInclusionGroupNoFeatures() {
+    ImmutableList<EsriServiceAreaInclusion> inclusionList =
         clientValidationNoFeatures
-            .isAddressLocationInServiceArea(esriServiceAreaValidationOption, location)
+            .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
-    assertEquals(false, isInServiceArea.get());
+    Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
+    assertThat(area.isPresent()).isTrue();
+    assertEquals("Seattle", area.get().getArea());
+    assertEquals(EsriServiceAreaState.NOTINAREA, area.get().getState());
+    assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
+  }
+
+  @Test
+  public void getServiceAreaInclusionGroupError() {
+    ImmutableList<EsriServiceAreaInclusion> inclusionList =
+        clientValidationError
+            .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
+            .toCompletableFuture()
+            .join();
+    Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
+    assertThat(area.isPresent()).isTrue();
+    assertEquals("Seattle", area.get().getArea());
+    assertEquals(EsriServiceAreaState.FAILED, area.get().getState());
+    assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
+  }
+
+  @Test
+  public void isServiceAreaOptionInInclusionGroup() {
+    ImmutableList<EsriServiceAreaInclusion> inclusionGroup =
+        clientValidation
+            .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
+            .toCompletableFuture()
+            .join();
+    assertEquals(
+        true,
+        clientValidation.isServiceAreaOptionInInclusionGroup(
+            esriServiceAreaValidationOption, inclusionGroup));
+  }
+
+  @Test
+  public void isServiceAreaOptionInInclusionGroupFalse() {
+    EsriServiceAreaValidationOption option =
+        EsriServiceAreaValidationOption.builder()
+            .setLabel("Test")
+            .setId("Test")
+            .setUrl("/query")
+            .setAttribute("CITYNAME")
+            .build();
+    ImmutableList<EsriServiceAreaInclusion> inclusionGroup =
+        clientValidation
+            .getServiceAreaInclusionGroup(option, location)
+            .toCompletableFuture()
+            .join();
+    assertEquals(
+        false,
+        clientValidation.isServiceAreaOptionInInclusionGroup(
+            esriServiceAreaValidationOption, inclusionGroup));
   }
 }
