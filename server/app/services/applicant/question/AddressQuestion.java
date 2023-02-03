@@ -266,6 +266,14 @@ public final class AddressQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(
-        getStreetPath(), getLine2Path(), getCityPath(), getStatePath(), getZipPath());
+        getStreetPath(),
+        getLine2Path(),
+        getCityPath(),
+        getStatePath(),
+        getZipPath(),
+        getCorrectedPath(),
+        getLatitudePath(),
+        getLongitudePath(),
+        getWellKnownIdPath());
   }
 }
