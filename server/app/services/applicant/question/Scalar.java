@@ -67,7 +67,8 @@ public enum Scalar {
   }
 
   private static final ImmutableSet<Scalar> ADDRESS_SCALARS =
-      ImmutableSet.of(STREET, LINE2, CITY, STATE, ZIP, CORRECTED, LATITUDE, LONGITUDE, WELL_KNOWN_ID);
+      ImmutableSet.of(
+          STREET, LINE2, CITY, STATE, ZIP, CORRECTED, LATITUDE, LONGITUDE, WELL_KNOWN_ID);
 
   private static final ImmutableSet<Scalar> CURRENCY_SCALARS = ImmutableSet.of(CURRENCY_CENTS);
 
