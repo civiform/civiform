@@ -399,7 +399,11 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockBaseView {
   private DivTag createScalarDropdown(QuestionDefinition questionDefinition) {
     ImmutableSet<Scalar> scalars;
     try {
-      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+      // The old predicate creation endpoint does not support service areas
+      scalars =
+          Scalar.getScalars(questionDefinition.getQuestionType()).stream()
+              .filter(scalar -> !scalar.equals(Scalar.SERVICE_AREA))
+              .collect(ImmutableSet.toImmutableSet());
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       // This should never happen since we filter out Enumerator questions before this point.
       return div()
