@@ -37,7 +37,7 @@ public enum Scalar {
   STATE("state", ScalarType.STRING),
   STREET("street", ScalarType.STRING),
   TEXT("text", ScalarType.STRING),
-  WELLKNOWNID("wellknownid", ScalarType.LONG),
+  WELL_KNOWN_ID("well_known_id", ScalarType.LONG),
   ZIP("ZIP code", ScalarType.STRING),
 
   // Special scalars for Enumerator updates
@@ -67,7 +67,7 @@ public enum Scalar {
   }
 
   private static final ImmutableSet<Scalar> ADDRESS_SCALARS =
-      ImmutableSet.of(STREET, LINE2, CITY, STATE, ZIP, CORRECTED, LATITUDE, LONGITUDE, WELLKNOWNID);
+      ImmutableSet.of(STREET, LINE2, CITY, STATE, ZIP, CORRECTED, LATITUDE, LONGITUDE, WELL_KNOWN_ID);
 
   private static final ImmutableSet<Scalar> CURRENCY_SCALARS = ImmutableSet.of(CURRENCY_CENTS);
 

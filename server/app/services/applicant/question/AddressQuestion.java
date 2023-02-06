@@ -241,7 +241,7 @@ public final class AddressQuestion extends Question {
   }
 
   public Path getWellKnownIdPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.WELLKNOWNID);
+    return applicantQuestion.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
   }
 
   @Override

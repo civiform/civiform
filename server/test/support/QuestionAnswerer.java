@@ -44,7 +44,7 @@ public class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.CORRECTED), corrected);
     applicantData.putDouble(contextualizedPath.join(Scalar.LATITUDE), latitude);
     applicantData.putDouble(contextualizedPath.join(Scalar.LONGITUDE), longitude);
-    applicantData.putLong(contextualizedPath.join(Scalar.WELLKNOWNID), wellKnownId);
+    applicantData.putLong(contextualizedPath.join(Scalar.WELL_KNOWN_ID), wellKnownId);
   }
 
   public static void answerCurrencyQuestion(
