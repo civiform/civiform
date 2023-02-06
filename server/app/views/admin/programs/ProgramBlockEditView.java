@@ -277,7 +277,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                 .url();
       } else {
         switchBlockLink =
-            controllers.admin.routes.AdminProgramBlocksController.view(
+            controllers.admin.routes.AdminProgramBlocksController.show(
                     programDefinition.id(), blockDefinition.id())
                 .url();
       }

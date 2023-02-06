@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
@@ -54,11 +55,13 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
   private final String civicEntityShortName;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramIndexView(
       AdminLayoutFactory layoutFactory,
       Config config,
+      FeatureFlags featureFlags,
       TranslationLocales translationLocales,
       ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
@@ -66,6 +69,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
