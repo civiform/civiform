@@ -14,6 +14,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
+import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
@@ -66,7 +67,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
-    Optional<ToastMessage> banner =
+    Optional<ToastMessage> flashBanner =
         request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
     CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
 
@@ -77,12 +78,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
+              Messages messages = messagesApi.preferred(request);
+              Optional<ToastMessage> notEligibleBanner = Optional.empty();
+              if (featureFlags.isProgramEligibilityConditionsEnabled(request)
+                  && roApplicantProgramService.isApplicationNotEligible()) {
+                notEligibleBanner =
+                    Optional.of(
+                        new ToastMessage(
+                            messages.at(
+                                MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
+                                roApplicantProgramService.getProgramTitle()),
+                            ALERT));
+              }
               ApplicantProgramSummaryView.Params params =
                   this.generateParamsBuilder(roApplicantProgramService)
                       .setApplicantId(applicantId)
                       .setApplicantName(applicantStage.toCompletableFuture().join())
-                      .setBannerMessage(banner)
-                      .setMessages(messagesApi.preferred(request))
+                      .setBannerMessages(ImmutableList.of(flashBanner, notEligibleBanner))
+                      .setMessages(messages)
                       .setProgramId(programId)
                       .setRequest(request)
                       .build();

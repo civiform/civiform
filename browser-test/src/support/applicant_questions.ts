@@ -172,6 +172,11 @@ export class ApplicantQuestions {
     await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
 
+  async validateToastMessage(value: string) {
+    const toastMessages = await this.page.innerText('#toast-container')
+    expect(toastMessages).toContain(value)
+  }
+
   async applyProgram(programName: string) {
     // User clicks the apply button on an application card. It takes them to the application info page.
     await this.clickApplyProgramButton(programName)
