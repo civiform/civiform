@@ -143,12 +143,6 @@ link.programDetails=計畫詳情
 # The same text, read for screen readers.
 link.programDetailsSr=「{0}」計畫詳情
 
-# Link text to an external site to read more about a program.
-link.externalLink=外部網站
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=在新分頁中開啟
-
 # The title of the page for the list of programs.
 title.programs=計畫與服務
 
@@ -225,13 +219,6 @@ label.state=州
 label.selectState=請選取州
 label.street=地址 1
 label.zipcode=郵遞區號
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=城市
-placeholder.line2=門牌號碼、棟別、樓層等
-placeholder.state=州
-placeholder.street=街道地址
-placeholder.zipcode=郵遞區號
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=請輸入有效的街道名稱和號碼。

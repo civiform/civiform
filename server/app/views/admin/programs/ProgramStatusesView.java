@@ -349,9 +349,6 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 FieldWithLabel.input()
                     .setFieldName(ProgramStatusesForm.STATUS_TEXT_FORM_NAME)
                     .setLabelText("Status name (required)")
-                    // TODO(#2617): Potentially move placeholder text to an actual
-                    // description.
-                    .setPlaceholderText("Enter status name here")
                     .setValue(formData.getStatusText())
                     .setFieldErrors(
                         messages, form.errors(ProgramStatusesForm.STATUS_TEXT_FORM_NAME))
@@ -361,10 +358,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .with(
                         FieldWithLabel.textArea()
                             .setFieldName(ProgramStatusesForm.EMAIL_BODY_FORM_NAME)
-                            .setLabelText("Applicant status change email")
-                            // TODO(#2617): Potentially move placeholder text to an actual
-                            // description.
-                            .setPlaceholderText("Notify the Applicant about the status change")
+                            .setLabelText("Email the applicant about the status change")
                             .setRows(OptionalLong.of(5))
                             .setValue(formData.getEmailBody())
                             .setFieldErrors(

@@ -33,8 +33,8 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.19.22",
-      "software.amazon.awssdk" % "ses" % "2.19.22",
+      "software.amazon.awssdk" % "s3" % "2.19.29",
+      "software.amazon.awssdk" % "ses" % "2.19.29",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.7.3",
@@ -86,7 +86,7 @@ lazy val root = (project in file("."))
       "com.google.errorprone" % "error_prone_core" % "2.18.0",
 
       // Apache libraries for export
-      "org.apache.commons" % "commons-csv" % "1.9.0",
+      "org.apache.commons" % "commons-csv" % "1.10.0",
       "commons-validator" % "commons-validator" % "1.7",
 
       // pdf library for export

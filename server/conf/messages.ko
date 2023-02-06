@@ -144,12 +144,6 @@ link.programDetails=프로그램 세부정보
 # The same text, read for screen readers.
 link.programDetailsSr={0}의 프로그램 세부정보
 
-# Link text to an external site to read more about a program.
-link.externalLink=외부 사이트
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=새 탭에서 열기
-
 # The title of the page for the list of programs.
 title.programs=프로그램 및 서비스
 
@@ -226,13 +220,6 @@ label.state=주/도
 label.selectState=주 선택
 label.street=상세 주소 1
 label.zipcode=우편번호
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=시/군/구
-placeholder.line2=아파트, 빌딩, 호, 층 등
-placeholder.state=시/도
-placeholder.street=상세 주소
-placeholder.zipcode=우편번호
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=유효한 도로명과 번호를 입력하세요.

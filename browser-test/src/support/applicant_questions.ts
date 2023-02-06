@@ -188,13 +188,6 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickProgramDetails(programName: string) {
-    await this.page.click(
-      `.cf-application-card:has-text("${programName}") >> text=Program details`,
-    )
-    await waitForPageJsLoad(this.page)
-  }
-
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
