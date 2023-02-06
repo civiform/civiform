@@ -99,7 +99,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public boolean isInProgressApplicationNotEligible() {
+  public boolean isApplicationNotEligible() {
+    // Summary data is checked instead of the active blocks in order to handle the cases where some
+    // questions in the block are unanswered.
     return getSummaryData().stream()
         .anyMatch(question -> !question.isEligible() && question.isAnswered());
   }

@@ -82,11 +82,15 @@ public interface ReadOnlyApplicantProgramService {
   /** Get the string identifiers for all stored files for this application. */
   ImmutableList<String> getStoredFileKeys();
 
-  /** Returns if the Program eligibility criteria are met. */
+  /** Returns if the application is complete and all Program eligibility criteria are met. */
   boolean isApplicationEligible();
 
-  /** Returns if any of the answered questions in the program are not eligible. */
-  boolean isInProgressApplicationNotEligible();
+  /**
+   * Returns if any of the answered questions in the program are not eligible, even if the
+   * application hasn't yet been completed. If any questions in the program are not eligible this
+   * will return true.
+   */
+  boolean isApplicationNotEligible();
 
   /** Returns if the block eligibility criteria are met. */
   boolean isBlockEligible(String blockId);

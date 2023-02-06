@@ -81,7 +81,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               Messages messages = messagesApi.preferred(request);
               Optional<ToastMessage> notEligibleBanner = Optional.empty();
               if (featureFlags.isProgramEligibilityConditionsEnabled(request)
-                  && roApplicantProgramService.isInProgressApplicationNotEligible()) {
+                  && roApplicantProgramService.isApplicationNotEligible()) {
                 notEligibleBanner =
                     Optional.of(
                         new ToastMessage(
