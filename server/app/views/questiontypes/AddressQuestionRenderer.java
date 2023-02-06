@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.InputTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import services.MessageKey;
@@ -110,30 +109,6 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 validationErrors.getOrDefault(addressQuestion.getZipPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP);
 
-    InputTag correctedField =
-        j2html.TagCreator.input()
-            .withType("hidden")
-            .withName(addressQuestion.getCorrectedPath().toString())
-            .withValue(addressQuestion.getCorrectedValue().orElse(""));
-
-    InputTag latitudeField =
-        j2html.TagCreator.input()
-            .withType("hidden")
-            .withName(addressQuestion.getLatitudePath().toString())
-            .withValue(addressQuestion.getLatitudeValue().orElse(0.0).toString());
-
-    InputTag longitudeField =
-        j2html.TagCreator.input()
-            .withType("hidden")
-            .withName(addressQuestion.getLongitudePath().toString())
-            .withValue(addressQuestion.getLongitudeValue().orElse(0.0).toString());
-
-    InputTag wellKnownIdField =
-        j2html.TagCreator.input()
-            .withType("hidden")
-            .withName(addressQuestion.getWellKnownIdPath().toString())
-            .withValue(addressQuestion.getWellKnownIdValue().orElse(0L).toString());
-
     if (!validationErrors.isEmpty()) {
       streetAddressField.forceAriaInvalid();
       cityField.forceAriaInvalid();
@@ -156,11 +131,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                         // TODO UI alignment issue fix tracked here at
                         // https://github.com/civiform/civiform/issues/3792
                         stateField.getSelectTag(),
-                        zipField.getInputTag(),
-                        correctedField,
-                        latitudeField,
-                        longitudeField,
-                        wellKnownIdField));
+                        zipField.getInputTag()));
 
     return addressQuestionFormContent;
   }
