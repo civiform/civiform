@@ -263,7 +263,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
-          predicatesConfigureView.renderVisibility(
+          predicatesConfigureView.renderNewVisibility(
               request,
               programDefinition,
               blockDefinition,
@@ -300,7 +300,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   visibilityQuestionIds.contains(questionDefinition.getId()));
 
       return ok(
-          predicatesConfigureView.renderVisibility(
+          predicatesConfigureView.renderExistingVisibility(
               request, programDefinition, blockDefinition, visibilityQuestionDefinitions));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
@@ -319,7 +319,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
-          predicatesConfigureView.renderEligibility(
+          predicatesConfigureView.renderNewEligibility(
               request,
               programDefinition,
               blockDefinition,
@@ -357,7 +357,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   eligibilityQuestionIds.contains(questionDefinition.getId()));
 
       return ok(
-          predicatesConfigureView.renderEligibility(
+          predicatesConfigureView.renderExistingEligibility(
               request, programDefinition, blockDefinition, eligibilityQuestionDefinitions));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);

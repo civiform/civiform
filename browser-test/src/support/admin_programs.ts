@@ -401,9 +401,10 @@ export class AdminPrograms {
   }
 
   private async waitForQuestionBankAnimationToFinish() {
-    // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
+    // Animation is 150ms. Give some extra overhead to avoid flakiness on slow CPU.
+    // This is currently called over 300 times which adds up.
     // https://tailwindcss.com/docs/transition-property
-    await this.page.waitForTimeout(1000)
+    await this.page.waitForTimeout(250)
   }
 
   async openQuestionBank() {
@@ -921,5 +922,13 @@ export class AdminPrograms {
     await this.addProgram(programName)
     await this.editProgramBlock(programName, 'dummy description', questionNames)
     await this.publishProgram(programName)
+  }
+
+  getAddressCorrectionToggle() {
+    return this.page.locator('input[name=addressCorrectionEnabled]')
+  }
+
+  async clickAddressCorrectionToggle() {
+    await this.page.click(':is(button:has-text("Address correction"))')
   }
 }

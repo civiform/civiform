@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
   logout,
@@ -61,7 +60,6 @@ describe('Admin can manage translations', () => {
     const {page, adminPrograms, adminProgramStatuses, adminTranslations} = ctx
 
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
     const programName = 'Program to be translated with statuses'
     await adminPrograms.addProgram(programName)
@@ -194,7 +192,7 @@ describe('Admin can manage translations', () => {
     // Expect program details link to contain 'Detalles del programa' with link to 'http://seattle.gov'
     expect(
       await page.innerText('.cf-application-card a[href="http://seattle.gov"]'),
-    ).toContain('Sitio externo')
+    ).toContain('Detalles del programa')
 
     await applicantQuestions.applyProgram(programName)
 

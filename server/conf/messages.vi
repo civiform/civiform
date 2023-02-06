@@ -143,12 +143,6 @@ link.programDetails=Chi tiết chương trình
 # The same text, read for screen readers.
 link.programDetailsSr=Chi tiết chương trình {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=Trang web bên ngoài
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=Mở trong thẻ mới
-
 # The title of the page for the list of programs.
 title.programs=Chương trình và dịch vụ
 
@@ -176,6 +170,12 @@ button.submit=Gửi
 
 # Continue application button
 button.continue=Tiếp tục
+
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=Không đủ điều kiện
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Chỉnh sửa
@@ -216,15 +216,9 @@ content.pleaseCreateAccount=Nếu bây giờ bạn đăng nhập vào tài kho�
 label.addressLine2=Số phòng/căn hộ
 label.city=Thành phố
 label.state=Tiểu bang
+label.selectState=Chọn tiểu bang
 label.street=Dòng địa chỉ 1
 label.zipcode=Mã bưu chính
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=Thành phố
-placeholder.line2=Căn hộ, phòng, lô, toà nhà, tầng, v.v.
-placeholder.state=Bang
-placeholder.street=Địa chỉ đường phố
-placeholder.zipcode=Mã bưu chính
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Vui lòng nhập số nhà và tên đường hợp lệ.

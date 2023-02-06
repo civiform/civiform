@@ -53,7 +53,10 @@ public abstract class AnswerData {
   /** True if this answer represents an answer, or false for a skipped question. */
   public abstract boolean isAnswered();
 
-  /** True if this answer meets eligibility criteria for the block it is in. */
+  /**
+   * True if this answer meets eligibility criteria for the block it is in. Unanswered eligibility
+   * questions will have a false value.
+   */
   public abstract boolean isEligible();
 
   /** The applicant's response to the question. */

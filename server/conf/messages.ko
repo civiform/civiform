@@ -144,12 +144,6 @@ link.programDetails=프로그램 세부정보
 # The same text, read for screen readers.
 link.programDetailsSr={0}의 프로그램 세부정보
 
-# Link text to an external site to read more about a program.
-link.externalLink=외부 사이트
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=새 탭에서 열기
-
 # The title of the page for the list of programs.
 title.programs=프로그램 및 서비스
 
@@ -177,6 +171,12 @@ button.submit=제출
 
 # Continue application button
 button.continue=계속
+
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=제출을 위해 확인 필요
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=편집
@@ -217,15 +217,9 @@ content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며
 label.addressLine2=단위/아파트 번호
 label.city=시/군/구
 label.state=주/도
+label.selectState=주 선택
 label.street=상세 주소 1
 label.zipcode=우편번호
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=시/군/구
-placeholder.line2=아파트, 빌딩, 호, 층 등
-placeholder.state=시/도
-placeholder.street=상세 주소
-placeholder.zipcode=우편번호
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=유효한 도로명과 번호를 입력하세요.

@@ -146,12 +146,6 @@ link.programDetails=Detalles del programa
 # The same text, read for screen readers.
 link.programDetailsSr=Detalles del programa para {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=Sitio externo
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=Se abre en una pestaña nueva
-
 # The title of the page for the list of programs.
 title.programs=Programas y servicios
 
@@ -179,6 +173,12 @@ button.submit=Enviar
 
 # Continue application button
 button.continue=Continuar
+
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=Se actualizó la aplicación; revisa y responde las preguntas para proceder
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=No apto
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Editar
@@ -219,15 +219,9 @@ content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardar�
 label.addressLine2=Número de departamento o unidad
 label.city=Ciudad
 label.state=Estado
+label.selectState=Selecciona un estado
 label.street=Línea de dirección 1
 label.zipcode=Código postal
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=Ciudad
-placeholder.line2=Departamento, oficina, unidad, edificio, piso, etc.
-placeholder.state=Estado
-placeholder.street=Dirección
-placeholder.zipcode=Código postal
 
 
 # Validation errors that are shown when a user enters an invalid address.

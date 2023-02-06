@@ -34,6 +34,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -44,6 +45,7 @@ import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
+import services.program.predicate.OperatorRightHandType;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
@@ -82,7 +84,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
 
   private static final String COLUMN_WIDTH = "w-48";
 
-  public enum TYPE {
+  public enum Type {
     ELIGIBILITY,
     VISIBILITY
   }
@@ -94,22 +96,60 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
   }
 
-  public Content renderVisibility(
+  public Content renderNewVisibility(
       Http.Request request,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questionDefinitions) {
     return render(
-        request, programDefinition, blockDefinition, questionDefinitions, TYPE.VISIBILITY);
+        request,
+        programDefinition,
+        blockDefinition,
+        questionDefinitions,
+        Type.VISIBILITY,
+        /* forceNew= */ true);
   }
 
-  public Content renderEligibility(
+  public Content renderExistingVisibility(
       Http.Request request,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questionDefinitions) {
     return render(
-        request, programDefinition, blockDefinition, questionDefinitions, TYPE.ELIGIBILITY);
+        request,
+        programDefinition,
+        blockDefinition,
+        questionDefinitions,
+        Type.VISIBILITY,
+        /* forceNew= */ false);
+  }
+
+  public Content renderNewEligibility(
+      Http.Request request,
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition,
+      ImmutableList<QuestionDefinition> questionDefinitions) {
+    return render(
+        request,
+        programDefinition,
+        blockDefinition,
+        questionDefinitions,
+        Type.ELIGIBILITY,
+        /* forceNew= */ true);
+  }
+
+  public Content renderExistingEligibility(
+      Http.Request request,
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition,
+      ImmutableList<QuestionDefinition> questionDefinitions) {
+    return render(
+        request,
+        programDefinition,
+        blockDefinition,
+        questionDefinitions,
+        Type.ELIGIBILITY,
+        /* forceNew= */ false);
   }
 
   public Content render(
@@ -117,7 +157,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> questionDefinitions,
-      TYPE type) {
+      Type type,
+      boolean forceNew) {
 
     // The order of the question definitions in the list determines the column
     // order in the UI. Questions are ordered by admin name to ensure stable
@@ -137,7 +178,9 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
         {
           typeDisplayName = "eligibility";
           existingPredicate =
-              blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
+              forceNew
+                  ? Optional.empty()
+                  : blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
           formActionUrl =
               routes.AdminProgramBlockPredicatesController.updateEligibility(
                       programDefinition.id(), blockDefinition.id())
@@ -151,7 +194,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
       case VISIBILITY:
         {
           typeDisplayName = "visibility";
-          existingPredicate = blockDefinition.visibilityPredicate();
+          existingPredicate = forceNew ? Optional.empty() : blockDefinition.visibilityPredicate();
           formActionUrl =
               routes.AdminProgramBlockPredicatesController.updateVisibility(
                       programDefinition.id(), blockDefinition.id())
@@ -206,11 +249,11 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
       String formAction,
       ImmutableList<QuestionDefinition> questionDefinitions,
       Optional<PredicateDefinition> maybeExistingPredicate,
-      TYPE type) {
+      Type type) {
     FormTag formTag =
         form(
                 makeCsrfTokenInputTag(request),
-                type.equals(TYPE.ELIGIBILITY)
+                type.equals(Type.ELIGIBILITY)
                     ? renderConfiguratorEligibilityHeader()
                     : renderConfiguratorVisibilityHeader(maybeExistingPredicate),
                 renderQuestionHeaders(questionDefinitions, maybeExistingPredicate))
@@ -402,6 +445,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                     qd,
                     groupId,
                     Optional.of(leafNode.scalar()),
+                    Optional.of(leafNode.operator()),
                     Optional.of(leafNode.comparedValue())));
       }
     } else {
@@ -414,6 +458,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                     questionDefinition,
                     groupId,
                     /* maybeScalar= */ Optional.empty(),
+                    /* maybeOperator= */ Optional.empty(),
                     /* maybePredicateValue= */ Optional.empty()));
       }
     }
@@ -552,6 +597,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
       QuestionDefinition questionDefinition,
       int groupId,
       Optional<Scalar> maybeScalar,
+      Optional<Operator> maybeOperator,
       Optional<PredicateValue> maybePredicateValue) {
     DivTag valueField = div().withClasses(COLUMN_WIDTH);
 
@@ -602,7 +648,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                         "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
                 .setValue(
                     maybePredicateValue.map(
-                        predicateValue -> formatPredicateValue(maybeScalar.get(), predicateValue)))
+                        predicateValue ->
+                            formatPredicateValue(maybeScalar.get(), maybeOperator, predicateValue)))
                 .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
                 .getInputTag())
         .with(
@@ -615,7 +662,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                 .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
   }
 
-  private static String formatPredicateValue(Scalar scalar, PredicateValue predicateValue) {
+  private static String formatPredicateValue(
+      Scalar scalar, Optional<Operator> maybeOperator, PredicateValue predicateValue) {
     switch (scalar.toScalarType()) {
       case CURRENCY_CENTS:
         {
@@ -633,10 +681,46 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
               .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         }
 
-      case LIST_OF_STRINGS:
       case LONG:
+        {
+          if (maybeOperator
+              .map(
+                  operator ->
+                      operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_LONGS))
+              .orElse(false)) {
+            String value = predicateValue.value();
+
+            // Lists of longs are serialized as JSON arrays e.g. "[1, 2]"
+            return Splitter.on(", ")
+                // Remove opening and closing brackets
+                .splitToStream(value.substring(1, value.length() - 1))
+                // Join to CSV
+                .collect(Collectors.joining(","));
+          }
+
+          return predicateValue.value();
+        }
+
+      case LIST_OF_STRINGS:
       case STRING:
         {
+          if (maybeOperator
+              .map(
+                  operator ->
+                      operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_STRINGS))
+              .orElse(false)) {
+            String value = predicateValue.value();
+
+            // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
+            return Splitter.on(", ")
+                // Remove opening and closing brackets
+                .splitToStream(value.substring(1, value.length() - 1))
+                // Remove quotes
+                .map(item -> item.substring(1, item.length() - 1))
+                // Join to CSV
+                .collect(Collectors.joining(","));
+          }
+
           return predicateValue.value();
         }
 

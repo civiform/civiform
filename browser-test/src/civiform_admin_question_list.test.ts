@@ -5,8 +5,7 @@ import {
   disableFeatureFlag,
   loginAsAdmin,
 } from './support'
-
-describe('Most recently updated question is at top of list.', () => {
+describe('Admin question list', () => {
   const ctx = createTestContext()
   it('sorts by last updated, preferring draft over active', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
@@ -82,6 +81,33 @@ describe('Most recently updated question is at top of list.', () => {
       questionThreePublishedText,
       questionOneDraftText,
       questionTwoPublishedText,
+    ])
+  })
+
+  it('filters question list with search query', async () => {
+    const {page, adminQuestions} = ctx
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+
+    await adminQuestions.gotoAdminQuestionsPage()
+
+    await page.locator('#question-bank-filter').fill('first')
+    expect(await adminQuestions.questionBankNames()).toEqual(['first question'])
+    await page.locator('#question-bank-filter').fill('second')
+    expect(await adminQuestions.questionBankNames()).toEqual([
+      'second question',
+    ])
+    await page.locator('#question-bank-filter').fill('')
+    expect(await adminQuestions.questionBankNames()).toEqual([
+      'second question',
+      'first question',
     ])
   })
 

@@ -7,6 +7,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -22,10 +23,12 @@ import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
+import views.applicant.IneligibleBlockView;
 import views.components.ToastMessage;
 
 /**
@@ -40,7 +43,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
+  private final IneligibleBlockView ineligibleBlockView;
   private final ProfileUtils profileUtils;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -48,12 +53,16 @@ public class ApplicantProgramReviewController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
-      ProfileUtils profileUtils) {
+      IneligibleBlockView ineligibleBlockView,
+      ProfileUtils profileUtils,
+      FeatureFlags featureFlags) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
+    this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.profileUtils = checkNotNull(profileUtils);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
@@ -133,7 +142,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
     CompletionStage<Application> submitApp =
-        applicantService.submitApplication(applicantId, programId, submittingProfile);
+        applicantService.submitApplication(
+            applicantId,
+            programId,
+            submittingProfile,
+            featureFlags.isProgramEligibilityConditionsEnabled(request));
     return submitApp
         .thenApplyAsync(
             application -> {
@@ -154,7 +167,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
-                  return found(reviewPage).flashing("banner", "Error saving application.");
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName());
+                  return found(reviewPage).flashing("banner", errorMsg);
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
                   String errorMsg =
@@ -164,6 +181,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
                   return redirect(reviewPage).flashing("error", errorMsg);
+                }
+                if (cause instanceof ApplicationNotEligibleException) {
+                  // TODO(#3744) Make asynchronous.
+                  ReadOnlyApplicantProgramService roApplicantProgramService =
+                      applicantService
+                          .getReadOnlyApplicantProgramService(applicantId, programId)
+                          .toCompletableFuture()
+                          .join();
+
+                  Optional<String> applicantName =
+                      applicantService.getName(applicantId).toCompletableFuture().join();
+                  return ok(
+                      ineligibleBlockView.render(
+                          request,
+                          roApplicantProgramService,
+                          applicantName,
+                          messagesApi.preferred(request),
+                          applicantId));
                 }
                 throw new RuntimeException(cause);
               }

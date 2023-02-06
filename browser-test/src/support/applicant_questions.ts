@@ -188,13 +188,6 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickProgramDetails(programName: string) {
-    await this.page.click(
-      `.cf-application-card:has-text("${programName}") >> text=Program details`,
-    )
-    await waitForPageJsLoad(this.page)
-  }
-
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
@@ -343,9 +336,7 @@ export class ApplicantQuestions {
   }
 
   async expectIneligiblePage() {
-    expect(await this.page.innerText('p')).toContain(
-      'not eligible for this program',
-    )
+    expect(await this.page.innerText('h2')).toContain('you may not qualify')
   }
 
   async expectQuestionIsNotEligible(questionText: string) {
@@ -356,6 +347,16 @@ export class ApplicantQuestions {
     expect(
       await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
     ).toEqual(1)
+  }
+
+  async expectQuestionHasNoEligibilityIndicator(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    expect(
+      await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
+    ).toEqual(0)
   }
 
   async submitFromReviewPage() {

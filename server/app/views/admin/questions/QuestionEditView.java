@@ -318,8 +318,7 @@ public final class QuestionEditView extends BaseHtmlView {
         FieldWithLabel.textArea()
             .setId("question-text-textarea")
             .setFieldName("questionText")
-            .setLabelText("Question text*")
-            .setPlaceholderText("The question text displayed to the applicant")
+            .setLabelText("Question text displayed to the applicant*")
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
             .getTextareaTag());
@@ -328,8 +327,7 @@ public final class QuestionEditView extends BaseHtmlView {
           FieldWithLabel.textArea()
               .setId("question-help-text-textarea")
               .setFieldName("questionHelpText")
-              .setLabelText("Question help text")
-              .setPlaceholderText("The question help text displayed to the applicant")
+              .setLabelText("Question help text displayed to the applicant")
               .setDisabled(!submittable)
               .setValue(questionForm.getQuestionHelpText())
               .getTextareaTag());

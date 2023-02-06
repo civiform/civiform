@@ -1143,4 +1143,11 @@ export class AdminQuestions {
 
     await this.expectDraftQuestionExist(questionName, questionText)
   }
+
+  async questionBankNames(): Promise<string[]> {
+    const titles = this.page.locator(
+      '.cf-question-bank-element:visible .cf-question-title',
+    )
+    return titles.allTextContents()
+  }
 }

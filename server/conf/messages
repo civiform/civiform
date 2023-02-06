@@ -151,12 +151,6 @@ link.programDetails=Program details
 # The same text, read for screen readers.
 link.programDetailsSr=Program details for {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=External site
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=Opens in a new tab
-
 # The title of the page for the list of programs.
 title.programs=Programs & services
 
@@ -191,6 +185,9 @@ toast.applicationOutOfDate=There''s been an update to the application, please re
 # Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
 content.notEligible=Not Eligible
 
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=Does not qualify
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Edit
 link.answer=Answer
@@ -213,6 +210,70 @@ ariaLabel.edit=Edit {0}
 # Program Summary Title
 title.programSummary=Program application summary
 
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=Based on your responses, you may not qualify for the {0}.
+
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
+title.applicantNotEligibleTi=Based on your responses, your client may not qualify for the {0}.
+
+# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
+content.mustMeetRequirements=You must meet these program requirements:
+
+# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
+content.mustMeetRequirementsTi=Your client must meet these program requirements:
+
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=For eligibility criteria please refer to {0}
+
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=You can return to the previous page to edit your answers. Or apply to another program.
+
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=Go back and edit
+
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayQualifyTi=Based on your responses, your client may qualify for the {0}. To proceed, continue filling out the application.
+
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=Based on your responses, you may qualify for the {0}. To proceed, continue filling out the application.
+
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=You may qualify
+
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayQualifyTi=Your client may qualify
+
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=You may not qualify
+
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayNotQualifyTi=Your client may not qualify
+
+# Title of page when there is a system outage and eligibility can't be determined for the applicant.
+title.cannotCheckEligibility=At this time, we are unable to check your eligibility for the {0}.
+
+# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client's behalf.
+title.cannotCheckEligibilityTi=At this time, we are unable to check your client's eligibility for the {0}.
+
+# Content of page when there is a system outage and eligibility can't be determined for the applicant.
+content.cannotCheckEligibility=We’re working to fix this issue quickly. Try again at a later time.
+
+# Button that allows an applicant to view all programs.
+button.viewAllPrograms=View all programs
+
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=Based on your responses, you may not qualify for the {0}. If your information has changed you can edit your answers and then proceed with the application.
+
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayNotQualifyTi=Based on your responses, your client may not qualify for the {0}. If your client's information has changed you can edit your answers and then proceed with the application.
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=Error saving application
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -234,19 +295,12 @@ content.pleaseCreateAccount=If you sign into a city account now, your informatio
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Unit/Apartment Number
+label.addressLine2=Apartment, suite, etc. (optional)
 label.city=City
 label.state=State
 label.selectState=Select State
-label.street=Address line 1
+label.street=Address
 label.zipcode=ZIP Code
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=City
-placeholder.line2=Apartment, suite, unit, building, floor, etc.
-placeholder.state=State
-placeholder.street=Street address
-placeholder.zipcode=ZIP Code
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Please enter valid street name and number.
@@ -255,6 +309,36 @@ validation.currencyMisformatted=Currency must be one of the following formats: 1
 validation.stateRequired=Please enter state.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
+
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=Verify address
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=We could not verify the address that you provided, but found something similar.
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=Address entered:
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName={0} entered:
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Suggested address:
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=Suggested addresses:
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=Edit address
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm=Save and confirm
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=No valid address found
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=We could not verify the address that you provided. Please edit your address to continue.
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #

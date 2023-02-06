@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
@@ -54,7 +53,6 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final String baseUrl;
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
-  private final FeatureFlags featureFlags;
   private final String civicEntityShortName;
 
   @Inject
@@ -62,13 +60,11 @@ public final class ProgramIndexView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       Config config,
       TranslationLocales translationLocales,
-      ProgramCardFactory programCardFactory,
-      FeatureFlags featureFlags) {
+      ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.featureFlags = checkNotNull(featureFlags);
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
   }
 
@@ -316,9 +312,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeManageTranslationsLink.isPresent()) {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
-      if (featureFlags.isStatusTrackingEnabled(request)) {
-        draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      }
+      draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()

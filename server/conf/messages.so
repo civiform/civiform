@@ -124,9 +124,6 @@ link.programDetails=Faahfaahinta barnaamijka
 # The same text, read for screen readers.
 link.programDetailsSr=Faahfaahinta barnaamijka ee {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=Goobta dibadda
-
 # The title of the page for the list of programs.
 title.programs=Barnaamijyada iyo adeegyada
 
@@ -145,6 +142,12 @@ button.submit=Gudbi
 
 # Continue application button
 button.continue=Sii wad
+
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=Uma Qalmo
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Wax ka beddel
@@ -187,15 +190,9 @@ content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga
 label.addressLine2=Guri dabaq ah / Lambarka Guriga
 label.city=Magaalada
 label.state=Gobolka
+label.selectState=Dooro Gobolka
 label.street=Ciwaanka Xaafada 1
 label.zipcode=Siib Koodhka
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=Magaalada
-placeholder.line2=Abaarmantka, suite-ka, guriga unitka ah, dhismo, dabaq, iwm.
-placeholder.state=Gobolka
-placeholder.street=Cinwaanka wadada
-placeholder.zipcode=Siib Koodhka
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Fadlan gali magaca wadada saxda ah iyo lambarka.

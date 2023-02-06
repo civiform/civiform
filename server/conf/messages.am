@@ -143,11 +143,6 @@ link.programDetails=የፕሮግራም ዝርዝሮች
 # The same text, read for screen readers.
 link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
 
-# Link text to an external site to read more about a program.
-link.externalLink=ውጫዊ ጣቢያ
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=በአዲስ ትር ውስጥ ይከፍታል
-
 # The title of the page for the list of programs.
 title.programs=ፕሮግራሞች እና አገልግሎቶች
 
@@ -175,6 +170,12 @@ button.submit=አስገባ
 
 # Continue application button
 button.continue=ቀጥል
+
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=ብቁ አይደለም
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=አርትዕ
@@ -215,15 +216,9 @@ content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ �
 label.addressLine2=የክፍል/አፓርታማ ቁጥር
 label.city=ከተማ
 label.state=ግዛት
+label.selectState=ክልል ይምረጡ
 label.street=የአድራሻ መስመር 1
 label.zipcode=ዚፕ ኮድ
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=ከተማ
-placeholder.line2=አፓርታማ፣ ስዊት፣ ክፍል፣ ሕንፃ፣ ፎቅ፣ ወዘተ።
-placeholder.state=ክልል
-placeholder.street=የጎዳና አድራሻ
-placeholder.zipcode=ዚፕ ኮድ
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=እባክዎ ትክክለኛ የጎዳና ስም እና ቁጥር ያስገቡ።

@@ -10,19 +10,19 @@ public abstract class AddressLocation {
   }
 
   /** returns a coordinate on the x axis of the coordinate system (longitude) */
-  public abstract Long getLongitude();
+  public abstract Double getLongitude();
 
   /** returns a coordinate on the y axis of the coordinate system (latitude) */
-  public abstract Long getLatitude();
+  public abstract Double getLatitude();
 
   /** returns a well-known ID for ArcGIS coordinate systems, used for spatial reference */
   public abstract int getWellKnownId();
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setLongitude(long x);
+    public abstract Builder setLongitude(double x);
 
-    public abstract Builder setLatitude(long y);
+    public abstract Builder setLatitude(double y);
 
     public abstract Builder setWellKnownId(int wellKnownId);
 

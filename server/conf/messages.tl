@@ -143,12 +143,6 @@ link.programDetails=Mga detalya ng programa
 # The same text, read for screen readers.
 link.programDetailsSr=Mga detalya ng programa para sa {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=Panlabas na site
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=Bubukas sa bagong tab
-
 # The title of the page for the list of programs.
 title.programs=Mga programa at mga serbisyo
 
@@ -176,6 +170,12 @@ button.submit=Isumite
 
 # Continue application button
 button.continue=Magsimula dito
+
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagutan ang mga sagot para magpatuloy
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=Hindi Kwalipikado
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=I-edit
@@ -216,15 +216,9 @@ content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng l
 label.addressLine2=Unit/Numero ng Apartment
 label.city=Lungsod
 label.state=Estado
+label.selectState=Pumili ng Estado
 label.street=Linya ng adres 1
 label.zipcode=Zip code
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=Lungsod
-placeholder.line2=Apartment, suite, unit, gusali, palapag, atbp.
-placeholder.state=Estado
-placeholder.street=Adres ng kalye
-placeholder.zipcode=Zip code
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Maaari lamang na ilagay ang wasto na pangalan ng kalye, at ang numero.
