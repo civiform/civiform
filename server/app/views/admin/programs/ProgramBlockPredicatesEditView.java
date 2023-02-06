@@ -431,6 +431,8 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockBaseView {
   private DivTag createOperatorDropdown() {
     ImmutableList<OptionTag> operatorOptions =
         Arrays.stream(Operator.values())
+            // The old predicate creation endpoint does not support service areas
+            .filter(operator -> !operator.equals(Operator.IN_SERVICE_AREA))
             .map(
                 operator -> {
                   // Add this operator's allowed scalar types as data, so that we can determine
