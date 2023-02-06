@@ -56,7 +56,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void readOnlyIndex_readOnly_redirectsToView() {
+  public void readOnlyIndex_readOnly_redirectsToShow() {
     Program program = ProgramBuilder.newActiveProgram().build();
 
     Result result = controller.readOnlyIndex(program.id);
@@ -64,7 +64,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.AdminProgramBlocksController.view(program.id, /*blockDefinitionId =*/ 1L).url());
+            routes.AdminProgramBlocksController.show(program.id, /*blockDefinitionId =*/ 1L).url());
   }
 
   @Test
@@ -113,32 +113,32 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void view_withNoneActiveProgram_throwsNotViewableException() throws Exception {
+  public void show_withNoneActiveProgram_throwsNotViewableException() throws Exception {
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     Program program = ProgramBuilder.newDraftProgram("test program").build();
 
-    assertThatThrownBy(() -> controller.view(request, program.id, /*blockId =*/ 1L))
+    assertThatThrownBy(() -> controller.show(request, program.id, /*blockId =*/ 1L))
         .isInstanceOf(NotViewableException.class);
   }
 
   @Test
-  public void view_withInvalidProgram_notFound() {
+  public void show_withInvalidProgram_notFound() {
     Request request = fakeRequest().build();
-    assertThatThrownBy(() -> controller.view(request, /*programId =*/ 1L, /*blockId =*/ 1L))
+    assertThatThrownBy(() -> controller.show(request, /*programId =*/ 1L, /*blockId =*/ 1L))
         .isInstanceOf(NotViewableException.class);
   }
 
   @Test
-  public void view_withInvalidBlock_notFound() {
+  public void show_withInvalidBlock_notFound() {
     Program program = ProgramBuilder.newActiveProgram().build();
     Request request = fakeRequest().build();
-    Result result = controller.view(request, program.id, /*blockId =*/ 2L);
+    Result result = controller.show(request, program.id, /*blockId =*/ 2L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
-  public void view() throws Exception {
+  public void show() throws Exception {
     Program program =
         ProgramBuilder.newActiveProgram("Public name", "Public description")
             // Override only admin name and description to distinguish from applicant-visible
@@ -149,7 +149,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     Question applicantName = testQuestionBank.applicantName();
     applicantName.save();
     Request request = addCSRFToken(fakeRequest()).build();
-    Result result = controller.view(request, program.id, /*blockId =*/ 1L);
+    Result result = controller.show(request, program.id, /*blockId =*/ 1L);
 
     assertThat(result.status()).isEqualTo(OK);
     String html = Helpers.contentAsString(result);
@@ -159,7 +159,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
         .contains("Admin description")
         // Similar to program index page we don't show admin name.
         .doesNotContain("Admin name");
-    // The read only program viewing does not include the quesiton bank
+    // The read only program viewing does not include the question bank
     assertThat(html)
         .doesNotContain(applicantName.getQuestionDefinition().getQuestionText().getDefault());
   }

@@ -61,8 +61,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * Returns an HTML page displaying all configurations of the specified program and UI elements to
    * start editing aspects of the program.
    *
-   * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
-   * (blocks) if applicable through links on the page.
+   * <p>For example, it contains a button to edit the program details and a selector to choose the
+   * block(screen) that the admin wants to edit. By default, the last program screen (block) is shown.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(long programId) {
@@ -70,8 +70,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Returns an HTML page displaying a read only version of all configurations of the specified
-   * program.
+   * Returns an HTML page displaying a read only version of the program's block configuration.
    *
    * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
    * (blocks) if applicable through links on the page.
@@ -95,7 +94,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
       String redirectUrl =
           readOnly
-              ? routes.AdminProgramBlocksController.view(programId, blockId).url()
+              ? routes.AdminProgramBlocksController.show(programId, blockId).url()
               : routes.AdminProgramBlocksController.edit(programId, blockId).url();
 
       return redirect(redirectUrl);
@@ -166,7 +165,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * read only view.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result view(Request request, long programId, long blockId) {
+  public Result show(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotActive(programId);
 
     try {
