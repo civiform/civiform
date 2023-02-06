@@ -288,9 +288,7 @@ public final class VersionRepository {
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
   }
 
-  /**
-   * Returns true if the program with the provided id is a member of the current active version.
-   */
+  /** Returns true if the program with the provided id is a member of the current active version. */
   public boolean isActiveProgram(Long programId) {
     return getActiveVersion().getPrograms().stream()
         .anyMatch(activeProgram -> activeProgram.id.equals(programId));

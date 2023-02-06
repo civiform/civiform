@@ -62,7 +62,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * start editing aspects of the program.
    *
    * <p>For example, it contains a button to edit the program details and a selector to choose the
-   * block(screen) that the admin wants to edit. By default, the last program screen (block) is shown.
+   * block(screen) that the admin wants to edit. By default, the last program screen (block) is
+   * shown.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(long programId) {
