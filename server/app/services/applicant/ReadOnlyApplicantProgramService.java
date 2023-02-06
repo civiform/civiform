@@ -82,7 +82,10 @@ public interface ReadOnlyApplicantProgramService {
   /** Get the string identifiers for all stored files for this application. */
   ImmutableList<String> getStoredFileKeys();
 
-  /** Returns if all Program eligibility criteria are met. */
+  /**
+   * Returns if all Program eligibility criteria are met. This will return false in some cases where
+   * the eligibility questions haven't yet been answered.
+   */
   boolean isApplicationEligible();
 
   /**
