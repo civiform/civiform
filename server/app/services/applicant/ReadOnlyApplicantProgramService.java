@@ -89,7 +89,7 @@ public interface ReadOnlyApplicantProgramService {
   boolean isApplicationEligible();
 
   /**
-   * Returns if any of the answered questions in the program are not eligible, even if the
+   * True if any of the answered questions in the program are not eligible, even if the
    * application hasn't yet been completed. If any questions in the program are not eligible this
    * will return true.
    */
