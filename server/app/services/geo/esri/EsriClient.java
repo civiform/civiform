@@ -299,12 +299,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
           });
     }
 
-    // Create a list of options with the same URL as the passed in EsriServiceAreaValidationOption.
-    // In most cases the same URL should provide all of the service areas.
-    ImmutableList<EsriServiceAreaValidationOption> optionList =
-        maybeOptionMap.get().values().stream()
-            .filter(option -> option.getUrl().equals(esriServiceAreaValidationOption.getUrl()))
-            .collect(ImmutableList.toImmutableList());
+    ImmutableList<EsriServiceAreaValidationOption> optionList = esriServiceAreaValidationConfig.mapToListWithSameServiceAreaOptionUrl(esriServiceAreaValidationOption, maybeOptionMap.get());
 
     return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
         .thenApply(

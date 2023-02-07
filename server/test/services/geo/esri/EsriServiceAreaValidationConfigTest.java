@@ -1,7 +1,9 @@
 package services.geo.esri;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -60,5 +62,21 @@ public class EsriServiceAreaValidationConfigTest {
     Optional<EsriServiceAreaValidationOption> serviceAreaOption =
         esriServiceAreaValidationConfig.getOptionByServiceAreaId("Mars");
     assertEquals(true, serviceAreaOption.isEmpty());
+  }
+
+  @Test
+  public void mapToListWithSameServiceAreaOptionUrl() {
+    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> maybeMap =
+        esriServiceAreaValidationConfig.getImmutableMap();
+    assertEquals(true, maybeMap.isPresent());
+    EsriServiceAreaValidationOption option = maybeMap.get().get("Seattle");
+    ImmutableList<EsriServiceAreaValidationOption> optionList = esriServiceAreaValidationConfig.mapToListWithSameServiceAreaOptionUrl(option, maybeMap.get());
+    Optional<EsriServiceAreaValidationOption> maybeOptionFromList = optionList.stream().findFirst();
+    assertThat(maybeOptionFromList.isPresent()).isTrue();
+    EsriServiceAreaValidationOption optionFromList = maybeOptionFromList.get();
+    assertEquals("Seattle", optionFromList.getLabel());
+    assertEquals("Seattle", optionFromList.getId());
+    assertEquals("/query", optionFromList.getUrl());
+    assertEquals("CITYNAME", optionFromList.getAttribute());
   }
 }

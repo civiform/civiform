@@ -129,6 +129,15 @@ public final class EsriServiceAreaValidationConfig {
   }
 
   /**
+   * Creates a list of {@link EsriServiceAreaValidationOption}s with the same URL as the passed in EsriServiceAreaValidationOption, given a map returned from {@link getImmutableMap}.
+   */
+  public ImmutableList<EsriServiceAreaValidationOption> mapToListWithSameServiceAreaOptionUrl(EsriServiceAreaValidationOption serviceAreaOption, ImmutableMap<String, EsriServiceAreaValidationOption> immutableMap) {
+    return immutableMap.values().stream()
+    .filter(option -> option.getUrl().equals(serviceAreaOption.getUrl()))
+    .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
    * Returns an {@link EsriServiceAreaValidationOption} from the config list for Esri address
    * service area settings given a service area id.
    */
