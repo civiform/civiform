@@ -29,6 +29,7 @@ import views.style.BaseStyles;
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
+  private final String civiformImageTag;
   private final boolean renderCreateAccountButton;
   private final AuthIdentityProviderName applicantIdp;
   private final Optional<String> maybeLogoUrl;
@@ -41,6 +42,7 @@ public class LoginForm extends BaseHtmlView {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
 
+	this.civiformImageTag = config.getString("civiform_image_tag");
     this.applicantIdp = AuthIdentityProviderName.fromConfig(config);
     this.maybeLogoUrl =
         config.hasPath("whitelabel.small_logo_url")
@@ -136,11 +138,12 @@ public class LoginForm extends BaseHtmlView {
                 "px-8",
                 "w-full",
                 "flex",
+                "flex-col",
                 "gap-2",
                 "justify-center",
                 "items-center",
                 "text-base")
-            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages))));
+            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages))).with(p("CiviForm version: " + civiformImageTag).withClasses("text-gray-600")));
 
     return div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content);
   }
