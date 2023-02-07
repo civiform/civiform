@@ -151,12 +151,6 @@ link.programDetails=Program details
 # The same text, read for screen readers.
 link.programDetailsSr=Program details for {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=External site
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=Opens in a new tab
-
 # The title of the page for the list of programs.
 title.programs=Programs & services
 
@@ -301,19 +295,12 @@ content.pleaseCreateAccount=If you sign into a city account now, your informatio
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Unit/Apartment Number
+label.addressLine2=Apartment, suite, etc. (optional)
 label.city=City
 label.state=State
 label.selectState=Select State
-label.street=Address line 1
+label.street=Address
 label.zipcode=ZIP Code
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=City
-placeholder.line2=Apartment, suite, unit, building, floor, etc.
-placeholder.state=State
-placeholder.street=Street address
-placeholder.zipcode=ZIP Code
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Please enter valid street name and number.

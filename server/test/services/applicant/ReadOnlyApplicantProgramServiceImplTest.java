@@ -1143,7 +1143,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
   @Test
   @Parameters({"5, blue, false", "5, purple, true", "1, blue, true"})
-  public void getIsInProgressApplicationNotEligible(
+  public void getIsApplicationNotEligible(
       long numberAnswer, String textAnswer, boolean expectedResult) {
     // Create a program with one block that has an eligibility condition == 5
     // and another with eligibility condition == "blue" answer it with different values.
@@ -1200,12 +1200,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
-    assertThat(subject.isInProgressApplicationNotEligible()).isEqualTo(expectedResult);
+    assertThat(subject.isApplicationNotEligible()).isEqualTo(expectedResult);
   }
 
   @Test
   @Parameters({"5, false", "1, true"})
-  public void getIsInProgressApplicationNotEligible_oneBlockUnanswered(
+  public void getIsApplicationNotEligible_oneBlockUnanswered(
       long numberAnswer, boolean expectedResult) {
     // Create a program with one block that has an eligibility condition == 5
     // and another with eligibility condition == "blue" answer only the first
@@ -1259,7 +1259,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
-    assertThat(subject.isInProgressApplicationNotEligible()).isEqualTo(expectedResult);
+    assertThat(subject.isApplicationNotEligible()).isEqualTo(expectedResult);
   }
 
   private void answerNameQuestion(long programId) {

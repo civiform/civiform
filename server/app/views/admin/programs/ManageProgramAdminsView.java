@@ -33,7 +33,6 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
   private static final String EMAIL_FIELD_STYLES = StyleUtils.joinStyles("flex", "flex-row");
   private static final String PAGE_TITLE = "Manage Admins for Program: ";
-  private static final String INPUT_PLACEHOLDER = "New admin email";
   private static final String EMAIL_CONTAINER_DIV_ID = "program-admin-emails";
   private static final String ADD_BUTTON_ID = "add-program-admin-button";
   private static final String ADD_EMAIL_FIELD_NAME = "adminEmails[]";
@@ -108,8 +107,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
     DivTag input =
         FieldWithLabel.email()
             .setFieldName(inputFieldName)
-            .setPlaceholderText(INPUT_PLACEHOLDER)
-            .setScreenReaderText(INPUT_PLACEHOLDER)
+            .setScreenReaderText("New admin email")
             .setValue(existing)
             // If there is an existing value, do not allow changes in the input field.
             .setDisabled(existing.isPresent())
