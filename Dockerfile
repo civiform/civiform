@@ -71,6 +71,7 @@ RUN sbt update compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
 ### Get the volumes and startup commands set up       ###
 ########################################################
 
+ENV CIVIFORM_IMAGE_TAG="dev"
 ENTRYPOINT ["/bin/bash"]
 
 # Save build results to anonymous volumes for reuse
