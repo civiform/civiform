@@ -324,7 +324,7 @@ describe('create and edit predicates', () => {
       await adminPredicates.addPredicate(
         'eligibility-predicate-q',
         /* action= */ null,
-        'service area',
+        'service_area',
         'in service area',
         'Seattle',
       )

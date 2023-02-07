@@ -11,6 +11,7 @@ import services.applicant.RepeatedEntity;
 import services.applicant.exception.InvalidPredicateException;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
+import services.geo.ServiceAreaState;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -62,6 +63,16 @@ public final class JsonPathPredicateGenerator {
    */
   public JsonPathPredicate fromLeafAddressServiceAreaNode(LeafAddressServiceAreaExpressionNode node)
       throws InvalidPredicateException {
+    if (!LeafAddressServiceAreaExpressionNode.SERVICE_AREA_ID_PATTERN
+        .matcher(node.serviceAreaId())
+        .matches()) {
+      throw new InvalidPredicateException(
+          String.format(
+              "Service area ID invalid for LeafAddressServiceAreaExpressionNode. question ID: %d,"
+                  + " service area ID: %s",
+              node.questionId(), node.serviceAreaId()));
+    }
+
     return JsonPathPredicate.create(
         String.format(
             "%s[?(@.%s %s %s)]",
@@ -69,8 +80,10 @@ public final class JsonPathPredicateGenerator {
             Scalar.SERVICE_AREA.name().toLowerCase(),
             Operator.IN_SERVICE_AREA.toJsonPathOperator(),
             String.format(
-                "/([a-zA-Z\\-]+_[a-zA-Z]+_\\d+,)*%s_InArea_\\d+(,[a-zA-Z\\-]+_[a-zA-Z]+_\\d+)*/",
-                node.serviceAreaId())));
+                "/([a-zA-Z\\-]+_[a-zA-Z]+_\\d+,)*%1$s_(%2$s|%3$s)_\\d+(,[a-zA-Z\\-]+_[a-zA-Z]+_\\d+)*/",
+                node.serviceAreaId(),
+                ServiceAreaState.IN_AREA.getSerializationFormat(),
+                ServiceAreaState.FAILED.getSerializationFormat())));
   }
 
   private Path getPath(LeafExpressionNode node) throws InvalidPredicateException {

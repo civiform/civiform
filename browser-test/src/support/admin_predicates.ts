@@ -103,7 +103,7 @@ export class AdminPredicates {
     let groupNum = 1
     for (const valueToSet of values) {
       // Service areas are the only value input that use a select
-      if (scalar === 'service area') {
+      if (scalar === 'service_area') {
         const valueSelect = await this.page.$(
           `select[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
         )
