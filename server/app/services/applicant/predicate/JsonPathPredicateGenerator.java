@@ -68,7 +68,9 @@ public final class JsonPathPredicateGenerator {
             getPath(node).predicateFormat(),
             Scalar.SERVICE_AREA.name().toLowerCase(),
             Operator.IN_SERVICE_AREA.toJsonPathOperator(),
-            String.format("/%s_InArea_\\d+/", node.serviceAreaId())));
+            String.format(
+                "/([a-zA-Z\\-]+_[a-zA-Z]+_\\d+,)*%s_InArea_\\d+(,[a-zA-Z\\-]+_[a-zA-Z]+_\\d+)*/",
+                node.serviceAreaId())));
   }
 
   private Path getPath(LeafExpressionNode node) throws InvalidPredicateException {

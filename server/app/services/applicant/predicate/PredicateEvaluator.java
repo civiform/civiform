@@ -3,6 +3,7 @@ package services.applicant.predicate;
 import services.applicant.ApplicantData;
 import services.applicant.exception.InvalidPredicateException;
 import services.program.predicate.AndNode;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateExpressionNode;
@@ -29,8 +30,7 @@ public final class PredicateEvaluator {
       case LEAF_OPERATION:
         return evaluateLeafNode(node.getLeafOperationNode());
       case LEAF_ADDRESS_SERVICE_AREA:
-        // TODO(https://github.com/civiform/civiform/issues/4048): check if address in service area
-        return true;
+        return evaluateLeafAddressServiceAreaNode(node.getLeafAddressNode());
       case AND:
         return evaluateAndNode(node.getAndNode());
       case OR:
@@ -48,6 +48,19 @@ public final class PredicateEvaluator {
   private boolean evaluateLeafNode(LeafOperationExpressionNode node) {
     try {
       JsonPathPredicate predicate = predicateGenerator.fromLeafNode(node);
+      return applicantData.evalPredicate(predicate);
+    } catch (InvalidPredicateException e) {
+      return false;
+    }
+  }
+
+  /**
+   * Returns true if and only if the answer for the address question referenced by the {@link
+   * LeafAddressServiceAreaExpressionNode} has an in-area service area in {@link ApplicantData}.
+   */
+  private boolean evaluateLeafAddressServiceAreaNode(LeafAddressServiceAreaExpressionNode node) {
+    try {
+      JsonPathPredicate predicate = predicateGenerator.fromLeafAddressServiceAreaNode(node);
       return applicantData.evalPredicate(predicate);
     } catch (InvalidPredicateException e) {
       return false;

@@ -287,12 +287,13 @@ public class JsonPathPredicateGeneratorTest {
     assertThat(predicate)
         .isEqualTo(
             JsonPathPredicate.create(
-                "$.applicant.applicant_address[?(@.service_area =~ /seattle_InArea_\\d+/i)]"));
+                "$.applicant.applicant_address[?(@.service_area =~"
+                    + " /([a-zA-Z\\-]+_[a-zA-Z]+_\\d+,)*seattle_InArea_\\d+(,[a-zA-Z\\-]+_[a-zA-Z]+_\\d+)*/)]"));
 
     ApplicantData data = new ApplicantData();
     data.putString(
         Path.create("applicant.applicant_address.service_area"),
-        "bloomington_NotInArea_1234,seattle_InArea_5678");
+        "bloomington_NotInArea_1234,king-county_InArea_2222,seattle_InArea_5678,Arkansas_NotInArea_8765");
 
     assertThat(data.evalPredicate(predicate)).isTrue();
   }
