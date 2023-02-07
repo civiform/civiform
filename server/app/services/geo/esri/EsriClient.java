@@ -299,7 +299,9 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
           });
     }
 
-    ImmutableList<EsriServiceAreaValidationOption> optionList = esriServiceAreaValidationConfig.mapToListWithSameServiceAreaOptionUrl(esriServiceAreaValidationOption, maybeOptionMap.get());
+    ImmutableList<EsriServiceAreaValidationOption> optionList =
+        esriServiceAreaValidationConfig.mapToListWithSameServiceAreaOptionUrl(
+            esriServiceAreaValidationOption, maybeOptionMap.get());
 
     return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
         .thenApply(

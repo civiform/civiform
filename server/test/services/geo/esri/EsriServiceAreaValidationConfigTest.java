@@ -70,7 +70,9 @@ public class EsriServiceAreaValidationConfigTest {
         esriServiceAreaValidationConfig.getImmutableMap();
     assertEquals(true, maybeMap.isPresent());
     EsriServiceAreaValidationOption option = maybeMap.get().get("Seattle");
-    ImmutableList<EsriServiceAreaValidationOption> optionList = esriServiceAreaValidationConfig.mapToListWithSameServiceAreaOptionUrl(option, maybeMap.get());
+    ImmutableList<EsriServiceAreaValidationOption> optionList =
+        esriServiceAreaValidationConfig.mapToListWithSameServiceAreaOptionUrl(
+            option, maybeMap.get());
     Optional<EsriServiceAreaValidationOption> maybeOptionFromList = optionList.stream().findFirst();
     assertThat(maybeOptionFromList.isPresent()).isTrue();
     EsriServiceAreaValidationOption optionFromList = maybeOptionFromList.get();
