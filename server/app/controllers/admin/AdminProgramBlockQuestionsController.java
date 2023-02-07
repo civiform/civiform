@@ -22,6 +22,7 @@ import services.program.IllegalPredicateOrderingException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -178,6 +179,12 @@ public class AdminProgramBlockQuestionsController extends Controller {
           String.format(
               "Question ID %d not found in Block %d for program %d",
               questionDefinitionId, blockDefinitionId, programId));
+    } catch (ProgramQuestionDefinitionInvalidException e) {
+      return notAcceptable(
+          String.format(
+              "Tried enabling address correction in a block that already contains an a question"
+                  + " with address correction enabled. Program ID %d, Block ID %d, Question ID %d",
+              programId, blockDefinitionId, questionDefinitionId));
     }
 
     return redirect(
