@@ -17,6 +17,11 @@ describe('the landing page', () => {
     await validateScreenshot(ctx.page, 'landing-page')
   })
 
+  it('it has civiform version', async () => {
+    expect(await ctx.page.textContent('html')).toContain('CiviForm version: dev')
+    await validateScreenshot(ctx.page, 'landing-page')
+  })
+
   it('has no accessibility violations', async () => {
     await validateAccessibility(ctx.page)
   })
