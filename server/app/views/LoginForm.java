@@ -15,6 +15,7 @@ import auth.GuestClient;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -36,9 +37,14 @@ public class LoginForm extends BaseHtmlView {
   private final String civicEntityFullName;
   private final String civicEntityShortName;
   private final FakeAdminClient fakeAdminClient;
+  private final FeatureFlags featureFlags;
 
   @Inject
-  public LoginForm(BaseHtmlLayout layout, Config config, FakeAdminClient fakeAdminClient) {
+  public LoginForm(
+      BaseHtmlLayout layout,
+      Config config,
+      FakeAdminClient fakeAdminClient,
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
 
@@ -51,6 +57,7 @@ public class LoginForm extends BaseHtmlView {
     this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
     this.fakeAdminClient = checkNotNull(fakeAdminClient);
+    this.featureFlags = checkNotNull(featureFlags);
     this.renderCreateAccountButton = config.hasPath("auth.register_uri");
   }
 
@@ -58,7 +65,7 @@ public class LoginForm extends BaseHtmlView {
     String title = "Login";
 
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
-    htmlBundle.addMainContent(mainContent(messages));
+    htmlBundle.addMainContent(mainContent(request, messages));
 
     // "defense in depth", sort of - this client won't be present in production, and this button
     // won't show up except when running in an acceptable environment.
@@ -69,7 +76,7 @@ public class LoginForm extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private DivTag mainContent(Messages messages) {
+  private DivTag mainContent(Http.Request request, Messages messages) {
     DivTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
 
     if (maybeLogoUrl.isPresent()) {
@@ -130,7 +137,7 @@ public class LoginForm extends BaseHtmlView {
     content.with(alternativeLoginButtons);
 
     String adminPrompt = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
-    content.with(
+    DivTag footer =
         div()
             .withClasses(
                 "bg-gray-100",
@@ -143,8 +150,11 @@ public class LoginForm extends BaseHtmlView {
                 "justify-center",
                 "items-center",
                 "text-base")
-            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)))
-            .with(p("CiviForm version: " + civiformImageTag).withClasses("text-gray-600")));
+            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)));
+    if (featureFlags.showCiviformImageTagOnLandingPage(request)) {
+      footer.with(p("CiviForm version: " + civiformImageTag).withClasses("text-gray-600"));
+    }
+    content.with(footer);
 
     return div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content);
   }
