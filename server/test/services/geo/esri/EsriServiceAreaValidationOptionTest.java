@@ -14,6 +14,7 @@ import play.libs.ws.WSClient;
 import play.routing.RoutingDsl;
 import play.server.Server;
 import services.geo.AddressLocation;
+import services.geo.ServiceAreaInclusion;
 
 public class EsriServiceAreaValidationOptionTest {
   private Config config;
@@ -25,7 +26,7 @@ public class EsriServiceAreaValidationOptionTest {
   private Server server;
   private WSClient ws;
   private EsriClient client;
-  private ImmutableList<EsriServiceAreaInclusion> inclusionGroup;
+  private ImmutableList<ServiceAreaInclusion> inclusionGroup;
 
   @Before
   // setup Server to return mock data from JSON files

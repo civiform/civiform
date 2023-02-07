@@ -29,6 +29,8 @@ import services.Address;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaState;
 
 public class EsriClientTest {
   private Config config;
@@ -319,57 +321,57 @@ public class EsriClientTest {
 
   @Test
   public void getServiceAreaInclusionGroup() {
-    ImmutableList<EsriServiceAreaInclusion> inclusionList =
+    ImmutableList<ServiceAreaInclusion> inclusionList =
         clientValidation
             .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
-    Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
+    Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
     assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(EsriServiceAreaState.IN_AREA, area.get().getState());
+    assertEquals(ServiceAreaState.IN_AREA, area.get().getState());
     assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
   }
 
   @Test
   public void getServiceAreaInclusionGroupAreaNotIncluded() {
-    ImmutableList<EsriServiceAreaInclusion> inclusionList =
+    ImmutableList<ServiceAreaInclusion> inclusionList =
         clientValidationNotIncluded
             .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
-    Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
+    Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
     assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(EsriServiceAreaState.NOT_IN_AREA, area.get().getState());
+    assertEquals(ServiceAreaState.NOT_IN_AREA, area.get().getState());
     assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
   }
 
   @Test
   public void getServiceAreaInclusionGroupNoFeatures() {
-    ImmutableList<EsriServiceAreaInclusion> inclusionList =
+    ImmutableList<ServiceAreaInclusion> inclusionList =
         clientValidationNoFeatures
             .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
-    Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
+    Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
     assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(EsriServiceAreaState.NOT_IN_AREA, area.get().getState());
+    assertEquals(ServiceAreaState.NOT_IN_AREA, area.get().getState());
     assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
   }
 
   @Test
   public void getServiceAreaInclusionGroupError() {
-    ImmutableList<EsriServiceAreaInclusion> inclusionList =
+    ImmutableList<ServiceAreaInclusion> inclusionList =
         clientValidationError
             .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
             .toCompletableFuture()
             .join();
-    Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
+    Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
     assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(EsriServiceAreaState.FAILED, area.get().getState());
+    assertEquals(ServiceAreaState.FAILED, area.get().getState());
     assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
   }
 }

@@ -31,6 +31,8 @@ import services.AddressField;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaState;
 
 /**
  * Provides methods for handling reqeusts to external Esri geo and map layer services for getting
@@ -271,14 +273,13 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   /**
    * Calls an external Esri service to get the service areas of the provided {@link
    * AddressLocation}. Takes the returned service areas and returns an immutable list of {@link
-   * EsriServiceAreaInclusion}, filtered by the services areas specified in the application config
-   * that have the same {@link EsriServiceAreaValidationOption} URL.
+   * ServiceAreaInclusion}, filtered by the services areas specified in the application config that
+   * have the same {@link EsriServiceAreaValidationOption} URL.
    */
-  public CompletionStage<ImmutableList<EsriServiceAreaInclusion>> getServiceAreaInclusionGroup(
+  public CompletionStage<ImmutableList<ServiceAreaInclusion>> getServiceAreaInclusionGroup(
       EsriServiceAreaValidationOption esriServiceAreaValidationOption, AddressLocation location) {
-    EsriServiceAreaInclusion.Builder esriServiceAreaInclusionBuilder =
-        EsriServiceAreaInclusion.builder();
-    ImmutableList.Builder<EsriServiceAreaInclusion> inclusionListBuilder = ImmutableList.builder();
+    ServiceAreaInclusion.Builder serviceAreaInclusionBuilder = ServiceAreaInclusion.builder();
+    ImmutableList.Builder<ServiceAreaInclusion> inclusionListBuilder = ImmutableList.builder();
 
     Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> maybeOptionMap =
         esriServiceAreaValidationConfig.getImmutableMap();
@@ -289,11 +290,11 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
               + " EsriServiceAreaValidationConfig.getImmutableMap() returned empty.");
       return supplyAsync(
           () -> {
-            esriServiceAreaInclusionBuilder
+            serviceAreaInclusionBuilder
                 .setServiceAreaId(esriServiceAreaValidationOption.getId())
-                .setState(EsriServiceAreaState.FAILED)
+                .setState(ServiceAreaState.FAILED)
                 .setTimeStamp(Instant.now());
-            inclusionListBuilder.add(esriServiceAreaInclusionBuilder.build());
+            inclusionListBuilder.add(serviceAreaInclusionBuilder.build());
             return inclusionListBuilder.build();
           });
     }
@@ -318,9 +319,9 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
 
                 for (EsriServiceAreaValidationOption option : optionList) {
                   inclusionListBuilder.add(
-                      esriServiceAreaInclusionBuilder
+                      serviceAreaInclusionBuilder
                           .setServiceAreaId(option.getId())
-                          .setState(EsriServiceAreaState.FAILED)
+                          .setState(ServiceAreaState.FAILED)
                           .setTimeStamp(Instant.now())
                           .build());
                 }
@@ -328,7 +329,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                 return inclusionListBuilder.build();
               }
 
-              ImmutableList.Builder<EsriServiceAreaInclusion> listBuilder = ImmutableList.builder();
+              ImmutableList.Builder<ServiceAreaInclusion> listBuilder = ImmutableList.builder();
 
               JsonNode json = maybeJson.get();
               ReadContext ctx = JsonPath.parse(json.toString());
@@ -339,16 +340,16 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
               for (EsriServiceAreaValidationOption option : optionList) {
                 if (features.contains(option.getId())) {
                   listBuilder.add(
-                      esriServiceAreaInclusionBuilder
+                      serviceAreaInclusionBuilder
                           .setServiceAreaId(option.getId())
-                          .setState(EsriServiceAreaState.IN_AREA)
+                          .setState(ServiceAreaState.IN_AREA)
                           .setTimeStamp(Instant.now())
                           .build());
                 } else {
                   listBuilder.add(
-                      esriServiceAreaInclusionBuilder
+                      serviceAreaInclusionBuilder
                           .setServiceAreaId(option.getId())
-                          .setState(EsriServiceAreaState.NOT_IN_AREA)
+                          .setState(ServiceAreaState.NOT_IN_AREA)
                           .setTimeStamp(Instant.now())
                           .build());
                 }
