@@ -1,5 +1,7 @@
 package services.applicant.predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.applicant.ApplicantData;
 import services.applicant.exception.InvalidPredicateException;
 import services.program.predicate.AndNode;
@@ -10,6 +12,8 @@ import services.program.predicate.PredicateExpressionNode;
 
 /** Evaluates complex predicates based on the given {@link ApplicantData}. */
 public final class PredicateEvaluator {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PredicateEvaluator.class);
 
   private final ApplicantData applicantData;
   private final JsonPathPredicateGenerator predicateGenerator;
@@ -50,6 +54,10 @@ public final class PredicateEvaluator {
       JsonPathPredicate predicate = predicateGenerator.fromLeafNode(node);
       return applicantData.evalPredicate(predicate);
     } catch (InvalidPredicateException e) {
+      LOGGER.error(
+          "InvalidPredicateException when evaluating LeafOperationExpressionNode {}: {}",
+          node,
+          e.getMessage());
       return false;
     }
   }
@@ -63,6 +71,10 @@ public final class PredicateEvaluator {
       JsonPathPredicate predicate = predicateGenerator.fromLeafAddressServiceAreaNode(node);
       return applicantData.evalPredicate(predicate);
     } catch (InvalidPredicateException e) {
+      LOGGER.error(
+          "InvalidPredicateException when evaluating LeafAddressServiceAreaExpressionNode {}: {}",
+          node,
+          e.getMessage());
       return false;
     }
   }
