@@ -18,6 +18,7 @@ import services.question.types.ScalarType;
  */
 public enum Scalar {
   CITY("city", ScalarType.STRING),
+  CORRECTED("corrected", ScalarType.STRING),
   CURRENCY_CENTS("currency", ScalarType.CURRENCY_CENTS),
   DATE("date", ScalarType.DATE),
   EMAIL("email", ScalarType.STRING),
@@ -25,7 +26,9 @@ public enum Scalar {
   FIRST_NAME("first name", ScalarType.STRING),
   ID("id", ScalarType.STRING),
   LAST_NAME("last name", ScalarType.STRING),
+  LATITUDE("latitude", ScalarType.DOUBLE),
   LINE2("address line 2", ScalarType.STRING),
+  LONGITUDE("longitude", ScalarType.DOUBLE),
   MIDDLE_NAME("middle name", ScalarType.STRING),
   NUMBER("number", ScalarType.LONG),
   ORIGINAL_FILE_NAME("original file name", ScalarType.STRING),
@@ -34,6 +37,7 @@ public enum Scalar {
   STATE("state", ScalarType.STRING),
   STREET("street", ScalarType.STRING),
   TEXT("text", ScalarType.STRING),
+  WELL_KNOWN_ID("well_known_id", ScalarType.LONG),
   ZIP("ZIP code", ScalarType.STRING),
 
   // Special scalars for Enumerator updates
@@ -66,7 +70,8 @@ public enum Scalar {
   }
 
   private static final ImmutableSet<Scalar> ADDRESS_SCALARS =
-      ImmutableSet.of(STREET, LINE2, CITY, STATE, ZIP);
+      ImmutableSet.of(
+          STREET, LINE2, CITY, STATE, ZIP, CORRECTED, LATITUDE, LONGITUDE, WELL_KNOWN_ID);
 
   private static final ImmutableSet<Scalar> CURRENCY_SCALARS = ImmutableSet.of(CURRENCY_CENTS);
 
