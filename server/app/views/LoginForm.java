@@ -42,7 +42,7 @@ public class LoginForm extends BaseHtmlView {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
 
-	this.civiformImageTag = config.getString("civiform_image_tag");
+    this.civiformImageTag = config.getString("civiform_image_tag");
     this.applicantIdp = AuthIdentityProviderName.fromConfig(config);
     this.maybeLogoUrl =
         config.hasPath("whitelabel.small_logo_url")
@@ -143,7 +143,8 @@ public class LoginForm extends BaseHtmlView {
                 "justify-center",
                 "items-center",
                 "text-base")
-            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages))).with(p("CiviForm version: " + civiformImageTag).withClasses("text-gray-600")));
+            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)))
+            .with(p("CiviForm version: " + civiformImageTag).withClasses("text-gray-600")));
 
     return div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content);
   }
