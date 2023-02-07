@@ -41,6 +41,9 @@ public enum Scalar {
   ENTITY_NAME(
       "entity name", ScalarType.STRING), // This is used for adding/updating enumerator entries
 
+  // Special scalars for Address questions
+  SERVICE_AREA("service area", ScalarType.SERVICE_AREA),
+
   // Metadata scalars
   UPDATED_AT("updated at", ScalarType.LONG),
   PROGRAM_UPDATED_IN("program updated in", ScalarType.LONG);

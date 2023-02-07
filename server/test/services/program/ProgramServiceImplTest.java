@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
+import controllers.BadRequestException;
 import forms.BlockForm;
 import io.ebean.DB;
 import java.util.Arrays;
@@ -978,6 +979,42 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 ps.setProgramQuestionDefinitionOptionality(
                     programId, 1L, nameQuestion.getId() + 1, false))
         .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
+  }
+
+  @Test
+  public void setProgramQuestionDefinitionAddressCorrectionEnabled() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(addressQuestion)
+            .withBlock()
+            .withVisibilityPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.builder()
+                            .setQuestionId(addressQuestion.getId())
+                            .setScalar(Scalar.SERVICE_AREA)
+                            .setOperator(Operator.IN_SERVICE_AREA)
+                            .setComparedValue(PredicateValue.serviceArea("seattle"))
+                            .build()),
+                    PredicateAction.HIDE_BLOCK))
+            .buildDefinition();
+
+    assertThat(
+            ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
+                    programDefinition.id(), 1L, addressQuestion.getId(), true)
+                .getBlockDefinitionByIndex(0)
+                .get()
+                .programQuestionDefinitions()
+                .get(0)
+                .addressCorrectionEnabled())
+        .isTrue();
+
+    assertThatThrownBy(
+            () ->
+                ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
+                    programDefinition.id(), 1L, addressQuestion.getId(), false))
+        .isInstanceOf(BadRequestException.class);
   }
 
   private void assertQuestionsOrder(ProgramDefinition program, QuestionDefinition... expectedOrder)

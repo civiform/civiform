@@ -339,7 +339,7 @@ public final class VersionRepository {
                 .collect(toImmutableList());
         return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
       case LEAF_OPERATION:
-        LeafOperationExpressionNode leaf = node.getLeafNode();
+        LeafOperationExpressionNode leaf = node.getLeafOperationNode();
         Optional<Question> updated = getLatestVersionOfQuestion(leaf.questionId());
         return PredicateExpressionNode.create(
             leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());

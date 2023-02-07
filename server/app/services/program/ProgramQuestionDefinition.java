@@ -15,6 +15,7 @@ import services.question.types.QuestionDefinition;
 @AutoValue
 public abstract class ProgramQuestionDefinition {
 
+  /** The ID of the wrapped {@link QuestionDefinition}. */
   @JsonProperty("id")
   public abstract long id();
 
@@ -41,7 +42,7 @@ public abstract class ProgramQuestionDefinition {
   abstract Optional<QuestionDefinition> questionDefinition();
 
   /**
-   * True if this program question deinition has address correction enabled. Otherwise it is not
+   * True if this program question definition has address correction enabled. Otherwise it is not
    * enabled.
    *
    * <p>This field was added in January 2023. Program question definitions created before this field
@@ -79,13 +80,13 @@ public abstract class ProgramQuestionDefinition {
       QuestionDefinition questionDefinition, Optional<Long> programDefinitionId) {
     return create(
         questionDefinition,
-        programDefinitionId, /* optional */
-        false, /* addressCorrectionEnabled */
-        false);
+        programDefinitionId,
+        /* optional= */ false,
+        /* addressCorrectionEnabled= */ false);
   }
 
   /** Create a program question definition. */
-  private static ProgramQuestionDefinition create(
+  public static ProgramQuestionDefinition create(
       QuestionDefinition questionDefinition,
       Optional<Long> programDefinitionId,
       boolean optional,

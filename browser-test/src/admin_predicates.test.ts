@@ -1,6 +1,7 @@
 import {
   createTestContext,
   enableFeatureFlag,
+  isHermeticTestEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -54,7 +55,7 @@ describe('create and edit predicates', () => {
       'is equal to',
       'hide me',
     )
-    await adminPredicates.expectVisibilityConditionEquals(
+    await adminPredicates.expectPredicateDisplayTextContains(
       'Screen 2 is hidden if "hide-predicate-q" text is equal to "hide me"',
     )
     await validateScreenshot(page, 'hide-predicate')
@@ -148,7 +149,7 @@ describe('create and edit predicates', () => {
       'is equal to',
       'show me',
     )
-    await adminPredicates.expectVisibilityConditionEquals(
+    await adminPredicates.expectPredicateDisplayTextContains(
       'Screen 2 is shown if "show-predicate-q" text is equal to "show me"',
     )
     await validateScreenshot(page, 'show-predicate')
@@ -246,7 +247,7 @@ describe('create and edit predicates', () => {
       'eligible',
     )
 
-    await adminPredicates.expectVisibilityConditionEquals(
+    await adminPredicates.expectPredicateDisplayTextContains(
       'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
     )
     await validateScreenshot(page, 'eligibility-predicate')
@@ -291,6 +292,48 @@ describe('create and edit predicates', () => {
         .innerText(),
     ).toContain('Screen 1')
   })
+
+  // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
+  if (isHermeticTestEnvironment()) {
+    it('add a service area validation predicate', async () => {
+      const {page, adminQuestions, adminPrograms, adminPredicates} = ctx
+
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'predicates_multiple_questions_enabled')
+
+      // Add a program with two screens
+      await adminQuestions.addAddressQuestion({
+        questionName: 'eligibility-predicate-q',
+      })
+
+      const programName = 'Create eligibility predicate'
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlock(programName, 'first screen', [
+        'eligibility-predicate-q',
+      ])
+
+      await adminPrograms.clickAddressCorrectionToggle()
+
+      // Edit predicate for second screen
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        'eligibility-predicate-q',
+        /* action= */ null,
+        'service area',
+        'in service area',
+        'Seattle',
+      )
+
+      await adminPredicates.expectPredicateDisplayTextContains(
+        'Screen 1 is eligible if "eligibility-predicate-q" is in service area "Seattle"',
+      )
+    })
+  }
 
   describe('test predicates', () => {
     beforeEach(async () => {

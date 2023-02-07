@@ -12,8 +12,7 @@ import services.question.types.QuestionDefinition;
 /** Represents an assertion that an address question is within a given service area. */
 @JsonTypeName("leafAddressServiceArea")
 @AutoValue
-public abstract class LeafAddressServiceAreaExpressionNode
-    implements ConcretePredicateExpressionNode {
+public abstract class LeafAddressServiceAreaExpressionNode implements LeafExpressionNode {
 
   @JsonCreator
   public static LeafAddressServiceAreaExpressionNode create(
@@ -23,6 +22,7 @@ public abstract class LeafAddressServiceAreaExpressionNode
   }
 
   /** The ID of the address {@link services.question.types.QuestionDefinition} this node checks. */
+  @Override
   @JsonProperty("questionId")
   public abstract long questionId();
 
