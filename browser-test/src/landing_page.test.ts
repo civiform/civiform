@@ -18,7 +18,9 @@ describe('the landing page', () => {
   })
 
   it('it has civiform version', async () => {
-    expect(await ctx.page.textContent('html')).toContain('CiviForm version: dev')
+    expect(await ctx.page.textContent('html')).toContain(
+      'CiviForm version: dev',
+    )
     await validateScreenshot(ctx.page, 'landing-page')
   })
 
