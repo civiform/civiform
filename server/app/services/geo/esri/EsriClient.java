@@ -271,31 +271,40 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   /**
    * Calls an external Esri service to get the service areas of the provided {@link
    * AddressLocation}. Takes the returned service areas and returns an immutable list of {@link
-   * EsriServiceAreaInclusion}, filtered by the services areas specified in the application config.
+   * EsriServiceAreaInclusion}, filtered by the services areas specified in the application config
+   * that have the same {@link EsriServiceAreaValidationOption} URL.
    */
   public CompletionStage<ImmutableList<EsriServiceAreaInclusion>> getServiceAreaInclusionGroup(
       EsriServiceAreaValidationOption esriServiceAreaValidationOption, AddressLocation location) {
     EsriServiceAreaInclusion.Builder esriServiceAreaInclusionBuilder =
         EsriServiceAreaInclusion.builder();
-    ImmutableList.Builder<EsriServiceAreaInclusion> inclusionListBuilder =
-        ImmutableList.builder();
+    ImmutableList.Builder<EsriServiceAreaInclusion> inclusionListBuilder = ImmutableList.builder();
 
-    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> optionMap =
+    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> maybeOptionMap =
         esriServiceAreaValidationConfig.getImmutableMap();
 
-    if (optionMap.isEmpty()) {
+    if (maybeOptionMap.isEmpty()) {
       logger.error(
           "Error calling EsriClient.getServiceAreaInclusionGroups. Error:"
               + " EsriServiceAreaValidationConfig.getImmutableMap() returned empty.");
-      return supplyAsync(() -> {
-        esriServiceAreaInclusionBuilder
-          .setArea(esriServiceAreaValidationOption.getId())
-          .setState(EsriServiceAreaState.FAILED)
-          .setTimeStamp(Instant.now());
-        inclusionListBuilder.add(esriServiceAreaInclusionBuilder.build());
-        return inclusionListBuilder.build();
-      });
+      return supplyAsync(
+          () -> {
+            esriServiceAreaInclusionBuilder
+                .setServiceAreaId(esriServiceAreaValidationOption.getId())
+                .setState(EsriServiceAreaState.FAILED)
+                .setTimeStamp(Instant.now());
+            inclusionListBuilder.add(esriServiceAreaInclusionBuilder.build());
+            return inclusionListBuilder.build();
+          });
     }
+
+    // Create a list of options with the same URL as the passed in EsriServiceAreaValidationOption.
+    // In most cases the same URL should provide all of the service areas.
+    ImmutableList<EsriServiceAreaValidationOption> optionList =
+        maybeOptionMap.get().values().stream()
+            .filter(option -> option.getUrl().equals(esriServiceAreaValidationOption.getUrl()))
+            .collect(ImmutableList.toImmutableList());
+
     return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
         .thenApply(
             (maybeJson) -> {
@@ -306,12 +315,16 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                         + " EsriServiceAreaValidationOption = {}. AddressLocation = {}",
                     esriServiceAreaValidationOption,
                     location);
-                inclusionListBuilder.add(
-                    esriServiceAreaInclusionBuilder
-                        .setArea(esriServiceAreaValidationOption.getId())
-                        .setState(EsriServiceAreaState.FAILED)
-                        .setTimeStamp(Instant.now())
-                        .build());
+
+                for (EsriServiceAreaValidationOption option : optionList) {
+                  inclusionListBuilder.add(
+                      esriServiceAreaInclusionBuilder
+                          .setServiceAreaId(option.getId())
+                          .setState(EsriServiceAreaState.FAILED)
+                          .setTimeStamp(Instant.now())
+                          .build());
+                }
+
                 return inclusionListBuilder.build();
               }
 
@@ -323,19 +336,19 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                   ctx.read(
                       "features[*].attributes." + esriServiceAreaValidationOption.getAttribute());
 
-              for (EsriServiceAreaValidationOption option : optionMap.get().values()) {
+              for (EsriServiceAreaValidationOption option : optionList) {
                 if (features.contains(option.getId())) {
                   listBuilder.add(
                       esriServiceAreaInclusionBuilder
-                          .setArea(esriServiceAreaValidationOption.getId())
-                          .setState(EsriServiceAreaState.INAREA)
+                          .setServiceAreaId(option.getId())
+                          .setState(EsriServiceAreaState.IN_AREA)
                           .setTimeStamp(Instant.now())
                           .build());
                 } else {
                   listBuilder.add(
                       esriServiceAreaInclusionBuilder
-                          .setArea(esriServiceAreaValidationOption.getId())
-                          .setState(EsriServiceAreaState.NOTINAREA)
+                          .setServiceAreaId(option.getId())
+                          .setState(EsriServiceAreaState.NOT_IN_AREA)
                           .setTimeStamp(Instant.now())
                           .build());
                 }
@@ -343,20 +356,5 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
 
               return listBuilder.build();
             });
-  }
-
-  /**
-   * Given a {@link EsriServiceAreaValidationOption}, determine if it is in the provided list of
-   * {@link EsriServiceAreaInclusion}.
-   *
-   * @return boolean.
-   */
-  public Boolean isServiceAreaOptionInInclusionGroup(
-      EsriServiceAreaValidationOption esriServiceAreaValidationOption,
-      ImmutableList<EsriServiceAreaInclusion> inclusionGroup) {
-    return inclusionGroup.stream()
-        .map(EsriServiceAreaInclusion::getArea)
-        .collect(ImmutableList.toImmutableList())
-        .contains(esriServiceAreaValidationOption.getId());
   }
 }

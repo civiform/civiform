@@ -1,6 +1,7 @@
 package services.geo.esri;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Represents a service area defined in an external Esri system that {@link Address} can be checked
@@ -44,5 +45,19 @@ public abstract class EsriServiceAreaValidationOption {
     public abstract Builder setAttribute(String attribute);
 
     public abstract EsriServiceAreaValidationOption build();
+  }
+
+  /**
+   * Determine if this EsriServiceAreaValidationOption is in the provided list of {@link
+   * EsriServiceAreaInclusion}.
+   *
+   * @return boolean.
+   */
+  public Boolean isServiceAreaOptionInInclusionGroup(
+      ImmutableList<EsriServiceAreaInclusion> inclusionGroup) {
+    return inclusionGroup.stream()
+        .map(EsriServiceAreaInclusion::getServiceAreaId)
+        .collect(ImmutableList.toImmutableList())
+        .contains(this.getId());
   }
 }

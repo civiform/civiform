@@ -3,25 +3,25 @@ package services.geo.esri;
 import com.google.auto.value.AutoValue;
 import java.time.Instant;
 
-/** Represents a service area and its inclusion state for an address location. */
+/** Represents the inclusion state of an address in a service area. */
 @AutoValue
 public abstract class EsriServiceAreaInclusion {
   public static Builder builder() {
     return new AutoValue_EsriServiceAreaInclusion.Builder();
   }
 
-  /** returns the service area that was checked for inclusion. */
-  public abstract String getArea();
+  /** The ID of the service area that was checked for inclusion. */
+  public abstract String getServiceAreaId();
 
-  /** returns the inclusion state of the service area. */
+  /** The inclusion state of the service area. */
   public abstract EsriServiceAreaState getState();
 
-  /** return the timestamp for when the inclusion check was made. */
+  /** The timestamp for when the inclusion check was made. */
   public abstract Instant getTimeStamp();
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setArea(String area);
+    public abstract Builder setServiceAreaId(String id);
 
     public abstract Builder setState(EsriServiceAreaState state);
 

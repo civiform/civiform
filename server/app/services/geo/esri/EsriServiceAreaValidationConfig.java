@@ -125,12 +125,7 @@ public final class EsriServiceAreaValidationConfig {
       mapBuilder.put(values.get(i), option);
     }
 
-    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> optionalMap =
-        Optional.of(mapBuilder.build());
-
-    esriServiceAreaValidationMap = optionalMap;
-
-    return optionalMap;
+    return esriServiceAreaValidationMap = Optional.of(mapBuilder.build());
   }
 
   /**

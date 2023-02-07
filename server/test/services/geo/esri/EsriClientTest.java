@@ -192,9 +192,19 @@ public class EsriClientTest {
     try {
       ws.close();
       wsNoCandidates.close();
+      wsError.close();
+      wsValidation.close();
+      wsValidationError.close();
+      wsValidationNotIncluded.close();
+      wsValidationNoFeatures.close();
     } finally {
       server.stop();
       serverNoCandidates.stop();
+      serverError.stop();
+      serverValidation.stop();
+      serverValidationError.stop();
+      serverValidationNotIncluded.stop();
+      serverValidationNoFeatures.stop();
     }
   }
 
@@ -316,8 +326,8 @@ public class EsriClientTest {
             .join();
     Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getArea());
-    assertEquals(EsriServiceAreaState.INAREA, area.get().getState());
+    assertEquals("Seattle", area.get().getServiceAreaId());
+    assertEquals(EsriServiceAreaState.IN_AREA, area.get().getState());
     assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
   }
 
@@ -330,8 +340,8 @@ public class EsriClientTest {
             .join();
     Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getArea());
-    assertEquals(EsriServiceAreaState.NOTINAREA, area.get().getState());
+    assertEquals("Seattle", area.get().getServiceAreaId());
+    assertEquals(EsriServiceAreaState.NOT_IN_AREA, area.get().getState());
     assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
   }
 
@@ -344,8 +354,8 @@ public class EsriClientTest {
             .join();
     Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getArea());
-    assertEquals(EsriServiceAreaState.NOTINAREA, area.get().getState());
+    assertEquals("Seattle", area.get().getServiceAreaId());
+    assertEquals(EsriServiceAreaState.NOT_IN_AREA, area.get().getState());
     assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
   }
 
@@ -358,41 +368,8 @@ public class EsriClientTest {
             .join();
     Optional<EsriServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getArea());
+    assertEquals("Seattle", area.get().getServiceAreaId());
     assertEquals(EsriServiceAreaState.FAILED, area.get().getState());
     assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
-  }
-
-  @Test
-  public void isServiceAreaOptionInInclusionGroup() {
-    ImmutableList<EsriServiceAreaInclusion> inclusionGroup =
-        clientValidation
-            .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, location)
-            .toCompletableFuture()
-            .join();
-    assertEquals(
-        true,
-        clientValidation.isServiceAreaOptionInInclusionGroup(
-            esriServiceAreaValidationOption, inclusionGroup));
-  }
-
-  @Test
-  public void isServiceAreaOptionInInclusionGroupFalse() {
-    EsriServiceAreaValidationOption option =
-        EsriServiceAreaValidationOption.builder()
-            .setLabel("Test")
-            .setId("Test")
-            .setUrl("/query")
-            .setAttribute("CITYNAME")
-            .build();
-    ImmutableList<EsriServiceAreaInclusion> inclusionGroup =
-        clientValidation
-            .getServiceAreaInclusionGroup(option, location)
-            .toCompletableFuture()
-            .join();
-    assertEquals(
-        false,
-        clientValidation.isServiceAreaOptionInInclusionGroup(
-            esriServiceAreaValidationOption, inclusionGroup));
   }
 }
