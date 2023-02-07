@@ -10,7 +10,11 @@ import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
 import services.applicant.exception.InvalidPredicateException;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.Scalar;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.LeafExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
 import services.question.types.QuestionDefinition;
 
 /** Generates {@link JsonPathPredicate}s based on the current applicant filling out the program. */
@@ -37,10 +41,37 @@ public final class JsonPathPredicateGenerator {
   /**
    * Formats a {@link LeafOperationExpressionNode} in JsonPath format: {@code path[?(expression)]}
    *
-   * <p>Example: \$.applicant.address[?(@.zip in ["12345", "56789"])]
+   * <p>Example: \$.applicant.name[?(@.last in ["Smith", "Lee"])]
    */
   public JsonPathPredicate fromLeafNode(LeafOperationExpressionNode node)
       throws InvalidPredicateException {
+    return JsonPathPredicate.create(
+        String.format(
+            "%s[?(@.%s %s %s)]",
+            getPath(node).predicateFormat(),
+            node.scalar().name().toLowerCase(),
+            node.operator().toJsonPathOperator(),
+            node.comparedValue().value()));
+  }
+
+  /**
+   * Formats a {@link services.program.predicate.LeafAddressServiceAreaExpressionNode} in JsonPath
+   * format: {@code path[?(expression)]}
+   *
+   * <p>Example: \$.applicant.address[?(@.service_area =~ /seattle_InArea_\d+/i)]
+   */
+  public JsonPathPredicate fromLeafAddressServiceAreaNode(LeafAddressServiceAreaExpressionNode node)
+      throws InvalidPredicateException {
+    return JsonPathPredicate.create(
+        String.format(
+            "%s[?(@.%s %s %s)]",
+            getPath(node).predicateFormat(),
+            Scalar.SERVICE_AREA.name().toLowerCase(),
+            Operator.IN_SERVICE_AREA.toJsonPathOperator(),
+            String.format("/%s_InArea_\\d+/", node.serviceAreaId())));
+  }
+
+  private Path getPath(LeafExpressionNode node) throws InvalidPredicateException {
     if (!questionsById.containsKey(node.questionId())) {
       // This means a predicate was incorrectly configured - we are depending upon a question that
       // does not appear anywhere in this program.
@@ -69,13 +100,7 @@ public final class JsonPathPredicateGenerator {
       path = path.withoutArrayReference();
     }
 
-    return JsonPathPredicate.create(
-        String.format(
-            "%s[?(@.%s %s %s)]",
-            path.predicateFormat(),
-            node.scalar().name().toLowerCase(),
-            node.operator().toJsonPathOperator(),
-            node.comparedValue().value()));
+    return path;
   }
 
   private Optional<RepeatedEntity> getTargetContext(QuestionDefinition targetQuestion)

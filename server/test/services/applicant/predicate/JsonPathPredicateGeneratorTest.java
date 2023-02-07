@@ -13,6 +13,7 @@ import services.applicant.RepeatedEntity;
 import services.applicant.exception.InvalidPredicateException;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateValue;
@@ -275,5 +276,24 @@ public class JsonPathPredicateGeneratorTest {
         .isInstanceOf(InvalidPredicateException.class)
         .hasMessageContaining(
             "Enumerator 12345 is not an ancestor of the current repeated context");
+  }
+
+  @Test
+  public void fromLeafServiceAreaNode_generatesCorrectPredicate() throws Exception {
+    LeafAddressServiceAreaExpressionNode node =
+        LeafAddressServiceAreaExpressionNode.create(question.getId(), "seattle");
+
+    JsonPathPredicate predicate = generator.fromLeafAddressServiceAreaNode(node);
+    assertThat(predicate)
+        .isEqualTo(
+            JsonPathPredicate.create(
+                "$.applicant.applicant_address[?(@.service_area =~ /seattle_InArea_\\d+/i)]"));
+
+    ApplicantData data = new ApplicantData();
+    data.putString(
+        Path.create("applicant.applicant_address.service_area"),
+        "bloomington_NotInArea_1234,seattle_InArea_5678");
+
+    assertThat(data.evalPredicate(predicate)).isTrue();
   }
 }
