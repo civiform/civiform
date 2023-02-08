@@ -17,7 +17,7 @@ public final class EsriServiceAreaValidationConfig {
   private Optional<ImmutableList<String>> ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES;
 
   @VisibleForTesting
-  Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> esriServiceAreaValidationMap;
+  ImmutableMap<String, EsriServiceAreaValidationOption> esriServiceAreaValidationMap;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -87,7 +87,7 @@ public final class EsriServiceAreaValidationConfig {
    * immutable map with a service area ID as the key and {@link EsriServiceAreaValidationOption} as
    * the value.
    */
-  public Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> getImmutableMap() {
+  public ImmutableMap<String, EsriServiceAreaValidationOption> getImmutableMap() {
     if (this.esriServiceAreaValidationMap != null) {
       return this.esriServiceAreaValidationMap;
     }
@@ -96,7 +96,8 @@ public final class EsriServiceAreaValidationConfig {
       logger.error(
           "Error calling EsriServiceAreaValidationConfig.getImmutableMap. Error: Esri Address"
               + " Service Area Config is missing settings.");
-      return Optional.empty();
+      throw new InvalidEsriServiceAreaValidationConfigException(
+          "Esri Service Area Validation Config is missing settings.");
     }
 
     ImmutableMap.Builder<String, EsriServiceAreaValidationOption> mapBuilder =
@@ -116,20 +117,21 @@ public final class EsriServiceAreaValidationConfig {
       mapBuilder.put(ids.get(i), option);
     }
 
-    return esriServiceAreaValidationMap = Optional.of(mapBuilder.build());
+    return esriServiceAreaValidationMap = mapBuilder.build();
   }
 
   /**
    * Creates a list of {@link EsriServiceAreaValidationOption}s with the same URL as the passed in
    * EsriServiceAreaValidationOption, given a map returned from {@link getImmutableMap}.
    */
-  public Optional<ImmutableList<EsriServiceAreaValidationOption>> getOptionsWithSharedBackend(
+  public ImmutableList<EsriServiceAreaValidationOption> getOptionsWithSharedBackend(
       String serviceAreaUrl) {
     if (!isConfigurationValid()) {
       logger.error(
           "Error calling EsriServiceAreaValidationConfig.getOptionsWithSharedBackend. Error: Esri"
               + " Address Service Area Config is missing settings.");
-      return Optional.empty();
+      throw new InvalidEsriServiceAreaValidationConfigException(
+          "Esri Service Area Validation Config is missing settings.");
     }
 
     ImmutableList.Builder<EsriServiceAreaValidationOption> listBuilder = ImmutableList.builder();
@@ -151,7 +153,7 @@ public final class EsriServiceAreaValidationConfig {
       }
     }
 
-    return Optional.of(listBuilder.build());
+    return listBuilder.build();
   }
 
   /**
@@ -159,16 +161,9 @@ public final class EsriServiceAreaValidationConfig {
    * service area settings given a service area id.
    */
   public Optional<EsriServiceAreaValidationOption> getOptionByServiceAreaId(String serviceAreaId) {
-    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> options = getImmutableMap();
+    ImmutableMap<String, EsriServiceAreaValidationOption> options = getImmutableMap();
 
-    if (options.isEmpty()) {
-      logger.error(
-          "Error calling EsriServiceAreaValidationConfig.getOptionByServiceAreaId. Error:"
-              + " EsriServiceAreaValidationConfig.getImmutableMap() returned empty.");
-      return Optional.empty();
-    }
-
-    EsriServiceAreaValidationOption option = options.get().get(serviceAreaId);
+    EsriServiceAreaValidationOption option = options.get(serviceAreaId);
 
     if (option == null) {
       logger.error(

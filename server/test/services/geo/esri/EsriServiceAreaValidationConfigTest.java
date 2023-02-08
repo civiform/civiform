@@ -29,10 +29,9 @@ public class EsriServiceAreaValidationConfigTest {
 
   @Test
   public void getImmutableMap() {
-    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> maybeMap =
+    ImmutableMap<String, EsriServiceAreaValidationOption> map =
         esriServiceAreaValidationConfig.getImmutableMap();
-    assertEquals(true, maybeMap.isPresent());
-    EsriServiceAreaValidationOption option = maybeMap.get().get("Seattle");
+    EsriServiceAreaValidationOption option = map.get("Seattle");
     assertEquals("Seattle", option.getLabel());
     assertEquals("Seattle", option.getId());
     assertEquals("/query", option.getUrl());
@@ -43,19 +42,20 @@ public class EsriServiceAreaValidationConfigTest {
   public void getImmutableMapStored() {
     assertEquals(esriServiceAreaValidationConfig.esriServiceAreaValidationMap, null);
     esriServiceAreaValidationConfig.getImmutableMap();
-    assertEquals(true, esriServiceAreaValidationConfig.esriServiceAreaValidationMap.isPresent());
+    assertEquals(
+        "CITYNAME",
+        esriServiceAreaValidationConfig.esriServiceAreaValidationMap.get("Seattle").getAttribute());
   }
 
   @Test
   public void getOptionsWithSharedBackend() {
     assertEquals(true, esriServiceAreaValidationConfig.isConfigurationValid());
-    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> maybeMap =
+    ImmutableMap<String, EsriServiceAreaValidationOption> map =
         esriServiceAreaValidationConfig.getImmutableMap();
-    assertEquals(true, maybeMap.isPresent());
-    EsriServiceAreaValidationOption option = maybeMap.get().get("Seattle");
+    EsriServiceAreaValidationOption option = map.get("Seattle");
 
     ImmutableList<EsriServiceAreaValidationOption> optionList =
-        esriServiceAreaValidationConfig.getOptionsWithSharedBackend(option.getUrl()).get();
+        esriServiceAreaValidationConfig.getOptionsWithSharedBackend(option.getUrl());
 
     Optional<EsriServiceAreaValidationOption> maybeOptionFromList = optionList.stream().findFirst();
     assertThat(maybeOptionFromList.isPresent()).isTrue();
