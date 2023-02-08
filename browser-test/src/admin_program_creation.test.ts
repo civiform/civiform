@@ -394,6 +394,15 @@ describe('program creation', () => {
     await adminPrograms.goToManageQuestionsPage(programName)
   })
 
+  it('correctly renders delete screen confirmation modal', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminPrograms.launchDeleteScreenModal()
+    await validateScreenshot(page, 'delete-screen-confirmation-modal')
+  })
+
   async function expectQuestionsOrderWithinBlock(
     page: Page,
     expectedQuestions: string[],

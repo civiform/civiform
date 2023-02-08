@@ -344,8 +344,17 @@ export class AdminPrograms {
     }
   }
 
+  async launchDeleteScreenModal() {
+    const programName = 'Test program 7'
+    await this.addProgram(programName)
+    await this.addProgramBlock(programName)
+    await this.goToBlockInProgram(programName, 'Screen 1')
+    await clickAndWaitForModal(this.page, 'block-delete-modal')
+  }
+
   async removeProgramBlock(programName: string, blockName: string) {
     await this.goToBlockInProgram(programName, blockName)
+    await clickAndWaitForModal(this.page, 'block-delete-modal')
     await this.page.click('#delete-block-button')
     await waitForPageJsLoad(this.page)
     await this.gotoAdminProgramsPage()
