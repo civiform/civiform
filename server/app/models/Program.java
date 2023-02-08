@@ -29,6 +29,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
+import services.program.ProgramType;
 
 /**
  * An EBean mapped class that stores configuration for a specific benefits program.
@@ -92,6 +93,8 @@ public class Program extends BaseModel {
    */
   @WhenModified private Instant lastModifiedTime;
 
+  @Constraints.Required private ProgramType programType;
+
   @ManyToMany(mappedBy = "programs")
   private List<Version> versions;
 
@@ -149,7 +152,8 @@ public class Program extends BaseModel {
       String externalLink,
       String displayMode,
       ImmutableList<BlockDefinition> blockDefinitions,
-      Version associatedVersion) {
+      Version associatedVersion,
+      ProgramType programType) {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
@@ -160,6 +164,7 @@ public class Program extends BaseModel {
     this.blockDefinitions = blockDefinitions;
     this.statusDefinitions = new StatusDefinitions();
     this.versions.add(associatedVersion);
+    this.programType = programType;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -175,6 +180,7 @@ public class Program extends BaseModel {
     statusDefinitions = programDefinition.statusDefinitions();
     slug = programDefinition.slug();
     displayMode = programDefinition.displayMode().getValue();
+    programType = programDefinition.programType();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -194,7 +200,8 @@ public class Program extends BaseModel {
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setCreateTime(createTime)
-            .setLastModifiedTime(lastModifiedTime);
+            .setLastModifiedTime(lastModifiedTime)
+            .setProgramType(programType);
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);

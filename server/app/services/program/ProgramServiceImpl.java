@@ -45,6 +45,7 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.program.ProgramType;
 
 /** Implementation class for {@link ProgramService} interface. */
 public final class ProgramServiceImpl implements ProgramService {
@@ -194,7 +195,8 @@ public final class ProgramServiceImpl implements ProgramService {
             externalLink,
             displayMode,
             ImmutableList.of(emptyBlock),
-            versionRepository.getDraftVersion());
+            versionRepository.getDraftVersion(),
+            ProgramType.PROGRAM);
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }

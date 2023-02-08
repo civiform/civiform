@@ -27,6 +27,7 @@ import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.program.ProgramType;
 
 /** An immutable configuration of a program. */
 @AutoValue
@@ -78,6 +79,8 @@ public abstract class ProgramDefinition {
 
   /** When was this program last modified. Could be null for older programs. */
   public abstract Optional<Instant> lastModifiedTime();
+
+  public abstract ProgramType programType();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -691,6 +694,8 @@ public abstract class ProgramDefinition {
     public abstract Builder setCreateTime(@Nullable Instant createTime);
 
     public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
+
+    public abstract Builder setProgramType(ProgramType programType);
 
     public abstract ProgramDefinition build();
 
