@@ -1,7 +1,7 @@
 # --- !Ups
 
 alter table programs add column program_type varchar;
-update programs set program_type = 'PROGRAM' where program_type is null;
+update programs set program_type = 'DEFAULT' where program_type is null;
 
 # --- !Downs
 
