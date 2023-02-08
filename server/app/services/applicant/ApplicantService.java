@@ -691,10 +691,6 @@ public final class ApplicantService {
               .setUnapplied(sortByProgramId(unappliedPrograms.build()))
               .build());
     } else {
-      ApplicationPrograms.Builder appProgramsBuilder =
-          ApplicationPrograms.builder()
-              .setInProgress(sortByProgramId(inProgressPrograms.build()))
-              .setSubmitted(sortByProgramId(submittedPrograms.build()));
       var unusedProgramsFuture =
           CompletableFuture.allOf(
                   programNamesWithApplicationsFuture.toArray(
@@ -704,6 +700,12 @@ public final class ApplicantService {
                     Set<String> unappliedActivePrograms =
                         Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
                     Long appId = applications.stream().findFirst().get().getApplicant().id;
+
+                    ApplicationPrograms.Builder appProgramsBuilder =
+                        ApplicationPrograms.builder()
+                            .setInProgress(sortByProgramId(inProgressPrograms.build()))
+                            .setSubmitted(sortByProgramId(submittedPrograms.build()));
+
                     if (unappliedActivePrograms.isEmpty()) {
                       applicationProgramsFuture.complete(
                           appProgramsBuilder
@@ -713,7 +715,6 @@ public final class ApplicantService {
 
                     ArrayList<CompletableFuture<String>> unappliedProgramsFuture =
                         new ArrayList<>();
-
                     unappliedActivePrograms.forEach(
                         programName -> {
                           CompletableFuture<String> programNameFuture = new CompletableFuture<>();
