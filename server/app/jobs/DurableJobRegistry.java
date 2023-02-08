@@ -38,7 +38,7 @@ public final class DurableJobRegistry {
     }
   }
 
-  /** Register a factory for a given job name. */
+  /** Registers a factory for a given job name. */
   public void register(DurableJobName jobName, DurableJobFactory durableJobFactory) {
     registeredJobs.put(
         jobName.getJobName(),
