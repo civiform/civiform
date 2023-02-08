@@ -66,7 +66,7 @@ public final class DurableJobRegistry {
         .orElseThrow(() -> new JobNotFoundException(jobName.getJobName()));
   }
 
-  /** Get all jobs that were registered with a {@link RecurringJobExecutionTimeResolver}. */
+  /** Returns all jobs registered with a {@link RecurringJobExecutionTimeResolver}. */
   public ImmutableSet<RegisteredJob> getRecurringJobs() {
     return registeredJobs.values().stream()
         .filter(RegisteredJob::isRecurring)
