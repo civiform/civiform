@@ -48,7 +48,7 @@ public final class DurableJobRegistry {
 
   /**
    * Registers a factory for a given job name along with a {@link RecurringJobExecutionTimeResolver}
-   * to make it a recurring job.
+   * that defines the future run times of the job.
    */
   public void register(
       DurableJobName jobName,
