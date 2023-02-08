@@ -64,7 +64,7 @@ public final class PredicateEvaluator {
 
   /**
    * Returns true if and only if the answer for the address question referenced by the {@link
-   * LeafAddressServiceAreaExpressionNode} has an in-area service area in {@link ApplicantData}.
+   * LeafAddressServiceAreaExpressionNode} has an in-area or failed service area in {@link ApplicantData}.
    */
   private boolean evaluateLeafAddressServiceAreaNode(LeafAddressServiceAreaExpressionNode node) {
     try {
