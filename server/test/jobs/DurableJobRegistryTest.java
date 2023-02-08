@@ -27,7 +27,7 @@ public class DurableJobRegistryTest {
   }
 
   @Test
-  public void registeringAndRetrievingRecurringJobs() {
+  public void registerAndGetRecurringJobs() {
     var registry = new DurableJobRegistry();
 
     registry.register(
