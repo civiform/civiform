@@ -22,6 +22,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -796,6 +797,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setExternalLink("")
                 .setStatusDefinitions(new StatusDefinitions())
                 .setDisplayMode(DisplayMode.PUBLIC)
+                .setProgramType(ProgramType.DEFAULT)
                 .build(),
             FAKE_BASE_URL);
 

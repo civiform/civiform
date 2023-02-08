@@ -27,9 +27,9 @@ import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
-import services.program.ProgramType;
 
 /**
  * An EBean mapped class that stores configuration for a specific benefits program.
@@ -133,6 +133,7 @@ public class Program extends BaseModel {
     this.blockDefinitions = definition.blockDefinitions();
     this.statusDefinitions = definition.statusDefinitions();
     this.displayMode = definition.displayMode().getValue();
+    this.programType = definition.programType();
 
     orderBlockDefinitionsBeforeUpdate();
 

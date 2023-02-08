@@ -42,7 +42,7 @@ public final class FeatureFlags {
       "esri_address_service_area_validation_enabled";
 
   // Common Intake Form flags
-  private static  final String INTAKE_FORM_ENABLED = "intake_form_enabled";
+  private static final String INTAKE_FORM_ENABLED = "intake_form_enabled";
 
   @Inject
   FeatureFlags(Config config) {

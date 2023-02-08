@@ -27,7 +27,6 @@ import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.program.ProgramType;
 
 /** An immutable configuration of a program. */
 @AutoValue
