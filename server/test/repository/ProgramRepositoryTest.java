@@ -71,7 +71,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             "insert into programs (name, description, block_definitions, legacy_localized_name,"
                 + " legacy_localized_description, program_type) values ('Old Schema Entry',"
                 + " 'Description', '[]', '{\"en_us\": \"name\"}', '{\"en_us\": \"description\"}',"
-                + " 'DEFAULT');")
+                + " 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("
@@ -101,7 +101,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             "insert into programs (name, description, block_definitions, legacy_localized_name,"
                 + " legacy_localized_description, status_definitions, program_type) values"
                 + " ('Status Default', 'Description', '[]', '{\"en_us\": \"name\"}','{\"en_us\":"
-                + " \"description\"}', '{\"statuses\": []}', 'DEFAULT');")
+                + " \"description\"}', '{\"statuses\": []}', 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("
@@ -124,7 +124,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     DB.sqlUpdate(
             "insert into programs (name, description, block_definitions, legacy_localized_name,"
                 + " legacy_localized_description, program_type) values ('Old Schema Entry',"
-                + " 'Description', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}', 'DEFAULT');")
+                + " 'Description', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}', 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("
