@@ -642,16 +642,12 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
     if (questionDefinition.getQuestionType().equals(QuestionType.ADDRESS)) {
       // Address questions only support service area predicates.
 
-      if (esriServiceAreaValidationConfig.getImmutableMap().isEmpty()) {
-        return valueField;
-      }
-
       Optional<String> maybeServiceArea =
           assertLeafAddressServiceAreaNode(maybeLeafNode)
               .map(LeafAddressServiceAreaExpressionNode::serviceAreaId);
 
       ImmutableCollection<EsriServiceAreaValidationOption> serviceAreaOptions =
-          esriServiceAreaValidationConfig.getImmutableMap().get().values();
+          esriServiceAreaValidationConfig.getImmutableMap().values();
 
       SelectWithLabel select =
           new SelectWithLabel()

@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -28,6 +29,8 @@ import services.AddressField;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaState;
 
 /**
  * Provides methods for handling reqeusts to external Esri geo and map layer services for getting
@@ -42,6 +45,7 @@ import services.geo.AddressSuggestionGroup;
  *     (Map Service/Layer)</a>
  */
 public class EsriClient implements WSBodyReadables, WSBodyWritables {
+  private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final WSClient ws;
 
   private static final String ESRI_CONTENT_TYPE = "application/json";
@@ -57,7 +61,10 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
-  public EsriClient(Config configuration, WSClient ws) {
+  public EsriClient(
+      Config configuration,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      WSClient ws) {
     this.ws = checkNotNull(ws);
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
         configuration.hasPath("esri_find_address_candidates_url")
@@ -67,6 +74,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         configuration.hasPath("esri_external_call_tries")
             ? configuration.getInt("esri_external_call_tries")
             : 3;
+    this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
   }
 
   /** Retries failed requests up to the provided value */
@@ -262,13 +270,31 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
 
   /**
    * Calls an external Esri service to get the service areas of the provided {@link
-   * AddressLocation}. Takes the returned service areas and returns a boolean specifying if the
-   * service area is included.
-   *
-   * @return an optional boolean if successful, or an empty optional if the request fails.
+   * AddressLocation}. Takes the returned service areas and returns an immutable list of {@link
+   * ServiceAreaInclusion}, filtered by the services areas specified in the application config that
+   * have the same {@link EsriServiceAreaValidationOption} URL.
    */
-  public CompletionStage<Optional<Boolean>> isAddressLocationInServiceArea(
+  public CompletionStage<ImmutableList<ServiceAreaInclusion>> getServiceAreaInclusionGroup(
       EsriServiceAreaValidationOption esriServiceAreaValidationOption, AddressLocation location) {
+    ServiceAreaInclusion.Builder serviceAreaInclusionBuilder = ServiceAreaInclusion.builder();
+    ImmutableList.Builder<ServiceAreaInclusion> inclusionListBuilder = ImmutableList.builder();
+
+    if (!esriServiceAreaValidationConfig.isConfigurationValid()) {
+      logger.error(
+          "Error calling EsriClient.getServiceAreaInclusionGroups. Error:"
+              + " EsriServiceAreaValidationConfig.getImmutableMap() returned empty.");
+      serviceAreaInclusionBuilder
+          .setServiceAreaId(esriServiceAreaValidationOption.getId())
+          .setState(ServiceAreaState.FAILED)
+          .setTimeStamp(Instant.now());
+      inclusionListBuilder.add(serviceAreaInclusionBuilder.build());
+      return CompletableFuture.completedFuture(inclusionListBuilder.build());
+    }
+
+    ImmutableList<EsriServiceAreaValidationOption> optionList =
+        esriServiceAreaValidationConfig.getOptionsWithSharedBackend(
+            esriServiceAreaValidationOption.getUrl());
+
     return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
         .thenApply(
             (maybeJson) -> {
@@ -279,7 +305,17 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                         + " EsriServiceAreaValidationOption = {}. AddressLocation = {}",
                     esriServiceAreaValidationOption,
                     location);
-                return Optional.empty();
+
+                for (EsriServiceAreaValidationOption option : optionList) {
+                  inclusionListBuilder.add(
+                      serviceAreaInclusionBuilder
+                          .setServiceAreaId(option.getId())
+                          .setState(ServiceAreaState.FAILED)
+                          .setTimeStamp(Instant.now())
+                          .build());
+                }
+
+                return inclusionListBuilder.build();
               }
 
               JsonNode json = maybeJson.get();
@@ -287,11 +323,26 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
               List<String> features =
                   ctx.read(
                       "features[*].attributes." + esriServiceAreaValidationOption.getAttribute());
-              Optional<String> feature =
-                  features.stream()
-                      .filter(val -> esriServiceAreaValidationOption.getId().equals(val))
-                      .findFirst();
-              return Optional.of(feature.isPresent());
+
+              for (EsriServiceAreaValidationOption option : optionList) {
+                if (features.contains(option.getId())) {
+                  inclusionListBuilder.add(
+                      serviceAreaInclusionBuilder
+                          .setServiceAreaId(option.getId())
+                          .setState(ServiceAreaState.IN_AREA)
+                          .setTimeStamp(Instant.now())
+                          .build());
+                } else {
+                  inclusionListBuilder.add(
+                      serviceAreaInclusionBuilder
+                          .setServiceAreaId(option.getId())
+                          .setState(ServiceAreaState.NOT_IN_AREA)
+                          .setTimeStamp(Instant.now())
+                          .build());
+                }
+              }
+
+              return inclusionListBuilder.build();
             });
   }
 }
