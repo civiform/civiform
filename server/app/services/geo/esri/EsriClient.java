@@ -319,8 +319,6 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                 return inclusionListBuilder.build();
               }
 
-              ImmutableList.Builder<ServiceAreaInclusion> listBuilder = ImmutableList.builder();
-
               JsonNode json = maybeJson.get();
               ReadContext ctx = JsonPath.parse(json.toString());
               List<String> features =
@@ -329,14 +327,14 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
 
               for (EsriServiceAreaValidationOption option : optionList) {
                 if (features.contains(option.getId())) {
-                  listBuilder.add(
+                  inclusionListBuilder.add(
                       serviceAreaInclusionBuilder
                           .setServiceAreaId(option.getId())
                           .setState(ServiceAreaState.IN_AREA)
                           .setTimeStamp(Instant.now())
                           .build());
                 } else {
-                  listBuilder.add(
+                  inclusionListBuilder.add(
                       serviceAreaInclusionBuilder
                           .setServiceAreaId(option.getId())
                           .setState(ServiceAreaState.NOT_IN_AREA)
@@ -345,7 +343,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                 }
               }
 
-              return listBuilder.build();
+              return inclusionListBuilder.build();
             });
   }
 }
