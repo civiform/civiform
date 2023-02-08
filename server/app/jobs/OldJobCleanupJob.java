@@ -31,6 +31,6 @@ public final class OldJobCleanupJob extends DurableJob {
   @Override
   public void run() {
     int numRowsDeleted = this.persistedDurableJobRepository.deleteJobsOlderThanSixMonths();
-    logger.info("Deleted {} old jobs", numRowsDeleted);
+    logger.info("Deleted {} jobs older than 6 months", numRowsDeleted);
   }
 }
