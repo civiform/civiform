@@ -863,7 +863,29 @@ export class AdminPrograms {
     return this.page.locator('input[name=addressCorrectionEnabled]')
   }
 
+  getAddressCorrectionToggleByName(questionName: string) {
+    return this.page
+      .locator('.cf-program-question')
+      .filter({hasText: questionName})
+      .locator('input[name=addressCorrectionEnabled]')
+  }
+
+  getAddressCorrectionHelpTextByName(questionName: string) {
+    return this.page
+      .locator('.cf-program-question')
+      .filter({hasText: questionName})
+      .locator(':is(span:has-text("Enabling address correction will check"))')
+  }
+
   async clickAddressCorrectionToggle() {
     await this.page.click(':is(button:has-text("Address correction"))')
+  }
+
+  async clickAddressCorrectionToggleByName(questionName: string) {
+    const toggleLocator = this.getAddressCorrectionToggleByName(questionName)
+    await toggleLocator
+      .locator('..')
+      .locator('button:has-text("Address correction")')
+      .click()
   }
 }

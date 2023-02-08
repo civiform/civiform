@@ -143,6 +143,95 @@ describe('program creation', () => {
     ).not.toContain('Address correction')
   })
 
+  it('create program with multiple address questions, address correction feature enabled, and can only enable correction on one address', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+    const helpText =
+      'This screen already contains a question with address correction enabled'
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+    await adminQuestions.addAddressQuestion({questionName: 'ace-address-one'})
+    await adminQuestions.addAddressQuestion({questionName: 'ace-address-two'})
+    await adminQuestions.addNameQuestion({questionName: 'ace-name'})
+
+    const programName = 'Ace program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'ace program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('ace-address-one')
+    await adminPrograms.addQuestionFromQuestionBank('ace-address-two')
+    await adminPrograms.addQuestionFromQuestionBank('ace-name')
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-multiple-address-correction-false',
+    )
+
+    const addressCorrectionInput1 =
+      adminPrograms.getAddressCorrectionToggleByName('ace-address-one')
+    const addressCorrectionInput2 =
+      adminPrograms.getAddressCorrectionToggleByName('ace-address-two')
+    const addressCorrectionHelpText1 =
+      adminPrograms.getAddressCorrectionHelpTextByName('ace-address-one')
+    const addressCorrectionHelpText2 =
+      adminPrograms.getAddressCorrectionHelpTextByName('ace-address-two')
+
+    // the input value shows what it will be set to when clicked, so the
+    // opposite of its current value
+    expect(await addressCorrectionInput1.inputValue()).toBe('true')
+    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+
+    expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
+    expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
+
+    await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
+
+    expect(await addressCorrectionInput1.inputValue()).toBe('false')
+    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
+    expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-first-address-correction-true',
+    )
+
+    // Trying to toggle the other one should not do anything
+    await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
+
+    expect(await addressCorrectionInput1.inputValue()).toBe('false')
+    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
+    expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-first-address-correction-true',
+    )
+
+    // Once we untoggle the first one, we should be able to toggle the second one
+    await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
+    await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
+
+    expect(await addressCorrectionInput1.inputValue()).toBe('true')
+    expect(await addressCorrectionInput2.inputValue()).toBe('false')
+    expect(await addressCorrectionHelpText1.innerText()).toContain(helpText)
+    expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-second-address-correction-true',
+    )
+
+    // ensure that non address question does not contain address correction button
+    expect(
+      await page.innerText(
+        adminPrograms.questionCardSelectorInProgramEditor('ace-name'),
+      ),
+    ).not.toContain('Address correction')
+  })
+
   it('create program with address and address correction feature disabled', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
