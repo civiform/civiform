@@ -41,9 +41,6 @@ public final class FeatureFlags {
   private static final String ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED =
       "esri_address_service_area_validation_enabled";
 
-  // Common Intake Form flags
-  private static final String INTAKE_FORM_ENABLED = "intake_form_enabled";
-
   @Inject
   FeatureFlags(Config config) {
     this.config = checkNotNull(config);
@@ -108,10 +105,6 @@ public final class FeatureFlags {
     return getFlagEnabled(request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED);
   }
 
-  public boolean isIntakeFormEnabled(Request request) {
-    return getFlagEnabled(request, INTAKE_FORM_ENABLED);
-  }
-
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
     return ImmutableMap.of(
         ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
@@ -127,9 +120,7 @@ public final class FeatureFlags {
         ESRI_ADDRESS_CORRECTION_ENABLED,
         isEsriAddressCorrectionEnabled(request),
         ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED,
-        isEsriAddressServiceAreaValidationEnabled(request),
-        INTAKE_FORM_ENABLED,
-        isIntakeFormEnabled(request));
+        isEsriAddressServiceAreaValidationEnabled(request));
   }
 
   /**
