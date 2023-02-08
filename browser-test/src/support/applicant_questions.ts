@@ -215,10 +215,8 @@ export class ApplicantQuestions {
     const cardLocator = this.page.locator('.cf-application-card', {
       has: this.page.locator(`:text("${programName}")`),
     })
-    const tag = isEligible ? '.cf-eligible-tag' : '.cf-not-eligible-tag';
-    expect(
-      await cardLocator.locator(tag).count(),
-    ).toEqual(1)
+    const tag = isEligible ? '.cf-eligible-tag' : '.cf-not-eligible-tag'
+    expect(await cardLocator.locator(tag).count()).toEqual(1)
   }
 
   async expectPrograms({

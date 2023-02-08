@@ -370,7 +370,8 @@ public final class ProgramIndexView extends BaseHtmlView {
   private PTag eligibilityTag(Messages messages, boolean isEligible) {
     Icons icon = isEligible ? Icons.CHECK_CIRCLE : Icons.INFO;
     String color = isEligible ? "bg-blue-100" : "bg-gray-200";
-    String tagClass = isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
+    String tagClass =
+        isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
     String tagText =
         isEligible
             ? MessageKey.TAG_MAY_QUALIFY.getKeyName()
