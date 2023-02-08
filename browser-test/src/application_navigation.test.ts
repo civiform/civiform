@@ -137,6 +137,21 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(page, 'language-selection')
     })
 
+    it('verify program details page', async () => {
+      const {page} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await page.click(
+        `.cf-application-card:has-text("${programName}") >> text='Program details'`,
+      )
+      const popupPromise = page.waitForEvent('popup')
+      const popup = await popupPromise
+      const popupURL = await popup.evaluate('location.href')
+
+      // Verify if the program details page Url ends in "/programs/{program ID}"
+      expect(popupURL).toMatch(/\/programs\/[0-9]+$/)
+    })
+
     it('verify program list page', async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
@@ -154,23 +169,17 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program list page.
       expect(await page.innerText('h1')).toContain('Get benefits')
-      expect(
-        await page.locator('a:has-text("External site")').getAttribute('href'),
-      ).toEqual('https://external.com')
+      const cardHtml = await page.innerHTML(
+        '.cf-application-card:has-text("' + programWithExternalLink + '")',
+      )
+      expect(cardHtml).toContain('https://external.com')
+      // there shouldn't be any external Links
+      const cardText = await page.innerText(
+        '.cf-application-card:has-text("' + programWithExternalLink + '")',
+      )
+      expect(cardText).not.toContain('External site')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-list-page')
-    })
-
-    it('verify program details page', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-      await applicantQuestions.clickProgramDetails(programName)
-
-      // Verify we are on program details page. Url should end in "/programs/{program ID}"
-      expect(page.url()).toMatch(/\/programs\/[0-9]+$/)
-      await validateAccessibility(page)
-      await validateScreenshot(page, 'program-details-page')
     })
 
     it('verify program preview page', async () => {
@@ -372,6 +381,8 @@ describe('Applicant navigation flow', () => {
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
+
+      await applicantQuestions.validateToastMessage('may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -410,6 +421,7 @@ describe('Applicant navigation flow', () => {
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.validateToastMessage('may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )

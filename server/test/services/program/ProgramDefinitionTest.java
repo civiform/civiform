@@ -14,6 +14,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.applicant.question.Scalar;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -21,6 +22,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
+import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
@@ -93,6 +95,81 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
+  }
+
+  @Test
+  public void getProgramQuestionDefinition() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantJugglingNumber())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantDate())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .buildDefinition();
+
+    assertThat(
+            programDefinition
+                .getProgramQuestionDefinition(testQuestionBank.applicantJugglingNumber().id)
+                .id())
+        .isEqualTo(testQuestionBank.applicantJugglingNumber().id);
+  }
+
+  @Test
+  public void getProgramQuestionDefinition_notFound() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantDate())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .buildDefinition();
+
+    assertThatThrownBy(
+            () ->
+                programDefinition.getProgramQuestionDefinition(
+                    testQuestionBank.applicantJugglingNumber().id))
+        .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
+  }
+
+  @Test
+  public void isQuestionUsedInPredicate() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withEligibilityDefinition(
+                EligibilityDefinition.builder()
+                    .setPredicate(
+                        PredicateDefinition.create(
+                            PredicateExpressionNode.create(
+                                LeafAddressServiceAreaExpressionNode.builder()
+                                    .setQuestionId(testQuestionBank.applicantAddress().id)
+                                    .setServiceAreaId("seattle")
+                                    .build()),
+                            PredicateAction.ELIGIBLE_BLOCK))
+                    .build())
+            .withVisibilityPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.builder()
+                            .setQuestionId(testQuestionBank.applicantDate().id)
+                            .setScalar(Scalar.DATE)
+                            .setOperator(Operator.IS_BEFORE)
+                            .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
+                            .build()),
+                    PredicateAction.HIDE_BLOCK))
+            .buildDefinition();
+
+    assertThat(programDefinition.isQuestionUsedInPredicate(testQuestionBank.applicantAddress().id))
+        .isTrue();
+    assertThat(programDefinition.isQuestionUsedInPredicate(testQuestionBank.applicantDate().id))
+        .isTrue();
+    assertThat(
+            programDefinition.isQuestionUsedInPredicate(
+                testQuestionBank.applicantKitchenTools().id))
+        .isFalse();
   }
 
   @Test
@@ -281,7 +358,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .addQuestion(
-                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
+                ProgramQuestionDefinition.create(
+                    questionB,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ true))
             .build();
     BlockDefinition block2QC =
         BlockDefinition.builder()

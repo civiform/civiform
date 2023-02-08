@@ -18,7 +18,7 @@ import services.question.types.QuestionDefinition;
  */
 @JsonTypeName("leaf")
 @AutoValue
-public abstract class LeafOperationExpressionNode implements ConcretePredicateExpressionNode {
+public abstract class LeafOperationExpressionNode implements LeafExpressionNode {
 
   @JsonCreator
   public static LeafOperationExpressionNode create(
@@ -37,6 +37,7 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
   /**
    * The ID of the {@link services.question.types.QuestionDefinition} this expression operates on.
    */
+  @Override
   @JsonProperty("questionId")
   public abstract long questionId();
 

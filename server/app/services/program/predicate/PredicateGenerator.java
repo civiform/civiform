@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import play.data.DynamicForm;
 import services.applicant.question.Scalar;
+import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
+import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 
@@ -52,6 +55,7 @@ public final class PredicateGenerator {
    *       node and is otherwise unused.
    * </ul>
    *
+   * @param programDefinition the program this predicate is being generated for.
    * @param predicateForm contains key-value pairs specifying the predicate.
    * @param roQuestionService a {@link ReadOnlyQuestionService} for validating that questions
    *     referenced in the form are active or draft.
@@ -60,8 +64,10 @@ public final class PredicateGenerator {
    * @throws BadRequestException if the form is invalid.
    */
   public PredicateDefinition generatePredicateDefinition(
-      DynamicForm predicateForm, ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
+      ProgramDefinition programDefinition,
+      DynamicForm predicateForm,
+      ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
     final PredicateAction predicateAction;
 
     try {
@@ -72,8 +78,8 @@ public final class PredicateGenerator {
               "Missing or unknown predicateAction: %s", predicateForm.get("predicateAction")));
     }
 
-    Multimap<Integer, LeafOperationExpressionNode> leafNodes =
-        getLeafNodes(predicateForm, roQuestionService);
+    Multimap<Integer, LeafExpressionNode> leafNodes =
+        getLeafNodes(programDefinition, predicateForm, roQuestionService);
 
     switch (detectFormat(leafNodes)) {
       case OR_OF_SINGLE_LAYER_ANDS:
@@ -102,7 +108,7 @@ public final class PredicateGenerator {
 
       case SINGLE_QUESTION:
         {
-          LeafOperationExpressionNode singleQuestionNode =
+          LeafExpressionNode singleQuestionNode =
               leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
 
           return PredicateDefinition.create(
@@ -119,10 +125,12 @@ public final class PredicateGenerator {
     }
   }
 
-  private static Multimap<Integer, LeafOperationExpressionNode> getLeafNodes(
-      DynamicForm predicateForm, ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
-    Multimap<Integer, LeafOperationExpressionNode> leafNodes = LinkedHashMultimap.create();
+  private static Multimap<Integer, LeafExpressionNode> getLeafNodes(
+      ProgramDefinition programDefinition,
+      DynamicForm predicateForm,
+      ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
+    Multimap<Integer, LeafExpressionNode> leafNodes = LinkedHashMultimap.create();
     HashSet<String> consumedMultiValueKeys = new HashSet<>();
 
     for (String key : predicateForm.rawData().keySet()) {
@@ -137,12 +145,28 @@ public final class PredicateGenerator {
 
       if (singleValueMatcher.find()) {
         Pair<Integer, Long> groupIdQuestionIdPair =
-            getGroupIdAndQuestionId(roQuestionService, singleValueMatcher);
+            getGroupIdAndQuestionId(programDefinition, roQuestionService, singleValueMatcher);
         groupId = groupIdQuestionIdPair.getLeft();
         questionId = groupIdQuestionIdPair.getRight();
         Pair<Scalar, Operator> scalarOperatorPair = getScalarAndOperator(predicateForm, questionId);
         scalar = scalarOperatorPair.getLeft();
         operator = scalarOperatorPair.getRight();
+
+        if (scalar.equals(Scalar.SERVICE_AREA)) {
+          ProgramQuestionDefinition questionDefinition =
+              programDefinition.getProgramQuestionDefinition(questionId);
+          if (!questionDefinition.getQuestionDefinition().isAddress()) {
+            throw new BadRequestException(
+                String.format("%d is not an address question", questionId));
+          }
+
+          if (!questionDefinition.addressCorrectionEnabled()) {
+            throw new BadRequestException(
+                String.format(
+                    "Address correction not enabled for Question ID %d in program ID %d",
+                    questionId, programDefinition.id()));
+          }
+        }
 
         predicateValue =
             parsePredicateValue(scalar, operator, predicateForm.get(key), ImmutableList.of());
@@ -150,7 +174,7 @@ public final class PredicateGenerator {
         // For the first encountered key of a multivalued question, we process all the keys now for
         // the question, then skip them later.
         Pair<Integer, Long> groupIdQuestionIdPair =
-            getGroupIdAndQuestionId(roQuestionService, multiValueMatcher);
+            getGroupIdAndQuestionId(programDefinition, roQuestionService, multiValueMatcher);
         groupId = groupIdQuestionIdPair.getLeft();
         questionId = groupIdQuestionIdPair.getRight();
         Pair<Scalar, Operator> scalarOperatorPair = getScalarAndOperator(predicateForm, questionId);
@@ -178,30 +202,43 @@ public final class PredicateGenerator {
         continue;
       }
 
-      leafNodes.put(
-          groupId,
-          LeafOperationExpressionNode.builder()
-              .setQuestionId(questionId)
-              .setScalar(scalar)
-              .setOperator(operator)
-              .setComparedValue(predicateValue)
-              .build());
+      LeafExpressionNode leafNode =
+          scalar.equals(Scalar.SERVICE_AREA)
+              ? LeafAddressServiceAreaExpressionNode.builder()
+                  .setQuestionId(questionId)
+                  .setServiceAreaId(predicateValue.value())
+                  .build()
+              : LeafOperationExpressionNode.builder()
+                  .setQuestionId(questionId)
+                  .setScalar(scalar)
+                  .setOperator(operator)
+                  .setComparedValue(predicateValue)
+                  .build();
+
+      leafNodes.put(groupId, leafNode);
     }
+
     return leafNodes;
   }
 
   /**
    * Gets the groupId and questionId for the provided predicate value matcher.
    *
-   * @throws QuestionNotFoundException if the resulting questionId is not in the {@link
-   *     ReadOnlyQuestionService}
+   * @throws ProgramQuestionDefinitionNotFoundException if the resulting questionId is not in the
+   *     {@link ProgramDefinition}
+   * @throws QuestionNotFoundException if the resulting questionId is not in the current active or
+   *     draft version.
    */
   private static Pair<Integer, Long> getGroupIdAndQuestionId(
-      ReadOnlyQuestionService roQuestionService, Matcher matcher) throws QuestionNotFoundException {
+      ProgramDefinition programDefinition,
+      ReadOnlyQuestionService readOnlyQuestionService,
+      Matcher matcher)
+      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
     int groupId = Integer.parseInt(matcher.group(1));
     long questionId = Long.parseLong(matcher.group(2));
 
-    roQuestionService.getQuestionDefinition(questionId);
+    readOnlyQuestionService.getQuestionDefinition(questionId);
+    programDefinition.getProgramQuestionDefinition(questionId);
 
     return Pair.of(groupId, questionId);
   }
@@ -227,7 +264,7 @@ public final class PredicateGenerator {
   }
 
   private static PredicateDefinition.PredicateFormat detectFormat(
-      Multimap<Integer, LeafOperationExpressionNode> leafNodes) {
+      Multimap<Integer, LeafExpressionNode> leafNodes) {
     return leafNodes.size() > 1
         ? PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS
         : PredicateDefinition.PredicateFormat.SINGLE_QUESTION;
@@ -262,6 +299,9 @@ public final class PredicateGenerator {
       case DATE:
         LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         return PredicateValue.of(localDate);
+
+      case SERVICE_AREA:
+        return PredicateValue.serviceArea(value);
 
       case LONG:
         switch (operator) {

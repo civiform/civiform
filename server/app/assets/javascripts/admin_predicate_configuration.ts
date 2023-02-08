@@ -141,12 +141,13 @@ class AdminPredicateConfiguration {
     selectedScalarValue: string | null,
     questionId: string,
   ) {
-    // If the scalar is from a multi-option question, there is not an input box for the 'Value'
-    // field (there's a set of checkboxes instead), so return immediately.
+    // If the scalar is from a multi-option or address question, there is not an input box
+    // for the 'Value' field (there's a set of checkboxes instead), so return immediately.
     if (
       selectedScalarValue &&
       (selectedScalarValue.toUpperCase() === 'SELECTION' ||
-        selectedScalarValue.toUpperCase() === 'SELECTIONS')
+        selectedScalarValue.toUpperCase() === 'SELECTIONS' ||
+        selectedScalarValue.toUpperCase() === 'SERVICE_AREA')
     ) {
       return
     }

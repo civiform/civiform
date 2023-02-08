@@ -395,8 +395,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
               programQuestions.with(
                   renderQuestion(
                       csrfTag,
-                      program.id(),
-                      blockDefinition.id(),
+                      program,
+                      blockDefinition,
                       question.getQuestionDefinition(),
                       canDelete,
                       question.optional(),
@@ -536,8 +536,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
   private DivTag renderQuestion(
       InputTag csrfTag,
-      long programDefinitionId,
-      long blockDefinitionId,
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition,
       QuestionDefinition questionDefinition,
       boolean canRemove,
       boolean isOptional,
@@ -577,14 +577,14 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
     Optional<FormTag> maybeOptionalToggle =
         optionalToggle(
-            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional);
+            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
 
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         addressCorrectionEnabledToggle(
             request,
             csrfTag,
-            programDefinitionId,
-            blockDefinitionId,
+            programDefinition,
+            blockDefinition,
             questionDefinition,
             addressCorrectionEnabled);
 
@@ -596,14 +596,18 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       ret.with(
           this.createMoveQuestionButtonsSection(
               csrfTag,
-              programDefinitionId,
-              blockDefinitionId,
+              programDefinition.id(),
+              blockDefinition.id(),
               questionDefinition,
               questionIndex,
               questionsCount));
       ret.with(
           deleteQuestionForm(
-              csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
+              csrfTag,
+              programDefinition.id(),
+              blockDefinition.id(),
+              questionDefinition,
+              canRemove));
     }
     return ret;
   }
@@ -728,13 +732,16 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
   private Optional<FormTag> addressCorrectionEnabledToggle(
       Request request,
       InputTag csrfTag,
-      long programDefinitionId,
-      long blockDefinitionId,
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition,
       QuestionDefinition questionDefinition,
       boolean addressCorrectionEnabled) {
     if (!questionDefinition.isAddress()) {
       return Optional.empty();
     }
+
+    boolean questionIsUsedInPredicate =
+        programDefinition.isQuestionUsedInPredicate(questionDefinition.getId());
 
     String toolTipText =
         "Enabling address correction will check the resident's address to ensure it is accurate.";
@@ -742,6 +749,12 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       toolTipText +=
           " To use this feature, you will need to have your IT manager configure the GIS service.";
     }
+    if (questionIsUsedInPredicate) {
+      toolTipText +=
+          " Questions used in visibility or eligibility conditions must have address correction"
+              + " enabled.";
+    }
+
     ButtonTag addressCorrectionButton =
         TagCreator.button()
             .withClasses(
@@ -778,13 +791,14 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
             .with(div(ViewUtils.makeSvgToolTip(toolTipText, Icons.HELP)));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
-                programDefinitionId, blockDefinitionId, questionDefinition.getId())
+                programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
             .url();
     return Optional.of(
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .withCondOnsubmit(
-                !featureFlags.isEsriAddressCorrectionEnabled(request), "return false;")
+                !featureFlags.isEsriAddressCorrectionEnabled(request) || questionIsUsedInPredicate,
+                "return false;")
             .withAction(toggleAddressCorrectionAction)
             .with(
                 input()

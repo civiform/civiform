@@ -15,6 +15,7 @@ import static play.mvc.Http.HttpVerbs.POST;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -38,22 +39,28 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.applicant.question.Scalar;
+import services.geo.esri.EsriServiceAreaValidationConfig;
+import services.geo.esri.EsriServiceAreaValidationOption;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.LeafExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.OperatorRightHandType;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateExpressionNodeType;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import views.HtmlBundle;
 import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
@@ -89,10 +96,14 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
   }
 
   private final AdminLayout layout;
+  private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   @Inject
-  public ProgramBlockPredicateConfigureView(AdminLayoutFactory layoutFactory) {
+  public ProgramBlockPredicateConfigureView(
+      AdminLayoutFactory layoutFactory,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
+    this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
   }
 
   public Content renderNewVisibility(
@@ -358,7 +369,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
     if (maybeExistingPredicate.isPresent()) {
       int columnNumber = 1;
 
-      ImmutableMap<Long, LeafOperationExpressionNode> questionIdLeafNodeMap =
+      ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
           getExistingAndNodes(maybeExistingPredicate.get()).stream()
               .findFirst()
               .get()
@@ -367,8 +378,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
               .stream()
               .map(PredicateExpressionNode::getLeafNode)
               .collect(
-                  ImmutableMap.toImmutableMap(
-                      LeafOperationExpressionNode::questionId, Function.identity()));
+                  ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
 
       for (var qd : questionDefinitions) {
         var leafNode = questionIdLeafNodeMap.get(qd.getId());
@@ -384,9 +394,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                             ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
                         .withData("testid", qd.getName())
                         .withData("question-id", String.valueOf(qd.getId())),
-                    createScalarDropdown(qd, Optional.of(leafNode.scalar())),
-                    createOperatorDropdown(
-                        qd, Optional.of(leafNode.scalar()), Optional.of(leafNode.operator())))
+                    createScalarDropdown(qd, Optional.of(leafNode)),
+                    createOperatorDropdown(qd, Optional.of(leafNode)))
                 .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
       }
     } else {
@@ -404,11 +413,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                             ReferenceClasses.PREDICATE_QUESTION_NAME_FIELD)
                         .withData("testid", qd.getName())
                         .withData("question-id", String.valueOf(qd.getId())),
-                    createScalarDropdown(qd, /* maybeScalar */ Optional.empty()),
-                    createOperatorDropdown(
-                        qd,
-                        /* maybeSelectedScalar */ Optional.empty(),
-                        /* maybeOperator */ Optional.empty()))
+                    createScalarDropdown(qd, /* maybeLeafNode= */ Optional.empty()),
+                    createOperatorDropdown(qd, /* maybeLeafNode= */ Optional.empty()))
                 .withClasses(COLUMN_WIDTH, iff(columnNumber++ != 1, "ml-16")));
       }
     }
@@ -426,24 +432,17 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
     if (maybeAndNode.isPresent()) {
       int columnNumber = 1;
 
-      ImmutableMap<Long, LeafOperationExpressionNode> questionIdLeafNodeMap =
+      ImmutableMap<Long, LeafExpressionNode> questionIdLeafNodeMap =
           maybeAndNode.get().children().stream()
               .map(PredicateExpressionNode::getLeafNode)
               .collect(
-                  ImmutableMap.toImmutableMap(
-                      LeafOperationExpressionNode::questionId, Function.identity()));
+                  ImmutableMap.toImmutableMap(LeafExpressionNode::questionId, Function.identity()));
 
       for (var qd : questionDefinitions) {
         var leafNode = questionIdLeafNodeMap.get(qd.getId());
 
         row.condWith(columnNumber++ != 1, andText)
-            .with(
-                createValueField(
-                    qd,
-                    groupId,
-                    Optional.of(leafNode.scalar()),
-                    Optional.of(leafNode.operator()),
-                    Optional.of(leafNode.comparedValue())));
+            .with(createValueField(qd, groupId, Optional.of(leafNode)));
       }
     } else {
       int columnNumber = 1;
@@ -452,11 +451,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
         row.condWith(columnNumber++ != 1, andText)
             .with(
                 createValueField(
-                    questionDefinition,
-                    groupId,
-                    /* maybeScalar= */ Optional.empty(),
-                    /* maybeOperator= */ Optional.empty(),
-                    /* maybePredicateValue= */ Optional.empty()));
+                    questionDefinition, groupId, /* maybeLeafNode= */ Optional.empty()));
       }
     }
 
@@ -492,14 +487,23 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
   }
 
   private DivTag createScalarDropdown(
-      QuestionDefinition questionDefinition, Optional<Scalar> maybeScalar) {
+      QuestionDefinition questionDefinition, Optional<LeafExpressionNode> maybeLeafNode) {
+    Optional<Scalar> maybeSelectedScalar;
     ImmutableSet<Scalar> scalars;
-    try {
-      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
-    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-      // This should never happen since we filter out Enumerator questions before this point.
-      return div()
-          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
+
+    if (questionDefinition.isAddress()) {
+      scalars = ImmutableSet.of(Scalar.SERVICE_AREA);
+      maybeSelectedScalar = Optional.of(Scalar.SERVICE_AREA);
+    } else {
+      try {
+        scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+        maybeSelectedScalar =
+            assertLeafOperationNode(maybeLeafNode).map(LeafOperationExpressionNode::scalar);
+      } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+        // This should never happen since we filter out Enumerator questions before this point.
+        return div()
+            .withText("Sorry, you cannot create a show/hide predicate with this question type.");
+      }
     }
 
     ImmutableList<OptionTag> options =
@@ -513,7 +517,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                           // allow.
                           .withData("type", scalar.toScalarType().name().toLowerCase());
 
-                  if (maybeScalar.isPresent() && maybeScalar.get().name().equals(scalar.name())) {
+                  if (maybeSelectedScalar.isPresent()
+                      && maybeSelectedScalar.get().name().equals(scalar.name())) {
                     tag.isSelected();
                   }
 
@@ -536,18 +541,56 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
         .withData("question-id", String.valueOf(questionDefinition.getId()));
   }
 
-  private DivTag createOperatorDropdown(
-      QuestionDefinition questionDefinition,
-      Optional<Scalar> maybeSelectedScalar,
-      Optional<Operator> maybeOperator) {
-    try {
-      ImmutableSet<Scalar> scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+  private Optional<LeafOperationExpressionNode> assertLeafOperationNode(
+      Optional<LeafExpressionNode> maybeLeafNode) {
+    if (maybeLeafNode.isPresent()
+        && !maybeLeafNode.get().getType().equals(PredicateExpressionNodeType.LEAF_OPERATION)) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Expected LEAF_OPERATION node but received %s", maybeLeafNode.get().getType()));
+    }
 
-      if (scalars.size() == 1) {
-        maybeSelectedScalar = scalars.stream().findFirst();
+    return maybeLeafNode.map(node -> (LeafOperationExpressionNode) node);
+  }
+
+  private Optional<LeafAddressServiceAreaExpressionNode> assertLeafAddressServiceAreaNode(
+      Optional<LeafExpressionNode> maybeLeafNode) {
+    if (maybeLeafNode.isPresent()
+        && !maybeLeafNode
+            .get()
+            .getType()
+            .equals(PredicateExpressionNodeType.LEAF_ADDRESS_SERVICE_AREA)) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Expected LEAF_ADDRESS_SERVICE_AREA node but received %s",
+              maybeLeafNode.get().getType()));
+    }
+
+    return maybeLeafNode.map(node -> (LeafAddressServiceAreaExpressionNode) node);
+  }
+
+  private DivTag createOperatorDropdown(
+      QuestionDefinition questionDefinition, Optional<LeafExpressionNode> maybeLeafNode) {
+    Optional<Scalar> maybeSelectedScalar;
+    Optional<Operator> maybeSelectedOperator;
+
+    if (questionDefinition.isAddress()) {
+      maybeSelectedScalar = Optional.of(Scalar.SERVICE_AREA);
+      maybeSelectedOperator = Optional.of(Operator.IN_SERVICE_AREA);
+    } else {
+      try {
+        ImmutableSet<Scalar> scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+        Optional<LeafOperationExpressionNode> maybeLeafOperationNode =
+            assertLeafOperationNode(maybeLeafNode);
+        maybeSelectedScalar = maybeLeafOperationNode.map(LeafOperationExpressionNode::scalar);
+        maybeSelectedOperator = maybeLeafOperationNode.map(LeafOperationExpressionNode::operator);
+
+        if (scalars.size() == 1) {
+          maybeSelectedScalar = scalars.stream().findFirst();
+        }
+      } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+        throw new RuntimeException(e);
       }
-    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-      throw new RuntimeException(e);
     }
 
     // Copying to a final variable because variables referenced within
@@ -566,8 +609,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                       .getOperableTypes()
                       .forEach(type -> optionTag.withData(type.name().toLowerCase(), ""));
 
-                  if (maybeOperator.isPresent()
-                      && operator.name().equals(maybeOperator.get().name())) {
+                  if (maybeSelectedOperator.isPresent()
+                      && operator.name().equals(maybeSelectedOperator.get().name())) {
                     optionTag.isSelected();
                   }
 
@@ -593,12 +636,49 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
   private DivTag createValueField(
       QuestionDefinition questionDefinition,
       int groupId,
-      Optional<Scalar> maybeScalar,
-      Optional<Operator> maybeOperator,
-      Optional<PredicateValue> maybePredicateValue) {
+      Optional<LeafExpressionNode> maybeLeafNode) {
     DivTag valueField = div().withClasses(COLUMN_WIDTH);
 
-    if (questionDefinition.getQuestionType().isMultiOptionType()) {
+    if (questionDefinition.getQuestionType().equals(QuestionType.ADDRESS)) {
+      // Address questions only support service area predicates.
+
+      if (esriServiceAreaValidationConfig.getImmutableMap().isEmpty()) {
+        return valueField;
+      }
+
+      Optional<String> maybeServiceArea =
+          assertLeafAddressServiceAreaNode(maybeLeafNode)
+              .map(LeafAddressServiceAreaExpressionNode::serviceAreaId);
+
+      ImmutableCollection<EsriServiceAreaValidationOption> serviceAreaOptions =
+          esriServiceAreaValidationConfig.getImmutableMap().get().values();
+
+      SelectWithLabel select =
+          new SelectWithLabel()
+              .setFieldName(
+                  String.format(
+                      "group-%d-question-%d-predicateValue", groupId, questionDefinition.getId()))
+              .setOptions(
+                  serviceAreaOptions.stream()
+                      .map(
+                          option ->
+                              SelectWithLabel.OptionValue.builder()
+                                  .setLabel(option.getLabel())
+                                  .setValue(option.getId())
+                                  .build())
+                      .collect(ImmutableList.toImmutableList()));
+
+      if (maybeServiceArea.isPresent()) {
+        select.setValue(maybeServiceArea.get());
+      } else if (serviceAreaOptions.size() == 1) {
+        select.setValue(serviceAreaOptions.stream().findFirst().get().getId());
+      }
+
+      return valueField
+          .with(select.getSelectTag())
+          .withData("question-id", String.valueOf(questionDefinition.getId()));
+    } else if (questionDefinition.getQuestionType().isMultiOptionType()) {
+
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
       // ID of the options rather than the display strings since the option display strings are
@@ -607,7 +687,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
           ((MultiOptionQuestionDefinition) questionDefinition).getOptions();
 
       ImmutableSet<String> currentlyCheckedValues =
-          maybePredicateValue
+          assertLeafOperationNode(maybeLeafNode)
+              .map(LeafOperationExpressionNode::comparedValue)
               .map(PredicateValue::value)
               .map(
                   value ->
@@ -635,6 +716,15 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
 
       return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
     }
+
+    Optional<LeafOperationExpressionNode> maybeLeafOperationNode =
+        assertLeafOperationNode(maybeLeafNode);
+
+    Optional<PredicateValue> maybePredicateValue =
+        maybeLeafOperationNode.map(LeafOperationExpressionNode::comparedValue);
+    Optional<Scalar> maybeScalar = maybeLeafOperationNode.map(LeafOperationExpressionNode::scalar);
+    Optional<Operator> maybeOperator =
+        maybeLeafOperationNode.map(LeafOperationExpressionNode::operator);
 
     return valueField
         .withData("question-id", String.valueOf(questionDefinition.getId()))

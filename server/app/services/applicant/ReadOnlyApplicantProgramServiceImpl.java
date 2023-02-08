@@ -99,6 +99,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public boolean isApplicationNotEligible() {
+    return getAllActiveBlocks().stream()
+        .anyMatch(
+            block ->
+                block.getQuestions().stream()
+                    .anyMatch(
+                        question ->
+                            !isQuestionEligibleInBlock(block, question) && question.isAnswered()));
+  }
+
+  @Override
   public boolean isBlockEligible(String blockId) {
     Block block = getBlock(blockId).get();
     Optional<PredicateDefinition> predicate =
@@ -227,16 +238,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           continue;
         }
         boolean isAnswered = question.isAnswered();
-        // A block's eligibility can only be on questions in the block, so if the block is
-        // ineligible see if this question is part of that eligibility condition.
-        boolean isEligible =
-            isBlockEligible(block.getId())
-                || !block
-                    .getEligibilityDefinition()
-                    .get()
-                    .predicate()
-                    .getQuestions()
-                    .contains(question.getQuestionDefinition().getId());
+        boolean isEligible = isQuestionEligibleInBlock(block, question);
         String questionText = question.getQuestionText();
         String questionTextForScreenReader = question.getQuestionTextForScreenReader();
         String answerText = question.errorsPresenter().getAnswerString();
@@ -294,6 +296,20 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         emptyBlockIdSuffix,
         Optional.empty(),
         includeBlockIfTrue);
+  }
+
+  /**
+   * True if the {@link ApplicantQuestion} is eligible in the given {@link Block}. If the block is
+   * not eligible, check if the question is part of that eligibility condition.
+   */
+  private boolean isQuestionEligibleInBlock(Block block, ApplicantQuestion question) {
+    return isBlockEligible(block.getId())
+        || !block
+            .getEligibilityDefinition()
+            .get()
+            .predicate()
+            .getQuestions()
+            .contains(question.getQuestionDefinition().getId());
   }
 
   /**

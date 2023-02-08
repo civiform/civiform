@@ -62,6 +62,10 @@ export enum AuthStrategy {
   SEATTLE_STAGING = 'seattle-staging',
 }
 
+/** True when the test environment is hermetic i.e. not a durable staging deployment. */
+export const isHermeticTestEnvironment = () =>
+  TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC
+
 function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   if (process.env.RECORD_VIDEO) {
     // https://playwright.dev/docs/videos

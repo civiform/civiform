@@ -159,7 +159,7 @@ public abstract class QuestionDefinition {
     return enumeratorId.isPresent();
   }
 
-  /** A helper to check if this is an address question */
+  /** True if the question is an {@link AddressQuestionDefinition}. */
   public final boolean isAddress() {
     return getQuestionType().equals(QuestionType.ADDRESS);
   }

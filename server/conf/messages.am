@@ -143,11 +143,6 @@ link.programDetails=የፕሮግራም ዝርዝሮች
 # The same text, read for screen readers.
 link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
 
-# Link text to an external site to read more about a program.
-link.externalLink=ውጫዊ ጣቢያ
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=በአዲስ ትር ውስጥ ይከፍታል
-
 # The title of the page for the list of programs.
 title.programs=ፕሮግራሞች እና አገልግሎቶች
 

@@ -71,7 +71,7 @@ public class AddressQuestionTest {
   }
 
   @Test
-  public void withValidApplicantData() {
+  public void withValidApplicantDataAndNoGeoValues() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
@@ -94,12 +94,42 @@ public class AddressQuestionTest {
   }
 
   @Test
+  public void withValidApplicantDataWithGeoValues() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "PO Box 123",
+        "Line 2",
+        "Seattle",
+        "WA",
+        "98101",
+        "true",
+        10.1,
+        -20.1,
+        1000L);
+
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
+    assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
+    assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
+    assertThat(addressQuestion.getStateValue().get()).isEqualTo("WA");
+    assertThat(addressQuestion.getZipValue().get()).isEqualTo("98101");
+    assertThat(addressQuestion.getCorrectedValue().get()).isEqualTo("true");
+    assertThat(addressQuestion.getLatitudeValue().get()).isEqualTo(10.1);
+    assertThat(addressQuestion.getLongitudeValue().get()).isEqualTo(-20.1);
+    assertThat(addressQuestion.getWellKnownIdValue().get()).isEqualTo(1000L);
+  }
+
+  @Test
   public void withInvalidApplicantData_missingRequiredFields() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "", "", "", "", "");
-
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.getValidationErrors())

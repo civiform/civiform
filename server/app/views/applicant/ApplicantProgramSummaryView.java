@@ -112,7 +112,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                     .with(makeCsrfTokenInputTag(params.request()))
                     .with(continueOrSubmitButton));
 
-    params.bannerMessage().ifPresent(bundle::addToastMessages);
+    params.bannerMessages().stream()
+        .forEach(message -> message.ifPresent(bundle::addToastMessages));
     params
         .request()
         .flash()
@@ -284,7 +285,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract Optional<String> applicantName();
 
-    abstract Optional<ToastMessage> bannerMessage();
+    abstract ImmutableList<Optional<ToastMessage>> bannerMessages();
 
     abstract int completedBlockCount();
 
@@ -307,7 +308,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setApplicantName(Optional<String> applicantName);
 
-      public abstract Builder setBannerMessage(Optional<ToastMessage> banner);
+      public abstract Builder setBannerMessages(ImmutableList<Optional<ToastMessage>> banners);
 
       public abstract Builder setCompletedBlockCount(int completedBlockCount);
 

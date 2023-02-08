@@ -102,6 +102,22 @@ export class AdminPredicates {
 
     let groupNum = 1
     for (const valueToSet of values) {
+      // Service areas are the only value input that use a select
+      if (scalar === 'service area') {
+        const valueSelect = await this.page.$(
+          `select[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
+        )
+
+        if (valueSelect == null) {
+          throw new Error(
+            `Unable to find select for service area: select[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
+          )
+        }
+
+        await valueSelect.selectOption({label: valueToSet})
+        continue
+      }
+
       const valueInput = await this.page.$(
         `input[name="group-${groupNum++}-question-${questionId}-predicateValue"]`,
       )
@@ -184,7 +200,7 @@ export class AdminPredicates {
     await waitForPageJsLoad(this.page)
   }
 
-  async expectVisibilityConditionEquals(condition: string) {
+  async expectPredicateDisplayTextContains(condition: string) {
     expect(await this.page.innerText('.cf-display-predicate')).toContain(
       condition,
     )

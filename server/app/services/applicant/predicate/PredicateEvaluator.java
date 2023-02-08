@@ -27,7 +27,7 @@ public final class PredicateEvaluator {
   public boolean evaluate(PredicateExpressionNode node) {
     switch (node.getType()) {
       case LEAF_OPERATION:
-        return evaluateLeafNode(node.getLeafNode());
+        return evaluateLeafNode(node.getLeafOperationNode());
       case LEAF_ADDRESS_SERVICE_AREA:
         // TODO(https://github.com/civiform/civiform/issues/4048): check if address in service area
         return true;

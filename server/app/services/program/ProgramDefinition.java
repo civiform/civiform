@@ -384,6 +384,22 @@ public abstract class ProgramDefinition {
     return ImmutableSet.copyOf(intersection);
   }
 
+  /**
+   * Get the {@link ProgramQuestionDefinition} for the given question in the given program.
+   *
+   * @throws ProgramQuestionDefinitionNotFoundException if the program does not use the question.
+   */
+  public ProgramQuestionDefinition getProgramQuestionDefinition(long questionDefinitionId)
+      throws ProgramQuestionDefinitionNotFoundException {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .filter(pqd -> pqd.id() == questionDefinitionId)
+        .findAny()
+        .orElseThrow(
+            () -> new ProgramQuestionDefinitionNotFoundException(id(), questionDefinitionId));
+  }
+
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
     return blockDefinitions().get(blockIndex).getQuestionDefinition(questionIndex);
@@ -530,9 +546,32 @@ public abstract class ProgramDefinition {
       long blockId) throws ProgramBlockDefinitionNotFoundException {
     // Only questions in the block are available.
     return getBlockDefinition(blockId).programQuestionDefinitions().stream()
-        .map(ProgramQuestionDefinition::getQuestionDefinition)
         .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /** True if the give question definition ID is found in any of the program's predicates. */
+  public boolean isQuestionUsedInPredicate(long questionDefinitionId) {
+    return blockDefinitions().stream()
+        .map(
+            block ->
+                block
+                        .eligibilityDefinition()
+                        .map(
+                            eligibilityDefinition ->
+                                eligibilityDefinition
+                                    .predicate()
+                                    .getQuestions()
+                                    .contains(questionDefinitionId))
+                        .orElse(false)
+                    || block
+                        .visibilityPredicate()
+                        .map(
+                            predicateDefinition ->
+                                predicateDefinition.getQuestions().contains(questionDefinitionId))
+                        .orElse(false))
+        .anyMatch(Boolean::booleanValue);
   }
 
   /**
@@ -559,8 +598,8 @@ public abstract class ProgramDefinition {
         getAvailablePredicateBlockDefinitions(this.getBlockDefinition(blockId))) {
       builder.addAll(
           blockDefinition.programQuestionDefinitions().stream()
-              .map(ProgramQuestionDefinition::getQuestionDefinition)
               .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
+              .map(ProgramQuestionDefinition::getQuestionDefinition)
               .collect(Collectors.toList()));
     }
 
@@ -598,8 +637,14 @@ public abstract class ProgramDefinition {
   private static final ImmutableSet<QuestionType> NON_PREDICATE_QUESTION_TYPES =
       ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.FILEUPLOAD, QuestionType.STATIC);
 
-  private static boolean isPotentialPredicateQuestionDefinition(QuestionDefinition qd) {
-    return !NON_PREDICATE_QUESTION_TYPES.contains(qd.getQuestionType());
+  /**
+   * A question definition is eligible for predicates if it is of an allowable question type and, if
+   * it is an address question, it must be configured for correction.
+   */
+  private static boolean isPotentialPredicateQuestionDefinition(ProgramQuestionDefinition pqd) {
+    return !NON_PREDICATE_QUESTION_TYPES.contains(pqd.getQuestionDefinition().getQuestionType())
+        && !(pqd.getQuestionDefinition().getQuestionType().equals(QuestionType.ADDRESS)
+            && !pqd.addressCorrectionEnabled());
   }
 
   public Program toProgram() {

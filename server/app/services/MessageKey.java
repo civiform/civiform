@@ -65,8 +65,6 @@ public enum MessageKey {
   ENUMERATOR_PLACEHOLDER_ENTITY_NAME("placeholder.entityName"),
   ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),
-  EXTERNAL_LINK("link.externalLink"),
-  EXTERNAL_LINK_OPENS_IN_NEW_TAB("link.externalLinkOpensInNewTab"),
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   GUEST("guest"),
@@ -114,6 +112,7 @@ public enum MessageKey {
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_APPLICATION_OUT_OF_DATE("toast.applicationOutOfDate"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
+  TOAST_MAY_NOT_QUALIFY("toast.mayNotQualify"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
   USER_NAME("header.userName"),
   VALIDATION_REQUIRED("validation.isRequired");
