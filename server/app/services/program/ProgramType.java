@@ -8,8 +8,8 @@ import io.ebean.annotation.DbEnumValue;
  * Program is an intake screener for other programs.
  */
 public enum ProgramType {
-  DEFAULT("DEFAULT"),
-  COMMON_INTAKE_FORM("COMMON_INTAKE_FORM");
+  DEFAULT("default"),
+  COMMON_INTAKE_FORM("common_intake_form");
 
   private final String dbValue;
 
