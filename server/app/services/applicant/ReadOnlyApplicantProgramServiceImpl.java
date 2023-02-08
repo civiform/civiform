@@ -98,7 +98,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return getAllActiveBlocks().stream().allMatch(block -> isBlockEligible(block.getId()));
   }
 
-
+  @Override
   public boolean isApplicationNotEligible() {
     return getAllActiveBlocks().stream()
         .anyMatch(

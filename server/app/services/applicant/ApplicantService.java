@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
@@ -599,6 +600,7 @@ public final class ApplicantService {
     ImmutableList.Builder<ApplicantProgramData> unappliedPrograms = ImmutableList.builder();
 
     Set<String> programNamesWithApplications = Sets.newHashSet();
+    ArrayList<CompletableFuture<String>> programNamesWithApplicationsFuture = new ArrayList<>();
     mostRecentApplicationsByProgram.forEach(
         (programName, appByStage) -> {
           Optional<Application> maybeDraftApp =
@@ -607,13 +609,28 @@ public final class ApplicantService {
               appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(Application::getSubmitTime);
+          CompletableFuture<String> programNameFuture = new CompletableFuture<>();
           if (maybeDraftApp.isPresent()) {
-            inProgressPrograms.add(
+            Application draftApp = maybeDraftApp.get();
+            ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder()
-                    .setProgram(maybeDraftApp.get().getProgram().getProgramDefinition())
-                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
-                    .build());
-            programNamesWithApplications.add(programName);
+                    .setProgram(draftApp.getProgram().getProgramDefinition())
+                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime);
+            programNamesWithApplicationsFuture.add(programNameFuture);
+            setApplicationsForType(
+                    draftApp.getApplicant().id,
+                    draftApp.getProgram().getProgramDefinition(),
+                    inProgressPrograms,
+                    applicantProgramDataBuilder)
+                .thenApplyAsync(
+                    (v) -> {
+                      programNamesWithApplications.add(programName);
+                      return programNameFuture.complete(programName);
+                    })
+                .exceptionally(
+                    ex -> {
+                      throw new RuntimeException(ex);
+                    });
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
             // When extracting the application status, the definitions associated with the program
             // version at the time of submission are used. However, when clicking "reapply", we use
@@ -629,32 +646,109 @@ public final class ApplicantService {
                                 programStatus.statusText().equals(maybeLatestStatus.get()))
                         .findFirst()
                     : Optional.empty();
-            submittedPrograms.add(
+
+            Application submittedApp = maybeSubmittedApp.get();
+            ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder()
                     .setProgram(activeProgramNames.get(programName))
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
-                    .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
-                    .build());
-            programNamesWithApplications.add(programName);
+                    .setLatestSubmittedApplicationStatus(maybeCurrentStatus);
+            programNamesWithApplicationsFuture.add(programNameFuture);
+
+            setApplicationsForType(
+                    submittedApp.getApplicant().id,
+                    submittedApp.getProgram().getProgramDefinition(),
+                    submittedPrograms,
+                    applicantProgramDataBuilder)
+                .thenApplyAsync(
+                    (v) -> {
+                      programNamesWithApplications.add(programName);
+                      return programNameFuture.complete(programName);
+                    })
+                .exceptionally(
+                    ex -> {
+                      throw new RuntimeException(ex);
+                    });
           }
         });
 
-    Set<String> unappliedActivePrograms =
-        Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
-    unappliedActivePrograms.forEach(
-        programName -> {
-          unappliedPrograms.add(
-              ApplicantProgramData.builder()
-                  .setProgram(activeProgramNames.get(programName))
-                  .build());
-        });
+    CompletableFuture<ApplicationPrograms> applicationProgramsFuture = new CompletableFuture<>();
+    if (mostRecentApplicationsByProgram.isEmpty()) {
+      Set<String> unappliedActivePrograms =
+          Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
+      unappliedActivePrograms.forEach(
+          programName -> {
+            unappliedPrograms.add(
+                ApplicantProgramData.builder()
+                    .setProgram(activeProgramNames.get(programName))
+                    .build());
+          });
 
-    // Ensure each list is ordered by database ID for consistent ordering.
-    return ApplicationPrograms.builder()
-        .setInProgress(sortByProgramId(inProgressPrograms.build()))
-        .setSubmitted(sortByProgramId(submittedPrograms.build()))
-        .setUnapplied(sortByProgramId(unappliedPrograms.build()))
-        .build();
+      applicationProgramsFuture.complete(
+          ApplicationPrograms.builder()
+              .setInProgress(sortByProgramId(inProgressPrograms.build()))
+              .setSubmitted(sortByProgramId(submittedPrograms.build()))
+              .setUnapplied(sortByProgramId(unappliedPrograms.build()))
+              .build());
+    } else {
+      ApplicationPrograms.Builder appProgramsBuilder =
+          ApplicationPrograms.builder()
+              .setInProgress(sortByProgramId(inProgressPrograms.build()))
+              .setSubmitted(sortByProgramId(submittedPrograms.build()));
+      var unusedProgramsFuture =
+          CompletableFuture.allOf(
+                  programNamesWithApplicationsFuture.toArray(
+                      new CompletableFuture[programNamesWithApplicationsFuture.size()]))
+              .thenAcceptAsync(
+                  (v) -> {
+                    Set<String> unappliedActivePrograms =
+                        Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
+                    Long appId = applications.stream().findFirst().get().getApplicant().id;
+                    if (unappliedActivePrograms.isEmpty()) {
+                      applicationProgramsFuture.complete(
+                          appProgramsBuilder
+                              .setUnapplied(sortByProgramId(unappliedPrograms.build()))
+                              .build());
+                    }
+
+                    ArrayList<CompletableFuture<String>> unappliedProgramsFuture =
+                        new ArrayList<>();
+
+                    unappliedActivePrograms.forEach(
+                        programName -> {
+                          CompletableFuture<String> programNameFuture = new CompletableFuture<>();
+                          ProgramDefinition program = activeProgramNames.get(programName);
+                          ApplicantProgramData.Builder applicantProgramDataBuilder =
+                              ApplicantProgramData.builder().setProgram(program);
+                          unappliedProgramsFuture.add(programNameFuture);
+                          setApplicationsForType(
+                                  appId, program, unappliedPrograms, applicantProgramDataBuilder)
+                              .thenApplyAsync((a) -> programNameFuture.complete(programName))
+                              .exceptionally(
+                                  ex -> {
+                                    throw new RuntimeException(ex);
+                                  });
+                        });
+                    var unusedUnappliedFuture =
+                        CompletableFuture.allOf(
+                                unappliedProgramsFuture.toArray(
+                                    new CompletableFuture[unappliedProgramsFuture.size()]))
+                            .thenAcceptAsync(
+                                (b) -> {
+                                  applicationProgramsFuture.complete(
+                                      appProgramsBuilder
+                                          .setUnapplied(sortByProgramId(unappliedPrograms.build()))
+                                          .build());
+                                });
+                  });
+    }
+    try {
+      return applicationProgramsFuture.get();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    } catch (ExecutionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private ImmutableList<ApplicantProgramData> sortByProgramId(
@@ -662,6 +756,42 @@ public final class ApplicantService {
     return programs.stream()
         .sorted(Comparator.comparing(p -> p.program().id()))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private CompletableFuture<Void> setApplicationsForType(
+      long applicantId,
+      ProgramDefinition program,
+      ImmutableList.Builder<ApplicantProgramData> programList,
+      ApplicantProgramData.Builder applicantProgramDataBuilder) {
+    CompletableFuture<ApplicantProgramData> programDataCompletableFuture =
+        new CompletableFuture<>();
+    CompletableFuture<Void> applicantFuture =
+        getReadOnlyApplicantProgramService(applicantId, program.id())
+            .thenAcceptAsync(
+                readOnlyApplicantProgramService -> {
+                  // Only set eligibility if there are eligibility questions in the program.
+                  if (!readOnlyApplicantProgramService.getActiveEligibilityQuestions().isEmpty()) {
+                    ApplicantProgramData applicantProgramData =
+                        applicantProgramDataBuilder
+                            .setIsProgramMaybeEligible(
+                                Optional.of(
+                                    !readOnlyApplicantProgramService.isApplicationNotEligible()))
+                            .build();
+                    programDataCompletableFuture.complete(applicantProgramData);
+                  } else {
+                    programDataCompletableFuture.complete(applicantProgramDataBuilder.build());
+                  }
+                },
+                httpExecutionContext.current())
+            .toCompletableFuture();
+    try {
+      programList.add(programDataCompletableFuture.get());
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    } catch (ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+    return applicantFuture;
   }
 
   /**
@@ -708,6 +838,8 @@ public final class ApplicantService {
   public abstract static class ApplicantProgramData {
     public abstract ProgramDefinition program();
 
+    public abstract Optional<Boolean> isProgramMaybeEligible();
+
     public abstract Optional<Instant> latestSubmittedApplicationTime();
 
     public abstract Optional<StatusDefinitions.Status> latestSubmittedApplicationStatus();
@@ -719,6 +851,8 @@ public final class ApplicantService {
     @AutoValue.Builder
     abstract static class Builder {
       abstract Builder setProgram(ProgramDefinition v);
+
+      abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
       abstract Builder setLatestSubmittedApplicationTime(Optional<Instant> v);
 
