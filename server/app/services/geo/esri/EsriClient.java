@@ -1,13 +1,11 @@
 package services.geo.esri;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
@@ -281,27 +279,22 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     ServiceAreaInclusion.Builder serviceAreaInclusionBuilder = ServiceAreaInclusion.builder();
     ImmutableList.Builder<ServiceAreaInclusion> inclusionListBuilder = ImmutableList.builder();
 
-    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> maybeOptionMap =
-        esriServiceAreaValidationConfig.getImmutableMap();
-
-    if (maybeOptionMap.isEmpty()) {
+    if (!esriServiceAreaValidationConfig.isConfigurationValid()) {
       logger.error(
           "Error calling EsriClient.getServiceAreaInclusionGroups. Error:"
               + " EsriServiceAreaValidationConfig.getImmutableMap() returned empty.");
-      return supplyAsync(
-          () -> {
-            serviceAreaInclusionBuilder
-                .setServiceAreaId(esriServiceAreaValidationOption.getId())
-                .setState(ServiceAreaState.FAILED)
-                .setTimeStamp(Instant.now());
-            inclusionListBuilder.add(serviceAreaInclusionBuilder.build());
-            return inclusionListBuilder.build();
-          });
+      serviceAreaInclusionBuilder
+          .setServiceAreaId(esriServiceAreaValidationOption.getId())
+          .setState(ServiceAreaState.FAILED)
+          .setTimeStamp(Instant.now());
+      inclusionListBuilder.add(serviceAreaInclusionBuilder.build());
+      return CompletableFuture.completedFuture(inclusionListBuilder.build());
     }
 
     ImmutableList<EsriServiceAreaValidationOption> optionList =
-        esriServiceAreaValidationConfig.mapToListWithSameServiceAreaOptionUrl(
-            esriServiceAreaValidationOption, maybeOptionMap.get());
+        esriServiceAreaValidationConfig
+            .getOptionsWithSharedBackend(esriServiceAreaValidationOption.getUrl())
+            .get();
 
     return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
         .thenApply(

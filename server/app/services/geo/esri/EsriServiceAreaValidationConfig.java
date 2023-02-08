@@ -43,7 +43,7 @@ public final class EsriServiceAreaValidationConfig {
   }
 
   /** Checks if each element necessary for Esri address service area validation is present. */
-  public Boolean hasAllElements() {
+  public Boolean isConfigurationValid() {
     // check if any are empty
     if (this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS.isEmpty()
         || this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS.isEmpty()
@@ -94,7 +94,7 @@ public final class EsriServiceAreaValidationConfig {
       return this.esriServiceAreaValidationMap;
     }
 
-    if (!hasAllElements()) {
+    if (!isConfigurationValid()) {
       logger.error(
           "Error calling EsriServiceAreaValidationConfig.getImmutableMap. Error: Esri Address"
               + " Service Area Config is missing settings.");
@@ -106,23 +106,23 @@ public final class EsriServiceAreaValidationConfig {
 
     ImmutableList<String> labels =
         getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS).get();
-    ImmutableList<String> values =
+    ImmutableList<String> ids =
         getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS).get();
     ImmutableList<String> urls =
         getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS).get();
     ImmutableList<String> attributes =
         getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES).get();
 
-    for (int i = 0; i < values.size(); i++) {
+    for (int i = 0; i < ids.size(); i++) {
       EsriServiceAreaValidationOption option =
           EsriServiceAreaValidationOption.builder()
               .setLabel(labels.get(i))
-              .setId(values.get(i))
+              .setId(ids.get(i))
               .setUrl(urls.get(i))
               .setAttribute(attributes.get(i))
               .build();
 
-      mapBuilder.put(values.get(i), option);
+      mapBuilder.put(ids.get(i), option);
     }
 
     return esriServiceAreaValidationMap = Optional.of(mapBuilder.build());
@@ -132,12 +132,41 @@ public final class EsriServiceAreaValidationConfig {
    * Creates a list of {@link EsriServiceAreaValidationOption}s with the same URL as the passed in
    * EsriServiceAreaValidationOption, given a map returned from {@link getImmutableMap}.
    */
-  public ImmutableList<EsriServiceAreaValidationOption> mapToListWithSameServiceAreaOptionUrl(
-      EsriServiceAreaValidationOption serviceAreaOption,
-      ImmutableMap<String, EsriServiceAreaValidationOption> immutableMap) {
-    return immutableMap.values().stream()
-        .filter(option -> option.getUrl().equals(serviceAreaOption.getUrl()))
-        .collect(ImmutableList.toImmutableList());
+  public Optional<ImmutableList<EsriServiceAreaValidationOption>> getOptionsWithSharedBackend(
+      String serviceAreaUrl) {
+    if (!isConfigurationValid()) {
+      logger.error(
+          "Error calling EsriServiceAreaValidationConfig.getOptionsWithSharedBackend. Error: Esri"
+              + " Address Service Area Config is missing settings.");
+      return Optional.empty();
+    }
+
+    ImmutableList.Builder<EsriServiceAreaValidationOption> listBuilder = ImmutableList.builder();
+
+    ImmutableList<String> labels =
+        getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS).get();
+    ImmutableList<String> ids =
+        getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS).get();
+    ImmutableList<String> urls =
+        getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS).get();
+    ImmutableList<String> attributes =
+        getConfigListSetting(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES).get();
+
+    for (int i = 0; i < ids.size(); i++) {
+      if (urls.get(i).equals(serviceAreaUrl)) {
+        EsriServiceAreaValidationOption option =
+            EsriServiceAreaValidationOption.builder()
+                .setLabel(labels.get(i))
+                .setId(ids.get(i))
+                .setUrl(urls.get(i))
+                .setAttribute(attributes.get(i))
+                .build();
+
+        listBuilder.add(option);
+      }
+    }
+
+    return Optional.of(listBuilder.build());
   }
 
   /**

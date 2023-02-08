@@ -23,8 +23,8 @@ public class EsriServiceAreaValidationConfigTest {
   }
 
   @Test
-  public void hasAllElements() {
-    assertEquals(true, esriServiceAreaValidationConfig.hasAllElements());
+  public void isConfigurationValid() {
+    assertEquals(true, esriServiceAreaValidationConfig.isConfigurationValid());
   }
 
   @Test
@@ -47,6 +47,26 @@ public class EsriServiceAreaValidationConfigTest {
   }
 
   @Test
+  public void getOptionsWithSharedBackend() {
+    assertEquals(true, esriServiceAreaValidationConfig.isConfigurationValid());
+    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> maybeMap =
+        esriServiceAreaValidationConfig.getImmutableMap();
+    assertEquals(true, maybeMap.isPresent());
+    EsriServiceAreaValidationOption option = maybeMap.get().get("Seattle");
+
+    ImmutableList<EsriServiceAreaValidationOption> optionList =
+        esriServiceAreaValidationConfig.getOptionsWithSharedBackend(option.getUrl()).get();
+
+    Optional<EsriServiceAreaValidationOption> maybeOptionFromList = optionList.stream().findFirst();
+    assertThat(maybeOptionFromList.isPresent()).isTrue();
+    EsriServiceAreaValidationOption optionFromList = maybeOptionFromList.get();
+    assertEquals("Seattle", optionFromList.getLabel());
+    assertEquals("Seattle", optionFromList.getId());
+    assertEquals("/query", optionFromList.getUrl());
+    assertEquals("CITYNAME", optionFromList.getAttribute());
+  }
+
+  @Test
   public void getOptionByServiceAreaId() {
     Optional<EsriServiceAreaValidationOption> serviceAreaOption =
         esriServiceAreaValidationConfig.getOptionByServiceAreaId("Seattle");
@@ -62,23 +82,5 @@ public class EsriServiceAreaValidationConfigTest {
     Optional<EsriServiceAreaValidationOption> serviceAreaOption =
         esriServiceAreaValidationConfig.getOptionByServiceAreaId("Mars");
     assertEquals(true, serviceAreaOption.isEmpty());
-  }
-
-  @Test
-  public void mapToListWithSameServiceAreaOptionUrl() {
-    Optional<ImmutableMap<String, EsriServiceAreaValidationOption>> maybeMap =
-        esriServiceAreaValidationConfig.getImmutableMap();
-    assertEquals(true, maybeMap.isPresent());
-    EsriServiceAreaValidationOption option = maybeMap.get().get("Seattle");
-    ImmutableList<EsriServiceAreaValidationOption> optionList =
-        esriServiceAreaValidationConfig.mapToListWithSameServiceAreaOptionUrl(
-            option, maybeMap.get());
-    Optional<EsriServiceAreaValidationOption> maybeOptionFromList = optionList.stream().findFirst();
-    assertThat(maybeOptionFromList.isPresent()).isTrue();
-    EsriServiceAreaValidationOption optionFromList = maybeOptionFromList.get();
-    assertEquals("Seattle", optionFromList.getLabel());
-    assertEquals("Seattle", optionFromList.getId());
-    assertEquals("/query", optionFromList.getUrl());
-    assertEquals("CITYNAME", optionFromList.getAttribute());
   }
 }
