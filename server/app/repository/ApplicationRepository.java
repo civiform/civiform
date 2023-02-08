@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
@@ -32,7 +33,7 @@ public final class ApplicationRepository {
   private final UserRepository userRepository;
   private final Database database;
   private final DatabaseExecutionContext executionContext;
-  private static final Logger logger = LoggerFactory.getLogger(ApplicationRepository.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationRepository.class);
 
   @Inject
   public ApplicationRepository(
@@ -58,11 +59,7 @@ public final class ApplicationRepository {
         .findEach(fn);
   }
 
-  /**
-   * Submit an application, which will delete any in-progress drafts, obsolete any submitted
-   * applications to a program with the same name (to include past versions of the same program),
-   * and create a new application in the active state.
-   */
+  @VisibleForTesting
   public CompletionStage<Application> submitApplication(
       Applicant applicant, Program program, Optional<String> tiSubmitterEmail) {
     return supplyAsync(
@@ -70,6 +67,11 @@ public final class ApplicationRepository {
         executionContext.current());
   }
 
+  /**
+   * Submit an application, which will delete any in-progress drafts, obsolete any submitted
+   * applications to a program with the same name (to include past versions of the same program),
+   * and create a new application in the active state.
+   */
   public CompletionStage<Optional<Application>> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     return this.perform(
@@ -90,21 +92,28 @@ public final class ApplicationRepository {
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
               .findList();
+
       ImmutableList<Application> drafts =
           oldApplications.stream()
               .filter(app -> app.getLifecycleStage().equals(LifecycleStage.DRAFT))
               .collect(ImmutableList.toImmutableList());
-      if (drafts.size() > 1) {
+
+      final Application application;
+      if (drafts.size() == 1) {
+        application = drafts.get(0);
+      } else if (drafts.isEmpty()) {
+        LOGGER.warn(
+            "No DRAFT applications found when submitting for applicant {} program {}",
+            applicant.id,
+            program.id);
+        application = new Application(applicant, program, LifecycleStage.ACTIVE);
+      } else {
         throw new RuntimeException(
             String.format(
                 "Found more than one DRAFT application for applicant %d, program %d.",
                 applicant.id, program.id));
       }
 
-      Application application =
-          drafts.isEmpty()
-              ? new Application(applicant, program, LifecycleStage.ACTIVE)
-              : drafts.get(0);
       application.setApplicantData(applicant.getApplicantData());
       application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();
@@ -118,6 +127,15 @@ public final class ApplicationRepository {
             || app.getLifecycleStage().equals(LifecycleStage.OBSOLETE)) {
           continue;
         }
+        LOGGER.warn(
+            "Multiple applications found at submit time for applicant {} to program {} {}:"
+                + " application {}",
+            applicant.id,
+            program.id,
+            program.getProgramDefinition().adminName(),
+            app.id);
+
+        app.setSubmitTimeToNow();
         app.setLifecycleStage(LifecycleStage.OBSOLETE);
         app.save();
       }
@@ -128,6 +146,10 @@ public final class ApplicationRepository {
     }
   }
 
+  /**
+   * Retrieves an applicant and program record and executes the provided function with them with
+   * some error handling.
+   */
   private CompletionStage<Optional<Application>> perform(
       long applicantId, long programId, Function<ApplicationArguments, Application> fn) {
     CompletionStage<Optional<Applicant>> applicantDb = userRepository.lookupApplicant(applicantId);
@@ -148,7 +170,7 @@ public final class ApplicationRepository {
         .thenApplyAsync(Optional::of)
         .exceptionally(
             exception -> {
-              logger.error(exception.toString());
+              LOGGER.error(exception.toString());
               exception.printStackTrace();
               return Optional.empty();
             });
@@ -195,7 +217,7 @@ public final class ApplicationRepository {
               .createQuery(Application.class)
               .where()
               .eq("applicant.id", applicant.id)
-              .eq("program.id", program.id)
+              .eq("program.name", program.getProgramDefinition().adminName())
               .eq("lifecycle_stage", LifecycleStage.DRAFT)
               .findOneOrEmpty();
       Application application =
@@ -208,18 +230,17 @@ public final class ApplicationRepository {
     }
   }
 
+  @VisibleForTesting
+  CompletionStage<Application> createOrUpdateDraft(Applicant applicant, Program program) {
+    return supplyAsync(
+        () -> createOrUpdateDraftApplicationInternal(applicant, program),
+        executionContext.current());
+  }
+
   /**
    * Create a draft application for the specified program. Update the draft application if one
    * already exists.
    */
-  public CompletionStage<Application> createOrUpdateDraft(Applicant applicant, Program program) {
-    return supplyAsync(
-        () -> {
-          return createOrUpdateDraftApplicationInternal(applicant, program);
-        },
-        executionContext.current());
-  }
-
   public CompletionStage<Optional<Application>> createOrUpdateDraft(
       long applicantId, long programId) {
     return this.perform(
@@ -236,7 +257,7 @@ public final class ApplicationRepository {
   }
 
   /**
-   * Get all applications with the specified {@link LifecyleStage}s for an applicant.
+   * Get all applications with the specified {@link LifecycleStage}s for an applicant.
    *
    * <p>The {@link Program} associated with the application is eagerly loaded.
    */
