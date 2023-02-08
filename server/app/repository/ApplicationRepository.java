@@ -102,7 +102,7 @@ public final class ApplicationRepository {
       if (drafts.size() == 1) {
         application = drafts.get(0);
       } else if (drafts.isEmpty()) {
-        LOGGER.warning(
+        LOGGER.warn(
             "No DRAFT applications found when submitting for applicant {} program {}",
             applicant.id,
             program.id);
@@ -127,7 +127,7 @@ public final class ApplicationRepository {
             || app.getLifecycleStage().equals(LifecycleStage.OBSOLETE)) {
           continue;
         }
-        LOGGER.warning(
+        LOGGER.warn(
             "Multiple applications found at submit time for applicant {} to program {} {}:"
                 + " application {}",
             applicant.id,
@@ -257,7 +257,7 @@ public final class ApplicationRepository {
   }
 
   /**
-   * Get all applications with the specified {@link LifecyleStage}s for an applicant.
+   * Get all applications with the specified {@link LifecycleStage}s for an applicant.
    *
    * <p>The {@link Program} associated with the application is eagerly loaded.
    */
