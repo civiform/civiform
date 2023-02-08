@@ -7,12 +7,14 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import services.question.types.QuestionDefinition;
 
 /** Represents an assertion that an address question is within a given service area. */
 @JsonTypeName("leafAddressServiceArea")
 @AutoValue
 public abstract class LeafAddressServiceAreaExpressionNode implements LeafExpressionNode {
+  public static final Pattern SERVICE_AREA_ID_PATTERN = Pattern.compile("[a-zA-Z\\d\\-]+");
 
   @JsonCreator
   public static LeafAddressServiceAreaExpressionNode create(

@@ -13,6 +13,7 @@ import services.applicant.RepeatedEntity;
 import services.applicant.exception.InvalidPredicateException;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateValue;
@@ -275,5 +276,47 @@ public class JsonPathPredicateGeneratorTest {
         .isInstanceOf(InvalidPredicateException.class)
         .hasMessageContaining(
             "Enumerator 12345 is not an ancestor of the current repeated context");
+  }
+
+  @Test
+  public void fromLeafServiceAreaNode_generatesCorrectPredicate() throws Exception {
+    ApplicantData data = new ApplicantData();
+    data.putString(
+        Path.create("applicant.applicant_address.service_area"),
+        "bloomington_Failed_1234,king-county_InArea_2222,seattle_InArea_5678,Arkansas_NotInArea_8765");
+
+    JsonPathPredicate predicate =
+        generator.fromLeafAddressServiceAreaNode(
+            LeafAddressServiceAreaExpressionNode.create(question.getId(), "seattle"));
+    assertThat(data.evalPredicate(predicate)).isTrue();
+
+    predicate =
+        generator.fromLeafAddressServiceAreaNode(
+            LeafAddressServiceAreaExpressionNode.create(question.getId(), "bloomington"));
+    assertThat(data.evalPredicate(predicate)).isTrue();
+
+    predicate =
+        generator.fromLeafAddressServiceAreaNode(
+            LeafAddressServiceAreaExpressionNode.create(question.getId(), "king-county"));
+    assertThat(data.evalPredicate(predicate)).isTrue();
+
+    predicate =
+        generator.fromLeafAddressServiceAreaNode(
+            LeafAddressServiceAreaExpressionNode.create(question.getId(), "Arkansas"));
+    assertThat(data.evalPredicate(predicate)).isFalse();
+
+    predicate =
+        generator.fromLeafAddressServiceAreaNode(
+            LeafAddressServiceAreaExpressionNode.create(question.getId(), "Kansas"));
+    assertThat(data.evalPredicate(predicate)).isFalse();
+  }
+
+  @Test
+  public void fromLeafServiceAreaNode_invalidServiceAreaId_throws() {
+    assertThatThrownBy(
+            () ->
+                generator.fromLeafAddressServiceAreaNode(
+                    LeafAddressServiceAreaExpressionNode.create(question.getId(), "busted ID")))
+        .isInstanceOf(InvalidPredicateException.class);
   }
 }
