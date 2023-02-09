@@ -16,6 +16,7 @@ import featureflags.FeatureFlags;
 import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+import j2html.tags.specialized.TdTag;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
@@ -55,7 +56,7 @@ public class FeatureFlagView extends BaseHtmlView {
     var sortedKeys = flags.keySet().stream().sorted().collect(Collectors.toUnmodifiableList());
     TableTag flagTable =
         table()
-            .withClass("mt-10")
+            .withClasses("mt-10", "text-left")
             .with(
                 caption("Current flag values"),
                 tr().with(
@@ -79,14 +80,23 @@ public class FeatureFlagView extends BaseHtmlView {
               : a().withHref(routes.FeatureFlagOverrideController.enable(flagName).url())
                   .withText("enable");
       flagFlipLink.withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
+
+      // If the session value is different highlight that.
+      // There's no easy way to add the bold conditionally since withX() overwrites values.
+      TdTag sessionValueTD = td(sessionValue.toString());
+      if (sessionOverrides) {
+        sessionValueTD.withClasses(BaseStyles.TABLE_CELL_STYLES, "font-bold");
+      } else {
+        sessionValueTD.withClasses(BaseStyles.TABLE_CELL_STYLES);
+      }
+
       flagTable.with(
           tr().with(
                   configureCell(td(flagName)),
                   configureCell(td(configValue.toString())),
                   // If the session value is different highlight that.
                   td(sessionDisplay).withClasses(BaseStyles.TABLE_CELL_STYLES, "font-bold"),
-                  // There's no withCondClasses, so leave off TABLE_CELL_STYLE.
-                  td(sessionValue.toString()).withCondClass(sessionOverrides, "font-bold"),
+                  sessionValueTD,
                   configureCell(td(flagFlipLink))));
     }
 
