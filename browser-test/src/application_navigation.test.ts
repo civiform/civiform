@@ -380,7 +380,10 @@ describe('Applicant navigation flow', () => {
 
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
-      await applicantQuestions.seeEligibilityTag(fullProgramName, false)
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ false,
+      )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
       await applicantQuestions.validateToastMessage('may not qualify')
@@ -404,7 +407,10 @@ describe('Applicant navigation flow', () => {
 
       // Verify the question is marked eligible
       await applicantQuestions.gotoApplicantHomePage()
-      await applicantQuestions.seeEligibilityTag(fullProgramName, true)
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ true,
+      )
       await validateScreenshot(page, 'eligible-home-page-program-tag')
       await validateAccessibility(page)
     })
@@ -440,7 +446,10 @@ describe('Applicant navigation flow', () => {
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
       await validateScreenshot(page, 'ineligible-home-page-program-tag')
-      await applicantQuestions.seeEligibilityTag(fullProgramName, false)
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ false,
+      )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
       await applicantQuestions.validateToastMessage('may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
@@ -464,7 +473,10 @@ describe('Applicant navigation flow', () => {
 
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
-      await applicantQuestions.seeEligibilityTag(fullProgramName, false)
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ false,
+      )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
