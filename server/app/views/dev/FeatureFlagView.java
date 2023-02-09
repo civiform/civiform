@@ -45,18 +45,18 @@ public class FeatureFlagView extends BaseHtmlView {
         table()
             .with(
                 tr().with(
-                        td("Server environment: ").withClass("pr-4"),
-                        td(Boolean.toString(isDevOrStagingEnvironment))),
+                        configureCell(td("Server environment: ")),
+                        configureCell(td(Boolean.toString(isDevOrStagingEnvironment)))),
                 tr().with(
-                        td("Configuration: "),
-                        td(Boolean.toString(featureFlags.areOverridesEnabled()))));
+                        configureCell(td("Configuration: ")),
+                        configureCell(td(Boolean.toString(featureFlags.areOverridesEnabled())))));
 
     // Create per flag view.
     ImmutableMap<String, Boolean> flags = featureFlags.getAllFlags(request);
     var sortedKeys = flags.keySet().stream().sorted().collect(Collectors.toUnmodifiableList());
     TableTag flagTable =
         table()
-            .withClasses("mt-10", "text-left")
+            .withClasses("p-6", "mt-10", "text-left")
             .with(
                 caption("Current flag values"),
                 tr().with(
@@ -101,17 +101,18 @@ public class FeatureFlagView extends BaseHtmlView {
     }
 
     // Build the page.
-    DivTag content =
+    DivTag serverSettingSection =
         div()
             .with(
                 h1("Feature Flags").withClasses("py-6"),
-                h2("Overrides are allowed if all are true:").withClasses("py-2"))
-            .with(serverSettingTable);
+                h2("Overrides are allowed if all are true:"))
+            .with(serverSettingTable)
+            .withClass("p-6");
     HtmlBundle bundle =
         layout
             .getBundle()
             .setTitle("Feature Flags")
-            .addMainContent(content, flagTable)
+            .addMainContent(serverSettingSection, div().withClass("px-4").with(flagTable))
             .setJsBundle(JsBundle.ADMIN);
     return layout.render(bundle);
   }
