@@ -194,7 +194,8 @@ public final class ProgramServiceImpl implements ProgramService {
             externalLink,
             displayMode,
             ImmutableList.of(emptyBlock),
-            versionRepository.getDraftVersion());
+            versionRepository.getDraftVersion(),
+            ProgramType.DEFAULT);
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
