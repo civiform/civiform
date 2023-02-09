@@ -82,7 +82,7 @@ public class FeatureFlagView extends BaseHtmlView {
       Boolean configValue = featureFlags.getFlagEnabledFromConfig(flagName).orElse(false);
       Boolean sessionValue = flags.get(flagName);
       Boolean sessionOverrides = !configValue.equals(sessionValue);
-      // Only show values that override the system default.
+      // Only show values that override the system default for clarity.
       String sessionDisplay = sessionOverrides ? sessionValue.toString() : "";
       Tag flagFlipLink =
           sessionValue
