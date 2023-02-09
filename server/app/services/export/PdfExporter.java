@@ -13,7 +13,6 @@ import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
@@ -32,18 +31,15 @@ public final class PdfExporter {
   private final ApplicantService applicantService;
   private final Provider<LocalDateTime> nowProvider;
   private final String baseUrl;
-  private final FeatureFlags featureFlags;
 
   @Inject
   PdfExporter(
       ApplicantService applicantService,
       @Now Provider<LocalDateTime> nowProvider,
-      Config configuration,
-      FeatureFlags featureFlags) {
+      Config configuration) {
     this.applicantService = checkNotNull(applicantService);
     this.nowProvider = checkNotNull(nowProvider);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /**
@@ -98,13 +94,11 @@ public final class PdfExporter {
               "Program Name : " + programName, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
       document.add(applicant);
       document.add(program);
-      if (featureFlags.isStatusTrackingEnabled()) {
-        Paragraph status =
-            new Paragraph(
-                "Status: " + statusValue.orElse("none"),
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
-        document.add(status);
-      }
+      Paragraph status =
+          new Paragraph(
+              "Status: " + statusValue.orElse("none"),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+      document.add(status);
       document.add(Chunk.NEWLINE);
       for (AnswerData answerData : answers) {
         Paragraph question =

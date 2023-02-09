@@ -6,7 +6,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -56,7 +55,6 @@ public final class CsvExporterService {
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ApplicantService applicantService;
-  private final FeatureFlags featureFlags;
   private final Config config;
   private final DateConverter dateConverter;
 
@@ -74,13 +72,11 @@ public final class CsvExporterService {
       ProgramService programService,
       QuestionService questionService,
       ApplicantService applicantService,
-      FeatureFlags featureFlags,
       Config config,
       DateConverter dateConverter) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.applicantService = checkNotNull(applicantService);
-    this.featureFlags = checkNotNull(featureFlags);
     this.config = checkNotNull(config);
     this.dateConverter = dateConverter;
   }
@@ -247,11 +243,8 @@ public final class CsvExporterService {
             .setHeader("Submitted by")
             .setColumnType(ColumnType.SUBMITTER_EMAIL)
             .build());
-
-    if (featureFlags.isStatusTrackingEnabled()) {
-      columnsBuilder.add(
-          Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
-    }
+    columnsBuilder.add(
+        Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
@@ -355,10 +348,8 @@ public final class CsvExporterService {
         Column.builder().setHeader("Create time").setColumnType(ColumnType.CREATE_TIME).build());
     columnsBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
-    if (featureFlags.isStatusTrackingEnabled()) {
-      columnsBuilder.add(
-          Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
-    }
+    columnsBuilder.add(
+        Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
     for (QuestionTag tagType :
         ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {

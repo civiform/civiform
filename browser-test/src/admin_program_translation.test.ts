@@ -23,6 +23,7 @@ describe('Admin can manage translations', () => {
 
     // Add translations for Spanish and publish
     await adminTranslations.selectLanguage('Spanish')
+    await validateScreenshot(page, 'program-translation')
     await adminTranslations.expectProgramTranslation({
       expectProgramName: '',
       expectProgramDescription: '',
@@ -55,8 +56,7 @@ describe('Admin can manage translations', () => {
     expect(cardText).toContain('Spanish description')
   })
 
-  // TODO(#3071): Re-enable when the feature flag is controllable in tests.
-  it.skip('creates a program with statuses and adds translations for program statuses', async () => {
+  it('creates a program with statuses and adds translations for program statuses', async () => {
     const {page, adminPrograms, adminProgramStatuses, adminTranslations} = ctx
 
     await loginAsAdmin(page)
@@ -167,6 +167,7 @@ describe('Admin can manage translations', () => {
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
+    await validateScreenshot(page, 'question-translation')
     await adminTranslations.editQuestionTranslations(
       'Spanish question text',
       'Spanish help text',
@@ -191,7 +192,7 @@ describe('Admin can manage translations', () => {
     // Expect program details link to contain 'Detalles del programa' with link to 'http://seattle.gov'
     expect(
       await page.innerText('.cf-application-card a[href="http://seattle.gov"]'),
-    ).toContain('Sitio externo')
+    ).toContain('Detalles del programa')
 
     await applicantQuestions.applyProgram(programName)
 
@@ -224,6 +225,7 @@ describe('Admin can manage translations', () => {
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
+    await validateScreenshot(page, 'multi-option-question-translation')
     await adminTranslations.editQuestionTranslations('hola', 'mundo', [
       'uno',
       'dos',

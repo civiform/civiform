@@ -206,13 +206,34 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
-  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+  async goToEditBlockVisibilityPredicatePage(
+    programName: string,
+    blockName: string,
+  ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
-    await this.page.click('#cf-edit-predicate')
+    await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    await this.expectEditPredicatePage(blockName)
+    await this.expectEditVisibilityPredicatePage(blockName)
+  }
+
+  async goToEditBlockEligibilityPredicatePage(
+    programName: string,
+    blockName: string,
+  ) {
+    await this.goToBlockInProgram(programName, blockName)
+
+    // Click on the edit predicate button
+    await this.page.click('#cf-edit-eligibility-predicate')
+    await waitForPageJsLoad(this.page)
+    await this.expectEditEligibilityPredicatePage(blockName)
+  }
+
+  async goToProgramDescriptionPage(programName: string) {
+    await this.goToManageQuestionsPage(programName)
+    await this.page.click('button:has-text("Edit program details")')
+    await waitForPageJsLoad(this.page)
   }
 
   async expectDraftProgram(programName: string) {
@@ -254,9 +275,15 @@ export class AdminPrograms {
     )
   }
 
-  async expectEditPredicatePage(blockName: string) {
+  async expectEditVisibilityPredicatePage(blockName: string) {
     expect(await this.page.innerText('h1')).toContain(
       'Visibility condition for ' + blockName,
+    )
+  }
+
+  async expectEditEligibilityPredicatePage(blockName: string) {
+    expect(await this.page.innerText('h1')).toContain(
+      'Eligibility condition for ' + blockName,
     )
   }
 
@@ -317,10 +344,18 @@ export class AdminPrograms {
     }
   }
 
+  async removeProgramBlock(programName: string, blockName: string) {
+    await this.goToBlockInProgram(programName, blockName)
+    await this.page.click('#delete-block-button')
+    await waitForPageJsLoad(this.page)
+    await this.gotoAdminProgramsPage()
+  }
+
   private async waitForQuestionBankAnimationToFinish() {
-    // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
+    // Animation is 150ms. Give some extra overhead to avoid flakiness on slow CPU.
+    // This is currently called over 300 times which adds up.
     // https://tailwindcss.com/docs/transition-property
-    await this.page.waitForTimeout(1000)
+    await this.page.waitForTimeout(250)
   }
 
   async openQuestionBank() {
@@ -765,13 +800,13 @@ export class AdminPrograms {
       throw new Error('download failed')
     }
 
-    return JSON.parse(readFileSync(path, 'utf8'))
+    return JSON.parse(readFileSync(path, 'utf8')) as DownloadedApplication[]
   }
   async getPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.applicationFrameLocator()
-        .locator('a:has-text("Export to PDF")')
+        .locator('button:has-text("Export to PDF")')
         .click(),
     ])
     const path = await downloadEvent.path()
@@ -822,5 +857,13 @@ export class AdminPrograms {
     await this.editProgramBlock(programName, 'dummy description', questionNames)
 
     await this.publishProgram(programName)
+  }
+
+  getAddressCorrectionToggle() {
+    return this.page.locator('input[name=addressCorrectionEnabled]')
+  }
+
+  async clickAddressCorrectionToggle() {
+    await this.page.click(':is(button:has-text("Address correction"))')
   }
 }

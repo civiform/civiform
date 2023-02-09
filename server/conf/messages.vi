@@ -40,6 +40,9 @@ validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc ph
 # Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
 
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -140,12 +143,6 @@ link.programDetails=Chi tiết chương trình
 # The same text, read for screen readers.
 link.programDetailsSr=Chi tiết chương trình {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=Trang web bên ngoài
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=Mở trong thẻ mới
-
 # The title of the page for the list of programs.
 title.programs=Chương trình và dịch vụ
 
@@ -174,21 +171,26 @@ button.submit=Gửi
 # Continue application button
 button.continue=Tiếp tục
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=Bắt đầu ở đây
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=Không đủ điều kiện
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Chỉnh sửa
+link.answer=Câu trả lời
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Chỉnh sửa {0}
 
-# Program Preview Title
-title.programPreview=Xem trước đơn đăng ký chương trình
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=Câu trả lời {0}
 
-# Program Review Title
-title.programReview=Xem lại đơn đăng ký chương trình
+# Program Summary Title
+title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -214,15 +216,9 @@ content.pleaseCreateAccount=Nếu bây giờ bạn đăng nhập vào tài kho�
 label.addressLine2=Số phòng/căn hộ
 label.city=Thành phố
 label.state=Tiểu bang
+label.selectState=Chọn tiểu bang
 label.street=Dòng địa chỉ 1
 label.zipcode=Mã bưu chính
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=Thành phố
-placeholder.line2=Căn hộ, phòng, lô, toà nhà, tầng, v.v.
-placeholder.state=Bang
-placeholder.street=Địa chỉ đường phố
-placeholder.zipcode=Mã bưu chính
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Vui lòng nhập số nhà và tên đường hợp lệ.

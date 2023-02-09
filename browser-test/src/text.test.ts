@@ -112,6 +112,33 @@ describe('Text question for applicant flow', () => {
         'Must contain at most 20 characters.',
       )
     })
+
+    it('hitting enter on text does not trigger submission', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
+
+      // Ensure that clicking enter while on text input doesn't trigger form
+      // submission.
+      await page.focus('input[type=text]')
+      await page.keyboard.press('Enter')
+      expect(await page.locator('input[type=text]').isVisible()).toEqual(true)
+
+      // Check that pressing Enter on button works.
+      await page.focus('button:has-text("Save and next")')
+      await page.keyboard.press('Enter')
+      await applicantQuestions.expectReviewPage()
+
+      // Go back to question and ensure that "Review" button is also clickable
+      // via Enter.
+      await page.click('a:has-text("Edit")')
+      await page.focus('a:has-text("Review")')
+      await page.keyboard.press('Enter')
+      await applicantQuestions.expectReviewPage()
+    })
   })
 
   describe('no max text question', () => {

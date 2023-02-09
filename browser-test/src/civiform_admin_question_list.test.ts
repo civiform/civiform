@@ -4,8 +4,7 @@ import {
   createTestContext,
   loginAsAdmin,
 } from './support'
-
-describe('Most recently updated question is at top of list.', () => {
+describe('Admin question list', () => {
   const ctx = createTestContext()
   it('sorts by last updated, preferring draft over active', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
@@ -83,11 +82,38 @@ describe('Most recently updated question is at top of list.', () => {
     ])
   })
 
+  it('filters question list with search query', async () => {
+    const {page, adminQuestions} = ctx
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+
+    await adminQuestions.gotoAdminQuestionsPage()
+
+    await page.locator('#question-bank-filter').fill('first')
+    expect(await adminQuestions.questionBankNames()).toEqual(['first question'])
+    await page.locator('#question-bank-filter').fill('second')
+    expect(await adminQuestions.questionBankNames()).toEqual([
+      'second question',
+    ])
+    await page.locator('#question-bank-filter').fill('')
+    expect(await adminQuestions.questionBankNames()).toEqual([
+      'second question',
+      'first question',
+    ])
+  })
+
   async function expectQuestionListElements(
     adminQuestions: AdminQuestions,
     expectedQuestions: string[],
   ) {
-    if (!expectedQuestions) {
+    if (expectedQuestions.length === 0) {
       throw new Error('expected at least one question')
     }
     const questionListNames = await adminQuestions.questionNames()
@@ -99,7 +125,7 @@ describe('Most recently updated question is at top of list.', () => {
     adminPrograms: AdminPrograms,
     expectedQuestions: string[],
   ) {
-    if (!expectedQuestions) {
+    if (expectedQuestions.length === 0) {
       throw new Error('expected at least one question')
     }
     await adminPrograms.goToManageQuestionsPage(programName)

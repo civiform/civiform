@@ -14,6 +14,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.applicant.question.Scalar;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -21,6 +22,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
+import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
@@ -93,6 +95,81 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
+  }
+
+  @Test
+  public void getProgramQuestionDefinition() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantJugglingNumber())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantDate())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .buildDefinition();
+
+    assertThat(
+            programDefinition
+                .getProgramQuestionDefinition(testQuestionBank.applicantJugglingNumber().id)
+                .id())
+        .isEqualTo(testQuestionBank.applicantJugglingNumber().id);
+  }
+
+  @Test
+  public void getProgramQuestionDefinition_notFound() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantDate())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .buildDefinition();
+
+    assertThatThrownBy(
+            () ->
+                programDefinition.getProgramQuestionDefinition(
+                    testQuestionBank.applicantJugglingNumber().id))
+        .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
+  }
+
+  @Test
+  public void isQuestionUsedInPredicate() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withEligibilityDefinition(
+                EligibilityDefinition.builder()
+                    .setPredicate(
+                        PredicateDefinition.create(
+                            PredicateExpressionNode.create(
+                                LeafAddressServiceAreaExpressionNode.builder()
+                                    .setQuestionId(testQuestionBank.applicantAddress().id)
+                                    .setServiceAreaId("seattle")
+                                    .build()),
+                            PredicateAction.ELIGIBLE_BLOCK))
+                    .build())
+            .withVisibilityPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.builder()
+                            .setQuestionId(testQuestionBank.applicantDate().id)
+                            .setScalar(Scalar.DATE)
+                            .setOperator(Operator.IS_BEFORE)
+                            .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
+                            .build()),
+                    PredicateAction.HIDE_BLOCK))
+            .buildDefinition();
+
+    assertThat(programDefinition.isQuestionUsedInPredicate(testQuestionBank.applicantAddress().id))
+        .isTrue();
+    assertThat(programDefinition.isQuestionUsedInPredicate(testQuestionBank.applicantDate().id))
+        .isTrue();
+    assertThat(
+            programDefinition.isQuestionUsedInPredicate(
+                testQuestionBank.applicantKitchenTools().id))
+        .isFalse();
   }
 
   @Test
@@ -272,7 +349,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
     QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
 
     long programDefinitionId = 123L;
-    BlockDefinition blockA =
+    // To aid readability and reduce errors the block names include the questions that are in them.
+    BlockDefinition block1QAQB =
         BlockDefinition.builder()
             .setId(1L)
             .setName("Screen Name")
@@ -280,9 +358,13 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .addQuestion(
-                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
+                ProgramQuestionDefinition.create(
+                    questionB,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ true))
             .build();
-    BlockDefinition blockB =
+    BlockDefinition block2QC =
         BlockDefinition.builder()
             .setId(2L)
             .setName("Screen Name")
@@ -290,7 +372,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addQuestion(
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .build();
-    BlockDefinition blockC =
+    BlockDefinition block3QD =
         BlockDefinition.builder()
             .setId(3L)
             .setName("Screen Name")
@@ -308,23 +390,33 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
-            .addBlockDefinition(blockA)
-            .addBlockDefinition(blockB)
-            .addBlockDefinition(blockC)
+            .addBlockDefinition(block1QAQB)
+            .addBlockDefinition(block2QC)
+            .addBlockDefinition(block3QD)
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .build();
 
-    // blockA
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(1L)).isEmpty();
-    // blockB
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(2L))
+    // block1
+    assertThat(
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block1QAQB.id()))
+        .isEmpty();
+    assertThat(
+            programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block1QAQB.id()))
         .containsExactly(questionA, questionB);
-    // blockC
-    // Doesn't include the file upload question.
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L))
+    // block2
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block2QC.id()))
         .containsExactly(questionA, questionB);
+    // Doesn't include the file upload question, which don't support predicates.
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block2QC.id()))
+        .isEmpty();
+    // block3
+    // Doesn't include the file upload question, which don't support predicates.
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block3QD.id()))
+        .containsExactly(questionA, questionB);
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block3QD.id()))
+        .containsExactly(questionD);
   }
 
   @Test
@@ -332,11 +424,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
       getAvailablePredicateQuestionDefinitions_withRepeatedBlocks_onlyIncludesQuestionsWithSameEnumeratorId()
           throws ProgramBlockDefinitionNotFoundException {
     QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
-    QuestionDefinition questionB =
+    QuestionDefinition questionBEnum =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition questionC =
         testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
-    QuestionDefinition questionD =
+    QuestionDefinition questionDEnum =
         testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
     QuestionDefinition questionE =
         testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition();
@@ -350,13 +442,13 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
-    BlockDefinition blockB =
+    BlockDefinition blockBEnum =
         BlockDefinition.builder()
             .setId(2L)
             .setName("Screen Name")
             .setDescription("Screen Description")
             .addQuestion(
-                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
+                ProgramQuestionDefinition.create(questionBEnum, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockC =
         BlockDefinition.builder()
@@ -367,13 +459,13 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
             .build();
-    BlockDefinition blockD =
+    BlockDefinition blockDEnum =
         BlockDefinition.builder()
             .setId(4L)
             .setName("Screen Name")
             .setDescription("Screen Description")
             .addQuestion(
-                ProgramQuestionDefinition.create(questionD, Optional.of(programDefinitionId)))
+                ProgramQuestionDefinition.create(questionDEnum, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
             .build();
     BlockDefinition blockE =
@@ -399,26 +491,41 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
-            .addBlockDefinition(blockB)
+            .addBlockDefinition(blockBEnum)
             .addBlockDefinition(blockC)
-            .addBlockDefinition(blockD)
+            .addBlockDefinition(blockDEnum)
             .addBlockDefinition(blockE)
             .build();
 
     // blockA (applicantName)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(1L)).isEmpty();
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockA.id()))
+        .isEmpty();
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockA.id()))
+        .containsExactly(questionA);
     // blockB (applicantHouseholdMembers)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(2L))
+    assertThat(
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockBEnum.id()))
         .containsExactly(questionA);
+    assertThat(
+            programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockBEnum.id()))
+        .isEmpty();
     // blockC (applicantHouseholdMembers.householdMemberName)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L))
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockC.id()))
         .containsExactly(questionA);
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockC.id()))
+        .containsExactly(questionC);
     // blockD (applicantHouseholdMembers.householdMemberJobs)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(4L))
+    assertThat(
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockDEnum.id()))
         .containsExactly(questionA, questionC);
+    assertThat(
+            programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockDEnum.id()))
+        .isEmpty();
     // blockE (applicantHouseholdMembers.householdMemberJobs.householdMemberJobIncome)
-    assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(5L))
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockE.id()))
         .containsExactly(questionA, questionC);
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockE.id()))
+        .containsExactly(questionE);
   }
 
   @Test
@@ -517,7 +624,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
   }
 
   @Test
-  public void moveBlockUp_throwsForIllegalMove() {
+  public void moveBlock_up_withVisibilityPredicate() throws Exception {
     Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
     // Trying to move a block with a predicate before the block it depends on throws.
     PredicateDefinition predicate =
@@ -535,7 +642,38 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .withBlock()
-            .withPredicate(predicate)
+            .withOptionalQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withBlock()
+            .withVisibilityPredicate(predicate)
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition result = programDefinition.moveBlock(3L, ProgramDefinition.Direction.UP);
+
+    assertThat(result.getBlockDefinitionByIndex(1)).isPresent();
+    assertThat(result.getBlockDefinitionByIndex(1).get().visibilityPredicate()).contains(predicate);
+  }
+
+  @Test
+  public void moveBlock_up_withVisibilityPredicate_throwsForIllegalMove() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    // Trying to move a block with a predicate before the block it depends on throws.
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(predicateQuestion)
+            .withBlock()
+            .withVisibilityPredicate(predicate)
             .build()
             .getProgramDefinition();
 
@@ -544,6 +682,109 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .withMessage(
             "This move is not possible - it would move a block condition before the question it"
                 + " depends on");
+  }
+
+  @Test
+  public void moveBlock_up_withEligibilityPredicate() throws Exception {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    // Trying to move a block with a predicate before the block it depends on throws.
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            predicateQuestion.id,
+                            Scalar.TEXT,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("yellow"))),
+                    PredicateAction.SHOW_BLOCK))
+            .build();
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(predicateQuestion)
+            .withBlock()
+            .withOptionalQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withBlock()
+            .withEligibilityDefinition(eligibility)
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition result = programDefinition.moveBlock(3L, ProgramDefinition.Direction.UP);
+
+    assertThat(result.getBlockDefinitionByIndex(1)).isPresent();
+    assertThat(result.getBlockDefinitionByIndex(1).get().eligibilityDefinition())
+        .contains(eligibility);
+  }
+
+  @Test
+  public void moveBlock_up_withEligibilityPredicate_throwsForIllegalMove() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    // Trying to move a block with a predicate before the block it depends on throws.
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            predicateQuestion.id,
+                            Scalar.TEXT,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("yellow"))),
+                    PredicateAction.SHOW_BLOCK))
+            .build();
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(predicateQuestion)
+            .withBlock()
+            .withEligibilityDefinition(eligibility)
+            .build()
+            .getProgramDefinition();
+
+    assertThatExceptionOfType(IllegalPredicateOrderingException.class)
+        .isThrownBy(() -> programDefinition.moveBlock(2L, ProgramDefinition.Direction.UP))
+        .withMessage(
+            "This move is not possible - it would move a block condition before the question it"
+                + " depends on");
+  }
+
+  @Test
+  public void moveBlock_up_withEligibilityPredicateAndQuestionInSameBlock() throws Exception {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    // Trying to move a block with a predicate before the block it depends on throws.
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            predicateQuestion.id,
+                            Scalar.TEXT,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("yellow"))),
+                    PredicateAction.SHOW_BLOCK))
+            .build();
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withOptionalQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withBlock()
+            .withRequiredQuestion(predicateQuestion)
+            .withEligibilityDefinition(eligibility)
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition result = programDefinition.moveBlock(2L, ProgramDefinition.Direction.UP);
+
+    assertThat(result.getBlockDefinitionByIndex(0)).isPresent();
+    assertThat(result.getBlockDefinitionByIndex(0).get().eligibilityDefinition())
+        .contains(eligibility);
+    assertThat(result.getQuestionDefinition(0, 0).getId()).isEqualTo(predicateQuestion.id);
   }
 
   @Test
@@ -565,7 +806,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .build()
             .getProgramDefinition();
 
@@ -594,7 +835,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .build()
             .getProgramDefinition();
 
@@ -603,7 +844,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
     programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .build()
@@ -629,7 +870,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .build()
             .getProgramDefinition();
 

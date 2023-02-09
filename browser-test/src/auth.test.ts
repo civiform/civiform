@@ -6,6 +6,8 @@ import {
   validateScreenshot,
   testUserDisplayName,
   AuthStrategy,
+  logout,
+  loginAsAdmin,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
@@ -72,6 +74,13 @@ describe('applicant auth', () => {
 
     await ctx.page.waitForURL(/.*\/loginForm/)
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
+
+    // Try login again, ensuring that full login process is followed. If login
+    // page doesn't ask for username/password - the method will fail.
+    await loginAsTestUser(page)
+    expect(await ctx.page.textContent('html')).toContain(
+      `Logged in as ${testUserDisplayName()}`,
+    )
   })
 
   it('applicant can logout from guest', async () => {
@@ -82,5 +91,33 @@ describe('applicant auth', () => {
 
     await page.click('text=Logout')
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
+  })
+
+  it('guest login followed by auth login stores submitted applications', async () => {
+    const {page, adminPrograms, applicantQuestions} = ctx
+    await loginAsAdmin(page)
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.publishAllPrograms()
+
+    await logout(page)
+    await loginAsGuest(page)
+    await selectApplicantLanguage(page, 'English')
+
+    await applicantQuestions.clickApplyProgramButton(programName)
+    await applicantQuestions.submitFromReviewPage()
+    await loginAsTestUser(page, 'a:has-text("Create account or sign in")')
+
+    // Check that program is marked as submitted.
+    expect(
+      await page.innerText(`.cf-application-card:has-text("${programName}")`),
+    ).toMatch(/Submitted \d?\d\/\d?\d\/\d\d/)
+
+    // Logout and login to make sure data is tied to account.
+    await logout(page)
+    await loginAsTestUser(page)
+    expect(
+      await page.innerText(`.cf-application-card:has-text("${programName}")`),
+    ).toMatch(/Submitted \d?\d\/\d?\d\/\d\d/)
   })
 })

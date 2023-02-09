@@ -7,6 +7,8 @@ import {
   logout,
   selectApplicantLanguage,
   testUserDisplayName,
+  waitForPageJsLoad,
+  validateScreenshot,
 } from './support'
 
 describe('Program admin review of submitted applications', () => {
@@ -212,7 +214,7 @@ describe('Program admin review of submitted applications', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'favorite-trees-q',
-      'pine cherry',
+      'pine; cherry',
     )
 
     await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42')
@@ -227,7 +229,7 @@ describe('Program admin review of submitted applications', () => {
     await loginAsAdmin(page)
     await adminQuestions.createNewVersion('favorite-trees-q')
     await adminQuestions.gotoQuestionEditPage('favorite-trees-q')
-    await page.click('#question-settings button:text("Remove"):visible')
+    await page.click('#question-settings button:has-text("Delete"):visible')
     await page.click('text=Update')
     await adminPrograms.publishProgram(programName)
 
@@ -239,8 +241,13 @@ describe('Program admin review of submitted applications', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'favorite-trees-q',
-      'pine cherry',
+      'pine; cherry',
     )
+    // Expect CF logo to route ProgramAdmins back to their homepage
+    await page.click('text=CF')
+    await waitForPageJsLoad(page)
+
+    await validateScreenshot(page, 'applications-page')
   })
 
   it('program applications listed most recent first', async () => {

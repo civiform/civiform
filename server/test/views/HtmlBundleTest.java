@@ -3,15 +3,24 @@ package views;
 import static j2html.TagCreator.div;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
+import repository.ResetPostgres;
 
-public class HtmlBundleTest {
+public class HtmlBundleTest extends ResetPostgres {
+
+  private ViewUtils viewUtils;
+
+  @Before
+  public void setUp() {
+    viewUtils = instanceOf(ViewUtils.class);
+  }
 
   @Test
   public void testSetTitle() {
-    HtmlBundle bundle = new HtmlBundle();
-    bundle.setTitle("My title");
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
+    bundle.setTitle("My title").setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
     assertThat(content.body()).contains("<title>My title</title>");
@@ -19,8 +28,8 @@ public class HtmlBundleTest {
 
   @Test
   public void testFavicon() {
-    HtmlBundle bundle = new HtmlBundle();
-    bundle.setFavicon("www.civiform.com/favicon");
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
+    bundle.setFavicon("www.civiform.com/favicon").setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
     assertThat(content.body()).contains("<link rel=\"icon\" href=\"www.civiform.com/favicon\">");
@@ -28,29 +37,32 @@ public class HtmlBundleTest {
 
   @Test
   public void testNoFavicon() {
-    HtmlBundle bundle = new HtmlBundle();
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
 
+    bundle.setJsBundle(JsBundle.APPLICANT);
     Content content = bundle.render();
     assertThat(content.body()).doesNotContain("<link rel=\"icon\"");
   }
 
   @Test
   public void emptyBundleRendersOutline() {
-    HtmlBundle bundle = new HtmlBundle();
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
 
+    bundle.setJsBundle(JsBundle.APPLICANT);
     Content content = bundle.render();
     assertThat(content.body())
-        .contains(
+        .containsPattern(
             "<body><header></header><main></main><div id=\"modal-container\" class=\"hidden fixed"
-                + " h-screen w-screen\"><div id=\"modal-glass-pane\" class=\"fixed h-screen"
-                + " w-screen bg-gray-400 opacity-75\"></div></div><footer></footer></body>");
+                + " h-screen w-screen z-20\"><div id=\"modal-glass-pane\" class=\"fixed h-screen"
+                + " w-screen bg-gray-400 opacity-75\"></div></div><footer><script src=\"/assets/"
+                + "javascripts/[a-z0-9]+-applicant.bundle.js\" type=\"text/javascript\"></script>"
+                + "</footer></body>");
   }
 
   @Test
   public void rendersContentInOrder() {
-    HtmlBundle bundle = new HtmlBundle();
-    bundle.addMainContent(div("One"));
-    bundle.addMainContent(div("Two"));
+    HtmlBundle bundle = new HtmlBundle(viewUtils);
+    bundle.addMainContent(div("One")).addMainContent(div("Two")).setJsBundle(JsBundle.APPLICANT);
 
     Content content = bundle.render();
     assertThat(content.body()).contains("<main><div>One</div><div>Two</div></main>");

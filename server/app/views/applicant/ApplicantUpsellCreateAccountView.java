@@ -49,15 +49,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
     DivTag createAccountBox =
         div()
-            .withClasses(
-                "border",
-                "border-gray-200",
-                "rounded-2xl",
-                "shadow-md",
-                "bg-white",
-                "p-4",
-                StyleUtils.responsiveSmall("p-6"),
-                "my-6")
+            .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(
                 h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
                     .withClasses("mb-4"))

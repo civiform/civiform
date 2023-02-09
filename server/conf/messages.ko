@@ -40,6 +40,10 @@ validation.errorAnnouncementSr=양식에 오류가 있습니다.
 # Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
 
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
+
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -140,12 +144,6 @@ link.programDetails=프로그램 세부정보
 # The same text, read for screen readers.
 link.programDetailsSr={0}의 프로그램 세부정보
 
-# Link text to an external site to read more about a program.
-link.externalLink=외부 사이트
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=새 탭에서 열기
-
 # The title of the page for the list of programs.
 title.programs=프로그램 및 서비스
 
@@ -174,21 +172,26 @@ button.submit=제출
 # Continue application button
 button.continue=계속
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=여기에서 시작
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=제출을 위해 확인 필요
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=편집
+link.answer=답변
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0} 편집
 
-# Program Preview Title
-title.programPreview=프로그램 신청 미리보기
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer={0}에 답변
 
-# Program Review Title
-title.programReview=프로그램 신청 검토
+# Program Summary Title
+title.programSummary=프로그램 신청 요약
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -214,15 +217,9 @@ content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며
 label.addressLine2=단위/아파트 번호
 label.city=시/군/구
 label.state=주/도
+label.selectState=주 선택
 label.street=상세 주소 1
 label.zipcode=우편번호
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=시/군/구
-placeholder.line2=아파트, 빌딩, 호, 층 등
-placeholder.state=시/도
-placeholder.street=상세 주소
-placeholder.zipcode=우편번호
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=유효한 도로명과 번호를 입력하세요.

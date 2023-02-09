@@ -1,5 +1,6 @@
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -8,6 +9,34 @@ import {Page} from 'playwright'
 
 describe('program creation', () => {
   const ctx = createTestContext()
+
+  it('program details page screenshot', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await validateScreenshot(page, 'program-description-page')
+  })
+
+  it('shows correct formatting during question creation', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.createStaticQuestion({
+      questionName: 'static-question',
+      questionText:
+        '### This is an example of some static text with formatting',
+    })
+
+    await validateScreenshot(
+      page,
+      'program-creation-static-question-with-formatting',
+    )
+  })
+
   it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
@@ -69,6 +98,72 @@ describe('program creation', () => {
     expect(await page.innerText('id=question-bank-questions')).toContain(
       'apc-repeated',
     )
+  })
+
+  it('create program with address and address correction feature enabled', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+    await adminQuestions.addAddressQuestion({questionName: 'ace-address'})
+    await adminQuestions.addNameQuestion({questionName: 'ace-name'})
+
+    const programName = 'Ace program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'ace program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('ace-address')
+    await adminPrograms.addQuestionFromQuestionBank('ace-name')
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-address-correction-false',
+    )
+
+    const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
+
+    // the input value shows what it will be set to when clicked
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
+
+    await adminPrograms.clickAddressCorrectionToggle()
+
+    expect(await addressCorrectionInput.inputValue()).toBe('false')
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-address-correction-true',
+    )
+
+    // ensure that non address question does not contain address correction button
+    expect(
+      await page.innerText(
+        adminPrograms.questionCardSelectorInProgramEditor('ace-name'),
+      ),
+    ).not.toContain('Address correction')
+  })
+
+  it('create program with address and address correction feature disabled', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.addAddressQuestion({questionName: 'acd-address'})
+
+    const programName = 'Acd program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'acd program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('acd-address')
+
+    const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
+
+    // the input value shows what it will be set to when clicked
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
+
+    await adminPrograms.clickAddressCorrectionToggle()
+    // should be the same as before with button submit disabled
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
   })
 
   it('change questions order within block', async () => {
@@ -179,6 +274,35 @@ describe('program creation', () => {
       'second question',
       'first question',
     ])
+  })
+
+  /**
+   * There was a bug where if you deleted the first block
+   * and then go to edit the program, it would error
+   * because it would go to the block with ID == 1
+   */
+  it('delete first block and edit', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Test program 5'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.addProgramBlock(programName)
+    await adminPrograms.removeProgramBlock(programName, 'Screen 1')
+    await adminPrograms.goToManageQuestionsPage(programName)
+  })
+
+  it('delete last block and edit', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Test program 6'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.addProgramBlock(programName)
+    await adminPrograms.removeProgramBlock(programName, 'Screen 2')
+    await adminPrograms.goToManageQuestionsPage(programName)
   })
 
   async function expectQuestionsOrderWithinBlock(

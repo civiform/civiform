@@ -6,6 +6,7 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -19,6 +20,7 @@ import com.google.inject.Inject;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Collection;
@@ -36,7 +38,7 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
-import views.ViewUtils.BadgeStatus;
+import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -44,6 +46,7 @@ import views.components.CreateQuestionButton;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
+import views.components.SvgTag;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -74,6 +77,28 @@ public final class QuestionsListView extends BaseHtmlView {
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
         renderAllQuestionRows(activeAndDraftQuestions, request);
 
+    InputTag filterInput =
+        input()
+            .withId("question-bank-filter")
+            .withType("text")
+            .withName("questionFilter")
+            .withPlaceholder("Search questions")
+            .withClasses(
+                "h-10",
+                "px-10",
+                "pr-5",
+                "w-full",
+                "rounded-full",
+                "text-sm",
+                "border",
+                "border-gray-200",
+                "shadow",
+                StyleUtils.focus("outline-none"));
+    SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses("h-4", "w-4");
+    DivTag filterIconDiv = div().withClasses("absolute", "ml-4", "mt-3", "mr-4").with(filterIcon);
+    DivTag filterDiv =
+        div().withClasses("mt-6", "mb-2", "relative").with(filterIconDiv, filterInput);
+
     DivTag contentDiv =
         div()
             .withClasses("px-4")
@@ -86,6 +111,7 @@ public final class QuestionsListView extends BaseHtmlView {
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index().url(),
                             /* isPrimaryButton= */ true)),
+                filterDiv,
                 div()
                     .withClasses("mt-10", "flex")
                     .with(
@@ -237,6 +263,7 @@ public final class QuestionsListView extends BaseHtmlView {
     DivTag rowWithAdminNote =
         div()
             .withClasses(
+                ReferenceClasses.QUESTION_BANK_ELEMENT,
                 "w-full",
                 "my-4",
                 "pl-6",
@@ -267,7 +294,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     PTag badge =
         ViewUtils.makeBadge(
-            isActive ? BadgeStatus.ACTIVE : BadgeStatus.DRAFT,
+            isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
 

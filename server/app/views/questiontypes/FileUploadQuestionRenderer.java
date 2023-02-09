@@ -8,12 +8,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import org.apache.commons.lang3.RandomStringUtils;
+import play.i18n.Messages;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import views.FileUploadViewStrategy;
 import views.components.FieldWithLabel;
+import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
 /**
@@ -54,13 +57,22 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {
+    Messages messages = params.messages();
     boolean hasErrors = !validationErrors.isEmpty();
     return div()
         .with(
-            label().withFor(fileInputId).withClass("sr-only").withText(question.getQuestionText()))
+            label()
+                .withFor(fileInputId)
+                .withClass("sr-only")
+                .withText(question.getQuestionTextForScreenReader()))
         .with(
             fileUploadViewStrategy.signedFileUploadFields(
-                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors));
+                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
+        .with(
+            label()
+                .withFor(fileInputId)
+                .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
+                .withClasses(ApplicantStyles.BUTTON_UPLOAD, "w-44", "mt-2", "cursor-pointer"));
   }
 
   @Override

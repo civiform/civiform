@@ -2,7 +2,6 @@ import {
   AdminPrograms,
   createTestContext,
   dismissModal,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
@@ -36,7 +35,7 @@ describe('view program statuses', () => {
       await applicantQuestions.clickApplyProgramButton(
         programWithoutStatusesName,
       )
-      await applicantQuestions.submitFromPreviewPage()
+      await applicantQuestions.submitFromReviewPage()
     })
 
     beforeEach(async () => {
@@ -75,7 +74,6 @@ describe('view program statuses', () => {
       const {page, adminPrograms, applicantQuestions, adminProgramStatuses} =
         ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithStatusesName)
@@ -94,21 +92,20 @@ describe('view program statuses', () => {
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromPreviewPage()
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
 
       // Submit an application as the logged in test user.
       await loginAsTestUser(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromPreviewPage()
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
     beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsProgramAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant('Guest')
     })
@@ -302,6 +299,9 @@ describe('view program statuses', () => {
     it('renders the note dialog', async () => {
       const {page, adminPrograms} = ctx
       await adminPrograms.awaitEditNoteModal()
+      await page.evaluate(() => {
+        window.scrollTo(0, 0)
+      })
       await validateScreenshot(page, 'edit-note-modal')
     })
 
@@ -363,7 +363,6 @@ describe('view program statuses', () => {
         adminProgramStatuses,
       } = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
       // Add a program with a single question that is used for asserting downloaded content.
       await adminPrograms.addProgram(programForFilteringName)
@@ -396,7 +395,6 @@ describe('view program statuses', () => {
     beforeEach(async () => {
       const {page} = ctx
       await loginAsProgramAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
     })
 
     it('application without status appears in default filter and without statuses filter', async () => {

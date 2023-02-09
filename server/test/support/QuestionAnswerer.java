@@ -24,6 +24,29 @@ public class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.ZIP), zip);
   }
 
+  public static void answerAddressQuestion(
+      ApplicantData applicantData,
+      Path contextualizedPath,
+      String street,
+      String line2,
+      String city,
+      String state,
+      String zip,
+      String corrected,
+      Double latitude,
+      Double longitude,
+      Long wellKnownId) {
+    applicantData.putString(contextualizedPath.join(Scalar.STREET), street);
+    applicantData.putString(contextualizedPath.join(Scalar.LINE2), line2);
+    applicantData.putString(contextualizedPath.join(Scalar.CITY), city);
+    applicantData.putString(contextualizedPath.join(Scalar.STATE), state);
+    applicantData.putString(contextualizedPath.join(Scalar.ZIP), zip);
+    applicantData.putString(contextualizedPath.join(Scalar.CORRECTED), corrected);
+    applicantData.putDouble(contextualizedPath.join(Scalar.LATITUDE), latitude);
+    applicantData.putDouble(contextualizedPath.join(Scalar.LONGITUDE), longitude);
+    applicantData.putLong(contextualizedPath.join(Scalar.WELL_KNOWN_ID), wellKnownId);
+  }
+
   public static void answerCurrencyQuestion(
       ApplicantData applicantData, Path contextualizedPath, String value) {
     applicantData.putCurrencyDollars(contextualizedPath.join(Scalar.CURRENCY_CENTS), value);

@@ -2,9 +2,6 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import models.Question;
@@ -12,26 +9,18 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
-import org.mockito.Mockito;
 import repository.TimeFilter;
-import services.DateConverter;
 import services.applicant.ApplicantData;
-import services.applicant.ApplicantService;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
-import services.program.ProgramService;
-import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
 public class CsvExporterTest extends AbstractExporterTest {
 
   private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
-  private static final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
-
-  private final DateConverter dateConverter = new DateConverter(ZoneId.of("UTC"));
 
   private ApplicantQuestion getApplicantQuestion(QuestionDefinition questionDefinition) {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
@@ -69,6 +58,10 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant address (city)",
             "applicant address (state)",
             "applicant address (zip)",
+            "applicant address (corrected)",
+            "applicant address (latitude)",
+            "applicant address (longitude)",
+            "applicant address (well_known_id)",
             "applicant birth date (date)",
             "applicant favorite color (text)",
             "applicant file (file_key)",
@@ -143,32 +136,6 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Submit time",
             "Submitted by",
             "Status");
-  }
-
-  @Test
-  public void programCsv_statusTrackingDisabled() throws Exception {
-    createFakeQuestions();
-    createFakeProgram();
-
-    CsvExporterService exporterService =
-        new CsvExporterService(
-            instanceOf(ProgramService.class),
-            instanceOf(QuestionService.class),
-            instanceOf(ApplicantService.class),
-            featureFlags,
-            instanceOf(Config.class),
-            dateConverter);
-
-    CSVParser parser =
-        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
-    List<CSVRecord> records = parser.getRecords();
-
-    assertThat(records).hasSize(0);
-
-    // Status is not present in the headers.
-    assertThat(parser.getHeaderNames())
-        .containsExactly(
-            "Applicant ID", "Application ID", "Applicant language", "Submit time", "Submitted by");
   }
 
   @Test

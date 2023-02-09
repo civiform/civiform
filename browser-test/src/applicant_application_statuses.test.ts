@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -21,7 +20,6 @@ describe('with program statuses', () => {
     const {page, adminPrograms, adminProgramStatuses, applicantQuestions} = ctx
     await loginAsAdmin(page)
 
-    await enableFeatureFlag(page, 'application_status_tracking_enabled')
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     await adminProgramStatuses.createStatus(approvedStatusName)
@@ -33,7 +31,7 @@ describe('with program statuses', () => {
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantQuestions.submitFromPreviewPage()
+    await applicantQuestions.submitFromReviewPage()
     await logout(page)
 
     // Navigate to the submitted application as the program admin and set a status.

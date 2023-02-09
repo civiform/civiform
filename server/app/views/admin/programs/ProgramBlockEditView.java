@@ -7,11 +7,14 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import forms.BlockForm;
 import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
@@ -25,6 +28,7 @@ import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
@@ -33,6 +37,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
 import views.HtmlBundle;
 import views.ViewUtils;
+import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -46,22 +51,52 @@ import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-/** Renders a page for an admin to edit the configuration for a single block of a program. */
-public final class ProgramBlockEditView extends ProgramBlockView {
+/**
+ * Renders a page for an admin to view or edit the configuration for a single block of an active or
+ * draft program.
+ *
+ * <p>For editing drafts this contains elements to:
+ *
+ * <ul>
+ *   <li>Delete the block
+ *   <li>Edit the name and description
+ *   <li>View, add, delete and reorder questions
+ *   <li>View and navigate to the visibility criteria
+ * </ul>
+ *
+ * For viewing an active program, it contains the same elements, but without UI elements that can be
+ * used for editing. TODO(#4019) Rename this to ProgramBlockView
+ */
+public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
   private final AdminLayout layout;
+  private final FeatureFlags featureFlags;
   private final boolean featureFlagOptionalQuestions;
+  private final ProgramDisplayType programDisplayType;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
+  private static final String NOT_YET_IMPLEMENTED_ERROR_MESSAGE =
+      "The read only version of ProgramBlockView is not fully implemented. It should only be "
+          + "used once issue #3162 is closed.";
 
   @Inject
-  public ProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
+  public ProgramBlockEditView(
+      @Assisted ProgramDisplayType programViewType,
+      AdminLayoutFactory layoutFactory,
+      Config config,
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.featureFlags = checkNotNull(featureFlags);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
+    this.programDisplayType = programViewType;
+
+    if (!programDisplayType.equals(DRAFT)) {
+      throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
+    }
   }
 
   public Content render(
@@ -112,13 +147,12 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                         "px-2",
                         StyleUtils.responsive2XLarge("px-16"))
                     .with(
-                        addFormEndpoints(csrfTag, programDefinition.id(), blockId),
                         renderProgramInfo(programDefinition),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
                             .with(blockOrderPanel(request, programDefinition, blockId))
                             .with(
-                                blockEditPanel(
+                                blockPanel(
                                     programDefinition,
                                     blockDefinition,
                                     blockForm,
@@ -126,14 +160,23 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                                     questions,
                                     blockDefinition.isEnumerator(),
                                     csrfTag,
-                                    blockDescriptionEditModal.getButton()))),
-                questionBankPanel(
-                    questions,
-                    programDefinition,
-                    blockDefinition,
-                    csrfTag,
-                    QuestionBank.shouldShowQuestionBank(request)))
-            .addModals(blockDescriptionEditModal);
+                                    blockDescriptionEditModal.getButton(),
+                                    featureFlags.isProgramEligibilityConditionsEnabled(request),
+                                    request))));
+
+    // Add top level UI that is only visible in the editable version.
+    if (viewAllowsEditingProgram()) {
+      htmlBundle
+          .addMainContent(
+              questionBankPanel(
+                  questions,
+                  programDefinition,
+                  blockDefinition,
+                  csrfTag,
+                  QuestionBank.shouldShowQuestionBank(request)))
+          .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
+          .addModals(blockDescriptionEditModal);
+    }
 
     // Add toast messages
     request
@@ -183,14 +226,20 @@ public final class ProgramBlockEditView extends ProgramBlockView {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
         renderBlockList(
-            request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+            request,
+            program,
+            program.getNonRepeatedBlockDefinitions(),
+            focusedBlockId,
+            /* level= */ 0));
 
-    ret.with(
-        ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
-            .withType("submit")
-            .withId("add-block-button")
-            .withForm(CREATE_BLOCK_FORM_ID));
+    if (viewAllowsEditingProgram()) {
+      ret.with(
+          ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
+              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
+              .withType("submit")
+              .withId("add-block-button")
+              .withForm(CREATE_BLOCK_FORM_ID));
+    }
     return ret;
   }
 
@@ -202,18 +251,12 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       int level) {
     DivTag container = div().withClass("pl-" + level * 2);
     for (BlockDefinition blockDefinition : blockDefinitions) {
-      String editBlockLink =
-          controllers.admin.routes.AdminProgramBlocksController.edit(
-                  programDefinition.id(), blockDefinition.id())
-              .url();
 
       // TODO: Not i18n safe.
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
       String blockName = blockDefinition.name();
 
-      DivTag moveButtons =
-          blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
       String selectedClasses = blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
       DivTag blockTag =
           div()
@@ -226,13 +269,25 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                   "border",
                   "border-white",
                   StyleUtils.hover("border-gray-300"),
-                  selectedClasses)
-              .with(
-                  a().withClasses("flex-grow", "overflow-hidden")
-                      .withHref(editBlockLink)
-                      .with(p(blockName), p(questionCountText).withClasses("text-sm")))
-              .with(moveButtons);
-
+                  selectedClasses);
+      String switchBlockLink;
+      if (viewAllowsEditingProgram()) {
+        switchBlockLink =
+            controllers.admin.routes.AdminProgramBlocksController.edit(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+      } else {
+        throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
+      }
+      blockTag.with(
+          a().withClasses("flex-grow", "overflow-hidden")
+              .withHref(switchBlockLink)
+              .with(p(blockName), p(questionCountText).withClasses("text-sm")));
+      if (viewAllowsEditingProgram()) {
+        DivTag moveButtons =
+            blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
+        blockTag.with(moveButtons);
+      }
       container.with(blockTag);
 
       // Recursively add repeated blocks indented under their enumerator block
@@ -287,12 +342,10 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
-    DivTag moveButtons =
-        div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
-    return moveButtons;
+    return div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
   }
 
-  private DivTag blockEditPanel(
+  private DivTag blockPanel(
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       BlockForm blockForm,
@@ -300,7 +353,9 @@ public final class ProgramBlockEditView extends ProgramBlockView {
       ImmutableList<QuestionDefinition> allQuestions,
       boolean blockDefinitionIsEnumerator,
       InputTag csrfTag,
-      ButtonTag blockDescriptionModalButton) {
+      ButtonTag blockDescriptionModalButton,
+      boolean isProgramEligibilityConditionsEnabled,
+      Request request) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
     final boolean canDelete =
@@ -312,25 +367,88 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
             .withClasses("my-4");
 
-    DivTag predicateDisplay =
-        renderPredicate(
+    DivTag visibilityPredicateDisplay =
+        renderVisibilityPredicate(
             program.id(),
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
             blockDefinition.name(),
             allQuestions);
 
+    Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
+    if (isProgramEligibilityConditionsEnabled) {
+      maybeEligibilityPredicateDisplay =
+          Optional.of(
+              renderEligibilityPredicate(
+                  program.id(),
+                  blockDefinition.id(),
+                  blockDefinition.eligibilityDefinition(),
+                  blockDefinition.name(),
+                  allQuestions));
+    }
+
+    DivTag programQuestions = div();
+    IntStream.range(0, blockQuestions.size())
+        .forEach(
+            index -> {
+              var question = blockQuestions.get(index);
+              programQuestions.with(
+                  renderQuestion(
+                      csrfTag,
+                      program,
+                      blockDefinition,
+                      question.getQuestionDefinition(),
+                      canDelete,
+                      question.optional(),
+                      question.addressCorrectionEnabled(),
+                      index,
+                      blockQuestions.size(),
+                      request));
+            });
+
+    DivTag div = div().withClasses("w-7/12", "py-6", "px-4");
+
+    // UI elements for editing are only needed when we view a draft
+    if (viewAllowsEditingProgram()) {
+      DivTag buttons =
+          blockPanelButtons(
+              program, blockDefinitionIsEnumerator, blockDescriptionModalButton, canDelete);
+      ButtonTag addQuestion =
+          makeSvgTextButton("Add a question", Icons.ADD)
+              .withClasses(
+                  AdminStyles.PRIMARY_BUTTON_STYLES,
+                  ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                  "my-4");
+
+      div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
+      maybeEligibilityPredicateDisplay.ifPresent(div::with);
+      return div.with(programQuestions, addQuestion);
+    } else {
+      div.with(blockInfoDisplay, visibilityPredicateDisplay);
+      maybeEligibilityPredicateDisplay.ifPresent(div::with);
+      return div.with(programQuestions);
+    }
+  }
+
+  private DivTag blockPanelButtons(
+      ProgramDefinition program,
+      boolean blockDefinitionIsEnumerator,
+      ButtonTag blockDescriptionModalButton,
+      boolean canDelete) {
+
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
+
+    // Buttons are only needed when the view is used for editing
     buttons.with(blockDescriptionModalButton);
-    if (blockDefinitionIsEnumerator) {
-      buttons.with(
-          button("Create repeated screen")
-              .withType("submit")
-              .withId("create-repeated-block-button")
-              .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
-    }
+    buttons.condWith(
+        blockDefinitionIsEnumerator,
+        button("Create repeated screen")
+            .withType("submit")
+            .withId("create-repeated-block-button")
+            .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
+
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?
     if (program.blockDefinitions().size() > 1) {
@@ -349,70 +467,84 @@ public final class ProgramBlockEditView extends ProgramBlockView {
                   "my-1",
                   StyleUtils.disabled("opacity-50")));
     }
-
-    DivTag programQuestions = div();
-    IntStream.range(0, blockQuestions.size())
-        .forEach(
-            index -> {
-              var question = blockQuestions.get(index);
-              programQuestions.with(
-                  renderQuestion(
-                      csrfTag,
-                      program.id(),
-                      blockDefinition.id(),
-                      question.getQuestionDefinition(),
-                      canDelete,
-                      question.optional(),
-                      index,
-                      blockQuestions.size()));
-            });
-
-    ButtonTag addQuestion =
-        makeSvgTextButton("Add a question", Icons.ADD)
-            .withClasses(
-                AdminStyles.PRIMARY_BUTTON_STYLES,
-                ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                "my-4");
-
-    return div()
-        .withClasses("w-7/12", "py-6", "px-4")
-        .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions, addQuestion);
+    return buttons;
   }
 
-  private DivTag renderPredicate(
+  private DivTag renderVisibilityPredicate(
       long programId,
       long blockId,
       Optional<PredicateDefinition> predicate,
       String blockName,
       ImmutableList<QuestionDefinition> questions) {
-    String currentBlockStatus =
+    DivTag currentBlockStatus =
         predicate.isEmpty()
-            ? "This screen is always shown."
-            : predicate.get().toDisplayString(blockName, questions);
+            ? div("This screen is always shown.")
+            : renderExistingPredicate(blockName, predicate.get(), questions);
 
-    ButtonTag editScreenButton =
-        ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
-            .withId(ReferenceClasses.EDIT_PREDICATE_BUTTON);
-    return div()
-        .withClasses("my-4")
-        .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
-        .with(div(currentBlockStatus).withClasses("text-lg", "max-w-prose"))
-        .with(
-            asRedirectElement(
-                editScreenButton,
-                routes.AdminProgramBlockPredicatesController.edit(programId, blockId).url()));
+    DivTag div =
+        div()
+            .withClasses("my-4")
+            .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
+            .with(currentBlockStatus.withClasses("text-lg", "max-w-prose"));
+
+    if (viewAllowsEditingProgram()) {
+      ButtonTag editScreenButton =
+          ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
+              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+              .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_BUTTON);
+      div.with(
+          asRedirectElement(
+              editScreenButton,
+              routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockId)
+                  .url()));
+    }
+    return div;
+  }
+
+  private DivTag renderEligibilityPredicate(
+      long programId,
+      long blockId,
+      Optional<EligibilityDefinition> predicate,
+      String blockName,
+      ImmutableList<QuestionDefinition> questions) {
+    DivTag currentBlockStatus =
+        predicate.isEmpty()
+            ? div(
+                "You can add eligibility conditions to help you screen out applicants who do not"
+                    + " meet the minimum requirements for a program early in the application"
+                    + " process.")
+            : renderExistingPredicate(blockName, predicate.get().predicate(), questions);
+    DivTag div =
+        div()
+            .withClasses("my-4")
+            .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
+            .with(currentBlockStatus.withClasses("text-lg", "max-w-prose"));
+
+    if (viewAllowsEditingProgram()) {
+      ButtonTag editScreenButton =
+          ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
+              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+              .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_BUTTON);
+      div.with(
+          asRedirectElement(
+              editScreenButton,
+              routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockId)
+                  .url()));
+    }
+    return div;
   }
 
   private DivTag renderQuestion(
       InputTag csrfTag,
-      long programDefinitionId,
-      long blockDefinitionId,
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition,
       QuestionDefinition questionDefinition,
       boolean canRemove,
       boolean isOptional,
+      boolean addressCorrectionEnabled,
       int questionIndex,
-      int questionsCount) {
+      int questionsCount,
+      Request request) {
     DivTag ret =
         div()
             .withClasses(
@@ -445,23 +577,39 @@ public final class ProgramBlockEditView extends ProgramBlockView {
 
     Optional<FormTag> maybeOptionalToggle =
         optionalToggle(
-            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional);
+            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
+
+    Optional<FormTag> maybeAddressCorrectionEnabledToggle =
+        addressCorrectionEnabledToggle(
+            request,
+            csrfTag,
+            programDefinition,
+            blockDefinition,
+            questionDefinition,
+            addressCorrectionEnabled);
 
     ret.with(icon, content);
-    if (maybeOptionalToggle.isPresent()) {
-      ret.with(maybeOptionalToggle.get());
+    maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
+    // UI for editing is only added if we are viewing a draft.
+    if (viewAllowsEditingProgram()) {
+      maybeOptionalToggle.ifPresent(ret::with);
+      ret.with(
+          this.createMoveQuestionButtonsSection(
+              csrfTag,
+              programDefinition.id(),
+              blockDefinition.id(),
+              questionDefinition,
+              questionIndex,
+              questionsCount));
+      ret.with(
+          deleteQuestionForm(
+              csrfTag,
+              programDefinition.id(),
+              blockDefinition.id(),
+              questionDefinition,
+              canRemove));
     }
-    ret.with(
-        this.createMoveQuestionButtonsSection(
-            csrfTag,
-            programDefinitionId,
-            blockDefinitionId,
-            questionDefinition,
-            questionIndex,
-            questionsCount));
-    return ret.with(
-        deleteQuestionForm(
-            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
+    return ret;
   }
 
   private DivTag createMoveQuestionButtonsSection(
@@ -581,6 +729,85 @@ public final class ProgramBlockEditView extends ProgramBlockView {
             .with(optionalButton));
   }
 
+  private Optional<FormTag> addressCorrectionEnabledToggle(
+      Request request,
+      InputTag csrfTag,
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition,
+      QuestionDefinition questionDefinition,
+      boolean addressCorrectionEnabled) {
+    if (!questionDefinition.isAddress()) {
+      return Optional.empty();
+    }
+
+    boolean questionIsUsedInPredicate =
+        programDefinition.isQuestionUsedInPredicate(questionDefinition.getId());
+
+    String toolTipText =
+        "Enabling address correction will check the resident's address to ensure it is accurate.";
+    if (!featureFlags.isEsriAddressCorrectionEnabled(request)) {
+      toolTipText +=
+          " To use this feature, you will need to have your IT manager configure the GIS service.";
+    }
+    if (questionIsUsedInPredicate) {
+      toolTipText +=
+          " Questions used in visibility or eligibility conditions must have address correction"
+              + " enabled.";
+    }
+
+    ButtonTag addressCorrectionButton =
+        TagCreator.button()
+            .withClasses(
+                "flex",
+                "gap-2",
+                "items-center",
+                addressCorrectionEnabled ? "text-black" : "text-gray-400",
+                "font-medium",
+                "bg-transparent",
+                "rounded-full",
+                StyleUtils.hover("bg-gray-400", "text-gray-300"))
+            .withType("submit")
+            .with(p("Address correction").withClasses("hover-group:text-white"))
+            .with(
+                div()
+                    .withClasses("relative")
+                    .with(
+                        div()
+                            .withClasses(
+                                addressCorrectionEnabled ? "bg-blue-600" : "bg-gray-600",
+                                "w-14",
+                                "h-8",
+                                "rounded-full"))
+                    .with(
+                        div()
+                            .withClasses(
+                                "absolute",
+                                "bg-white",
+                                addressCorrectionEnabled ? "right-1" : "left-1",
+                                "top-1",
+                                "w-6",
+                                "h-6",
+                                "rounded-full")))
+            .with(div(ViewUtils.makeSvgToolTip(toolTipText, Icons.HELP)));
+    String toggleAddressCorrectionAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
+                programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
+            .url();
+    return Optional.of(
+        form(csrfTag)
+            .withMethod(HttpVerbs.POST)
+            .withCondOnsubmit(
+                !featureFlags.isEsriAddressCorrectionEnabled(request) || questionIsUsedInPredicate,
+                "return false;")
+            .withAction(toggleAddressCorrectionAction)
+            .with(
+                input()
+                    .isHidden()
+                    .withName("addressCorrectionEnabled")
+                    .withValue(addressCorrectionEnabled ? "false" : "true"))
+            .with(addressCorrectionButton));
+  }
+
   private FormTag deleteQuestionForm(
       InputTag csrfTag,
       long programDefinitionId,
@@ -683,5 +910,36 @@ public final class ProgramBlockEditView extends ProgramBlockView {
 
   private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {
     return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
+  }
+
+  private boolean viewAllowsEditingProgram() {
+    return programDisplayType.equals(DRAFT);
+  }
+
+  @Override
+  protected String getEditButtonText() {
+    if (viewAllowsEditingProgram()) {
+      return "Edit program details";
+    } else {
+      return "Edit Program";
+    }
+  }
+
+  @Override
+  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
+    if (viewAllowsEditingProgram()) {
+      return routes.AdminProgramController.edit(programDefinition.id()).url();
+    }
+    // TODO(#3162) add the route once a read only navigation option is available
+    throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
+  }
+
+  @Override
+  protected ProgramDisplayType getProgramDisplayStatus() {
+    return programDisplayType;
+  }
+
+  public interface Factory {
+    ProgramBlockEditView create(ProgramDisplayType type);
   }
 }

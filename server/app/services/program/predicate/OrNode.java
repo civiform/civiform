@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -18,19 +17,32 @@ import services.question.types.QuestionDefinition;
 @AutoValue
 public abstract class OrNode implements ConcretePredicateExpressionNode {
 
+  /**
+   * Create a new OR node.
+   *
+   * @param children the child nodes of this OR node. Ordering is preserved.
+   */
   @JsonCreator
   public static OrNode create(
-      @JsonProperty("children") ImmutableSet<PredicateExpressionNode> children) {
+      @JsonProperty("children") ImmutableList<PredicateExpressionNode> children) {
     return new AutoValue_OrNode(children);
   }
 
+  /** The child nodes of this OR node. Ordering is stable. */
   @JsonProperty("children")
-  public abstract ImmutableSet<PredicateExpressionNode> children();
+  public abstract ImmutableList<PredicateExpressionNode> children();
 
   @Override
   @JsonIgnore
   public PredicateExpressionNodeType getType() {
     return PredicateExpressionNodeType.OR;
+  }
+
+  @Override
+  @JsonIgnore
+  public void accept(PredicateExpressionNodeVisitor visitor) {
+    children().stream().forEach(child -> child.accept(visitor));
+    visitor.visit(this);
   }
 
   @Override

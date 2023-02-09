@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -21,9 +23,11 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -45,7 +49,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   public ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
-    this(applicantData, programDefinition, baseUrl, ImmutableMap.of());
+    this(applicantData, programDefinition, baseUrl, /* failedUpdates= */ ImmutableMap.of());
   }
 
   protected ReadOnlyApplicantProgramServiceImpl(
@@ -72,6 +76,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public Long getProgramId() {
+    return this.programDefinition.id();
+  }
+
+  @Override
   public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)
@@ -82,6 +91,34 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         .map(FileUploadQuestion::getFileKeyValue)
         .flatMap(Optional::stream)
         .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public boolean isApplicationEligible() {
+    return getAllActiveBlocks().stream().allMatch(block -> isBlockEligible(block.getId()));
+  }
+
+  @Override
+  public boolean isApplicationNotEligible() {
+    return getAllActiveBlocks().stream()
+        .anyMatch(
+            block ->
+                block.getQuestions().stream()
+                    .anyMatch(
+                        question ->
+                            !isQuestionEligibleInBlock(block, question) && question.isAnswered()));
+  }
+
+  @Override
+  public boolean isBlockEligible(String blockId) {
+    Block block = getBlock(blockId).get();
+    Optional<PredicateDefinition> predicate =
+        block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
+    // No eligibility criteria means the block is eligible.
+    if (predicate.isEmpty()) {
+      return true;
+    }
+    return evaluatePredicate(block, predicate.get());
   }
 
   @Override
@@ -115,6 +152,27 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public ImmutableList<ApplicantQuestion> getActiveEligibilityQuestions() {
+    ImmutableList<Block> blocks = getAllActiveBlocks();
+    List<ApplicantQuestion> questionList = new ArrayList<>();
+    for (Block block : blocks) {
+      if (block.getEligibilityDefinition().isPresent()) {
+        ImmutableList<Long> eligibilityQuestions =
+            block.getEligibilityDefinition().get().predicate().getQuestions();
+        eligibilityQuestions.forEach(
+            question -> {
+              try {
+                questionList.add(block.getQuestion(question.longValue()));
+              } catch (QuestionNotFoundException e) {
+                throw new RuntimeException(e);
+              }
+            });
+      }
+    }
+    return questionList.stream().distinct().collect(toImmutableList());
+  }
+
+  @Override
   public Optional<Block> getBlock(String blockId) {
     return getAllActiveBlocks().stream()
         .filter((block) -> block.getId().equals(blockId))
@@ -145,13 +203,15 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return -1;
   }
 
+  /** Returns the first block with an unanswered question or static block. */
   @Override
-  public Optional<Block> getFirstIncompleteBlock() {
+  public Optional<Block> getFirstIncompleteOrStaticBlock() {
     return getInProgressBlocks().stream()
         .filter(block -> !block.isCompletedInProgramWithoutErrors() || block.containsStatic())
         .findFirst();
   }
 
+  /** Returns the first block with an unanswered question. */
   @Override
   public Optional<Block> getFirstIncompleteBlockExcludingStatic() {
     return getInProgressBlocks().stream()
@@ -178,7 +238,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           continue;
         }
         boolean isAnswered = question.isAnswered();
+        boolean isEligible = isQuestionEligibleInBlock(block, question);
         String questionText = question.getQuestionText();
+        String questionTextForScreenReader = question.getQuestionTextForScreenReader();
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
@@ -204,7 +266,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
+                .setQuestionTextForScreenReader(questionTextForScreenReader)
                 .setIsAnswered(isAnswered)
+                .setIsEligible(isEligible)
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
                 .setOriginalFileName(originalFileName)
@@ -232,6 +296,20 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         emptyBlockIdSuffix,
         Optional.empty(),
         includeBlockIfTrue);
+  }
+
+  /**
+   * True if the {@link ApplicantQuestion} is eligible in the given {@link Block}. If the block is
+   * not eligible, check if the question is part of that eligibility condition.
+   */
+  private boolean isQuestionEligibleInBlock(Block block, ApplicantQuestion question) {
+    return isBlockEligible(block.getId())
+        || !block
+            .getEligibilityDefinition()
+            .get()
+            .predicate()
+            .getQuestions()
+            .contains(question.getQuestionDefinition().getId());
   }
 
   /**
@@ -313,21 +391,24 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   private boolean evaluateVisibility(Block block, PredicateDefinition predicate) {
+    boolean evaluation = evaluatePredicate(block, predicate);
+    switch (predicate.action()) {
+      case HIDE_BLOCK:
+        return !evaluation;
+      case SHOW_BLOCK:
+        return evaluation;
+      default:
+        return true;
+    }
+  }
+
+  private boolean evaluatePredicate(Block block, PredicateDefinition predicate) {
     JsonPathPredicateGenerator predicateGenerator =
         new JsonPathPredicateGenerator(
             this.programDefinition.streamQuestionDefinitions().collect(toImmutableList()),
             block.getRepeatedEntity());
-    PredicateEvaluator predicateEvaluator =
-        new PredicateEvaluator(this.applicantData, predicateGenerator);
-
-    switch (predicate.action()) {
-      case HIDE_BLOCK:
-        return !predicateEvaluator.evaluate(predicate.rootNode());
-      case SHOW_BLOCK:
-        return predicateEvaluator.evaluate(predicate.rootNode());
-      default:
-        return true;
-    }
+    return new PredicateEvaluator(this.applicantData, predicateGenerator)
+        .evaluate(predicate.rootNode());
   }
 
   /**

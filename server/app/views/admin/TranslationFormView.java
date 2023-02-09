@@ -95,7 +95,8 @@ public abstract class TranslationFormView extends BaseHtmlView {
                         String.format(
                             "Save %s updates",
                             locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
-                    .withId("update-localizations-button"));
+                    .withId("update-localizations-button")
+                    .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES));
     return form;
   }
 

@@ -50,7 +50,6 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getStreetPath().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STREET.getKeyName()))
-            .setPlaceholderText(messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
             .setAutocomplete(Optional.of("address-line1"))
             .setValue(addressQuestion.getStreetValue().orElse(""))
             .setFieldErrors(
@@ -62,7 +61,6 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
         FieldWithLabel.input()
             .setFieldName(addressQuestion.getLine2Path().toString())
             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_LINE_2.getKeyName()))
-            .setPlaceholderText(messages.at(MessageKey.ADDRESS_PLACEHOLDER_LINE_2.getKeyName()))
             .setAutocomplete(Optional.of("address-line2"))
             .setValue(addressQuestion.getLine2Value().orElse(""))
             .setFieldErrors(

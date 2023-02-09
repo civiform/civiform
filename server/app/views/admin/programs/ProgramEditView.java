@@ -65,9 +65,9 @@ public final class ProgramEditView extends ProgramFormBuilder {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ATag buildManageQuestionLink(long id) {
+  private ATag buildManageQuestionLink(long programId) {
     String manageQuestionLink =
-        controllers.admin.routes.AdminProgramBlocksController.index(id).url();
+        controllers.admin.routes.AdminProgramBlocksController.index(programId).url();
     return new LinkElement()
         .setId("manage-questions-link")
         .setHref(manageQuestionLink)

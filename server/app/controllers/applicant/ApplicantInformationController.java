@@ -83,7 +83,8 @@ public final class ApplicantInformationController extends CiviFormController {
                         applicantStage.toCompletableFuture().join(),
                         messagesApi.preferred(ImmutableSet.of(Lang.defaultLang())),
                         applicantId,
-                        redirectTo)),
+                        redirectTo,
+                        profileUtils.currentUserProfile(request).get().isTrustedIntermediary())),
             httpExecutionContext.current())
         .exceptionally(
             ex -> {

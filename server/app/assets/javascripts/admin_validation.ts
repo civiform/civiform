@@ -1,4 +1,5 @@
 /** The validation controller provides basic client-side validation of admin form fields. */
+
 class AdminValidationController {
   static readonly MULTI_OPTION_QUESTION_FIELD_NAME_CREATE =
     '#question-settings input[name="newOptions[]"]'
@@ -35,14 +36,12 @@ class AdminValidationController {
     fieldErrorName: string,
     isValid: boolean,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const errorDiv = element.parentElement!.querySelector(fieldErrorName)
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid)
     }
 
     // Also toggle the border on error inputs (if applicable).
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const field = element.parentElement!.querySelector('input')
     if (field) {
       field.classList.toggle('border-red-600', !isValid)
@@ -77,10 +76,8 @@ class AdminValidationController {
    * */
   private validateMultiOptionQuestionCreate(): boolean {
     const options = Array.from(
-      <NodeListOf<HTMLInputElement>>(
-        document.querySelectorAll(
-          AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_CREATE,
-        )
+      document.querySelectorAll<HTMLInputElement>(
+        AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_CREATE,
       ),
     )
     return this.validateMultiOptionQuestionOptions(options)
@@ -92,15 +89,14 @@ class AdminValidationController {
    * */
   private validateMultiOptionQuestionEdit(): boolean {
     const options = Array.from(
-      <NodeListOf<HTMLInputElement>>(
-        document.querySelectorAll(
-          AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_EDIT,
-        )
+      document.querySelectorAll<HTMLInputElement>(
+        AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_EDIT,
       ),
     )
     return this.validateMultiOptionQuestionOptions(options)
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const adminValidationController = new AdminValidationController()
+export function init() {
+  new AdminValidationController()
+}

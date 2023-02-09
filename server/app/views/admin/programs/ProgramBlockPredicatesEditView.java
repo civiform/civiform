@@ -11,6 +11,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -23,20 +24,25 @@ import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.UUID;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
+import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -51,17 +57,15 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a page for editing predicates of a block in a program. */
-public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
-  private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
-  private static final String H2_NEW_VISIBILITY_CONDITION = "New visibility condition";
-  private static final String TEXT_NO_VISIBILITY_CONDITIONS = "This screen is always shown.";
-  private static final String TEXT_NO_AVAILABLE_QUESTIONS =
-      "There are no available questions with which to set a visibility condition for this screen.";
-  private static final String TEXT_NEW_VISIBILITY_CONDITION =
-      "Apply a visibility condition using a question below. When you create a visibility"
-          + " condition, it replaces the present one.";
+public final class ProgramBlockPredicatesEditView extends ProgramBlockBaseView {
 
   private final AdminLayout layout;
+
+  // The functionality type of the predicate editor.
+  public enum ViewType {
+    ELIGIBILITY,
+    VISIBILITY
+  }
 
   @Inject
   public ProgramBlockPredicatesEditView(AdminLayoutFactory layoutFactory) {
@@ -87,33 +91,93 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       Http.Request request,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
-      ImmutableList<QuestionDefinition> predicateQuestions) {
+      ImmutableList<QuestionDefinition> predicateQuestions,
+      ViewType viewType) {
+    String blockName = blockDefinition.name();
 
-    String title = String.format("Visibility condition for %s", blockDefinition.name());
+    // This render code is used to render eligibility and visibility predicate editors.
+    // The following vars set the per-type visual and url values and the rest lays things out
+    // identically for the most part.
+
+    final Optional<PredicateDefinition> predicateDef;
+    final String modalTitle;
+    final String predicateTypeNameTitleCase;
+    final String h2CurrentCondition;
+    final String textNoConditions;
+    final String h2NewCondition;
+    final String textNewCondition;
+    final String textNoAvailableQuestions;
+    final String predicateUpdateUrl;
+    final String removePredicateUrl;
+    switch (viewType) {
+      case ELIGIBILITY:
+        predicateDef =
+            blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
+
+        modalTitle = String.format("Add an eligibility condition for %s", blockName);
+        predicateTypeNameTitleCase = "Eligibility";
+        h2CurrentCondition = "Current eligibility condition";
+        textNoConditions = "This screen is always eligible.";
+        h2NewCondition = "New eligibility condition";
+        textNewCondition =
+            "Apply a eligibility condition using a question below. When you create a eligibility"
+                + " condition, it replaces the present one.";
+        textNoAvailableQuestions =
+            "There are no available questions with which to set an eligibility condition for this"
+                + " screen.";
+        predicateUpdateUrl =
+            routes.AdminProgramBlockPredicatesController.updateEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        removePredicateUrl =
+            routes.AdminProgramBlockPredicatesController.destroyEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        break;
+      case VISIBILITY:
+        predicateDef = blockDefinition.visibilityPredicate();
+        modalTitle = String.format("Add a visibility condition for %s", blockName);
+        predicateTypeNameTitleCase = "Visibility";
+        h2CurrentCondition = "Current visibility condition";
+        textNoConditions = "This screen is always shown.";
+        h2NewCondition = "New visibility condition";
+        textNewCondition =
+            "Apply a visibility condition using a question below. When you create a visibility"
+                + " condition, it replaces the present one.";
+        textNoAvailableQuestions =
+            "There are no available questions with which to set a visibility condition for this"
+                + " screen.";
+        predicateUpdateUrl =
+            routes.AdminProgramBlockPredicatesController.updateVisibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        removePredicateUrl =
+            routes.AdminProgramBlockPredicatesController.destroyVisibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        break;
+      default:
+        throw new IllegalArgumentException(
+            String.format("Predicate type %s is unsupported.", viewType));
+    }
     InputTag csrfTag = makeCsrfTokenInputTag(request);
-
-    String predicateUpdateUrl =
-        routes.AdminProgramBlockPredicatesController.update(
-                programDefinition.id(), blockDefinition.id())
-            .url();
     ImmutableList<Modal> modals =
         createPredicateUpdateFormModals(
-            blockDefinition.name(), predicateQuestions, predicateUpdateUrl, csrfTag);
+            blockName, predicateQuestions, predicateUpdateUrl, modalTitle, viewType, csrfTag);
 
-    String removePredicateUrl =
-        routes.AdminProgramBlockPredicatesController.destroy(
-                programDefinition.id(), blockDefinition.id())
-            .url();
-    String removePredicateFormId = "visibility-predicate-form-remove";
+    String title = String.format("%s condition for %s", predicateTypeNameTitleCase, blockName);
+    String removePredicateFormId = UUID.randomUUID().toString();
     FormTag removePredicateForm =
         form(csrfTag)
             .withId(removePredicateFormId)
             .withMethod(POST)
             .withAction(removePredicateUrl)
             .with(
-                submitButton("Remove visibility condition")
+                submitButton(
+                        String.format(
+                            "Remove %s condition", predicateTypeNameTitleCase.toLowerCase()))
                     .withForm(removePredicateFormId)
-                    .withCondDisabled(blockDefinition.visibilityPredicate().isEmpty()));
+                    .withCondDisabled(predicateDef.isEmpty()));
 
     // Link back to the block editor.
     String editBlockUrl =
@@ -132,32 +196,27 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                     .with(
                         new LinkElement()
                             .setHref(editBlockUrl)
-                            .setText(String.format("Return to edit %s", blockDefinition.name()))
+                            .setText(String.format("Return to edit %s", blockName))
                             .asAnchorText()))
             // Show the current predicate.
             .with(
                 div()
+                    .with(h2(h2CurrentCondition).withClasses("font-semibold", "text-lg"))
                     .with(
-                        h2(H2_CURRENT_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
-                    .with(
-                        div(blockDefinition
-                                .visibilityPredicate()
-                                .map(
-                                    pred ->
-                                        pred.toDisplayString(
-                                            blockDefinition.name(), predicateQuestions))
-                                .orElse(TEXT_NO_VISIBILITY_CONDITIONS))
+                        div(predicateDef
+                                .map(pred -> pred.toDisplayString(blockName, predicateQuestions))
+                                .orElse(textNoConditions))
                             .withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
             // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()
-                    .with(h2(H2_NEW_VISIBILITY_CONDITION).withClasses("font-semibold", "text-lg"))
-                    .with(div(TEXT_NEW_VISIBILITY_CONDITION).withClasses("mb-2"))
+                    .with(h2(h2NewCondition).withClasses("font-semibold", "text-lg"))
+                    .with(div(textNewCondition).withClasses("mb-2"))
                     .with(
                         modals.isEmpty()
-                            ? text(TEXT_NO_AVAILABLE_QUESTIONS)
+                            ? text(textNoAvailableQuestions)
                             : renderPredicateModalTriggerButtons(modals)));
 
     HtmlBundle htmlBundle =
@@ -184,12 +243,14 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       String blockName,
       ImmutableList<QuestionDefinition> questionDefinitions,
       String predicateUpdateUrl,
+      String modalTitle,
+      ViewType viewType,
       InputTag csrfTag) {
     ImmutableList.Builder<Modal> builder = ImmutableList.builder();
     for (QuestionDefinition qd : questionDefinitions) {
       builder.add(
           createQuestionViewAndPredicateUpdateFormModal(
-              blockName, qd, predicateUpdateUrl, csrfTag));
+              blockName, qd, predicateUpdateUrl, modalTitle, viewType, csrfTag));
     }
     return builder.build();
   }
@@ -204,6 +265,8 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       String blockName,
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
+      String modalTitle,
+      ViewType viewType,
       InputTag csrfTag) {
     String questionHelpText =
         questionDefinition.getQuestionHelpText().isEmpty()
@@ -231,11 +294,11 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
             .withClasses("m-4")
             .with(
                 renderPredicateUpdateForm(
-                    blockName, questionDefinition, predicateUpdateUrl, csrfTag));
+                    blockName, questionDefinition, predicateUpdateUrl, viewType, csrfTag));
 
     return Modal.builder(
             String.format("predicate-modal-%s", questionDefinition.getId()), modalContent)
-        .setModalTitle(String.format("Add a visibility condition for %s", blockName))
+        .setModalTitle(modalTitle)
         .setTriggerButtonContent(triggerButtonContent)
         .setTriggerButtonStyles(AdminStyles.BUTTON_QUESTION_PREDICATE)
         .build();
@@ -249,14 +312,19 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
       String blockName,
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
+      ViewType viewType,
       InputTag csrfTag) {
-    String formId = String.format("visibility-predicate-form-%s", questionDefinition.getId());
+    String formId = UUID.randomUUID().toString();
 
-    return form(csrfTag)
-        .withId(formId)
-        .withMethod(POST)
-        .withAction(predicateUpdateUrl)
-        .with(createActionDropdown(blockName))
+    var updateForm = form(csrfTag).withId(formId).withMethod(POST).withAction(predicateUpdateUrl);
+
+    if (viewType.equals(ViewType.ELIGIBILITY)) {
+      updateForm.with(createEligibilityHiddenAction());
+    } else if (viewType.equals(ViewType.VISIBILITY)) {
+      updateForm.with(createVisibilityActionDropdown(blockName));
+    }
+
+    return updateForm
         .with(renderQuestionDefinitionBox(questionDefinition))
         // Need to pass in the question ID with the rest of the form data in order to save the
         // correct predicate. However, this field's value is already known and set by the time the
@@ -295,9 +363,17 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                         .withClasses("mt-1", "text-sm")));
   }
 
-  private DivTag createActionDropdown(String blockName) {
+  private InputTag createEligibilityHiddenAction() {
+    return input()
+        .withName("predicateAction")
+        .withType("hidden")
+        .withValue(PredicateAction.ELIGIBLE_BLOCK.name());
+  }
+
+  private DivTag createVisibilityActionDropdown(String blockName) {
+    var actions = ImmutableList.of(PredicateAction.HIDE_BLOCK, PredicateAction.SHOW_BLOCK);
     ImmutableList<SelectWithLabel.OptionValue> actionOptions =
-        Arrays.stream(PredicateAction.values())
+        actions.stream()
             .map(
                 action ->
                     SelectWithLabel.OptionValue.builder()
@@ -323,7 +399,11 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   private DivTag createScalarDropdown(QuestionDefinition questionDefinition) {
     ImmutableSet<Scalar> scalars;
     try {
-      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+      // The old predicate creation endpoint does not support service areas
+      scalars =
+          Scalar.getScalars(questionDefinition.getQuestionType()).stream()
+              .filter(scalar -> !scalar.equals(Scalar.SERVICE_AREA))
+              .collect(ImmutableSet.toImmutableSet());
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       // This should never happen since we filter out Enumerator questions before this point.
       return div()
@@ -351,6 +431,8 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
   private DivTag createOperatorDropdown() {
     ImmutableList<OptionTag> operatorOptions =
         Arrays.stream(Operator.values())
+            // The old predicate creation endpoint does not support service areas
+            .filter(operator -> !operator.equals(Operator.IN_SERVICE_AREA))
             .map(
                 operator -> {
                   // Add this operator's allowed scalar types as data, so that we can determine
@@ -409,5 +491,20 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockView {
                       BaseStyles.FORM_LABEL_TEXT_COLOR)
                   .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
     }
+  }
+
+  @Override
+  protected String getEditButtonText() {
+    return "Edit program details";
+  }
+
+  @Override
+  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
+    return routes.AdminProgramController.edit(programDefinition.id()).url();
+  }
+
+  @Override
+  protected ProgramDisplayType getProgramDisplayStatus() {
+    return DRAFT;
   }
 }

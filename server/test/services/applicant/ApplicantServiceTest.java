@@ -32,15 +32,24 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationNotEligibleException;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.program.EligibilityDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.StatusDefinitions;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.CheckboxQuestionDefinition;
@@ -53,7 +62,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   private ApplicantService subject;
   private QuestionService questionService;
-  private QuestionDefinition questionDefinition;
+  private NameQuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
   private UserRepository userRepository;
   private ApplicationRepository applicationRepository;
@@ -84,7 +93,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We make the question optional since it's not valid to stage empty updates
     // for a required question.
     createProgramWithOptionalQuestion(questionDefinition);
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of())
         .toCompletableFuture()
@@ -106,7 +115,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We make the question optional since it's not valid to update a required
     // question with an empty string (done below).
     createProgramWithOptionalQuestion(questionDefinition);
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Path questionPath = Path.create("applicant.name");
 
     // Put something in there
@@ -148,7 +157,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We make the question optional since it's not valid to stage empty updates
     createProgramWithOptionalQuestion(
         testQuestionBank.applicantKitchenTools().getQuestionDefinition());
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Path questionPath = Path.create("applicant.kitchen_tools");
 
     // Put checkbox answer in
@@ -198,7 +207,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         currencyQuestion.getQuestionDefinition(),
         numberQuestion.getQuestionDefinition());
 
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     // Stage invalid updates for each question.
     ImmutableMap<String, String> updates =
@@ -241,7 +250,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We make the question optional since it's not valid to stage empty updates
     createProgramWithOptionalQuestion(
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
@@ -310,7 +319,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .buildDefinition();
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(
             testQuestionBank
@@ -366,7 +375,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_withUpdates_isOk() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
@@ -387,7 +396,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_updatesMetadataForQuestionOnce() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
@@ -429,7 +438,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We make the question optional since it's not valid to stage empty updates
     createProgramWithOptionalQuestion(multiSelectQuestion);
 
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     Path checkboxPath = Path.create("applicant.checkbox").join(Scalar.SELECTIONS).asArrayElement();
     ImmutableMap<String, String> updates =
@@ -489,7 +498,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
     createProgram(enumeratorQuestionDefinition);
 
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
@@ -521,7 +530,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We make the question optional since it's not valid to stage empty updates
     createProgramWithOptionalQuestion(enumeratorQuestionDefinition);
 
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
@@ -557,7 +566,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_hasProgramNotFoundException() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ImmutableMap<String, String> updates = ImmutableMap.of();
     long badProgramId = programDefinition.id() + 1000L;
 
@@ -575,7 +584,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_hasProgramBlockNotFoundException() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ImmutableMap<String, String> updates = ImmutableMap.of();
     String badBlockId = "100";
 
@@ -594,7 +603,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_hasPathNotInBlockException() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ImmutableMap<String, String> updates =
         ImmutableMap.of(
             Path.create("applicant.name.first").toString(), "Alice",
@@ -614,7 +623,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_hasIllegalArgumentExceptionForReservedMetadataScalarKeys() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     String reservedScalar = Path.create("applicant.name").join(Scalar.UPDATED_AT).toString();
     ImmutableMap<String, String> updates = ImmutableMap.of(reservedScalar, "12345");
 
@@ -632,7 +641,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void
       stageAndUpdateIfValid_withIllegalArrayElement_hasIllegalArgumentExceptionForReservedMetadataScalarKeys() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     String reservedScalar =
         Path.create("applicant.name")
             .join(Scalar.UPDATED_AT)
@@ -654,14 +663,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void createApplicant_createsANewApplicant() {
-    Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     assertThat(applicant.id).isNotNull();
   }
 
   @Test
   public void createApplicant_ApplicantTime() {
-    Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     Instant t = Instant.now();
 
@@ -671,7 +680,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getReadOnlyApplicantService_getsReadOnlyApplicantServiceForTheApplicantAndProgram() {
-    Applicant applicant = subject.createApplicant(1l).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     ReadOnlyApplicantProgramService roApplicantProgramService =
         subject
@@ -684,7 +693,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void submitApplication_returnsSavedApplication() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
     ImmutableMap<String, String> updates =
@@ -699,7 +708,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -712,7 +725,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void submitApplication_addsProgramToStoredFileAcls() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
@@ -757,7 +770,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     storedFile.save();
 
     subject
-        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile)
+        .submitApplication(
+            applicant.id,
+            firstProgram.id,
+            trustedIntermediaryProfile,
+            /* eligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -766,7 +783,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsOnly(firstProgram.getProgramDefinition().adminName());
 
     subject
-        .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile)
+        .submitApplication(
+            applicant.id,
+            secondProgram.id,
+            trustedIntermediaryProfile,
+            /* eligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -779,7 +800,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void submitApplication_obsoletesOldApplication() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
     ImmutableMap<String, String> updates =
@@ -794,7 +815,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application oldApplication =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -810,7 +835,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application newApplication =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -834,10 +863,66 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .submitApplication(9999L, 9999L, trustedIntermediaryProfile)
+                    .submitApplication(9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
+        .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void submitApplication_failsWithApplicationNotEligibleException() {
+    createProgramWithEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // First name is matched for eligibility.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        /* eligibilityFeatureEnabled= */ true)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicationNotEligibleException.class)
+        .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void submitApplication_failsWithApplicationOutOfDateException() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        /* eligibilityFeatureEnabled= */ false)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicationOutOfDateException.class)
         .withMessageContaining("Application", "failed to save");
   }
 
@@ -947,7 +1032,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -993,8 +1078,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_otherApplicant() {
-    Applicant primaryApplicant = subject.createApplicant(1L).toCompletableFuture().join();
-    Applicant otherApplicant = subject.createApplicant(2L).toCompletableFuture().join();
+    Applicant primaryApplicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant otherApplicant = subject.createApplicant().toCompletableFuture().join();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -1032,7 +1117,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_withNewerProgramVersion() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     // Create a draft based on the original version of a program.
     Program originalProgramForDraft =
@@ -1090,7 +1175,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // This ensures that the applicant can always see that draft
     // applications for a given program, even if a newer version of the
     // program is hidden from the index.
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     // Create a submitted application based on the original version of a program.
     Program originalProgramForDraftApp =
@@ -1155,7 +1240,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Creates an app + draft app for a program as well as
     // an application for another program and ensures that
     // the submitted timestamp is present.
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
     // Create a submitted application based on the original version of a program.
     Program programForDraftApp =
@@ -1203,7 +1288,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_multipleActiveAndDraftApplications() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -1293,7 +1378,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_withApplicationStatus() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Program program =
         ProgramBuilder.newActiveProgram("program")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
@@ -1323,7 +1408,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_withApplicationStatusAndOlderProgramVersion() {
-    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Program originalProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
@@ -1385,15 +1470,16 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   private void createQuestions() {
     questionDefinition =
-        questionService
-            .create(
-                new NameQuestionDefinition(
-                    "name",
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text")))
-            .getResult();
+        (NameQuestionDefinition)
+            questionService
+                .create(
+                    new NameQuestionDefinition(
+                        "name",
+                        Optional.empty(),
+                        "description",
+                        LocalizedStrings.of(Locale.US, "question?"),
+                        LocalizedStrings.of(Locale.US, "help text")))
+                .getResult();
   }
 
   private void createProgram() {
@@ -1413,6 +1499,31 @@ public class ApplicantServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
             .withOptionalQuestion(question)
+            .buildDefinition();
+  }
+
+  /**
+   * Makes a program with a {@link NameQuestionDefinition} and an eligibility condition that the
+   * question's {@link Scalar.FIRST_NAME} be "eligible name"
+   */
+  private void createProgramWithEligibility(NameQuestionDefinition question) {
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("eligible name"))),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(question))
+            .withEligibilityDefinition(eligibilityDef)
             .buildDefinition();
   }
 }

@@ -34,6 +34,9 @@ validation.isRequired=Su''aashan ayaa loo baahan yahay.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Fadlan geli qiimaha sadar kasta.
 
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=Telefoonkaaga? “Choose File” sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -121,9 +124,6 @@ link.programDetails=Faahfaahinta barnaamijka
 # The same text, read for screen readers.
 link.programDetailsSr=Faahfaahinta barnaamijka ee {0}
 
-# Link text to an external site to read more about a program.
-link.externalLink=Goobta dibadda
-
 # The title of the page for the list of programs.
 title.programs=Barnaamijyada iyo adeegyada
 
@@ -143,21 +143,26 @@ button.submit=Gudbi
 # Continue application button
 button.continue=Sii wad
 
-# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
-link.begin=Halkan ka bilow
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=Uma Qalmo
 
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Wax ka beddel
+link.answer=Jawaab
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Wax ka beddel {0}
 
-# Program Preview Title
-title.programPreview=Aragtida codsiga barnaamijka
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.answer=Jawaab {0}
 
-# Program Review Title
-title.programReview=Dib u eegista codsiga barnaamijka
+# Program Summary Title
+title.programSummary=Soo koobida barnaamijka codsiga
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -185,15 +190,9 @@ content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga
 label.addressLine2=Guri dabaq ah / Lambarka Guriga
 label.city=Magaalada
 label.state=Gobolka
+label.selectState=Dooro Gobolka
 label.street=Ciwaanka Xaafada 1
 label.zipcode=Siib Koodhka
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=Magaalada
-placeholder.line2=Abaarmantka, suite-ka, guriga unitka ah, dhismo, dabaq, iwm.
-placeholder.state=Gobolka
-placeholder.street=Cinwaanka wadada
-placeholder.zipcode=Siib Koodhka
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Fadlan gali magaca wadada saxda ah iyo lambarka.

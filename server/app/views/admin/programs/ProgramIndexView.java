@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
@@ -54,7 +53,6 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final String baseUrl;
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
-  private final FeatureFlags featureFlags;
   private final String civicEntityShortName;
 
   @Inject
@@ -62,13 +60,11 @@ public final class ProgramIndexView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       Config config,
       TranslationLocales translationLocales,
-      ProgramCardFactory programCardFactory,
-      FeatureFlags featureFlags) {
+      ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.featureFlags = checkNotNull(featureFlags);
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
   }
 
@@ -131,8 +127,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(demographicsCsvModal)
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
+            .addModals(demographicsCsvModal);
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
     Http.Flash flash = request.flash();
@@ -317,9 +312,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeManageTranslationsLink.isPresent()) {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
-      if (featureFlags.isStatusTrackingEnabled(request)) {
-        draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      }
+      draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
@@ -366,7 +359,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
     String editLink =
-        controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), 1).url();
+        controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
     String editLinkId = "program-edit-link-" + program.id();
     if (isActive) {
       editLink = controllers.admin.routes.AdminProgramController.newVersionFrom(program.id()).url();

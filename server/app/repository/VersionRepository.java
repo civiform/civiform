@@ -1,7 +1,7 @@
 package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.function.Predicate.not;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -29,6 +29,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.AndNode;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
@@ -325,21 +326,28 @@ public final class VersionRepository {
     switch (node.getType()) {
       case AND:
         AndNode and = node.getAndNode();
-        ImmutableSet<PredicateExpressionNode> updatedAndChildren =
+        ImmutableList<PredicateExpressionNode> updatedAndChildren =
             and.children().stream()
                 .map(this::updatePredicateNodeVersions)
-                .collect(toImmutableSet());
+                .collect(toImmutableList());
         return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
       case OR:
         OrNode or = node.getOrNode();
-        ImmutableSet<PredicateExpressionNode> updatedOrChildren =
-            or.children().stream().map(this::updatePredicateNodeVersions).collect(toImmutableSet());
+        ImmutableList<PredicateExpressionNode> updatedOrChildren =
+            or.children().stream()
+                .map(this::updatePredicateNodeVersions)
+                .collect(toImmutableList());
         return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
       case LEAF_OPERATION:
-        LeafOperationExpressionNode leaf = node.getLeafNode();
+        LeafOperationExpressionNode leaf = node.getLeafOperationNode();
         Optional<Question> updated = getLatestVersionOfQuestion(leaf.questionId());
         return PredicateExpressionNode.create(
             leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
+      case LEAF_ADDRESS_SERVICE_AREA:
+        LeafAddressServiceAreaExpressionNode leafAddress = node.getLeafAddressNode();
+        Optional<Question> updatedQuestion = getLatestVersionOfQuestion(leafAddress.questionId());
+        return PredicateExpressionNode.create(
+            leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
     }
     // ErrorProne will require the switch handle all types since there isn't a default, we should
     // never get here.

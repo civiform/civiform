@@ -16,23 +16,17 @@
   "plugins": ["@typescript-eslint"],
   "rules": {
     "require-jsdoc": "off",
-    "valid-jsdoc": "warn",
+    // valid-jsdoc is deprecated. If we want JSdoc checks we should use
+    // https://github.com/gajus/eslint-plugin-jsdoc with TS-specific settings.
+    "valid-jsdoc": "off",
     // default JS no-unused-vars causes false-positives on TS code. For example
     // enums.
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "error",
-
-    // TODO(#3361): fix and reenable
-    "@typescript-eslint/no-unsafe-member-access": "off",
-    "@typescript-eslint/no-unsafe-assignment": "off",
-    "@typescript-eslint/restrict-plus-operands": "off",
-    "@typescript-eslint/restrict-template-expressions": "off",
-    "@typescript-eslint/require-await": "off",
-    "@typescript-eslint/unbound-method": "off",
-    "@typescript-eslint/no-unsafe-call": "off",
-    "@typescript-eslint/no-unsafe-return": "off",
-    "@typescript-eslint/no-unnecessary-type-assertion": "off",
-    "@typescript-eslint/no-unsafe-argument": "off"
+    "@typescript-eslint/unbound-method": ["error", {"ignoreStatic": true}],
+    // See TypeScript best practices in
+    // https://docs.civiform.us/contributor-guide/developer-guide/development-standards
+    "@typescript-eslint/no-non-null-assertion": "off"
   },
   "parserOptions": {
     "project": ["../server/tsconfig.json", "../browser-test/src/tsconfig.json"]

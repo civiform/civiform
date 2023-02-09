@@ -18,12 +18,28 @@ import play.mvc.Http.Request;
  */
 public final class FeatureFlags {
   private static final Logger logger = LoggerFactory.getLogger(FeatureFlags.class);
+  // Main control for any feature flags working.
   private static final String FEATURE_FLAG_OVERRIDES_ENABLED = "feature_flag_overrides_enabled";
-  public static final String APPLICATION_STATUS_TRACKING_ENABLED =
-      "application_status_tracking_enabled";
+
+  // Long lived feature flags.
   public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
       "allow_civiform_admin_access_programs";
+  public static final String SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE =
+      "show_civiform_image_tag_on_landing_page";
+
+  // Launch Flags, these will eventually be removed.
+  public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
+      "program_eligibility_conditions_enabled";
+  public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
+  public static final String PREDICATES_MULTIPLE_QUESTIONS_ENABLED =
+      "predicates_multiple_questions_enabled";
+
   private final Config config;
+
+  // Address correction and verifcation flags
+  private static final String ESRI_ADDRESS_CORRECTION_ENABLED = "esri_address_correction_enabled";
+  private static final String ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED =
+      "esri_address_service_area_validation_enabled";
 
   @Inject
   FeatureFlags(Config config) {
@@ -36,27 +52,75 @@ public final class FeatureFlags {
   }
 
   /**
-   * If the Status Tracking feature is enabled.
+   * If the Eligibility Conditions feature is enabled.
    *
    * <p>Allows for overrides set in {@code request}.
    */
-  public boolean isStatusTrackingEnabled(Request request) {
-    return getFlagEnabled(request, APPLICATION_STATUS_TRACKING_ENABLED);
+  public boolean isProgramEligibilityConditionsEnabled(Request request) {
+    return getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
   }
 
-  /** If the Status Tracking feature is enabled in the system configuration. */
-  public boolean isStatusTrackingEnabled() {
-    return config.getBoolean(APPLICATION_STATUS_TRACKING_ENABLED);
+  /** If the Eligibility Conditions feature is enabled in the system configuration. */
+  public boolean isProgramEligibilityConditionsEnabled() {
+    return config.getBoolean(PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
+  }
+
+  /**
+   * If specifying multiple questions in a predicate is enabled.
+   *
+   * <p>Allows for overrides set in {@code request}.
+   */
+  public boolean isPredicatesMultipleQuestionsEnabled(Request request) {
+    return getFlagEnabled(request, PREDICATES_MULTIPLE_QUESTIONS_ENABLED);
   }
 
   public boolean allowCiviformAdminAccessPrograms(Request request) {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
 
+  /**
+   * If the CiviForm image tag is show on the landing page.
+   *
+   * <p>Allows for overrides set in {@code request}.
+   */
+  public boolean showCiviformImageTagOnLandingPage(Request request) {
+    return getFlagEnabled(request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE);
+  }
+
+  // If the UI can show a read only view of a program. Without this flag the
+  // only way to view a program is to start editing it.
+  public boolean isReadOnlyProgramViewEnabled() {
+    return config.getBoolean(PROGRAM_READ_ONLY_VIEW_ENABLED);
+  }
+
+  public boolean isReadOnlyProgramViewEnabled(Request request) {
+    return getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED);
+  }
+
+  public boolean isEsriAddressCorrectionEnabled(Request request) {
+    return getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED);
+  }
+
+  public boolean isEsriAddressServiceAreaValidationEnabled(Request request) {
+    return getFlagEnabled(request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED);
+  }
+
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
     return ImmutableMap.of(
-        ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, allowCiviformAdminAccessPrograms(request),
-        APPLICATION_STATUS_TRACKING_ENABLED, isStatusTrackingEnabled(request));
+        ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
+        allowCiviformAdminAccessPrograms(request),
+        SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE,
+        showCiviformImageTagOnLandingPage(request),
+        PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
+        isProgramEligibilityConditionsEnabled(request),
+        PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
+        isPredicatesMultipleQuestionsEnabled(request),
+        PROGRAM_READ_ONLY_VIEW_ENABLED,
+        isReadOnlyProgramViewEnabled(request),
+        ESRI_ADDRESS_CORRECTION_ENABLED,
+        isEsriAddressCorrectionEnabled(request),
+        ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED,
+        isEsriAddressServiceAreaValidationEnabled(request));
   }
 
   /**

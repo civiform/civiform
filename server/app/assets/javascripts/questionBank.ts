@@ -1,4 +1,5 @@
 /** The question bank controller is responsible for manipulating the question bank. */
+import {assertNotNull} from './util'
 
 class QuestionBankController {
   static readonly FILTER_ID = 'question-bank-filter'
@@ -41,6 +42,9 @@ class QuestionBankController {
     const questionBankContainer = document.getElementById(
       QuestionBankController.QUESTION_BANK_CONTAINER,
     )
+    if (questionBankContainer == null) {
+      return
+    }
 
     const openQuestionBankElements = Array.from(
       document.getElementsByClassName(
@@ -62,9 +66,13 @@ class QuestionBankController {
         QuestionBankController.hideQuestionBank(questionBankContainer)
       })
     }
+    if (!questionBankContainer.classList.contains('hidden')) {
+      QuestionBankController.makeBodyNonScrollable()
+    }
   }
 
   static showQuestionBank(container: HTMLElement) {
+    QuestionBankController.makeBodyNonScrollable()
     container.classList.remove('hidden')
     window.requestAnimationFrame(() => {
       container.classList.remove(QuestionBankController.QUESTION_BANK_HIDDEN)
@@ -75,10 +83,14 @@ class QuestionBankController {
   }
 
   static hideQuestionBank(container: HTMLElement) {
-    container.querySelector('.cf-question-bank-panel').addEventListener(
+    const panel = assertNotNull(
+      container.querySelector('.cf-question-bank-panel'),
+    )
+    panel.addEventListener(
       'transitionend',
       () => {
         container.classList.add('hidden')
+        QuestionBankController.makeBodyScrollable()
       },
       {once: true},
     )
@@ -86,6 +98,18 @@ class QuestionBankController {
     const url = new URL(location.href)
     url.searchParams.delete(QuestionBankController.BANK_SHOWN_URL_PARAM)
     window.history.replaceState({}, '', url.toString())
+  }
+
+  static makeBodyNonScrollable() {
+    // When the question bank is visible, only the bank should be scrollable. Body
+    // and all other elements on the page should be non-scrollable.
+    // Using https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior
+    // doesn't work as body is still scrollable when scrolling over glasspane.
+    document.body.classList.add('overflow-y-hidden')
+  }
+
+  static makeBodyScrollable() {
+    document.body.classList.remove('overflow-y-hidden')
   }
 
   /**
@@ -105,11 +129,13 @@ class QuestionBankController {
       const questionContents = questionElement.innerText
       questionElement.classList.toggle(
         'hidden',
-        filterString.length &&
+        filterString.length > 0 &&
           !questionContents.toUpperCase().includes(filterString),
       )
     })
   }
 }
 
-new QuestionBankController()
+export function init() {
+  new QuestionBankController()
+}

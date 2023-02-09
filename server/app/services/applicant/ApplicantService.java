@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -41,8 +42,9 @@ import repository.TimeFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.Path;
-import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationNotEligibleException;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.ApplicantQuestion;
@@ -111,8 +113,9 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
   }
 
-  /** Create a new {@link Applicant} for a given user. */
-  public CompletionStage<Applicant> createApplicant(long userId) {
+  /** Create a new {@link Applicant}. */
+  public CompletionStage<Applicant> createApplicant() {
+
     Applicant applicant = new Applicant();
     return userRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
   }
@@ -286,10 +289,14 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<Application> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile) {
+      long applicantId,
+      long programId,
+      CiviFormProfile submitterProfile,
+      boolean eligibilityFeatureEnabled) {
     if (submitterProfile.isTrustedIntermediary()) {
-      return submitterProfile
-          .getAccount()
+      return getReadOnlyApplicantProgramService(applicantId, programId)
+          .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
+          .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
                   submitApplication(
@@ -299,10 +306,16 @@ public final class ApplicantService {
               httpExecutionContext.current());
     }
 
-    return submitApplication(applicantId, programId, /* tiSubmitterEmail= */ Optional.empty());
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
+        .thenCompose(
+            v ->
+                submitApplication(
+                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
   }
 
-  private CompletionStage<Application> submitApplication(
+  @VisibleForTesting
+  CompletionStage<Application> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     return applicationRepository
         .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -327,6 +340,28 @@ public final class ApplicantService {
                   .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
             },
             httpExecutionContext.current());
+  }
+
+  /**
+   * Validates that the application is complete and correct to submit.
+   *
+   * <p>An application may be submitted but incomplete if the application view with submit button
+   * contains stale data that has changed visibility conditions.
+   *
+   * @return a {@link ApplicationOutOfDateException} wrapped in a failed future with a user visible
+   *     message for the issue.
+   */
+  private CompletableFuture<Void> validateApplicationForSubmission(
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      boolean eligibilityFeatureEnabled) {
+    // Check that all blocks have been answered.
+    if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
+      throw new ApplicationOutOfDateException();
+    }
+    if (eligibilityFeatureEnabled && !roApplicantProgramService.isApplicationEligible()) {
+      throw new ApplicationNotEligibleException();
+    }
+    return CompletableFuture.completedFuture(null);
   }
 
   /**
@@ -872,6 +907,13 @@ public final class ApplicantService {
           case LONG:
             try {
               applicantData.putLong(currentPath, update.value());
+            } catch (NumberFormatException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
+            break;
+          case DOUBLE:
+            try {
+              applicantData.putDouble(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }

@@ -8,14 +8,19 @@ import com.google.common.collect.ImmutableMap;
 import java.util.AbstractMap;
 import java.util.Locale;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.Applicant;
 import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -29,6 +34,7 @@ import services.question.types.ScalarType;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
+@RunWith(JUnitParamsRunner.class)
 public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   private static final String FAKE_BASE_URL = "http://fake-base-url";
 
@@ -164,7 +170,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     assertThat(inProgressBlocks).hasSize(1);
     assertThat(inProgressBlocks.get(0).getName()).isEqualTo("Block one");
 
-    Optional<Block> firstIncompleteBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> firstIncompleteBlock = subject.getFirstIncompleteOrStaticBlock();
     Optional<Block> firstIncompleteExcludingStatic =
         subject.getFirstIncompleteBlockExcludingStatic();
 
@@ -189,7 +195,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock() // Previous block with color question
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock() // Block with predicate
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a question that has not been answered
             .buildDefinition();
@@ -220,7 +226,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock() // Previous block with color question
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock() // Block with predicate
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a question that has not been answered
             .buildDefinition();
@@ -251,7 +257,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock("visibility question")
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock("enumeration - household members")
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock("repeated - household members name")
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberName())
@@ -323,7 +329,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
 
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
-    Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
     Optional<Block> maybeBlockExcludeStatic = subject.getFirstIncompleteBlockExcludingStatic();
 
     assertThat(allBlocks).hasSize(2);
@@ -554,7 +560,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock() // Previous block with color question
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock() // Block with predicate
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a question that has not been answered
             .buildDefinition();
@@ -587,7 +593,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a skipped question so the block is incomplete
             .buildDefinition();
@@ -622,7 +628,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             .withBlock() // Block incomplete; this is what predicate is based on
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
-            .withPredicate(predicate)
+            .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(
                 addressQuestion) // Include a skipped question so the block is incomplete
             .buildDefinition();
@@ -633,6 +639,41 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramServiceImpl service =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
     assertThat(service.getInProgressBlocks()).hasSize(3);
+  }
+
+  @Test
+  public void getEligibilityQuestionsForProgram_returnsQuestionWithEligibilityPredicate() {
+    // Create an eligibility condition with number question == 5.
+    QuestionDefinition numberQuestionDefinition =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition numberPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.SHOW_BLOCK);
+
+    EligibilityDefinition eligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(numberPredicate).build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(eligibilityDefinition)
+            .buildDefinition();
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+
+    ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getActiveEligibilityQuestions();
+
+    // The number question should be in the list of eligibility questions.
+    assertThat(eligibilityQuestions).hasSize(1);
+    assertThat(eligibilityQuestions.stream().findFirst().get().getQuestionDefinition())
+        .isEqualTo(testQuestionBank.applicantJugglingNumber().getQuestionDefinition());
   }
 
   @Test
@@ -768,7 +809,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
-    Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block one");
@@ -784,7 +825,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     assertThat(subject.getInProgressBlocks().get(0).getName()).isEqualTo("Block one");
 
-    Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block two");
@@ -918,7 +959,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                     "%s/admin/programs/%d/files/%s",
                     FAKE_BASE_URL, programDefinition.id(), "file-key")));
 
-    // check enumerator and repeated answers
+    // Check enumerator and repeated answers
     assertThat(result.get(6).questionIndex()).isEqualTo(0);
     assertThat(result.get(6).scalarAnswersInDefaultLocale())
         .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
@@ -960,6 +1001,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                     .join(repeatedQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.LAST_NAME),
                 "baz"));
+
+    for (int i = 0; i < result.size(); ++i) {
+      assertThat(result.get(i).isEligible())
+          .withFailMessage("Result index %d should be eligible", i)
+          .isTrue();
+    }
   }
 
   @Test
@@ -993,6 +1040,47 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
+  @Parameters({"5, true", "1, false"})
+  public void getSummaryData_isEligible(long answer, boolean expectedResult) {
+    // Create a program with an eligibility condition == 5 and answer it with different values.
+    QuestionDefinition numberQuestionDefinition =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.SHOW_BLOCK);
+
+    EligibilityDefinition eligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(predicate).build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(eligibilityDefinition)
+            .buildDefinition();
+
+    // Answer the questions
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
+        answer);
+
+    // Test the summary data
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+    ImmutableList<AnswerData> result = subject.getSummaryData();
+
+    assertEquals(1, result.size());
+    assertThat(result.get(0).isEligible()).isEqualTo(expectedResult);
+  }
+
+  @Test
   public void getSummaryData_returnsWithEmptyData() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
@@ -1013,6 +1101,165 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     assertThat(subject.getBlockIndex("1")).isEqualTo(0);
     assertThat(subject.getBlockIndex("2")).isEqualTo(1);
     assertThat(subject.getBlockIndex("not a real block id")).isEqualTo(-1);
+  }
+
+  @Test
+  @Parameters({"5, true", "1, false"})
+  public void getIsApplicationEligible(long answer, boolean expectedResult) {
+    // Create a program with an eligibility condition == 5 and answer it with different values.
+    QuestionDefinition numberQuestionDefinition =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.SHOW_BLOCK);
+
+    EligibilityDefinition eligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(predicate).build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(eligibilityDefinition)
+            .buildDefinition();
+
+    // Answer the questions
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
+        answer);
+
+    // Test the summary data
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+    assertThat(subject.isApplicationEligible()).isEqualTo(expectedResult);
+  }
+
+  @Test
+  @Parameters({"5, blue, false", "5, purple, true", "1, blue, true"})
+  public void getIsApplicationNotEligible(
+      long numberAnswer, String textAnswer, boolean expectedResult) {
+    // Create a program with one block that has an eligibility condition == 5
+    // and another with eligibility condition == "blue" answer it with different values.
+
+    QuestionDefinition numberQuestionDefinition =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition numberPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.SHOW_BLOCK);
+
+    QuestionDefinition colorQuestionDefinition =
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    PredicateDefinition colorPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestionDefinition.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.HIDE_BLOCK);
+
+    EligibilityDefinition numberEligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(numberPredicate).build();
+    EligibilityDefinition colorEligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(colorPredicate).build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(numberEligibilityDefinition)
+            .withBlock("Block two")
+            .withRequiredQuestionDefinition(colorQuestionDefinition)
+            .withEligibilityDefinition(colorEligibilityDefinition)
+            .buildDefinition();
+
+    // Answer the questions
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
+        numberAnswer);
+    QuestionAnswerer.answerTextQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(colorQuestionDefinition.getQuestionPathSegment()),
+        textAnswer);
+
+    // Test the summary data
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+    assertThat(subject.isApplicationNotEligible()).isEqualTo(expectedResult);
+  }
+
+  @Test
+  @Parameters({"5, false", "1, true"})
+  public void getIsApplicationNotEligible_oneBlockUnanswered(
+      long numberAnswer, boolean expectedResult) {
+    // Create a program with one block that has an eligibility condition == 5
+    // and another with eligibility condition == "blue" answer only the first
+    // block with different values.
+
+    QuestionDefinition numberQuestionDefinition =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition numberPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.SHOW_BLOCK);
+
+    QuestionDefinition colorQuestionDefinition =
+        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    PredicateDefinition colorPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestionDefinition.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.HIDE_BLOCK);
+
+    EligibilityDefinition numberEligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(numberPredicate).build();
+    EligibilityDefinition colorEligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(colorPredicate).build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(numberEligibilityDefinition)
+            .withBlock("Block two")
+            .withRequiredQuestionDefinition(colorQuestionDefinition)
+            .withEligibilityDefinition(colorEligibilityDefinition)
+            .buildDefinition();
+
+    // Answer the questions
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
+        numberAnswer);
+
+    // Test the summary data
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+    assertThat(subject.isApplicationNotEligible()).isEqualTo(expectedResult);
   }
 
   private void answerNameQuestion(long programId) {

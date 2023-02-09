@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
+import controllers.BadRequestException;
 import forms.BlockForm;
 import java.util.List;
 import java.util.Locale;
@@ -19,7 +20,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.annotation.Nullable;
 import models.Account;
 import models.Application;
 import models.DisplayMode;
@@ -433,7 +433,7 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition moveBlock(
       long programId, long blockId, ProgramDefinition.Direction direction)
       throws ProgramNotFoundException, IllegalPredicateOrderingException {
-    Program program;
+    final Program program;
     try {
       program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -676,15 +676,31 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setBlockPredicate(
-      long programId, long blockDefinitionId, @Nullable PredicateDefinition predicate)
+  public ProgramDefinition setBlockVisibilityPredicate(
+      long programId, long blockDefinitionId, Optional<PredicateDefinition> predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setVisibilityPredicate(Optional.ofNullable(predicate))
+            .setVisibilityPredicate(predicate)
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition setBlockEligibilityDefinition(
+      long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+            .setEligibilityDefinition(eligibility)
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -695,7 +711,21 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition removeBlockPredicate(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     try {
-      return setBlockPredicate(programId, blockDefinitionId, null);
+      return setBlockVisibilityPredicate(
+          programId, blockDefinitionId, /* predicate= */ Optional.empty());
+    } catch (IllegalPredicateOrderingException e) {
+      // Removing a predicate should never invalidate another.
+      throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition removeBlockEligibilityPredicate(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    try {
+      return setBlockEligibilityDefinition(
+          programId, blockDefinitionId, /* eligibility= */ Optional.empty());
     } catch (IllegalPredicateOrderingException e) {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
@@ -733,6 +763,55 @@ public final class ProgramServiceImpl implements ProgramService {
       // question is optional and a predicate depends on its answer, the predicate will be false.
       throw new RuntimeException(
           "Unexpected error: updating this question invalidated a block condition");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition setProgramQuestionDefinitionAddressCorrectionEnabled(
+      long programId,
+      long blockDefinitionId,
+      long questionDefinitionId,
+      boolean addressCorrectionEnabled)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+    if (!blockDefinition.programQuestionDefinitions().stream()
+        .anyMatch(pqd -> pqd.id() == questionDefinitionId)) {
+      throw new ProgramQuestionDefinitionNotFoundException(
+          programId, blockDefinitionId, questionDefinitionId);
+    }
+
+    if (!blockDefinition.hasAddress()) {
+      throw new BadRequestException(
+          "Unexpected error: updating a non address question with address correction enabled");
+    }
+
+    if (!addressCorrectionEnabled
+        && programDefinition.isQuestionUsedInPredicate(questionDefinitionId)) {
+      throw new BadRequestException(
+          String.format("Cannot disable correction for an address used in a predicate."));
+    }
+
+    ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
+        blockDefinition.programQuestionDefinitions().stream()
+            .map(
+                pqd ->
+                    pqd.id() == questionDefinitionId
+                        ? pqd.setAddressCorrectionEnabled(addressCorrectionEnabled)
+                        : pqd)
+            .collect(ImmutableList.toImmutableList());
+
+    try {
+      return updateProgramDefinitionWithBlockDefinition(
+          programDefinition,
+          blockDefinition.toBuilder()
+              .setProgramQuestionDefinitions(programQuestionDefinitions)
+              .build());
+    } catch (IllegalPredicateOrderingException e) {
+      throw new RuntimeException(e);
     }
   }
 
