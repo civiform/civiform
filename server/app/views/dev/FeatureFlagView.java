@@ -34,11 +34,21 @@ public class FeatureFlagView extends BaseHtmlView {
 
   @Inject
   public FeatureFlagView(BaseHtmlLayout layout, FeatureFlags featureFlags) {
-
     this.layout = layout;
     this.featureFlags = featureFlags;
   }
 
+  /**
+   * Renders a view of the current feature flag state.
+   *
+   * <p>Includes:
+   *
+   * <ul>
+   *   <li>Server controls for allowing overrides
+   *   <li>Individual flags and their constituent values, including a link to toggle the session
+   *       value.
+   * </ul>
+   */
   public Content render(Request request, boolean isDevOrStagingEnvironment) {
     // Create system level control view.
     TableTag serverSettingTable =
@@ -72,6 +82,7 @@ public class FeatureFlagView extends BaseHtmlView {
       Boolean configValue = featureFlags.getFlagEnabledFromConfig(flagName).orElse(false);
       Boolean sessionValue = flags.get(flagName);
       Boolean sessionOverrides = !configValue.equals(sessionValue);
+      // Only show values that override the system default.
       String sessionDisplay = sessionOverrides ? sessionValue.toString() : "";
       Tag flagFlipLink =
           sessionValue
