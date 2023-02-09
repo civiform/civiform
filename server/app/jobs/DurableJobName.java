@@ -1,8 +1,10 @@
 package jobs;
 
 /**
- * Concrete implementations of {@link DurableJob} are linked to {@link models.PersistedDurableJob}
- * records in the database via their {@code DurableJobName}.
+ * Links an instance of a {@link DurableJob} with its concrete type.
+ *
+ * <p>Concrete implementations of {@link DurableJob} are linked to {@link
+ * models.PersistedDurableJob} records in the database via their {@code DurableJobName}.
  */
 public enum DurableJobName {
   OLD_JOB_CLEANUP("OLD_JOB_CLEANUP");

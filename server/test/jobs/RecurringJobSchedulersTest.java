@@ -16,7 +16,7 @@ public class RecurringJobSchedulersTest {
     // Sunday Nov11 at 2:00am
     Instant expected = Instant.parse("2022-12-11T02:00:00.00Z");
 
-    Instant result = new RecurringJobSchedulers.EverySunday2Am().resolveExecutionTime(clock);
+    Instant result = new RecurringJobSchedulers.Sunday2Am().resolveExecutionTime(clock);
 
     assertThat(result).isEqualTo(expected);
   }

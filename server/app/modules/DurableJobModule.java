@@ -13,7 +13,7 @@ import repository.PersistedDurableJobRepository;
  * their {@link jobs.RecurringJobExecutionTimeResolver}.
  *
  * <p>NOTE: THIS SYSTEM IS STILL UNDER DEVELOPMENT AND THIS MODULE IS NOT CURRENTLY ENABLED IN
- * application.conf
+ * application.conf TODO(https://github.com/civiform/civiform/issues/4191): Enable DurableJobModule
  */
 public final class DurableJobModule extends AbstractModule {
 
@@ -26,7 +26,7 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.OLD_JOB_CLEANUP,
         persistedDurableJob ->
             new OldJobCleanupJob(persistedDurableJobRepository, persistedDurableJob),
-        new RecurringJobSchedulers.EverySunday2Am());
+        new RecurringJobSchedulers.Sunday2Am());
 
     return durableJobRegistry;
   }

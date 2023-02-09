@@ -8,9 +8,8 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
 /**
- * {@code RecurringJobSchedulers} holds implementations of {@link
- * RecurringJobExecutionTimeResolver}. A {@link DurableJob} is a recurring job if it is registered
- * with a {@link RecurringJobExecutionTimeResolver}.
+ * Holds implementations of {@link RecurringJobExecutionTimeResolver}. A {@link DurableJob} is a
+ * recurring job if it is registered with a {@link RecurringJobExecutionTimeResolver}.
  *
  * <p>All implementations of {@link RecurringJobExecutionTimeResolver} MUST use the parameter {@link
  * Clock} for resolving execution times to ensure the local time zone is accounted for.
@@ -18,7 +17,7 @@ import java.time.temporal.TemporalAdjusters;
 public final class RecurringJobSchedulers {
 
   /** Every Sunday at 2am local time. */
-  public static final class EverySunday2Am implements RecurringJobExecutionTimeResolver {
+  public static final class Sunday2Am implements RecurringJobExecutionTimeResolver {
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {

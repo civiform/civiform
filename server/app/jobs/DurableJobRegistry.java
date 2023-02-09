@@ -15,10 +15,16 @@ public final class DurableJobRegistry {
 
   private final HashMap<String, RegisteredJob> registeredJobs = new HashMap<>();
 
+  /**
+   * A {@link DurableJob} that has been registered with the {@link DurableJobRegistry}.
+   *
+   * <p>When added to the registry, jobs are associated with their factories, job names, and
+   * optionally a {@link RecurringJobExecutionTimeResolver} if they are recurring jobs.
+   */
   @AutoValue
   public abstract static class RegisteredJob {
 
-    public static RegisteredJob create(
+    private static RegisteredJob create(
         DurableJobFactory durableJobFactory,
         DurableJobName jobName,
         Optional<RecurringJobExecutionTimeResolver> recurringJobExecutionTimeResolver) {
@@ -26,13 +32,21 @@ public final class DurableJobRegistry {
           durableJobFactory, jobName, recurringJobExecutionTimeResolver);
     }
 
+    /** The {@link DurableJobFactory} factory for this {@link DurableJob}. */
     public abstract DurableJobFactory getFactory();
 
+    /** The {@link DurableJobName} for this {@link DurableJob}. */
     public abstract DurableJobName getJobName();
 
+    /**
+     * The {@link RecurringJobExecutionTimeResolver} for this {@link DurableJob}.
+     *
+     * <p>If not present then this job is not recurring.
+     */
     public abstract Optional<RecurringJobExecutionTimeResolver>
         getRecurringJobExecutionTimeResolver();
 
+    /** True if this job is recurring. */
     public boolean isRecurring() {
       return this.getRecurringJobExecutionTimeResolver().isPresent();
     }
@@ -40,6 +54,8 @@ public final class DurableJobRegistry {
 
   /** Registers a factory for a given job name. */
   public void register(DurableJobName jobName, DurableJobFactory durableJobFactory) {
+    validateJobName(jobName);
+
     registeredJobs.put(
         jobName.getJobName(),
         RegisteredJob.create(
@@ -54,10 +70,19 @@ public final class DurableJobRegistry {
       DurableJobName jobName,
       DurableJobFactory durableJobFactory,
       RecurringJobExecutionTimeResolver recurringJobExecutionTimeResolver) {
+    validateJobName(jobName);
+
     registeredJobs.put(
         jobName.getJobName(),
         RegisteredJob.create(
             durableJobFactory, jobName, Optional.of(recurringJobExecutionTimeResolver)));
+  }
+
+  private void validateJobName(DurableJobName jobName) {
+    if (registeredJobs.containsKey(jobName.getJobName())) {
+      throw new IllegalArgumentException(
+          String.format("Unable to register durable job with duplicate job name: %s", jobName));
+    }
   }
 
   /** Retrieves the job registered with the given name or throws {@link JobNotFoundException}. */

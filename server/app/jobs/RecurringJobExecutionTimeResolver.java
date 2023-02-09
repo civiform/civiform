@@ -3,10 +3,7 @@ package jobs;
 import java.time.Clock;
 import java.time.Instant;
 
-/**
- * Implementations of {@code RecurringJobExecutionTimeResolver} determine when a recurring {@link
- * DurableJob} should next run.
- */
+/** Determines when a recurring {@link DurableJob} should next run. */
 @FunctionalInterface
 public interface RecurringJobExecutionTimeResolver {
 
