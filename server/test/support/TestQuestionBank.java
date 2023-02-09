@@ -96,6 +96,12 @@ public class TestQuestionBank {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ADDRESS, this::applicantAddress);
   }
 
+  // Address
+  public Question applicantSecondaryAddress() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_SECONDARY_ADDRESS, this::applicantSecondaryAddress);
+  }
+
   // Checkbox
   public Question applicantKitchenTools() {
     return questionCache.computeIfAbsent(
@@ -195,6 +201,18 @@ public class TestQuestionBank {
             Optional.empty(),
             "The address of applicant",
             LocalizedStrings.of(Locale.US, "What is your address?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
+  // Address
+  private Question applicantSecondaryAddress(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new AddressQuestionDefinition(
+            "applicant secondary address",
+            Optional.empty(),
+            "The secondary address of applicant",
+            LocalizedStrings.of(Locale.US, "What is your secondary address?"),
             LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
@@ -453,6 +471,7 @@ public class TestQuestionBank {
 
   private enum QuestionEnum {
     APPLICANT_ADDRESS,
+    APPLICANT_SECONDARY_ADDRESS,
     APPLICANT_FAVORITE_COLOR,
     APPLICANT_FILE,
     APPLICANT_ID,

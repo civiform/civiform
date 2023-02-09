@@ -149,6 +149,32 @@ public class BlockDefinitionTest {
     assertThat(blockDefinition.eligibilityDefinition()).hasValue(eligibility);
   }
 
+  @Test
+  public void getAddressCorrectionEnabledOnDifferentQuestion() {
+    QuestionDefinition firstAddress = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition secondAddress =
+        testQuestionBank.applicantSecondaryAddress().getQuestionDefinition();
+    ProgramQuestionDefinition firstQuestion =
+        ProgramQuestionDefinition.create(firstAddress, Optional.empty());
+    // Second address has correction enabled
+    ProgramQuestionDefinition secondQuestion =
+        ProgramQuestionDefinition.create(secondAddress, Optional.empty(), false, true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(firstQuestion)
+            .addQuestion(secondQuestion)
+            .build();
+
+    assertThat(blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(firstAddress.getId()))
+        .isTrue();
+    assertThat(
+            blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(secondAddress.getId()))
+        .isFalse();
+  }
+
   private BlockDefinition makeBlockDefinitionWithQuestions() {
     QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition addressQuestion =
