@@ -131,6 +131,9 @@ public final class FeatureFlags {
    */
   private boolean getFlagEnabled(Request request, String flag) {
     Boolean configValue = getFlagEnabledFromConfig(flag);
+    if (!configValue) {
+      return false;
+    }
 
     if (!areOverridesEnabled()) {
       return configValue;
