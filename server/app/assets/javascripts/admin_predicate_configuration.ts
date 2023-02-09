@@ -250,6 +250,20 @@ class AdminPredicateConfiguration {
       el.closest('label')?.setAttribute('for', newId)
     })
 
+    newRow.querySelectorAll('select').forEach((el: HTMLSelectElement) => {
+      const groupNumString = assertNotNull(el.name.match(/group-(\d+)/))[1]
+
+      let groupNum = parseInt(groupNumString, 10)
+      el.name = el.name.replace(/group-\d+/, `group-${++groupNum}`)
+
+      // The server-rendered inputs have UUID-generated IDs to ensure uniqueness on the page.
+      // We reuse those IDs and add a suffix to likewise ensure uniqueness for the new inputs.
+      const newId = `${el.id}-${groupNum}`
+      el.id = newId
+
+      el.closest('label')?.setAttribute('for', newId)
+    })
+
     const deleteButtonDiv = assertNotNull(
       newRow.querySelector('.predicate-config-delete-value-row'),
     ) as HTMLElement
