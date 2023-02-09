@@ -52,6 +52,7 @@ import support.ProgramBuilder;
 public class ProgramServiceImplTest extends ResetPostgres {
 
   private QuestionDefinition addressQuestion;
+  private QuestionDefinition secondaryAddressQuestion;
   private QuestionDefinition colorQuestion;
   private QuestionDefinition nameQuestion;
   private ProgramServiceImpl ps;
@@ -64,6 +65,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   @Before
   public void setUp() {
     addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
+    secondaryAddressQuestion = testQuestionBank.applicantSecondaryAddress().getQuestionDefinition();
     colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
   }
@@ -1840,5 +1842,26 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     + " separate window."));
     assertThat(ps.getProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(APPROVED_STATUS));
+  }
+
+  @Test
+  public void setProgramQuestionDefinitionAddressCorrectionEnabled_alreadyEnabled_throws()
+      throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("screen one")
+            .withQuestionDefinition(addressQuestion, false)
+            .withQuestionDefinition(secondaryAddressQuestion, false)
+            .buildDefinition();
+
+    Long programId = programDefinition.id();
+    Long blockDefinitionId = programDefinition.getLastBlockDefinition().id();
+    ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        programId, blockDefinitionId, addressQuestion.getId(), true);
+    assertThatExceptionOfType(ProgramQuestionDefinitionInvalidException.class)
+        .isThrownBy(
+            () ->
+                ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
+                    programId, blockDefinitionId, secondaryAddressQuestion.getId(), true));
   }
 }
