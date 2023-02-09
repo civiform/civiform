@@ -1,6 +1,7 @@
-package jobs;
+package durablejobs.jobs;
 
 import com.google.common.base.Preconditions;
+import durablejobs.DurableJob;
 import models.PersistedDurableJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

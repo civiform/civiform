@@ -1,4 +1,4 @@
-package jobs;
+package durablejobs;
 
 import models.PersistedDurableJob;
 

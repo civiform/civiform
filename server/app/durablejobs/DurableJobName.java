@@ -1,4 +1,4 @@
-package jobs;
+package durablejobs;
 
 /**
  * Links an instance of a {@link DurableJob} with its concrete type.

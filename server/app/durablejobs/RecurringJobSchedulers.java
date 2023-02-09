@@ -1,4 +1,4 @@
-package jobs;
+package durablejobs;
 
 import java.time.Clock;
 import java.time.DayOfWeek;

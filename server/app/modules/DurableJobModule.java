@@ -2,15 +2,15 @@ package modules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import jobs.DurableJobName;
-import jobs.DurableJobRegistry;
-import jobs.OldJobCleanupJob;
-import jobs.RecurringJobSchedulers;
+import durablejobs.DurableJobName;
+import durablejobs.DurableJobRegistry;
+import durablejobs.RecurringJobSchedulers;
+import durablejobs.jobs.OldJobCleanupJob;
 import repository.PersistedDurableJobRepository;
 
 /**
- * Configures {@link jobs.DurableJob}s with their {@link DurableJobName} and, if they are recurring,
- * their {@link jobs.RecurringJobExecutionTimeResolver}.
+ * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
+ * recurring, their {@link durablejobs.RecurringJobExecutionTimeResolver}.
  *
  * <p>NOTE: THIS SYSTEM IS STILL UNDER DEVELOPMENT AND THIS MODULE IS NOT CURRENTLY ENABLED IN
  * application.conf TODO(https://github.com/civiform/civiform/issues/4191): Enable DurableJobModule

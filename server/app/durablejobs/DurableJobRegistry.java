@@ -1,4 +1,4 @@
-package jobs;
+package durablejobs;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;

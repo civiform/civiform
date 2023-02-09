@@ -1,4 +1,4 @@
-package jobs;
+package durablejobs;
 
 import models.PersistedDurableJob;
 
@@ -12,7 +12,7 @@ import models.PersistedDurableJob;
 public abstract class DurableJob {
 
   /** The {@link PersistedDurableJob} associated with this instance. */
-  abstract PersistedDurableJob getPersistedDurableJob();
+  public abstract PersistedDurableJob getPersistedDurableJob();
 
   /** The jobName which identifies which type of job this is. */
   public String jobName() {
@@ -20,5 +20,5 @@ public abstract class DurableJob {
   }
 
   /** Executes the job. */
-  abstract void run();
+  public abstract void run();
 }
