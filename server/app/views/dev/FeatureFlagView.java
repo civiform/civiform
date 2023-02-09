@@ -69,7 +69,7 @@ public class FeatureFlagView extends BaseHtmlView {
     // For each flag show its config value, session value (if different), the effective value for
     // the user and a control to toggle the value.
     for (String flagName : sortedKeys) {
-      Boolean configValue = featureFlags.getFlagEnabledFromConfig(flagName);
+      Boolean configValue = featureFlags.getFlagEnabledFromConfig(flagName).orElse(false);
       Boolean sessionValue = flags.get(flagName);
       Boolean sessionOverrides = !configValue.equals(sessionValue);
       String sessionDisplay = sessionOverrides ? sessionValue.toString() : "";
