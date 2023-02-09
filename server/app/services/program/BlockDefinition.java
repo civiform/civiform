@@ -128,6 +128,18 @@ public abstract class BlockDefinition {
         .anyMatch(questionType -> questionType.equals(QuestionType.ADDRESS));
   }
 
+  /**
+   * Check if block already contains a question with address correction enabled, ignoring the given
+   * question ID that you are trying to enable it on.
+   */
+  @JsonIgnore
+  public boolean hasAddressCorrectionEnabledOnDifferentQuestion(long questionDefinitionId) {
+    return programQuestionDefinitions().stream()
+        .anyMatch(
+            question ->
+                question.addressCorrectionEnabled() && question.id() != questionDefinitionId);
+  }
+
   /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
   @JsonProperty("hidePredicate")
   public abstract Optional<PredicateDefinition> visibilityPredicate();

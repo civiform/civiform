@@ -755,6 +755,14 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
               + " enabled.";
     }
 
+    boolean addressCorrectionEnabledQuestionAlreadyExists =
+        blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
+    if (addressCorrectionEnabledQuestionAlreadyExists) {
+      toolTipText +=
+          " This screen already contains a question with address correction enabled. This feature"
+              + " can only be enabled once per screen.";
+    }
+
     ButtonTag addressCorrectionButton =
         TagCreator.button()
             .withClasses(
@@ -799,6 +807,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
             .withCondOnsubmit(
                 !featureFlags.isEsriAddressCorrectionEnabled(request) || questionIsUsedInPredicate,
                 "return false;")
+            .withCondOnsubmit(addressCorrectionEnabledQuestionAlreadyExists, "return false;")
             .withAction(toggleAddressCorrectionAction)
             .with(
                 input()

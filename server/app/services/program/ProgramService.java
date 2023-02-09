@@ -367,7 +367,7 @@ public interface ProgramService {
       long questionDefinitionId,
       boolean addressCorrectionEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          ProgramQuestionDefinitionNotFoundException;
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException;
 
   /**
    * Set position of a program question within its block. Used to reorder questions.
