@@ -126,13 +126,15 @@ public final class FeatureFlags {
   /**
    * Returns the current setting for {@code flag} from {@link Config} if present, allowing for an
    * overriden value from the session cookie.
+   *
+   * <p>Returns false if the value is not present.
    */
   private boolean getFlagEnabled(Request request, String flag) {
-    if (!config.hasPath(flag)) {
-      logger.warn("Feature flag requested for unconfigured flag: {}", flag);
+    Optional<Boolean> maybeConfigValue = getFlagEnabledFromConfig(flag);
+    if (maybeConfigValue.isEmpty()) {
       return false;
     }
-    Boolean configValue = config.getBoolean(flag);
+    Boolean configValue = maybeConfigValue.get();
 
     if (!areOverridesEnabled()) {
       return configValue;
@@ -144,5 +146,14 @@ public final class FeatureFlags {
       return sessionValue.get();
     }
     return configValue;
+  }
+
+  /** Returns the current setting for {@code flag} from {@link Config} if present. */
+  public Optional<Boolean> getFlagEnabledFromConfig(String flag) {
+    if (!config.hasPath(flag)) {
+      logger.warn("Feature flag requested for unconfigured flag: {}", flag);
+      return Optional.empty();
+    }
+    return Optional.of(config.getBoolean(flag));
   }
 }
