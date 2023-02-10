@@ -35,12 +35,24 @@ public abstract class PredicateExpressionNode {
   /** Get a leaf operation node if it exists, or throw if this is not a leaf operation node. */
   @JsonIgnore
   @Memoized
-  public LeafOperationExpressionNode getLeafNode() {
+  public LeafOperationExpressionNode getLeafOperationNode() {
     if (!(node() instanceof LeafOperationExpressionNode)) {
       throw new RuntimeException(
           String.format("Expected a LEAF node but received %s node", getType()));
     }
     return (LeafOperationExpressionNode) node();
+  }
+
+  /** Get a leaf node if it exists, or throw if this is not a leaf node. */
+  @JsonIgnore
+  @Memoized
+  public LeafExpressionNode getLeafNode() {
+    if (!(node() instanceof LeafExpressionNode)) {
+      throw new RuntimeException(
+          String.format(
+              "Expected a LEAF or LEAF_ADDRESS_SERVICE_AREA node but received %s node", getType()));
+    }
+    return (LeafExpressionNode) node();
   }
 
   /** Get a leaf address node if it exists, or throw if this is not a leaf address node. */
@@ -81,8 +93,10 @@ public abstract class PredicateExpressionNode {
   @Memoized
   public ImmutableList<Long> getQuestions() {
     switch (getType()) {
+      case LEAF_ADDRESS_SERVICE_AREA:
+        return ImmutableList.of(getLeafAddressNode().questionId());
       case LEAF_OPERATION:
-        return ImmutableList.of(getLeafNode().questionId());
+        return ImmutableList.of(getLeafOperationNode().questionId());
       case AND:
         return getAndNode().children().stream()
             .flatMap(n -> n.getQuestions().stream())

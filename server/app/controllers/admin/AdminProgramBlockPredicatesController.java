@@ -25,6 +25,7 @@ import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -170,7 +171,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       try {
         PredicateDefinition predicateDefinition =
             predicateGenerator.generatePredicateDefinition(
-                formFactory.form().bindFromRequest(request), roQuestionService);
+                programService.getProgramDefinition(programId),
+                formFactory.form().bindFromRequest(request),
+                roQuestionService);
 
         programService.setBlockVisibilityPredicate(
             programId, blockDefinitionId, Optional.of(predicateDefinition));
@@ -179,7 +182,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       } catch (ProgramBlockDefinitionNotFoundException e) {
         return notFound(
             String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
-      } catch (IllegalPredicateOrderingException | QuestionNotFoundException e) {
+      } catch (IllegalPredicateOrderingException
+          | QuestionNotFoundException
+          | ProgramQuestionDefinitionNotFoundException e) {
         return redirect(
                 routes.AdminProgramBlockPredicatesController.editVisibility(
                     programId, blockDefinitionId))
@@ -403,7 +408,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             EligibilityDefinition.builder()
                 .setPredicate(
                     predicateGenerator.generatePredicateDefinition(
-                        formFactory.form().bindFromRequest(request), roQuestionService))
+                        programService.getProgramDefinition(programId),
+                        formFactory.form().bindFromRequest(request),
+                        roQuestionService))
                 .build();
 
         programService.setBlockEligibilityDefinition(
@@ -413,7 +420,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       } catch (ProgramBlockDefinitionNotFoundException e) {
         return notFound(
             String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
-      } catch (IllegalPredicateOrderingException | QuestionNotFoundException e) {
+      } catch (IllegalPredicateOrderingException
+          | QuestionNotFoundException
+          | ProgramQuestionDefinitionNotFoundException e) {
         return redirect(
                 routes.AdminProgramBlockPredicatesController.editEligibility(
                     programId, blockDefinitionId))

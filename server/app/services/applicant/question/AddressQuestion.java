@@ -27,6 +27,10 @@ public final class AddressQuestion extends Question {
   private Optional<String> cityValue;
   private Optional<String> stateValue;
   private Optional<String> zipValue;
+  private Optional<String> correctedValue;
+  private Optional<Double> latitudeValue;
+  private Optional<Double> longitudeValue;
+  private Optional<Long> wellKnownIdValue;
 
   AddressQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -164,6 +168,42 @@ public final class AddressQuestion extends Question {
     return zipValue;
   }
 
+  public Optional<String> getCorrectedValue() {
+    if (correctedValue != null) {
+      return correctedValue;
+    }
+
+    correctedValue = applicantQuestion.getApplicantData().readString(getCorrectedPath());
+    return correctedValue;
+  }
+
+  public Optional<Double> getLatitudeValue() {
+    if (latitudeValue != null) {
+      return latitudeValue;
+    }
+
+    latitudeValue = applicantQuestion.getApplicantData().readDouble(getLatitudePath());
+    return latitudeValue;
+  }
+
+  public Optional<Double> getLongitudeValue() {
+    if (longitudeValue != null) {
+      return longitudeValue;
+    }
+
+    longitudeValue = applicantQuestion.getApplicantData().readDouble(getLongitudePath());
+    return longitudeValue;
+  }
+
+  public Optional<Long> getWellKnownIdValue() {
+    if (wellKnownIdValue != null) {
+      return wellKnownIdValue;
+    }
+
+    wellKnownIdValue = applicantQuestion.getApplicantData().readLong(getWellKnownIdPath());
+    return wellKnownIdValue;
+  }
+
   public AddressQuestionDefinition getQuestionDefinition() {
     return (AddressQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -188,6 +228,22 @@ public final class AddressQuestion extends Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.ZIP);
   }
 
+  public Path getCorrectedPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.CORRECTED);
+  }
+
+  public Path getLatitudePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.LATITUDE);
+  }
+
+  public Path getLongitudePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.LONGITUDE);
+  }
+
+  public Path getWellKnownIdPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
+  }
+
   @Override
   public String getAnswerString() {
     String displayLine1 = getStreetValue().orElse("");
@@ -210,6 +266,14 @@ public final class AddressQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(
-        getStreetPath(), getLine2Path(), getCityPath(), getStatePath(), getZipPath());
+        getStreetPath(),
+        getLine2Path(),
+        getCityPath(),
+        getStatePath(),
+        getZipPath(),
+        getCorrectedPath(),
+        getLatitudePath(),
+        getLongitudePath(),
+        getWellKnownIdPath());
   }
 }

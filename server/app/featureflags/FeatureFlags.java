@@ -24,6 +24,8 @@ public final class FeatureFlags {
   // Long lived feature flags.
   public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
       "allow_civiform_admin_access_programs";
+  public static final String SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE =
+      "show_civiform_image_tag_on_landing_page";
 
   // Launch Flags, these will eventually be removed.
   public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
@@ -76,6 +78,15 @@ public final class FeatureFlags {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
 
+  /**
+   * If the CiviForm image tag is show on the landing page.
+   *
+   * <p>Allows for overrides set in {@code request}.
+   */
+  public boolean showCiviformImageTagOnLandingPage(Request request) {
+    return getFlagEnabled(request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE);
+  }
+
   // If the UI can show a read only view of a program. Without this flag the
   // only way to view a program is to start editing it.
   public boolean isReadOnlyProgramViewEnabled() {
@@ -98,6 +109,8 @@ public final class FeatureFlags {
     return ImmutableMap.of(
         ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
         allowCiviformAdminAccessPrograms(request),
+        SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE,
+        showCiviformImageTagOnLandingPage(request),
         PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
         isProgramEligibilityConditionsEnabled(request),
         PREDICATES_MULTIPLE_QUESTIONS_ENABLED,

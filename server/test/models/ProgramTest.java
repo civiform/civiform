@@ -15,6 +15,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -71,6 +72,7 @@ public class ProgramTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .build();
     Program program = new Program(definition);
 
@@ -83,6 +85,8 @@ public class ProgramTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
+    assertThat(found.getProgramDefinition().programType())
+        .isEqualTo(ProgramType.COMMON_INTAKE_FORM);
 
     assertThat(
             found
@@ -141,6 +145,7 @@ public class ProgramTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -195,6 +200,7 @@ public class ProgramTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -292,6 +298,7 @@ public class ProgramTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
             .setBlockDefinitions(unorderedBlocks)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();

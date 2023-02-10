@@ -15,8 +15,10 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
+import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -79,7 +81,8 @@ public class ProgramBuilder {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            versionRepository.getDraftVersion());
+            versionRepository.getDraftVersion(),
+            ProgramType.DEFAULT);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -129,7 +132,8 @@ public class ProgramBuilder {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            versionRepository.getActiveVersion());
+            versionRepository.getActiveVersion(),
+            ProgramType.DEFAULT);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -152,7 +156,8 @@ public class ProgramBuilder {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            obsoleteVersion);
+            obsoleteVersion,
+            ProgramType.DEFAULT);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -278,6 +283,21 @@ public class ProgramBuilder {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
               question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId)));
+      return this;
+    }
+
+    /** Add a required address question that has correction enabled to the block. */
+    public BlockBuilder withRequiredCorrectedAddressQuestion(Question question) {
+      if (!(question.getQuestionDefinition() instanceof AddressQuestionDefinition)) {
+        throw new IllegalArgumentException("Only address questions can be address corrected.");
+      }
+
+      blockDefBuilder.addQuestion(
+          ProgramQuestionDefinition.create(
+              question.getQuestionDefinition(),
+              Optional.of(programBuilder.programDefinitionId),
+              /* optional= */ true,
+              /* addressCorrectionEnabled= */ true));
       return this;
     }
 
