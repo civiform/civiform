@@ -17,3 +17,5 @@ logs
 .bsp
 .ammonite
 sbt_cache
+.mypy_cache
+venv

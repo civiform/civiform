@@ -1,0 +1,400 @@
+{
+    "Branding": {
+        "group-description": "Configures CiviForm branding.",
+        "members": {
+            "WHITELABEL_SMALL_LOGO_URL": {
+                "description": "Small logo used on the login page.",
+                "type": "string",
+                "regex": "^https?://",
+                "regex_tests": [
+                    {
+                        "val": "http://mylogo.png",
+                        "shouldMatch": true
+                    },
+                    {
+                        "val": "https://my-secure-logo.png",
+                        "shouldMatch": true
+                    },
+                    {
+                        "val": "props-not-a-valid-URL",
+                        "shouldMatch": false
+                    }
+                ]
+            },
+            "WHITELABEL_LOGO_WITH_NAME_URL": {
+                "description": "Logo with name used on the applicant-facing program index page.",
+                "type": "string"
+            },
+            "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
+                "description": "The short display name of the civic entity, will use \"TestCity\" if not set.",
+                "type": "string"
+            },
+            "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
+                "description": "The full display name of the civic entity, will use \"City of TestCity\" if not set.",
+                "type": "string"
+            },
+            "FAVICON_URL": {
+                "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
+                "type": "string"
+            }
+        }
+    },
+    "SECRET_KEY": {
+        "description": "[Secret key](http://www.playframework.com/documentation/latest/ApplicationSecret). The secret key is used to sign Play's session cookie. This must be changed for production.",
+        "type": "string"
+    },
+    "CIVIFORM_APPLICANT_IDP": {
+        "description": "Configure which IDP to use for admin authentication.",
+        "type": "string",
+        "values": [
+            "idcs",
+            "login-radius",
+            "adfs",
+            "generic-oidc",
+            "login-gov",
+            "auth0",
+            "disabled"
+        ]
+    },
+    "APPLICANT_REGISTER_URI": {
+        "description": "Direct URI to create new account.",
+        "type": "string"
+    },
+    "OpenID Connect Logout": {
+        "group-description": "Configures logout settings for OIDC identity providers.",
+        "members": {
+            "APPLICANT_OIDC_PROVIDER_LOGOUT": {
+                "description": "Enables central logout: https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout.",
+                "type": "bool"
+            },
+            "APPLICANT_OIDC_OVERRIDE_LOGOUT_URL": {
+                "description": "By default for logout enpoint 'end_session_endpoint' from auth provider discovery metadata file is used. But for some integration that standard flow might not be working and we need to override logout URL.",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM": {
+                "description": "URL param used to pass post logout redirect url in the logout request to the auth provider. It default to 'post_logout_redirect_uri' if this value is unset. If this value is set to the empty string, post logout redirect url is not passed at all and instead it needs to be hardcoded on the auth provider (otherwise user won't be redirected back to civiform after logout).",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_LOGOUT_CLIENT_PARAM": {
+                "description": "URL param used to pass client id in the logout request to the auth provider. If unset, client id is not added to the request.",
+                "type": "string"
+            }
+        }
+    },
+    "Oracle Identity Cloud Service": {
+        "group-description": "Configures IDCS settings. Only set these if CIVIFORM_APPLICANT_IDP=idcs.",
+        "members": {
+            "IDCS_CLIENT_ID": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "IDCS_SECRET": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "IDCS_DISCOVERY_URI": {
+                "description": "TODO",
+                "type": "string"
+            }
+        }
+    },
+    "Login Radius": {
+        "group-description": "Configures LoginRadius settings. Only set these if CIVIFORM_APPLICANT_IDP=login-radius.",
+        "members": {
+            "LOGIN_RADIUS_API_KEY": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "LOGIN_RADIUS_METADATA_URI": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "LOGIN_RADIUS_SAML_APP_NAME": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "LOGIN_RADIUS_KEYSTORE_NAME": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "LOGIN_RADIUS_KEYSTORE_PASS": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "LOGIN_RADIUS_PRIVATE_KEY_PASS": {
+                "description": "TODO",
+                "type": "string"
+            }
+        }
+    },
+    "Generic OpenID Connect": {
+        "group-description": "Configures OpenID Connect identity provider settings. Only set these if CIVIFORM_APPLICANT_IDP=generic-oidc.",
+        "members": {
+            "APPLICANT_OIDC_PROVIDER_NAME": {
+                "description": "TOOD",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_CLIENT_ID": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_CLIENT_SECRET": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_DISCOVERY_URI": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_RESPONSE_MODE": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_RESPONSE_TYPE": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_ADDITIONAL_SCOPES": {
+                "description": "Additional scopes should be space separated values.",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_LOCALE_ATTRIBUTE": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_EMAIL_ATTRIBUTE": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_FIRST_NAME_ATTRIBUTE": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_MIDDLE_NAME_ATTRIBUTE": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "APPLICANT_OIDC_LAST_NAME_ATTRIBUTE": {
+                "description": "TODO",
+                "type": "string"
+            }
+        }
+    },
+    "Login.gov": {
+        "group-description": "Configures Login.gov. Only set these if CIVIFORM_APPLICANT_IDP=login-gov",
+        "members": {
+            "LOGIN_GOV_CLIENT_ID": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "LOGIN_GOV_DISCOVERY_URI": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "LOGIN_GOV_ADDITIONAL_SCOPES": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "LOGIN_GOV_ACR_VALUE": {
+                "description": "[Authentication Context Class Reference requests](https://developers.login.gov/oidc/#request-parameters). Use \"http://idmanagement.gov/ns/assurance/ial/1\" for open registration, email only and \"http://idmanagement.gov/ns/assurance/ial/2\" for requiring identity verification",
+                "type": "string",
+                "values": [
+                    "http://idmanagement.gov/ns/assurance/ial/1",
+                    "http://idmanagement.gov/ns/assurance/ial/2"
+                ]
+            }
+        }
+    },
+    "Active Directory Federation Services": {
+        "group-description": "Configures ADFS admin authentication provider",
+        "members": {
+            "ADFS_CLIENT_ID": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "ADFS_SECRET": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "ADFS_DISCOVERY_URI": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "ADFS_GLOBAL_ADMIN_GROUP": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "ADFS_ADDITIONAL_SCOPES": {
+                "description": "Additional scopes should be space separated values.",
+                "type": "string"
+            },
+            "AD_GROUPS_ATTRIBUTE_NAME": {
+                "description": "TODO",
+                "type": "string"
+            }
+        }
+    },
+    "BASE_URL": {
+        "description": "Base url must start with http(s)://.",
+        "type": "string"
+    },
+    "STAGING_HOSTNAME": {
+        "description": "Staging hostname should not start with http(s)://.",
+        "type": "string"
+    },
+    "MEASUREMENT_ID": {
+        "description": "Google Analytics tracking ID.",
+        "type": "string"
+    },
+    "Email addresses": {
+        "group-description": "Email addresses used by CiviForm.",
+        "members": {
+            "AWS_SES_SENDER": {
+                "description": "The email address used for the 'from' email header for emails sent by CiviForm.",
+                "type": "string"
+            },
+            "SUPPORT_EMAIL_ADDRESS": {
+                "description": "This email address is listed in the footer for applicants to contact support.",
+                "type": "string"
+            },
+            "STAGING_ADMIN_LIST": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "STAGING_TI_LIST": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "STAGING_APPLICANT_LIST": {
+                "description": "TODO",
+                "type": "string"
+            }
+        }
+    },
+    "CIVIFORM_SUPPORTED_LANGUAGES": {
+        "description": "The application languages. These are the languages applicants can choose from when specifying their language preference, and admins can choose from when adding translations for programs and applications. Alphabetize all languages besides English.",
+        "type": "index-list"
+    },
+    "CIVIFORM_SERVER_METRICS_ENABLED": {
+        "description": "If enabled, allows Prometheus server metrics to be retrieved via the \"/metrics\" URL path. If disabled, \"/metrics\" returns a 404.",
+        "type": "bool"
+    },
+    "Database": {
+        "group-description": "Configures postgres database",
+        "members": {
+            "DATABASE_APPLY_DESTRUCTIVE_CHANGES": {
+                "description": "TODO",
+                "type": "bool"
+            },
+            "DATABASE_CONNECTION_POOL_SIZE": {
+                "description": "TODO",
+                "type": "int"
+            },
+            "DB_JDBC_STRING": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "DB_USERNAME": {
+                "description": "TODO",
+                "type": "string"
+            },
+            "DB_PASSWORD": {
+                "description": "TODO",
+                "type": "string"
+            }
+        }
+    },
+    "AWS_REGION": {
+        "description": "AWS Region used by SES and s3 (if STORAGE_SERVICE_NAME=s3).",
+        "type": "string"
+    },
+    "Applicant file upload storage": {
+        "group-description": "Configures file storage provider for applicant-uploaded files.",
+        "members": {
+            "STORAGE_SERVICE_NAME": {
+                "description": "Configue file storage provider.",
+                "type": "string",
+                "values": [
+                    "s3",
+                    "azure-blob"
+                ]
+            },
+            "AWS_S3_BUCKET_NAME": {
+                "description": "TODO. Only set if STORAGE_SERVICE_NAME=s3.",
+                "type": "string"
+            },
+            "AWS_S3_FILE_LIMIT_MB": {
+                "description": "TODO. Only set if STORAGE_SERVICE_NAME=s3.",
+                "type": "string"
+            },
+            "AZURE_STORAGE_ACCOUNT_NAME": {
+                "description": "TODO. Only set if STORAGE_SERVIEC_NAME=azure-blob.",
+                "type": "string"
+            },
+            "AZURE_STORAGE_ACCOUNT_CONTAINER": {
+                "description": "TODO. Only set if STORAGE_SERVIEC_NAME=azure-blob.",
+                "type": "string"
+            },
+            "AZURE_LOCAL_CONNECTION_STRING": {
+                "description": "TODO. Only set if STORAGE_SERVIEC_NAME=azure-blob.",
+                "type": "string"
+            }
+        }
+    },
+    "CIVIFORM_TIME_ZONE_ID": {
+        "description": "TODO",
+        "type": "string"
+    },
+    "CF_OPTIONAL_QUESTIONS": {
+        "description": "TODO",
+        "type": "bool"
+    },
+    "CIVIFORM_IMAGE_TAG": {
+        "description": "TODO",
+        "type": "string"
+    },
+    "CIVIFORM_API_SECRET_SALT": {
+        "description": "Secret salt for hashing API key secrets. The server will start with the default value of \"changeme\" but the admin will not be able to create API keys with it.",
+        "type": "string"
+    },
+    "CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET": {
+        "description": "TODO",
+        "type": "bool"
+    },
+    "CIVIFORM_API_APPLICATIONS_LIST_MAX_PAGE_SIZE": {
+        "description": "Max and default page size for ProgramApplicationApiController.list. This should be kept low enough so that the request completes before hitting the load balancer timeout.",
+        "type": "string"
+    },
+    "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS": {
+        "description": "When set to true Civiform Admins will see all Application for all Programs.",
+        "type": "bool"
+    },
+    "CIVIFORM_APPLICATION_STATUS_TRACKING_ENABLED": {
+        "description": "TODO",
+        "type": "bool"
+    },
+    "PROGRAM_READ_ONLY_VIEW_ENABLED": {
+        "description": "TODO",
+        "type": "bool"
+    },
+    "PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED": {
+        "description": "TODO",
+        "type": "bool"
+    },
+    "PREDICATES_MULTIPLE_QUESTIONS_ENABLED": {
+        "description": "TODO",
+        "type": "bool"
+    },
+    "FEATURE_FLAG_OVERRIDES_ENABLED": {
+        "description": "If enabled allows for setting of feature flags via HTTP. This is explicitly not recommended for production and intended to aid development and pre-release evaluation of features. In fact it is unlikely to work as expected in production if there are multiple server.",
+        "type": "bool"
+    },
+    "ESRI_ADDRESS_CORRECTION_ENABLED": {
+        "description": "TODO",
+        "type": "bool"
+    },
+    "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
+        "description": "TODO",
+        "type": "bool"
+    }
+}
