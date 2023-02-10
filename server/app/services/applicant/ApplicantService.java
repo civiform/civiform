@@ -31,6 +31,7 @@ import models.Applicant;
 import models.Application;
 import models.DisplayMode;
 import models.LifecycleStage;
+import models.Program;
 import models.StoredFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -551,7 +552,7 @@ public final class ApplicantService {
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> programDefinitions =
         versionRepository.getActiveVersion().getPrograms().stream()
-            .map(program -> program.getProgramDefinition())
+            .map(Program::getProgramDefinition)
             .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
             .collect(ImmutableList.toImmutableList());
     CompletableFuture<ImmutableList<ProgramDefinition>> programListFuture =
