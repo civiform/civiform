@@ -171,6 +171,25 @@ public final class ProgramServiceImpl implements ProgramService {
       String defaultDisplayDescription,
       String externalLink,
       String displayMode) {
+    return createProgramDefinition(
+        adminName,
+        adminDescription,
+        defaultDisplayName,
+        defaultDisplayDescription,
+        externalLink,
+        displayMode,
+        /* isCommonIntakeForm= */ false);
+  }
+
+  @Override
+  public ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
+      String adminName,
+      String adminDescription,
+      String defaultDisplayName,
+      String defaultDisplayDescription,
+      String externalLink,
+      String displayMode,
+      Boolean isCommonIntakeForm) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
 
@@ -198,6 +217,9 @@ public final class ProgramServiceImpl implements ProgramService {
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
     }
+    if (isCommonIntakeForm && programRepository.commonIntakeFormExists()) {
+      errorsBuilder.add(CiviFormError.of("A program set as the Common Intake Form already exists"));
+    }
 
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
@@ -222,7 +244,7 @@ public final class ProgramServiceImpl implements ProgramService {
             displayMode,
             ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersion(),
-            ProgramType.DEFAULT);
+            isCommonIntakeForm ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT);
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -235,7 +257,8 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayName,
       String displayDescription,
       String externalLink,
-      String displayMode)
+      String displayMode,
+      Boolean isCommonIntakeForm)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
@@ -251,10 +274,6 @@ public final class ProgramServiceImpl implements ProgramService {
     if (adminDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of("A program note is required"));
     }
-    if (!isValidAbsoluteLink(externalLink)) {
-      errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
-    }
-
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -271,6 +290,8 @@ public final class ProgramServiceImpl implements ProgramService {
                     .updateTranslation(locale, displayDescription))
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
+            .setProgramType(
+                isCommonIntakeForm ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT)
             .build()
             .toProgram();
     return ErrorAnd.of(

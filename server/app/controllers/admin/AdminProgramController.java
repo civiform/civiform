@@ -97,7 +97,8 @@ public final class AdminProgramController extends CiviFormController {
             program.getLocalizedDisplayName(),
             program.getLocalizedDisplayDescription(),
             program.getExternalLink(),
-            program.getDisplayMode());
+            program.getDisplayMode(),
+            program.getIsCommonIntakeForm());
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(newOneView.render(request, program, Optional.of(message)));
@@ -168,7 +169,8 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
-            programData.getDisplayMode());
+            programData.getDisplayMode(),
+            programData.getIsCommonIntakeForm());
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(editView.render(request, programDefinition, programData, Optional.of(message)));

@@ -663,6 +663,10 @@ public abstract class ProgramDefinition {
                     .map(ProgramQuestionDefinition::getQuestionDefinition));
   }
 
+  public boolean isCommonIntakeForm() {
+    return this.programType() == ProgramType.COMMON_INTAKE_FORM;
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 

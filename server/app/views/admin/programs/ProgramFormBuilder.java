@@ -12,9 +12,11 @@ import com.typesafe.config.Config;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
+import java.util.Arrays;
 import models.DisplayMode;
 import modules.MainModule;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.AdminStyles;
@@ -41,6 +43,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedDisplayDescription(),
         program.getExternalLink(),
         program.getDisplayMode(),
+        program.getIsCommonIntakeForm(),
         editExistingProgram);
   }
 
@@ -53,6 +56,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.localizedDescription().getDefault(),
         program.externalLink(),
         program.displayMode().getValue(),
+        program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         editExistingProgram);
   }
 
@@ -63,6 +67,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String displayDescription,
       String externalLink,
       String displayMode,
+      Boolean isCommonIntakeForm,
       boolean editExistingProgram) {
     FormTag formTag = form().withMethod("POST");
     formTag.with(
@@ -114,6 +119,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Program note for administrative use only*")
             .setValue(adminDescription)
             .getTextareaTag(),
+        FieldWithLabel.checkbox()
+            .setFieldName("isCommonIntakeForm")
+            .setLabelText("Set program as common intake")
+            .setValue("true")
+            .setChecked(isCommonIntakeForm)
+            .getCheckboxTag(),
         submitButton("Save")
             .withId("program-update-button")
             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES));
