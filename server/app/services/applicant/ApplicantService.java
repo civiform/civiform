@@ -655,7 +655,7 @@ public final class ApplicantService {
             // associated question data.
             ProgramDefinition programDefinition =
                 activePrograms.stream()
-                    .filter(p -> p.id() == submittedApp.getProgram().id)
+                    .filter(p -> p.id() == activeProgramNames.get(programName).id())
                     .findFirst()
                     .get();
             ApplicantProgramData.Builder applicantProgramDataBuilder =
