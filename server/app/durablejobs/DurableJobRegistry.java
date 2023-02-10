@@ -59,7 +59,7 @@ public final class DurableJobRegistry {
     registeredJobs.put(
         jobName.getJobName(),
         RegisteredJob.create(
-            durableJobFactory, jobName, /* recurringJobExecutionTimeResolver */ Optional.empty()));
+            durableJobFactory, jobName, /* recurringJobExecutionTimeResolver= */ Optional.empty()));
   }
 
   /**
