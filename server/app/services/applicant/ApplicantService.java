@@ -681,7 +681,6 @@ public final class ApplicantService {
           ApplicantProgramData.Builder applicantProgramDataBuilder =
               ApplicantProgramData.builder().setProgram(activeProgramNames.get(programName));
 
-          // Only do this if the feature flag is on
           if (!mostRecentApplicationsByProgram.isEmpty()) {
             Applicant applicant = applications.stream().findFirst().get().getApplicant();
             ProgramDefinition program = activeProgramNames.get(programName);
