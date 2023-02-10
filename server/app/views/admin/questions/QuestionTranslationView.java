@@ -150,7 +150,7 @@ public final class QuestionTranslationView extends TranslationFormView {
                 span("Applicant-visible question details"),
                 new LinkElement()
                     .setText("(edit default)")
-                    .setHref(
+                    .setAbsoluteHref(
                         controllers.admin.routes.AdminQuestionController.edit(
                                 questionDefinition.getId())
                             .url())

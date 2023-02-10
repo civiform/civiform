@@ -379,7 +379,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     return new LinkElement()
         .setId("application-view-link-" + application.id)
-        .setHref(viewLink)
+        .setAbsoluteHref(viewLink)
         .setText(text)
         .setStyles("mr-2", ReferenceClasses.VIEW_BUTTON)
         .asAnchorText();

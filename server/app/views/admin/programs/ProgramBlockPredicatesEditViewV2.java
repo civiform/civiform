@@ -191,7 +191,7 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
                     .with(div().withClasses("flex-grow"))
                     .with(
                         new LinkElement()
-                            .setHref(editBlockUrl)
+                            .setAbsoluteHref(editBlockUrl)
                             .setText(String.format("Return to edit %s", blockDefinition.name()))
                             .asAnchorText()))
             // Show the current predicate.

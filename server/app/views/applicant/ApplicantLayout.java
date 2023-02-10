@@ -71,7 +71,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     ATag emailAction =
         new LinkElement()
             .setText(supportEmail)
-            .setHref("mailto:" + supportEmail)
+            .setRelativeHref("mailto:" + supportEmail)
             .opensInNewTab()
             .asAnchorText();
 

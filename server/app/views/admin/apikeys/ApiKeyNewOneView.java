@@ -48,7 +48,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
     text("Specify a subnet using "),
     new LinkElement()
         .setText("CIDR notation")
-        .setHref("https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing")
+        .setAbsoluteHref("https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing")
         .opensInNewTab()
         .asAnchorText(),
     text(

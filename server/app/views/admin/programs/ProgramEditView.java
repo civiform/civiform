@@ -70,7 +70,7 @@ public final class ProgramEditView extends ProgramFormBuilder {
         controllers.admin.routes.AdminProgramBlocksController.index(programId).url();
     return new LinkElement()
         .setId("manage-questions-link")
-        .setHref(manageQuestionLink)
+        .setAbsoluteHref(manageQuestionLink)
         .setText("Manage Questions →")
         .setStyles("mx-4", "float-right")
         .asAnchorText();

@@ -243,7 +243,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
   private ATag renderBackLink(
       String editPredicateUrl, String typeDisplayName, BlockDefinition blockDefinition) {
     return new LinkElement()
-        .setHref(editPredicateUrl)
+        .setAbsoluteHref(editPredicateUrl)
         .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
         .setText(
             String.format(

@@ -42,7 +42,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
         new LinkElement()
             .setStyles("mb-4", "underline")
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase())
-            .setHref(routes.ApplicantProgramsController.view(applicantId, programId).url())
+            .setAbsoluteHref(routes.ApplicantProgramsController.view(applicantId, programId).url())
             .opensInNewTab()
             .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
             .asAnchorText()
@@ -82,14 +82,15 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .with(div().withClasses("flex-grow"))
                     .with(
                         new LinkElement()
-                            .setHref(routes.ApplicantProgramsController.index(applicantId).url())
+                            .setAbsoluteHref(
+                                routes.ApplicantProgramsController.index(applicantId).url())
                             .setText(
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                             .asButton()
                             .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
                     .with(
                         new LinkElement()
-                            .setHref(
+                            .setAbsoluteHref(
                                 routes.ApplicantProgramReviewController.review(
                                         applicantId, programId)
                                     .url())

@@ -114,7 +114,10 @@ public abstract class BaseHtmlView {
       div.with(new LinkElement().setText("∅").asButtonNoHref());
     } else {
       div.with(
-          new LinkElement().setText("←").setHref(linkForPage.apply(page - 1).url()).asButton());
+          new LinkElement()
+              .setText("←")
+              .setRelativeHref(linkForPage.apply(page - 1).url())
+              .asButton());
     }
     String paginationText =
         pageCount > 0 ? String.format("Page %d of %d", page, pageCount) : "No results";
@@ -122,7 +125,10 @@ public abstract class BaseHtmlView {
         div(paginationText).withClasses("leading-3", "float-left", "inline-block", "p-2", "m-4"));
     if (pageCount > page) {
       div.with(
-          new LinkElement().setText("→").setHref(linkForPage.apply(page + 1).url()).asButton());
+          new LinkElement()
+              .setText("→")
+              .setAbsoluteHref(linkForPage.apply(page + 1).url())
+              .asButton());
     } else {
       div.with(new LinkElement().setText("∅").asButtonNoHref());
     }

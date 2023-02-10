@@ -200,7 +200,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
     if (data.isAnswered()) {
       editElement
-          .setHref(
+          .setAbsoluteHref(
               routes.ApplicantProgramBlocksController.review(
                       applicantId, data.programId(), data.blockId())
                   .url())
@@ -208,7 +208,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
     } else {
       editElement
-          .setHref(
+          .setAbsoluteHref(
               routes.ApplicantProgramBlocksController.edit(
                       applicantId, data.programId(), data.blockId())
                   .url())

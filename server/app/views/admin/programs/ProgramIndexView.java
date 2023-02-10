@@ -270,7 +270,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             span(" - " + visibilityText + " "),
             new LinkElement()
                 .setText("Edit")
-                .setHref(controllers.admin.routes.AdminProgramController.edit(program.id()).url())
+                .setAbsoluteHref(
+                    controllers.admin.routes.AdminProgramController.edit(program.id()).url())
                 .asAnchorText());
   }
 
@@ -280,7 +281,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             span(" - "),
             new LinkElement()
                 .setText("Edit")
-                .setHref(
+                .setAbsoluteHref(
                     controllers.admin.routes.AdminQuestionController.edit(question.getId()).url())
                 .asAnchorText());
   }

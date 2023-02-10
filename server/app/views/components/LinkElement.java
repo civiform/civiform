@@ -58,8 +58,24 @@ public final class LinkElement {
     return this;
   }
 
-  public LinkElement setHref(String href) {
+  public LinkElement setRelativeHref(String href) {
+    if (href.startsWith("http://") || href.startsWith("https://")) {
+      throw new RuntimeException("Relative href links cannot start with a protocol specifier.");
+    }
+
     this.href = href;
+    return this;
+  }
+
+  public LinkElement setAbsoluteHref(String href) {
+    // We must have a protocol specified on the LinkElement so that it is not interpreted as a
+    // relative link.
+    // If the href doesn't have a protocol specified, use https.
+    if (!href.startsWith("http://") && !href.startsWith("https://")) {
+      this.href = "https://" + href;
+    } else {
+      this.href = href;
+    }
     return this;
   }
 

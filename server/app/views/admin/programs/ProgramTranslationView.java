@@ -87,7 +87,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                             span("Applicant-visible program details"),
                             new LinkElement()
                                 .setText("(edit default)")
-                                .setHref(programDetailsLink)
+                                .setAbsoluteHref(programDetailsLink)
                                 .setStyles("ml-2")
                                 .asAnchorText()),
                     ImmutableList.of(
@@ -154,7 +154,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                       span(String.format("Application status: %s", configuredStatus.statusText())),
                       new LinkElement()
                           .setText("(edit default)")
-                          .setHref(programStatusesLink)
+                          .setAbsoluteHref(programStatusesLink)
                           .setStyles("ml-2")
                           .asAnchorText()),
               fieldsBuilder.build()));

@@ -63,7 +63,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
       String linkDestination, Locale locale, boolean isCurrentlySelected) {
     LinkElement link =
         new LinkElement()
-            .setHref(linkDestination)
+            .setAbsoluteHref(linkDestination)
             .setText(locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE));
 
     if (isCurrentlySelected) {

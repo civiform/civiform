@@ -387,7 +387,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .with(
                     span("Learn more about each of the data export settings in the "),
                     new LinkElement()
-                        .setHref(
+                        .setAbsoluteHref(
                             "https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings")
                         .setText("documentation")
                         .opensInNewTab()

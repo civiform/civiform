@@ -298,7 +298,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setId(baseId + "-info-link")
             .setStyles("mb-2", "text-sm", "underline")
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-            .setHref(programDetailsLink)
+            .setAbsoluteHref(programDetailsLink)
             .opensInNewTab()
             .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
             .asAnchorText()

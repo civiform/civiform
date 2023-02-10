@@ -64,20 +64,20 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                     .with(div().withClasses("flex-grow"))
                     .with(
                         new LinkElement()
-                            .setHref(redirectTo)
+                            .setAbsoluteHref(redirectTo)
                             .setText(
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                             .asButton()
                             .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
                     .with(
                         new LinkElement()
-                            .setHref(org.pac4j.play.routes.LogoutController.logout().url())
+                            .setAbsoluteHref(org.pac4j.play.routes.LogoutController.logout().url())
                             .setText(messages.at(MessageKey.LINK_ALL_DONE.getKeyName()))
                             .asButton()
                             .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
                     .with(
                         new LinkElement()
-                            .setHref(
+                            .setAbsoluteHref(
                                 routes.LoginController.applicantLogin(Optional.of(redirectTo))
                                     .url())
                             .setText(
@@ -98,7 +98,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
     } else {
       content.with(
           new LinkElement()
-              .setHref(redirectTo)
+              .setAbsoluteHref(redirectTo)
               .setText(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
               .asAnchorText());
     }
