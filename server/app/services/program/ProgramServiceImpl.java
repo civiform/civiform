@@ -108,6 +108,30 @@ public final class ProgramServiceImpl implements ProgramService {
         .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
   }
 
+  @Override
+  public CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
+      ImmutableList<ProgramDefinition> programDefinitions) {
+    return questionService
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            roQuestionService ->
+                programDefinitions.stream()
+                    .map(
+                        programDefinition -> {
+                          try {
+                            return syncProgramDefinitionQuestions(
+                                programDefinition, roQuestionService);
+                          } catch (QuestionNotFoundException e) {
+                            throw new RuntimeException(
+                                String.format(
+                                    "Question not found for Program %s", programDefinition.id()),
+                                e);
+                          }
+                        })
+                    .collect(ImmutableList.toImmutableList()),
+            httpExecutionContext.current());
+  }
+
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
     if (isActiveOrDraftProgram(program)) {
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
