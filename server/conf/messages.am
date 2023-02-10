@@ -177,9 +177,15 @@ toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደር�
 # Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
 content.notEligible=ብቁ አይደለም
 
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=ብቁ አይደለም
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=አርትዕ
 link.answer=መልስ
+
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥቷል
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -191,6 +197,70 @@ ariaLabel.answer=መልስ {0}
 
 # Program Summary Title
 title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
+
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
+title.applicantNotEligibleTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
+
+# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
+content.mustMeetRequirements=እነዚህን የፕሮግራም መስፈርቶች ማሟላት አለብዎት፦
+
+# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
+content.mustMeetRequirementsTi=ደንበኛዎ እነዚህን የፕሮግራም መስፈርቶች ማሟላት አለባቸው፦
+
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
+
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=መልሶችዎን ለማርትዕ ወደ ቀዳሚ ገጽ መመለስ ይችላሉ። ወይም ለሌላ ፕሮግራም ያመልክቱ።
+
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=ይመለሱ እና አርትዕ ያድርጉ
+
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
+
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
+
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=ብቁ ሊሆኑ ይችላሉ
+
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayQualifyTi=ደንበኛዎ ብቁ ሊሆኑ ይችላሉ
+
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=ብቁ ላይሆኑ ይችላሉ
+
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayNotQualifyTi=ደንበኛዎ ብቁ ላይሆኑ ይችላሉ
+
+# Title of page when there is a system outage and eligibility can't be determined for the applicant.
+title.cannotCheckEligibility=በዚህ ጊዜ ለ{0} የእርስዎን ብቁነት ማረጋገጥ አንችልም።
+
+# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client's behalf.
+title.cannotCheckEligibilityTi=በዚህ ጊዜ ለ{0} የደንበኛዎን ብቁነት ማረጋገጥ አንችልም።
+
+# Content of page when there is a system outage and eligibility can't be determined for the applicant.
+content.cannotCheckEligibility=ይህን ችግር በፍጥነት ለማስተካከል እየሰራን ነው። በኋላ ላይ እንደገና ይሞክሩ።
+
+# Button that allows an applicant to view all programs.
+button.viewAllPrograms=ሁሉንም ፕሮግራሞች ይመልከቱ
+
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
+
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayNotQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=ማመልከቻን በማስቀመጥ ላይ ስህተት
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -227,6 +297,36 @@ validation.currencyMisformatted=ምንዛሬ ከሚከተሉት ቅርጸቶች 
 validation.stateRequired=እባክዎ ክልል ያስገቡ።
 validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
 validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
+
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=አድራሻን ያረጋግጡ
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም ነገር ግን የሆነ ተመሳሳይ ነገር አግኝተናል።
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=የገባ አድራሻ፦
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName={0} ገብቷል፦
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=የተጠቆመው አድራሻ፦
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=አድራሻን አርትዕ ያድርጉ
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm=ያስቀምጡ እና ያረጋግጡ
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -269,6 +369,9 @@ placeholder.entityName={0} ስም
 
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=እባክዎ ፋይል ይምረጡ።
+
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=ፋይል ይምረጡ
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

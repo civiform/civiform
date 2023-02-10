@@ -180,9 +180,15 @@ toast.applicationOutOfDate=Se actualizó la aplicación; revisa y responde las p
 # Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
 content.notEligible=No apto
 
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=No califica
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Editar
 link.answer=Responder
+
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn=Ya se respondió el {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -194,6 +200,70 @@ ariaLabel.answer=Responder {0}
 
 # Program Summary Title
 title.programSummary=Resumen de la inscripción al programa
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=Según tus respuestas, es posible que no califiques para {0}.
+
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
+title.applicantNotEligibleTi=Según tus respuestas, es posible que tu cliente no califique para {0}.
+
+# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
+content.mustMeetRequirements=Debes cumplir con los siguientes requisitos del programa:
+
+# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
+content.mustMeetRequirementsTi=Tu cliente debe cumplir con los siguientes requisitos del programa:
+
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
+
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=Puedes regresar a la página anterior para editar tus respuestas. También puedes inscribirte en otro programa.
+
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=Volver y editar
+
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayQualifyTi=Según tus respuestas, es posible que tu cliente califique para {0}. Para continuar, completa la inscripción.
+
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=Según tus respuestas, es posible que califiques para {0}. Para continuar, completa la inscripción.
+
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=Es posible que califiques
+
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayQualifyTi=Es posible que tu cliente califique
+
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=Es posible que no califiques
+
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayNotQualifyTi=Es posible que tu cliente no califique
+
+# Title of page when there is a system outage and eligibility can't be determined for the applicant.
+title.cannotCheckEligibility=Por el momento, no podemos revisar tu elegibilidad para {0}.
+
+# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client's behalf.
+title.cannotCheckEligibilityTi=Por el momento, no podemos revisar la elegibilidad de tu cliente para {0}.
+
+# Content of page when there is a system outage and eligibility can't be determined for the applicant.
+content.cannotCheckEligibility=Estamos trabajando para resolver este problema lo más rápido posible. Vuelve a intentarlo más tarde.
+
+# Button that allows an applicant to view all programs.
+button.viewAllPrograms=Ver todos los programas
+
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=Según tus respuestas, es posible que no califiques para {0}. Si cambió la información, puedes editar tus respuestas y continuar con la inscripción.
+
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayNotQualifyTi=Según tus respuestas, es posible que tu cliente no califique para {0}. Si cambió la información de tu cliente, puedes editar las respuestas y continuar con la inscripción.
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=Se produjo un error cuando se guardaba la inscripción
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -231,6 +301,36 @@ validation.currencyMisformatted=La moneda debe tener uno de estos formatos: 1000
 validation.stateRequired=Ingresa un estado.
 validation.invalidZipcode=Ingresa un código postal válido de 5 dígitos.
 validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postales.
+
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=Verifica la dirección
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=Dirección ingresada:
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName=Se ingresó {0}:
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Dirección sugerida:
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=Direcciones sugeridas:
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=Editar dirección
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm=Guardar y confirmar
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=No se encontró ninguna dirección válida
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=No pudimos verificar la dirección que proporcionaste. Para continuar, edita la dirección
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -273,6 +373,9 @@ placeholder.entityName=Nombre de {0}
 
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Elige un archivo.
+
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=Elegir archivo
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
