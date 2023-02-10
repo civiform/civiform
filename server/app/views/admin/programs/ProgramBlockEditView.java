@@ -2,10 +2,12 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
@@ -21,6 +23,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
@@ -127,12 +130,15 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       ImmutableList<QuestionDefinition> questions) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     String title = String.format("Edit %s", blockDefinition.name());
+    Long programId = programDefinition.id();
 
     String blockUpdateAction =
-        controllers.admin.routes.AdminProgramBlocksController.update(
-                programDefinition.id(), blockId)
-            .url();
+        controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
     Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
+
+    String blockDeleteAction =
+        controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
+    Modal blockDeleteScreenModal = blockDeleteModal(csrfTag, blockDeleteAction, blockDefinition);
 
     HtmlBundle htmlBundle =
         layout
@@ -161,6 +167,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                     blockDefinition.isEnumerator(),
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
+                                    blockDeleteScreenModal.getButton(),
                                     featureFlags.isProgramEligibilityConditionsEnabled(request),
                                     request))));
 
@@ -175,7 +182,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   csrfTag,
                   QuestionBank.shouldShowQuestionBank(request)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
-          .addModals(blockDescriptionEditModal);
+          .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
 
     // Add toast messages
@@ -211,15 +218,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                     .setValue(OptionalLong.of(blockId))
                     .getNumberTag());
 
-    String blockDeleteAction =
-        controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
-    FormTag deleteBlockForm =
-        form(csrfTag)
-            .withId(DELETE_BLOCK_FORM_ID)
-            .withMethod(HttpVerbs.POST)
-            .withAction(blockDeleteAction);
-
-    return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm).withClasses("hidden");
+    return div(createBlockForm, createRepeatedBlockForm).withClasses("hidden");
   }
 
   private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
@@ -354,6 +353,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       boolean blockDefinitionIsEnumerator,
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
+      ButtonTag blockDeleteModalButton,
       boolean isProgramEligibilityConditionsEnabled,
       Request request) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
@@ -412,7 +412,11 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
     if (viewAllowsEditingProgram()) {
       DivTag buttons =
           blockPanelButtons(
-              program, blockDefinitionIsEnumerator, blockDescriptionModalButton, canDelete);
+              program,
+              blockDefinitionIsEnumerator,
+              blockDescriptionModalButton,
+              blockDeleteModalButton,
+              canDelete);
       ButtonTag addQuestion =
           makeSvgTextButton("Add a question", Icons.ADD)
               .withClasses(
@@ -434,7 +438,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       ProgramDefinition program,
       boolean blockDefinitionIsEnumerator,
       ButtonTag blockDescriptionModalButton,
-      boolean canDelete) {
+      ButtonTag blockDeleteModalButton,
+      Boolean canDelete) {
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
@@ -451,21 +456,19 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?
+
+    // Only add the delete button if there is more than one screen in the program
     if (program.blockDefinitions().size() > 1) {
       buttons.with(div().withClass("flex-grow"));
-      buttons.with(
-          ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
-              .withType("submit")
-              .withId("delete-block-button")
-              .withForm(DELETE_BLOCK_FORM_ID)
-              .withCondDisabled(!canDelete)
-              .withCondTitle(
-                  !canDelete, "A screen can only be deleted when it has no repeated screens.")
-              .withClasses(
-                  AdminStyles.SECONDARY_BUTTON_STYLES,
-                  "mx-4",
-                  "my-1",
-                  StyleUtils.disabled("opacity-50")));
+      if (canDelete) {
+        buttons.with(blockDeleteModalButton);
+      } else {
+        buttons.with(
+            blockDeleteModalButton
+                .withCondDisabled(!canDelete)
+                .withCondTitle(
+                    !canDelete, "A screen can only be deleted when it has no repeated screens."));
+      }
     }
     return buttons;
   }
@@ -876,6 +879,82 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build());
     return qb.getContainer(questionBankVisibility);
+  }
+
+  private Modal blockDeleteModal(
+      InputTag csrfTag, String blockDeleteAction, BlockDefinition blockDefinition) {
+
+    FormTag deleteBlockForm =
+        form(csrfTag)
+            .withId(DELETE_BLOCK_FORM_ID)
+            .withMethod(HttpVerbs.POST)
+            .withAction(blockDeleteAction);
+
+    boolean hasQuestions = blockDefinition.getQuestionCount() > 0;
+    boolean hasEligibilityCondition = !blockDefinition.eligibilityDefinition().isEmpty();
+    boolean hasVisibilityCondition = !blockDefinition.visibilityPredicate().isEmpty();
+    ArrayList<String> itemsInBlock = new ArrayList<String>();
+
+    if (hasQuestions) {
+      itemsInBlock.add("questions");
+    }
+    if (hasEligibilityCondition) {
+      itemsInBlock.add("eligibility conditions");
+    }
+    if (hasVisibilityCondition) {
+      itemsInBlock.add("visibility conditions");
+    }
+
+    // If there are no questions, eligibilty conditions, or visibility conditions on this screen,
+    // just print "Are you sure you want to delete this screen?"
+    if (itemsInBlock.size() == 0) {
+      deleteBlockForm
+          .withId("block-delete-form")
+          .with(
+              div(h1("Are you sure you want to delete this screen?")
+                      .withClasses("text-base", "mb-2"))
+                  .withClasses("mx-4"),
+              submitButton("Delete")
+                  .withId("delete-block-button")
+                  .withClasses(
+                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+    } else {
+      // If there are questions, eligibility conditions, or visibility conditions on this screen,
+      // print the appropriate message.
+      String listItemsInBlock = "";
+      if (itemsInBlock.size() == 1) {
+        listItemsInBlock = itemsInBlock.get(0);
+      } else if (itemsInBlock.size() == 2) {
+        listItemsInBlock = itemsInBlock.get(0) + " and " + itemsInBlock.get(1);
+      } else {
+        // there will only ever be 1, 2, or 3 items
+        listItemsInBlock =
+            itemsInBlock.get(0) + ", " + itemsInBlock.get(1) + " and " + itemsInBlock.get(2);
+      }
+      deleteBlockForm
+          .withId("block-delete-form")
+          .with(
+              div(
+                      h1(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
+                          .withClasses("text-base", "mb-2"),
+                      h1("Are you sure you want to delete this screen?")
+                          .withClasses("text-base", "mb-2"))
+                  .withClasses("mx-4"),
+              submitButton("Delete")
+                  .withId("delete-block-button")
+                  .withClasses(
+                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+    }
+
+    ButtonTag deleteScreenButton =
+        ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
+
+    return Modal.builder("block-delete-modal", deleteBlockForm)
+        .setModalTitle(String.format("Delete %s?", blockDefinition.name()))
+        .setTriggerButtonContent(deleteScreenButton)
+        .setWidth(Modal.Width.THIRD)
+        .build();
   }
 
   private Modal blockDescriptionModal(
