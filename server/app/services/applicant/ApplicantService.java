@@ -31,7 +31,6 @@ import models.Applicant;
 import models.Application;
 import models.DisplayMode;
 import models.LifecycleStage;
-import models.Program;
 import models.StoredFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
