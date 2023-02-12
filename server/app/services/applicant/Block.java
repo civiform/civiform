@@ -15,6 +15,7 @@ import services.applicant.question.Question;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNodeType;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
@@ -115,6 +116,24 @@ public final class Block {
   /** This block is an address block if its {@link BlockDefinition} contains an address question. */
   public boolean hasAddress() {
     return blockDefinition.hasAddress();
+  }
+
+  public Optional<String> getLeafAddressNodeServiceAreaId() {
+    Optional<EligibilityDefinition> eligibilityDefinition = getEligibilityDefinition();
+    if (eligibilityDefinition.isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(eligibilityDefinition.get().predicate().rootNode().getLeafAddressNode().serviceAreaId());
+  }
+
+  public boolean hasAddressServiceAreaPredicate() {
+    Optional<EligibilityDefinition> eligibilityDefinition = getEligibilityDefinition();
+    if (eligibilityDefinition.isEmpty()) {
+      return false;
+    }
+
+    return PredicateExpressionNodeType.LEAF_ADDRESS_SERVICE_AREA.equals(eligibilityDefinition.get().predicate().rootNode().getType());
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {

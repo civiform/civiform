@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaInclusionGroup;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -31,6 +33,7 @@ public final class AddressQuestion extends Question {
   private Optional<Double> latitudeValue;
   private Optional<Double> longitudeValue;
   private Optional<Long> wellKnownIdValue;
+  private Optional<ImmutableList<ServiceAreaInclusion>> serviceAreaValue;
 
   AddressQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -158,6 +161,7 @@ public final class AddressQuestion extends Question {
     stateValue = applicantQuestion.getApplicantData().readString(getStatePath());
     return stateValue;
   }
+  // for reading the service areas
 
   public Optional<String> getZipValue() {
     if (zipValue != null) {
@@ -204,6 +208,14 @@ public final class AddressQuestion extends Question {
     return wellKnownIdValue;
   }
 
+  public Optional<ImmutableList<ServiceAreaInclusion>> getServiceAreaValue() {
+    if (serviceAreaValue != null) {
+      return serviceAreaValue;
+    }
+
+    serviceAreaValue = ServiceAreaInclusionGroup.deserialize(applicantQuestion.getApplicantData().readString(getServiceAreaPath()));
+  }
+
   public AddressQuestionDefinition getQuestionDefinition() {
     return (AddressQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -242,6 +254,10 @@ public final class AddressQuestion extends Question {
 
   public Path getWellKnownIdPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
+  }
+
+  public Path getServiceAreaPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
   }
 
   @Override

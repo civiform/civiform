@@ -21,4 +21,14 @@ public enum ServiceAreaState {
   public String getSerializationFormat() {
     return this.serializationFormat;
   }
+
+  public static ServiceAreaState getEnumFromSerializedFormat(String serializedFormat) {
+    for (ServiceAreaState e : ServiceAreaState.values()) {
+      if (e.getSerializationFormat().equals(serializedFormat)) {
+        return ServiceAreaState.valueOf(e.name());
+      }
+    }
+    // TODO throw exception instead
+    return null;
+  }
 }

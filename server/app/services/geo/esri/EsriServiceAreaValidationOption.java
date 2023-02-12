@@ -3,6 +3,7 @@ package services.geo.esri;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaState;
 
 /**
  * Represents a service area defined in an external Esri system that {@link Address} can be checked
@@ -50,13 +51,14 @@ public abstract class EsriServiceAreaValidationOption {
 
   /**
    * Determine if this EsriServiceAreaValidationOption is in the provided list of {@link
-   * ServiceAreaInclusion}.
+   * ServiceAreaInclusion}. Filters out FAILED states.
    *
    * @return boolean.
    */
   public Boolean isServiceAreaOptionInInclusionGroup(
       ImmutableList<ServiceAreaInclusion> inclusionGroup) {
     return inclusionGroup.stream()
+        .filter((inclusion) -> inclusion.getState() != ServiceAreaState.FAILED)
         .map(ServiceAreaInclusion::getServiceAreaId)
         .collect(ImmutableList.toImmutableList())
         .contains(this.getId());

@@ -36,6 +36,8 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
+import services.geo.esri.EsriClient;
+import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
@@ -66,6 +68,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final FeatureFlags featureFlags;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
+  private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
+  private final EsriClient esriClient;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -82,7 +86,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Config configuration,
       FeatureFlags featureFlags,
       FileUploadViewStrategy fileUploadViewStrategy,
-      IneligibleBlockView ineligibleBlockView) {
+      IneligibleBlockView ineligibleBlockView,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      EsriClient esriClient
+      ) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -95,6 +102,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
+    this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
+    this.esriClient = checkNotNull(esriClient);
   }
 
   /**
@@ -306,7 +315,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   .thenComposeAsync(
                       (StoredFile unused) ->
                           applicantService.stageAndUpdateIfValid(
-                              applicantId, programId, blockId, fileUploadQuestionFormData.build()));
+                              applicantId, programId, blockId, fileUploadQuestionFormData.build(), featureFlags.isEsriAddressServiceAreaValidationEnabled(request),
+                              esriClient,
+                              esriServiceAreaValidationConfig));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
@@ -350,7 +361,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData = cleanForm(form.rawData());
 
               return applicantService.stageAndUpdateIfValid(
-                  applicantId, programId, blockId, formData);
+                  applicantId, programId, blockId, formData, featureFlags.isEsriAddressServiceAreaValidationEnabled(request),
+                  esriClient,
+                  esriServiceAreaValidationConfig);
             },
             httpExecutionContext.current())
         .thenComposeAsync(
