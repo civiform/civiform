@@ -213,7 +213,9 @@ public final class AddressQuestion extends Question {
       return serviceAreaValue;
     }
 
-    serviceAreaValue = ServiceAreaInclusionGroup.deserialize(applicantQuestion.getApplicantData().readString(getServiceAreaPath()));
+    serviceAreaValue =
+        ServiceAreaInclusionGroup.deserialize(
+            applicantQuestion.getApplicantData().readString(getServiceAreaPath()));
   }
 
   public AddressQuestionDefinition getQuestionDefinition() {

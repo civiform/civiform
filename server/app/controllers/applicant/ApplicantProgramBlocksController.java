@@ -88,8 +88,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       FileUploadViewStrategy fileUploadViewStrategy,
       IneligibleBlockView ineligibleBlockView,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      EsriClient esriClient
-      ) {
+      EsriClient esriClient) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -315,7 +314,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   .thenComposeAsync(
                       (StoredFile unused) ->
                           applicantService.stageAndUpdateIfValid(
-                              applicantId, programId, blockId, fileUploadQuestionFormData.build(), featureFlags.isEsriAddressServiceAreaValidationEnabled(request),
+                              applicantId,
+                              programId,
+                              blockId,
+                              fileUploadQuestionFormData.build(),
+                              featureFlags.isEsriAddressServiceAreaValidationEnabled(request),
                               esriClient,
                               esriServiceAreaValidationConfig));
             },
@@ -361,7 +364,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData = cleanForm(form.rawData());
 
               return applicantService.stageAndUpdateIfValid(
-                  applicantId, programId, blockId, formData, featureFlags.isEsriAddressServiceAreaValidationEnabled(request),
+                  applicantId,
+                  programId,
+                  blockId,
+                  formData,
+                  featureFlags.isEsriAddressServiceAreaValidationEnabled(request),
                   esriClient,
                   esriServiceAreaValidationConfig);
             },

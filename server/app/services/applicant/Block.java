@@ -124,7 +124,8 @@ public final class Block {
       return Optional.empty();
     }
 
-    return Optional.of(eligibilityDefinition.get().predicate().rootNode().getLeafAddressNode().serviceAreaId());
+    return Optional.of(
+        eligibilityDefinition.get().predicate().rootNode().getLeafAddressNode().serviceAreaId());
   }
 
   public boolean hasAddressServiceAreaPredicate() {
@@ -133,7 +134,8 @@ public final class Block {
       return false;
     }
 
-    return PredicateExpressionNodeType.LEAF_ADDRESS_SERVICE_AREA.equals(eligibilityDefinition.get().predicate().rootNode().getType());
+    return PredicateExpressionNodeType.LEAF_ADDRESS_SERVICE_AREA.equals(
+        eligibilityDefinition.get().predicate().rootNode().getType());
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {

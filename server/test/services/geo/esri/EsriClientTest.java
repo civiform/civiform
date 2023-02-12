@@ -115,7 +115,8 @@ public class EsriClientTest {
                     .build());
     wsNoCandidates = play.test.WSTestClient.newClient(serverNoCandidates.httpPort());
 
-    clientNoCandidates = new EsriClient(config, clock, esriServiceAreaValidationConfig, wsNoCandidates);
+    clientNoCandidates =
+        new EsriClient(config, clock, esriServiceAreaValidationConfig, wsNoCandidates);
     // overwrite to not include base URL so it uses the mock service
     clientNoCandidates.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 

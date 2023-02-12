@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Locale;
@@ -90,7 +89,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     userRepository = instanceOf(UserRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
-    esriServiceAreaValidationConfig = instanceOf( EsriServiceAreaValidationConfig.class);
+    esriServiceAreaValidationConfig = instanceOf(EsriServiceAreaValidationConfig.class);
     Clock clock = instanceOf(Clock.class);
     createQuestions();
     createProgram();
@@ -123,7 +122,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     createProgramWithOptionalQuestion(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of(), false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            ImmutableMap.of(),
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
     ApplicantData applicantData =
@@ -153,7 +159,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -167,7 +180,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -195,7 +215,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.SELECTIONS).asArrayElement().atIndex(1).toString(), "2")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -205,7 +232,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Now put empty updates
     updates = ImmutableMap.of(questionPath.join(Scalar.SELECTIONS).asArrayElement().toString(), "");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -249,7 +283,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     // data suitable for displaying errors downstream.
     ReadOnlyApplicantProgramService resultService =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+            .stageAndUpdateIfValid(
+                applicant.id,
+                programDefinition.id(),
+                "1",
+                updates,
+                false,
+                esriClient,
+                esriServiceAreaValidationConfig)
             .toCompletableFuture()
             .join();
 
@@ -289,7 +330,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Empty update should put metadata in
     ImmutableMap<String, String> updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -305,7 +353,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -329,7 +384,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(0).toString(), "0",
             deletionPath.atIndex(1).toString(), "1");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfterDeletion =
@@ -361,7 +423,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataBefore =
@@ -383,7 +452,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     // get deleted.
     updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -412,7 +488,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -433,7 +516,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -477,7 +567,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -495,7 +592,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(checkboxPath.atIndex(1).toString(), "1")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -509,7 +613,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     updates =
         ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -540,7 +651,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(1).toString(), "0");
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -565,7 +683,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableMap<String, String> updates = ImmutableMap.of();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -585,7 +710,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+                    .stageAndUpdateIfValid(
+                        badApplicantId,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        esriClient,
+                        esriServiceAreaValidationConfig)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicantNotFoundException.class)
@@ -602,7 +734,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+                    .stageAndUpdateIfValid(
+                        applicant.id,
+                        badProgramId,
+                        "1",
+                        updates,
+                        false,
+                        esriClient,
+                        esriServiceAreaValidationConfig)
                     .toCompletableFuture()
                     .join());
 
@@ -621,7 +760,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), badBlockId, updates, false, esriClient, esriServiceAreaValidationConfig)
+                        applicant.id,
+                        programDefinition.id(),
+                        badBlockId,
+                        updates,
+                        false,
+                        esriClient,
+                        esriServiceAreaValidationConfig)
                     .toCompletableFuture()
                     .join());
 
@@ -641,7 +786,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+                    .stageAndUpdateIfValid(
+                        applicant.id,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        esriClient,
+                        esriServiceAreaValidationConfig)
                     .toCompletableFuture()
                     .join());
 
@@ -659,7 +811,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+                    .stageAndUpdateIfValid(
+                        applicant.id,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        esriClient,
+                        esriServiceAreaValidationConfig)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -682,7 +841,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+                    .stageAndUpdateIfValid(
+                        applicant.id,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        esriClient,
+                        esriServiceAreaValidationConfig)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -730,7 +896,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -790,7 +963,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     secondProgram.save();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            firstProgram.id,
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -837,7 +1017,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -857,7 +1044,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Elisa")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -914,7 +1108,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 
@@ -936,15 +1137,17 @@ public class ApplicantServiceTest extends ResetPostgres {
   // add tests here
   @Test
   public void stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation() {
-    QuestionDefinition addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition addressQuestion =
+        testQuestionBank.applicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
-    EligibilityDefinition.builder()
-        .setPredicate(
-            PredicateDefinition.create(
-                PredicateExpressionNode.create(
-                    LeafAddressServiceAreaExpressionNode.create(addressQuestion.getId(), "Seattle")),
-                PredicateAction.ELIGIBLE_BLOCK))
-        .build();
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
@@ -956,18 +1159,35 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.applicant_address").join(Scalar.STREET).toString(), "555 E 5th St.")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
+                "555 E 5th St.")
             .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
             .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
             .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
-            .put(Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(), CorrectedAddressState.CORRECTED.getSerializationFormat())
-            .put(Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(), "47.578374020558954")
-            .put(Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(), "-122.3360380354971")
-            .put(Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(), "4326")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(),
+                CorrectedAddressState.CORRECTED.getSerializationFormat())
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
+                "47.578374020558954")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
+                "-122.3360380354971")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
+                "4326")
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true, esriClient, esriServiceAreaValidationConfig)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            true,
+            esriClient,
+            esriServiceAreaValidationConfig)
         .toCompletableFuture()
         .join();
 

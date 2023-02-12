@@ -1,7 +1,6 @@
 package services.geo;
 
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
 
 /** Represents the inclusion state of an address in a service area. */
 @AutoValue

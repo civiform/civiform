@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.nimbusds.jose.CompletableJWSObjectSigning;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.time.Clock;
@@ -28,7 +27,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
@@ -50,7 +48,6 @@ import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
-import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.cloud.aws.SimpleEmail;
@@ -206,7 +203,13 @@ public final class ApplicantService {
    *     </ul>
    */
   public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap, boolean addressServiceAreaValidationEnabled, EsriClient esriClient, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
+      long applicantId,
+      long programId,
+      String blockId,
+      ImmutableMap<String, String> updateMap,
+      boolean addressServiceAreaValidationEnabled,
+      EsriClient esriClient,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -223,12 +226,26 @@ public final class ApplicantService {
           new IllegalArgumentException("Path contained reserved scalar key"));
     }
 
-    return stageAndUpdateIfValid(applicantId, programId, blockId, updateMap, updates, addressServiceAreaValidationEnabled, esriClient, esriServiceAreaValidationConfig);
+    return stageAndUpdateIfValid(
+        applicantId,
+        programId,
+        blockId,
+        updateMap,
+        updates,
+        addressServiceAreaValidationEnabled,
+        esriClient,
+        esriServiceAreaValidationConfig);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap, ImmutableSet<Update> updates, boolean addressServiceAreaValidationEnabled,
-      EsriClient esriClient, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
+      long applicantId,
+      long programId,
+      String blockId,
+      ImmutableMap<String, String> updateMap,
+      ImmutableSet<Update> updates,
+      boolean addressServiceAreaValidationEnabled,
+      EsriClient esriClient,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         userRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -261,13 +278,18 @@ public final class ApplicantService {
               AddressLocation.Builder addressLocationBuilder = AddressLocation.builder();
               Optional<EsriServiceAreaValidationOption> maybeOption = Optional.empty();
               // Check for existing service areas,
-              // if the service area to check against is already in the existing service area, then we don't need to fetch it again
-              ImmutableList.Builder<ServiceAreaInclusion> existingServiceAreaInclusionGroupBuilder = ImmutableList.builder();
+              // if the service area to check against is already in the existing service area, then
+              // we don't need to fetch it again
+              ImmutableList.Builder<ServiceAreaInclusion> existingServiceAreaInclusionGroupBuilder =
+                  ImmutableList.builder();
               Boolean hasExistingServiceAreaOption = false;
               Optional<Path> maybeServiceAreaPath = Optional.empty();
 
-              if (addressServiceAreaValidationEnabled && blockBeforeUpdate.getLeafAddressNodeServiceAreaId().isPresent()) {
-                maybeOption = esriServiceAreaValidationConfig.getOptionByServiceAreaId(blockBeforeUpdate.getLeafAddressNodeServiceAreaId().get());
+              if (addressServiceAreaValidationEnabled
+                  && blockBeforeUpdate.getLeafAddressNodeServiceAreaId().isPresent()) {
+                maybeOption =
+                    esriServiceAreaValidationConfig.getOptionByServiceAreaId(
+                        blockBeforeUpdate.getLeafAddressNodeServiceAreaId().get());
                 System.out.println(updateMap);
                 System.out.println(esriClient);
                 System.out.println("maybeOption = " + maybeOption);
@@ -275,88 +297,131 @@ public final class ApplicantService {
                 for (ApplicantQuestion question : blockBeforeUpdate.getQuestions()) {
                   QuestionDefinition questionDefinition = question.getQuestionDefinition();
                   if (questionDefinition.isAddress()) {
-                    maybeServiceAreaPath = Optional.of(question.getContextualizedPath().join(Scalar.SERVICE_AREA));
+                    maybeServiceAreaPath =
+                        Optional.of(question.getContextualizedPath().join(Scalar.SERVICE_AREA));
                     String serviceAreaValue = updateMap.get(maybeServiceAreaPath.get().toString());
                     if (serviceAreaValue != null) {
-                      existingServiceAreaInclusionGroupBuilder.addAll(ServiceAreaInclusionGroup.deserialize(serviceAreaValue));
+                      existingServiceAreaInclusionGroupBuilder.addAll(
+                          ServiceAreaInclusionGroup.deserialize(serviceAreaValue));
                       if (maybeOption.isPresent()) {
-                        hasExistingServiceAreaOption = maybeOption.get().isServiceAreaOptionInInclusionGroup(existingServiceAreaInclusionGroupBuilder.build());
+                        hasExistingServiceAreaOption =
+                            maybeOption
+                                .get()
+                                .isServiceAreaOptionInInclusionGroup(
+                                    existingServiceAreaInclusionGroupBuilder.build());
                       }
                     }
 
                     Path correctedPath = question.getContextualizedPath().join(Scalar.CORRECTED);
                     String correctedValue = updateMap.get(correctedPath.toString());
 
-                    if (correctedValue.equals(CorrectedAddressState.CORRECTED.getSerializationFormat())) {
+                    if (correctedValue.equals(
+                        CorrectedAddressState.CORRECTED.getSerializationFormat())) {
                       hasCorrectedAddress = true;
-                      System.out.println("question.getContextualizedPath() " + question.getContextualizedPath());
+                      System.out.println(
+                          "question.getContextualizedPath() " + question.getContextualizedPath());
                       Path latitudePath = question.getContextualizedPath().join(Scalar.LATITUDE);
                       Path longitudePath = question.getContextualizedPath().join(Scalar.LONGITUDE);
-                      Path wellKnownIdPath = question.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
+                      Path wellKnownIdPath =
+                          question.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
                       addressLocationBuilder
                           .setLatitude(Double.parseDouble(updateMap.get(latitudePath.toString())))
                           .setLongitude(Double.parseDouble(updateMap.get(longitudePath.toString())))
-                          .setWellKnownId(Integer.parseInt(updateMap.get(wellKnownIdPath.toString())));
+                          .setWellKnownId(
+                              Integer.parseInt(updateMap.get(wellKnownIdPath.toString())));
                     }
                   }
                 }
               }
 
-              if (hasCorrectedAddress && maybeOption.isPresent() && maybeServiceAreaPath.isPresent() && !hasExistingServiceAreaOption) {
+              if (hasCorrectedAddress
+                  && maybeOption.isPresent()
+                  && maybeServiceAreaPath.isPresent()
+                  && !hasExistingServiceAreaOption) {
                 final Path serviceAreaPath = maybeServiceAreaPath.get();
-                System.out.println("addressLocationBuilder.build() = " + addressLocationBuilder.build());
+                System.out.println(
+                    "addressLocationBuilder.build() = " + addressLocationBuilder.build());
                 // call getServiceAreaInclusionGroup
-                return esriClient.getServiceAreaInclusionGroup(maybeOption.get(), addressLocationBuilder.build())
-                    .thenComposeAsync((serviceAreaInclusionGroup) -> {
-                      ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup = existingServiceAreaInclusionGroupBuilder.build();
-                      ImmutableList<ServiceAreaInclusion> newServiceAreaInclusionGroup;
-                      if (existingServiceAreaInclusionGroup.size() > 0) {
-                        // merge existingServiceAreaInclusionGroup with serviceAreaInclusionGroup
-                        newServiceAreaInclusionGroup = Stream.of(existingServiceAreaInclusionGroup, serviceAreaInclusionGroup)
-                            .flatMap(List::stream)
-                            .collect(Collectors.toMap(ServiceAreaInclusion::getServiceAreaId,
-                                area -> area,
-                                (ServiceAreaInclusion a, ServiceAreaInclusion b) -> b == null ? a : b))
-                            .values().stream().collect(ImmutableList.toImmutableList());
-                      } else {
-                        newServiceAreaInclusionGroup = serviceAreaInclusionGroup;
-                      }
-                      UpdateServiceArea updateServiceArea = UpdateServiceArea.create(serviceAreaPath, newServiceAreaInclusionGroup);
-                      // start of repeated block
-                      UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
-                      ImmutableMap<Path, String> failedUpdates;
-                      try {
-                        failedUpdates =
-                            stageUpdates(
-                                applicant.getApplicantData(), blockBeforeUpdate, updateMetadata, updates, updateServiceArea);
-                      } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
-                        return CompletableFuture.failedFuture(e);
-                      }
+                return esriClient
+                    .getServiceAreaInclusionGroup(maybeOption.get(), addressLocationBuilder.build())
+                    .thenComposeAsync(
+                        (serviceAreaInclusionGroup) -> {
+                          ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup =
+                              existingServiceAreaInclusionGroupBuilder.build();
+                          ImmutableList<ServiceAreaInclusion> newServiceAreaInclusionGroup;
+                          if (existingServiceAreaInclusionGroup.size() > 0) {
+                            // merge existingServiceAreaInclusionGroup with
+                            // serviceAreaInclusionGroup
+                            newServiceAreaInclusionGroup =
+                                Stream.of(
+                                        existingServiceAreaInclusionGroup,
+                                        serviceAreaInclusionGroup)
+                                    .flatMap(List::stream)
+                                    .collect(
+                                        Collectors.toMap(
+                                            ServiceAreaInclusion::getServiceAreaId,
+                                            area -> area,
+                                            (ServiceAreaInclusion a, ServiceAreaInclusion b) ->
+                                                b == null ? a : b))
+                                    .values()
+                                    .stream()
+                                    .collect(ImmutableList.toImmutableList());
+                          } else {
+                            newServiceAreaInclusionGroup = serviceAreaInclusionGroup;
+                          }
+                          UpdateServiceArea updateServiceArea =
+                              UpdateServiceArea.create(
+                                  serviceAreaPath, newServiceAreaInclusionGroup);
+                          // start of repeated block
+                          UpdateMetadata updateMetadata =
+                              UpdateMetadata.create(programId, clock.millis());
+                          ImmutableMap<Path, String> failedUpdates;
+                          try {
+                            failedUpdates =
+                                stageUpdates(
+                                    applicant.getApplicantData(),
+                                    blockBeforeUpdate,
+                                    updateMetadata,
+                                    updates,
+                                    updateServiceArea);
+                          } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
+                            return CompletableFuture.failedFuture(e);
+                          }
 
-                      ReadOnlyApplicantProgramService roApplicantProgramService =
-                          new ReadOnlyApplicantProgramServiceImpl(
-                              applicant.getApplicantData(), programDefinition, baseUrl, failedUpdates);
+                          ReadOnlyApplicantProgramService roApplicantProgramService =
+                              new ReadOnlyApplicantProgramServiceImpl(
+                                  applicant.getApplicantData(),
+                                  programDefinition,
+                                  baseUrl,
+                                  failedUpdates);
 
-                      Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
-                      if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
-                        return userRepository
-                            .updateApplicant(applicant)
-                            .thenApplyAsync(
-                                (finishedSaving) -> roApplicantProgramService,
-                                httpExecutionContext.current());
-                      }
+                          Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+                          if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
+                            return userRepository
+                                .updateApplicant(applicant)
+                                .thenApplyAsync(
+                                    (finishedSaving) -> roApplicantProgramService,
+                                    httpExecutionContext.current());
+                          }
 
-                      return CompletableFuture.completedFuture(roApplicantProgramService);
-                      // end of repeated block
-                    }, httpExecutionContext.current());
+                          return CompletableFuture.completedFuture(roApplicantProgramService);
+                          // end of repeated block
+                        },
+                        httpExecutionContext.current());
               }
-              UpdateServiceArea updateServiceArea = UpdateServiceArea.create(Path.empty(), new ImmutableList.Builder<ServiceAreaInclusion>().build());
+              UpdateServiceArea updateServiceArea =
+                  UpdateServiceArea.create(
+                      Path.empty(), new ImmutableList.Builder<ServiceAreaInclusion>().build());
               UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
               ImmutableMap<Path, String> failedUpdates;
               try {
                 failedUpdates =
                     stageUpdates(
-                        applicant.getApplicantData(), blockBeforeUpdate, updateMetadata, updates, updateServiceArea);
+                        applicant.getApplicantData(),
+                        blockBeforeUpdate,
+                        updateMetadata,
+                        updates,
+                        updateServiceArea);
               } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
                 return CompletableFuture.failedFuture(e);
               }
@@ -1035,7 +1100,9 @@ public final class ApplicantService {
 
     // write service area to applicant
     if (updateServiceArea.serviceAreaInclusionGroup().size() > 0) {
-      applicantData.putString(updateServiceArea.path(), ServiceAreaInclusionGroup.serialize(updateServiceArea.serviceAreaInclusionGroup()));
+      applicantData.putString(
+          updateServiceArea.path(),
+          ServiceAreaInclusionGroup.serialize(updateServiceArea.serviceAreaInclusionGroup()));
     }
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.
@@ -1064,7 +1131,8 @@ public final class ApplicantService {
 
   @AutoValue
   abstract static class UpdateServiceArea {
-    static UpdateServiceArea create(Path path, ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup) {
+    static UpdateServiceArea create(
+        Path path, ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup) {
       return new AutoValue_ApplicantService_UpdateServiceArea(path, serviceAreaInclusionGroup);
     }
 

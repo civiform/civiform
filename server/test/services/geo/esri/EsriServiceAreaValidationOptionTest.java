@@ -9,7 +9,6 @@ import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.ZoneId;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
