@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
-import java.time.Instant;
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -45,6 +45,7 @@ import services.geo.ServiceAreaState;
  *     (Map Service/Layer)</a>
  */
 public class EsriClient implements WSBodyReadables, WSBodyWritables {
+  private final Clock clock;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final WSClient ws;
 
@@ -63,8 +64,10 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
   @Inject
   public EsriClient(
       Config configuration,
+      Clock clock,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       WSClient ws) {
+    this.clock = checkNotNull(clock);
     this.ws = checkNotNull(ws);
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
         configuration.hasPath("esri_find_address_candidates_url")
@@ -286,7 +289,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
       serviceAreaInclusionBuilder
           .setServiceAreaId(esriServiceAreaValidationOption.getId())
           .setState(ServiceAreaState.FAILED)
-          .setTimeStamp(Instant.now());
+          .setTimeStamp(clock.millis());
       inclusionListBuilder.add(serviceAreaInclusionBuilder.build());
       return CompletableFuture.completedFuture(inclusionListBuilder.build());
     }
@@ -311,7 +314,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                       serviceAreaInclusionBuilder
                           .setServiceAreaId(option.getId())
                           .setState(ServiceAreaState.FAILED)
-                          .setTimeStamp(Instant.now())
+                          .setTimeStamp(clock.millis())
                           .build());
                 }
 
@@ -330,14 +333,14 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                       serviceAreaInclusionBuilder
                           .setServiceAreaId(option.getId())
                           .setState(ServiceAreaState.IN_AREA)
-                          .setTimeStamp(Instant.now())
+                          .setTimeStamp(clock.millis())
                           .build());
                 } else {
                   inclusionListBuilder.add(
                       serviceAreaInclusionBuilder
                           .setServiceAreaId(option.getId())
                           .setState(ServiceAreaState.NOT_IN_AREA)
-                          .setTimeStamp(Instant.now())
+                          .setTimeStamp(clock.millis())
                           .build());
                 }
               }

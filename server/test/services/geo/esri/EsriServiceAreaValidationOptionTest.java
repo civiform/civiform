@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.ZoneId;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +34,7 @@ public class EsriServiceAreaValidationOptionTest {
   @Before
   // setup Server to return mock data from JSON files
   public void setup() {
+    Clock clock = Clock.system(ZoneId.of("America/Los_Angeles"));
     config = ConfigFactory.load();
     esriServiceAreaValidationConfig = new EsriServiceAreaValidationConfig(config);
 
@@ -58,7 +62,7 @@ public class EsriServiceAreaValidationOptionTest {
                     .build());
     ws = play.test.WSTestClient.newClient(server.httpPort());
 
-    client = new EsriClient(config, esriServiceAreaValidationConfig, ws);
+    client = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
 
     inclusionGroup =
         client
