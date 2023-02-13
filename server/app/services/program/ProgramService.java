@@ -84,6 +84,7 @@ public interface ProgramService {
    * @param adminDescription a description of this program for use by admins
    * @param defaultDisplayName the name of this program to display to applicants
    * @param defaultDisplayDescription a description for this program to display to applicants
+   * @param defaultConfirmationScreen a custom message to display on the program confirmation screen
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
    * @param programType ProgramType for this Program.
@@ -96,6 +97,7 @@ public interface ProgramService {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
+      String defaultConfirmationScreen,
       String externalLink,
       String displayMode,
       ProgramType programType,
@@ -111,6 +113,8 @@ public interface ProgramService {
    * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
+   * @param confirmationScreen a custom message to display on the confirmation screen when the
+   *     applicant submits their form
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
    * @param programType ProgramType for this program
@@ -125,6 +129,7 @@ public interface ProgramService {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String confirmationScreen,
       String externalLink,
       String displayMode,
       ProgramType programType,

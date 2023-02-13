@@ -74,6 +74,8 @@ public class Program extends BaseModel {
 
   @DbJsonB private LocalizedStrings localizedDescription;
 
+  @DbJsonB private LocalizedStrings localizedConfirmationScreen;
+
   /**
    * legacyLocalizedDescription is the legacy storage column for program description translations.
    * Programs created before early May 2021 may use this, but all other programs should not.
@@ -130,6 +132,7 @@ public class Program extends BaseModel {
     this.externalLink = definition.externalLink();
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
+    this.localizedConfirmationScreen = definition.localizedConfirmationScreen();
     this.blockDefinitions = definition.blockDefinitions();
     this.statusDefinitions = definition.statusDefinitions();
     this.displayMode = definition.displayMode().getValue();
@@ -150,6 +153,7 @@ public class Program extends BaseModel {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
+      String defaultConfirmationScreen,
       String externalLink,
       String displayMode,
       ImmutableList<BlockDefinition> blockDefinitions,
@@ -160,6 +164,7 @@ public class Program extends BaseModel {
     // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
+    this.localizedConfirmationScreen = LocalizedStrings.withDefaultValue(defaultConfirmationScreen);
     this.externalLink = externalLink;
     this.displayMode = displayMode;
     this.blockDefinitions = blockDefinitions;
@@ -177,6 +182,7 @@ public class Program extends BaseModel {
     description = programDefinition.adminDescription();
     localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.localizedDescription();
+    localizedConfirmationScreen = programDefinition.localizedConfirmationScreen();
     blockDefinitions = programDefinition.blockDefinitions();
     statusDefinitions = programDefinition.statusDefinitions();
     slug = programDefinition.slug();
@@ -206,6 +212,7 @@ public class Program extends BaseModel {
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);
+    setLocalizedConfirmationScreen(builder);
     this.programDefinition = builder.build();
   }
 
@@ -228,6 +235,16 @@ public class Program extends BaseModel {
       builder.setLocalizedDescription(localizedDescription);
     } else {
       builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
+    }
+    return this;
+  }
+
+  private Program setLocalizedConfirmationScreen(ProgramDefinition.Builder builder) {
+    if (localizedConfirmationScreen != null) {
+      builder.setLocalizedConfirmationScreen(localizedConfirmationScreen);
+    } else {
+      builder.setLocalizedConfirmationScreen(
+          LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
     }
     return this;
   }

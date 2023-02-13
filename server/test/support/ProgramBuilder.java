@@ -78,6 +78,7 @@ public class ProgramBuilder {
             description,
             name,
             description,
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
@@ -148,6 +149,7 @@ public class ProgramBuilder {
             displayName,
             description,
             "",
+            "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getActiveVersion(),
@@ -171,6 +173,7 @@ public class ProgramBuilder {
             adminName,
             adminName,
             adminName,
+            "",
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
@@ -199,6 +202,11 @@ public class ProgramBuilder {
 
   public ProgramBuilder withLocalizedDescription(Locale locale, String description) {
     builder.addLocalizedDescription(locale, description);
+    return this;
+  }
+
+  public ProgramBuilder withLocalizedConfirmationScreen(Locale locale, String customText) {
+    builder.addLocalizedConfirmationScreen(locale, customText);
     return this;
   }
 

@@ -155,6 +155,7 @@ public final class RedirectController extends CiviFormController {
     CompletionStage<Optional<String>> applicantName = applicantService.getName(applicantId);
     CompletionStage<ReadOnlyApplicantProgramService> roApplicantProgramServiceCompletionStage =
         applicantService.getReadOnlyApplicantProgramService(applicantId, programId);
+
     return applicantName
         .thenComposeAsync(
             v -> checkApplicantAuthorization(profileUtils, request, applicantId),
@@ -168,7 +169,9 @@ public final class RedirectController extends CiviFormController {
                         request,
                         redirectTo,
                         account,
+                        roApplicantProgramService.getApplicantData().preferredLocale(),
                         roApplicantProgramService.getProgramTitle(),
+                        roApplicantProgramService.getCustomConfirmationScreenMessage(),
                         applicantName.toCompletableFuture().join(),
                         applicationId,
                         messagesApi.preferred(request),

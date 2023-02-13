@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
 import forms.BlockForm;
 import io.ebean.DB;
@@ -116,6 +117,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "name",
             "description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
@@ -133,6 +135,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "name",
             "description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
@@ -150,7 +153,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   public void createProgram_returnsErrors() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
-            "", "", "", "", "", DisplayMode.PUBLIC.getValue(), ProgramType.DEFAULT, false);
+            "", "", "", "", "", "", DisplayMode.PUBLIC.getValue(), ProgramType.DEFAULT, false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -170,6 +173,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "name",
             "description",
+            "",
             "https://usa.gov",
             "",
             ProgramType.DEFAULT,
@@ -188,6 +192,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "description",
         "display name",
         "display description",
+        "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         ProgramType.DEFAULT,
@@ -199,6 +204,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
@@ -219,6 +225,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
@@ -243,6 +250,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "description",
                 "display name",
                 "display description",
+                "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
                 ProgramType.DEFAULT,
@@ -262,6 +270,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
@@ -280,6 +289,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
@@ -297,6 +307,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
@@ -313,6 +324,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "description",
         "display name",
         "display description",
+        "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         ProgramType.COMMON_INTAKE_FORM,
@@ -323,6 +335,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
@@ -340,6 +353,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "description",
         "display name",
         "display description",
+        "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         ProgramType.COMMON_INTAKE_FORM,
@@ -350,6 +364,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
@@ -371,6 +386,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     "new description",
                     "name",
                     "description",
+                    "",
                     "https://usa.gov",
                     DisplayMode.PUBLIC.getValue(),
                     ProgramType.DEFAULT,
@@ -390,6 +406,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "new description",
             "name",
             "description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
@@ -421,6 +438,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "new description",
                 "name",
                 "description",
+                "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
                 ProgramType.DEFAULT,
@@ -444,6 +462,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "",
             "",
             "",
+            "",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
             /* isIntakeFormFeatureEnabled= */ false);
@@ -455,6 +474,66 @@ public class ProgramServiceImplTest extends ResetPostgres {
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
             CiviFormError.of("A program note is required"));
+  }
+
+  @Test
+  public void updateProgram_clearsOldConfirmationScreenTranslations() throws Exception {
+    ProgramDefinition originalProgram =
+        ProgramBuilder.newDraftProgram("original", "original description").buildDefinition();
+    ErrorAnd<ProgramDefinition, CiviFormError> resultOne =
+        ps.updateProgramDefinition(
+            originalProgram.id(),
+            Locale.US,
+            "new description",
+            "name",
+            "description",
+            "custom confirmation screen message",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            false);
+
+    // check that the confirmation screen message saved
+    LocalizedStrings expectedUsString =
+        LocalizedStrings.create(ImmutableMap.of(Locale.US, "custom confirmation screen message"));
+    ProgramDefinition firstProgramUpdate = resultOne.getResult();
+    assertThat(firstProgramUpdate.localizedConfirmationScreen()).isEqualTo(expectedUsString);
+
+    // update the confirmation screen with an translation and check that it saves correctly
+    ErrorAnd<ProgramDefinition, CiviFormError> resultTwo =
+        ps.updateProgramDefinition(
+            firstProgramUpdate.id(),
+            Locale.FRANCE,
+            "new description",
+            "name",
+            "description",
+            "french custom confirmation screen message",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            false);
+    ProgramDefinition secondProgramUpdate = resultTwo.getResult();
+    assertThat(secondProgramUpdate.localizedConfirmationScreen())
+        .isEqualTo(
+            expectedUsString.updateTranslation(
+                Locale.FRANCE, "french custom confirmation screen message"));
+
+    // delete the english confirmation screen and check that all translations were cleared as well
+    ErrorAnd<ProgramDefinition, CiviFormError> resultThree =
+        ps.updateProgramDefinition(
+            firstProgramUpdate.id(),
+            Locale.US,
+            "new description",
+            "name",
+            "description",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            false);
+    ProgramDefinition thirdProgramUpdate = resultThree.getResult();
+    assertThat(thirdProgramUpdate.localizedConfirmationScreen())
+        .isEqualTo(LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
   }
 
   @Test
@@ -476,6 +555,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "a",
             "a",
             "a",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
@@ -498,6 +578,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "a",
             "a",
             "a",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
@@ -515,6 +596,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "description",
         "display name",
         "display description",
+        "",
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         ProgramType.COMMON_INTAKE_FORM,
@@ -529,6 +611,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "a",
             "a",
             "a",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
@@ -549,6 +632,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
@@ -561,6 +645,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "a",
             "a",
             "a",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
@@ -578,6 +663,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
@@ -590,6 +676,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "a",
             "a",
             "a",
+            "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
@@ -907,6 +994,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "description",
                 "name",
                 "description",
+                "",
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
                 ProgramType.DEFAULT,
@@ -1498,6 +1586,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedConfirmationScreen("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1549,6 +1638,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationScreen(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -1557,6 +1647,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedConfirmationScreen("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1616,6 +1707,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("")
             .setLocalizedDisplayDescription("")
+            .setLocalizedConfirmationScreen("")
             .setStatuses(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -1634,6 +1726,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("a name")
             .setLocalizedDisplayDescription("a description")
+            .setLocalizedConfirmationScreen("")
             .setStatuses(ImmutableList.of())
             .build();
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
@@ -1647,6 +1740,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationScreen(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -1655,6 +1749,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedConfirmationScreen("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1709,6 +1804,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedConfirmationScreen("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1743,6 +1839,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedConfirmationScreen("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1762,6 +1859,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationScreen(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -1770,6 +1868,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedConfirmationScreen("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()

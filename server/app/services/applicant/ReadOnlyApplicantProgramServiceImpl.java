@@ -81,6 +81,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public LocalizedStrings getCustomConfirmationScreenMessage() {
+    return this.programDefinition.localizedConfirmationScreen();
+  }
+
+  @Override
   public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)

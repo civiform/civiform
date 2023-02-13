@@ -2,6 +2,7 @@ package services.applicant;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.LocalizedStrings;
 import services.applicant.question.ApplicantQuestion;
 
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
@@ -15,6 +16,8 @@ public interface ReadOnlyApplicantProgramService {
 
   /** Returns the ID of the program. */
   Long getProgramId();
+
+  LocalizedStrings getCustomConfirmationScreenMessage();
 
   /**
    * Get the {@link Block}s for this program and applicant. This includes all blocks an applicant

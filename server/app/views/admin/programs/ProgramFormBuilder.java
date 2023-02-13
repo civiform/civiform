@@ -47,6 +47,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedDisplayName(),
         program.getLocalizedDisplayDescription(),
         program.getExternalLink(),
+        program.getLocalizedConfirmationScreen(),
         program.getDisplayMode(),
         program.getIsCommonIntakeForm(),
         editExistingProgram);
@@ -62,6 +63,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
         program.externalLink(),
+        program.localizedConfirmationScreen().getDefault(),
         program.displayMode().getValue(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         editExistingProgram);
@@ -74,6 +76,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String displayName,
       String displayDescription,
       String externalLink,
+      String confirmationSceen,
       String displayMode,
       Boolean isCommonIntakeForm,
       boolean editExistingProgram) {
@@ -100,6 +103,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Link to program website")
             .setValue(externalLink)
             .getInputTag(),
+        FieldWithLabel.textArea()
+            .setId("program-confirmation-screen-textarea")
+            .setFieldName("localizedConfirmationScreen")
+            .setLabelText(
+                "A custom message that will be shown on the confirmation page after an application"
+                    + " has been submitted. You can use this message to explain next steps of the"
+                    + " application process and/or highlight other programs to apply for.")
+            .setValue(confirmationSceen)
+            .getTextareaTag(),
         h2("Visible to administrators only").withClasses("py-2"),
         // TODO(#2618): Consider using helpers for grouping related radio controls.
         fieldset()

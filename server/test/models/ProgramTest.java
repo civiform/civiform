@@ -68,6 +68,8 @@ public class ProgramTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedConfirmationScreen(
+                LocalizedStrings.of(Locale.US, "custom confirmation screen message"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
@@ -83,6 +85,8 @@ public class ProgramTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
+    assertThat(found.getProgramDefinition().localizedConfirmationScreen())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "custom confirmation screen message"));
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
     assertThat(found.getProgramDefinition().programType())
