@@ -44,6 +44,7 @@ public class LoggingFilter extends EssentialFilter {
                     long time = clock.millis() - startTime;
                     log.info(
                         "{}\t{}\t{}ms\t{}", request.method(), request.uri(), time, result.status());
+                    log.info("request session values: {}", request.session().data().toString());
                     StringBuilder requestCookies = new StringBuilder();
                     for (Http.Cookie cookie : request.cookies()) {
                       requestCookies.append(
