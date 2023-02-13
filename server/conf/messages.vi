@@ -177,9 +177,15 @@ toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui l�
 # Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
 content.notEligible=Không đủ điều kiện
 
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=Không đủ tiêu chuẩn
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=Chỉnh sửa
 link.answer=Câu trả lời
+
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn=Trước đây đã trả lời vào {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -191,6 +197,70 @@ ariaLabel.answer=Câu trả lời {0}
 
 # Program Summary Title
 title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=Dựa trên câu trả lời của bạn, bạn có thể không đủ tiêu chuẩn tham gia {0}.
+
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
+title.applicantNotEligibleTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}.
+
+# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
+content.mustMeetRequirements=Bạn phải đáp ứng các yêu cầu sau đây của chương trình:
+
+# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
+content.mustMeetRequirementsTi=Khách hàng của bạn phải đáp ứng các yêu cầu sau đây của chương trình:
+
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=Để biết điều kiện tham gia, vui lòng tham khảo {0}
+
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=Bạn có thể quay lại trang trước để chỉnh sửa câu trả lời của mình. Hoặc đăng ký tham gia một chương trình khác.
+
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=Quay lại và chỉnh sửa
+
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
+
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=Dựa trên câu trả lời của bạn, bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
+
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=Bạn có thể đủ tiêu chuẩn
+
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayQualifyTi=Khách hàng của bạn có thể đủ tiêu chuẩn
+
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=Bạn có thể không đủ tiêu chuẩn
+
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayNotQualifyTi=Khách hàng của bạn có thể không đủ tiêu chuẩn
+
+# Title of page when there is a system outage and eligibility can't be determined for the applicant.
+title.cannotCheckEligibility=Hiện tại, chúng tôi không thể kiểm tra xem bạn có đủ điều kiện tham gia {0} hay không.
+
+# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client's behalf.
+title.cannotCheckEligibilityTi=Hiện tại, chúng tôi không thể kiểm tra xem khách hàng của bạn có đủ điều kiện tham gia {0} hay không.
+
+# Content of page when there is a system outage and eligibility can't be determined for the applicant.
+content.cannotCheckEligibility=Chúng tôi đang nỗ lực để nhanh chóng khắc phục sự cố này. Hãy thử lại sau.
+
+# Button that allows an applicant to view all programs.
+button.viewAllPrograms=Xem tất cả chương trình
+
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=Dựa trên câu trả lời của bạn, bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
+
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayNotQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=Lỗi khi lưu đơn đăng ký
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -227,6 +297,36 @@ validation.currencyMisformatted=Giá trị tiền tệ phải theo một trong n
 validation.stateRequired=Vui lòng nhập tên tiểu bang.
 validation.invalidZipcode=Vui lòng nhập mã bưu chính hợp lệ gồm 5 chữ số.
 validation.noPoBox=Vui lòng nhập một địa chỉ hợp lệ. Chúng tôi không chấp nhận hộp thư bưu điện.
+
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=Xác minh địa chỉ
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp nhưng đã tìm thấy địa chỉ tương tự.
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=Địa chỉ đã nhập:
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName={0} đã nhập:
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Địa chỉ được đề xuất:
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=Các địa chỉ được đề xuất:
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=Chỉnh sửa địa chỉ
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm=Lưu và xác nhận
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=Không tìm thấy địa chỉ hợp lệ
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp. Vui lòng chỉnh sửa địa chỉ của bạn để tiếp tục.
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -268,6 +368,9 @@ placeholder.entityName=Tên {0}
 
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Vui lòng chọn một tệp.
+
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=Chọn tệp
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

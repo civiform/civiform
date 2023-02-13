@@ -177,9 +177,15 @@ toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請�
 # Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
 content.notEligible=不符合資格
 
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=不符合資格
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=編輯
 link.answer=回答問題
+
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn=已於 {0}回答
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -191,6 +197,70 @@ ariaLabel.answer=回答以下問題：{0}
 
 # Program Summary Title
 title.programSummary=計畫申請摘要
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=根據您的回覆，您可能不符合「{0}」的資格。
+
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
+title.applicantNotEligibleTi=根據您的回覆，您的客戶可能不符合「{0}」的資格。
+
+# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
+content.mustMeetRequirements=您必須符合以下計畫申請條件：
+
+# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
+content.mustMeetRequirementsTi=您的客戶必須符合以下計畫申請條件：
+
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
+
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=您可以返回上一頁編輯回答，也可以申請其他計畫。
+
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=返回並編輯
+
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayQualifyTi=根據您的回覆，您的客戶可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
+
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=根據您的回覆，您可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
+
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=您可能符合資格
+
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayQualifyTi=您的客戶可能符合資格
+
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=您可能不符合資格
+
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayNotQualifyTi=您的客戶可能不符合資格
+
+# Title of page when there is a system outage and eligibility can't be determined for the applicant.
+title.cannotCheckEligibility=我們目前無法判斷您是否符合「{0}」的資格。
+
+# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client's behalf.
+title.cannotCheckEligibilityTi=我們目前無法判斷您的客戶是否符合「{0}」的資格。
+
+# Content of page when there is a system outage and eligibility can't be determined for the applicant.
+content.cannotCheckEligibility=我們會盡力在短時間內修正這個問題，請稍後再試。
+
+# Button that allows an applicant to view all programs.
+button.viewAllPrograms=查看所有計畫
+
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=根據您的回覆，您可能不符合「{0}」的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
+
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayNotQualifyTi=根據您的回覆，您的客戶可能不符合「{0}」的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=儲存申請書時發生錯誤
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -227,6 +297,36 @@ validation.currencyMisformatted=請使用下列其中一種貨幣格式：1000 1
 validation.stateRequired=請輸入州別。
 validation.invalidZipcode=請輸入有效的 5 位數郵遞區號。
 validation.noPoBox=請輸入有效地址，切勿提供郵政信箱。
+
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=驗證地址
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=我們無法驗證您提供的地址，但找到了類似的地址。
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=您輸入的地址：
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName=您輸入的{0}：
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=建議的地址：
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=建議的地址：
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=編輯地址
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm=儲存並確認
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=找不到有效的網址
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=我們無法驗證您提供的地址。如要繼續操作，請編輯地址。
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -269,6 +369,9 @@ placeholder.entityName=「{0}」名稱
 
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=請選取檔案。
+
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=選擇檔案
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
