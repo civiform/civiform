@@ -33,15 +33,15 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.19.29",
-      "software.amazon.awssdk" % "ses" % "2.19.29",
+      "software.amazon.awssdk" % "s3" % "2.19.33",
+      "software.amazon.awssdk" % "ses" % "2.19.33",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.7.3",
+      "com.azure" % "azure-identity" % "1.8.0",
       "com.azure" % "azure-storage-blob" % "12.20.2",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.5.2",
+      "org.postgresql" % "postgresql" % "42.5.3",
       "com.h2database" % "h2" % "2.1.214" % Test,
 
       // Metrics collection and export for Prometheus
@@ -61,7 +61,7 @@ lazy val root = (project in file("."))
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.7",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.8",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)

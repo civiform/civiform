@@ -51,6 +51,8 @@ export class ToastController {
     const toastMessage = document.createElement('div')
     toastMessage.setAttribute('id', message.id)
     toastMessage.setAttribute('ignorable', String(message.canIgnore))
+    toastMessage.setAttribute('role', 'alert')
+    toastMessage.setAttribute('aria-live', 'polite')
     toastMessage.classList.add(ToastController.MESSAGE_CLASS)
     toastMessage.classList.add(
       'bg-opacity-90',

@@ -393,8 +393,17 @@ export class AdminPrograms {
     }
   }
 
+  async launchDeleteScreenModal() {
+    const programName = 'Test program 7'
+    await this.addProgram(programName)
+    await this.addProgramBlock(programName)
+    await this.goToBlockInProgram(programName, 'Screen 1')
+    await clickAndWaitForModal(this.page, 'block-delete-modal')
+  }
+
   async removeProgramBlock(programName: string, blockName: string) {
     await this.goToBlockInProgram(programName, blockName)
+    await clickAndWaitForModal(this.page, 'block-delete-modal')
     await this.page.click('#delete-block-button')
     await waitForPageJsLoad(this.page)
     await this.gotoAdminProgramsPage()
@@ -928,7 +937,29 @@ export class AdminPrograms {
     return this.page.locator('input[name=addressCorrectionEnabled]')
   }
 
+  getAddressCorrectionToggleByName(questionName: string) {
+    return this.page
+      .locator('.cf-program-question')
+      .filter({hasText: questionName})
+      .locator('input[name=addressCorrectionEnabled]')
+  }
+
+  getAddressCorrectionHelpTextByName(questionName: string) {
+    return this.page
+      .locator('.cf-program-question')
+      .filter({hasText: questionName})
+      .locator(':is(span:has-text("Enabling address correction will check"))')
+  }
+
   async clickAddressCorrectionToggle() {
     await this.page.click(':is(button:has-text("Address correction"))')
+  }
+
+  async clickAddressCorrectionToggleByName(questionName: string) {
+    const toggleLocator = this.getAddressCorrectionToggleByName(questionName)
+    await toggleLocator
+      .locator('..')
+      .locator('button:has-text("Address correction")')
+      .click()
   }
 }

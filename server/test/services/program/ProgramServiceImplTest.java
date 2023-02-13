@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
+import controllers.BadRequestException;
 import forms.BlockForm;
 import io.ebean.DB;
 import java.util.Arrays;
@@ -51,6 +52,7 @@ import support.ProgramBuilder;
 public class ProgramServiceImplTest extends ResetPostgres {
 
   private QuestionDefinition addressQuestion;
+  private QuestionDefinition secondaryAddressQuestion;
   private QuestionDefinition colorQuestion;
   private QuestionDefinition nameQuestion;
   private ProgramServiceImpl ps;
@@ -63,6 +65,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   @Before
   public void setUp() {
     addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
+    secondaryAddressQuestion = testQuestionBank.applicantSecondaryAddress().getQuestionDefinition();
     colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
   }
@@ -980,6 +983,42 @@ public class ProgramServiceImplTest extends ResetPostgres {
         .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
   }
 
+  @Test
+  public void setProgramQuestionDefinitionAddressCorrectionEnabled() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(addressQuestion)
+            .withBlock()
+            .withVisibilityPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.builder()
+                            .setQuestionId(addressQuestion.getId())
+                            .setScalar(Scalar.SERVICE_AREA)
+                            .setOperator(Operator.IN_SERVICE_AREA)
+                            .setComparedValue(PredicateValue.serviceArea("seattle"))
+                            .build()),
+                    PredicateAction.HIDE_BLOCK))
+            .buildDefinition();
+
+    assertThat(
+            ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
+                    programDefinition.id(), 1L, addressQuestion.getId(), true)
+                .getBlockDefinitionByIndex(0)
+                .get()
+                .programQuestionDefinitions()
+                .get(0)
+                .addressCorrectionEnabled())
+        .isTrue();
+
+    assertThatThrownBy(
+            () ->
+                ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
+                    programDefinition.id(), 1L, addressQuestion.getId(), false))
+        .isInstanceOf(BadRequestException.class);
+  }
+
   private void assertQuestionsOrder(ProgramDefinition program, QuestionDefinition... expectedOrder)
       throws Exception {
     var expectedQuestionNames = Arrays.stream(expectedOrder).map(QuestionDefinition::getName);
@@ -1803,5 +1842,26 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     + " separate window."));
     assertThat(ps.getProgramDefinition(program.id).statusDefinitions().getStatuses())
         .isEqualTo(ImmutableList.of(APPROVED_STATUS));
+  }
+
+  @Test
+  public void setProgramQuestionDefinitionAddressCorrectionEnabled_alreadyEnabled_throws()
+      throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("screen one")
+            .withQuestionDefinition(addressQuestion, false)
+            .withQuestionDefinition(secondaryAddressQuestion, false)
+            .buildDefinition();
+
+    Long programId = programDefinition.id();
+    Long blockDefinitionId = programDefinition.getLastBlockDefinition().id();
+    ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        programId, blockDefinitionId, addressQuestion.getId(), true);
+    assertThatExceptionOfType(ProgramQuestionDefinitionInvalidException.class)
+        .isThrownBy(
+            () ->
+                ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
+                    programId, blockDefinitionId, secondaryAddressQuestion.getId(), true));
   }
 }

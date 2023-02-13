@@ -14,6 +14,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.applicant.question.Scalar;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -21,6 +22,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
+import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
@@ -49,6 +51,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLastModifiedTime(Instant.now())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     assertThat(def.id()).isEqualTo(123L);
@@ -73,6 +76,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).hasValue(blockA);
@@ -90,9 +94,85 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
+  }
+
+  @Test
+  public void getProgramQuestionDefinition() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantJugglingNumber())
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantDate())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .buildDefinition();
+
+    assertThat(
+            programDefinition
+                .getProgramQuestionDefinition(testQuestionBank.applicantJugglingNumber().id)
+                .id())
+        .isEqualTo(testQuestionBank.applicantJugglingNumber().id);
+  }
+
+  @Test
+  public void getProgramQuestionDefinition_notFound() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantDate())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .buildDefinition();
+
+    assertThatThrownBy(
+            () ->
+                programDefinition.getProgramQuestionDefinition(
+                    testQuestionBank.applicantJugglingNumber().id))
+        .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
+  }
+
+  @Test
+  public void isQuestionUsedInPredicate() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withEligibilityDefinition(
+                EligibilityDefinition.builder()
+                    .setPredicate(
+                        PredicateDefinition.create(
+                            PredicateExpressionNode.create(
+                                LeafAddressServiceAreaExpressionNode.builder()
+                                    .setQuestionId(testQuestionBank.applicantAddress().id)
+                                    .setServiceAreaId("seattle")
+                                    .build()),
+                            PredicateAction.ELIGIBLE_BLOCK))
+                    .build())
+            .withVisibilityPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.builder()
+                            .setQuestionId(testQuestionBank.applicantDate().id)
+                            .setScalar(Scalar.DATE)
+                            .setOperator(Operator.IS_BEFORE)
+                            .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
+                            .build()),
+                    PredicateAction.HIDE_BLOCK))
+            .buildDefinition();
+
+    assertThat(programDefinition.isQuestionUsedInPredicate(testQuestionBank.applicantAddress().id))
+        .isTrue();
+    assertThat(programDefinition.isQuestionUsedInPredicate(testQuestionBank.applicantDate().id))
+        .isTrue();
+    assertThat(
+            programDefinition.isQuestionUsedInPredicate(
+                testQuestionBank.applicantKitchenTools().id))
+        .isFalse();
   }
 
   @Test
@@ -133,6 +213,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     assertThat(program.hasQuestion(questionA)).isTrue();
@@ -152,6 +233,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -182,6 +264,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     program =
@@ -212,6 +295,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -258,6 +342,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -281,7 +366,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .addQuestion(
-                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
+                ProgramQuestionDefinition.create(
+                    questionB,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ true))
             .build();
     BlockDefinition block2QC =
         BlockDefinition.builder()
@@ -315,6 +404,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     // block1
@@ -414,6 +504,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockC)
             .addBlockDefinition(blockDEnum)
             .addBlockDefinition(blockE)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
 
     // blockA (applicantName)
@@ -810,6 +901,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setCreateTime(now)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
     assertThat(def.createTime().get()).isEqualTo(now);
   }
@@ -826,6 +918,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
     assertThat(def.createTime().isPresent()).isFalse();
   }
@@ -844,6 +937,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLastModifiedTime(now)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
     assertThat(def.lastModifiedTime().get()).isEqualTo(now);
   }
@@ -860,6 +954,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
             .build();
     assertThat(def.lastModifiedTime().isPresent()).isFalse();
   }

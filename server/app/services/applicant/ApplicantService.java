@@ -911,6 +911,13 @@ public final class ApplicantService {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
+          case DOUBLE:
+            try {
+              applicantData.putDouble(currentPath, update.value());
+            } catch (NumberFormatException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
+            break;
           default:
             throw new UnsupportedScalarTypeException(type);
         }

@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
+import controllers.BadRequestException;
 import forms.BlockForm;
 import java.util.List;
 import java.util.Locale;
@@ -193,7 +194,8 @@ public final class ProgramServiceImpl implements ProgramService {
             externalLink,
             displayMode,
             ImmutableList.of(emptyBlock),
-            versionRepository.getDraftVersion());
+            versionRepository.getDraftVersion(),
+            ProgramType.DEFAULT);
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -773,7 +775,7 @@ public final class ProgramServiceImpl implements ProgramService {
       long questionDefinitionId,
       boolean addressCorrectionEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          ProgramQuestionDefinitionNotFoundException {
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
@@ -784,8 +786,19 @@ public final class ProgramServiceImpl implements ProgramService {
     }
 
     if (!blockDefinition.hasAddress()) {
-      throw new RuntimeException(
+      throw new BadRequestException(
           "Unexpected error: updating a non address question with address correction enabled");
+    }
+
+    if (!addressCorrectionEnabled
+        && programDefinition.isQuestionUsedInPredicate(questionDefinitionId)) {
+      throw new BadRequestException(
+          String.format("Cannot disable correction for an address used in a predicate."));
+    }
+
+    if (blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinitionId)) {
+      throw new ProgramQuestionDefinitionInvalidException(
+          programId, blockDefinitionId, questionDefinitionId);
     }
 
     ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =

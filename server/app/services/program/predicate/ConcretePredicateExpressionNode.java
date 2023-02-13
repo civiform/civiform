@@ -10,6 +10,9 @@ import services.question.types.QuestionDefinition;
 @JsonSubTypes({
   @JsonSubTypes.Type(value = AndNode.class, name = "and"),
   @JsonSubTypes.Type(value = LeafOperationExpressionNode.class, name = "leaf"),
+  @JsonSubTypes.Type(
+      value = LeafAddressServiceAreaExpressionNode.class,
+      name = "leafAddressServiceArea"),
   @JsonSubTypes.Type(value = OrNode.class, name = "or")
 })
 public interface ConcretePredicateExpressionNode {

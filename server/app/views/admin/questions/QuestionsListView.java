@@ -573,7 +573,10 @@ public final class QuestionsListView extends BaseHtmlView {
       Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(question);
       maybeTranslationLink.ifPresent(extraActions::add);
       if (activeAndDraftQuestions.getActiveQuestionDefinition(question.getName()).isPresent()) {
-        extraActions.add(renderDiscardDraftLink(question, request));
+        Pair<DomContent, Modal> discardDraftButtonAndModal =
+            renderDiscardDraftOption(question, request);
+        extraActions.add(discardDraftButtonAndModal.getLeft());
+        modals.add(discardDraftButtonAndModal.getRight());
       }
     }
     // Add Archive option only if current question is draft or it's active, but there is no
@@ -621,14 +624,34 @@ public final class QuestionsListView extends BaseHtmlView {
     return Pair.of(result, modals.build());
   }
 
-  private ButtonTag renderDiscardDraftLink(QuestionDefinition definition, Http.Request request) {
+  private Pair<DomContent, Modal> renderDiscardDraftOption(
+      QuestionDefinition definition, Http.Request request) {
     String link =
         controllers.admin.routes.AdminQuestionController.discardDraft(definition.getId()).url();
-    return toLinkButtonForPost(
+
+    ButtonTag discardConfirmButton =
+        toLinkButtonForPost(
+            makeSvgTextButton("Discard", Icons.DELETE)
+                .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES),
+            link,
+            request);
+
+    DivTag discardConfirmationDiv =
+        div(p("Are you sure you want to discard this draft?"), discardConfirmButton)
+            .withClasses("p-6", "flex-row", "space-y-6");
+
+    ButtonTag discardMenuButton =
         makeSvgTextButton("Discard Draft", Icons.DELETE)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
-        link,
-        request);
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+
+    Modal modal =
+        Modal.builder("discard-confirmation-modal", discardConfirmationDiv)
+            .setModalTitle("Discard draft?")
+            .setTriggerButtonContent(discardMenuButton)
+            .setWidth(Width.FOURTH)
+            .build();
+
+    return Pair.of(modal.getButton(), modal);
   }
 
   private Pair<DomContent, Optional<Modal>> renderArchiveOptions(

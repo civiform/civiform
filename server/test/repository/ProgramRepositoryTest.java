@@ -30,6 +30,7 @@ import services.applicant.ApplicantData;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
@@ -67,10 +68,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void loadLegacy() {
     DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions,"
-                + " legacy_localized_name, legacy_localized_description) values ('Old Schema"
-                + " Entry', 'Description', '[]', '{\"en_us\": \"name\"}', '{\"en_us\":"
-                + " \"description\"}');")
+            "insert into programs (name, description, block_definitions, legacy_localized_name,"
+                + " legacy_localized_description, program_type) values ('Old Schema Entry',"
+                + " 'Description', '[]', '{\"en_us\": \"name\"}', '{\"en_us\": \"description\"}',"
+                + " 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("
@@ -97,10 +98,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void loadStatusDefinitionsEvolution() {
     DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions,"
-                + " legacy_localized_name, legacy_localized_description, status_definitions)"
-                + " values ('Status Default', 'Description', '[]', '{\"en_us\": \"name\"}',"
-                + "'{\"en_us\": \"description\"}', '{\"statuses\": []}');")
+            "insert into programs (name, description, block_definitions, legacy_localized_name,"
+                + " legacy_localized_description, status_definitions, program_type) values"
+                + " ('Status Default', 'Description', '[]', '{\"en_us\": \"name\"}','{\"en_us\":"
+                + " \"description\"}', '{\"statuses\": []}', 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("
@@ -121,10 +122,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getForSlug_withOldSchema() {
     DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions,"
-                + " legacy_localized_name, legacy_localized_description) values ('Old Schema"
-                + " Entry', 'Description', '[]', '{\"en_us\": \"a\"}', '{\"en_us\":"
-                + " \"b\"}');")
+            "insert into programs (name, description, block_definitions, legacy_localized_name,"
+                + " legacy_localized_description, program_type) values ('Old Schema Entry',"
+                + " 'Description', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}', 'default');")
         .execute();
     DB.sqlUpdate(
             "insert into versions_programs (versions_id, programs_id) values ("
@@ -158,8 +158,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            versionRepo.getDraftVersion());
-
+            versionRepo.getDraftVersion(),
+            ProgramType.DEFAULT);
     Program withId = repo.insertProgramSync(program);
 
     Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
