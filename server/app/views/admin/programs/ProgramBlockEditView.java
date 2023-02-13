@@ -263,7 +263,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   "flex-row",
                   "gap-2",
                   "py-2",
-                  "px-"+(4+(level*2)),
+                  "px-" + (4 + (level * 2)),
                   "border",
                   "border-white",
                   StyleUtils.hover("border-gray-300"),
