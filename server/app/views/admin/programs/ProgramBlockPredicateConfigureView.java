@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
@@ -235,8 +236,10 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
         layout
             .getBundle()
             .setTitle(String.format("Configure %s predicate", typeDisplayName))
-            .addMainContent(renderProgramInfo(programDefinition), content);
-
+            .addMainContent(
+                renderProgramInfo(programDefinition)
+                    .with(renderEditProgramDetailsButton(programDefinition)),
+                content);
     return layout.renderCentered(htmlBundle);
   }
 
@@ -815,14 +818,10 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
     }
   }
 
-  @Override
-  protected String getEditButtonText() {
-    return "Edit program details";
-  }
-
-  @Override
-  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
-    return routes.AdminProgramController.edit(programDefinition.id()).url();
+  private ButtonTag renderEditProgramDetailsButton(ProgramDefinition programDefinition) {
+    ButtonTag editButton = getStandardizedEditButton("Edit program details");
+    String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
+    return asRedirectElement(editButton, editLink);
   }
 
   @Override

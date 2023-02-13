@@ -223,8 +223,10 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockBaseView {
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(renderProgramInfo(programDefinition), content);
-
+            .addMainContent(
+                renderProgramInfo(programDefinition)
+                    .with(renderEditProgramDetailsButton(programDefinition)),
+                content);
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
@@ -493,14 +495,10 @@ public final class ProgramBlockPredicatesEditView extends ProgramBlockBaseView {
     }
   }
 
-  @Override
-  protected String getEditButtonText() {
-    return "Edit program details";
-  }
-
-  @Override
-  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
-    return routes.AdminProgramController.edit(programDefinition.id()).url();
+  private ButtonTag renderEditProgramDetailsButton(ProgramDefinition programDefinition) {
+    ButtonTag editButton = getStandardizedEditButton("Edit program details");
+    String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
+    return asRedirectElement(editButton, editLink);
   }
 
   @Override

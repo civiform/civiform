@@ -35,18 +35,7 @@ abstract class ProgramBlockBaseView extends BaseHtmlView {
             .withClasses("text-sm")
             .with(span("Admin note: ").withClasses("font-semibold"))
             .with(span(programDefinition.adminDescription()));
-
-    ButtonTag editDetailsButton =
-        ViewUtils.makeSvgTextButton(getEditButtonText(), Icons.EDIT)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-5");
-    asRedirectElement(editDetailsButton, getEditButtonUrl(programDefinition));
-
-    return div(
-            ViewUtils.makeBadge(getProgramDisplayStatus()),
-            title,
-            description,
-            adminNote,
-            editDetailsButton)
+    return div(ViewUtils.makeBadge(getProgramDisplayStatus()), title, description, adminNote)
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
 
@@ -94,11 +83,21 @@ abstract class ProgramBlockBaseView extends BaseHtmlView {
     return container.with(conditionList);
   }
 
-  /** Returns the string that will be shown on the Edit button */
-  protected abstract String getEditButtonText();
-
-  /** Returns the navigation destination for the Edit button */
-  protected abstract String getEditButtonUrl(ProgramDefinition programDefinition);
+  /**
+   * Returns a standardized Edit Button that can be added to the program info. A typical use case
+   * would be for a subclass to:
+   *
+   * <ul>
+   *   <li>create a button with this method
+   *   <li>add subclass specific navigation behaviour to the button
+   *   <li>add the button to the program info after creating it with renderProductInfo()
+   * </ul>
+   */
+  protected ButtonTag getStandardizedEditButton(String buttonText) {
+    return ViewUtils.makeSvgTextButton(buttonText, Icons.EDIT)
+        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-5")
+        .withId("header_edit_button");
+  }
 
   /**
    * Returns the Program display type which represents the status of the program. It will be shown

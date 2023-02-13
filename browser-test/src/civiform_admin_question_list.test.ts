@@ -2,6 +2,7 @@ import {
   AdminPrograms,
   AdminQuestions,
   createTestContext,
+  disableFeatureFlag,
   loginAsAdmin,
 } from './support'
 describe('Admin question list', () => {
@@ -10,6 +11,7 @@ describe('Admin question list', () => {
     const {page, adminPrograms, adminQuestions} = ctx
 
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_read_only_view_enabled')
 
     const questionOnePublishedText = 'question list test question one'
     const questionTwoPublishedText = 'question list test question two'
@@ -128,7 +130,7 @@ describe('Admin question list', () => {
     if (expectedQuestions.length === 0) {
       throw new Error('expected at least one question')
     }
-    await adminPrograms.goToManageQuestionsPage(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.openQuestionBank()
     const questionBankNames = await adminPrograms.questionBankNames()
     expect(questionBankNames).toEqual(expectedQuestions)

@@ -2,14 +2,16 @@ import {
   AdminPrograms,
   AdminQuestions,
   dismissModal,
-  enableFeatureFlag,
+  disableFeatureFlag,
   loginAsAdmin,
   startSession,
   validateScreenshot,
 } from './support'
 import {Page} from 'playwright'
 
-describe('publishing all draft questions and programs', () => {
+// TODO(#4125) This test suite is a duplicate of civiform_admin_publish.test.ts should be removed once the program_read_only_view
+// flag has been removed. If you make changes to this file, please consider updating the other test too.
+describe('publishing all draft questions and programs with program read only view disabled', () => {
   let pageObject: Page
   let adminPrograms: AdminPrograms
   let adminQuestions: AdminQuestions
@@ -28,7 +30,7 @@ describe('publishing all draft questions and programs', () => {
     adminQuestions = new AdminQuestions(pageObject)
 
     await loginAsAdmin(pageObject)
-    await enableFeatureFlag(pageObject, 'program_read_only_view_enabled')
+    await disableFeatureFlag(pageObject, 'program_read_only_view_enabled')
 
     // Create a hidden program with no questions
     await adminPrograms.addProgram(
@@ -38,7 +40,7 @@ describe('publishing all draft questions and programs', () => {
       true,
     )
 
-    // Create a new question referenced by a program.
+    // Create a new question refererenced by a program.
     await adminQuestions.addAddressQuestion({questionName, questionText})
     await adminPrograms.addProgram(visibleProgramWithQuestion)
     await adminPrograms.editProgramBlock(
@@ -51,7 +53,10 @@ describe('publishing all draft questions and programs', () => {
     await adminPrograms.publishAllPrograms()
 
     // Make an edit to the program with no questions.
-    await adminPrograms.createNewVersion(hiddenProgramNoQuestions)
+    await adminPrograms.createNewVersion(
+      hiddenProgramNoQuestions,
+      /* programReadOnlyViewEnabled = */ false,
+    )
 
     // Make an edit to the shared question.
     await adminQuestions.createNewVersion(questionName)

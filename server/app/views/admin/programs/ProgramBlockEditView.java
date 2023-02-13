@@ -82,9 +82,6 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
-  private static final String NOT_YET_IMPLEMENTED_ERROR_MESSAGE =
-      "The read only version of ProgramBlockView is not fully implemented. It should only be "
-          + "used once issue #3162 is closed.";
 
   @Inject
   public ProgramBlockEditView(
@@ -96,10 +93,6 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
     this.featureFlags = checkNotNull(featureFlags);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
     this.programDisplayType = programViewType;
-
-    if (!programDisplayType.equals(DRAFT)) {
-      throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
-    }
   }
 
   public Content render(
@@ -129,7 +122,11 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
-    String title = String.format("Edit %s", blockDefinition.name());
+
+    String title =
+        viewAllowsEditingProgram()
+            ? String.format("Edit %s", blockDefinition.name())
+            : String.format("View %s", blockDefinition.name());
     Long programId = programDefinition.id();
 
     String blockUpdateAction =
@@ -153,7 +150,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                         "px-2",
                         StyleUtils.responsive2XLarge("px-16"))
                     .with(
-                        renderProgramInfo(programDefinition),
+                        renderProgramInfo(programDefinition)
+                            .with(renderEditButton(request, programDefinition)),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
                             .with(blockOrderPanel(request, programDefinition, blockId))
@@ -249,6 +247,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       long focusedBlockId,
       int level) {
     DivTag container = div().withClass("pl-" + level * 2);
+    String genericBlockDivId = "block_list_item_";
     for (BlockDefinition blockDefinition : blockDefinitions) {
 
       // TODO: Not i18n safe.
@@ -276,12 +275,17 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                     programDefinition.id(), blockDefinition.id())
                 .url();
       } else {
-        throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
+        switchBlockLink =
+            controllers.admin.routes.AdminProgramBlocksController.show(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
       }
-      blockTag.with(
-          a().withClasses("flex-grow", "overflow-hidden")
-              .withHref(switchBlockLink)
-              .with(p(blockName), p(questionCountText).withClasses("text-sm")));
+      blockTag
+          .withId(genericBlockDivId + blockDefinition.id())
+          .with(
+              a().withClasses("flex-grow", "overflow-hidden")
+                  .withHref(switchBlockLink)
+                  .with(p(blockName), p(questionCountText).withClasses("text-sm")));
       if (viewAllowsEditingProgram()) {
         DivTag moveButtons =
             blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
@@ -365,6 +369,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
         div()
             .with(div(blockForm.getName()).withClasses("text-xl", "font-bold", "py-2"))
             .with(div(blockForm.getDescription()).withClasses("text-lg", "max-w-prose"))
+            .withId("block-info-display-" + blockDefinition.id())
             .withClasses("my-4");
 
     DivTag visibilityPredicateDisplay =
@@ -1004,22 +1009,16 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
     return programDisplayType.equals(DRAFT);
   }
 
-  @Override
-  protected String getEditButtonText() {
+  private ButtonTag renderEditButton(Request request, ProgramDefinition programDefinition) {
     if (viewAllowsEditingProgram()) {
-      return "Edit program details";
+      ButtonTag editButton = getStandardizedEditButton("Edit program details");
+      String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
+      return asRedirectElement(editButton, editLink);
     } else {
-      return "Edit Program";
+      ButtonTag editButton = getStandardizedEditButton("Edit program");
+      String editLink = routes.AdminProgramController.newVersionFrom(programDefinition.id()).url();
+      return toLinkButtonForPost(editButton, editLink, request);
     }
-  }
-
-  @Override
-  protected String getEditButtonUrl(ProgramDefinition programDefinition) {
-    if (viewAllowsEditingProgram()) {
-      return routes.AdminProgramController.edit(programDefinition.id()).url();
-    }
-    // TODO(#3162) add the route once a read only navigation option is available
-    throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED_ERROR_MESSAGE);
   }
 
   @Override

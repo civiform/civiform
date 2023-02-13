@@ -277,13 +277,21 @@ public final class VersionRepository {
         .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
 
+  /** Returns true if the program is a member of the current draft version. */
   public boolean isDraft(Program program) {
     return isDraftProgram(program.id);
   }
 
+  /** Returns true if the program with the provided id is a member of the current draft version. */
   public boolean isDraftProgram(Long programId) {
     return getDraftVersion().getPrograms().stream()
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
+  }
+
+  /** Returns true if the program with the provided id is a member of the current active version. */
+  public boolean isActiveProgram(Long programId) {
+    return getActiveVersion().getPrograms().stream()
+        .anyMatch(activeProgram -> activeProgram.id.equals(programId));
   }
 
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {

@@ -379,7 +379,7 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 1')
-    await adminPrograms.goToManageQuestionsPage(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
   })
 
   it('delete last block and edit', async () => {
@@ -391,7 +391,7 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 2')
-    await adminPrograms.goToManageQuestionsPage(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
   })
 
   it('correctly renders delete screen confirmation modal', async () => {
