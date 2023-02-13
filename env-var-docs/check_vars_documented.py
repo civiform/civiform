@@ -62,7 +62,7 @@ def main():
     overdocumented = documented_vars - vars
 
     errors = False
-    msg = "CiviForm environment variables are not correctly documented. See env-var-docs/README.md for information. Issues:\n"
+    msg = "CiviForm environment variables are not correctly documented. See https://github.com/civiform/civiform/blob/main/env-var-docs/README.md for information. Issues:\n"
     if len(undocumented) != 0:
         errors = True
         msg += f"The following vars are not documented in {config.docs_path}:\n{pprint.pformat(undocumented)}\n"
@@ -76,12 +76,17 @@ def main():
 def vars_from_application_conf(app_conf_file: typing.TextIO) -> set[str]:
     """Parses an application.conf file and returns the set of referenced environment variables."""
 
+    # Matches any comment lines.
+    comment_re = re.compile("^\s*#")
+
     # Matches any UPPER_SNAKE_CASE variables in substitutions like
-    # ${?WHITELABEL_SMALL_LOGO_URL}, that are not in comment lines.
-    env_var_re = re.compile("^[^#].*\${\?([A-Z0-9_]+)}")
+    # ${?WHITELABEL_SMALL_LOGO_URL}.
+    env_var_re = re.compile("^.*\${\?\s*([A-Z0-9_]+)\s*}")
 
     vars = set()
     for line in app_conf_file:
+        if comment_re.match(line) != None:
+            continue
         match = env_var_re.match(line)
         if match == None:
             continue
