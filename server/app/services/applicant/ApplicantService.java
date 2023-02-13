@@ -64,7 +64,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
-import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 
 /**
@@ -290,13 +289,9 @@ public final class ApplicantService {
                 maybeOption =
                     esriServiceAreaValidationConfig.getOptionByServiceAreaId(
                         blockBeforeUpdate.getLeafAddressNodeServiceAreaId().get());
-                System.out.println(updateMap);
-                System.out.println(esriClient);
-                System.out.println("maybeOption = " + maybeOption);
 
                 for (ApplicantQuestion question : blockBeforeUpdate.getQuestions()) {
-                  QuestionDefinition questionDefinition = question.getQuestionDefinition();
-                  if (questionDefinition.isAddress()) {
+                  if (question.getQuestionDefinition().isAddress()) {
                     maybeServiceAreaPath =
                         Optional.of(question.getContextualizedPath().join(Scalar.SERVICE_AREA));
                     String serviceAreaValue = updateMap.get(maybeServiceAreaPath.get().toString());
@@ -315,11 +310,10 @@ public final class ApplicantService {
                     Path correctedPath = question.getContextualizedPath().join(Scalar.CORRECTED);
                     String correctedValue = updateMap.get(correctedPath.toString());
 
+                    // build AddressLocation needed for service area validation
                     if (correctedValue.equals(
                         CorrectedAddressState.CORRECTED.getSerializationFormat())) {
                       hasCorrectedAddress = true;
-                      System.out.println(
-                          "question.getContextualizedPath() " + question.getContextualizedPath());
                       Path latitudePath = question.getContextualizedPath().join(Scalar.LATITUDE);
                       Path longitudePath = question.getContextualizedPath().join(Scalar.LONGITUDE);
                       Path wellKnownIdPath =
@@ -339,8 +333,6 @@ public final class ApplicantService {
                   && maybeServiceAreaPath.isPresent()
                   && !hasExistingServiceAreaOption) {
                 final Path serviceAreaPath = maybeServiceAreaPath.get();
-                System.out.println(
-                    "addressLocationBuilder.build() = " + addressLocationBuilder.build());
                 // call getServiceAreaInclusionGroup
                 return esriClient
                     .getServiceAreaInclusionGroup(maybeOption.get(), addressLocationBuilder.build())
@@ -372,74 +364,31 @@ public final class ApplicantService {
                           UpdateServiceArea updateServiceArea =
                               UpdateServiceArea.create(
                                   serviceAreaPath, newServiceAreaInclusionGroup);
-                          // start of repeated block
-                          UpdateMetadata updateMetadata =
-                              UpdateMetadata.create(programId, clock.millis());
-                          ImmutableMap<Path, String> failedUpdates;
-                          try {
-                            failedUpdates =
-                                stageUpdates(
-                                    applicant.getApplicantData(),
-                                    blockBeforeUpdate,
-                                    updateMetadata,
-                                    updates,
-                                    updateServiceArea);
-                          } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
-                            return CompletableFuture.failedFuture(e);
-                          }
 
-                          ReadOnlyApplicantProgramService roApplicantProgramService =
-                              new ReadOnlyApplicantProgramServiceImpl(
-                                  applicant.getApplicantData(),
-                                  programDefinition,
-                                  baseUrl,
-                                  failedUpdates);
-
-                          Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
-                          if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
-                            return userRepository
-                                .updateApplicant(applicant)
-                                .thenApplyAsync(
-                                    (finishedSaving) -> roApplicantProgramService,
-                                    httpExecutionContext.current());
-                          }
-
-                          return CompletableFuture.completedFuture(roApplicantProgramService);
-                          // end of repeated block
+                          return stageAndUpdateIfValid(
+                              applicant,
+                              baseUrl,
+                              blockBeforeUpdate,
+                              clock,
+                              programDefinition,
+                              updates,
+                              updateServiceArea);
                         },
                         httpExecutionContext.current());
               }
+              // pass in an empty updateServiceArea values
               UpdateServiceArea updateServiceArea =
                   UpdateServiceArea.create(
                       Path.empty(), new ImmutableList.Builder<ServiceAreaInclusion>().build());
-              UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
-              ImmutableMap<Path, String> failedUpdates;
-              try {
-                failedUpdates =
-                    stageUpdates(
-                        applicant.getApplicantData(),
-                        blockBeforeUpdate,
-                        updateMetadata,
-                        updates,
-                        updateServiceArea);
-              } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
-                return CompletableFuture.failedFuture(e);
-              }
 
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition, baseUrl, failedUpdates);
-
-              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
-              if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
-                return userRepository
-                    .updateApplicant(applicant)
-                    .thenApplyAsync(
-                        (finishedSaving) -> roApplicantProgramService,
-                        httpExecutionContext.current());
-              }
-
-              return CompletableFuture.completedFuture(roApplicantProgramService);
+              return stageAndUpdateIfValid(
+                  applicant,
+                  baseUrl,
+                  blockBeforeUpdate,
+                  clock,
+                  programDefinition,
+                  updates,
+                  updateServiceArea);
             },
             httpExecutionContext.current())
         .thenCompose(
@@ -447,6 +396,43 @@ public final class ApplicantService {
                 applicationRepository
                     .createOrUpdateDraft(applicantId, programId)
                     .thenApplyAsync(appDraft -> v));
+  }
+
+  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+      Applicant applicant,
+      String baseUrl,
+      Block blockBeforeUpdate,
+      Clock clock,
+      ProgramDefinition programDefinition,
+      ImmutableSet<Update> updates,
+      UpdateServiceArea updateServiceArea) {
+    UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
+    ImmutableMap<Path, String> failedUpdates;
+    try {
+      failedUpdates =
+          stageUpdates(
+              applicant.getApplicantData(),
+              blockBeforeUpdate,
+              updateMetadata,
+              updates,
+              updateServiceArea);
+    } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
+      return CompletableFuture.failedFuture(e);
+    }
+
+    ReadOnlyApplicantProgramService roApplicantProgramService =
+        new ReadOnlyApplicantProgramServiceImpl(
+            applicant.getApplicantData(), programDefinition, baseUrl, failedUpdates);
+
+    Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
+    if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
+      return userRepository
+          .updateApplicant(applicant)
+          .thenApplyAsync(
+              (finishedSaving) -> roApplicantProgramService, httpExecutionContext.current());
+    }
+
+    return CompletableFuture.completedFuture(roApplicantProgramService);
   }
 
   /**

@@ -213,9 +213,12 @@ public final class AddressQuestion extends Question {
       return serviceAreaValue;
     }
 
-    serviceAreaValue =
-        ServiceAreaInclusionGroup.deserialize(
-            applicantQuestion.getApplicantData().readString(getServiceAreaPath()));
+    Optional<String> serviceAreaString =
+        applicantQuestion.getApplicantData().readString(getServiceAreaPath());
+
+    return serviceAreaString.isPresent()
+        ? Optional.of(ServiceAreaInclusionGroup.deserialize(serviceAreaString.get()))
+        : Optional.empty();
   }
 
   public AddressQuestionDefinition getQuestionDefinition() {
@@ -292,6 +295,7 @@ public final class AddressQuestion extends Question {
         getCorrectedPath(),
         getLatitudePath(),
         getLongitudePath(),
-        getWellKnownIdPath());
+        getWellKnownIdPath(),
+        getServiceAreaPath());
   }
 }
