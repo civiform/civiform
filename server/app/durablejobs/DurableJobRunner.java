@@ -2,7 +2,9 @@ package durablejobs;
 
 import annotations.BindingAnnotations;
 import com.google.common.base.Preconditions;
+import com.typesafe.config.Config;
 import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.Transaction;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -22,24 +24,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.PersistedDurableJobRepository;
 
-/** Executes {@link DurableJob}s when their time has come. */
+/**
+ * Executes {@link DurableJob}s when their time has come.
+ *
+ * <p>The runner continues executing jobs as long as there are jobs to execute and it does not
+ * exceed the time specified by "durable_jobs.poll_interval_seconds". This is to prevent runners
+ * overlapping in the same server.
+ */
 public final class DurableJobRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobRunner.class);
 
+  private final Database database = DB.getDefault();
   private final DurableJobRegistry durableJobRegistry;
+  private final int jobTimeoutMinutes;
   private final PersistedDurableJobRepository persistedDurableJobRepository;
   private final Provider<LocalDateTime> nowProvider;
   private final ZoneOffset zoneOffset;
+  private final int runnerLifespanSeconds;
 
   @Inject
   public DurableJobRunner(
+      Config config,
       DurableJobRegistry durableJobRegistry,
       PersistedDurableJobRepository persistedDurableJobRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       ZoneId zoneId) {
     this.durableJobRegistry = Preconditions.checkNotNull(durableJobRegistry);
+    this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
     this.persistedDurableJobRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
+    this.runnerLifespanSeconds = config.getInt("durable_jobs.poll_interval_seconds");
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
     this.zoneOffset = zoneId.getRules().getOffset(nowProvider.get());
   }
@@ -47,79 +61,107 @@ public final class DurableJobRunner {
   public void runJobs() {
     LOGGER.info("JobRunner_Start thread ID={}", Thread.currentThread().getId());
 
-    // TODO: extract to config var
-    LocalDateTime stopTime = nowProvider.get().plusSeconds(10);
-    Optional<PersistedDurableJob> jobToRun;
+    LocalDateTime stopTime = resolveStopTime();
+    Transaction transaction = database.beginTransaction();
+    Optional<PersistedDurableJob> jobToRun = persistedDurableJobRepository.getJobForExecution();
 
-    do {
-      try (Transaction transaction = DB.beginTransaction()) {
-        jobToRun = persistedDurableJobRepository.getJobForExecution();
-        runJob(jobToRun.get());
-      }
+    while (jobToRun.isPresent() && nowProvider.get().isBefore(stopTime)) {
+      runJob(jobToRun.get());
+      transaction.commit();
 
+      transaction = database.beginTransaction();
       jobToRun = persistedDurableJobRepository.getJobForExecution();
-    } while (jobToRun.isPresent() && nowProvider.get().isBefore(stopTime));
+    }
+    transaction.close();
 
-    LOGGER.info("JobRunner_Stop thread ID={}", Thread.currentThread().getId());
+    LOGGER.info("JobRunner_Stop thread_ID={}", Thread.currentThread().getId());
   }
 
   private void runJob(PersistedDurableJob persistedDurableJob) {
     LocalDateTime startTime = nowProvider.get();
     LOGGER.info(
-        "JobRunner_ExecutingJob thread ID={}, job name=\"{}\", job ID={}",
+        "JobRunner_ExecutingJob thread_ID={}, job_name=\"{}\", job_ID={}",
         Thread.currentThread().getId(),
         persistedDurableJob.getJobName(),
         persistedDurableJob.id);
 
     try {
-      DurableJobRegistry.RegisteredJob jobToRun =
-          durableJobRegistry.get(DurableJobName.valueOf(persistedDurableJob.getJobName()));
+      persistedDurableJob.decrementRemainingAttempts().save();
 
-      persistedDurableJob.decrementRemainingAttempts();
-      CompletableFuture.runAsync(() -> jobToRun.getFactory().create(persistedDurableJob).run())
-        // TODO: extract to config var
-          .get(30, TimeUnit.MINUTES);
+      runJobWithTimeout(
+          durableJobRegistry
+              .get(DurableJobName.valueOf(persistedDurableJob.getJobName()))
+              .getFactory()
+              .create(persistedDurableJob));
 
       persistedDurableJob.setSuccessTime(nowProvider.get().toInstant(zoneOffset)).save();
 
       LOGGER.info(
-          "JobRunner_JobSucceeded job name=\"{}\", job ID={}, duration (s)={}",
+          "JobRunner_JobSucceeded job_name=\"{}\", job_ID={}, duration_s={}",
           persistedDurableJob.getJobName(),
           persistedDurableJob.id,
           getJobDurationInSeconds(startTime));
-      // TODO: convert all error logs to String.format and save to
-      // PersistedDurableJob.appendErrorMessage in addition to logging
-    } catch (JobNotFoundException e) {
-      LOGGER.error(
-          "JobRunner_JobFailed JobNotFoundException job name=\"{}\", job ID={}, attempts"
-              + " remaining={}",
-          persistedDurableJob.getJobName(),
-          persistedDurableJob.id,
-          persistedDurableJob.getRemainingAttempts());
-    } catch (CancellationException | InterruptedException e) {
-      LOGGER.error(
-          "JobRunner_JobFailed {} job name=\"{}\", job ID={}, attempts remaining={}",
-          e.getClass().toString(),
-          persistedDurableJob.getJobName(),
-          persistedDurableJob.id,
-          persistedDurableJob.getRemainingAttempts());
-    } catch (ExecutionException e) {
-      LOGGER.error(
-          "JobRunner_JobFailed ExecutionException job name=\"{}\", job ID={}, attempts"
-              + " remaining={}, error message={}, trace=",
-          persistedDurableJob.getJobName(),
-          persistedDurableJob.id,
-          persistedDurableJob.getRemainingAttempts(),
-          e.getMessage(),
-          ExceptionUtils.getStackTrace(e));
+    } catch (JobNotFoundException | CancellationException | InterruptedException e) {
+      String msg =
+          String.format(
+              "JobRunner_JobFailed %s job_name=\"%s\", job_ID=%d, attempts_remaining=%d,"
+                  + " duration_s=%f",
+              e.getClass(),
+              persistedDurableJob.getJobName(),
+              persistedDurableJob.id,
+              persistedDurableJob.getRemainingAttempts(),
+              getJobDurationInSeconds(startTime));
+      LOGGER.error(msg);
+      persistedDurableJob.appendErrorMessage(msg).save();
     } catch (TimeoutException e) {
-      LOGGER.error(
-          "JobRunner_JobTimeout job name=\"{}\", job ID={}, attempts remaining={}, duration (s)={}",
-          persistedDurableJob.getJobName(),
-          persistedDurableJob.id,
-          persistedDurableJob.getRemainingAttempts(),
-          getJobDurationInSeconds(startTime));
+      String msg =
+          String.format(
+              "JobRunner_JobTimeout job_name=\"%s\", job_ID=%d, attempts_remaining=%d,"
+                  + " duration_s=%f",
+              persistedDurableJob.getJobName(),
+              persistedDurableJob.id,
+              persistedDurableJob.getRemainingAttempts(),
+              getJobDurationInSeconds(startTime));
+      LOGGER.error(msg);
+      persistedDurableJob.appendErrorMessage(msg).save();
+    } catch (ExecutionException e) {
+      String msg =
+          String.format(
+              "JobRunner_JobFailed ExecutionException job_name=\"%s\", job_ID=%d,"
+                  + " attempts_remaining=%d, duration_s=%f, error_message=%s, trace=%s",
+              persistedDurableJob.getJobName(),
+              persistedDurableJob.id,
+              persistedDurableJob.getRemainingAttempts(),
+              getJobDurationInSeconds(startTime),
+              e.getMessage(),
+              ExceptionUtils.getStackTrace(e));
+      LOGGER.error(msg);
+      persistedDurableJob.appendErrorMessage(msg).save();
     }
+  }
+
+  private LocalDateTime resolveStopTime() {
+    // We set poll interval to 0 in test
+    if (runnerLifespanSeconds == 0) {
+      // Run for no more than 10
+      return nowProvider.get().plus(100, ChronoUnit.MILLIS);
+    }
+
+    return nowProvider.get().plus(runnerLifespanSeconds, ChronoUnit.SECONDS);
+  }
+
+  private void runJobWithTimeout(DurableJob jobToRun)
+      throws ExecutionException, InterruptedException, TimeoutException {
+    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> jobToRun.run());
+
+    // We set the job timeout to 0 in test
+    if (jobTimeoutMinutes == 0) {
+      // Timeout test jobs after 100 milliseconds
+      future.get(100, TimeUnit.MILLISECONDS);
+      return;
+    }
+
+    future.get(jobTimeoutMinutes, TimeUnit.MINUTES);
   }
 
   private double getJobDurationInSeconds(LocalDateTime startTime) {

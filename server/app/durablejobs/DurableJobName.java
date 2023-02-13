@@ -7,7 +7,8 @@ package durablejobs;
  * models.PersistedDurableJob} records in the database via their {@code DurableJobName}.
  */
 public enum DurableJobName {
-  OLD_JOB_CLEANUP("OLD_JOB_CLEANUP");
+  OLD_JOB_CLEANUP("OLD_JOB_CLEANUP"),
+  TEST("TEST");
 
   private final String jobName;
 
