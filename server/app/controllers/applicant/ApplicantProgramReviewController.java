@@ -67,6 +67,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
+    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+    boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     Optional<ToastMessage> flashBanner =
         request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
     CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
@@ -86,7 +88,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                     Optional.of(
                         new ToastMessage(
                             messages.at(
-                                MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
+                                isTrustedIntermediary
+                                    ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
+                                    : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
                                 roApplicantProgramService.getProgramTitle()),
                             ALERT));
               }
@@ -208,6 +212,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return ok(
                       ineligibleBlockView.render(
                           request,
+                          submittingProfile,
                           roApplicantProgramService,
                           applicantName,
                           messagesApi.preferred(request),
