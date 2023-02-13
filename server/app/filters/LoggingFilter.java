@@ -48,7 +48,7 @@ public class LoggingFilter extends EssentialFilter {
                     log.info(
                         "{}\t{}\t{}ms\t{}", request.method(), request.uri(), time, result.status());
                     if (config.getBoolean("filters.LoggingFilter.enable_request_session_logging")) {
-                        log.info("request session values: {}", request.session().data().toString());
+                      log.info("request session values: {}", request.session().data().toString());
                     }
                     StringBuilder requestCookies = new StringBuilder();
                     for (Http.Cookie cookie : request.cookies()) {
