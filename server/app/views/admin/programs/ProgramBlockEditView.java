@@ -246,7 +246,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       ImmutableList<BlockDefinition> blockDefinitions,
       long focusedBlockId,
       int level) {
-    DivTag container = div().withClass("pl-" + level * 2);
+    DivTag container = div();
     String genericBlockDivId = "block_list_item_";
     for (BlockDefinition blockDefinition : blockDefinitions) {
 
@@ -263,7 +263,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   "flex-row",
                   "gap-2",
                   "py-2",
-                  "px-4",
+                  "px-"+(4+(level*2)),
                   "border",
                   "border-white",
                   StyleUtils.hover("border-gray-300"),
