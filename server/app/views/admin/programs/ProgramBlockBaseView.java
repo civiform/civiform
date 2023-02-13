@@ -85,7 +85,7 @@ abstract class ProgramBlockBaseView extends BaseHtmlView {
 
   /**
    * Returns a standardized Edit Button that can be added to the program info. A typical use case
-   * would be for a subclass to
+   * would be for a subclass to:
    *
    * <ul>
    *   <li>create a button with this method

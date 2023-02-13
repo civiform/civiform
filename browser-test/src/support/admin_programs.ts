@@ -119,7 +119,7 @@ export class AdminPrograms {
   }
 
   /**
-   * Expects a specific question to be shown in the currently displayed program block
+   * Expects a specific question to be shown in the currently displayed program block.
    */
   expectQuestion(questionName: string) {
     expect(
