@@ -168,7 +168,7 @@ public final class ApplicantService {
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
-  public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
+  private ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, baseUrl);
   }
@@ -550,25 +550,37 @@ public final class ApplicantService {
             .getApplicationsForApplicant(
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
-    ImmutableList<ProgramDefinition> programDefinitions =
+    ImmutableList<ProgramDefinition> activeProgramDefinitions =
         versionRepository.getActiveVersion().getPrograms().stream()
             .map(Program::getProgramDefinition)
             .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
             .collect(ImmutableList.toImmutableList());
-    CompletableFuture<ImmutableList<ProgramDefinition>> programListFuture =
-        programService.syncQuestionsToProgramDefinitions(programDefinitions).toCompletableFuture();
 
-    return programListFuture.thenCombineAsync(
-        applicationsFuture,
-        (activePrograms, applications) -> {
-          logDuplicateDrafts(applications);
-          return relevantProgramsForApplicant(activePrograms, applications);
-        },
-        httpExecutionContext.current());
+    return applicationsFuture
+        .thenComposeAsync(
+            applications -> {
+              List<ProgramDefinition> programDefinitionsList =
+                  applications.stream()
+                      .map(application -> application.getProgram().getProgramDefinition())
+                      .collect(Collectors.toList());
+              programDefinitionsList.addAll(activeProgramDefinitions);
+              return programService.syncQuestionsToProgramDefinitions(
+                  programDefinitionsList.stream().collect(ImmutableList.toImmutableList()));
+            })
+        .thenApplyAsync(
+            allPrograms -> {
+              ImmutableSet<Application> applications = applicationsFuture.join();
+              logDuplicateDrafts(applications);
+              return relevantProgramsForApplicant(
+                  activeProgramDefinitions, applications, allPrograms);
+            },
+            httpExecutionContext.current());
   }
 
   private ApplicationPrograms relevantProgramsForApplicant(
-      ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
+      ImmutableList<ProgramDefinition> activePrograms,
+      ImmutableSet<Application> applications,
+      ImmutableList<ProgramDefinition> allPrograms) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -618,13 +630,10 @@ public final class ApplicantService {
               maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
             Application draftApp = maybeDraftApp.get();
-            // Get the program definition from the active programs list, since that has the
+            // Get the program definition from the all programs list, since that has the
             // associated question data.
             ProgramDefinition programDefinition =
-                activePrograms.stream()
-                    .filter(p -> p.id() == draftApp.getProgram().id)
-                    .findFirst()
-                    .get();
+                findProgramWithId(allPrograms, draftApp.getProgram().id);
             ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder()
                     .setProgram(programDefinition)
@@ -651,13 +660,10 @@ public final class ApplicantService {
                     : Optional.empty();
 
             Application submittedApp = maybeSubmittedApp.get();
-            // Get the program definition from the active programs list, since that has the
+            // Get the program definition from the all programs list, since that has the
             // associated question data.
             ProgramDefinition programDefinition =
-                activePrograms.stream()
-                    .filter(p -> p.id() == activeProgramNames.get(programName).id())
-                    .findFirst()
-                    .get();
+                findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
             ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder()
                     .setProgram(programDefinition)
@@ -683,7 +689,8 @@ public final class ApplicantService {
 
           if (!mostRecentApplicationsByProgram.isEmpty()) {
             Applicant applicant = applications.stream().findFirst().get().getApplicant();
-            ProgramDefinition program = activeProgramNames.get(programName);
+            ProgramDefinition program =
+                findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
 
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getOptionalEligiblityStatus(applicant.getApplicantData(), program));
@@ -697,6 +704,11 @@ public final class ApplicantService {
         .setSubmitted(sortByProgramId(submittedPrograms.build()))
         .setUnapplied(sortByProgramId(unappliedPrograms.build()))
         .build();
+  }
+
+  private ProgramDefinition findProgramWithId(
+      ImmutableList<ProgramDefinition> programList, long id) {
+    return programList.stream().filter(p -> p.id() == id).findFirst().get();
   }
 
   private Optional<Boolean> getOptionalEligiblityStatus(
