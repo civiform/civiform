@@ -45,7 +45,7 @@ public interface ProgramService {
   ActiveAndDraftPrograms getActiveAndDraftPrograms();
 
   /**
-   * Update all {@link QuestionDefinition}s in a list of {@link ProgramDefinition}s asynchronously,
+   * Sync all {@link QuestionDefinition}s in a list of {@link ProgramDefinition}s asynchronously,
    * by querying for questions then updating each {@link ProgramDefinition}s.
    *
    * @param programDefinitions the list of program definitions that should be updated
