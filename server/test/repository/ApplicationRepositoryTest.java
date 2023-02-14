@@ -16,6 +16,7 @@ import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.DateConverter;
+import services.program.ProgramType;
 import support.CfTestHelpers;
 
 public class ApplicationRepositoryTest extends ResetPostgres {
@@ -332,7 +333,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            draftVersion);
+            draftVersion,
+            ProgramType.DEFAULT);
     program.save();
     return program;
   }

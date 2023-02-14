@@ -15,6 +15,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.AddressQuestionDefinition;
@@ -80,7 +81,8 @@ public class ProgramBuilder {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            versionRepository.getDraftVersion());
+            versionRepository.getDraftVersion(),
+            ProgramType.DEFAULT);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -130,7 +132,8 @@ public class ProgramBuilder {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            versionRepository.getActiveVersion());
+            versionRepository.getActiveVersion(),
+            ProgramType.DEFAULT);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -153,7 +156,8 @@ public class ProgramBuilder {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            obsoleteVersion);
+            obsoleteVersion,
+            ProgramType.DEFAULT);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());

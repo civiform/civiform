@@ -194,7 +194,8 @@ public final class ProgramServiceImpl implements ProgramService {
             externalLink,
             displayMode,
             ImmutableList.of(emptyBlock),
-            versionRepository.getDraftVersion());
+            versionRepository.getDraftVersion(),
+            ProgramType.DEFAULT);
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -774,7 +775,7 @@ public final class ProgramServiceImpl implements ProgramService {
       long questionDefinitionId,
       boolean addressCorrectionEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          ProgramQuestionDefinitionNotFoundException {
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
@@ -793,6 +794,11 @@ public final class ProgramServiceImpl implements ProgramService {
         && programDefinition.isQuestionUsedInPredicate(questionDefinitionId)) {
       throw new BadRequestException(
           String.format("Cannot disable correction for an address used in a predicate."));
+    }
+
+    if (blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinitionId)) {
+      throw new ProgramQuestionDefinitionInvalidException(
+          programId, blockDefinitionId, questionDefinitionId);
     }
 
     ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =

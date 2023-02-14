@@ -1,11 +1,13 @@
 import {
-  loginAsAdmin,
   AdminQuestions,
-  seedCanonicalQuestions,
-  waitForPageJsLoad,
-  validateScreenshot,
-  dropTables,
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
+  dropTables,
+  loginAsAdmin,
+  seedCanonicalQuestions,
+  validateScreenshot,
+  waitForPageJsLoad,
 } from './support'
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
@@ -29,10 +31,91 @@ describe('normal question lifecycle', () => {
   // Run create-update-publish test for each question type individually to keep
   // test duration reasonable.
   for (const type of Object.values(QuestionType)) {
+    // TODO(#4125) Each of these test cases is a duplicate of a test case in the loop further down and should be removed once the program_read_only_view
+    // flag has been removed.
     it(`${type} question: create, update, publish, create a new version, and update`, async () => {
       const {page, adminQuestions, adminPrograms} = ctx
 
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'program_read_only_view_enabled')
+
+      const questionName = `qlc-${type}`
+      // for most question types there will be only 1 question. But for
+      // enumerator question we'll create repeated question later.
+      const allQuestions = [questionName]
+
+      await adminQuestions.addQuestionForType(type, questionName)
+      const repeatedQuestion = 'qlc-repeated-number'
+      const isEnumerator = type === QuestionType.ENUMERATOR
+      if (isEnumerator) {
+        // Add to the front of the list because creating a new version of the enumerator question will
+        // automatically create a new version of the repeated question. This is important for
+        // createNewVersionForQuestions() call below.
+        allQuestions.unshift(repeatedQuestion)
+        await adminQuestions.addNumberQuestion({
+          questionName: repeatedQuestion,
+          description: 'description',
+          questionText: "$this's favorite number",
+          helpText: '',
+          enumeratorName: questionName,
+        })
+        await adminQuestions.updateQuestion(repeatedQuestion)
+      }
+
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await validateScreenshot(page, `${type}-edit-page`)
+      await adminQuestions.updateQuestion(questionName)
+
+      const programName = `program-for-${type}-question-lifecycle`
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlock(
+        programName,
+        'qlc program description',
+        [questionName],
+      )
+      if (isEnumerator) {
+        await adminPrograms.addProgramRepeatedBlock(
+          programName,
+          'Screen 1',
+          'repeated block desc',
+          [repeatedQuestion],
+        )
+      }
+      await adminPrograms.publishProgram(programName)
+
+      await adminQuestions.expectActiveQuestions(allQuestions)
+
+      // Take screenshot of questions being published and active.
+      await adminQuestions.gotoAdminQuestionsPage()
+      await validateScreenshot(page, `${type}-only-active`)
+
+      await adminQuestions.createNewVersionForQuestions(allQuestions)
+
+      await adminQuestions.updateAllQuestions(allQuestions)
+
+      // Take screenshot of question being in draft state.
+      await adminQuestions.gotoAdminQuestionsPage()
+      await validateScreenshot(page, `${type}-active-and-draft`)
+
+      await adminPrograms.publishProgram(programName)
+
+      await adminPrograms.createNewVersion(
+        programName,
+        /* programReadOnlyViewEnabled = */ false,
+      )
+
+      await adminPrograms.publishProgram(programName)
+
+      await adminQuestions.expectActiveQuestions(allQuestions)
+    })
+  }
+
+  for (const type of Object.values(QuestionType)) {
+    it(`${type} question: create, update, publish, create a new version, and update`, async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
+
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_read_only_view_enabled')
 
       const questionName = `qlc-${type}`
       // for most question types there will be only 1 question. But for

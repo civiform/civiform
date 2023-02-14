@@ -177,9 +177,15 @@ toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagut
 # Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
 content.notEligible=Hindi Kwalipikado
 
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=Hindi kwalipikado
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=I-edit
 link.answer=Sagot
+
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn=Sinagutan noong {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -191,6 +197,70 @@ ariaLabel.answer=Sagot {0}
 
 # Program Summary Title
 title.programSummary=Buod ng application para sa programa
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=Batay sa iyong mga tugon, posibleng hindi ka kwalipikado para sa {0}.
+
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
+title.applicantNotEligibleTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}.
+
+# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
+content.mustMeetRequirements=Dapat mong matugunan ang mga kinakailangang ito ng programa:
+
+# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
+content.mustMeetRequirementsTi=Dapat matugunan ng iyong kliyente ang mga kinakailangang ito ng programa:
+
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
+
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=Puwede kang bumalik sa nakaraang page para i-edit ang iyong mga sagot. O mag-apply sa isa pang programa.
+
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=Bumalik at i-edit
+
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayQualifyTi=Batay sa iyong mga tugon, posibleng kwalipikado ang iyong kliyente para sa {0}. Para magpatuloy, patuloy na punan ang application.
+
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=Batay sa iyong mga tugon, posibleng kwalipikado ka para sa {0}. Para magpatuloy, patuloy na punan ang application.
+
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=Posibleng kwalipikado ka
+
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayQualifyTi=Posibleng kwalipikado ang iyong kliyente
+
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=Posibleng hindi ka kwalipikado
+
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayNotQualifyTi=Posibleng hindi kwalipikado ang iyong kliyente
+
+# Title of page when there is a system outage and eligibility can't be determined for the applicant.
+title.cannotCheckEligibility=Sa ngayon, hindi namin masuri ang pagiging kwalipikado mo para sa {0}.
+
+# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client's behalf.
+title.cannotCheckEligibilityTi=Sa ngayon, hindi namin masuri ang pagiging kwalipikado ng iyong kliyente para sa {0}.
+
+# Content of page when there is a system outage and eligibility can't be determined for the applicant.
+content.cannotCheckEligibility=Nagsisikap kami para mabilis na maayos ang isyung ito. Subukan ulit sa ibang pagkakataon.
+
+# Button that allows an applicant to view all programs.
+button.viewAllPrograms=Tingnan ang lahat ng programa
+
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=Batay sa iyong mga tugon, posibleng hindi ka kwalipikado para sa {0}. Kung nagbago ang iyong impormasyon, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
+
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayNotQualifyTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}. Kung nagbago ang iyong impormasyon ng kliyente, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=Nagka-error sa pag-save ng application
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -227,6 +297,36 @@ validation.currencyMisformatted=Ang currency ay dapat nasa isa sa mga sumusunod 
 validation.stateRequired=Maaari lamang na ilagay ang Estado.
 validation.invalidZipcode=Maaari lamang na ilagay ang 5-bilang na ZIP code.
 validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi natanggap ng mga PO Box.
+
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=I-verify ang address
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=Hindi namin ma-verify ang ibinigay mong address, pero may nakita kaming katulad nito.
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=Inilagay na address:
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName=Inilagay na {0}:
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Iminumungkahing address:
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=Mga iminumungkahing address:
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=I-edit ang address
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm=I-save at kumpirmahin
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=Walang nakitang valid na address
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=Hindi namin ma-verify ang ibinigay mong address. Paki-edit ang address mo para magpatuloy.
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -270,6 +370,9 @@ placeholder.entityName={0} Palayaw
 
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Maaari lamang ay pumili ng file.
+
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=Pumili ng File
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

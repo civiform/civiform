@@ -28,6 +28,7 @@ import services.applications.AccountHasNoEmailException;
 import services.applications.StatusEmailNotFoundException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.StatusNotFoundException;
 import views.errors.NotFound;
 
@@ -55,6 +56,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
           InvalidQuestionPositionException.class,
           NotChangeableException.class,
           ProgramNotFoundException.class,
+          ProgramQuestionDefinitionInvalidException.class,
           StatusEmailNotFoundException.class,
           StatusNotFoundException.class);
 

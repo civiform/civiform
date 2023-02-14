@@ -125,7 +125,7 @@ describe('End to end enumerator test', () => {
     // Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.
     await page.click('p:text("Screen 2")')
     expect(
-      await page.getAttribute('#delete-block-button', 'disabled'),
+      await page.getAttribute('#block-delete-modal-button', 'disabled'),
     ).not.toBeNull()
     expect(
       await page.getAttribute(

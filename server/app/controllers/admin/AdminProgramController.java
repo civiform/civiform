@@ -65,8 +65,8 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   /**
-   * Return a HTML page displaying all programs of the current live version and all programs of the
-   * current draft version if any.
+   * Returns an HTML page displaying all programs of the current live version and all programs of
+   * the current draft version if any.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
@@ -79,7 +79,7 @@ public final class AdminProgramController extends CiviFormController {
             profileMaybe));
   }
 
-  /** Return a HTML page containing a form to create a new program in the draft version. */
+  /** Returns an HTML page containing a form to create a new program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request) {
     return ok(newOneView.render(request));
@@ -105,10 +105,11 @@ public final class AdminProgramController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
   }
 
-  /** Return a HTML page containing a form to edit a draft program. */
+  /** Returns an HTML page containing a form to edit a draft program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(id);
+    requestChecker.throwIfProgramNotDraft(id);
     return ok(editView.render(request, program));
   }
 
@@ -125,7 +126,7 @@ public final class AdminProgramController extends CiviFormController {
 
   /** POST endpoint for creating a new draft version of the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result newVersionFrom(Request request, long id) {
+  public Result newVersionFrom(Request request, long programId) {
     try {
       // If there's already a draft then use that, likely the client is out of date and unaware a
       // draft exists.
@@ -133,15 +134,17 @@ public final class AdminProgramController extends CiviFormController {
       Optional<Program> existingDraft =
           versionRepository
               .getDraftVersion()
-              .getProgramByName(programService.getProgramDefinition(id).adminName());
+              .getProgramByName(programService.getProgramDefinition(programId).adminName());
       final Long idToEdit;
       if (existingDraft.isPresent()) {
         idToEdit = existingDraft.get().id;
       } else {
         // Make a new draft from the provided id.
-        idToEdit = programService.newDraftOf(id).id();
+        idToEdit = programService.newDraftOf(programId).id();
       }
-      return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(idToEdit, 1));
+      return redirect(
+          controllers.admin.routes.AdminProgramBlocksController.edit(
+              idToEdit, /* blockDefinitionId = */ 1));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (Exception e) {
