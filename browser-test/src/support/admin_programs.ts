@@ -968,7 +968,6 @@ export class AdminPrograms {
   }
 
   async clickCommonIntakeFormToggle() {
-    // await this.page.click(':is(button:has-text("common intake"))')
     await this.page.click('input[name=isCommonIntakeForm]')
   }
 }

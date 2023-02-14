@@ -277,7 +277,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             /* isCommonIntakeForm= */ true,
-            /* isIntakeFormEnabled = */ false);
+            /* isIntakeFormEnabled= */ false);
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
@@ -294,7 +294,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             /* isCommonIntakeForm= */ true,
-            /* isIntakeFormEnabled = */ true);
+            /* isIntakeFormEnabled= */ true);
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
@@ -310,7 +310,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "",
         DisplayMode.PUBLIC.getValue(),
         /* isCommonIntakeForm= */ true,
-        /* isIntakeFormEnabled = */ true);
+        /* isIntakeFormEnabled= */ true);
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
             "name-two",
@@ -320,7 +320,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             /* isCommonIntakeForm= */ false,
-            /* isIntakeFormEnabled = */ true);
+            /* isIntakeFormEnabled= */ true);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();

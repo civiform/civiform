@@ -119,6 +119,10 @@ public class ProgramBuilder {
     return newActiveProgram(adminName, displayName, /* description= */ "");
   }
 
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link Program} in the active state, with the type
+   * ProgramType.COMMON_INTAKE_FORM.
+   */
   public static ProgramBuilder newActiveCommonIntakeForm(String name) {
     return newActiveProgram(
         /* adminName= */ name,
@@ -127,6 +131,7 @@ public class ProgramBuilder {
         ProgramType.COMMON_INTAKE_FORM);
   }
 
+  /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
   public static ProgramBuilder newActiveProgram(
       String adminName, String displayName, String description) {
     return newActiveProgram(adminName, displayName, description, ProgramType.DEFAULT);
