@@ -8,6 +8,8 @@ package durablejobs;
  */
 public enum DurableJobName {
   OLD_JOB_CLEANUP("OLD_JOB_CLEANUP"),
+
+  // job names used for tests
   TEST("TEST");
 
   private final String jobName;

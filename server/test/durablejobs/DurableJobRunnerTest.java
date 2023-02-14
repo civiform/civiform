@@ -6,16 +6,15 @@ import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import models.PersistedDurableJob;
 import org.junit.Before;
 import org.junit.Test;
 import play.api.inject.BindingKey;
-import play.api.inject.QualifierAnnotation;
 import repository.PersistedDurableJobRepository;
 import repository.ResetPostgres;
 
@@ -23,17 +22,13 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
   private DurableJobRunner durableJobRunner;
   private DurableJobRegistry durableJobRegistry;
-  private LocalDateTime now;
-  private ZoneId zoneId;
 
   @Before
   public void setUp() {
-    zoneId = instanceOf(ZoneId.class);
-    now = instanceOf(new BindingKey<>(LocalDateTime.class).qualifiedWith(BindingAnnotations.Now.class));
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.of(
-                "durable_jobs.job_timeout_minutes", 1,
+                "durable_jobs.job_timeout_minutes", 0,
                 "durable_jobs.poll_interval_seconds", 0));
 
     durableJobRegistry = new DurableJobRegistry();
@@ -41,18 +36,46 @@ public class DurableJobRunnerTest extends ResetPostgres {
     durableJobRunner =
         new DurableJobRunner(
             config,
+            instanceOf(DurableJobExecutionContext.class),
             durableJobRegistry,
             instanceOf(PersistedDurableJobRepository.class),
-            () -> now,
-            zoneId);
+            () ->
+                instanceOf(
+                    new BindingKey<>(LocalDateTime.class)
+                        .qualifiedWith(BindingAnnotations.Now.class)),
+            instanceOf(ZoneId.class));
   }
 
   @Test
-  public void runJobs_runsAJobThatIsReady() {
+  public void runJobs_timesOut() {
+    durableJobRegistry.register(
+        DurableJobName.TEST,
+        (persistedDurableJob) ->
+            makeTestJob(
+                persistedDurableJob,
+                () -> {
+                  try {
+                    Thread.sleep(/* millis= */ 3000L);
+                  } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                  }
+                }));
+
+    PersistedDurableJob job = createPersistedJobToExecute();
+
+    durableJobRunner.runJobs();
+
+    job.refresh();
+    assertThat(job.getErrorMessage().get()).contains("JobRunner_JobTimeout");
+  }
+
+  @Test
+  public void runJobs_runsJobsThatAreReady() {
     AtomicInteger runCount = new AtomicInteger(0);
     durableJobRegistry.register(
         DurableJobName.TEST,
-        (persistedDurableJob) -> makeTestJob(persistedDurableJob, () -> runCount.getAndIncrement()));
+        (persistedDurableJob) ->
+            makeTestJob(persistedDurableJob, () -> runCount.getAndIncrement()));
 
     createPersistedJobToExecute();
     createPersistedJobToExecute();
@@ -63,11 +86,20 @@ public class DurableJobRunnerTest extends ResetPostgres {
     assertThat(runCount).hasValue(2);
   }
 
+  @Test
+  public void runJobs_jobNotFound() {
+    PersistedDurableJob job = createPersistedJobToExecute();
+
+    durableJobRunner.runJobs();
+
+    job.refresh();
+    assertThat(job.getErrorMessage().get()).contains("JobRunner_JobFailed JobNotFound");
+  }
+
   private PersistedDurableJob createPersistedJobScheduledInFuture() {
     var persistedJob =
-      new PersistedDurableJob(
-        DurableJobName.TEST.getJobName(),
-        now.plus(1, ChronoUnit.MONTHS).toInstant(zoneId.getRules().getOffset(now)));
+        new PersistedDurableJob(
+            DurableJobName.TEST.getJobName(), Instant.now().plus(10, ChronoUnit.DAYS));
 
     persistedJob.save();
 
@@ -76,9 +108,8 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
   private PersistedDurableJob createPersistedJobToExecute() {
     var persistedJob =
-      new PersistedDurableJob(
-        DurableJobName.TEST.getJobName(),
-        now.minus(1, ChronoUnit.SECONDS).toInstant(zoneId.getRules().getOffset(now)));
+        new PersistedDurableJob(
+            DurableJobName.TEST.getJobName(), Instant.now().minus(1, ChronoUnit.DAYS));
 
     persistedJob.save();
 

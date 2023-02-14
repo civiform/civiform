@@ -36,6 +36,7 @@ public final class DurableJobRunner {
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobRunner.class);
 
   private final Database database = DB.getDefault();
+  private final DurableJobExecutionContext durableJobExecutionContext;
   private final DurableJobRegistry durableJobRegistry;
   private final int jobTimeoutMinutes;
   private final PersistedDurableJobRepository persistedDurableJobRepository;
@@ -46,10 +47,12 @@ public final class DurableJobRunner {
   @Inject
   public DurableJobRunner(
       Config config,
+      DurableJobExecutionContext durableJobExecutionContext,
       DurableJobRegistry durableJobRegistry,
       PersistedDurableJobRepository persistedDurableJobRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       ZoneId zoneId) {
+    this.durableJobExecutionContext = Preconditions.checkNotNull(durableJobExecutionContext);
     this.durableJobRegistry = Preconditions.checkNotNull(durableJobRegistry);
     this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
     this.persistedDurableJobRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
@@ -88,6 +91,7 @@ public final class DurableJobRunner {
     try {
       persistedDurableJob.decrementRemainingAttempts().save();
 
+      // Run the job in a separate thread and block until it completes, fails, or times out.
       runJobWithTimeout(
           durableJobRegistry
               .get(DurableJobName.valueOf(persistedDurableJob.getJobName()))
@@ -106,7 +110,7 @@ public final class DurableJobRunner {
           String.format(
               "JobRunner_JobFailed %s job_name=\"%s\", job_ID=%d, attempts_remaining=%d,"
                   + " duration_s=%f",
-              e.getClass(),
+              e.getClass().getSimpleName(),
               persistedDurableJob.getJobName(),
               persistedDurableJob.id,
               persistedDurableJob.getRemainingAttempts(),
@@ -143,21 +147,22 @@ public final class DurableJobRunner {
   private LocalDateTime resolveStopTime() {
     // We set poll interval to 0 in test
     if (runnerLifespanSeconds == 0) {
-      // Run for no more than 10
-      return nowProvider.get().plus(100, ChronoUnit.MILLIS);
+      // Run for no more than 5 seconds
+      return nowProvider.get().plus(5000, ChronoUnit.MILLIS);
     }
 
     return nowProvider.get().plus(runnerLifespanSeconds, ChronoUnit.SECONDS);
   }
 
-  private void runJobWithTimeout(DurableJob jobToRun)
+  private synchronized void runJobWithTimeout(DurableJob jobToRun)
       throws ExecutionException, InterruptedException, TimeoutException {
-    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> jobToRun.run());
+    CompletableFuture<Void> future =
+        CompletableFuture.runAsync(() -> jobToRun.run(), durableJobExecutionContext.current());
 
     // We set the job timeout to 0 in test
     if (jobTimeoutMinutes == 0) {
-      // Timeout test jobs after 100 milliseconds
-      future.get(100, TimeUnit.MILLISECONDS);
+      // Timeout test jobs after 2500ms
+      future.get(2500, TimeUnit.MILLISECONDS);
       return;
     }
 
