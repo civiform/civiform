@@ -1127,6 +1127,7 @@ public final class ApplicantService {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
+          case SERVICE_AREA:
           case LIST_OF_STRINGS:
           case STRING:
             applicantData.putString(currentPath, update.value());
@@ -1152,10 +1153,10 @@ public final class ApplicantService {
     }
 
     // write service area to applicant
-    if (updateServiceArea.serviceAreaInclusionGroup().size() > 0) {
+    if (updateServiceArea.value().size() > 0) {
       applicantData.putString(
           updateServiceArea.path(),
-          ServiceAreaInclusionGroup.serialize(updateServiceArea.serviceAreaInclusionGroup()));
+          ServiceAreaInclusionGroup.serialize(updateServiceArea.value()));
     }
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.
@@ -1180,18 +1181,6 @@ public final class ApplicantService {
     abstract long programId();
 
     abstract long updatedAt();
-  }
-
-  @AutoValue
-  abstract static class UpdateServiceArea {
-    static UpdateServiceArea create(
-        Path path, ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup) {
-      return new AutoValue_ApplicantService_UpdateServiceArea(path, serviceAreaInclusionGroup);
-    }
-
-    abstract Path path();
-
-    abstract ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup();
   }
 
   /**
