@@ -2,6 +2,7 @@ package filters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.typesafe.config.Config;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.concurrent.Executor;
@@ -21,12 +22,14 @@ public class LoggingFilter extends EssentialFilter {
   private final Executor exec;
   private final Clock clock;
   private static final Logger log = LoggerFactory.getLogger("loggingfilter");
+  private final Config config;
 
   /** @param exec This class is needed to execute code asynchronously. */
   @Inject
-  public LoggingFilter(Executor exec, Clock clock) {
+  public LoggingFilter(Executor exec, Clock clock, Config config) {
     this.exec = checkNotNull(exec);
     this.clock = checkNotNull(clock);
+    this.config = config;
   }
 
   /**
@@ -44,6 +47,9 @@ public class LoggingFilter extends EssentialFilter {
                     long time = clock.millis() - startTime;
                     log.info(
                         "{}\t{}\t{}ms\t{}", request.method(), request.uri(), time, result.status());
+                    if (config.getBoolean("filters.LoggingFilter.enable_request_session_logging")) {
+                      log.info("request session values: {}", request.session().data().toString());
+                    }
                     StringBuilder requestCookies = new StringBuilder();
                     for (Http.Cookie cookie : request.cookies()) {
                       requestCookies.append(
