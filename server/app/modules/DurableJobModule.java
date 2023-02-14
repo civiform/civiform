@@ -12,7 +12,6 @@ import durablejobs.RecurringJobSchedulers;
 import durablejobs.jobs.OldJobCleanupJob;
 import java.time.Duration;
 import java.util.Random;
-import javax.inject.Provider;
 import repository.PersistedDurableJobRepository;
 import scala.concurrent.ExecutionContext;
 

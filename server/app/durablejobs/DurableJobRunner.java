@@ -62,14 +62,15 @@ public final class DurableJobRunner {
     this.zoneOffset = zoneId.getRules().getOffset(nowProvider.get());
   }
 
-/**
- * Queries for durable jobs that are ready to run and executes them.
- *
- * <p>Continues executing jobs as long as there are jobs to execute and it does not
- * exceed the time specified by "durable_jobs.poll_interval_seconds". This is to prevent runners
- * attempting to run at the same time in the same server.
- *
- * <p>{@code synchronized} to avoid overlapping executions within the same server. */
+  /**
+   * Queries for durable jobs that are ready to run and executes them.
+   *
+   * <p>Continues executing jobs as long as there are jobs to execute and it does not exceed the
+   * time specified by "durable_jobs.poll_interval_seconds". This is to prevent runners attempting
+   * to run at the same time in the same server.
+   *
+   * <p>{@code synchronized} to avoid overlapping executions within the same server.
+   */
   public synchronized void runJobs() {
     LOGGER.info("JobRunner_Start thread ID={}", Thread.currentThread().getId());
 
