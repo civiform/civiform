@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 import models.PersistedDurableJob;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -27,10 +28,10 @@ import repository.PersistedDurableJobRepository;
 /**
  * Executes {@link DurableJob}s when their time has come.
  *
- * <p>The runner continues executing jobs as long as there are jobs to execute and it does not
- * exceed the time specified by "durable_jobs.poll_interval_seconds". This is to prevent runners
- * overlapping in the same server.
+ * <p>DurableJobRunner is a singleton and its {@code runJobs} method is {@code synchronized} to
+ * prevent overlapping executions within the same server at the same time.
  */
+@Singleton
 public final class DurableJobRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobRunner.class);
@@ -61,7 +62,15 @@ public final class DurableJobRunner {
     this.zoneOffset = zoneId.getRules().getOffset(nowProvider.get());
   }
 
-  public void runJobs() {
+/**
+ * Queries for durable jobs that are ready to run and executes them.
+ *
+ * <p>Continues executing jobs as long as there are jobs to execute and it does not
+ * exceed the time specified by "durable_jobs.poll_interval_seconds". This is to prevent runners
+ * attempting to run at the same time in the same server.
+ *
+ * <p>{@code synchronized} to avoid overlapping executions within the same server. */
+  public synchronized void runJobs() {
     LOGGER.info("JobRunner_Start thread ID={}", Thread.currentThread().getId());
 
     LocalDateTime stopTime = resolveStopTime();

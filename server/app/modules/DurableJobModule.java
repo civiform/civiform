@@ -40,7 +40,7 @@ public final class DurableJobModule extends AbstractModule {
         ActorSystem actorSystem,
         Config config,
         ExecutionContext executionContext,
-        Provider<DurableJobRunner> durableJobRunnerProvider) {
+        DurableJobRunner durableJobRunner) {
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
       actorSystem
@@ -50,7 +50,7 @@ public final class DurableJobModule extends AbstractModule {
               // polling with another server.
               /* initialDelay= */ Duration.ofSeconds(new Random().nextInt(/* bound= */ 30)),
               /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
-              () -> durableJobRunnerProvider.get().runJobs(),
+              durableJobRunner::runJobs,
               executionContext);
     }
   }

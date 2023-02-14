@@ -27,7 +27,7 @@ public final class PersistedDurableJobRepository {
   /**
    * Gets a job that is ready to be executed or empty if none are available.
    *
-   * <p>A job is ready to be executed if:
+   * <p>A job is ready to be executed if it:
    *
    * <ul>
    *   <li>is not locked for update by another transaction i.e. is not currently being executed
