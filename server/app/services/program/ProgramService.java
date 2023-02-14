@@ -50,8 +50,8 @@ public interface ProgramService {
    *
    * @param programDefinitions the list of program definitions that should be updated
    * @return a list of updated {@link ProgramDefinition}s with all of its associated questions if
-   *     they exist
-   * @throws QuestionNotFoundException when the future completes and a question is not found.
+   *     they exist, or a QuestionNotFoundException is thrown when the future completes and a
+   *     question is not found.
    */
   CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
       ImmutableList<ProgramDefinition> programDefinitions);
