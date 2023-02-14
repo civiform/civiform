@@ -45,13 +45,13 @@ public interface ProgramService {
   ActiveAndDraftPrograms getActiveAndDraftPrograms();
 
   /**
-   * Sync all {@link QuestionDefinition}s in a list of {@link ProgramDefinition}s asynchronously,
-   * by querying for questions then updating each {@link ProgramDefinition}s.
+   * Sync all {@link QuestionDefinition}s in a list of {@link ProgramDefinition}s asynchronously, by
+   * querying for questions then updating each {@link ProgramDefinition}s.
    *
    * @param programDefinitions the list of program definitions that should be updated
    * @return a list of updated {@link ProgramDefinition}s with all of its associated questions if
-   *     they exist, or a QuestionNotFound is thrown when the future completes and a question is not
-   *     found.
+   *     they exist
+   * @throws QuestionNotFoundException when the future completes and a question is not found.
    */
   CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
       ImmutableList<ProgramDefinition> programDefinitions);

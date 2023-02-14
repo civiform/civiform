@@ -29,7 +29,7 @@ public enum Icons {
       "M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4"
           + " 4z"),
   ARROW_LEFT(24, "m12 20-8-8 8-8 1.425 1.4-5.6 5.6H20v2H7.825l5.6 5.6Z"),
-  // Check Circle
+  // Check Circle https://fonts.google.com/icons?selected=Material+Symbols+Outlined:check_circle
   CHECK_CIRCLE(
       48,
       "M21.05 33.1 35.2 18.95l-2.3-2.25-11.85 11.85-6-6-2.25 2.25ZM24 44q-4.1"
@@ -300,6 +300,7 @@ public enum Icons {
           + " 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4"
           + " 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5"
           + " 0-2.21-1.79-4-4-4z"),
+  // Info https://fonts.google.com/icons?selected=Material+Symbols+Outlined:info
   INFO(
       48,
       "M22.65 34h3V22h-3ZM24 18.3q.7 0 1.175-.45.475-.45.475-1.15t-.475-1.2Q24.7 15 24 15q-.7"
