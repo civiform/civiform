@@ -283,11 +283,11 @@ content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ �
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=የክፍል/አፓርታማ ቁጥር
+label.addressLine2=አፓርታማ፣ ጥቅል፣ ወዘተ (አማራጭ)
 label.city=ከተማ
 label.state=ግዛት
 label.selectState=ክልል ይምረጡ
-label.street=የአድራሻ መስመር 1
+label.street=አድራሻ
 label.zipcode=ዚፕ ኮድ
 
 # Validation errors that are shown when a user enters an invalid address.

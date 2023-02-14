@@ -257,11 +257,11 @@ content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Guri dabaq ah / Lambarka Guriga
+label.addressLine2=Dabaqa, qolal, iwm. (ikhtiyaar)
 label.city=Magaalada
 label.state=Gobolka
 label.selectState=Dooro Gobolka
-label.street=Ciwaanka Xaafada 1
+label.street=Cinwaan
 label.zipcode=Siib Koodhka
 
 # Validation errors that are shown when a user enters an invalid address.
