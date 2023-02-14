@@ -321,16 +321,25 @@ describe('create and edit predicates', () => {
         programName,
         'Screen 1',
       )
-      await adminPredicates.addPredicate(
-        'eligibility-predicate-q',
-        /* action= */ null,
-        'service_area',
-        'in service area',
-        'Seattle',
-      )
+
+      // Add two to ensure the JS correctly handles multiple value rows
+      await adminPredicates.addPredicates([
+        {
+          questionName: 'eligibility-predicate-q',
+          scalar: 'service_area',
+          operator: 'in service area',
+          values: ['Seattle', 'Seattle'],
+        },
+      ])
 
       await adminPredicates.expectPredicateDisplayTextContains(
-        'Screen 1 is eligible if "eligibility-predicate-q" is in service area "Seattle"',
+        '"eligibility-predicate-q" is in service area "Seattle"',
+      )
+
+      // ensure the edit page renders without errors
+      await adminPredicates.clickEditPredicateButton('eligibility')
+      expect(await page.innerText('h2')).toContain(
+        'Configure eligibility conditions',
       )
     })
   }

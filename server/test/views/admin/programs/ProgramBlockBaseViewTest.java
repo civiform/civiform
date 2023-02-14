@@ -9,7 +9,6 @@ import junitparams.JUnitParamsRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.applicant.question.Scalar;
-import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -157,15 +156,6 @@ public class ProgramBlockBaseViewTest {
   }
 
   private static final class ProgramBlockBaseViewTestChild extends ProgramBlockBaseView {
-    @Override
-    protected String getEditButtonText() {
-      return "Edit program details";
-    }
-
-    @Override
-    protected String getEditButtonUrl(ProgramDefinition programDefinition) {
-      return "fake_routing_url";
-    }
 
     @Override
     protected ProgramDisplayType getProgramDisplayStatus() {

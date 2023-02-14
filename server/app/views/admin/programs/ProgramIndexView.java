@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
@@ -54,11 +55,13 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
   private final String civicEntityShortName;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramIndexView(
       AdminLayoutFactory layoutFactory,
       Config config,
+      FeatureFlags featureFlags,
       TranslationLocales translationLocales,
       ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
@@ -66,6 +69,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -325,12 +329,21 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (activeProgram.isPresent()) {
       List<ButtonTag> activeRowActions = Lists.newArrayList();
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
+
       Optional<ButtonTag> applicationsLink =
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
-        activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+          activeRowExtraActions.add(
+              renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        } else {
+          activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        }
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
+      }
+      if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+        activeRowActions.add(renderViewLink(activeProgram.get(), request));
       }
       activeRowActions.add(renderShareLink(activeProgram.get()));
       activeRow =
@@ -373,6 +386,18 @@ public final class ProgramIndexView extends BaseHtmlView {
     return isActive
         ? toLinkButtonForPost(button, editLink, request)
         : asRedirectElement(button, editLink);
+  }
+
+  ButtonTag renderViewLink(ProgramDefinition program, Http.Request request) {
+    String viewLink =
+        controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
+    String viewLinkId = "program-view-link-" + program.id();
+
+    ButtonTag button =
+        makeSvgTextButton("View", Icons.VIEW)
+            .withId(viewLinkId)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return asRedirectElement(button, viewLink);
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {

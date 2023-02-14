@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.ViewUtils.ProgramDisplayType.ACTIVE;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import static views.components.ToastMessage.ToastType.ERROR;
 
@@ -36,6 +37,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
   private final ProgramService programService;
   private final ProgramBlockEditView editView;
+  private final ProgramBlockEditView readOnlyView;
   private final QuestionService questionService;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
@@ -44,28 +46,59 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public AdminProgramBlocksController(
       ProgramService programService,
       QuestionService questionService,
-      ProgramBlockEditView.Factory editViewFactory,
+      ProgramBlockEditView.Factory programBlockViewFactory,
       FormFactory formFactory,
       RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.editView = checkNotNull(editViewFactory.create(DRAFT));
+    this.editView = checkNotNull(programBlockViewFactory.create(DRAFT));
+    this.readOnlyView = checkNotNull(programBlockViewFactory.create(ACTIVE));
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
   }
 
   /**
-   * Return a HTML page displaying all configurations of the specified program.
+   * Returns an HTML page displaying all configurations of the specified program and UI elements to
+   * start editing aspects of the program.
+   *
+   * <p>For example, it contains a button to edit the program details and a selector to choose the
+   * block(screen) that the admin wants to edit. By default, the last program screen (block) is
+   * shown.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result index(long programId) {
+    return index(programId, /* readOnly= */ false);
+  }
+
+  /**
+   * Returns an HTML page displaying a read only version of the program's block configuration.
    *
    * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
    * (blocks) if applicable through links on the page.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(long programId) {
+  public Result readOnlyIndex(long programId) {
+    return index(programId, /* readOnly=*/ true);
+  }
+
+  /**
+   * Returns an HTML page that displays all configurations of a specified program either as an
+   * editable or read-only version.
+   *
+   * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
+   * (blocks) if applicable through links on the page.
+   */
+  private Result index(long programId, boolean readOnly) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
-      return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
+
+      String redirectUrl =
+          readOnly
+              ? routes.AdminProgramBlocksController.show(programId, blockId).url()
+              : routes.AdminProgramBlocksController.edit(programId, blockId).url();
+
+      return redirect(redirectUrl);
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     }
@@ -109,7 +142,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Return a HTML page displaying all configurations of the specified program screen (block) and
+   * Returns an HTML page displaying all configurations of the specified program screen (block) and
    * forms to update them.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -123,6 +156,23 @@ public final class AdminProgramBlocksController extends CiviFormController {
       Optional<ToastMessage> maybeToastMessage =
           request.flash().get("success").map(ToastMessage::success);
       return renderEditViewWithMessage(request, program, block, maybeToastMessage);
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      return notFound(e.toString());
+    }
+  }
+
+  /**
+   * Returns an HTML page displaying all configurations of the specified program screen (block) as a
+   * read only view.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result show(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotActive(programId);
+
+    try {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      return renderReadOnlyViewWithMessage(request, program, block);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
@@ -196,6 +246,16 @@ public final class AdminProgramBlocksController extends CiviFormController {
     return ok(
         editView.render(
             request, program, block, message, roQuestionService.getUpToDateQuestions()));
+  }
+
+  private Result renderReadOnlyViewWithMessage(
+      Request request, ProgramDefinition program, BlockDefinition block) {
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+    return ok(
+        readOnlyView.render(
+            request, program, block, Optional.empty(), roQuestionService.getUpToDateQuestions()));
   }
 
   private Result renderEditViewWithMessage(
