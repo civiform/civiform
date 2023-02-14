@@ -105,7 +105,10 @@ public final class DurableJobRunner {
           persistedDurableJob.getJobName(),
           persistedDurableJob.id,
           getJobDurationInSeconds(startTime));
-    } catch (JobNotFoundException | CancellationException | InterruptedException e) {
+    } catch (JobNotFoundException
+        | IllegalArgumentException
+        | CancellationException
+        | InterruptedException e) {
       String msg =
           String.format(
               "JobRunner_JobFailed %s job_name=\"%s\", job_ID=%d, attempts_remaining=%d,"
