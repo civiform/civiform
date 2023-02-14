@@ -378,7 +378,10 @@ public final class ProgramIndexView extends BaseHtmlView {
             : MessageKey.TAG_MAY_NOT_QUALIFY.getKeyName();
     return p().withClasses(tagClass, "border", "rounded-lg", "px-2", "py-1", "mb-4", color)
         .with(
-            Icons.svg(icon).withClasses("inline-block").withStyle("width: 18px; height: 18px;"),
+            Icons.svg(icon)
+                .withClasses("inline-block")
+                // Can't set 18px using Tailwind CSS classes.
+                .withStyle("width: 18px; height: 18px;"),
             span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium"));
   }
 
