@@ -286,11 +286,11 @@ content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardar�
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Número de departamento o unidad
+label.addressLine2=Departamento, suite, etc. (opcional)
 label.city=Ciudad
 label.state=Estado
 label.selectState=Selecciona un estado
-label.street=Línea de dirección 1
+label.street=Dirección
 label.zipcode=Código postal
 
 
