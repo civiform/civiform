@@ -11,6 +11,7 @@ import durablejobs.DurableJobRunner;
 import durablejobs.RecurringJobSchedulers;
 import durablejobs.jobs.OldJobCleanupJob;
 import java.time.Duration;
+import java.util.Random;
 import javax.inject.Provider;
 import repository.PersistedDurableJobRepository;
 import scala.concurrent.ExecutionContext;
@@ -45,8 +46,9 @@ public final class DurableJobModule extends AbstractModule {
       actorSystem
           .scheduler()
           .scheduleAtFixedRate(
-              // Wait 30 seconds to give the server time to stabilize after start.
-              /* initialDelay= */ Duration.ofSeconds(30),
+              // Wait a random amount of time to decrease likelihood of synchronized
+              // polling with another server.
+              /* initialDelay= */ Duration.ofSeconds(new Random().nextInt(/* bound= */ 30)),
               /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
               () -> durableJobRunnerProvider.get().runJobs(),
               executionContext);
