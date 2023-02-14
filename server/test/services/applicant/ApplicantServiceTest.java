@@ -1134,7 +1134,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .withMessageContaining("Application", "failed to save");
   }
 
-  // add tests here
   @Test
   public void stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation() {
     QuestionDefinition addressQuestion =
@@ -1195,6 +1194,74 @@ public class ApplicantServiceTest extends ResetPostgres {
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.asJsonString()).contains("Seattle_InArea_");
+  }
+
+  @Test
+  public void
+      stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation_with_existing_service_areas() {
+    QuestionDefinition addressQuestion =
+        testQuestionBank.applicantAddress().getQuestionDefinition();
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(addressQuestion))
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
+                "555 E 5th St.")
+            .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
+            .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
+            .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(),
+                CorrectedAddressState.CORRECTED.getSerializationFormat())
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
+                "47.578374020558954")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
+                "-122.3360380354971")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
+                "4326")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA).toString(),
+                "Bloomington_NotInArea_1234,Seattle_Failed_4567")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            true,
+            esriClient,
+            esriServiceAreaValidationConfig)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.asJsonString())
+        .contains("Bloomington_NotInArea_1234", "Seattle_InArea_");
+    assertThat(applicantDataAfter.asJsonString()).doesNotContain("Seattle_Failed_4567");
   }
 
   @Test
