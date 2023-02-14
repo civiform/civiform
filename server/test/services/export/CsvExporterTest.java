@@ -62,6 +62,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant address (latitude)",
             "applicant address (longitude)",
             "applicant address (well_known_id)",
+            "applicant address (service_area)",
             "applicant birth date (date)",
             "applicant favorite color (text)",
             "applicant file (file_key)",
