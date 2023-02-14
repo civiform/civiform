@@ -70,6 +70,27 @@ public class DurableJobRunnerTest extends ResetPostgres {
   }
 
   @Test
+  public void rubJobs_executionException() {
+    durableJobRegistry.register(
+        DurableJobName.TEST,
+        (persistedDurableJob) ->
+            makeTestJob(
+                persistedDurableJob,
+                () -> {
+                  throw new RuntimeException("test-execution-exception");
+                }));
+
+    PersistedDurableJob job = createPersistedJobToExecute();
+
+    durableJobRunner.runJobs();
+
+    job.refresh();
+
+    assertThat(job.getErrorMessage().get()).contains("JobRunner_JobFailed");
+    assertThat(job.getRemainingAttempts()).isEqualTo(0);
+  }
+
+  @Test
   public void runJobs_runsJobsThatAreReady() {
     AtomicInteger runCount = new AtomicInteger(0);
     durableJobRegistry.register(
@@ -77,13 +98,25 @@ public class DurableJobRunnerTest extends ResetPostgres {
         (persistedDurableJob) ->
             makeTestJob(persistedDurableJob, () -> runCount.getAndIncrement()));
 
-    createPersistedJobToExecute();
-    createPersistedJobToExecute();
-    createPersistedJobScheduledInFuture();
+    PersistedDurableJob jobA = createPersistedJobToExecute();
+    PersistedDurableJob jobB = createPersistedJobToExecute();
+    PersistedDurableJob jobC = createPersistedJobScheduledInFuture();
 
     durableJobRunner.runJobs();
 
+    jobA.refresh();
+    jobB.refresh();
+    jobC.refresh();
+
     assertThat(runCount).hasValue(2);
+
+    assertThat(jobA.getRemainingAttempts()).isEqualTo(2);
+    assertThat(jobB.getRemainingAttempts()).isEqualTo(2);
+    assertThat(jobC.getRemainingAttempts()).isEqualTo(3);
+
+    assertThat(jobA.getSuccessTime()).isPresent();
+    assertThat(jobB.getSuccessTime()).isPresent();
+    assertThat(jobC.getSuccessTime()).isEmpty();
   }
 
   @Test
@@ -94,6 +127,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
 
     job.refresh();
     assertThat(job.getErrorMessage().get()).contains("JobRunner_JobFailed JobNotFound");
+    assertThat(job.getRemainingAttempts()).isEqualTo(0);
   }
 
   private PersistedDurableJob createPersistedJobScheduledInFuture() {
