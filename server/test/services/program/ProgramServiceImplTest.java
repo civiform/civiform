@@ -134,7 +134,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "name",
             "description",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
             false,
             false);
 
@@ -166,7 +166,14 @@ public class ProgramServiceImplTest extends ResetPostgres {
   public void createProgramWithoutDisplayMode_returnsError() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
-            "test-program", "description", "name", "description", "https://usa.gov", "", false, false);
+            "test-program",
+            "description",
+            "name",
+            "description",
+            "https://usa.gov",
+            "",
+            false,
+            false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -182,7 +189,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "display name",
         "display description",
         "https://usa.gov",
-        DisplayMode.PUBLIC.getValue());
+        DisplayMode.PUBLIC.getValue(),
         false,
         false);
 
@@ -193,7 +200,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "display name",
             "display description",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
             false,
             false);
 
@@ -238,7 +245,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "display name",
                 "display description",
                 "https://usa.gov",
-                DisplayMode.PUBLIC.getValue())
+                DisplayMode.PUBLIC.getValue(),
                 false,
                 false)
             .getResult();
@@ -257,7 +264,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "display name",
             "display description",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
             false,
             false);
     assertThat(result.hasResult()).isFalse();
@@ -366,7 +373,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     "name",
                     "description",
                     "https://usa.gov",
-                    DisplayMode.PUBLIC.getValue()))
+                    DisplayMode.PUBLIC.getValue(),
                     false,
                     false))
         .isInstanceOf(ProgramNotFoundException.class)
