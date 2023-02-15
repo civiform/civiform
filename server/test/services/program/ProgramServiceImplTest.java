@@ -220,7 +220,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "display name",
             "display description",
             "https://usa.gov",
-            "",
             DisplayMode.PUBLIC.getValue(),
             false,
             false);
