@@ -34,7 +34,7 @@ describe('publishing all draft questions and programs', () => {
     await adminPrograms.addProgram(
       hiddenProgramNoQuestions,
       'program description',
-      '',
+      'https://usa.gov',
       true,
     )
 

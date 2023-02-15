@@ -171,6 +171,9 @@ public final class ProgramServiceImpl implements ProgramService {
     if (adminDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of("A program note is required"));
     }
+    if (!isValidAbsoluteLink(externalLink)) {
+      errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
+    }
 
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
@@ -224,6 +227,10 @@ public final class ProgramServiceImpl implements ProgramService {
     if (adminDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of("A program note is required"));
     }
+    if (!isValidAbsoluteLink(externalLink)) {
+      errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
+    }
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -247,6 +254,13 @@ public final class ProgramServiceImpl implements ProgramService {
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  // Checks whether a URL would work correctly if an href attribute was set to it.
+  // That is, it must start with http:// or https:// so that the href link doesn't
+  // treat it as relative to the current URL.
+  private boolean isValidAbsoluteLink(String url) {
+    return url.startsWith("http://") || url.startsWith("https://");
   }
 
   /**
