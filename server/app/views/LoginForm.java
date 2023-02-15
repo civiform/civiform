@@ -130,17 +130,22 @@ public class LoginForm extends BaseHtmlView {
     }
 
     DivTag alternativeLoginButtons = div();
+    // Render the "Don't have an account?" text if either button will be rendered.
+    if (renderCreateAccountButton || !disableApplicantGuestLogin) {
+      String alternativeMessage =
+          messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
+      content.with(p(alternativeMessage).withClasses("text-lg"));
+    }
+
     if (renderCreateAccountButton) {
       alternativeLoginButtons.with(createAccountButton(messages));
     }
     if (!disableApplicantGuestLogin) {
+      // Only include 'or' if the create account button was rendered.
       if (renderCreateAccountButton) {
         String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
         alternativeLoginButtons.with(p(or));
       }
-      String alternativeMessage =
-          messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
-      content.with(p(alternativeMessage).withClasses("text-lg"));
       alternativeLoginButtons
           .with(guestButton(messages))
           .withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
