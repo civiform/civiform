@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import java.net.URI;
 import java.util.Locale;
 import java.util.Optional;
 import models.Account;
@@ -15,6 +14,7 @@ import models.ApplicationEvent;
 import models.Program;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import services.DeploymentType;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
@@ -44,21 +44,24 @@ public final class ProgramAdminApplicationService {
       ApplicationRepository applicationRepository,
       ApplicationEventRepository eventRepository,
       Config configuration,
-      SimpleEmail emailClient) {
+      SimpleEmail emailClient,
+      DeploymentType deploymentType) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
 
+    checkNotNull(configuration);
+    checkNotNull(deploymentType);
+
     // TODO(#3386): Inject these values and their downstream uses rather than calculating each time
     // they're needed.
-    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
-    this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
+    this.isStaging = deploymentType.isStaging();
+    this.baseUrl = configuration.getString("base_url");
     this.stagingApplicantNotificationMailingList =
-        checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
+        configuration.getString("staging_applicant_notification_mailing_list");
     this.stagingTiNotificationMailingList =
-        checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
+        configuration.getString("staging_ti_notification_mailing_list");
   }
 
   /**

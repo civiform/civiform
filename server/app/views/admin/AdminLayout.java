@@ -12,6 +12,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
 import play.twirl.api.Content;
+import services.DeploymentType;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.JsBundle;
@@ -40,8 +41,8 @@ public final class AdminLayout extends BaseHtmlLayout {
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
   AdminLayout(
-      ViewUtils viewUtils, Config configuration, NavPage activeNavPage, FeatureFlags featureFlags) {
-    super(viewUtils, configuration, featureFlags);
+      ViewUtils viewUtils, Config configuration, NavPage activeNavPage, FeatureFlags featureFlags, DeploymentType deploymentType) {
+    super(viewUtils, configuration, featureFlags, deploymentType);
     this.activeNavPage = activeNavPage;
   }
 

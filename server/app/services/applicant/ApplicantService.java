@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
-import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -41,6 +40,7 @@ import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
+import services.DeploymentType;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -92,7 +92,8 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext httpExecutionContext,
+      DeploymentType deploymentType) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
@@ -102,9 +103,8 @@ public final class ApplicantService {
     this.clock = checkNotNull(clock);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
 
-    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
+    this.isStaging = checkNotNull(deploymentType).isStaging();
     this.stagingProgramAdminNotificationMailingList =
         checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
     this.stagingTiNotificationMailingList =

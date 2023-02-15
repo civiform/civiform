@@ -23,6 +23,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DeploymentType;
 import services.MessageKey;
 import views.style.BaseStyles;
 
@@ -31,24 +32,32 @@ public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
   private final String civiformImageTag;
+  private final boolean isDevOrStaging;
+  private final boolean disableDemoModeLogins;
+  private final boolean disableApplicantGuestLogin;
   private final boolean renderCreateAccountButton;
   private final AuthIdentityProviderName applicantIdp;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final String civicEntityShortName;
-  private final FakeAdminClient fakeAdminClient;
   private final FeatureFlags featureFlags;
 
   @Inject
   public LoginForm(
       BaseHtmlLayout layout,
       Config config,
-      FakeAdminClient fakeAdminClient,
-      FeatureFlags featureFlags) {
+      FeatureFlags featureFlags,
+      DeploymentType deploymentType) {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
+    checkNotNull(deploymentType);
 
     this.civiformImageTag = config.getString("civiform_image_tag");
+    this.isDevOrStaging = deploymentType.isDevOrStaging();
+    this.disableDemoModeLogins =
+        this.isDevOrStaging && config.getBoolean("staging_disable_demo_mode_logins");
+    this.disableApplicantGuestLogin =
+        this.isDevOrStaging && config.getBoolean("staging_disable_applicant_guest_login");
     this.applicantIdp = AuthIdentityProviderName.fromConfig(config);
     this.maybeLogoUrl =
         config.hasPath("whitelabel.small_logo_url")
@@ -56,7 +65,6 @@ public class LoginForm extends BaseHtmlView {
             : Optional.empty();
     this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
-    this.fakeAdminClient = checkNotNull(fakeAdminClient);
     this.featureFlags = checkNotNull(featureFlags);
     this.renderCreateAccountButton = config.hasPath("auth.register_uri");
   }
@@ -67,9 +75,7 @@ public class LoginForm extends BaseHtmlView {
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
     htmlBundle.addMainContent(mainContent(request, messages));
 
-    // "defense in depth", sort of - this client won't be present in production, and this button
-    // won't show up except when running in an acceptable environment.
-    if (fakeAdminClient.canEnable(request.host())) {
+    if (isDevOrStaging && !disableDemoModeLogins) {
       htmlBundle.addMainContent(debugContent());
     }
 
@@ -121,20 +127,25 @@ public class LoginForm extends BaseHtmlView {
       String loginMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
       content.with(applicantAccountLogin.with(p(loginMessage)).with(loginButton(messages)));
-      String alternativeMessage =
-          messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
-      content.with(p(alternativeMessage).withClasses("text-lg"));
     }
 
     DivTag alternativeLoginButtons = div();
     if (renderCreateAccountButton) {
-      String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
-      alternativeLoginButtons.with(createAccountButton(messages)).with(p(or));
+      alternativeLoginButtons.with(createAccountButton(messages));
     }
-    alternativeLoginButtons
-        .with(guestButton(messages))
-        .withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
-    content.with(alternativeLoginButtons);
+    if (!disableApplicantGuestLogin) {
+        if (renderCreateAccountButton) {
+          String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
+          alternativeLoginButtons.with(p(or));
+        }
+      String alternativeMessage =
+          messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
+      content.with(p(alternativeMessage).withClasses("text-lg"));
+      alternativeLoginButtons
+          .with(guestButton(messages))
+          .withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
+    }
+      content.with(alternativeLoginButtons);
 
     String adminPrompt = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
     DivTag footer =
