@@ -102,6 +102,7 @@ def vars_from_application_conf(app_conf_file: typing.TextIO) -> set[str]:
 def vars_from_docs(docs_file: typing.TextIO) -> set[str]:
     """Returns the set of defined environment variables in an environment variable documentation file."""
     vars = set()
+
     def add(node: env_var_docs.visitor.NodeInfo):
         if node.type == "variable":
             vars.add(node.name)

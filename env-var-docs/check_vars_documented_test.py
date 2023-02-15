@@ -1,4 +1,5 @@
 from check_vars_documented import validate_env_variables, vars_from_application_conf, vars_from_docs, main
+import contextlib
 import io
 import os
 import tempfile
@@ -10,21 +11,27 @@ class TestValidateEnvVariables(unittest.TestCase):
     def setUp(self):
         os.environ = {}
 
-    def test_no_env_vars(self):
-        with self.assertRaises(SystemExit):
-            validate_env_variables()
-
     def test_no_app_conf(self):
-        with tempfile.NamedTemporaryFile() as tf:
+        stderr = io.StringIO()
+        with tempfile.NamedTemporaryFile() as tf, contextlib.redirect_stderr(
+                stderr):
             os.environ["ENV_VAR_DOCS_PATH"] = tf.name
             with self.assertRaises(SystemExit):
                 validate_env_variables()
+            self.assertTrue(
+                "APPLICATION_CONF_PATH must be present in the environment variables"
+                in stderr.getvalue())
 
     def test_no_env_var(self):
-        with tempfile.NamedTemporaryFile() as tf:
+        stderr = io.StringIO()
+        with tempfile.NamedTemporaryFile() as tf, contextlib.redirect_stderr(
+                stderr):
             os.environ["APPLICATION_CONF_PATH"] = tf.name
             with self.assertRaises(SystemExit):
                 validate_env_variables()
+            self.assertTrue(
+                "ENV_VAR_DOCS_PATH must be present in the environment variables"
+                in stderr.getvalue())
 
     def test_config_returned(self):
         with tempfile.NamedTemporaryFile(
@@ -37,7 +44,7 @@ class TestValidateEnvVariables(unittest.TestCase):
 
 
 class TestVarsFromAppConf(unittest.TestCase):
-    _app_conf_no_vars = """
+    app_conf_no_vars = """
     #mykey = ${some.value}
     # mykey = ${?JAVA_HOME}
     akka {
@@ -46,24 +53,24 @@ class TestVarsFromAppConf(unittest.TestCase):
       logger-startup-timeout = 30s
     }
     """
-    _app_conf_some_vars = _app_conf_no_vars + """
+    app_conf_some_vars = app_conf_no_vars + """
     mykey = ${?MY_VAR} # Some var
     myotherkey = ${? MY_OTHER_VAR   }
     """
 
     def test_no_vars(self):
-        with io.StringIO(self._app_conf_no_vars) as f:
+        with io.StringIO(self.app_conf_no_vars) as f:
             got = vars_from_application_conf(f)
             self.assertSetEqual(got, set())
 
     def test_some_vars(self):
-        with io.StringIO(self._app_conf_some_vars) as f:
+        with io.StringIO(self.app_conf_some_vars) as f:
             got = vars_from_application_conf(f)
             self.assertSetEqual(got, set(["MY_VAR", "MY_OTHER_VAR"]))
 
 
 class TestVarsFromDocs(unittest.TestCase):
-    _env_var_docs = """
+    env_var_docs = """
     {
         "MY_VAR": {
             "description": "A var",
@@ -87,7 +94,7 @@ class TestVarsFromDocs(unittest.TestCase):
             self.assertSetEqual(got, set())
 
     def test_some_vars(self):
-        with io.StringIO(self._env_var_docs) as f:
+        with io.StringIO(self.env_var_docs) as f:
             got = vars_from_docs(f)
             self.assertSetEqual(got, set(["MY_VAR", "MY_OTHER_VAR"]))
 
@@ -97,10 +104,10 @@ class TestMain(unittest.TestCase):
     def setUp(self):
         os.environ = {}
 
-    _app_conf = """
+    app_conf = """
     mykey = ${?MY_VAR}
     """
-    _env_var_docs = """
+    env_var_docs = """
     {
         "MY_VAR": {
             "description": "A var",
@@ -113,15 +120,19 @@ class TestMain(unittest.TestCase):
         with tempfile.NamedTemporaryFile(
                 mode='w') as appconf, tempfile.NamedTemporaryFile(
                     mode='w') as envvar:
-            appconf.write(self._app_conf)
+            appconf.write(self.app_conf)
             appconf.flush()
             envvar.write("{}")
             envvar.flush()
             os.environ["APPLICATION_CONF_PATH"] = appconf.name
             os.environ["ENV_VAR_DOCS_PATH"] = envvar.name
 
-            with self.assertRaises(SystemExit) as gotErr:
+            stderr = io.StringIO()
+            with self.assertRaises(SystemExit), contextlib.redirect_stderr(
+                    stderr):
                 main()
+            self.assertTrue(
+                "The following vars are not documented" in stderr.getvalue())
 
     def test_over_documented(self):
         with tempfile.NamedTemporaryFile(
@@ -129,21 +140,26 @@ class TestMain(unittest.TestCase):
                     mode='w') as envvar:
             appconf.write("")
             appconf.flush()
-            envvar.write(self._env_var_docs)
+            envvar.write(self.env_var_docs)
             envvar.flush()
             os.environ["APPLICATION_CONF_PATH"] = appconf.name
             os.environ["ENV_VAR_DOCS_PATH"] = envvar.name
 
-            with self.assertRaises(SystemExit):
+            stderr = io.StringIO()
+            with self.assertRaises(SystemExit), contextlib.redirect_stderr(
+                    stderr):
                 main()
+            self.assertTrue(
+                "The following vars are documented but not referenced" in
+                stderr.getvalue())
 
     def test_documented(self):
         with tempfile.NamedTemporaryFile(
                 mode='w') as appconf, tempfile.NamedTemporaryFile(
                     mode='w') as envvar:
-            appconf.write(self._app_conf)
+            appconf.write(self.app_conf)
             appconf.flush()
-            envvar.write(self._env_var_docs)
+            envvar.write(self.env_var_docs)
             envvar.flush()
             os.environ["APPLICATION_CONF_PATH"] = appconf.name
             os.environ["ENV_VAR_DOCS_PATH"] = envvar.name

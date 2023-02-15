@@ -13,9 +13,9 @@ If LOCAL_OUTPUT is not set, the following variables must be set:
 """
 
 import dataclasses
-import github
 import env_var_docs.validator
 import env_var_docs.visitor
+import github
 import os
 import sys
 import typing
@@ -53,6 +53,8 @@ def validate_env_variables() -> Config:
             token = os.environ["GITHUB_ACCESS_TOKEN"]
             repo = os.environ["TARGET_REPO"]
             path = os.environ["TARGET_PATH"]
+            if path[0:1] == "/":
+                errorexit("f{path} must be a relative path")
         else:
             version = token = repo = path = ""
 
@@ -85,20 +87,36 @@ def main():
 
 def generate_markdown(docs_file: typing.TextIO) -> str:
     out = ""
+
     def output(node: env_var_docs.visitor.NodeInfo):
-        nonlocal out
+        nonlocal out  # Need to declare out nonlocal otherwise it gets shadowed.
         out += f"{'#' * node.level} {node.name}\n\n"
 
+        nd = node.details
+        desc = ""
         if node.type == "group":
-            desc = node.details["group-description"]
+            desc = nd["group-description"]
         else:
-            desc = node.details["description"]
+            desc = nd["description"]
+            if "required" in nd and nd["required"]:
+                desc += " **Required**."
         out += (desc + "\n\n")
 
         if node.type == "variable":
-            for key in ['type', 'required', 'values', 'regex']:
-                if key in node.details:
-                    out += f"- {key.capitalize()}: `{node.details[key]}`\n"
+            if "type" in nd:
+                out += f"- Type: {nd['type']}\n"
+            if "values" in nd:
+                out += "- Allowed values:\n"
+                for val in nd["values"]:
+                    out += f"   - {val}\n"
+            if "regex" in nd:
+                out += f"- Validation regular expression: `{nd['regex']}`\n"
+            if "regex_tests" in nd:
+                out += "- Regular expression examples:\n"
+                for test in nd["regex_tests"]:
+                    msg = "should match" if test[
+                        "shouldMatch"] else "should not match"
+                    out += f"   - `{test['val']}` {msg}.\n"
             out += "\n"
 
     env_var_docs.visitor.visit(docs_file, output)

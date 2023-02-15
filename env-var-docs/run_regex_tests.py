@@ -53,6 +53,7 @@ def run_tests(docs_file: typing.TextIO) -> list[str]:
     """
 
     failures = []
+
     def run_test(node: env_var_docs.visitor.NodeInfo):
         if node.type != "variable":
             return

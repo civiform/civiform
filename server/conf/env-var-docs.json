@@ -41,7 +41,8 @@
     },
     "SECRET_KEY": {
         "description": "[Secret key](http://www.playframework.com/documentation/latest/ApplicationSecret). The secret key is used to sign Play's session cookie. This must be changed for production.",
-        "type": "string"
+        "type": "string",
+        "required": true
     },
     "CIVIFORM_APPLICANT_IDP": {
         "description": "Configure which IDP to use for admin authentication.",
