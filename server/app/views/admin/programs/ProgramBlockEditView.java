@@ -254,7 +254,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
       String blockName = blockDefinition.name();
-
+      // indendation value for enums and repeaters
+      int listIndendationFactor = 4 + (level * 2);
       String selectedClasses = blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
       DivTag blockTag =
           div()
@@ -263,7 +264,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   "flex-row",
                   "gap-2",
                   "py-2",
-                  "px-" + (4 + (level * 2)),
+                  "px-" + listIndendationFactor,
                   "border",
                   "border-white",
                   StyleUtils.hover("border-gray-300"),
