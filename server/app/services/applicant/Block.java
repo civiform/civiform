@@ -14,8 +14,9 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Question;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.PredicateAddressServiceAreaNodeExtractor;
 import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateExpressionNodeType;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
@@ -118,24 +119,15 @@ public final class Block {
     return blockDefinition.hasAddress();
   }
 
-  public Optional<String> getLeafAddressNodeServiceAreaId() {
+  public Optional<ImmutableList<String>> getLeafAddressNodeServiceAreaIds() {
     Optional<EligibilityDefinition> eligibilityDefinition = getEligibilityDefinition();
     if (eligibilityDefinition.isEmpty()) {
       return Optional.empty();
     }
 
-    return Optional.of(
-        eligibilityDefinition.get().predicate().rootNode().getLeafAddressNode().serviceAreaId());
-  }
+    ImmutableList<LeafAddressServiceAreaExpressionNode> nodes = PredicateAddressServiceAreaNodeExtractor.extract(eligibilityDefinition.get().predicate());
 
-  public boolean hasAddressServiceAreaPredicate() {
-    Optional<EligibilityDefinition> eligibilityDefinition = getEligibilityDefinition();
-    if (eligibilityDefinition.isEmpty()) {
-      return false;
-    }
-
-    return PredicateExpressionNodeType.LEAF_ADDRESS_SERVICE_AREA.equals(
-        eligibilityDefinition.get().predicate().rootNode().getType());
+    return Optional.of(nodes.stream().map(LeafAddressServiceAreaExpressionNode::serviceAreaId).collect(ImmutableList.toImmutableList()));
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {

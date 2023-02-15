@@ -281,20 +281,20 @@ public final class ApplicantService {
 
               Boolean hasCorrectedAddress = false;
               AddressLocation.Builder addressLocationBuilder = AddressLocation.builder();
-              Optional<EsriServiceAreaValidationOption> maybeOption = Optional.empty();
+              Optional<ImmutableList<EsriServiceAreaValidationOption>> maybeOptions = Optional.empty();
               // Check for existing service areas,
               // if the service area to check against is already in the existing service area, then
               // we don't need to fetch it again
               ImmutableList.Builder<ServiceAreaInclusion> existingServiceAreaInclusionGroupBuilder =
                   ImmutableList.builder();
-              Boolean hasExistingServiceAreaOption = false;
+              Boolean hasExistingServiceAreaOptions = false;
               Optional<Path> maybeServiceAreaPath = Optional.empty();
 
               if (addressServiceAreaValidationEnabled
-                  && blockBeforeUpdate.getLeafAddressNodeServiceAreaId().isPresent()) {
-                maybeOption =
-                    esriServiceAreaValidationConfig.getOptionByServiceAreaId(
-                        blockBeforeUpdate.getLeafAddressNodeServiceAreaId().get());
+                  && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
+                maybeOptions =
+                    esriServiceAreaValidationConfig.getOptionsByServiceAreaIds(
+                        blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().get());
 
                 for (ApplicantQuestion question : blockBeforeUpdate.getQuestions()) {
                   if (question.getQuestionDefinition().isAddress()) {
@@ -304,12 +304,8 @@ public final class ApplicantService {
                     if (serviceAreaValue != null) {
                       existingServiceAreaInclusionGroupBuilder.addAll(
                           ServiceAreaInclusionGroup.deserialize(serviceAreaValue));
-                      if (maybeOption.isPresent()) {
-                        hasExistingServiceAreaOption =
-                            maybeOption
-                                .get()
-                                .isServiceAreaOptionInInclusionGroup(
-                                    existingServiceAreaInclusionGroupBuilder.build());
+                      if (maybeOptions.isPresent()) {
+                        hasExistingServiceAreaOptions = maybeOptions.get().stream().allMatch((option) -> option.isServiceAreaOptionInInclusionGroup(existingServiceAreaInclusionGroupBuilder.build()));
                       }
                     }
 
@@ -335,52 +331,55 @@ public final class ApplicantService {
               }
 
               if (hasCorrectedAddress
-                  && maybeOption.isPresent()
+                  && maybeOptions.isPresent()
                   && maybeServiceAreaPath.isPresent()
-                  && !hasExistingServiceAreaOption) {
+                  && !hasExistingServiceAreaOptions) {
                 final Path serviceAreaPath = maybeServiceAreaPath.get();
+                final ImmutableList<EsriServiceAreaValidationOption> serviceAreaOptions = maybeOptions.get();
+                final AddressLocation addressLocation = addressLocationBuilder.build();
                 // call getServiceAreaInclusionGroup
-                return esriClient
-                    .getServiceAreaInclusionGroup(maybeOption.get(), addressLocationBuilder.build())
-                    .thenComposeAsync(
-                        (serviceAreaInclusionGroup) -> {
-                          ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup =
-                              existingServiceAreaInclusionGroupBuilder.build();
-                          ImmutableList<ServiceAreaInclusion> newServiceAreaInclusionGroup;
-                          if (existingServiceAreaInclusionGroup.size() > 0) {
-                            // merge existingServiceAreaInclusionGroup with
-                            // serviceAreaInclusionGroup
-                            newServiceAreaInclusionGroup =
-                                Stream.of(
-                                        existingServiceAreaInclusionGroup,
-                                        serviceAreaInclusionGroup)
-                                    .flatMap(List::stream)
-                                    .collect(
-                                        Collectors.toMap(
-                                            ServiceAreaInclusion::getServiceAreaId,
-                                            area -> area,
-                                            (ServiceAreaInclusion a, ServiceAreaInclusion b) ->
-                                                b == null ? a : b))
-                                    .values()
-                                    .stream()
-                                    .collect(ImmutableList.toImmutableList());
-                          } else {
-                            newServiceAreaInclusionGroup = serviceAreaInclusionGroup;
-                          }
-                          UpdateServiceArea updateServiceArea =
+                ImmutableList<CompletionStage<ImmutableList<ServiceAreaInclusion>>> serviceAreaInclusionGroupFutures = serviceAreaOptions.stream().map((option) -> {
+                  return esriClient.getServiceAreaInclusionGroup(option, addressLocation).thenApplyAsync((serviceAreaInclusionGroup) -> serviceAreaInclusionGroup, httpExecutionContext.current());
+                }).collect(ImmutableList.toImmutableList());
+
+                return CompletableFuture.allOf(serviceAreaInclusionGroupFutures.toArray(new CompletableFuture[serviceAreaInclusionGroupFutures.size()])).thenComposeAsync((u) -> {
+                  ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup = serviceAreaInclusionGroupFutures.stream().map((future) -> future.toCompletableFuture().join()).flatMap(Collection::stream).collect(ImmutableList.toImmutableList());
+                  ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup =
+                    existingServiceAreaInclusionGroupBuilder.build();
+                  ImmutableList<ServiceAreaInclusion> newServiceAreaInclusionGroup;
+
+                  if (existingServiceAreaInclusionGroup.size() > 0) {
+                    newServiceAreaInclusionGroup =
+                      Stream.of(
+                              existingServiceAreaInclusionGroup,
+                              serviceAreaInclusionGroup)
+                          .flatMap(List::stream)
+                          .collect(
+                              Collectors.toMap(
+                                  ServiceAreaInclusion::getServiceAreaId,
+                                  area -> area,
+                                  (ServiceAreaInclusion a, ServiceAreaInclusion b) ->
+                                      b == null ? a : b))
+                          .values()
+                          .stream()
+                          .collect(ImmutableList.toImmutableList());
+                  } else {
+                    newServiceAreaInclusionGroup = serviceAreaInclusionGroup;
+                  }
+
+                  UpdateServiceArea updateServiceArea =
                               UpdateServiceArea.create(
                                   serviceAreaPath, newServiceAreaInclusionGroup);
 
-                          return stageAndUpdateIfValid(
-                              applicant,
-                              baseUrl,
-                              blockBeforeUpdate,
-                              clock,
-                              programDefinition,
-                              updates,
-                              updateServiceArea);
-                        },
-                        httpExecutionContext.current());
+                  return stageAndUpdateIfValid(
+                      applicant,
+                      baseUrl,
+                      blockBeforeUpdate,
+                      clock,
+                      programDefinition,
+                      updates,
+                      updateServiceArea);
+                }, httpExecutionContext.current());
               }
               // pass in an empty updateServiceArea values
               UpdateServiceArea updateServiceArea =

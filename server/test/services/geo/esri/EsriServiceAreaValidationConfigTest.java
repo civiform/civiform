@@ -83,4 +83,15 @@ public class EsriServiceAreaValidationConfigTest {
         esriServiceAreaValidationConfig.getOptionByServiceAreaId("Mars");
     assertEquals(true, serviceAreaOption.isEmpty());
   }
+
+  @Test
+  public void getOptionByServiceAreaIds() {
+    Optional<ImmutableList<EsriServiceAreaValidationOption>> serviceAreaOptions =
+        esriServiceAreaValidationConfig.getOptionsByServiceAreaIds( ImmutableList.of("Seattle", "Bloomington"));
+    assertEquals(true, serviceAreaOptions.isPresent());
+    assertEquals("Seattle", serviceAreaOptions.get().get(0).getLabel());
+    assertEquals("Seattle", serviceAreaOptions.get().get(0).getId());
+    assertEquals("/query", serviceAreaOptions.get().get(0).getUrl());
+    assertEquals("CITYNAME", serviceAreaOptions.get().get(0).getAttribute());
+  }
 }
