@@ -119,9 +119,22 @@ public class ProgramBuilder {
     return newActiveProgram(adminName, displayName, /* description= */ "");
   }
 
-  /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
+  public static ProgramBuilder newActiveCommonIntakeForm(String name) {
+    return newActiveProgram(
+        /* adminName= */ name,
+        /* displayName= */ name,
+        /* description= */ "",
+        ProgramType.COMMON_INTAKE_FORM);
+  }
+
   public static ProgramBuilder newActiveProgram(
       String adminName, String displayName, String description) {
+    return newActiveProgram(adminName, displayName, description, ProgramType.DEFAULT);
+  }
+
+  /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
+  public static ProgramBuilder newActiveProgram(
+      String adminName, String displayName, String description, ProgramType programType) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     Program program =
         new Program(
@@ -133,7 +146,7 @@ public class ProgramBuilder {
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getActiveVersion(),
-            ProgramType.DEFAULT);
+            programType);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());

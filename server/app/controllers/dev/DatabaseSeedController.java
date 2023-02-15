@@ -331,7 +331,9 @@ public class DatabaseSeedController extends Controller {
               displayName,
               "display description",
               "https://github.com/seattle-uat/civiform",
-              DisplayMode.PUBLIC.getValue());
+              DisplayMode.PUBLIC.getValue(),
+              /* isCommonIntakeForm= */ false,
+              /* isIntakeFormEnabled= */ false);
       if (programDefinitionResult.isError()) {
         throw new Exception(programDefinitionResult.getErrors().toString());
       }

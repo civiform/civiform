@@ -95,16 +95,9 @@ public interface ProgramService {
       String defaultDisplayName,
       String defaultDisplayDescription,
       String externalLink,
-      String displayMode);
-
-  ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
-      String adminName,
-      String adminDescription,
-      String defaultDisplayName,
-      String defaultDisplayDescription,
-      String externalLink,
       String displayMode,
-      Boolean isCommonIntakeForm);
+      Boolean isCommonIntakeForm,
+      Boolean isIntakeFormEnabled);
 
   /**
    * Update a program's mutable fields: admin description, display name and description for
@@ -130,7 +123,8 @@ public interface ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
-      Boolean isCommonIntakeForm)
+      Boolean isCommonIntakeForm,
+      Boolean isIntakeFormEnabled)
       throws ProgramNotFoundException;
 
   /**
