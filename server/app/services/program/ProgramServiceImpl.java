@@ -273,6 +273,9 @@ public final class ProgramServiceImpl implements ProgramService {
     if (adminDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
     }
+    if (!isValidAbsoluteLink(externalLink)) {
+      errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
+    }
     ProgramType programType = ProgramType.DEFAULT;
     if (isIntakeFormEnabled && isCommonIntakeForm) {
       if (programRepository.commonIntakeFormExists() && !programDefinition.isCommonIntakeForm()) {

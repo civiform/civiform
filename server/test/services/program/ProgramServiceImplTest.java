@@ -116,7 +116,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "name",
             "description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             false,
             false);
