@@ -15,6 +15,14 @@ public final class DurableJobRegistry {
 
   private final HashMap<String, RegisteredJob> registeredJobs = new HashMap<>();
 
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("DurableJobRegistry");
+    builder.append(registeredJobs.entrySet());
+    return builder.toString();
+  }
+
   /**
    * A {@link DurableJob} that has been registered with the {@link DurableJobRegistry}.
    *
