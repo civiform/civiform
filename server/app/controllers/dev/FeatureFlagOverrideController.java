@@ -22,8 +22,7 @@ public final class FeatureFlagOverrideController extends Controller {
 
   @Inject
   public FeatureFlagOverrideController(
-      FeatureFlagView featureFlagView,
-      DeploymentType deploymentType) {
+      FeatureFlagView featureFlagView, DeploymentType deploymentType) {
     this.featureFlagView = featureFlagView;
     this.isDevOrStaging = deploymentType.isDevOrStaging();
   }

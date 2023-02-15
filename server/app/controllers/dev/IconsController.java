@@ -14,9 +14,7 @@ public final class IconsController extends Controller {
   private final boolean isDevOrStaging;
 
   @Inject
-  public IconsController(
-      IconsView iconsView,
-      DeploymentType deploymentType) {
+  public IconsController(IconsView iconsView, DeploymentType deploymentType) {
     this.iconsView = checkNotNull(iconsView);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
   }

@@ -134,10 +134,10 @@ public class LoginForm extends BaseHtmlView {
       alternativeLoginButtons.with(createAccountButton(messages));
     }
     if (!disableApplicantGuestLogin) {
-        if (renderCreateAccountButton) {
-          String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
-          alternativeLoginButtons.with(p(or));
-        }
+      if (renderCreateAccountButton) {
+        String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
+        alternativeLoginButtons.with(p(or));
+      }
       String alternativeMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
       content.with(p(alternativeMessage).withClasses("text-lg"));
@@ -145,7 +145,7 @@ public class LoginForm extends BaseHtmlView {
           .with(guestButton(messages))
           .withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
     }
-      content.with(alternativeLoginButtons);
+    content.with(alternativeLoginButtons);
 
     String adminPrompt = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
     DivTag footer =

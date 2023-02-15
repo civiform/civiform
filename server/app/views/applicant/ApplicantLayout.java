@@ -62,8 +62,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
       FeatureFlags featureFlags,
-      DeploymentType deploymentType
-      ) {
+      DeploymentType deploymentType) {
     super(viewUtils, configuration, featureFlags, deploymentType);
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);

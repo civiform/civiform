@@ -54,8 +54,6 @@ public final class ProgramAdminApplicationService {
     checkNotNull(configuration);
     checkNotNull(deploymentType);
 
-    // TODO(#3386): Inject these values and their downstream uses rather than calculating each time
-    // they're needed.
     this.isStaging = deploymentType.isStaging();
     this.baseUrl = configuration.getString("base_url");
     this.stagingApplicantNotificationMailingList =

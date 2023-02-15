@@ -41,7 +41,11 @@ public final class AdminLayout extends BaseHtmlLayout {
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
   AdminLayout(
-      ViewUtils viewUtils, Config configuration, NavPage activeNavPage, FeatureFlags featureFlags, DeploymentType deploymentType) {
+      ViewUtils viewUtils,
+      Config configuration,
+      NavPage activeNavPage,
+      FeatureFlags featureFlags,
+      DeploymentType deploymentType) {
     super(viewUtils, configuration, featureFlags, deploymentType);
     this.activeNavPage = activeNavPage;
   }

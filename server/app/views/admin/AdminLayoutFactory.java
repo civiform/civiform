@@ -14,7 +14,11 @@ public final class AdminLayoutFactory {
   private final DeploymentType deploymentType;
 
   @Inject
-  public AdminLayoutFactory(ViewUtils viewUtils, Config configuration, FeatureFlags featureFlags, DeploymentType deploymentType) {
+  public AdminLayoutFactory(
+      ViewUtils viewUtils,
+      Config configuration,
+      FeatureFlags featureFlags,
+      DeploymentType deploymentType) {
     this.viewUtils = viewUtils;
     this.configuration = configuration;
     this.featureFlags = featureFlags;
