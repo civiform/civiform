@@ -133,7 +133,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
   private PersistedDurableJob createPersistedJobScheduledInFuture() {
     var persistedJob =
         new PersistedDurableJob(
-            DurableJobName.TEST.getJobName(), Instant.now().plus(10, ChronoUnit.DAYS));
+            DurableJobName.TEST.getJobNameString(), Instant.now().plus(10, ChronoUnit.DAYS));
 
     persistedJob.save();
 
@@ -143,7 +143,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
   private PersistedDurableJob createPersistedJobToExecute() {
     var persistedJob =
         new PersistedDurableJob(
-            DurableJobName.TEST.getJobName(), Instant.now().minus(1, ChronoUnit.DAYS));
+            DurableJobName.TEST.getJobNameString(), Instant.now().minus(1, ChronoUnit.DAYS));
 
     persistedJob.save();
 

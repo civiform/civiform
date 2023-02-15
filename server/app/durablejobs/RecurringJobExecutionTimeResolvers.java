@@ -14,7 +14,7 @@ import java.time.temporal.TemporalAdjusters;
  * <p>All implementations of {@link RecurringJobExecutionTimeResolver} MUST use the parameter {@link
  * Clock} for resolving execution times to ensure the local time zone is accounted for.
  */
-public final class RecurringJobSchedulers {
+public final class RecurringJobExecutionTimeResolvers {
 
   /** Every Sunday at 2am local time. */
   public static final class Sunday2Am implements RecurringJobExecutionTimeResolver {
