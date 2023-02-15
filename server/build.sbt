@@ -38,7 +38,7 @@ lazy val root = (project in file("."))
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.8.0",
-      "com.azure" % "azure-storage-blob" % "12.20.2",
+      "com.azure" % "azure-storage-blob" % "12.20.3",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.5.3",
