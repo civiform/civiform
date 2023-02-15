@@ -280,7 +280,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             /* isCommonIntakeForm= */ true,
             /* isIntakeFormEnabled= */ false);
@@ -297,7 +297,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             /* isCommonIntakeForm= */ true,
             /* isIntakeFormEnabled= */ true);
@@ -313,7 +313,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "description",
         "display name",
         "display description",
-        "",
+        "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         /* isCommonIntakeForm= */ true,
         /* isIntakeFormEnabled= */ true);
@@ -323,7 +323,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             /* isCommonIntakeForm= */ false,
             /* isIntakeFormEnabled= */ true);
@@ -340,7 +340,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "description",
         "display name",
         "display description",
-        "",
+        "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         /* isCommonIntakeForm= */ true,
         /* isIntakeFormEnabled= */ true);
@@ -350,7 +350,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             /* isCommonIntakeForm= */ true,
             /* isIntakeFormEnabled= */ true);
