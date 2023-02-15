@@ -1,4 +1,5 @@
 import {Page} from 'playwright'
+import {waitForPageJsLoad} from './wait'
 
 /*
  * This class is to test Civiform in the TI path
@@ -16,6 +17,10 @@ export class TIDashboard {
 
   async gotoTIDashboardPage(page: Page) {
     await page.click('text="View and Add Clients"')
+  }
+
+  async goToProgramsPageForCurrentClient() {
+    await this.page.click('text="CiviForm"')
   }
 
   async createClient(client: ClientInformation) {
@@ -55,6 +60,19 @@ export class TIDashboard {
   async searchByDateOfBirth(dobDate: string) {
     await this.page.fill('label:has-text("Search Date Of Birth")', dobDate)
     await this.page.click('button:text("Search")')
+  }
+
+  async clickOnApplicantDashboard() {
+    await this.page
+      .locator('.cf-admin-question-table-row a:text("Applicant Dashboard")')
+      .click()
+    await waitForPageJsLoad(this.page)
+  }
+
+  async expectIneligiblePage() {
+    expect(await this.page.innerText('h2')).toContain(
+      'your client may not qualify',
+    )
   }
 }
 
