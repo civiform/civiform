@@ -151,7 +151,7 @@ describe('End to end enumerator test', () => {
     // Create a nested repeated block and add the nested text question
     await page.click('#create-repeated-block-button')
 
-    await validateScreenshot(page, 'programindendation')
+    await validateScreenshot(page, 'programindentation')
     await adminPrograms.addQuestionFromQuestionBank(
       'enumerator-ete-repeated-jobs-income',
     )
