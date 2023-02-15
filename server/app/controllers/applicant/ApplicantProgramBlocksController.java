@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -43,6 +44,7 @@ import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
+import views.applicant.IneligibleBlockView;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
@@ -61,7 +63,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
   private final ProfileUtils profileUtils;
+  private final FeatureFlags featureFlags;
   private final String baseUrl;
+  private final IneligibleBlockView ineligibleBlockView;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -76,7 +80,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration,
-      FileUploadViewStrategy fileUploadViewStrategy) {
+      FeatureFlags featureFlags,
+      FileUploadViewStrategy fileUploadViewStrategy,
+      IneligibleBlockView ineligibleBlockView) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -85,6 +91,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.featureFlags = checkNotNull(featureFlags);
+    this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
   }
@@ -389,6 +397,19 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           thisBlockUpdated,
                           applicantName,
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
+    }
+
+    if (featureFlags.isProgramEligibilityConditionsEnabled(request)
+        && !roApplicantProgramService.isBlockEligible(blockId)) {
+      return supplyAsync(
+          () ->
+              ok(
+                  ineligibleBlockView.render(
+                      request,
+                      roApplicantProgramService,
+                      applicantName,
+                      messagesApi.preferred(request),
+                      applicantId)));
     }
 
     Optional<String> nextBlockIdMaybe =

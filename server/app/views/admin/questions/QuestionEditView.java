@@ -181,7 +181,7 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     DivTag formContent =
         buildQuestionContainer(title, QuestionFormBuilder.create(questionDefinition))
-            .with(buildViewOnlyQuestionForm(questionForm, enumeratorOption));
+            .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption));
 
     return renderWithPreview(formContent, questionType, title);
   }
@@ -197,12 +197,13 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private FormTag buildSubmittableQuestionForm(
       QuestionForm questionForm, SelectWithLabel enumeratorOptions, boolean forCreate) {
-    return buildQuestionForm(questionForm, enumeratorOptions, true, forCreate);
+    return buildQuestionForm(questionForm, enumeratorOptions, /* submittable= */ true, forCreate);
   }
 
-  private FormTag buildViewOnlyQuestionForm(
+  private FormTag buildReadOnlyQuestionForm(
       QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
-    return buildQuestionForm(questionForm, enumeratorOptions, false, false);
+    return buildQuestionForm(
+        questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false);
   }
 
   private DivTag buildQuestionContainer(String title, QuestionForm questionForm) {
@@ -290,7 +291,7 @@ public final class QuestionEditView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Update").withClass("ml-2"));
+        .with(submitButton("Update").withClasses("ml-2", AdminStyles.PRIMARY_BUTTON_STYLES));
     return formTag;
   }
 
@@ -317,20 +318,20 @@ public final class QuestionEditView extends BaseHtmlView {
         FieldWithLabel.textArea()
             .setId("question-text-textarea")
             .setFieldName("questionText")
-            .setLabelText("Question text*")
-            .setPlaceholderText("The question text displayed to the applicant")
+            .setLabelText("Question text displayed to the applicant*")
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
-            .getTextareaTag(),
-        FieldWithLabel.textArea()
-            .setId("question-help-text-textarea")
-            .setFieldName("questionHelpText")
-            .setLabelText("Question help text")
-            .setPlaceholderText("The question help text displayed to the applicant")
-            .setDisabled(!submittable)
-            .setValue(questionForm.getQuestionHelpText())
-            .getTextareaTag()
-            .withCondClass(questionType.equals(QuestionType.STATIC), "hidden"));
+            .getTextareaTag());
+    if (!questionType.equals(QuestionType.STATIC)) {
+      formTag.with(
+          FieldWithLabel.textArea()
+              .setId("question-help-text-textarea")
+              .setFieldName("questionHelpText")
+              .setLabelText("Question help text displayed to the applicant")
+              .setDisabled(!submittable)
+              .setValue(questionForm.getQuestionHelpText())
+              .getTextareaTag());
+    }
 
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, hidden fields to pass enumerator and name data are added.

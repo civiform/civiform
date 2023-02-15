@@ -52,6 +52,10 @@ public abstract class PredicateValue {
     return create(value.toString(), OperatorRightHandType.LIST_OF_LONGS);
   }
 
+  public static PredicateValue serviceArea(String value) {
+    return create(value, OperatorRightHandType.SERVICE_AREA);
+  }
+
   @JsonCreator
   private static PredicateValue create(
       @JsonProperty("value") String value, @JsonProperty("type") OperatorRightHandType type) {

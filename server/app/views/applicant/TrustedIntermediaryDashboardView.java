@@ -180,23 +180,20 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("first-name-input")
             .setFieldName("firstName")
-            .setLabelText("First Name")
-            .setValue(request.flash().get("providedFirstName").orElse(""))
-            .setPlaceholderText("Applicant first name (Required)");
+            .setLabelText("First Name (Required)")
+            .setValue(request.flash().get("providedFirstName").orElse(""));
     FieldWithLabel middleNameField =
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
-            .setLabelText("Middle Name")
-            .setValue(request.flash().get("providedMiddleName").orElse(""))
-            .setPlaceholderText("Applicant middle name (Optional)");
+            .setLabelText("Middle Name (Optional)")
+            .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
             .setId("last-name-input")
             .setFieldName("lastName")
-            .setLabelText("Last Name")
-            .setValue(request.flash().get("providedLastName").orElse(""))
-            .setPlaceholderText("Applicant last name (Required)");
+            .setLabelText("Last Name (Required)")
+            .setValue(request.flash().get("providedLastName").orElse(""));
     // TODO: do something with this field.  currently doesn't do anything. Add a Path
     // to WellKnownPaths referencing the canonical date of birth question.
     FieldWithLabel dateOfBirthField =
@@ -204,15 +201,13 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setId("date-of-birth-input")
             .setFieldName("dob")
             .setLabelText("Date Of Birth")
-            .setValue(request.flash().get("providedDob").orElse(""))
-            .setPlaceholderText("Applicant Date of Birth");
+            .setValue(request.flash().get("providedDob").orElse(""));
     FieldWithLabel emailField =
         FieldWithLabel.input()
             .setId("email-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email Address")
-            .setValue(request.flash().get("providedEmail").orElse(""))
-            .setPlaceholderText("Applicant email address (Required)");
+            .setLabelText("Email Address (Required)")
+            .setValue(request.flash().get("providedEmail").orElse(""));
     return div()
         .with(
             formTag.with(
@@ -311,7 +306,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       emailField = "(no email address)";
     }
     return td().with(div(ti.getApplicantName()).withClasses("font-semibold"))
-        .with(div(emailField).withClasses("text-xs"))
+        .with(div(emailField).withClasses("text-xs", ReferenceClasses.BT_EMAIL))
         .withClasses(BaseStyles.TABLE_CELL_STYLES);
   }
 

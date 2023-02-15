@@ -4,18 +4,18 @@ import services.question.types.QuestionType;
 
 /**
  * Class to hold constants for icons and provide methods for rendering SVG components. You can see
- * all existing icons when running server locally: http://localhost:9000/dev/icons
+ * all existing icons when running the server locally: http://localhost:9000/dev/icons
  *
- * <p>Usage: To use SVG icon in view create element using Icons.svg method and then resize it using
- * tailwind's size classes like you we do with regular elements:
+ * <p>Usage: To use an SVG icon in a view, add the element to Icons.svg and resize it using
+ * tailwind's size classes as we do with regular html elements:
  *
  * <pre>
  *   Icons.svg(Icons.ICON_NAME).withClasses("h-4", "w-4")
  * </pre>
  *
- * Add new icon: icons are from https://fonts.google.com/icons, each one is commented with its icon
- * name. Download SVG file, open using a text editor and copy its size and path to a new enum value
- * here.
+ * Adding a new icon: icons are from https://fonts.google.com/icons, where each icon is commented
+ * with its icon name. Download the SVG file, open it using a text editor and copy its size and path
+ * to a new enum value here.
  */
 public enum Icons {
   ADD(20, "M9.125 15.833V10.875H4.167V9.125H9.125V4.167H10.875V9.125H15.833V10.875H10.875V15.833Z"),
@@ -28,6 +28,17 @@ public enum Icons {
       24,
       "M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4"
           + " 4z"),
+  ARROW_LEFT(24, "m12 20-8-8 8-8 1.425 1.4-5.6 5.6H20v2H7.825l5.6 5.6Z"),
+  // Check Circle https://fonts.google.com/icons?selected=Material+Symbols+Outlined:check_circle
+  CHECK_CIRCLE(
+      48,
+      "M21.05 33.1 35.2 18.95l-2.3-2.25-11.85 11.85-6-6-2.25 2.25ZM24 44q-4.1"
+          + " 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8"
+          + " 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575"
+          + " 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275"
+          + " 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41"
+          + " 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975"
+          + " 12.025Q16.95 41 24 41Zm0-17Z"),
   // Check Box
   CHECKBOX(
       24,
@@ -78,12 +89,27 @@ public enum Icons {
       24,
       "M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10"
           + " 10 10-4.48 10-10S17.52 2 12 2zm0 13l-4-4h8z"),
+  // An icon that looks like a pen and is used as a visual representation for edit actions
+  // See the "edit" icon at https://fonts.google.com/icons?icon.query=edit
   EDIT(
       20,
       "M4.25 15.75H5.479L13.5 7.729L12.896 7.104L12.271 6.5L4.25 14.521ZM2.5 17.5V13.771L13.479"
           + " 2.792Q14 2.271 14.719 2.271Q15.438 2.271 15.958 2.792L17.208 4.042Q17.708 4.542"
           + " 17.708 5.281Q17.708 6.021 17.208 6.521L6.229 17.5ZM15.958 5.271 14.729 4.042ZM13.5"
           + " 7.729 12.896 7.104 12.271 6.5V6.479L13.5 7.729Z"),
+  // An icon that looks like an eye and is used as a visual representation for view actions
+  // See the "visibility" icon at https://fonts.google.com/icons?icon.query=view
+  VIEW(
+      48,
+      "M24 31.5q3.55 0 6.025-2.475Q32.5 26.55 32.5 23q0-3.55-2.475-6.025Q27.55 14.5 24 14.5q-3.55"
+          + " 0-6.025 2.475Q15.5 19.45 15.5 23q0 3.55 2.475 6.025Q20.45 31.5 24 31.5Zm0-2.9q-2.35"
+          + " 0-3.975-1.625T18.4 23q0-2.35 1.625-3.975T24 17.4q2.35 0 3.975 1.625T29.6 23q0"
+          + " 2.35-1.625 3.975T24 28.6Zm0 9.4q-7.3 0-13.2-4.15Q4.9 29.7 2 23q2.9-6.7"
+          + " 8.8-10.85Q16.7 8 24 8q7.3 0 13.2 4.15Q43.1 16.3 46 23q-2.9 6.7-8.8 10.85Q31.3 38 24"
+          + " 38Zm0-15Zm0 12q6.05 0 11.125-3.275T42.85 23q-2.65-5.45-7.725-8.725Q30.05 11 24"
+          + " 11t-11.125 3.275Q7.8 17.55 5.1 23q2.7 5.45 7.775 8.725Q17.95 35 24 35Z"),
+  // Used in Answer ->
+  ARROW_FORWARD(20, "m10 16-1.062-1.062 4.187-4.188H4v-1.5h9.125L8.938 5.062 10 4l6 6Z"),
   // Email
   EMAIL(
       24,
@@ -144,6 +170,20 @@ public enum Icons {
           + " 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562"
           + " 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562"
           + " 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562 12.583Z"),
+  // Help https://fonts.google.com/icons?icon.query=help (icon labeld "Help")
+  HELP(
+      48,
+      "M24.2 35.65q.8 0 1.35-.55t.55-1.35q0-.8-.55-1.35t-1.35-.55q-.8 0-1.35.55t-.55 1.35q0 .8.55"
+          + " 1.35t1.35.55Zm-1.75-7.3h2.95q0-1.3.325-2.375T27.75 23.5q1.55-1.3"
+          + " 2.2-2.55.65-1.25.65-2.75 0-2.65-1.725-4.25t-4.575-1.6q-2.45 0-4.325 1.225T17.25"
+          + " 16.95l2.65 1q.55-1.4 1.65-2.175 1.1-.775 2.6-.775 1.7 0 2.75.925t1.05 2.375q0"
+          + " 1.1-.65 2.075-.65.975-1.9 2.025-1.5 1.3-2.225 2.575-.725 1.275-.725 3.375ZM24"
+          + " 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15"
+          + " 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575"
+          + " 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575"
+          + " 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41"
+          + " 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975"
+          + " 12.025Q16.95 41 24 41Zm0-17Z"),
   // Badge
   ID(
       24,
@@ -273,6 +313,17 @@ public enum Icons {
           + " 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4"
           + " 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5"
           + " 0-2.21-1.79-4-4-4z"),
+  // Info https://fonts.google.com/icons?selected=Material+Symbols+Outlined:info
+  INFO(
+      48,
+      "M22.65 34h3V22h-3ZM24 18.3q.7 0 1.175-.45.475-.45.475-1.15t-.475-1.2Q24.7 15 24 15q-.7"
+          + " 0-1.175.5-.475.5-.475 1.2t.475 1.15q.475.45 1.175.45ZM24 44q-4.1"
+          + " 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 23.95q0-4.1"
+          + " 1.575-7.75 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24.05 4q4.1 0 7.75 1.575"
+          + " 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575"
+          + " 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm.05-3q7.05 0 12-4.975T41"
+          + " 23.95q0-7.05-4.95-12T24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95"
+          + " 41 24.05 41ZM24 24Z"),
   WARNING(
       20,
       "M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742"

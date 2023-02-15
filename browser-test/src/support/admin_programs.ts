@@ -105,6 +105,28 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
+  /**
+   * Expects a specific program block to be selected inside the read only view
+   * that is used to view the configuration of an active program.
+   */
+  async expectReadOnlyProgramBlock(blockId: string) {
+    // The block info shows us we are viewing a block.
+    expect(this.page.locator('id=block-info-display-' + blockId)).not.toBeNull()
+    // The absence of one of the edit buttons ensures it is the read only view.
+    expect(
+      await this.page.locator('id=block-description-modal-button').count(),
+    ).toEqual(0)
+  }
+
+  /**
+   * Expects a specific question to be shown in the currently displayed program block.
+   */
+  expectQuestion(questionName: string) {
+    expect(
+      `.cf-program-question:has(:text("Admin ID: ${questionName}"))`,
+    ).not.toBeNull()
+  }
+
   // Question card within a program edit page
   questionCardSelectorInProgramEditor(questionName: string) {
     return `.cf-program-question:has(:text("Admin ID: ${questionName}"))`
@@ -184,7 +206,7 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
-  async goToManageQuestionsPage(programName: string) {
+  async gotoEditDraftProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
     await this.page.click(
@@ -198,21 +220,62 @@ export class AdminPrograms {
     await this.expectProgramBlockEditPage(programName)
   }
 
-  async goToBlockInProgram(programName: string, blockName: string) {
-    await this.goToManageQuestionsPage(programName)
+  async gotoViewActiveProgramPage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectActiveProgram(programName)
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Active', ':text("View")'),
+    )
+    await waitForPageJsLoad(this.page)
+    await this.expectProgramBlockReadOnlyPage(programName)
+  }
 
+  async gotoViewActiveProgramPageAndStartEditing(programName: string) {
+    await this.gotoViewActiveProgramPage(programName)
+    await this.page.click('button:has-text("Edit")')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async goToBlockInProgram(programName: string, blockName: string) {
+    await this.gotoEditDraftProgramPage(programName)
     // Click on the block to edit
     await this.page.click(`a:has-text("${blockName}")`)
     await waitForPageJsLoad(this.page)
   }
 
-  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+  async gotoToBlockInReadOnlyProgram(blockId: string) {
+    await this.page.click('#block_list_item_' + blockId)
+    await waitForPageJsLoad(this.page)
+  }
+
+  async goToEditBlockVisibilityPredicatePage(
+    programName: string,
+    blockName: string,
+  ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
-    await this.page.click('#cf-edit-predicate')
+    await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    await this.expectEditPredicatePage(blockName)
+    await this.expectEditVisibilityPredicatePage(blockName)
+  }
+
+  async goToEditBlockEligibilityPredicatePage(
+    programName: string,
+    blockName: string,
+  ) {
+    await this.goToBlockInProgram(programName, blockName)
+
+    // Click on the edit predicate button
+    await this.page.click('#cf-edit-eligibility-predicate')
+    await waitForPageJsLoad(this.page)
+    await this.expectEditEligibilityPredicatePage(blockName)
+  }
+
+  async goToProgramDescriptionPage(programName: string) {
+    await this.gotoEditDraftProgramPage(programName)
+    await this.page.click('button:has-text("Edit program details")')
+    await waitForPageJsLoad(this.page)
   }
 
   async expectDraftProgram(programName: string) {
@@ -254,9 +317,15 @@ export class AdminPrograms {
     )
   }
 
-  async expectEditPredicatePage(blockName: string) {
+  async expectEditVisibilityPredicatePage(blockName: string) {
     expect(await this.page.innerText('h1')).toContain(
       'Visibility condition for ' + blockName,
+    )
+  }
+
+  async expectEditEligibilityPredicatePage(blockName: string) {
+    expect(await this.page.innerText('h1')).toContain(
+      'Eligibility condition for ' + blockName,
     )
   }
 
@@ -282,6 +351,13 @@ export class AdminPrograms {
     expect(await this.page.innerText('h1')).toContain('Add a question')
   }
 
+  async expectProgramBlockReadOnlyPage(programName = '') {
+    expect(await this.page.innerText('id=program-title')).toContain(programName)
+    // The only element for editing should be one top level button
+    expect(await this.page.innerText('#header_edit_button'))
+    expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
+  }
+
   // Removes questions from given block in program.
   async removeQuestionFromProgram(
     programName: string,
@@ -305,7 +381,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.goToManageQuestionsPage(programName)
+    await this.gotoEditDraftProgramPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -317,10 +393,27 @@ export class AdminPrograms {
     }
   }
 
+  async launchDeleteScreenModal() {
+    const programName = 'Test program 7'
+    await this.addProgram(programName)
+    await this.addProgramBlock(programName)
+    await this.goToBlockInProgram(programName, 'Screen 1')
+    await clickAndWaitForModal(this.page, 'block-delete-modal')
+  }
+
+  async removeProgramBlock(programName: string, blockName: string) {
+    await this.goToBlockInProgram(programName, blockName)
+    await clickAndWaitForModal(this.page, 'block-delete-modal')
+    await this.page.click('#delete-block-button')
+    await waitForPageJsLoad(this.page)
+    await this.gotoAdminProgramsPage()
+  }
+
   private async waitForQuestionBankAnimationToFinish() {
-    // Animation is 150ms. Give whole second to avoid flakiness on slow CPU
+    // Animation is 150ms. Give some extra overhead to avoid flakiness on slow CPU.
+    // This is currently called over 300 times which adds up.
     // https://tailwindcss.com/docs/transition-property
-    await this.page.waitForTimeout(1000)
+    await this.page.waitForTimeout(250)
   }
 
   async openQuestionBank() {
@@ -360,7 +453,7 @@ export class AdminPrograms {
     questionNames: string[],
     optionalQuestionName: string,
   ) {
-    await this.goToManageQuestionsPage(programName)
+    await this.gotoEditDraftProgramPage(programName)
 
     await clickAndWaitForModal(this.page, 'block-description-modal')
     await this.page.fill('textarea', blockDescription)
@@ -382,7 +475,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.goToManageQuestionsPage(programName)
+    await this.gotoEditDraftProgramPage(programName)
 
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
@@ -409,7 +502,7 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = [],
   ) {
-    await this.goToManageQuestionsPage(programName)
+    await this.gotoEditDraftProgramPage(programName)
 
     await this.page.click(`text=${enumeratorBlockName}`)
     await waitForPageJsLoad(this.page)
@@ -487,10 +580,22 @@ export class AdminPrograms {
     await dismissModal(this.page)
   }
 
-  async createNewVersion(programName: string) {
+  async createNewVersion(
+    programName: string,
+    programReadOnlyViewEnabled = true,
+  ) {
     await this.gotoAdminProgramsPage()
     await this.expectActiveProgram(programName)
 
+    if (programReadOnlyViewEnabled) {
+      await this.page.click(
+        this.withinProgramCardSelector(
+          programName,
+          'Active',
+          '.cf-with-dropdown',
+        ),
+      )
+    }
     await this.page.click(
       this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
@@ -765,13 +870,13 @@ export class AdminPrograms {
       throw new Error('download failed')
     }
 
-    return JSON.parse(readFileSync(path, 'utf8'))
+    return JSON.parse(readFileSync(path, 'utf8')) as DownloadedApplication[]
   }
   async getPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.applicationFrameLocator()
-        .locator('a:has-text("Export to PDF")')
+        .locator('button:has-text("Export to PDF")')
         .click(),
     ])
     const path = await downloadEvent.path()
@@ -813,14 +918,48 @@ export class AdminPrograms {
     }
     return readFileSync(path, 'utf8')
   }
-
+  /*
+   * Creates a program, ads the specified questions to it and publishes it.
+   * To use this method, questions must have been previously created for example by using one of the helper methods in admin_questions.ts.
+   * <BR>Example:
+   * <BR> adminQuestions.addAddressQuestion({questionName: 'address-q'})
+   */
   async addAndPublishProgramWithQuestions(
     questionNames: string[],
     programName: string,
   ) {
     await this.addProgram(programName)
     await this.editProgramBlock(programName, 'dummy description', questionNames)
-
     await this.publishProgram(programName)
+  }
+
+  getAddressCorrectionToggle() {
+    return this.page.locator('input[name=addressCorrectionEnabled]')
+  }
+
+  getAddressCorrectionToggleByName(questionName: string) {
+    return this.page
+      .locator('.cf-program-question')
+      .filter({hasText: questionName})
+      .locator('input[name=addressCorrectionEnabled]')
+  }
+
+  getAddressCorrectionHelpTextByName(questionName: string) {
+    return this.page
+      .locator('.cf-program-question')
+      .filter({hasText: questionName})
+      .locator(':is(span:has-text("Enabling address correction will check"))')
+  }
+
+  async clickAddressCorrectionToggle() {
+    await this.page.click(':is(button:has-text("Address correction"))')
+  }
+
+  async clickAddressCorrectionToggleByName(questionName: string) {
+    const toggleLocator = this.getAddressCorrectionToggleByName(questionName)
+    await toggleLocator
+      .locator('..')
+      .locator('button:has-text("Address correction")')
+      .click()
   }
 }

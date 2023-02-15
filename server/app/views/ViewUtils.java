@@ -2,6 +2,7 @@ package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.button;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.p;
@@ -11,6 +12,7 @@ import static j2html.TagCreator.span;
 import com.google.common.base.Joiner;
 import controllers.AssetsFinder;
 import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.PTag;
@@ -82,15 +84,45 @@ public final class ViewUtils {
     return button()
         .with(
             Icons.svg(icon)
-                .withClasses("ml-1", "inline-block", "shrink-0")
+                .withClasses("inline-block")
                 // Can't set 18px using Tailwind CSS classes.
                 .withStyle("width: 18px; height: 18px;"),
             span(buttonText).withClass("text-left"));
   }
 
-  public enum BadgeStatus {
+  /**
+   * Used to indicate if a view that shows information about a program is displaying a draft (and
+   * thus is editable) or an active program (not editable). Values here match the database statuses
+   * but are limited to the statuses that are viewable for civiform admins.
+   */
+  public enum ProgramDisplayType {
     ACTIVE,
     DRAFT
+  }
+
+  public static DivTag makeSvgToolTip(String toolTipText, Icons icon) {
+    return div()
+        .withClasses("group")
+        .with(
+            Icons.svg(icon).withClasses("inline-block", "w-5", "relative"),
+            span(toolTipText)
+                .withClasses(
+                    "hidden",
+                    "group-hover:block",
+                    "bg-white",
+                    "rounded-3xl",
+                    "p-2",
+                    "px-4",
+                    "text-black",
+                    "absolute",
+                    "mt-2.5",
+                    "border-gray-200",
+                    "border",
+                    "text-left",
+                    "right-1/2",
+                    "w-96",
+                    "text-sm",
+                    "font-normal"));
   }
 
   /**
@@ -103,14 +135,14 @@ public final class ViewUtils {
    * @return Tag representing the badge. No classes should be added to the returned tag as it will
    *     overwrite existing classes due to how Jhtml works.
    */
-  public static PTag makeBadge(BadgeStatus status, String... extraClasses) {
-    String badgeText = status == BadgeStatus.ACTIVE ? "Active" : "Draft";
+  public static PTag makeBadge(ProgramDisplayType status, String... extraClasses) {
+    String badgeText = status == ProgramDisplayType.ACTIVE ? "Active" : "Draft";
     String badgeBGColor =
-        status == BadgeStatus.ACTIVE
+        status == ProgramDisplayType.ACTIVE
             ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT
             : BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
     String badgeFillColor =
-        status == BadgeStatus.ACTIVE
+        status == ProgramDisplayType.ACTIVE
             ? BaseStyles.TEXT_CIVIFORM_GREEN
             : BaseStyles.TEXT_CIVIFORM_PURPLE;
     return p().withClasses(

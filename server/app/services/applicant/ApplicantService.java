@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -11,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
-import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -40,9 +40,11 @@ import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
+import services.DeploymentType;
 import services.Path;
-import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationNotEligibleException;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.ApplicantQuestion;
@@ -90,7 +92,8 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext httpExecutionContext,
+      DeploymentType deploymentType) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
@@ -100,9 +103,8 @@ public final class ApplicantService {
     this.clock = checkNotNull(clock);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
 
-    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
+    this.isStaging = checkNotNull(deploymentType).isStaging();
     this.stagingProgramAdminNotificationMailingList =
         checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
     this.stagingTiNotificationMailingList =
@@ -111,8 +113,9 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
   }
 
-  /** Create a new {@link Applicant} for a given user. */
-  public CompletionStage<Applicant> createApplicant(long userId) {
+  /** Create a new {@link Applicant}. */
+  public CompletionStage<Applicant> createApplicant() {
+
     Applicant applicant = new Applicant();
     return userRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
   }
@@ -162,6 +165,12 @@ public final class ApplicantService {
       Application application, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
         application.getApplicantData(), programDefinition, baseUrl);
+  }
+
+  /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
+  private ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
+      ApplicantData applicantData, ProgramDefinition programDefinition) {
+    return new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, baseUrl);
   }
 
   /**
@@ -286,10 +295,14 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<Application> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile) {
+      long applicantId,
+      long programId,
+      CiviFormProfile submitterProfile,
+      boolean eligibilityFeatureEnabled) {
     if (submitterProfile.isTrustedIntermediary()) {
-      return submitterProfile
-          .getAccount()
+      return getReadOnlyApplicantProgramService(applicantId, programId)
+          .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
+          .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
                   submitApplication(
@@ -299,10 +312,16 @@ public final class ApplicantService {
               httpExecutionContext.current());
     }
 
-    return submitApplication(applicantId, programId, /* tiSubmitterEmail= */ Optional.empty());
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
+        .thenCompose(
+            v ->
+                submitApplication(
+                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
   }
 
-  private CompletionStage<Application> submitApplication(
+  @VisibleForTesting
+  CompletionStage<Application> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     return applicationRepository
         .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -327,6 +346,28 @@ public final class ApplicantService {
                   .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
             },
             httpExecutionContext.current());
+  }
+
+  /**
+   * Validates that the application is complete and correct to submit.
+   *
+   * <p>An application may be submitted but incomplete if the application view with submit button
+   * contains stale data that has changed visibility conditions.
+   *
+   * @return a {@link ApplicationOutOfDateException} wrapped in a failed future with a user visible
+   *     message for the issue.
+   */
+  private CompletableFuture<Void> validateApplicationForSubmission(
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      boolean eligibilityFeatureEnabled) {
+    // Check that all blocks have been answered.
+    if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
+      throw new ApplicationOutOfDateException();
+    }
+    if (eligibilityFeatureEnabled && !roApplicantProgramService.isApplicationEligible()) {
+      throw new ApplicationNotEligibleException();
+    }
+    return CompletableFuture.completedFuture(null);
   }
 
   /**
@@ -509,22 +550,37 @@ public final class ApplicantService {
             .getApplicationsForApplicant(
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
-    ImmutableList<ProgramDefinition> activePrograms =
+    ImmutableList<ProgramDefinition> activeProgramDefinitions =
         versionRepository.getActiveVersion().getPrograms().stream()
             .map(Program::getProgramDefinition)
             .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
             .collect(ImmutableList.toImmutableList());
 
-    return applicationsFuture.thenApplyAsync(
-        applications -> {
-          logDuplicateDrafts(applications);
-          return relevantProgramsForApplicant(activePrograms, applications);
-        },
-        httpExecutionContext.current());
+    return applicationsFuture
+        .thenComposeAsync(
+            applications -> {
+              List<ProgramDefinition> programDefinitionsList =
+                  applications.stream()
+                      .map(application -> application.getProgram().getProgramDefinition())
+                      .collect(Collectors.toList());
+              programDefinitionsList.addAll(activeProgramDefinitions);
+              return programService.syncQuestionsToProgramDefinitions(
+                  programDefinitionsList.stream().collect(ImmutableList.toImmutableList()));
+            })
+        .thenApplyAsync(
+            allPrograms -> {
+              ImmutableSet<Application> applications = applicationsFuture.join();
+              logDuplicateDrafts(applications);
+              return relevantProgramsForApplicant(
+                  activeProgramDefinitions, applications, allPrograms);
+            },
+            httpExecutionContext.current());
   }
 
   private ApplicationPrograms relevantProgramsForApplicant(
-      ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
+      ImmutableList<ProgramDefinition> activePrograms,
+      ImmutableSet<Application> applications,
+      ImmutableList<ProgramDefinition> allPrograms) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -573,11 +629,19 @@ public final class ApplicantService {
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
-            inProgressPrograms.add(
+            Application draftApp = maybeDraftApp.get();
+            // Get the program definition from the all programs list, since that has the
+            // associated question data.
+            ProgramDefinition programDefinition =
+                findProgramWithId(allPrograms, draftApp.getProgram().id);
+            ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder()
-                    .setProgram(maybeDraftApp.get().getProgram().getProgramDefinition())
-                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
-                    .build());
+                    .setProgram(programDefinition)
+                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime);
+            applicantProgramDataBuilder.setIsProgramMaybeEligible(
+                getOptionalEligiblityStatus(
+                    draftApp.getApplicant().getApplicantData(), programDefinition));
+            inProgressPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
             // When extracting the application status, the definitions associated with the program
@@ -594,32 +658,66 @@ public final class ApplicantService {
                                 programStatus.statusText().equals(maybeLatestStatus.get()))
                         .findFirst()
                     : Optional.empty();
-            submittedPrograms.add(
+
+            Application submittedApp = maybeSubmittedApp.get();
+            // Get the program definition from the all programs list, since that has the
+            // associated question data.
+            ProgramDefinition programDefinition =
+                findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
+            ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder()
-                    .setProgram(activeProgramNames.get(programName))
+                    .setProgram(programDefinition)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
-                    .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
-                    .build());
+                    .setLatestSubmittedApplicationStatus(maybeCurrentStatus);
+
+            applicantProgramDataBuilder.setIsProgramMaybeEligible(
+                getOptionalEligiblityStatus(
+                    submittedApp.getApplicant().getApplicantData(), programDefinition));
+
+            submittedPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);
           }
         });
 
     Set<String> unappliedActivePrograms =
         Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
+
     unappliedActivePrograms.forEach(
         programName -> {
-          unappliedPrograms.add(
-              ApplicantProgramData.builder()
-                  .setProgram(activeProgramNames.get(programName))
-                  .build());
+          ApplicantProgramData.Builder applicantProgramDataBuilder =
+              ApplicantProgramData.builder().setProgram(activeProgramNames.get(programName));
+
+          if (!mostRecentApplicationsByProgram.isEmpty()) {
+            Applicant applicant = applications.stream().findFirst().get().getApplicant();
+            ProgramDefinition program =
+                findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
+
+            applicantProgramDataBuilder.setIsProgramMaybeEligible(
+                getOptionalEligiblityStatus(applicant.getApplicantData(), program));
+          }
+
+          unappliedPrograms.add(applicantProgramDataBuilder.build());
         });
 
-    // Ensure each list is ordered by database ID for consistent ordering.
     return ApplicationPrograms.builder()
         .setInProgress(sortByProgramId(inProgressPrograms.build()))
         .setSubmitted(sortByProgramId(submittedPrograms.build()))
         .setUnapplied(sortByProgramId(unappliedPrograms.build()))
         .build();
+  }
+
+  private ProgramDefinition findProgramWithId(
+      ImmutableList<ProgramDefinition> programList, long id) {
+    return programList.stream().filter(p -> p.id() == id).findFirst().get();
+  }
+
+  private Optional<Boolean> getOptionalEligiblityStatus(
+      ApplicantData applicantData, ProgramDefinition programDefinition) {
+    ReadOnlyApplicantProgramService roAppProgramService =
+        getReadOnlyApplicantProgramService(applicantData, programDefinition);
+    return roAppProgramService.getActiveEligibilityQuestions().isEmpty()
+        ? Optional.empty()
+        : Optional.of(!roAppProgramService.isApplicationNotEligible());
   }
 
   private ImmutableList<ApplicantProgramData> sortByProgramId(
@@ -673,6 +771,8 @@ public final class ApplicantService {
   public abstract static class ApplicantProgramData {
     public abstract ProgramDefinition program();
 
+    public abstract Optional<Boolean> isProgramMaybeEligible();
+
     public abstract Optional<Instant> latestSubmittedApplicationTime();
 
     public abstract Optional<StatusDefinitions.Status> latestSubmittedApplicationStatus();
@@ -684,6 +784,8 @@ public final class ApplicantService {
     @AutoValue.Builder
     abstract static class Builder {
       abstract Builder setProgram(ProgramDefinition v);
+
+      abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
       abstract Builder setLatestSubmittedApplicationTime(Optional<Instant> v);
 
@@ -872,6 +974,13 @@ public final class ApplicantService {
           case LONG:
             try {
               applicantData.putLong(currentPath, update.value());
+            } catch (NumberFormatException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
+            break;
+          case DOUBLE:
+            try {
+              applicantData.putDouble(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }

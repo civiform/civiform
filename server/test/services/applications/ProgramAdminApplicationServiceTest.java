@@ -28,6 +28,7 @@ import org.mockito.Mockito;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
+import services.DeploymentType;
 import services.LocalizedStrings;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
@@ -178,7 +179,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(Config.class),
-            simpleEmail);
+            simpleEmail,
+            instanceOf(DeploymentType.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -232,7 +234,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(Config.class),
-            simpleEmail);
+            simpleEmail,
+            instanceOf(DeploymentType.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -278,7 +281,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(Config.class),
-            simpleEmail);
+            simpleEmail,
+            instanceOf(DeploymentType.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -400,7 +404,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(Config.class),
-            simpleEmail);
+            simpleEmail,
+            instanceOf(DeploymentType.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram("some-program")

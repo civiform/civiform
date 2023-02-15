@@ -54,22 +54,22 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final String baseUrl;
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
-  private final FeatureFlags featureFlags;
   private final String civicEntityShortName;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramIndexView(
       AdminLayoutFactory layoutFactory,
       Config config,
+      FeatureFlags featureFlags,
       TranslationLocales translationLocales,
-      ProgramCardFactory programCardFactory,
-      FeatureFlags featureFlags) {
+      ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.featureFlags = checkNotNull(featureFlags);
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -131,8 +131,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(demographicsCsvModal)
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
+            .addModals(demographicsCsvModal);
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
     Http.Flash flash = request.flash();
@@ -317,9 +316,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeManageTranslationsLink.isPresent()) {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
-      if (featureFlags.isStatusTrackingEnabled(request)) {
-        draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      }
+      draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
@@ -332,12 +329,21 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (activeProgram.isPresent()) {
       List<ButtonTag> activeRowActions = Lists.newArrayList();
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
+
       Optional<ButtonTag> applicationsLink =
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
-        activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+          activeRowExtraActions.add(
+              renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        } else {
+          activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        }
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
+      }
+      if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+        activeRowActions.add(renderViewLink(activeProgram.get(), request));
       }
       activeRowActions.add(renderShareLink(activeProgram.get()));
       activeRow =
@@ -366,7 +372,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
     String editLink =
-        controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), 1).url();
+        controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
     String editLinkId = "program-edit-link-" + program.id();
     if (isActive) {
       editLink = controllers.admin.routes.AdminProgramController.newVersionFrom(program.id()).url();
@@ -380,6 +386,18 @@ public final class ProgramIndexView extends BaseHtmlView {
     return isActive
         ? toLinkButtonForPost(button, editLink, request)
         : asRedirectElement(button, editLink);
+  }
+
+  ButtonTag renderViewLink(ProgramDefinition program, Http.Request request) {
+    String viewLink =
+        controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
+    String viewLinkId = "program-view-link-" + program.id();
+
+    ButtonTag button =
+        makeSvgTextButton("View", Icons.VIEW)
+            .withId(viewLinkId)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return asRedirectElement(button, viewLink);
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {

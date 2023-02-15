@@ -159,6 +159,11 @@ public abstract class QuestionDefinition {
     return enumeratorId.isPresent();
   }
 
+  /** True if the question is an {@link AddressQuestionDefinition}. */
+  public final boolean isAddress() {
+    return getQuestionType().equals(QuestionType.ADDRESS);
+  }
+
   /**
    * A repeated question definition references an enumerator question definition that determines the
    * entities the repeated question definition asks its question for.

@@ -43,10 +43,21 @@ public class ApplicantInformationView extends BaseHtmlView {
       Optional<String> userName,
       Messages messages,
       long applicantId,
-      Optional<String> redirectTo) {
+      Optional<String> redirectTo,
+      boolean isTrustedIntermediary) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
-    String redirectLink =
-        redirectTo.orElse(routes.ApplicantProgramsController.index(applicantId).url());
+    String redirectLink = null;
+    if (isTrustedIntermediary) {
+      redirectLink =
+          redirectTo.orElse(
+              controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                      /* nameQuery= */ Optional.empty(),
+                      /* dateQuery= */ Optional.empty(),
+                      /* page= */ Optional.of(1))
+                  .url());
+    } else {
+      redirectLink = redirectTo.orElse(routes.ApplicantProgramsController.index(applicantId).url());
+    }
     InputTag redirectInput = input().isHidden().withValue(redirectLink).withName("redirectLink");
 
     String questionText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());

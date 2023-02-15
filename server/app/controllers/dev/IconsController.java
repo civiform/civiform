@@ -3,23 +3,24 @@ package controllers.dev;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
-import play.Environment;
+import play.mvc.Controller;
 import play.mvc.Result;
+import services.DeploymentType;
 import views.dev.IconsView;
 
-public final class IconsController extends DevController {
+public final class IconsController extends Controller {
 
   private final IconsView iconsView;
+  private final boolean isDevOrStaging;
 
   @Inject
-  public IconsController(IconsView iconsView, Environment environment, Config configuration) {
-    super(environment, configuration);
+  public IconsController(IconsView iconsView, DeploymentType deploymentType) {
     this.iconsView = checkNotNull(iconsView);
+    this.isDevOrStaging = deploymentType.isDevOrStaging();
   }
 
   public Result index() {
-    if (!isDevOrStagingEnvironment()) {
+    if (!isDevOrStaging) {
       return notFound();
     }
     return ok(iconsView.render());

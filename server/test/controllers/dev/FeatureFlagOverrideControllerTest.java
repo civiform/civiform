@@ -89,7 +89,7 @@ public class FeatureFlagOverrideControllerTest {
 
     // Verify
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).startsWith("Overrides are allowed");
+    assertThat(contentAsString(result)).contains("Overrides are allowed");
   }
 
   private void setupControllerInMode(Mode mode) {

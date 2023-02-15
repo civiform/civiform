@@ -166,7 +166,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains(
-            routes.ApplicantProgramReviewController.preview(currentApplicant.id, program.id).url());
+            routes.ApplicantProgramReviewController.review(currentApplicant.id, program.id).url());
   }
 
   @Test

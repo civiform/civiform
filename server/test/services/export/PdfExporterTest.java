@@ -3,7 +3,6 @@ package services.export;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Splitter;
-import com.google.inject.util.Providers;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfArray;
 import com.itextpdf.text.pdf.PdfDictionary;
@@ -12,19 +11,12 @@ import com.itextpdf.text.pdf.PdfObject;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfString;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
-import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import services.applicant.ApplicantService;
 
 public class PdfExporterTest extends AbstractExporterTest {
-  private static final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
 
   @Before
   public void createTestData() throws Exception {
@@ -150,33 +142,6 @@ public class PdfExporterTest extends AbstractExporterTest {
     for (int i = 3; i < linesFromPDF.size(); i++) {
       assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
     }
-  }
-
-  @Test
-  public void statusTrackingDisabled() throws IOException, DocumentException {
-    PdfExporter exporter =
-        new PdfExporter(
-            instanceOf(ApplicantService.class),
-            Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
-            instanceOf(Config.class),
-            featureFlags);
-
-    String applicantNameWithApplicationId =
-        String.format(
-            "%s (%d)", applicationOne.getApplicantData().getApplicantName(), applicationOne.id);
-    PdfExporter.InMemoryPdf result = exporter.export(applicationOne);
-    PdfReader pdfReader = new PdfReader(result.getByteArray());
-    StringBuilder textFromPDF = new StringBuilder();
-
-    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
-
-    assertThat(textFromPDF).isNotNull();
-    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-    assertThat(textFromPDF).isNotNull();
-    String programName = applicationOne.getProgram().getProgramDefinition().adminName();
-    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
-    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
-    assertThat(linesFromPDF.get(2)).doesNotContain("Status");
   }
 
   public static final String APPLICATION_SIX_STRING =

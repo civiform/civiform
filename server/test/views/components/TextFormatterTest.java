@@ -14,7 +14,9 @@ public class TextFormatterTest {
   public void urlsRenderToOpenInSameTabCorrectly() {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
-            "hello google.com http://internet.website", TextFormatter.UrlOpenAction.SameTab);
+            "hello google.com http://internet.website",
+            TextFormatter.UrlOpenAction.SameTab,
+            /*addRequiredIndicator= */ false);
 
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
@@ -31,7 +33,9 @@ public class TextFormatterTest {
   public void urlsRenderToOpenInNewTabCorrectly() {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
-            "hello google.com http://internet.website", TextFormatter.UrlOpenAction.NewTab);
+            "hello google.com http://internet.website",
+            TextFormatter.UrlOpenAction.NewTab,
+            /*addRequiredIndicator= */ false);
 
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
@@ -46,6 +50,29 @@ public class TextFormatterTest {
             + " target=\"_blank\">http://internet.website<svg");
   }
 
+  @Test
+  public void emailsDoNotGetDetectedAsUrls() {
+    String text = "hello @example@, other@example.com. first.last@example.com!";
+    ImmutableList<DomContent> content =
+        TextFormatter.createLinksAndEscapeText(
+            text, TextFormatter.UrlOpenAction.SameTab, /*addRequiredIndicator=*/ false);
+    assertThat(content).hasSize(1);
+    assertThat(content.get(0).render()).isEqualTo(new Text(text).render());
+  }
+
+  @Test
+  public void rendersRequiredIndicator() {
+    ImmutableList<DomContent> content =
+        TextFormatter.createLinksAndEscapeText(
+            "Enter your full legal name.",
+            TextFormatter.UrlOpenAction.SameTab,
+            /*addRequiredIndicator= */ true);
+
+    assertThat(content).hasSize(2);
+    assertThat(content.get(0).render()).isEqualTo(new Text("Enter your full legal name.").render());
+    assertThat(content.get(1).render()).isEqualTo("<span class=\"text-red-600\">&nbsp;*</span>");
+  }
+
   private void assertIsExternalUrlWithIcon(String actualValue, String expectedValue) {
     assertThat(actualValue).startsWith(expectedValue).endsWith("</svg></a>");
   }
@@ -54,7 +81,9 @@ public class TextFormatterTest {
   public void verifyUrlsMaintainSchemeCorrectly() {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
-            "hello google.com https://secure.website", TextFormatter.UrlOpenAction.SameTab);
+            "hello google.com https://secure.website",
+            TextFormatter.UrlOpenAction.SameTab,
+            /*addRequiredIndicator= */ false);
 
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
@@ -72,7 +101,8 @@ public class TextFormatterTest {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
             "Hello google.com, crawl (http://seattle.gov/); and http://mysite.com...!",
-            TextFormatter.UrlOpenAction.SameTab);
+            TextFormatter.UrlOpenAction.SameTab,
+            /*addRequiredIndicator= */ false);
 
     assertThat(content).hasSize(7);
     assertThat(content.get(0).render()).isEqualTo(new Text("Hello ").render());

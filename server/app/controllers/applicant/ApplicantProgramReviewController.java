@@ -7,23 +7,29 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
+import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.exception.ApplicationNotEligibleException;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
+import views.applicant.IneligibleBlockView;
 import views.components.ToastMessage;
 
 /**
@@ -38,7 +44,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
+  private final IneligibleBlockView ineligibleBlockView;
   private final ProfileUtils profileUtils;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -46,27 +54,20 @@ public class ApplicantProgramReviewController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
-      ProfileUtils profileUtils) {
+      IneligibleBlockView ineligibleBlockView,
+      ProfileUtils profileUtils,
+      FeatureFlags featureFlags) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
+    this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.profileUtils = checkNotNull(profileUtils);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
-  @Secure
-  public CompletionStage<Result> preview(Request request, long applicantId, long programId) {
-    return view(request, applicantId, programId, false);
-  }
-
-  @Secure
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
-    return view(request, applicantId, programId, true);
-  }
-
-  private CompletionStage<Result> view(
-      Request request, long applicantId, long programId, boolean inReview) {
-    Optional<ToastMessage> banner =
+    Optional<ToastMessage> flashBanner =
         request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
     CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
 
@@ -77,13 +78,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
+              Messages messages = messagesApi.preferred(request);
+              Optional<ToastMessage> notEligibleBanner = Optional.empty();
+              if (featureFlags.isProgramEligibilityConditionsEnabled(request)
+                  && roApplicantProgramService.isApplicationNotEligible()) {
+                notEligibleBanner =
+                    Optional.of(
+                        new ToastMessage(
+                            messages.at(
+                                MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
+                                roApplicantProgramService.getProgramTitle()),
+                            ALERT));
+              }
               ApplicantProgramSummaryView.Params params =
                   this.generateParamsBuilder(roApplicantProgramService)
                       .setApplicantId(applicantId)
                       .setApplicantName(applicantStage.toCompletableFuture().join())
-                      .setBannerMessage(banner)
-                      .setInReview(inReview)
-                      .setMessages(messagesApi.preferred(request))
+                      .setBannerMessages(ImmutableList.of(flashBanner, notEligibleBanner))
+                      .setMessages(messages)
                       .setProgramId(programId)
                       .setRequest(request)
                       .build();
@@ -143,7 +155,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
     CompletionStage<Application> submitApp =
-        applicantService.submitApplication(applicantId, programId, submittingProfile);
+        applicantService.submitApplication(
+            applicantId,
+            programId,
+            submittingProfile,
+            featureFlags.isProgramEligibilityConditionsEnabled(request));
     return submitApp
         .thenApplyAsync(
             application -> {
@@ -164,7 +180,38 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
-                  return found(reviewPage).flashing("banner", "Error saving application.");
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName());
+                  return found(reviewPage).flashing("banner", errorMsg);
+                }
+                if (cause instanceof ApplicationOutOfDateException) {
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
+                  Call reviewPage =
+                      routes.ApplicantProgramReviewController.review(applicantId, programId);
+                  return redirect(reviewPage).flashing("error", errorMsg);
+                }
+                if (cause instanceof ApplicationNotEligibleException) {
+                  // TODO(#3744) Make asynchronous.
+                  ReadOnlyApplicantProgramService roApplicantProgramService =
+                      applicantService
+                          .getReadOnlyApplicantProgramService(applicantId, programId)
+                          .toCompletableFuture()
+                          .join();
+
+                  Optional<String> applicantName =
+                      applicantService.getName(applicantId).toCompletableFuture().join();
+                  return ok(
+                      ineligibleBlockView.render(
+                          request,
+                          roApplicantProgramService,
+                          applicantName,
+                          messagesApi.preferred(request),
+                          applicantId));
                 }
                 throw new RuntimeException(cause);
               }

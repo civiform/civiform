@@ -1,9 +1,6 @@
 package services.program;
 
-/**
- * ProgramQuestionDefinitionNotFoundException is thrown when a question cannot be found in a program
- * but it is expected to.
- */
+/** Thrown when a question cannot be found in a program. */
 public class ProgramQuestionDefinitionNotFoundException extends Exception {
   public ProgramQuestionDefinitionNotFoundException(
       long programId, long blockDefinitionId, long questionDefinitionId) {
@@ -11,5 +8,12 @@ public class ProgramQuestionDefinitionNotFoundException extends Exception {
         String.format(
             "Question not found in Program (ID %d) Block (ID %d) for question (ID %d)",
             programId, blockDefinitionId, questionDefinitionId));
+  }
+
+  public ProgramQuestionDefinitionNotFoundException(long programId, long questionDefinitionId) {
+    super(
+        String.format(
+            "Question not found in Program (ID %d) for question (ID %d)",
+            programId, questionDefinitionId));
   }
 }

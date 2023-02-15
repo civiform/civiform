@@ -16,7 +16,7 @@ import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.DateConverter;
-import services.Path;
+import services.program.ProgramType;
 import support.CfTestHelpers;
 
 public class ApplicationRepositoryTest extends ResetPostgres {
@@ -61,17 +61,15 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         .isEqualTo(LifecycleStage.OBSOLETE);
     assertThat(appOne.getSubmitTime()).isEqualTo(initialSubmitTime);
 
-    assertThat(
-            repo.getApplication(appTwoDraft.id)
-                .toCompletableFuture()
-                .join()
-                .get()
-                .getLifecycleStage())
-        .isEqualTo(LifecycleStage.ACTIVE);
+    Application appTwoSubmitted =
+        repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get();
+    assertThat(appTwoSubmitted.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+
+    assertThat(appTwoSubmitted.getApplicantData().getApplicantName().get()).isEqualTo("Alice");
   }
 
   @Test
-  public void submitApplication_doesNotUpdateOtherApplications() {
+  public void submitApplication_doesNotUpdateOtherProgramApplications() {
     Applicant applicant1 = saveApplicant("Alice");
     Applicant applicant2 = saveApplicant("Bob");
 
@@ -94,14 +92,23 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   public void createOrUpdateDraftApplication_updatesExistingDraft() {
     Applicant applicant = saveApplicant("Alice");
     Program program = createProgram("Program");
+    // If the applicant already has an application to a different version of
+    // the same program, that version should be used.
+    Program programV2 = createProgram("Program");
+
+    assertThat(program.id).isNotEqualTo(programV2.id);
+
     Application appDraft1 =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
     Application appDraft2 =
-        repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
+        repo.createOrUpdateDraft(applicant, programV2).toCompletableFuture().join();
 
     assertThat(appDraft1.id).isEqualTo(appDraft2.id);
     // Since this is a draft application, it shouldn't have a submit time set.
     assertThat(appDraft2.getSubmitTime()).isNull();
+    // Applicant data is not saved in the application until it is submitted.
+    assertThat(appDraft1.getApplicantData().getApplicantName()).isEmpty();
+    assertThat(appDraft2.getApplicantData().getApplicantName()).isEmpty();
   }
 
   @Test
@@ -311,7 +318,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   private Applicant saveApplicant(String name) {
     Applicant applicant = new Applicant();
-    applicant.getApplicantData().putString(Path.create("$.applicant.name"), name);
+    applicant.getApplicantData().setUserName(name);
     applicant.save();
     return applicant;
   }
@@ -326,7 +333,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            draftVersion);
+            draftVersion,
+            ProgramType.DEFAULT);
     program.save();
     return program;
   }

@@ -13,7 +13,7 @@ import static j2html.TagCreator.tr;
 
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
@@ -26,12 +26,14 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
-import views.components.LinkElement;
+import views.components.Icons;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -88,22 +90,21 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .setId("group-name-input")
             .setFieldName("name")
             .setLabelText("Name")
-            .setValue(request.flash().get("providedName").orElse(""))
-            .setPlaceholderText("The name of this Trusted Intermediary Group.");
+            .setValue(request.flash().get("providedName").orElse(""));
     FieldWithLabel descriptionField =
         FieldWithLabel.input()
             .setId("group-description-input")
             .setFieldName("description")
             .setLabelText("Description")
-            .setValue(request.flash().get("providedDescription").orElse(""))
-            .setPlaceholderText("The description of this group.");
+            .setValue(request.flash().get("providedDescription").orElse(""));
     return div()
         .with(
             formTag.with(
                 nameField.getInputTag(),
                 descriptionField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Create").withClasses("ml-2", "mb-6")))
+                submitButton("Create")
+                    .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
@@ -133,32 +134,36 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   }
 
   private TdTag renderActionsCell(TrustedIntermediaryGroup tiGroup, Http.Request request) {
-    return td().with(renderEditButton(tiGroup), renderDeleteButton(tiGroup, request));
+    return td().with(
+            div()
+                .withClasses("flex", "items-center", "justify-end", "gap-3", "pr-3")
+                .with(renderEditButton(tiGroup), renderDeleteButton(tiGroup, request)));
   }
 
   private FormTag renderDeleteButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
-    return new LinkElement()
-        .setText("Delete")
-        .setId("delete-" + tiGroup.id + "-button")
-        .setHref(routes.TrustedIntermediaryManagementController.delete(tiGroup.id).url())
-        .asHiddenForm(request);
+    return form()
+        .withMethod("POST")
+        .withAction(routes.TrustedIntermediaryManagementController.delete(tiGroup.id).url())
+        .with(makeCsrfTokenInputTag(request))
+        .with(
+            ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
+                .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
   }
 
-  private ATag renderEditButton(TrustedIntermediaryGroup tiGroup) {
-    return new LinkElement()
-        .setText("Edit")
-        .setId("edit-" + tiGroup.id + "-button")
-        .setHref(routes.TrustedIntermediaryManagementController.edit(tiGroup.id).url())
-        .asButton();
+  private ButtonTag renderEditButton(TrustedIntermediaryGroup tiGroup) {
+    return asRedirectElement(
+        ViewUtils.makeSvgTextButton("Edit members", Icons.EDIT)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
+        routes.TrustedIntermediaryManagementController.edit(tiGroup.id).url());
   }
 
   private TheadTag renderGroupTableHeader() {
     return thead(
         tr().withClasses("border-b", "bg-gray-200", "text-left")
-            .with(th("Name / Description").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/2"))
-            .with(th("Size").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"))
+            .with(th("Name / Description").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3"))
+            .with(th("Size").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/3"))
             .with(
                 th("Actions")
-                    .withClasses(BaseStyles.TABLE_CELL_STYLES, "text-right", "pr-8", "w-1/6")));
+                    .withClasses(BaseStyles.TABLE_CELL_STYLES, "text-right", "pr-8", "w-1/3")));
   }
 }

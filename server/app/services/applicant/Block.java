@@ -13,7 +13,9 @@ import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Question;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.predicate.PredicateDefinition;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 
@@ -72,6 +74,10 @@ public final class Block {
     return blockDefinition.description();
   }
 
+  public Optional<EligibilityDefinition> getEligibilityDefinition() {
+    return blockDefinition.eligibilityDefinition();
+  }
+
   public Optional<PredicateDefinition> getVisibilityPredicate() {
     return blockDefinition.visibilityPredicate();
   }
@@ -106,6 +112,11 @@ public final class Block {
     return blockDefinition.isFileUpload();
   }
 
+  /** This block is an address block if its {@link BlockDefinition} contains an address question. */
+  public boolean hasAddress() {
+    return blockDefinition.hasAddress();
+  }
+
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
       this.questionsMemo =
@@ -118,6 +129,13 @@ public final class Block {
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();
+  }
+
+  public ApplicantQuestion getQuestion(Long id) throws QuestionNotFoundException {
+    return getQuestions().stream()
+        .filter(question -> question.getQuestionDefinition().getId() == id)
+        .findFirst()
+        .orElseThrow(() -> new QuestionNotFoundException(id));
   }
 
   /**

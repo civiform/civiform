@@ -40,6 +40,8 @@ POST    /admin/programs/:programId/translations/:locale         controllers.admi
 
 # A controller for pages for an admin to create and maintain blocks for a program
 GET     /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.index(programId: Long)
+GET     /admin/programs/:programId/blocks/readonly                     controllers.admin.AdminProgramBlocksController.readOnlyIndex(programId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/show      controllers.admin.AdminProgramBlocksController.show(request: Request, programId: Long, blockDefinitionId: Long)
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit      controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId           controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks                              controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
@@ -47,15 +49,23 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/move      controlle
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete    controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
 
 # A controller for pages for an admin to configure show/hide logic on blocks for a program
-GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/edit    controllers.admin.AdminProgramBlockPredicatesController.edit(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates         controllers.admin.AdminProgramBlockPredicatesController.update(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/delete  controllers.admin.AdminProgramBlockPredicatesController.destroy(programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/visibilityPredicates/edit               controllers.admin.AdminProgramBlockPredicatesController.editVisibility(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/visibilityPredicates/configureNew       controllers.admin.AdminProgramBlockPredicatesController.configureNewVisibilityPredicate(request: Request, programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/visibilityPredicates/configureExisting  controllers.admin.AdminProgramBlockPredicatesController.configureExistingVisibilityPredicate(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/visibilityPredicates                    controllers.admin.AdminProgramBlockPredicatesController.updateVisibility(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/visibilityPredicates/delete             controllers.admin.AdminProgramBlockPredicatesController.destroyVisibility(programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/edit              controllers.admin.AdminProgramBlockPredicatesController.editEligibility(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/configureNew      controllers.admin.AdminProgramBlockPredicatesController.configureNewEligibilityPredicate(request: Request, programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/configureExisting controllers.admin.AdminProgramBlockPredicatesController.configureExistingEligibilityPredicate(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates                   controllers.admin.AdminProgramBlockPredicatesController.updateEligibility(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/delete            controllers.admin.AdminProgramBlockPredicatesController.destroyEligibility(programId: Long, blockDefinitionId: Long)
 
 # A controller for adding and removing questions from program blocks
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                     controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/delete        controllers.admin.AdminProgramBlockQuestionsController.destroy(programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/setOptional   controllers.admin.AdminProgramBlockQuestionsController.setOptional(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/move          controllers.admin.AdminProgramBlockQuestionsController.move(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                                    controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/delete                       controllers.admin.AdminProgramBlockQuestionsController.destroy(programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/setOptional                  controllers.admin.AdminProgramBlockQuestionsController.setOptional(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/move                         controllers.admin.AdminProgramBlockQuestionsController.move(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/setAddressCorrectionEnabled  controllers.admin.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions             controllers.admin.AdminQuestionController.index(request: Request)
@@ -125,8 +135,7 @@ POST    /applicants/:applicantId                                            cont
 GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
 GET     /applicants/:applicantId/programs/:programId                                           controllers.applicant.ApplicantProgramsController.view(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/edit                                      controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/preview                                   controllers.applicant.ApplicantProgramReviewController.preview(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/review                                    controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId/review                                   controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
 POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String)

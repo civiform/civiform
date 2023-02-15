@@ -13,8 +13,10 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
 import play.twirl.api.Content;
+import services.DeploymentType;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
+import views.JsBundle;
 import views.ViewUtils;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -38,13 +40,15 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   private final NavPage activeNavPage;
 
-  private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank", "admin_validation"};
-
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
   AdminLayout(
-      ViewUtils viewUtils, Config configuration, FeatureFlags featureFlags, NavPage activeNavPage) {
-    super(viewUtils, configuration, featureFlags);
+      ViewUtils viewUtils,
+      Config configuration,
+      NavPage activeNavPage,
+      FeatureFlags featureFlags,
+      DeploymentType deploymentType) {
+    super(viewUtils, configuration, featureFlags, deploymentType);
     this.activeNavPage = activeNavPage;
   }
 
@@ -70,10 +74,6 @@ public final class AdminLayout extends BaseHtmlLayout {
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
 
-    for (String source : FOOTER_SCRIPTS) {
-      bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
-    }
-
     return super.render(bundle);
   }
 
@@ -84,14 +84,18 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   @Override
   public HtmlBundle getBundle(HtmlBundle bundle) {
-    return super.getBundle(bundle).addHeaderContent(renderNavBar());
+    return super.getBundle(bundle).addHeaderContent(renderNavBar()).setJsBundle(JsBundle.ADMIN);
   }
 
   private NavTag renderNavBar() {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     DivTag headerIcon =
-        div(span("C"), span("F").withClasses("font-thin")).withClasses(AdminStyles.ADMIN_NAV_BAR);
+        div(
+            a().withHref(controllers.routes.HomeController.index().url())
+                .with(
+                    div(span("C"), span("F").withClasses("font-thin"))
+                        .withClasses(AdminStyles.ADMIN_NAV_BAR_LOGO)));
     DivTag headerTitle =
         div()
             .withClasses("font-normal", "text-xl", "inline", "pl-10", "py-0", "mr-4")

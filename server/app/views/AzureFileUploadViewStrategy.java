@@ -54,6 +54,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
                 StringUtils.join(ariaDescribedByIds, " "))
             .withType("file")
             .withName("file")
+            .withClass("hidden")
             .withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
@@ -68,10 +69,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   protected ImmutableList<ScriptTag> extraScriptTags() {
-    return ImmutableList.of(
-        viewUtils.makeAzureBlobStoreScriptTag(),
-        viewUtils.makeLocalJsTag("azure_upload"),
-        viewUtils.makeLocalJsTag("azure_delete"));
+    return ImmutableList.of(viewUtils.makeAzureBlobStoreScriptTag());
   }
 
   @Override

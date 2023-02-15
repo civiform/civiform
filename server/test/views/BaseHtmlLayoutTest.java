@@ -5,12 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.LinkTag;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
+import services.DeploymentType;
 
 public class BaseHtmlLayoutTest extends ResetPostgres {
 
@@ -26,7 +28,11 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
   @Before
   public void setUp() {
     layout =
-        new BaseHtmlLayout(instanceOf(ViewUtils.class), ConfigFactory.parseMap(DEFAULT_CONFIG));
+        new BaseHtmlLayout(
+            instanceOf(ViewUtils.class),
+            ConfigFactory.parseMap(DEFAULT_CONFIG),
+            instanceOf(FeatureFlags.class),
+            instanceOf(DeploymentType.class));
   }
 
   @Test
@@ -41,11 +47,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             "<link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
     assertThat(content.body())
         .containsPattern(
-            "<script src=\"/assets/javascripts/[a-z0-9]+-main.js\""
-                + " type=\"text/javascript\"></script>");
-    assertThat(content.body())
-        .containsPattern(
-            "<script src=\"/assets/javascripts/[a-z0-9]+-radio.js\""
+            "<script src=\"/assets/javascripts/[a-z0-9]+-applicant.bundle.js\""
                 + " type=\"text/javascript\"></script>");
     assertThat(content.body()).doesNotContain("googletagmanager");
 
@@ -56,7 +58,12 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
   public void addsGoogleAnalyticsWhenContainsId() {
     HashMap<String, String> config = new HashMap<>(DEFAULT_CONFIG);
     config.put("measurement_id", "abcdef");
-    layout = new BaseHtmlLayout(instanceOf(ViewUtils.class), ConfigFactory.parseMap(config));
+    layout =
+        new BaseHtmlLayout(
+            instanceOf(ViewUtils.class),
+            ConfigFactory.parseMap(config),
+            instanceOf(FeatureFlags.class),
+            instanceOf(DeploymentType.class));
     HtmlBundle bundle = layout.getBundle();
     Content content = layout.render(bundle);
 
@@ -68,7 +75,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void canAddContentBefore() {
-    HtmlBundle bundle = new HtmlBundle();
+    HtmlBundle bundle = new HtmlBundle(instanceOf(ViewUtils.class));
 
     // Add stylesheet before default.
     LinkTag linkTag = link().withHref("moose.css").withRel("stylesheet");

@@ -28,12 +28,13 @@ import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
-/** Defines configuration of a program. */
+/** An immutable configuration of a program. */
 @AutoValue
 public abstract class ProgramDefinition {
 
+  // Lazy cache various computed values.
   private Optional<ImmutableSet<Long>> questionIds = Optional.empty();
-  private Boolean hasOrderedBlockDefinitionsMemo;
+  private Optional<Boolean> hasOrderedBlockDefinitionsMemo = Optional.empty();
 
   public static Builder builder() {
     return new AutoValue_ProgramDefinition.Builder();
@@ -78,6 +79,8 @@ public abstract class ProgramDefinition {
   /** When was this program last modified. Could be null for older programs. */
   public abstract Optional<Instant> lastModifiedTime();
 
+  public abstract ProgramType programType();
+
   /**
    * Returns a program definition with block definitions such that each enumerator block is
    * immediately followed by all of its repeated and nested repeated blocks. This method should be
@@ -86,15 +89,15 @@ public abstract class ProgramDefinition {
    * <p>Programs created before early June 2021 may not satisfy this condition.
    */
   public ProgramDefinition orderBlockDefinitions() {
-    if (!hasOrderedBlockDefinitions()) {
-      ProgramDefinition orderedProgramDefinition =
-          toBuilder()
-              .setBlockDefinitions(orderBlockDefinitionsInner(getNonRepeatedBlockDefinitions()))
-              .build();
-      orderedProgramDefinition.hasOrderedBlockDefinitionsMemo = true;
-      return orderedProgramDefinition;
+    if (hasOrderedBlockDefinitions()) {
+      return this;
     }
-    return this;
+    ProgramDefinition orderedProgramDefinition =
+        toBuilder()
+            .setBlockDefinitions(orderBlockDefinitionsInner(getNonRepeatedBlockDefinitions()))
+            .build();
+    orderedProgramDefinition.hasOrderedBlockDefinitionsMemo = Optional.of(true);
+    return orderedProgramDefinition;
   }
 
   private ImmutableList<BlockDefinition> orderBlockDefinitionsInner(
@@ -111,54 +114,62 @@ public abstract class ProgramDefinition {
   }
 
   /**
-   * This method should be treated as VISIBLE FOR TESTING.
-   *
-   * <p>True indicates that each enumerator block in {@link #blockDefinitions()} is immediately
-   * followed by all of its repeated and nested repeated blocks.
+   * Returns if each enumerator block in {@link #blockDefinitions()} is immediately followed by all
+   * of its repeated and nested repeated blocks.
    */
+  @VisibleForTesting
   public boolean hasOrderedBlockDefinitions() {
-    if (hasOrderedBlockDefinitionsMemo == null) {
-      Deque<Long> enumeratorIds = new ArrayDeque<>();
-
-      // Walk through the list of block definitions, checking that repeated and nested repeated
-      // blocks
-      // immediately follow their enumerator block.
-      for (BlockDefinition blockDefinition : blockDefinitions()) {
-        // Pop the stack until the enumerator id matches the top of the stack.
-        while (enumeratorIds.size() > 0
-            && !blockDefinition.enumeratorId().equals(Optional.of(enumeratorIds.peek()))) {
-          enumeratorIds.pop();
-        }
-
-        // Early return if it still doesn't match, this is not ordered.
-        if (!blockDefinition.enumeratorId().equals(Optional.ofNullable(enumeratorIds.peek()))) {
-          hasOrderedBlockDefinitionsMemo = false;
-          return false;
-        }
-
-        // Push this enumerator block's id
-        if (blockDefinition.isEnumerator()) {
-          enumeratorIds.push(blockDefinition.id());
-        }
-      }
-      hasOrderedBlockDefinitionsMemo = true;
+    if (hasOrderedBlockDefinitionsMemo.isPresent()) {
+      return hasOrderedBlockDefinitionsMemo.get();
     }
-    return hasOrderedBlockDefinitionsMemo;
+    Deque<Long> enumeratorIds = new ArrayDeque<>();
+
+    // Walk through the list of block definitions, checking that repeated and nested repeated
+    // blocks
+    // immediately follow their enumerator block.
+    for (BlockDefinition blockDefinition : blockDefinitions()) {
+      // Pop the stack until the enumerator id matches the top of the stack.
+      while (enumeratorIds.size() > 0
+          && !blockDefinition.enumeratorId().equals(Optional.of(enumeratorIds.peek()))) {
+        enumeratorIds.pop();
+      }
+
+      // Early return if it still doesn't match, this is not ordered.
+      if (!blockDefinition.enumeratorId().equals(Optional.ofNullable(enumeratorIds.peek()))) {
+        hasOrderedBlockDefinitionsMemo = Optional.of(false);
+        return false;
+      }
+
+      // Push this enumerator block's id
+      if (blockDefinition.isEnumerator()) {
+        enumeratorIds.push(blockDefinition.id());
+      }
+    }
+    hasOrderedBlockDefinitionsMemo = Optional.of(true);
+    return hasOrderedBlockDefinitionsMemo.get();
   }
 
   /**
-   * Checks whether this program has a valid block order, so that no predicate depends on a block
-   * that appears after it.
+   * Returns whether this program has a valid block order for predicates, such that their referenced
+   * questions are correctly ordered wrt to the block and predicate type.
    */
   public boolean hasValidPredicateOrdering() {
     Set<Long> previousQuestionIds = new HashSet<>();
     for (BlockDefinition b : blockDefinitions()) {
-      // Check that all the predicate questions exist before this block.
+      // All visibility predicate questions exist before the blocks that mention them.
       if (b.visibilityPredicate().isPresent()
           && !previousQuestionIds.containsAll(b.visibilityPredicate().get().getQuestions())) {
         return false;
       }
-      b.programQuestionDefinitions().forEach(pqd -> previousQuestionIds.add(pqd.id()));
+      b.programQuestionDefinitions().stream()
+          .map(ProgramQuestionDefinition::id)
+          .forEach(previousQuestionIds::add);
+      // Eligibility can include preceding and the current blocks' questions.
+      if (b.eligibilityDefinition().isPresent()
+          && !previousQuestionIds.containsAll(
+              b.eligibilityDefinition().get().predicate().getQuestions())) {
+        return false;
+      }
     }
     return true;
   }
@@ -204,19 +215,22 @@ public abstract class ProgramDefinition {
     }
 
     BlockSlice blockSlice = getBlockSlice(blockId);
-    Optional<BlockDefinition> otherBlock = findNextBlockWithSameEnumerator(blockSlice, direction);
+    Optional<BlockDefinition> swapWithBlock =
+        findNextBlockWithSameEnumerator(blockSlice, direction);
 
-    // Early return if there's no other block to swap with.
-    if (otherBlock.isEmpty()) {
+    // There isn't a neighbor block to swap with, return the existing definition.
+    // Note: This should maybe throw an exception to help the user know to refresh the UI and retry.
+    if (swapWithBlock.isEmpty()) {
       return this;
     }
 
-    BlockSlice otherBlockSlice = getBlockSlice(otherBlock.get().id());
+    BlockSlice swapWithBlockSlice = getBlockSlice(swapWithBlock.get().id());
 
+    // Determine which slice come first since the direction will affect that.
     BlockSlice earlierSlice =
-        blockSlice.startsBefore(otherBlockSlice) ? blockSlice : otherBlockSlice;
+        blockSlice.startsBefore(swapWithBlockSlice) ? blockSlice : swapWithBlockSlice;
     BlockSlice latterSlice =
-        blockSlice.startsBefore(otherBlockSlice) ? otherBlockSlice : blockSlice;
+        blockSlice.startsBefore(swapWithBlockSlice) ? swapWithBlockSlice : blockSlice;
 
     ImmutableList.Builder<BlockDefinition> blocksBuilder = ImmutableList.builder();
 
@@ -234,6 +248,7 @@ public abstract class ProgramDefinition {
 
     ProgramDefinition newProgram = toBuilder().setBlockDefinitions(blocksBuilder.build()).build();
 
+    // Validate that the predicates haven't been violated by the change.
     if (!newProgram.hasValidPredicateOrdering()) {
       throw new IllegalPredicateOrderingException(
           "This move is not possible - it would move a block condition before the question it"
@@ -371,6 +386,22 @@ public abstract class ProgramDefinition {
     return ImmutableSet.copyOf(intersection);
   }
 
+  /**
+   * Get the {@link ProgramQuestionDefinition} for the given question in the given program.
+   *
+   * @throws ProgramQuestionDefinitionNotFoundException if the program does not use the question.
+   */
+  public ProgramQuestionDefinition getProgramQuestionDefinition(long questionDefinitionId)
+      throws ProgramQuestionDefinitionNotFoundException {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .filter(pqd -> pqd.id() == questionDefinitionId)
+        .findAny()
+        .orElseThrow(
+            () -> new ProgramQuestionDefinitionNotFoundException(id(), questionDefinitionId));
+  }
+
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
     return blockDefinitions().get(blockIndex).getQuestionDefinition(questionIndex);
@@ -488,8 +519,8 @@ public abstract class ProgramDefinition {
   }
 
   /**
-   * Returns a list of the question definitions that may be used to define predicates on the block
-   * definition with the given ID.
+   * Returns a list of the question definitions that may be used to define visibility predicates on
+   * the block definition with the id {@code blockId}.
    *
    * <p>The available question definitions for predicates satisfy ALL of the following:
    *
@@ -500,16 +531,77 @@ public abstract class ProgramDefinition {
    *   <li>Is not an enumerator.
    * </ul>
    */
+  public ImmutableList<QuestionDefinition> getAvailableVisibilityPredicateQuestionDefinitions(
+      long blockId) throws ProgramBlockDefinitionNotFoundException {
+    // Questions through the block before this one are available for this block's visibility
+    // conditions.
+    return getAvailablePredicateQuestionDefinitions(blockId - 1);
+  }
+
+  /**
+   * Returns a list of the question definitions that may be used to define eligibility predicates on
+   * the block definition with the id {@code blockId}.
+   *
+   * <p>The questions will be the valid predicate questions in the block {@code blockId}.
+   */
+  public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
+      long blockId) throws ProgramBlockDefinitionNotFoundException {
+    // Only questions in the block are available.
+    return getBlockDefinition(blockId).programQuestionDefinitions().stream()
+        .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /** True if the give question definition ID is found in any of the program's predicates. */
+  public boolean isQuestionUsedInPredicate(long questionDefinitionId) {
+    return blockDefinitions().stream()
+        .map(
+            block ->
+                block
+                        .eligibilityDefinition()
+                        .map(
+                            eligibilityDefinition ->
+                                eligibilityDefinition
+                                    .predicate()
+                                    .getQuestions()
+                                    .contains(questionDefinitionId))
+                        .orElse(false)
+                    || block
+                        .visibilityPredicate()
+                        .map(
+                            predicateDefinition ->
+                                predicateDefinition.getQuestions().contains(questionDefinitionId))
+                        .orElse(false))
+        .anyMatch(Boolean::booleanValue);
+  }
+
+  /**
+   * Returns a list of the question definitions that may be used to define predicates on the block
+   * definition with the id {@code blockId}.
+   *
+   * <p>The available question definitions for predicates satisfy ALL of the following:
+   *
+   * <ul>
+   *   <li>In the provided block definition or one that comes sequentially before it.
+   *   <li>In a block definition that either has the same enumerator ID as the given block
+   *       definition, or has the same enumerator ID as some "parent" of the given block definition.
+   *   <li>Is not an enumerator.
+   * </ul>
+   */
   public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
       throws ProgramBlockDefinitionNotFoundException {
-    ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
+    if (blockId <= 0) {
+      return ImmutableList.of();
+    }
 
+    ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
     for (BlockDefinition blockDefinition :
         getAvailablePredicateBlockDefinitions(this.getBlockDefinition(blockId))) {
       builder.addAll(
           blockDefinition.programQuestionDefinitions().stream()
-              .map(ProgramQuestionDefinition::getQuestionDefinition)
               .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
+              .map(ProgramQuestionDefinition::getQuestionDefinition)
               .collect(Collectors.toList()));
     }
 
@@ -529,27 +621,32 @@ public abstract class ProgramDefinition {
     // If this block is repeated, recurse "upward". In other words, add all the available predicate
     // block definitions for its enumerator. Do this before adding its sibling block definitions to
     // maintain sequential order of the block definitions in the result.
-    if (blockDefinition.isRepeated()) {
+    if (maybeEnumeratorId.isPresent()) {
       builder.addAll(
           getAvailablePredicateBlockDefinitions(this.getBlockDefinition(maybeEnumeratorId.get())));
     }
 
-    // Only include sequentially earlier block definitions.
+    // Only include block definitions up through the specified block.
     for (BlockDefinition siblingBlockDefinition : siblingBlockDefinitions) {
+      builder.add(siblingBlockDefinition);
       // Stop adding block definitions once we reach this block.
       if (siblingBlockDefinition.id() == blockDefinition.id()) break;
-
-      builder.add(siblingBlockDefinition);
     }
 
     return builder.build();
   }
 
-  private static boolean isPotentialPredicateQuestionDefinition(QuestionDefinition qd) {
-    // TODO(https://github.com/seattle-uat/civiform/issues/322): Add the following once STATIC
-    //  questions are implemented.
-    //  && qd.getQuestionTyp() != QuestionType.STATIC
-    return !qd.isEnumerator() && qd.getQuestionType() != QuestionType.FILEUPLOAD;
+  private static final ImmutableSet<QuestionType> NON_PREDICATE_QUESTION_TYPES =
+      ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.FILEUPLOAD, QuestionType.STATIC);
+
+  /**
+   * A question definition is eligible for predicates if it is of an allowable question type and, if
+   * it is an address question, it must be configured for correction.
+   */
+  private static boolean isPotentialPredicateQuestionDefinition(ProgramQuestionDefinition pqd) {
+    return !NON_PREDICATE_QUESTION_TYPES.contains(pqd.getQuestionDefinition().getQuestionType())
+        && !(pqd.getQuestionDefinition().getQuestionType().equals(QuestionType.ADDRESS)
+            && !pqd.addressCorrectionEnabled());
   }
 
   public Program toProgram() {
@@ -596,6 +693,8 @@ public abstract class ProgramDefinition {
     public abstract Builder setCreateTime(@Nullable Instant createTime);
 
     public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
+
+    public abstract Builder setProgramType(ProgramType programType);
 
     public abstract ProgramDefinition build();
 

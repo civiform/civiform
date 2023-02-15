@@ -7,6 +7,7 @@
  *  - Rare instances in which we need to update a page without refreshing.
  *  - TBD
  */
+import {addEventListenerToElements, assertNotNull} from './util'
 
 function attachDropdown(elementId: string) {
   const dropdownId = elementId + '-dropdown'
@@ -49,11 +50,21 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
  * In admin program block edit form - enabling submit button when form is changed or if not empty
  */
 function changeUpdateBlockButtonState() {
-  const blockEditForm = document.getElementById('block-edit-form')
-  const submitButton = document.getElementById('update-block-button')
+  const blockEditForm = assertNotNull(
+    document.getElementById('block-edit-form'),
+  )
+  const submitButton = assertNotNull(
+    document.getElementById('update-block-button'),
+  )
 
-  const formNameInput = blockEditForm['block-name-input']
-  const formDescriptionText = blockEditForm['block-description-textarea']
+  const formNameInput = assertNotNull(
+    blockEditForm.querySelector<HTMLInputElement>('#block-name-input'),
+  )
+  const formDescriptionText = assertNotNull(
+    blockEditForm.querySelector<HTMLTextAreaElement>(
+      '#block-description-textarea',
+    ),
+  )
 
   if (
     (formNameInput.value !== formNameInput.defaultValue ||
@@ -82,17 +93,19 @@ function addNewInput(
 ) {
   // Copy the answer template and remove ID and hidden properties.
   const newField = document
-    .getElementById(inputTemplateId)
+    .getElementById(inputTemplateId)!
     .cloneNode(true) as HTMLElement
   newField.classList.remove('hidden')
   newField.removeAttribute('id')
 
   // Register the click event handler for the remove button.
-  newField.querySelector('[type=button]').addEventListener('click', removeInput)
+  newField
+    .querySelector('[type=button]')!
+    .addEventListener('click', removeInput)
 
   // Find the add option button and insert the new option input field before it.
   const button = document.getElementById(addButtonId)
-  document.getElementById(divContainerId).insertBefore(newField, button)
+  document.getElementById(divContainerId)!.insertBefore(newField, button)
 }
 
 /**
@@ -102,8 +115,10 @@ function addNewInput(
  */
 function removeInput(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
-  const optionDiv = (event.target as Element).parentNode
-  optionDiv.parentNode.removeChild(optionDiv)
+  const optionDiv = assertNotNull(
+    (event.currentTarget as Element).parentNode,
+  ) as HTMLElement
+  optionDiv.remove()
 }
 
 /**
@@ -112,9 +127,11 @@ function removeInput(event: Event) {
  * @param {Event} event The event that triggered this action.
  */
 function hideInput(event: Event) {
-  const inputDiv = (event.target as Element).parentElement
+  const inputDiv = assertNotNull(
+    (event.currentTarget as Element)!.parentElement,
+  )
   // Remove 'disabled' so the field is submitted with the form
-  inputDiv.querySelector('input').disabled = false
+  inputDiv.querySelector('input')!.disabled = false
   // Hide the entire div from the user
   inputDiv.classList.add('hidden')
 }
@@ -140,185 +157,6 @@ function attachLineClampListeners() {
   )
 }
 
-function configurePredicateFormOnScalarChange(event: Event) {
-  // Get the type of scalar currently selected.
-  const scalarDropdown = event.target as HTMLSelectElement
-  const selectedScalarType =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
-  const selectedScalarValue =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].value
-
-  filterOperators(scalarDropdown, selectedScalarType, selectedScalarValue)
-  configurePredicateValueInput(
-    scalarDropdown,
-    selectedScalarType,
-    selectedScalarValue,
-  )
-}
-
-/**
- * Filter the operators available for each scalar type based on the current scalar selected.
- *   @param {HTMLSelectElement} scalarDropdown The element to filter the operators for.
- *   @param {string} selectedScalarType The tyoe of the selected option
- *   @param {string} selectedScalarValue The value of the selected option
- */
-function filterOperators(
-  scalarDropdown: HTMLSelectElement,
-  selectedScalarType: string,
-  selectedScalarValue: string,
-) {
-  // Filter the operators available for the given selected scalar type.
-  const operatorDropdown = scalarDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-operator-select') // div containing the operator dropdown
-    .querySelector('select') as HTMLSelectElement
-
-  Array.from(operatorDropdown.options).forEach((operatorOption) => {
-    // Remove any existing hidden class from previous filtering.
-    operatorOption.classList.remove('hidden')
-
-    if (
-      shouldHideOperator(
-        selectedScalarType,
-        selectedScalarValue,
-        operatorOption,
-      )
-    ) {
-      operatorOption.classList.add('hidden')
-    }
-  })
-}
-
-/**
- * Logic that decides if a operator should be hidden.
- *   @param {string} selectedScalarType The tyoe of the selected option
- *   @param {string} selectedScalarValue The value of the selected option
- *   @param {HTMLOptionElement} operatorOption The operator to check if we should hide.
- * @return {boolean} If the operator should be hidden
- */
-function shouldHideOperator(
-  selectedScalarType: string,
-  selectedScalarValue: string,
-  operatorOption: HTMLOptionElement,
-): boolean {
-  // If this operator is not for the currently selected type, hide it.
-  return (
-    // Special case for SELECTION scalars (which are of type STRING):
-    // do not include EQUAL_TO or NOT_EQUAL_TO. This is because we use a set of checkbox
-    // inputs for values for multi-option question predicates, which works well for list
-    // operators such as ANY_OF and NONE_OF. Because you can achieve the same functionality
-    // of EQUAL_TO with ANY_OF and NOT_EQUAL_TO with NONE_OF, we made a technical choice to
-    // exclude these operators from single-select predicates to simplify the code on both
-    // the form processing side and on the admin user side.
-    !(selectedScalarType in operatorOption.dataset) ||
-    (selectedScalarValue.toUpperCase() === 'SELECTION' &&
-      (operatorOption.value === 'EQUAL_TO' ||
-        operatorOption.value === 'NOT_EQUAL_TO'))
-  )
-}
-
-/**
- *  Setup the the html attributes for value inputs so they acccept the correct
- *  type of input (nubers, text, email, ect.)
- *  @param {HTMLSelectElement} scalarDropdown The element to configure the value input for.
- *  @param {string} selectedScalarType The tyoe of the selected option
- *  @param {string} selectedScalarValue The value of the selected option
- */
-function configurePredicateValueInput(
-  scalarDropdown: HTMLSelectElement,
-  selectedScalarType: string,
-  selectedScalarValue: string,
-) {
-  // If the scalar is from a multi-option question, there is not an input box for the 'Value'
-  // field (there's a set of checkboxes instead), so return immediately.
-  if (
-    selectedScalarValue.toUpperCase() === 'SELECTION' ||
-    selectedScalarValue.toUpperCase() === 'SELECTIONS'
-  ) {
-    return
-  }
-
-  const operatorDropdown = scalarDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-operator-select') // div containing the operator dropdown
-    .querySelector('select')
-  const operatorValue =
-    operatorDropdown.options[operatorDropdown.options.selectedIndex].value
-
-  const valueInput = scalarDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-predicate-value-input') // div containing the predicate value input
-    .querySelector('input')
-
-  switch (selectedScalarType.toUpperCase()) {
-    case 'STRING':
-      if (selectedScalarValue.toUpperCase() === 'EMAIL') {
-        // Need to look at the selected scalar *value* for email since the type is just a
-        // string, but emails have a special type in HTML inputs.
-        valueInput.setAttribute('type', 'email')
-        break
-      }
-      valueInput.setAttribute('type', 'text')
-      break
-    case 'LONG':
-      if (
-        operatorValue.toUpperCase() === 'IN' ||
-        operatorValue.toUpperCase() === 'NOT_IN'
-      ) {
-        // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
-        valueInput.setAttribute('type', 'text')
-      } else {
-        valueInput.setAttribute('type', 'number')
-      }
-      break
-    case 'DATE':
-      valueInput.setAttribute('type', 'date')
-      break
-    default:
-      valueInput.setAttribute('type', 'text')
-  }
-}
-
-function configurePredicateFormOnOperatorChange(event: Event) {
-  const operatorDropdown = event.target as HTMLSelectElement
-  const selectedOperatorValue =
-    operatorDropdown.options[operatorDropdown.options.selectedIndex].value
-
-  const commaSeparatedHelpText = operatorDropdown
-    .closest('.cf-predicate-options')
-    .querySelector('.cf-predicate-value-comma-help-text')
-
-  // This help text div isn't present at all in some cases.
-  if (!commaSeparatedHelpText) {
-    return
-  }
-
-  // Remove any existing hidden class.
-  commaSeparatedHelpText.classList.remove('hidden')
-
-  if (
-    selectedOperatorValue.toUpperCase() !== 'IN' &&
-    selectedOperatorValue.toUpperCase() !== 'NOT_IN'
-  ) {
-    commaSeparatedHelpText.classList.add('hidden')
-  }
-
-  // The type of the value field may need to change based on the current operator
-  const scalarDropdown = operatorDropdown
-    .closest('.cf-predicate-options') // div containing all predicate builder form fields
-    .querySelector('.cf-scalar-select') // div containing the scalar dropdown
-    .querySelector('select')
-  const selectedScalarType =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
-  const selectedScalarValue =
-    scalarDropdown.options[scalarDropdown.options.selectedIndex].value
-  configurePredicateValueInput(
-    scalarDropdown,
-    selectedScalarType,
-    selectedScalarValue,
-  )
-}
-
 function attachFormDebouncers() {
   Array.from(document.querySelectorAll('.cf-debounced-form')).forEach(
     (formEl) => {
@@ -336,54 +174,52 @@ function attachFormDebouncers() {
 }
 
 /**
- * Adds event listener to all elements on a page that match given selector.
- * This function doesn't handle elements added dynamically after the function was invoked.
- * @param {string} selector CSS selector that will be used to retrieve list of elements.
- * @param {string} event Browser event. For example 'click'
- * @param {Function} listener Listener that will be registered on all matching elements.
- */
-function addEventListenerToElements(
-  selector: string,
-  event: string,
-  listener: (e: Event) => void,
-) {
-  Array.from(document.querySelectorAll(selector)).forEach((el) =>
-    el.addEventListener(event, listener),
-  )
-}
-
-/**
  * Adds listeners to all elements that have `data-redirect-to="..."` attribute.
  * All such elements act as links taking user to another page.
  */
 function attachRedirectToPageListeners() {
   addEventListenerToElements('[data-redirect-to]', 'click', (e: Event) => {
     e.stopPropagation()
-    window.location.href = (e.currentTarget as HTMLElement).dataset.redirectTo
+    window.location.href = assertNotNull(
+      (e.currentTarget as HTMLElement).dataset.redirectTo,
+    )
   })
 }
 
-window.addEventListener('load', () => {
+/**
+ * Adds listeners to buttons with 'form' attributes. These buttons trigger form
+ * submission without JS. But we still need to stop propagation of events
+ * because it's possible that some other button up-stream in the ancestor chain
+ * contains a click listener as we have nested clickable elements.
+ */
+function attachStopPropogationListenerOnFormButtons() {
+  addEventListenerToElements('button[form]', 'click', (e: Event) => {
+    e.stopPropagation()
+  })
+}
+
+/**
+ * Disables default browser behavior where pressing Enter on any input in a form
+ * triggers form submission. See https://github.com/civiform/civiform/issues/3872
+ */
+function disableEnterToSubmitBehaviorOnForms() {
+  addEventListenerToElements('form', 'keydown', (e: KeyboardEvent) => {
+    const target = (e.target as HTMLElement).tagName.toLowerCase()
+    // if event originated from a button or link - it should proceed with
+    // default action.
+    if (target !== 'button' && target !== 'a' && e.key === 'Enter') {
+      e.preventDefault()
+    }
+  })
+}
+
+export function init() {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
     attachDropdown(el.id)
   })
 
   attachLineClampListeners()
-
-  // Configure the admin predicate builder to show the appropriate options based on
-  // the type of scalar selected.
-  addEventListenerToElements(
-    '.cf-scalar-select',
-    'input',
-    configurePredicateFormOnScalarChange,
-  )
-
-  addEventListenerToElements(
-    '.cf-operator-select',
-    'input',
-    configurePredicateFormOnOperatorChange,
-  )
 
   // Submit button is disabled by default until program block edit form is changed
   const blockEditForm = document.getElementById('block-edit-form')
@@ -432,7 +268,9 @@ window.addEventListener('load', () => {
   attachFormDebouncers()
 
   attachRedirectToPageListeners()
+  attachStopPropogationListenerOnFormButtons()
+  disableEnterToSubmitBehaviorOnForms()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
-})
+}

@@ -1,10 +1,11 @@
 import {
-  dismissModal,
-  startSession,
-  loginAsAdmin,
-  validateScreenshot,
   AdminPrograms,
   AdminQuestions,
+  dismissModal,
+  enableFeatureFlag,
+  loginAsAdmin,
+  startSession,
+  validateScreenshot,
 } from './support'
 import {Page} from 'playwright'
 
@@ -27,6 +28,7 @@ describe('publishing all draft questions and programs', () => {
     adminQuestions = new AdminQuestions(pageObject)
 
     await loginAsAdmin(pageObject)
+    await enableFeatureFlag(pageObject, 'program_read_only_view_enabled')
 
     // Create a hidden program with no questions
     await adminPrograms.addProgram(
@@ -36,7 +38,7 @@ describe('publishing all draft questions and programs', () => {
       true,
     )
 
-    // Create a new question refererenced by a program.
+    // Create a new question referenced by a program.
     await adminQuestions.addAddressQuestion({questionName, questionText})
     await adminPrograms.addProgram(visibleProgramWithQuestion)
     await adminPrograms.editProgramBlock(

@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.p;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -63,7 +64,16 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .getFilename()
             .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
 
-    DivTag result = div().with(div().withText(uploaded.orElse("")));
+    DivTag result =
+        div()
+            .with(
+                div()
+                    .withText(uploaded.orElse(""))
+                    // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side
+                    // can render the translated text if it gets added
+                    .attr(
+                        "data-upload-text",
+                        params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName())));
     result.with(
         fileUploadFields(
             params.signedFileUploadRequest(), fileInputId, ariaDescribedByIds, hasErrors));
@@ -72,6 +82,9 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .withId(fileInputId + "-required-error")
             .withClasses(
                 ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, "hidden"));
+    result.with(
+        p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
+            .withClasses("text-sm", "text-gray-600", "mb-2"));
     return result;
   }
 

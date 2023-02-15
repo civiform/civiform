@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DeploymentType;
 import services.MessageKey;
 import views.ApplicantUtils;
 import views.BaseHtmlLayout;
@@ -45,7 +46,7 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
-/** Contains methods rendering common compoments used across applicant pages. */
+/** Contains methods rendering common components used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicantLayout.class);
@@ -60,8 +61,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Config configuration,
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
-      FeatureFlags featureFlags) {
-    super(viewUtils, configuration, featureFlags);
+      FeatureFlags featureFlags,
+      DeploymentType deploymentType) {
+    super(viewUtils, configuration, featureFlags, deploymentType);
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
     this.supportEmail = checkNotNull(configuration).getString("support_email_address");

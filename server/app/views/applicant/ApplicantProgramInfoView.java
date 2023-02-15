@@ -83,8 +83,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
 
   private DivTag createButtons(Long applicantId, Long programId, Messages messages) {
     String applyUrl =
-        controllers.applicant.routes.ApplicantProgramReviewController.preview(
-                applicantId, programId)
+        controllers.applicant.routes.ApplicantProgramReviewController.review(applicantId, programId)
             .url();
     ATag applyLink =
         a().withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
