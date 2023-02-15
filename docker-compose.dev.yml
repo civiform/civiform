@@ -45,7 +45,7 @@ services:
       - 10000:10000
 
   db:
-    image: postgres:12.13
+    image: postgres:12.14
     stdin_open: true
     tty: true
     volumes:
