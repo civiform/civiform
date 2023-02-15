@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
+import services.DeploymentType;
 
 public class BaseHtmlLayoutTest extends ResetPostgres {
 
@@ -30,7 +31,8 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
             ConfigFactory.parseMap(DEFAULT_CONFIG),
-            instanceOf(FeatureFlags.class));
+            instanceOf(FeatureFlags.class),
+            instanceOf(DeploymentType.class));
   }
 
   @Test
@@ -60,7 +62,8 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
             ConfigFactory.parseMap(config),
-            instanceOf(FeatureFlags.class));
+            instanceOf(FeatureFlags.class),
+            instanceOf(DeploymentType.class));
     HtmlBundle bundle = layout.getBundle();
     Content content = layout.render(bundle);
 
