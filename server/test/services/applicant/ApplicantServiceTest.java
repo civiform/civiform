@@ -1077,6 +1077,118 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void relevantProgramsForApplicant_setsEligibility() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    EligibilityDefinition eligibilityDef = createEligibilityDefinition(questionDefinition);
+    Program programForDraft =
+        ProgramBuilder.newDraftProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibilityDef)
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraft.id);
+    assertThat(result.inProgress().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.of(true));
+    assertThat(
+            result.inProgress().stream()
+                .map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmitted.id);
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programForUnapplied.id);
+    assertThat(result.unapplied().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.empty());
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_setsEligibilityOnMultipleApps() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    EligibilityDefinition eligibilityDef = createEligibilityDefinition(questionDefinition);
+    Program programForDraft =
+        ProgramBuilder.newDraftProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibilityDef)
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibilityDef)
+            .build();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraft.id);
+    assertThat(result.inProgress().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.of(true));
+    assertThat(
+            result.inProgress().stream()
+                .map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmitted.id);
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programForUnapplied.id);
+    assertThat(result.unapplied().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.of(true));
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+  }
+
+  @Test
   public void relevantProgramsForApplicant_otherApplicant() {
     Applicant primaryApplicant = subject.createApplicant().toCompletableFuture().join();
     Applicant otherApplicant = subject.createApplicant().toCompletableFuture().join();
@@ -1500,6 +1612,23 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withOptionalQuestion(question)
             .buildDefinition();
+  }
+  /**
+   * Makes an eligibility definition with a {@link NameQuestionDefinition} and an eligibility
+   * condition that the question's {@link Scalar.FIRST_NAME} be "eligible name"
+   */
+  private EligibilityDefinition createEligibilityDefinition(NameQuestionDefinition question) {
+    return EligibilityDefinition.builder()
+        .setPredicate(
+            PredicateDefinition.create(
+                PredicateExpressionNode.create(
+                    LeafOperationExpressionNode.create(
+                        question.getId(),
+                        Scalar.FIRST_NAME,
+                        Operator.EQUAL_TO,
+                        PredicateValue.of("eligible name"))),
+                PredicateAction.ELIGIBLE_BLOCK))
+        .build();
   }
 
   /**

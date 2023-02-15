@@ -283,11 +283,11 @@ content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng l
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Unit/Numero ng Apartment
+label.addressLine2=Apartment, suite, atbp. (opsyonal)
 label.city=Lungsod
 label.state=Estado
 label.selectState=Pumili ng Estado
-label.street=Linya ng adres 1
+label.street=Address
 label.zipcode=Zip code
 
 # Validation errors that are shown when a user enters an invalid address.

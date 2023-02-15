@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DeploymentType;
 import services.MessageKey;
 import views.ApplicantUtils;
 import views.BaseHtmlLayout;
@@ -60,8 +61,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Config configuration,
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
-      FeatureFlags featureFlags) {
-    super(viewUtils, configuration, featureFlags);
+      FeatureFlags featureFlags,
+      DeploymentType deploymentType) {
+    super(viewUtils, configuration, featureFlags, deploymentType);
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
     this.supportEmail = checkNotNull(configuration).getString("support_email_address");

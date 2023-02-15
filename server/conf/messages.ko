@@ -284,11 +284,11 @@ content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=단위/아파트 번호
+label.addressLine2=아파트 등(선택사항)
 label.city=시/군/구
 label.state=주/도
 label.selectState=주 선택
-label.street=상세 주소 1
+label.street=주소
 label.zipcode=우편번호
 
 # Validation errors that are shown when a user enters an invalid address.

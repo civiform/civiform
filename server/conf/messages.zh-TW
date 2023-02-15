@@ -283,11 +283,11 @@ content.pleaseCreateAccount=如果現在登入城市帳戶，系統會儲存你�
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=門牌號碼
+label.addressLine2=公寓、套房等 (選填)
 label.city=城市
 label.state=州
 label.selectState=請選取州
-label.street=地址 1
+label.street=地址
 label.zipcode=郵遞區號
 
 # Validation errors that are shown when a user enters an invalid address.

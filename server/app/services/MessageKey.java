@@ -100,6 +100,8 @@ public enum MessageKey {
   NUMBER_VALIDATION_NON_INTEGER("validation.numberNonInteger"),
   REQUIRED_FIELDS_ANNOTATION("content.requiredFieldsAnnotation"),
   SUBMITTED_DATE("content.submittedDate"),
+  TAG_MAY_NOT_QUALIFY("tag.mayNotQualify"),
+  TAG_MAY_QUALIFY("tag.mayQualify"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),

@@ -33,6 +33,8 @@ public final class ReferenceClasses {
   public static final String QUESTION_CONFIG = "cf-question-config";
   public static final String EDIT_ELIGIBILITY_PREDICATE_BUTTON = "cf-edit-eligibility-predicate";
   public static final String EDIT_VISIBILITY_PREDICATE_BUTTON = "cf-edit-visibility-predicate";
+  public static final String ELIGIBLE_TAG = "cf-eligible-tag";
+  public static final String NOT_ELIGIBLE_TAG = "cf-not-eligible-tag";
   public static final String PREDICATE_DISPLAY = "cf-display-predicate";
   public static final String PREDICATE_ACTION = "cf-predicate-action";
   public static final String PREDICATE_QUESTION_NAME_FIELD = "cf-question-name-field";
