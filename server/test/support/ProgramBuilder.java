@@ -78,7 +78,7 @@ public class ProgramBuilder {
             description,
             name,
             description,
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getDraftVersion(),
