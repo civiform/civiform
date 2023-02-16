@@ -8,6 +8,7 @@ package durablejobs;
  */
 public enum DurableJobName {
   OLD_JOB_CLEANUP("OLD_JOB_CLEANUP"),
+  REPORTING_DASHBOARD_MONTHLY_REFRESH("REPORTING_DASHBOARD_MONTHLY_REFRESH"),
 
   // job names used for tests
   TEST("TEST");

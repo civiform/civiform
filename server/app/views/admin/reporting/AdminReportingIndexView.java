@@ -11,7 +11,6 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.specialized.DivTag;
@@ -20,6 +19,9 @@ import j2html.tags.specialized.TbodyTag;
 import j2html.tags.specialized.TrTag;
 import java.text.DecimalFormat;
 import play.twirl.api.Content;
+import services.DateConverter;
+import services.reporting.ApplicationSubmissionsStat;
+import services.reporting.ReportingService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -28,16 +30,24 @@ import views.components.LinkElement;
 
 /** Summary view for reporting data. */
 public final class AdminReportingIndexView extends BaseHtmlView {
+
+  // Number format used for displaying application counts
+  public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###");
   private final AdminLayout layout;
+  private final DateConverter dateConverter;
 
   @Inject
-  public AdminReportingIndexView(AdminLayoutFactory layoutFactory) {
+  public AdminReportingIndexView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.REPORTING);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
-  public Content render(
-      ImmutableList<AppplicationsSubmittedStat> allApplicationsMonthlyStats,
-      ImmutableList<AppplicationsSubmittedStat> fakeAggregatedProgramStats) {
+  public Content render(ReportingService.MonthlyStats monthlyStats) {
+    ImmutableList<ApplicationSubmissionsStat> allApplicationsMonthlyStats =
+        monthlyStats.monthlySubmissionsAggregated();
+    ImmutableList<ApplicationSubmissionsStat> totalSubmissionsByProgram =
+        monthlyStats.totalSubmissionsByProgram();
+
     var title = "Reporting";
 
     DivTag headerDiv =
@@ -48,15 +58,14 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     DivTag contentDiv = div().withClasses("px-20").with(headerDiv);
 
     contentDiv.with(renderAllApplicationsMonthlyStats(allApplicationsMonthlyStats));
-    contentDiv.with(renderAggregatedProgramStats(fakeAggregatedProgramStats));
+    contentDiv.with(renderAggregatedProgramStats(totalSubmissionsByProgram));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 
   private DivTag renderAllApplicationsMonthlyStats(
-      ImmutableList<AppplicationsSubmittedStat> allApplicationsMonthlyStats) {
-    DecimalFormat df = new DecimalFormat("###,###,###");
+      ImmutableList<ApplicationSubmissionsStat> allApplicationsMonthlyStats) {
 
     return renderTable(
         "By month, all programs",
@@ -71,18 +80,17 @@ public final class AdminReportingIndexView extends BaseHtmlView {
             .map(
                 stat ->
                     tr(
-                        td(stat.displayTimePeriod()),
-                        td(df.format(stat.applicationCount())),
-                        td(stat.display25PTimeToCompletion()),
-                        td(stat.display50PTimeToCompletion()),
-                        td(stat.display75PTimeToCompletion()),
-                        td(stat.display99PTimeToCompletion())))
+                        td(dateConverter.renderMonthAndYear(stat.timestamp())),
+                        td(DECIMAL_FORMAT.format(stat.applicationCount())),
+                        td(renderDuration(stat.submissionDurationSeconds25p())),
+                        td(renderDuration(stat.submissionDurationSeconds50p())),
+                        td(renderDuration(stat.submissionDurationSeconds75p())),
+                        td(renderDuration(stat.submissionDurationSeconds99p()))))
             .collect(ImmutableList.toImmutableList()));
   }
 
   private DivTag renderAggregatedProgramStats(
-      ImmutableList<AppplicationsSubmittedStat> aggregatedProgramStats) {
-    DecimalFormat df = new DecimalFormat("###,###,###");
+      ImmutableList<ApplicationSubmissionsStat> aggregatedProgramStats) {
 
     return renderTable(
         "By program",
@@ -100,13 +108,13 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                         td(
                             new LinkElement()
                                 .setHref("/")
-                                .setText(stat.displayProgramIdentifier())
+                                .setText(stat.programName())
                                 .asAnchorText()),
-                        td(df.format(stat.applicationCount())),
-                        td(stat.display25PTimeToCompletion()),
-                        td(stat.display50PTimeToCompletion()),
-                        td(stat.display75PTimeToCompletion()),
-                        td(stat.display99PTimeToCompletion())))
+                        td(DECIMAL_FORMAT.format(stat.applicationCount())),
+                        td(renderDuration(stat.submissionDurationSeconds25p())),
+                        td(renderDuration(stat.submissionDurationSeconds50p())),
+                        td(renderDuration(stat.submissionDurationSeconds75p())),
+                        td(renderDuration(stat.submissionDurationSeconds99p()))))
             .collect(ImmutableList.toImmutableList()));
   }
 
@@ -137,38 +145,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     return content.with(tableOuterContainer, button("Download CSV"));
   }
 
-  @AutoValue
-  public abstract static class AppplicationsSubmittedStat {
-    public static AppplicationsSubmittedStat create(
-        String displayProgramIdentifier,
-        String displayTimePeriod,
-        int applicationCount,
-        String display25PTimeToCompletion,
-        String display50PTimeToCompletion,
-        String display75PTimeToCompletion,
-        String display99PTimeToCompletion) {
-      return new AutoValue_AdminReportingIndexView_AppplicationsSubmittedStat(
-          displayProgramIdentifier,
-          displayTimePeriod,
-          applicationCount,
-          display25PTimeToCompletion,
-          display50PTimeToCompletion,
-          display75PTimeToCompletion,
-          display99PTimeToCompletion);
-    }
-
-    abstract String displayProgramIdentifier();
-
-    abstract String displayTimePeriod();
-
-    abstract int applicationCount();
-
-    abstract String display25PTimeToCompletion();
-
-    abstract String display50PTimeToCompletion();
-
-    abstract String display75PTimeToCompletion();
-
-    abstract String display99PTimeToCompletion();
+  private static String renderDuration(double durationSeconds) {
+    return durationSeconds + " seconds";
   }
 }
