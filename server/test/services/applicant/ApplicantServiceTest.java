@@ -25,6 +25,8 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
+
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -79,32 +81,31 @@ public class ApplicantServiceTest extends ResetPostgres {
   private ApplicationRepository applicationRepository;
   private VersionRepository versionRepository;
   private CiviFormProfile trustedIntermediaryProfile;
-  private EsriClient esriClient;
-  private EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   @Before
   public void setUp() throws Exception {
+    // configure EsriClient instance for ApplicantService
+    Config config = ConfigFactory.load();
+    Clock clock = instanceOf(Clock.class);
+    EsriServiceAreaValidationConfig esriServiceAreaValidationConfig = instanceOf(EsriServiceAreaValidationConfig.class);
+    Server server =
+    Server.forRouter(
+        (components) ->
+            RoutingDsl.fromComponents(components)
+                .GET("/query")
+                .routingTo(request -> ok().sendResource("esri/serviceAreaFeatures.json"))
+                .build());
+    WSClient ws = play.test.WSTestClient.newClient(server.httpPort());
+    EsriClient esriClient = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
     subject = instanceOf(ApplicantService.class);
+    // set instance of esriClient for ApplicantService
+    FieldUtils.writeField(subject, "esriClient", esriClient, true);
     questionService = instanceOf(QuestionService.class);
     userRepository = instanceOf(UserRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
-    esriServiceAreaValidationConfig = instanceOf(EsriServiceAreaValidationConfig.class);
-    Clock clock = instanceOf(Clock.class);
     createQuestions();
     createProgram();
-
-    // create a mock server for service area validation
-    Config config = ConfigFactory.load();
-    Server server =
-        Server.forRouter(
-            (components) ->
-                RoutingDsl.fromComponents(components)
-                    .GET("/query")
-                    .routingTo(request -> ok().sendResource("esri/serviceAreaFeatures.json"))
-                    .build());
-    WSClient ws = play.test.WSTestClient.newClient(server.httpPort());
-    esriClient = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
 
     trustedIntermediaryProfile = Mockito.mock(CiviFormProfile.class);
     Account account = new Account();
@@ -127,9 +128,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             ImmutableMap.of(),
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantData =
@@ -164,9 +163,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -185,9 +182,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -220,9 +215,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -237,9 +230,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -288,9 +279,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 programDefinition.id(),
                 "1",
                 updates,
-                false,
-                esriClient,
-                esriServiceAreaValidationConfig)
+                false)
             .toCompletableFuture()
             .join();
 
@@ -335,9 +324,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -358,9 +345,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -389,9 +374,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfterDeletion =
@@ -428,9 +411,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataBefore =
@@ -457,9 +438,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -493,9 +472,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -521,9 +498,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -572,9 +547,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -597,9 +570,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -618,9 +589,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -656,9 +625,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -688,9 +655,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -715,9 +680,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         programDefinition.id(),
                         "1",
                         updates,
-                        false,
-                        esriClient,
-                        esriServiceAreaValidationConfig)
+                        false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicantNotFoundException.class)
@@ -739,9 +702,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         badProgramId,
                         "1",
                         updates,
-                        false,
-                        esriClient,
-                        esriServiceAreaValidationConfig)
+                        false)
                     .toCompletableFuture()
                     .join());
 
@@ -764,9 +725,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         programDefinition.id(),
                         badBlockId,
                         updates,
-                        false,
-                        esriClient,
-                        esriServiceAreaValidationConfig)
+                        false)
                     .toCompletableFuture()
                     .join());
 
@@ -791,9 +750,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         programDefinition.id(),
                         "1",
                         updates,
-                        false,
-                        esriClient,
-                        esriServiceAreaValidationConfig)
+                        false)
                     .toCompletableFuture()
                     .join());
 
@@ -816,9 +773,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         programDefinition.id(),
                         "1",
                         updates,
-                        false,
-                        esriClient,
-                        esriServiceAreaValidationConfig)
+                        false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -846,9 +801,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         programDefinition.id(),
                         "1",
                         updates,
-                        false,
-                        esriClient,
-                        esriServiceAreaValidationConfig)
+                        false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -901,9 +854,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -968,9 +919,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             firstProgram.id,
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -1022,9 +971,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -1049,9 +996,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -1113,9 +1058,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            false,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            false)
         .toCompletableFuture()
         .join();
 
@@ -1184,9 +1127,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            true,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            true)
         .toCompletableFuture()
         .join();
 
@@ -1250,9 +1191,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             programDefinition.id(),
             "1",
             updates,
-            true,
-            esriClient,
-            esriServiceAreaValidationConfig)
+            true)
         .toCompletableFuture()
         .join();
 

@@ -68,8 +68,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final FeatureFlags featureFlags;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
-  private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
-  private final EsriClient esriClient;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -86,9 +84,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Config configuration,
       FeatureFlags featureFlags,
       FileUploadViewStrategy fileUploadViewStrategy,
-      IneligibleBlockView ineligibleBlockView,
-      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      EsriClient esriClient) {
+      IneligibleBlockView ineligibleBlockView) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -101,8 +97,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
-    this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
-    this.esriClient = checkNotNull(esriClient);
   }
 
   /**
@@ -318,9 +312,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               programId,
                               blockId,
                               fileUploadQuestionFormData.build(),
-                              featureFlags.isEsriAddressServiceAreaValidationEnabled(request),
-                              esriClient,
-                              esriServiceAreaValidationConfig));
+                              featureFlags.isEsriAddressServiceAreaValidationEnabled(request)));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
@@ -368,9 +360,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   programId,
                   blockId,
                   formData,
-                  featureFlags.isEsriAddressServiceAreaValidationEnabled(request),
-                  esriClient,
-                  esriServiceAreaValidationConfig);
+                  featureFlags.isEsriAddressServiceAreaValidationEnabled(request));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
