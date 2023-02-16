@@ -136,7 +136,7 @@ public final class Block {
 
   public Optional<ApplicantQuestion> getAddressQuestionWithCorrectionEnabled() {
     return getQuestions().stream()
-        .filter(question -> question.isAddressCorrectionEnabled())
+        .filter(ApplicantQuestion::isAddressCorrectionEnabled)
         .findFirst();
   }
 
