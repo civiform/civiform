@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -401,11 +402,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     if (featureFlags.isProgramEligibilityConditionsEnabled(request)
         && !roApplicantProgramService.isBlockEligible(blockId)) {
+      CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
       return supplyAsync(
           () ->
               ok(
                   ineligibleBlockView.render(
                       request,
+                      submittingProfile,
                       roApplicantProgramService,
                       applicantName,
                       messagesApi.preferred(request),

@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
+import auth.CiviFormProfile;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -33,11 +34,13 @@ public final class IneligibleBlockView extends ApplicationBaseView {
 
   public Content render(
       Request request,
+      CiviFormProfile submittingProfile,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Optional<String> applicantName,
       Messages messages,
       long applicantId) {
     long programId = roApplicantProgramService.getProgramId();
+    boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     ATag infoLink =
         new LinkElement()
             .setStyles("mb-4", "underline")
@@ -59,11 +62,16 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(
                 h2(messages.at(
-                        MessageKey.TITLE_APPLICATION_NOT_ELIGIBLE.getKeyName(),
+                        isTrustedIntermediary
+                            ? MessageKey.TITLE_APPLICATION_NOT_ELIGIBLE_TI.getKeyName()
+                            : MessageKey.TITLE_APPLICATION_NOT_ELIGIBLE.getKeyName(),
                         roApplicantProgramService.getProgramTitle()))
                     .withClasses("mb-4"))
             .with(
-                div(messages.at(MessageKey.CONTENT_MUST_MEET_REQUIREMENTS.getKeyName()))
+                div(messages.at(
+                        isTrustedIntermediary
+                            ? MessageKey.CONTENT_MUST_MEET_REQUIREMENTS_TI.getKeyName()
+                            : MessageKey.CONTENT_MUST_MEET_REQUIREMENTS.getKeyName()))
                     .withClasses("mb-4"))
             .with(div().with(listTag).withClasses("mb-4"))
             .with(
