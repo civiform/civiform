@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -16,6 +17,7 @@ import forms.admin.ProgramStatusesForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.PTag;
 import java.util.Collection;
 import java.util.Optional;
@@ -41,6 +43,7 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 public final class ProgramStatusesView extends BaseHtmlView {
@@ -334,6 +337,16 @@ public final class ProgramStatusesView extends BaseHtmlView {
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
 
+    LabelTag defaultCheckbox =
+        label()
+            .with(
+                input()
+                    .withType("checkbox")
+                    .withName(ProgramStatusesForm.DEFAULT_CHECKBOX_NAME)
+                    .withCondChecked(formData.getDefaultStatus().orElse(false))
+                    .withClasses(BaseStyles.CHECKBOX),
+                span("Set as default status"));
+
     FormTag content =
         form()
             .withMethod("POST")
@@ -369,6 +382,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 div()
                     .withClasses("flex", "mt-5", "space-x-2")
                     .with(
+                        defaultCheckbox,
                         div().withClass("flex-grow"),
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     return Modal.builder(Modal.randomModalId(), content)

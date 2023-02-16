@@ -77,6 +77,9 @@ public final class StatusDefinitions {
     @JsonProperty("email_body_localized")
     public abstract Optional<LocalizedStrings> localizedEmailBodyText();
 
+    @JsonProperty("defaultStatus")
+    public abstract Optional<Boolean> defaultStatus();
+
     public static Builder builder() {
       return new AutoValue_StatusDefinitions_Status.Builder();
     }
@@ -94,6 +97,9 @@ public final class StatusDefinitions {
 
       @JsonProperty("email_body_localized")
       public abstract Builder setLocalizedEmailBodyText(Optional<LocalizedStrings> value);
+
+      @JsonProperty("defaultStatus")
+      public abstract Builder setDefaultStatus(Optional<Boolean> value);
 
       public abstract Status build();
     }

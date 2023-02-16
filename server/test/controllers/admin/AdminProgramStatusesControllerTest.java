@@ -40,6 +40,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   private static final StatusDefinitions.Status APPROVED_STATUS =
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
+          .setDefaultStatus(Optional.of(false))
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
           .setLocalizedEmailBodyText(
               Optional.of(LocalizedStrings.withDefaultValue("Approved email body")))
@@ -48,6 +49,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   private static final StatusDefinitions.Status REJECTED_STATUS =
       StatusDefinitions.Status.builder()
           .setStatusText("Rejected")
+          .setDefaultStatus(Optional.of(false))
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Rejected"))
           .setLocalizedEmailBodyText(
               Optional.of(LocalizedStrings.withDefaultValue("Rejected email body")))
@@ -56,6 +58,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   private static final StatusDefinitions.Status WITH_STATUS_TRANSLATIONS =
       StatusDefinitions.Status.builder()
           .setStatusText("With translations")
+          .setDefaultStatus(Optional.of(false))
           .setLocalizedStatusText(
               LocalizedStrings.create(
                   ImmutableMap.of(
@@ -140,6 +143,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
                 WITH_STATUS_TRANSLATIONS,
                 StatusDefinitions.Status.builder()
                     .setStatusText("foo")
+                    .setDefaultStatus(Optional.of(false))
                     .setLocalizedStatusText(LocalizedStrings.withDefaultValue("foo"))
                     .setLocalizedEmailBodyText(
                         Optional.of(LocalizedStrings.withDefaultValue("some email content")))
@@ -169,6 +173,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     StatusDefinitions.Status expectedStatus =
         StatusDefinitions.Status.builder()
             .setStatusText("Foo")
+            .setDefaultStatus(Optional.of(false))
             .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Foo"))
             .setLocalizedEmailBodyText(
                 Optional.of(LocalizedStrings.withDefaultValue("Updated email content")))
@@ -207,6 +212,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     StatusDefinitions.Status expectedStatus =
         StatusDefinitions.Status.builder()
             .setStatusText("Foo")
+            .setDefaultStatus(Optional.of(false))
             .setLocalizedStatusText(
                 LocalizedStrings.create(
                     ImmutableMap.of(Locale.US, "Foo", Locale.FRENCH, originalFrenchStatusText)))
@@ -251,6 +257,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
     StatusDefinitions.Status expectedStatus =
         StatusDefinitions.Status.builder()
             .setStatusText("Foo")
+            .setDefaultStatus(Optional.of(false))
             .setLocalizedStatusText(
                 LocalizedStrings.create(
                     ImmutableMap.of(Locale.US, "Foo", Locale.FRENCH, originalFrenchStatusText)))
