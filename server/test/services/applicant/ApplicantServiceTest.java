@@ -953,7 +953,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
-            .withRequiredQuestionDefinitions(ImmutableList.of(addressQuestion))
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
             .withEligibilityDefinition(eligibilityDef)
             .buildDefinition();
 
@@ -1009,7 +1009,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
-            .withRequiredQuestionDefinitions(ImmutableList.of(addressQuestion))
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
             .withEligibilityDefinition(eligibilityDef)
             .buildDefinition();
 

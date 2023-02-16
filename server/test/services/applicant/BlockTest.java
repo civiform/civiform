@@ -722,6 +722,28 @@ public class BlockTest {
     assertEquals("Seattle", serviceAreaIds.get().get(0));
   }
 
+  @Test
+  public void getAddressQuestionWithCorrectionEnabled() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+            .setAddressCorrectionEnabled(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+    Optional<ApplicantQuestion> addressQuestion = block.getAddressQuestionWithCorrectionEnabled();
+    assertThat(addressQuestion.isPresent()).isTrue();
+    assertThat(addressQuestion.get().isAddressCorrectionEnabled()).isTrue();
+  }
+
   private static BlockDefinition setUpBlockWithQuestions() {
     return BlockDefinition.builder()
         .setId(20L)

@@ -436,8 +436,7 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(),
-                Optional.of(programId))
+                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
             .setAddressCorrectionEnabled(true);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
@@ -453,8 +452,7 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(),
-                Optional.of(programId));
+            testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId));
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
     QuestionAnswerer.addMetadata(

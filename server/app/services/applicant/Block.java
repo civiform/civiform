@@ -134,6 +134,12 @@ public final class Block {
             .collect(ImmutableList.toImmutableList()));
   }
 
+  public Optional<ApplicantQuestion> getAddressQuestionWithCorrectionEnabled() {
+    return getQuestions().stream()
+        .filter(question -> question.isAddressCorrectionEnabled())
+        .findFirst();
+  }
+
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
       this.questionsMemo =
