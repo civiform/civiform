@@ -92,7 +92,9 @@ def main():
     except github.GithubException.UnknownObjectException:
         res = repo.create_file(path, msg, markdown, branch="main")
 
-    print(f"https://github.com/blob/main/{config.repo}/{path} updated in commit {res['commit']}")
+    print(
+        f"https://github.com/blob/main/{config.repo}/{path} updated in commit {res['commit']}"
+    )
 
 
 def generate_markdown(docs_file: typing.TextIO) -> str:
