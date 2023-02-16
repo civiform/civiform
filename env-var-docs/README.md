@@ -62,8 +62,8 @@ The path should point to the created virtual environment in this directory.
 Install the dependencies:
 
 ```sh
-$ pip install -r requirements.txt
 $ pip install ./env_var_docs
+$ pip install -r requirements.txt
 ```
 
 To exit the virtual environment, run:
