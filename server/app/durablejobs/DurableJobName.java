@@ -18,7 +18,7 @@ public enum DurableJobName {
     this.jobName = jobName;
   }
 
-  public String getJobName() {
+  public String getJobNameString() {
     return jobName;
   }
 }

@@ -65,7 +65,7 @@ public final class DurableJobRegistry {
     validateJobName(jobName);
 
     registeredJobs.put(
-        jobName.getJobName(),
+        jobName.getJobNameString(),
         RegisteredJob.create(
             durableJobFactory, jobName, /* recurringJobExecutionTimeResolver= */ Optional.empty()));
   }
@@ -81,13 +81,13 @@ public final class DurableJobRegistry {
     validateJobName(jobName);
 
     registeredJobs.put(
-        jobName.getJobName(),
+        jobName.getJobNameString(),
         RegisteredJob.create(
             durableJobFactory, jobName, Optional.of(recurringJobExecutionTimeResolver)));
   }
 
   private void validateJobName(DurableJobName jobName) {
-    if (registeredJobs.containsKey(jobName.getJobName())) {
+    if (registeredJobs.containsKey(jobName.getJobNameString())) {
       throw new IllegalArgumentException(
           String.format("Unable to register durable job with duplicate job name: %s", jobName));
     }
@@ -95,8 +95,8 @@ public final class DurableJobRegistry {
 
   /** Retrieves the job registered with the given name or throws {@link JobNotFoundException}. */
   public RegisteredJob get(DurableJobName jobName) throws JobNotFoundException {
-    return Optional.ofNullable(registeredJobs.get(jobName.getJobName()))
-        .orElseThrow(() -> new JobNotFoundException(jobName.getJobName()));
+    return Optional.ofNullable(registeredJobs.get(jobName.getJobNameString()))
+        .orElseThrow(() -> new JobNotFoundException(jobName.getJobNameString()));
   }
 
   /** Returns all jobs registered with a {@link RecurringJobExecutionTimeResolver}. */
