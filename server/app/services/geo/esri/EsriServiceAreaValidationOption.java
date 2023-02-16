@@ -61,7 +61,7 @@ public abstract class EsriServiceAreaValidationOption {
   public Boolean isServiceAreaOptionInInclusionGroup(
       ImmutableList<ServiceAreaInclusion> inclusionGroup) {
     return inclusionGroup.stream()
-        .filter((inclusion) -> !inclusion.getState().equals(ServiceAreaState.FAILED))
+        .filter((inclusion) -> !ServiceAreaState.FAILED.equals(inclusion.getState()))
         .map(ServiceAreaInclusion::getServiceAreaId)
         .collect(ImmutableList.toImmutableList())
         .contains(this.getId());

@@ -2,6 +2,9 @@ package services.geo;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /** The result of checking an address for membership in a service area. */
 public enum ServiceAreaState {
   // The address is in the service area.
@@ -10,6 +13,8 @@ public enum ServiceAreaState {
   NOT_IN_AREA("NotInArea"),
   // The check failed for technical reasons.
   FAILED("Failed");
+
+  private static final Logger logger = LoggerFactory.getLogger(ServiceAreaState.class);
 
   private final String serializationFormat;
 
@@ -28,7 +33,8 @@ public enum ServiceAreaState {
         return ServiceAreaState.valueOf(e.name());
       }
     }
-    // TODO throw exception instead
-    return null;
+
+    logger.error("Error getting enum from serialized format: {}", serializedFormat);
+    throw new RuntimeException("Error getting enum from serialized format: " + serializedFormat);
   }
 }
