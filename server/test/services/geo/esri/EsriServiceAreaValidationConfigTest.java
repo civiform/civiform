@@ -87,7 +87,8 @@ public class EsriServiceAreaValidationConfigTest {
   @Test
   public void getOptionByServiceAreaIds() {
     Optional<ImmutableList<EsriServiceAreaValidationOption>> serviceAreaOptions =
-        esriServiceAreaValidationConfig.getOptionsByServiceAreaIds( ImmutableList.of("Seattle", "Bloomington"));
+        esriServiceAreaValidationConfig.getOptionsByServiceAreaIds(
+            ImmutableList.of("Seattle", "Bloomington"));
     assertEquals(true, serviceAreaOptions.isPresent());
     assertEquals("Seattle", serviceAreaOptions.get().get(0).getLabel());
     assertEquals("Seattle", serviceAreaOptions.get().get(0).getId());

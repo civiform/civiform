@@ -692,8 +692,7 @@ public class BlockTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(),
-                Optional.of(programId))
+                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
             .setOptional(true);
     QuestionDefinition addressQuestion =
         testQuestionBank.applicantAddress().getQuestionDefinition();
@@ -706,14 +705,15 @@ public class BlockTest {
                             addressQuestion.getId(), "Seattle")),
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
-    BlockDefinition blockDefinition = BlockDefinition.builder()
-        .setId(1L)
-        .setName("name")
-        .setDescription("desc")
-        .setEligibilityDefinition(eligibilityDef)
-        .addQuestion(pqd)
-        .build();
-    
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setEligibilityDefinition(eligibilityDef)
+            .addQuestion(pqd)
+            .build();
+
     Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
 
     Optional<ImmutableList<String>> serviceAreaIds = block.getLeafAddressNodeServiceAreaIds();

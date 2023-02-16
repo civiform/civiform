@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
-
 import java.util.HashSet;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -179,10 +178,11 @@ public final class EsriServiceAreaValidationConfig {
   }
 
   /**
-   * Returns one {@link EsriServiceAreaValidationOption} per URL in a list from the config list for Esri address
-   * service area settings given service area ids.
+   * Returns one {@link EsriServiceAreaValidationOption} per URL in a list from the config list for
+   * Esri address service area settings given service area ids.
    */
-  public Optional<ImmutableList<EsriServiceAreaValidationOption>> getOptionsByServiceAreaIds(ImmutableList<String> serviceAreaIds) {
+  public Optional<ImmutableList<EsriServiceAreaValidationOption>> getOptionsByServiceAreaIds(
+      ImmutableList<String> serviceAreaIds) {
     ImmutableMap<String, EsriServiceAreaValidationOption> options = getImmutableMap();
     ImmutableList.Builder<EsriServiceAreaValidationOption> listBuilder = ImmutableList.builder();
 

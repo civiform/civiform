@@ -125,9 +125,13 @@ public final class Block {
       return Optional.empty();
     }
 
-    ImmutableList<LeafAddressServiceAreaExpressionNode> nodes = PredicateAddressServiceAreaNodeExtractor.extract(eligibilityDefinition.get().predicate());
+    ImmutableList<LeafAddressServiceAreaExpressionNode> nodes =
+        PredicateAddressServiceAreaNodeExtractor.extract(eligibilityDefinition.get().predicate());
 
-    return Optional.of(nodes.stream().map(LeafAddressServiceAreaExpressionNode::serviceAreaId).collect(ImmutableList.toImmutableList()));
+    return Optional.of(
+        nodes.stream()
+            .map(LeafAddressServiceAreaExpressionNode::serviceAreaId)
+            .collect(ImmutableList.toImmutableList()));
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {

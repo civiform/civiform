@@ -215,9 +215,10 @@ public final class AddressQuestion extends Question {
     Optional<String> serviceAreaString =
         applicantQuestion.getApplicantData().readString(getServiceAreaPath());
 
-    return serviceAreaValue = serviceAreaString.isPresent()
-        ? Optional.of(ServiceAreaInclusionGroup.deserialize(serviceAreaString.get()))
-        : Optional.empty();
+    return serviceAreaValue =
+        serviceAreaString.isPresent()
+            ? Optional.of(ServiceAreaInclusionGroup.deserialize(serviceAreaString.get()))
+            : Optional.empty();
   }
 
   public AddressQuestionDefinition getQuestionDefinition() {

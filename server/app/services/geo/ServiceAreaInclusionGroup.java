@@ -13,10 +13,12 @@ import org.slf4j.LoggerFactory;
  */
 public final class ServiceAreaInclusionGroup {
   private static final Logger logger = LoggerFactory.getLogger(ServiceAreaInclusionGroup.class);
+
   private ServiceAreaInclusionGroup() {}
 
   /**
-   * Takes a serialized string from {@link ApplicantData} of service areas and transforms them into a list of {@link ServiceAreaInclusion}
+   * Takes a serialized string from {@link ApplicantData} of service areas and transforms them into
+   * a list of {@link ServiceAreaInclusion}
    */
   public static ImmutableList<ServiceAreaInclusion> deserialize(String serviceAreas) {
     ImmutableList.Builder<ServiceAreaInclusion> listBuilder = ImmutableList.builder();
@@ -38,7 +40,8 @@ public final class ServiceAreaInclusionGroup {
   }
 
   /**
-   * Takes a list of {@link ServiceAreaInclusion}s and transforms them into a string to store in {@link ApplicantData}.
+   * Takes a list of {@link ServiceAreaInclusion}s and transforms them into a string to store in
+   * {@link ApplicantData}.
    */
   public static String serialize(ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup) {
     return serviceAreaInclusionGroup.stream()

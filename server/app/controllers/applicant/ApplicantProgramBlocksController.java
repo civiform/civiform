@@ -36,8 +36,6 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
-import services.geo.esri.EsriClient;
-import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
