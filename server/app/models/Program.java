@@ -136,6 +136,7 @@ public class Program extends BaseModel {
     this.statusDefinitions = definition.statusDefinitions();
     this.displayMode = definition.displayMode().getValue();
     this.programType = definition.programType();
+    this.isEligibilityGating = definition.isEligibilityGating();
 
     orderBlockDefinitionsBeforeUpdate();
 
