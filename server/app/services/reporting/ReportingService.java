@@ -1,76 +1,203 @@
 package services.reporting;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static views.admin.reporting.AdminReportingIndexView.APPLICATION_COUNTS_BY_MONTH_HEADERS;
+import static views.admin.reporting.AdminReportingIndexView.APPLICATION_COUNTS_BY_PROGRAM_HEADERS;
+
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import javax.inject.Inject;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import repository.ReportingRepository;
+import services.DateConverter;
+import views.admin.reporting.AdminReportingIndexView;
 
 /** A service responsible for logic related to collating and presenting reporting data. */
 public final class ReportingService {
 
+  private static final String MONTHLY_REPORTING_DATA_CACHE_KEY = "monthly-reporting-data";
+  private static final int MONTHLY_REPORTING_DATA_CACHE_TTL_SECONDS = 60 * 60;
+
   private final ReportingRepository reportingRepository;
+  private final SyncCacheApi reportingDataCache;
+  private final DateConverter dateConverter;
 
   @Inject
-  public ReportingService(ReportingRepository reportingRepository) {
+  public ReportingService(
+      DateConverter dateConverter,
+      ReportingRepository reportingRepository,
+      @NamedCache("monthly-reporting-data") SyncCacheApi reportingDataCache) {
+    this.dateConverter = checkNotNull(dateConverter);
     this.reportingRepository = Preconditions.checkNotNull(reportingRepository);
+    this.reportingDataCache = Preconditions.checkNotNull(reportingDataCache);
   }
 
+  /**
+   * Application stats in two groups: one grouped by program, one grouped by submission month.
+   *
+   * <p>Historic monthly stats are stored in a postgres materialized view, but stats for the current
+   * month are queried directly in the database. Since that is an unbounded number of rows to scan
+   * we cache the result in server memory.
+   */
   public MonthlyStats getMonthlyStats() {
+    return reportingDataCache.getOrElseUpdate(
+        MONTHLY_REPORTING_DATA_CACHE_KEY,
+        this::queryAndCollateMonthlyStats,
+        MONTHLY_REPORTING_DATA_CACHE_TTL_SECONDS);
+  }
+
+  /** The applications by month reporting view as a CSV. */
+  public String applicationCountsByMonthCsv() {
+    return buildCsv(
+        getMonthlyStats().monthlySubmissionsAggregated(),
+        APPLICATION_COUNTS_BY_MONTH_HEADERS,
+        (printer, stat) -> {
+          try {
+            printer.print(dateConverter.renderMonthAndYear(stat.timestamp().get()));
+            printer.print(stat.applicationCount());
+            printer.print(
+                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds25p()));
+            printer.print(
+                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds50p()));
+            printer.print(
+                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds75p()));
+            printer.print(
+                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds99p()));
+
+            printer.println();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  /** The applications by program reporting view as a CSV. */
+  public String applicationCountsByProgramCsv() {
+    return buildCsv(
+        getMonthlyStats().totalSubmissionsByProgram(),
+        APPLICATION_COUNTS_BY_PROGRAM_HEADERS,
+        (printer, stat) -> {
+          try {
+            printer.print(stat.programName());
+            printer.print(stat.applicationCount());
+            printer.print(
+                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds25p()));
+            printer.print(
+                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds50p()));
+            printer.print(
+                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds75p()));
+            printer.print(
+                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds99p()));
+
+            printer.println();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  private String buildCsv(
+      ImmutableList<ApplicationSubmissionsStat> stats,
+      ImmutableList<String> headers,
+      BiConsumer<CSVPrinter, ApplicationSubmissionsStat> printFn) {
+    OutputStream inMemoryBytes = new ByteArrayOutputStream();
+
+    try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
+      var printer =
+          new CSVPrinter(
+              writer,
+              CSVFormat.DEFAULT.builder().setHeader(headers.toArray(String[]::new)).build());
+
+      for (var stat : stats) {
+        printFn.accept(printer, stat);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    return inMemoryBytes.toString();
+  }
+
+  private MonthlyStats queryAndCollateMonthlyStats() {
     ImmutableList<ApplicationSubmissionsStat> submissionsByProgramByMonth =
         reportingRepository.loadMonthlyReportingView();
+    ImmutableList<ApplicationSubmissionsStat> submissionsThisMonth =
+        reportingRepository.loadThisMonthReportingData();
 
     return MonthlyStats.create(
-        monthlySubmissionsAggregated(submissionsByProgramByMonth),
-        totalSubmissionsByProgram(submissionsByProgramByMonth));
+        monthlySubmissionsAggregated(submissionsByProgramByMonth, submissionsThisMonth),
+        totalSubmissionsByProgram(submissionsByProgramByMonth, submissionsThisMonth));
   }
 
   /** Monthly application submission stats for all programs. */
-  public ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsAggregated(
-      ImmutableList<ApplicationSubmissionsStat> submissionsByProgramByMonth) {
+  private ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsAggregated(
+      ImmutableList<ApplicationSubmissionsStat> submissionsByProgramByMonth,
+      ImmutableList<ApplicationSubmissionsStat> submissionsThisMonth) {
     Map<Timestamp, ApplicationSubmissionsStat.Aggregator> aggregators = new HashMap<>();
 
-    for (var stat : submissionsByProgramByMonth) {
-      ApplicationSubmissionsStat.Aggregator aggregator =
-          aggregators.containsKey(stat.timestamp())
-              ? aggregators.get(stat.timestamp())
-              : aggregators.put(
-                  stat.timestamp(),
-                  new ApplicationSubmissionsStat.Aggregator("All", stat.timestamp()));
+    Stream.concat(submissionsByProgramByMonth.stream(), submissionsThisMonth.stream())
+        .forEach(
+            stat -> {
+              ApplicationSubmissionsStat.Aggregator aggregator;
+              if (aggregators.containsKey(stat.timestamp().get())) {
+                aggregator = aggregators.get(stat.timestamp().get());
+              } else {
+                aggregator =
+                    new ApplicationSubmissionsStat.Aggregator("All", stat.timestamp().get());
+                aggregators.put(stat.timestamp().get(), aggregator);
+              }
 
-      aggregator.update(stat);
-    }
+              aggregator.update(stat);
+            });
 
     return aggregators.values().stream()
         .map(ApplicationSubmissionsStat.Aggregator::getAggregateStat)
+        .sorted(Comparator.comparing(stat -> stat.timestamp().get()))
         .collect(ImmutableList.toImmutableList());
   }
 
   /** Total application submission stats for each program. */
-  public ImmutableList<ApplicationSubmissionsStat> totalSubmissionsByProgram(
-      ImmutableList<ApplicationSubmissionsStat> submissionsByProgramByMonth) {
+  private ImmutableList<ApplicationSubmissionsStat> totalSubmissionsByProgram(
+      ImmutableList<ApplicationSubmissionsStat> submissionsByProgramByMonth,
+      ImmutableList<ApplicationSubmissionsStat> submissionsThisMonth) {
     Map<String, ApplicationSubmissionsStat.Aggregator> aggregators = new HashMap<>();
 
-    for (var stat : submissionsByProgramByMonth) {
-      ApplicationSubmissionsStat.Aggregator aggregator =
-          aggregators.containsKey(stat.programName())
-              ? aggregators.get(stat.programName())
-              : aggregators.put(
-                  stat.programName(),
-                  new ApplicationSubmissionsStat.Aggregator(
-                      stat.programName(), Timestamp.valueOf("0")));
+    Stream.concat(submissionsByProgramByMonth.stream(), submissionsThisMonth.stream())
+        .forEach(
+            stat -> {
+              ApplicationSubmissionsStat.Aggregator aggregator;
+              if (aggregators.containsKey(stat.programName())) {
+                aggregator = aggregators.get(stat.programName());
+              } else {
+                aggregator = new ApplicationSubmissionsStat.Aggregator(stat.programName());
+                aggregators.put(stat.programName(), aggregator);
+              }
 
-      aggregator.update(stat);
-    }
+              aggregator.update(stat);
+            });
 
     return aggregators.values().stream()
         .map(ApplicationSubmissionsStat.Aggregator::getAggregateStat)
         .collect(ImmutableList.toImmutableList());
   }
 
+  /** Application stats in two groups: one grouped by program, one grouped by submission month. */
   @AutoValue
   public abstract static class MonthlyStats {
 

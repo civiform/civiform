@@ -99,6 +99,6 @@ public final class DateConverter {
     var calendar = Calendar.getInstance(TimeZone.getTimeZone(zoneId));
     calendar.setTimeInMillis(timestamp.getTime());
 
-    return calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.YEAR);
+    return (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.YEAR);
   }
 }

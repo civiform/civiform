@@ -1,9 +1,15 @@
 package repository;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SqlRow;
+import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
@@ -11,10 +17,12 @@ import services.reporting.ApplicationSubmissionsStat;
 /** Implements queries related to reporting needs. */
 public final class ReportingRepository {
 
+  private final Clock clock;
   private final Database database;
 
   @Inject
-  public ReportingRepository() {
+  public ReportingRepository(Clock clock) {
+    this.clock = Preconditions.checkNotNull(clock);
     this.database = DB.getDefault();
   }
 
@@ -25,12 +33,51 @@ public final class ReportingRepository {
             row ->
                 ApplicationSubmissionsStat.create(
                     row.getString("program_name"),
-                    row.getTimestamp("submit_month"),
+                    Optional.of(row.getTimestamp("submit_month")),
                     row.getLong("count"),
-                    getSecondsFromPgIntervalRowVAlue(row, "p25"),
-                    getSecondsFromPgIntervalRowVAlue(row, "p50"),
-                    getSecondsFromPgIntervalRowVAlue(row, "p75"),
-                    getSecondsFromPgIntervalRowVAlue(row, "p99")))
+                    getSecondsFromPgIntervalRowValue(row, "p25"),
+                    getSecondsFromPgIntervalRowValue(row, "p50"),
+                    getSecondsFromPgIntervalRowValue(row, "p75"),
+                    getSecondsFromPgIntervalRowValue(row, "p99")))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /** Loads application submission reporting data for current month. */
+  public ImmutableList<ApplicationSubmissionsStat> loadThisMonthReportingData() {
+    Timestamp firstOfMonth =
+        Timestamp.valueOf(LocalDateTime.now(clock).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1));
+
+    return database
+        .sqlQuery(
+            "SELECT\n"
+                + "  programs.name AS program_name,\n"
+                + "  count(*),\n"
+                + "  percentile_cont(0.5) WITHIN GROUP (\n"
+                + "    ORDER BY applications.submission_duration) AS p50,\n"
+                + "  percentile_cont(0.25) WITHIN GROUP (\n"
+                + "    ORDER BY applications.submission_duration) AS p25,\n"
+                + "  percentile_cont(0.75) WITHIN GROUP (\n"
+                + "    ORDER BY applications.submission_duration) AS p75,\n"
+                + "  percentile_cont(0.99) WITHIN GROUP (\n"
+                + "    ORDER BY applications.submission_duration) AS p99\n"
+                + "FROM applications\n"
+                + "INNER JOIN programs ON applications.program_id = programs.id\n"
+                + "WHERE applications.lifecycle_stage IN ('active', 'obsolete')\n"
+                + "AND applications.submit_time >= date_trunc('month', :current_date::date)\n"
+                + "GROUP BY programs.name")
+        .setParameter("current_date", firstOfMonth)
+        .findList()
+        .stream()
+        .map(
+            row ->
+                ApplicationSubmissionsStat.create(
+                    row.getString("program_name"),
+                    Optional.of(firstOfMonth),
+                    row.getLong("count"),
+                    getSecondsFromPgIntervalRowValue(row, "p25"),
+                    getSecondsFromPgIntervalRowValue(row, "p50"),
+                    getSecondsFromPgIntervalRowValue(row, "p75"),
+                    getSecondsFromPgIntervalRowValue(row, "p99")))
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -39,7 +86,7 @@ public final class ReportingRepository {
     database.sqlUpdate("REFRESH MATERIALIZED VIEW monthly_submissions_reporting_view").execute();
   }
 
-  private static double getSecondsFromPgIntervalRowVAlue(SqlRow row, String key) {
+  private static double getSecondsFromPgIntervalRowValue(SqlRow row, String key) {
     Object interval = row.get(key);
 
     if (interval == null) {

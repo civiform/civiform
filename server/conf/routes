@@ -114,7 +114,8 @@ POST    /admin/apiKeys                              controllers.admin.AdminApiKe
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
 
 # Admin reporting
-GET     /admin/reporting                           controllers.admin.AdminReportingController.index()
+GET     /admin/reporting                            controllers.admin.AdminReportingController.index()
+GET     /admin/reporting/download/:dataSetName      controllers.admin.AdminReportingController.downloadCsv(dataSetName: String)
 
 # Admin data migrations
 GET     /admin/migrateStoredFileAcls                controllers.admin.DataMigrationsController.migrateStoredFileAcls()

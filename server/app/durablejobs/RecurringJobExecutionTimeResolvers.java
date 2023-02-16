@@ -28,4 +28,17 @@ public final class RecurringJobExecutionTimeResolvers {
           .toInstant();
     }
   }
+
+  /** First day of the month at 2am local time. */
+  public static final class FirstOfMonth2Am implements RecurringJobExecutionTimeResolver {
+
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      return LocalDate.now(clock)
+          .with(TemporalAdjusters.firstDayOfMonth())
+          .atStartOfDay(clock.getZone())
+          .plus(2, ChronoUnit.HOURS)
+          .toInstant();
+    }
+  }
 }

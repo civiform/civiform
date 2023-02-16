@@ -13,11 +13,13 @@ import static j2html.TagCreator.tr;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.admin.AdminReportingController;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TbodyTag;
 import j2html.tags.specialized.TrTag;
 import java.text.DecimalFormat;
+import java.time.Duration;
 import play.twirl.api.Content;
 import services.DateConverter;
 import services.reporting.ApplicationSubmissionsStat;
@@ -32,7 +34,7 @@ import views.components.LinkElement;
 public final class AdminReportingIndexView extends BaseHtmlView {
 
   // Number format used for displaying application counts
-  public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###");
+  private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###");
   private final AdminLayout layout;
   private final DateConverter dateConverter;
 
@@ -64,58 +66,79 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
+  public static final ImmutableList<String> APPLICATION_COUNTS_BY_MONTH_HEADERS =
+      ImmutableList.of(
+          "Time period",
+          "Applications submitted",
+          "25p time to submit",
+          "50p time to submit",
+          "75p time to submit",
+          "99p time to submit");
+
   private DivTag renderAllApplicationsMonthlyStats(
       ImmutableList<ApplicationSubmissionsStat> allApplicationsMonthlyStats) {
 
     return renderTable(
-        "By month, all programs",
-        ImmutableList.of(
-            "Time period",
-            "Applications submitted",
-            "25p time to submit",
-            "50p time to submit",
-            "75p time to submit",
-            "99p time to submit"),
-        allApplicationsMonthlyStats.stream()
-            .map(
-                stat ->
-                    tr(
-                        td(dateConverter.renderMonthAndYear(stat.timestamp())),
-                        td(DECIMAL_FORMAT.format(stat.applicationCount())),
-                        td(renderDuration(stat.submissionDurationSeconds25p())),
-                        td(renderDuration(stat.submissionDurationSeconds50p())),
-                        td(renderDuration(stat.submissionDurationSeconds75p())),
-                        td(renderDuration(stat.submissionDurationSeconds99p()))))
-            .collect(ImmutableList.toImmutableList()));
+            "By month (all programs)",
+            APPLICATION_COUNTS_BY_MONTH_HEADERS,
+            allApplicationsMonthlyStats.stream()
+                .map(
+                    stat ->
+                        tr(
+                            td(dateConverter.renderMonthAndYear(stat.timestamp().get())),
+                            td(DECIMAL_FORMAT.format(stat.applicationCount())),
+                            td(renderDuration(stat.submissionDurationSeconds25p())),
+                            td(renderDuration(stat.submissionDurationSeconds50p())),
+                            td(renderDuration(stat.submissionDurationSeconds75p())),
+                            td(renderDuration(stat.submissionDurationSeconds99p()))))
+                .collect(ImmutableList.toImmutableList()))
+        .with(
+            redirectButton(
+                "by-programs-csv",
+                "Download CSV",
+                controllers.admin.routes.AdminReportingController.downloadCsv(
+                        AdminReportingController.DataSetName.APPLICATION_COUNTS_BY_MONTH.toString())
+                    .url()));
   }
+
+  public static final ImmutableList<String> APPLICATION_COUNTS_BY_PROGRAM_HEADERS =
+      ImmutableList.of(
+          "Program",
+          "Applications submitted",
+          "25p time to submit",
+          "50p time to submit",
+          "75p time to submit",
+          "99p time to submit");
 
   private DivTag renderAggregatedProgramStats(
       ImmutableList<ApplicationSubmissionsStat> aggregatedProgramStats) {
 
     return renderTable(
-        "By program",
-        ImmutableList.of(
-            "Program",
-            "Applications submitted, total",
-            "25p time to submit",
-            "50p time to submit",
-            "75p time to submit",
-            "99p time to submit"),
-        aggregatedProgramStats.stream()
-            .map(
-                stat ->
-                    tr(
-                        td(
-                            new LinkElement()
-                                .setHref("/")
-                                .setText(stat.programName())
-                                .asAnchorText()),
-                        td(DECIMAL_FORMAT.format(stat.applicationCount())),
-                        td(renderDuration(stat.submissionDurationSeconds25p())),
-                        td(renderDuration(stat.submissionDurationSeconds50p())),
-                        td(renderDuration(stat.submissionDurationSeconds75p())),
-                        td(renderDuration(stat.submissionDurationSeconds99p()))))
-            .collect(ImmutableList.toImmutableList()));
+            "By program (all time)",
+            APPLICATION_COUNTS_BY_PROGRAM_HEADERS,
+            aggregatedProgramStats.stream()
+                .map(
+                    stat ->
+                        tr(
+                            td(
+                                new LinkElement()
+                                    .setHref("/")
+                                    .setText(stat.programName())
+                                    .asAnchorText()),
+                            td(DECIMAL_FORMAT.format(stat.applicationCount())),
+                            td(renderDuration(stat.submissionDurationSeconds25p())),
+                            td(renderDuration(stat.submissionDurationSeconds50p())),
+                            td(renderDuration(stat.submissionDurationSeconds75p())),
+                            td(renderDuration(stat.submissionDurationSeconds99p()))))
+                .collect(ImmutableList.toImmutableList()))
+        .with(
+            redirectButton(
+                "by-programs-csv",
+                "Download CSV",
+                controllers.admin.routes.AdminReportingController.downloadCsv(
+                        AdminReportingController.DataSetName.APPLICATION_COUNTS_BY_PROGRAM
+                            .toString())
+                    .url()));
   }
 
   private DivTag renderTable(
@@ -142,10 +165,30 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     DivTag tableOuterContainer =
         div(tableInnerContainer).withClasses("relative rounded-xl overflow-auto");
 
-    return content.with(tableOuterContainer, button("Download CSV"));
+    return content.with(tableOuterContainer);
   }
 
-  private static String renderDuration(double durationSeconds) {
-    return durationSeconds + " seconds";
+  public static String renderDuration(double durationSeconds) {
+    Duration duration = Duration.ofSeconds((long) durationSeconds);
+
+    long days = duration.toDaysPart();
+    long hours = duration.toHoursPart();
+    int minutes = duration.toMinutesPart();
+    int seconds = duration.toSecondsPart();
+
+    StringBuilder result = new StringBuilder();
+
+    if (days > 0) {
+      result.append(days);
+      result.append(":");
+    }
+
+    result.append(hours);
+    result.append(":");
+    result.append(minutes);
+    result.append(":");
+    result.append(seconds);
+
+    return result.toString();
   }
 }

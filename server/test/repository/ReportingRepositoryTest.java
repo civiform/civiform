@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.sql.Timestamp;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -75,9 +77,50 @@ public class ReportingRepositoryTest extends ResetPostgres {
                 "Fake Program B", getMonthTimestamp(twoMonthsAgo), 3L, 300, 500, 750, 990));
   }
 
-  private static Timestamp getMonthTimestamp(Instant lastMonth) {
-    return Timestamp.from(
-        lastMonth.atZone(UTC).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1).toInstant());
+  @Test
+  public void loadThisMonthReportingData() {
+    Instant today = Instant.now(instanceOf(Clock.class));
+
+    ImmutableList.of(
+            Triple.of(LifecycleStage.ACTIVE, today, today.plusSeconds(100)),
+            Triple.of(LifecycleStage.OBSOLETE, today, today.plusSeconds(1000)),
+            Triple.of(LifecycleStage.OBSOLETE, today, today.plusSeconds(500)),
+            Triple.of(LifecycleStage.DRAFT, today, today.plusSeconds(1)))
+        .stream()
+        .forEach(
+            applicationSpec ->
+                createFakeApplication(
+                    programA,
+                    applicationSpec.getLeft(),
+                    applicationSpec.getMiddle(),
+                    applicationSpec.getRight()));
+
+    ImmutableList.of(
+            Triple.of(LifecycleStage.ACTIVE, today, today.plusSeconds(100)),
+            Triple.of(LifecycleStage.OBSOLETE, today, today.plusSeconds(1000)),
+            Triple.of(LifecycleStage.OBSOLETE, today, today.plusSeconds(500)),
+            Triple.of(LifecycleStage.DRAFT, today, today.plusSeconds(1)))
+        .stream()
+        .forEach(
+            applicationSpec ->
+                createFakeApplication(
+                    programB,
+                    applicationSpec.getLeft(),
+                    applicationSpec.getMiddle(),
+                    applicationSpec.getRight()));
+
+    assertThat(repo.loadThisMonthReportingData())
+        .containsExactly(
+            ApplicationSubmissionsStat.create(
+                "Fake Program A", getMonthTimestamp(today), 3L, 300, 500, 750, 990),
+            ApplicationSubmissionsStat.create(
+                "Fake Program B", getMonthTimestamp(today), 3L, 300, 500, 750, 990));
+  }
+
+  private static Optional<Timestamp> getMonthTimestamp(Instant lastMonth) {
+    return Optional.of(
+        Timestamp.from(
+            lastMonth.atZone(UTC).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1).toInstant()));
   }
 
   private Application createFakeApplication(

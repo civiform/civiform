@@ -3,6 +3,7 @@ package services.reporting;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import java.sql.Timestamp;
+import java.util.Optional;
 
 /**
  * Represents statistics about the number of applications submitted to a given program in a given
@@ -13,7 +14,7 @@ public abstract class ApplicationSubmissionsStat {
 
   public static ApplicationSubmissionsStat create(
       String programName,
-      Timestamp timestamp,
+      Optional<Timestamp> timestamp,
       long applicationCount,
       double submissionDurationSeconds25p,
       double submissionDurationSeconds50p,
@@ -33,7 +34,7 @@ public abstract class ApplicationSubmissionsStat {
   public abstract String programName();
 
   /** A timestamp representing the month they were submitted. */
-  public abstract Timestamp timestamp();
+  public abstract Optional<Timestamp> timestamp();
 
   /** The number of applications submitted that month. */
   public abstract long applicationCount();
@@ -52,7 +53,7 @@ public abstract class ApplicationSubmissionsStat {
 
   static class Aggregator {
     private final String programName;
-    private final Timestamp timestamp;
+    private final Optional<Timestamp> timestamp;
     private long count = 0;
     private double p25WithWeights = 0;
     private double p50WithWeights = 0;
@@ -61,7 +62,12 @@ public abstract class ApplicationSubmissionsStat {
 
     Aggregator(String programName, Timestamp timestamp) {
       this.programName = Preconditions.checkNotNull(programName);
-      this.timestamp = Preconditions.checkNotNull(timestamp);
+      this.timestamp = Optional.of(Preconditions.checkNotNull(timestamp));
+    }
+
+    Aggregator(String programName) {
+      this.programName = Preconditions.checkNotNull(programName);
+      this.timestamp = Optional.empty();
     }
 
     void update(ApplicationSubmissionsStat stat) {
