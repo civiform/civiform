@@ -3,6 +3,7 @@
   "$id": "https://github.com/civiform/cloud-deploy-infra/blob/main/config-validation/schema/v1.json",
   "title": "Environment variable documentation and validation file schema",
   "description": "Describes the expected format for CiviForm environment variable documentation and validation files.",
+
   "$comment": "File is a object with key-value pairs, each key corresponding to either a group of environment variables or an environment variables.",
   "type": "object",
   "uniqueItems": true,
@@ -10,16 +11,10 @@
     ".*": {
       "$comment": "Each key is either a group of environment variables or an environment variable.",
       "type": "object",
-      "oneOf": [
-        {
-          "$ref": "#/$defs/group"
-        },
-        {
-          "$ref": "#/$defs/variable"
-        }
-      ]
+      "oneOf": [{"$ref": "#/$defs/group"}, {"$ref": "#/$defs/variable"}]
     }
   },
+
   "$defs": {
     "group": {
       "type": "object",
@@ -31,14 +26,7 @@
         "members": {
           "patternProperties": {
             ".*": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/group"
-                },
-                {
-                  "$ref": "#/$defs/variable"
-                }
-              ]
+              "oneOf": [{"$ref": "#/$defs/group"}, {"$ref": "#/$defs/variable"}]
             }
           }
         }
@@ -46,6 +34,7 @@
       "additionalProperties": false,
       "required": ["group-description", "members"]
     },
+
     "variable": {
       "type": "object",
       "properties": {
@@ -65,9 +54,7 @@
         "values": {
           "description": "If the value is of type string, specific valid value can be provided",
           "type": "array",
-          "items": {
-            "type": "string"
-          },
+          "items": {"type": "string"},
           "minItems": 1,
           "uniqueItems": true
         },
@@ -81,18 +68,15 @@
           "items": {
             "type": "object",
             "properties": {
-              "val": {
-                "type": "string"
-              },
-              "shouldMatch": {
-                "type": "boolean"
-              }
+              "val": {"type": "string"},
+              "shouldMatch": {"type": "boolean"}
             }
           }
         }
       },
       "additionalProperties": false,
       "required": ["description", "type"],
+
       "$comment": "Additional validation rules if optional keys are defined.",
       "allOf": [
         {
@@ -102,15 +86,9 @@
           },
           "then": {
             "properties": {
-              "type": {
-                "const": "string"
-              },
-              "regex": {
-                "const": null
-              },
-              "regex_tests": {
-                "const": null
-              }
+              "type": {"const": "string"},
+              "regex": {"const": null},
+              "regex_tests": {"const": null}
             }
           }
         },
@@ -121,24 +99,16 @@
           },
           "then": {
             "properties": {
-              "type": {
-                "const": "string"
-              },
-              "values": {
-                "const": null
-              }
+              "type": {"const": "string"},
+              "values": {"const": null}
             },
             "required": ["regex_tests"]
           }
         },
         {
           "$comment": "If the 'regex_tests' field is defined, the 'regex' field is required.",
-          "if": {
-            "required": ["regex_tests"]
-          },
-          "then": {
-            "required": ["regex"]
-          }
+          "if": {"required": ["regex_tests"]},
+          "then": {"required": ["regex"]}
         }
       ]
     }

@@ -7,18 +7,9 @@
         "type": "string",
         "regex": "^https?://",
         "regex_tests": [
-          {
-            "val": "http://mylogo.png",
-            "shouldMatch": true
-          },
-          {
-            "val": "https://my-secure-logo.png",
-            "shouldMatch": true
-          },
-          {
-            "val": "props-not-a-valid-URL",
-            "shouldMatch": false
-          }
+          {"val": "http://mylogo.png", "shouldMatch": true},
+          {"val": "https://my-secure-logo.png", "shouldMatch": true},
+          {"val": "props-not-a-valid-URL", "shouldMatch": false}
         ]
       },
       "WHITELABEL_LOGO_WITH_NAME_URL": {
