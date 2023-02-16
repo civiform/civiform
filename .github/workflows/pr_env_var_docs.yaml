@@ -17,20 +17,34 @@ on:
       - '.github/workflows/pr_env_var_docs.yaml'
 
 jobs:
-  mypy-and-pytest:
+  run-validations:
     runs-on: ubuntu-latest
+    env:
+      APPLICATION_CONF_PATH: server/conf/application.conf
+      ENV_VAR_DOCS_PATH: server/conf/env-var-docs.json
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-      - name: Install var-env-docs dependencies
-        run: |
-          pip install $GITHUBWORKSPACE/env-var-docs/env_var_docs
-          pip install -r $GITHUBWORKSPACE/env-var-docs/requirements.txt
+
       - name: Install mypy and pytest
         run: pip install mypy pytest
+
+      - name: Install var-env-docs dependencies
+        run: |
+          pip install ./env-var-docs/env_var_docs
+          pip install -r env-var-docs/requirements.txt
+
       - name: Run mypy
-        run: mypy $GITHUB_WORKSPACE/env-var-docs
+        run: mypy env-var-docs
+
       - name: Run pytest
-        run: pytest $GITHUB_WORKSPACE/env-var-docs
+        run: pytest env-var-docs
+
+      - name: Ensure environment variables are documented
+        run: python env-var-docs/check_vars_documented.py
+
+      - name: Run environment variable regex tests
+        run: python env-var-docs/run_regex_tests.py
