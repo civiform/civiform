@@ -81,7 +81,10 @@ public abstract class ProgramDefinition {
 
   public abstract ProgramType programType();
 
-  /** Whether or not eligibility criteria for this program blocks the application from being submitted. */
+  /**
+   * Whether or not eligibility criteria for this program blocks the application from being
+   * submitted.
+   */
   public abstract Boolean isEligibilityGating();
 
   /**
