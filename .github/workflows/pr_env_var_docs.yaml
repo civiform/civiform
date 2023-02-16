@@ -1,0 +1,36 @@
+name: pr_env_var_docs
+
+# cancels in-progress jobs on this pull request
+# avoids wasted work when a new commit is pushed
+concurrency:
+  group: pr-server-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'env-var-docs/**'
+      - 'server/conf/application.conf'
+      - 'server/conf/env-var-docs.json'
+      - '.github/workflows/pr_env_var_docs.yaml'
+
+jobs:
+  mypy-and-pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install var-env-docs dependencies
+        run: |
+          pip install $GITHUBWORKSPACE/env-var-docs/env_var_docs
+          pip install -r $GITHUBWORKSPACE/env-var-docs/requirements.txt
+      - name: Install mypy and pytest
+        run: pip install mypy pytest
+      - name: Run mypy
+        run: mypy $GITHUB_WORKSPACE/env-var-docs
+      - name: Run pytest
+        run: pytest $GITHUB_WORKSPACE/env-var-docs

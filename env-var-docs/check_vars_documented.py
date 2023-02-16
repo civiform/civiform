@@ -77,11 +77,11 @@ def vars_from_application_conf(app_conf_file: typing.TextIO) -> set[str]:
     """Parses an application.conf file and returns the set of referenced environment variables."""
 
     # Matches any comment lines.
-    comment_re = re.compile("^\s*#")
+    comment_re = re.compile(r"^\s*#")
 
     # Matches any UPPER_SNAKE_CASE variables in substitutions like
     # ${?WHITELABEL_SMALL_LOGO_URL}.
-    env_var_re = re.compile("^.*\${\?\s*([A-Z0-9_]+)\s*}")
+    env_var_re = re.compile(r"^.*\${\?\s*([A-Z0-9_]+)\s*}")
 
     vars = set()
     for line in app_conf_file:
