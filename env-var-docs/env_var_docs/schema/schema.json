@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://github.com/civiform/cloud-deploy-infra/blob/main/config-validation/schema/v1.json",
+  "title": "Environment variable documentation and validation file schema",
+  "description": "Describes the expected format for CiviForm environment variable documentation and validation files.",
+
+  "$comment": "File is a object with key-value pairs, each key corresponding to either a group of environment variables or an environment variables.",
+  "type": "object",
+  "uniqueItems": true,
+  "patternProperties": {
+    ".*": {
+      "$comment": "Each key is either a group of environment variables or an environment variable.",
+      "type": "object",
+      "oneOf": [{"$ref": "#/$defs/group"}, {"$ref": "#/$defs/variable"}]
+    }
+  },
+
+  "$defs": {
+    "group": {
+      "type": "object",
+      "properties": {
+        "group-description": {
+          "description": "Description of what this group of variables configures.",
+          "type": "string"
+        },
+        "members": {
+          "patternProperties": {
+            ".*": {
+              "oneOf": [{"$ref": "#/$defs/group"}, {"$ref": "#/$defs/variable"}]
+            }
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["group-description", "members"]
+    },
+
+    "variable": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Description of what the environment variable configures.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of the environment variable value.",
+          "type": "string",
+          "enum": ["string", "int", "bool", "index-list"]
+        },
+        "required": {
+          "description": "If the environment variable is requried to be specified.",
+          "type": "boolean"
+        },
+        "values": {
+          "description": "If the value is of type string, specific valid value can be provided",
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "regex": {
+          "description": "If the value is of type string, a python regular expression (https://docs.python.org/3/library/re.html#regular-expression-syntax) can be provided. Values for this environment variable must match the regular expression.",
+          "type": "string"
+        },
+        "regex_tests": {
+          "description": "If a regular expression is provided, tests for the expression must also be provided.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "val": {"type": "string"},
+              "shouldMatch": {"type": "boolean"}
+            }
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["description", "type"],
+
+      "$comment": "Additional validation rules if optional keys are defined.",
+      "allOf": [
+        {
+          "$comment": "If the 'values' field is defined, the 'type' field must be 'string' and the 'regex' and 'regex_tests' fields must not be defined.",
+          "if": {
+            "required": ["values"]
+          },
+          "then": {
+            "properties": {
+              "type": {"const": "string"},
+              "regex": {"const": null},
+              "regex_tests": {"const": null}
+            }
+          }
+        },
+        {
+          "$comment": "If the 'regex' field is defined, the 'type' field must be 'string', the 'regex_tests' field is required, and the 'values' field must not be defined.",
+          "if": {
+            "required": ["regex"]
+          },
+          "then": {
+            "properties": {
+              "type": {"const": "string"},
+              "values": {"const": null}
+            },
+            "required": ["regex_tests"]
+          }
+        },
+        {
+          "$comment": "If the 'regex_tests' field is defined, the 'regex' field is required.",
+          "if": {"required": ["regex_tests"]},
+          "then": {"required": ["regex"]}
+        }
+      ]
+    }
+  }
+}
