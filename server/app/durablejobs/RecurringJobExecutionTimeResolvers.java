@@ -35,7 +35,7 @@ public final class RecurringJobExecutionTimeResolvers {
     @Override
     public Instant resolveExecutionTime(Clock clock) {
       return LocalDate.now(clock)
-          .with(TemporalAdjusters.firstDayOfMonth())
+          .with(TemporalAdjusters.firstDayOfNextMonth())
           .atStartOfDay(clock.getZone())
           .plus(2, ChronoUnit.HOURS)
           .toInstant();
