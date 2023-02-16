@@ -14,7 +14,7 @@ public enum ServiceAreaState {
   // The check failed for technical reasons.
   FAILED("Failed");
 
-  private static final Logger logger = LoggerFactory.getLogger(ServiceAreaState.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceAreaState.class);
 
   private final String serializationFormat;
 
@@ -27,14 +27,17 @@ public enum ServiceAreaState {
     return this.serializationFormat;
   }
 
+  /**
+   * Returns the the enum for the provided serialized format. This is useful in transforming serialized {@link ServiceAreaInclusion} groups with {@link ServiceAreaInclusionGroup.deserialize}.
+   */
   public static ServiceAreaState getEnumFromSerializedFormat(String serializedFormat) {
-    for (ServiceAreaState e : ServiceAreaState.values()) {
-      if (e.getSerializationFormat().equals(serializedFormat)) {
-        return ServiceAreaState.valueOf(e.name());
+    for (ServiceAreaState serviceAreaStateEnum : ServiceAreaState.values()) {
+      if (serviceAreaStateEnum.getSerializationFormat().equals(serializedFormat)) {
+        return ServiceAreaState.valueOf(serviceAreaStateEnum.name());
       }
     }
 
-    logger.error("Error getting enum from serialized format: {}", serializedFormat);
+    LOGGER.error("Error getting enum from serialized format: {}", serializedFormat);
     throw new RuntimeException("Error getting enum from serialized format: " + serializedFormat);
   }
 }

@@ -33,6 +33,7 @@ public final class AddressQuestion extends Question {
   private Optional<Double> latitudeValue;
   private Optional<Double> longitudeValue;
   private Optional<Long> wellKnownIdValue;
+  private Path serviceAreaPath;
   private Optional<ImmutableList<ServiceAreaInclusion>> serviceAreaValue;
 
   AddressQuestion(ApplicantQuestion applicantQuestion) {
@@ -262,7 +263,10 @@ public final class AddressQuestion extends Question {
   }
 
   public Path getServiceAreaPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
+    if (serviceAreaPath != null) {
+      return serviceAreaPath;
+    }
+    return serviceAreaPath = applicantQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
   }
 
   @Override

@@ -119,6 +119,9 @@ public final class Block {
     return blockDefinition.hasAddress();
   }
 
+  /**
+   * Returns a list of address service area IDs defined for eligibility on this block. Returns empty if no service area IDs are configured for eligibility.
+   */
   public Optional<ImmutableList<String>> getLeafAddressNodeServiceAreaIds() {
     Optional<EligibilityDefinition> eligibilityDefinition = getEligibilityDefinition();
     if (eligibilityDefinition.isEmpty()) {
@@ -134,6 +137,9 @@ public final class Block {
             .collect(ImmutableList.toImmutableList()));
   }
 
+  /**
+   * Returns a {@link ApplicantQuestion} that has address correction enabled if it exists. Returns empty if no questions have address correction enabled.
+   */
   public Optional<ApplicantQuestion> getAddressQuestionWithCorrectionEnabled() {
     return getQuestions().stream()
         .filter(ApplicantQuestion::isAddressCorrectionEnabled)

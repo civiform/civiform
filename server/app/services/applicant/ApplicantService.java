@@ -1151,7 +1151,6 @@ public final class ApplicantService {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
-          case SERVICE_AREA:
           case LIST_OF_STRINGS:
           case STRING:
             applicantData.putString(currentPath, update.value());
@@ -1170,13 +1169,15 @@ public final class ApplicantService {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
+          case SERVICE_AREA:
+            // service areas get updated below
+            break;
           default:
             throw new UnsupportedScalarTypeException(type);
         }
       }
     }
 
-    // write service area to applicant
     if (updateServiceArea.value().size() > 0) {
       applicantData.putString(
           updateServiceArea.path(), ServiceAreaInclusionGroup.serialize(updateServiceArea.value()));
