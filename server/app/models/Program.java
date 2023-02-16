@@ -185,7 +185,7 @@ public class Program extends BaseModel {
     slug = programDefinition.slug();
     displayMode = programDefinition.displayMode().getValue();
     programType = programDefinition.programType();
-    this.isEligibilityGating = definition.isEligibilityGating();
+    isEligibilityGating = programDefinition.isEligibilityGating();
 
     orderBlockDefinitionsBeforeUpdate();
   }
