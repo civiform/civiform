@@ -25,7 +25,7 @@ import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
 
 /** Contains methods for resolving {@link ServiceAreaUpdate}s to udpate applicant data. */
-public class ServiceAreaUpdateResolver {
+public final class ServiceAreaUpdateResolver {
   private final EsriClient esriClient;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final HttpExecutionContext httpExecutionContext;
