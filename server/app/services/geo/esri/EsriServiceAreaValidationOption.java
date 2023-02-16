@@ -52,7 +52,7 @@ public abstract class EsriServiceAreaValidationOption {
   /**
    * Determine if this EsriServiceAreaValidationOption is in the provided list of {@link
    * ServiceAreaInclusion}. Filters out options with FAILED states, so that they may be re-fetched.
-   * FAILED states represent an error occurred when calling {@link
+   * FAILED states represent that an error occurred when calling {@link
    * EsriClient.getServiceAreaInclusionGroup} with the passed in {@link
    * EsriServiceAreaValidationOption} argument.
    *
