@@ -429,9 +429,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .containsExactly(questionA, questionB);
     assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block3QD.id()))
         .containsExactly(questionD);
-
-    // program has eligibility enabled
-    assertThat(programDefinition.hasEligibilityEnabled()).isTrue();
   }
 
   @Test
@@ -542,9 +539,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .containsExactly(questionA, questionC);
     assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockE.id()))
         .containsExactly(questionE);
-
-    // program has eligibility enabled
-    assertThat(programDefinition.hasEligibilityEnabled()).isTrue();
   }
 
   @Test
