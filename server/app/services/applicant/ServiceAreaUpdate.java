@@ -7,9 +7,9 @@ import services.geo.ServiceAreaInclusion;
 
 /** Represents the service area piece of the applicant's answers to an address question. */
 @AutoValue
-public abstract class UpdateServiceArea {
-  public static UpdateServiceArea create(Path path, ImmutableList<ServiceAreaInclusion> value) {
-    return new AutoValue_UpdateServiceArea(path, value);
+public abstract class ServiceAreaUpdate {
+  public static ServiceAreaUpdate create(Path path, ImmutableList<ServiceAreaInclusion> value) {
+    return new AutoValue_ServiceAreaUpdate(path, value);
   }
 
   /**

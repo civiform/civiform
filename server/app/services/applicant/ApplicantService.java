@@ -55,8 +55,6 @@ import services.geo.AddressLocation;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaInclusionGroup;
-import services.geo.esri.EsriClient;
-import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
@@ -89,8 +87,7 @@ public final class ApplicantService {
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
-  private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
-  private final EsriClient esriClient;
+  private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
 
   @Inject
   public ApplicantService(
@@ -103,9 +100,8 @@ public final class ApplicantService {
       Clock clock,
       Config configuration,
       HttpExecutionContext httpExecutionContext,
-      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      EsriClient esriClient,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      ServiceAreaUpdateResolver serviceAreaUpdateResolver) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
@@ -114,8 +110,7 @@ public final class ApplicantService {
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
-    this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
-    this.esriClient = checkNotNull(esriClient);
+    this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
@@ -274,13 +269,27 @@ public final class ApplicantService {
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
-              return stageAndUpdateIfValidWithAddressServiceAreas(
+              if (addressServiceAreaValidationEnabled
+                  && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
+                return serviceAreaUpdateResolver.getServiceAreaUpdate(blockBeforeUpdate, updateMap)
+                    .thenComposeAsync((serviceAreaUpdate) -> {
+                      return stageAndUpdateIfValid(
+                          applicant,
+                          baseUrl,
+                          blockBeforeUpdate,
+                          programDefinition,
+                          updates,
+                          serviceAreaUpdate); 
+                    }, httpExecutionContext.current());
+              }
+
+              return stageAndUpdateIfValid(
                   applicant,
-                  updateMap,
-                  updates,
+                  baseUrl,
                   blockBeforeUpdate,
                   programDefinition,
-                  addressServiceAreaValidationEnabled);
+                  updates,
+                  Optional.empty());
             },
             httpExecutionContext.current())
         .thenCompose(
@@ -296,7 +305,7 @@ public final class ApplicantService {
       Block blockBeforeUpdate,
       ProgramDefinition programDefinition,
       ImmutableSet<Update> updates,
-      UpdateServiceArea updateServiceArea) {
+      Optional<ServiceAreaUpdate> serviceAreaUpdate) {
     UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
     ImmutableMap<Path, String> failedUpdates;
     try {
@@ -306,7 +315,7 @@ public final class ApplicantService {
               blockBeforeUpdate,
               updateMetadata,
               updates,
-              updateServiceArea);
+              serviceAreaUpdate);
     } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
       return CompletableFuture.failedFuture(e);
     }
@@ -324,145 +333,6 @@ public final class ApplicantService {
     }
 
     return CompletableFuture.completedFuture(roApplicantProgramService);
-  }
-
-  private CompletionStage<ReadOnlyApplicantProgramService>
-      stageAndUpdateIfValidWithAddressServiceAreas(
-          Applicant applicant,
-          ImmutableMap<String, String> updateMap,
-          ImmutableSet<Update> updates,
-          Block blockBeforeUpdate,
-          ProgramDefinition programDefinition,
-          boolean addressServiceAreaValidationEnabled) {
-    if (addressServiceAreaValidationEnabled
-        && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
-      Optional<ImmutableList<EsriServiceAreaValidationOption>> maybeOptions =
-          esriServiceAreaValidationConfig.getOptionsByServiceAreaIds(
-              blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().get());
-
-      Optional<ApplicantQuestion> maybeAddressQuestion =
-          blockBeforeUpdate.getAddressQuestionWithCorrectionEnabled();
-      if (maybeAddressQuestion.isPresent() && maybeOptions.isPresent()) {
-        ImmutableList<EsriServiceAreaValidationOption> serviceAreaOptions = maybeOptions.get();
-        ApplicantQuestion addressQuestion = maybeAddressQuestion.get();
-        Boolean hasCorrectedAddress = doesUpdateContainCorrectedAddress(addressQuestion, updateMap);
-
-        if (hasCorrectedAddress) {
-          Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
-          ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup =
-              getExistingServiceAreaInclusionGroup(serviceAreaPath, updateMap);
-          // filter out the serviceAreaOptions that have already been validated for this address
-          ImmutableList<EsriServiceAreaValidationOption> filteredServiceAreaOptions =
-              serviceAreaOptions.stream()
-                  .filter(
-                      (option) ->
-                          !option.isServiceAreaOptionInInclusionGroup(
-                              existingServiceAreaInclusionGroup))
-                  .collect(ImmutableList.toImmutableList());
-          if (filteredServiceAreaOptions.size() > 0) {
-            AddressLocation addressLocation =
-                getAddressLocationFromUpdates(addressQuestion, updateMap);
-
-            ImmutableList<CompletionStage<ImmutableList<ServiceAreaInclusion>>>
-                serviceAreaInclusionGroupFutures =
-                    filteredServiceAreaOptions.stream()
-                        .map(
-                            (option) -> {
-                              return esriClient
-                                  .getServiceAreaInclusionGroup(option, addressLocation)
-                                  .thenApplyAsync(
-                                      (serviceAreaInclusionGroup) -> serviceAreaInclusionGroup,
-                                      httpExecutionContext.current());
-                            })
-                        .collect(ImmutableList.toImmutableList());
-
-            return CompletableFuture.allOf(
-                    serviceAreaInclusionGroupFutures.toArray(
-                        new CompletableFuture[serviceAreaInclusionGroupFutures.size()]))
-                .thenComposeAsync(
-                    (u) -> {
-                      ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup =
-                          serviceAreaInclusionGroupFutures.stream()
-                              .map((future) -> future.toCompletableFuture().join())
-                              .flatMap(Collection::stream)
-                              .collect(ImmutableList.toImmutableList());
-                      ImmutableList<ServiceAreaInclusion> newServiceAreaInclusionGroup;
-
-                      if (existingServiceAreaInclusionGroup.size() > 0) {
-                        newServiceAreaInclusionGroup =
-                            Stream.of(existingServiceAreaInclusionGroup, serviceAreaInclusionGroup)
-                                .flatMap(List::stream)
-                                .collect(
-                                    Collectors.toMap(
-                                        ServiceAreaInclusion::getServiceAreaId,
-                                        area -> area,
-                                        (ServiceAreaInclusion a, ServiceAreaInclusion b) ->
-                                            b == null ? a : b))
-                                .values()
-                                .stream()
-                                .collect(ImmutableList.toImmutableList());
-                      } else {
-                        newServiceAreaInclusionGroup = serviceAreaInclusionGroup;
-                      }
-
-                      UpdateServiceArea updateServiceArea =
-                          UpdateServiceArea.create(serviceAreaPath, newServiceAreaInclusionGroup);
-
-                      return stageAndUpdateIfValid(
-                          applicant,
-                          baseUrl,
-                          blockBeforeUpdate,
-                          programDefinition,
-                          updates,
-                          updateServiceArea);
-                    },
-                    httpExecutionContext.current());
-          }
-        }
-      }
-    }
-
-    // pass in an empty updateServiceArea values
-    UpdateServiceArea updateServiceArea =
-        UpdateServiceArea.create(
-            Path.empty(), new ImmutableList.Builder<ServiceAreaInclusion>().build());
-
-    return stageAndUpdateIfValid(
-        applicant, baseUrl, blockBeforeUpdate, programDefinition, updates, updateServiceArea);
-  }
-
-  private AddressLocation getAddressLocationFromUpdates(
-      ApplicantQuestion addressQuestion, ImmutableMap<String, String> updateMap) {
-    Path latitudePath = addressQuestion.getContextualizedPath().join(Scalar.LATITUDE);
-    Path longitudePath = addressQuestion.getContextualizedPath().join(Scalar.LONGITUDE);
-    Path wellKnownIdPath = addressQuestion.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
-
-    return AddressLocation.builder()
-        .setLatitude(Double.parseDouble(updateMap.get(latitudePath.toString())))
-        .setLongitude(Double.parseDouble(updateMap.get(longitudePath.toString())))
-        .setWellKnownId(Integer.parseInt(updateMap.get(wellKnownIdPath.toString())))
-        .build();
-  }
-
-  private Boolean doesUpdateContainCorrectedAddress(
-      ApplicantQuestion addressQuestion, ImmutableMap<String, String> updateMap) {
-    Path correctedPath = addressQuestion.getContextualizedPath().join(Scalar.CORRECTED);
-    String correctedValue = updateMap.get(correctedPath.toString());
-
-    return correctedValue.equals(CorrectedAddressState.CORRECTED.getSerializationFormat());
-  }
-
-  private ImmutableList<ServiceAreaInclusion> getExistingServiceAreaInclusionGroup(
-      Path serviceAreaPath, ImmutableMap<String, String> updateMap) {
-    String serviceAreaValue = updateMap.get(serviceAreaPath.toString());
-    ImmutableList.Builder<ServiceAreaInclusion> existingServiceAreaInclusionGroupBuilder =
-        ImmutableList.builder();
-    if (serviceAreaValue != null) {
-      existingServiceAreaInclusionGroupBuilder.addAll(
-          ServiceAreaInclusionGroup.deserialize(serviceAreaValue));
-    }
-
-    return existingServiceAreaInclusionGroupBuilder.build();
   }
 
   /**
@@ -990,12 +860,12 @@ public final class ApplicantService {
       Block block,
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates,
-      UpdateServiceArea updateServiceArea)
+      Optional<ServiceAreaUpdate> serviceAreaUpdate)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     if (block.isEnumerator()) {
       return stageEnumeratorUpdates(applicantData, block, updateMetadata, updates);
     } else {
-      return stageNormalUpdates(applicantData, block, updateMetadata, updates, updateServiceArea);
+      return stageNormalUpdates(applicantData, block, updateMetadata, updates, serviceAreaUpdate);
     }
   }
 
@@ -1113,7 +983,7 @@ public final class ApplicantService {
       Block block,
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates,
-      UpdateServiceArea updateServiceArea)
+      Optional<ServiceAreaUpdate> serviceAreaUpdate)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ArrayList<Path> visitedPaths = new ArrayList<>();
     ImmutableMap.Builder<Path, String> failedUpdatesBuilder = ImmutableMap.builder();
@@ -1178,9 +1048,9 @@ public final class ApplicantService {
       }
     }
 
-    if (updateServiceArea.value().size() > 0) {
+    if (serviceAreaUpdate.isPresent() && serviceAreaUpdate.get().value().size() > 0) {
       applicantData.putString(
-          updateServiceArea.path(), ServiceAreaInclusionGroup.serialize(updateServiceArea.value()));
+        serviceAreaUpdate.get().path(), ServiceAreaInclusionGroup.serialize(serviceAreaUpdate.get().value()));
     }
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.

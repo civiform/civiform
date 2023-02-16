@@ -83,7 +83,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Before
   public void setUp() throws Exception {
-    // configure EsriClient instance for ApplicantService
+    // configure EsriClient instance for ServiceAreaUpdateResolver which is injected into ApplicantService
     Config config = ConfigFactory.load();
     Clock clock = instanceOf(Clock.class);
     EsriServiceAreaValidationConfig esriServiceAreaValidationConfig =
@@ -97,9 +97,12 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .build());
     WSClient ws = play.test.WSTestClient.newClient(server.httpPort());
     EsriClient esriClient = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
+    ServiceAreaUpdateResolver serviceAreaUpdateResolver = instanceOf(ServiceAreaUpdateResolver.class);
+    // set instance of esriClient for ServiceAreaUpdateResolver
+    FieldUtils.writeField(serviceAreaUpdateResolver, "esriClient", esriClient, true);
     subject = instanceOf(ApplicantService.class);
-    // set instance of esriClient for ApplicantService
-    FieldUtils.writeField(subject, "esriClient", esriClient, true);
+    // set instance of serviceAreaUpdateResolver for ApplicantService
+    FieldUtils.writeField(subject, "serviceAreaUpdateResolver", serviceAreaUpdateResolver, true);
     questionService = instanceOf(QuestionService.class);
     userRepository = instanceOf(UserRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
