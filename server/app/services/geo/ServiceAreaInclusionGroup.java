@@ -25,13 +25,14 @@ public final class ServiceAreaInclusionGroup {
     for (String serviceAreaString : Splitter.on(",").split(serviceAreas)) {
       List<String> serviceAreaParts = Splitter.on("_").splitToList(serviceAreaString);
       try {
+        assert serviceAreaParts.size() == 3;
         listBuilder.add(
             ServiceAreaInclusion.builder()
                 .setServiceAreaId(serviceAreaParts.get(0))
                 .setState(ServiceAreaState.getEnumFromSerializedFormat(serviceAreaParts.get(1)))
                 .setTimeStamp(Long.parseLong(serviceAreaParts.get(2)))
                 .build());
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         logger.error("Error while deserializing service area string {}", serviceAreaString);
         throw e;
       }
