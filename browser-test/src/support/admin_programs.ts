@@ -73,7 +73,7 @@ export class AdminPrograms {
   async addProgram(
     programName: string,
     description = 'program description',
-    externalLink = '',
+    externalLink = 'https://usa.gov',
     hidden = false,
     adminDescription = 'admin description',
   ) {

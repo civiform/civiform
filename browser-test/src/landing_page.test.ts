@@ -41,7 +41,7 @@ describe('the landing page', () => {
 
     it('does not have civiform version', async () => {
       expect(await ctx.page.textContent('html')).not.toContain(
-        'CiviForm version: dev',
+        'CiviForm version:',
       )
     })
   })
@@ -57,9 +57,7 @@ describe('the landing page', () => {
     sharedTests(ctx, 'landing-page-with-version')
 
     it('has civiform version', async () => {
-      expect(await ctx.page.textContent('html')).toContain(
-        'CiviForm version: dev',
-      )
+      expect(await ctx.page.textContent('html')).toContain('CiviForm version:')
     })
   })
 })

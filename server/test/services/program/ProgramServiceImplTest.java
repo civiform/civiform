@@ -116,7 +116,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "name",
             "description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue());
 
     assertThat(result.hasResult()).isTrue();
@@ -131,7 +131,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "name",
             "description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue());
 
     assertThat(result.hasResult()).isTrue();
@@ -154,13 +154,15 @@ public class ProgramServiceImplTest extends ResetPostgres {
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
             CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"));
+            CiviFormError.of("A program note is required"),
+            CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
   }
 
   @Test
   public void createProgramWithoutDisplayMode_returnsError() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition("test-program", "description", "name", "description", "", "");
+        ps.createProgramDefinition(
+            "test-program", "description", "name", "description", "https://usa.gov", "");
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -175,7 +177,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "description",
         "display name",
         "display description",
-        "",
+        "https://usa.gov",
         DisplayMode.PUBLIC.getValue());
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -184,7 +186,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue());
 
     assertThat(result.hasResult()).isFalse();
@@ -202,7 +204,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue());
 
     assertThat(result.hasResult()).isFalse();
@@ -224,7 +226,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "description",
                 "display name",
                 "display description",
-                "",
+                "https://usa.gov",
                 DisplayMode.PUBLIC.getValue())
             .getResult();
     // Program name here is missing the extra space
@@ -241,7 +243,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue());
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -259,7 +261,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     "new description",
                     "name",
                     "description",
-                    "",
+                    "https://usa.gov",
                     DisplayMode.PUBLIC.getValue()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
@@ -276,7 +278,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "new description",
             "name",
             "description",
-            "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue());
 
     assertThat(result.hasResult()).isTrue();
@@ -305,7 +307,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "new description",
                 "name",
                 "description",
-                "",
+                "https://usa.gov",
                 DisplayMode.PUBLIC.getValue())
             .getResult();
 
@@ -328,6 +330,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         .containsOnly(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
+            CiviFormError.of("A program link must begin with 'http://' or 'https://'"),
             CiviFormError.of("A program note is required"));
   }
 
@@ -642,7 +645,12 @@ public class ProgramServiceImplTest extends ResetPostgres {
   public void setBlockQuestions_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramDefinition p =
         ps.createProgramDefinition(
-                "name", "description", "name", "description", "", DisplayMode.PUBLIC.getValue())
+                "name",
+                "description",
+                "name",
+                "description",
+                "https://usa.gov",
+                DisplayMode.PUBLIC.getValue())
             .getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)

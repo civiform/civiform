@@ -148,8 +148,8 @@ describe('Applicant navigation flow', () => {
       const popup = await popupPromise
       const popupURL = await popup.evaluate('location.href')
 
-      // Verify if the program details page Url ends in "/programs/{program ID}"
-      expect(popupURL).toMatch(/\/programs\/[0-9]+$/)
+      // Verify that we are taken to the program details page
+      expect(popupURL).toMatch('https://www.usa.gov')
     })
 
     it('verify program list page', async () => {

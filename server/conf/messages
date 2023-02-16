@@ -290,6 +290,25 @@ title.createAnAccount=Create an account or sign in
 # A message urging users to create an account to save their data.
 content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
 
+#----------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen #
+#----------------------------------------------------------------------#
+
+# Title on the page
+title.addressCorrectionHeading=Address Correction
+
+# Page subheading
+content.addressCorrectionSubHeading=Verify address
+
+# Page instructions
+content.addressCorrectionPageInstructions=Is this a valid address? Please select the one that best corresponds to your mailing address. You can also click "Edit" to make any changes to the address you entered.
+
+# Section heading for selecting the address as the user entered it
+content.addressCorrectionAsEnteredHeading=Address entered:
+
+# Section heading for the list of suggested addresses
+content.addressCorrectionSuggestionsHeading=Suggested address(es):
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#

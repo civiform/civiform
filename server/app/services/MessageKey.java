@@ -2,6 +2,11 @@ package services;
 
 /** Contains keys into the {@code messages} files used for translation. */
 public enum MessageKey {
+  ADDRESS_CORRECTION_HEADING("title.addressCorrectionHeading"),
+  ADDRESS_CORRECTION_SUB_HEADING("content.addressCorrectionSubHeading"),
+  ADDRESS_CORRECTION_PAGE_INSTRUCTIONS("content.addressCorrectionPageInstructions"),
+  ADDRESS_CORRECTION_AS_ENTERED_HEADING("content.addressCorrectionAsEnteredHeading"),
+  ADDRESS_CORRECTION_SUGGESTIONS_HEADING("content.addressCorrectionSuggestionsHeading"),
   ADDRESS_LABEL_CITY("label.city"),
   ADDRESS_LABEL_LINE_2("label.addressLine2"),
   ADDRESS_LABEL_STATE("label.state"),
