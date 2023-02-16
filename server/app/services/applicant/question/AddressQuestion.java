@@ -161,7 +161,6 @@ public final class AddressQuestion extends Question {
     stateValue = applicantQuestion.getApplicantData().readString(getStatePath());
     return stateValue;
   }
-  // for reading the service areas
 
   public Optional<String> getZipValue() {
     if (zipValue != null) {

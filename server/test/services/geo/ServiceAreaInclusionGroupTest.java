@@ -11,7 +11,6 @@ public class ServiceAreaInclusionGroupTest {
     ImmutableList<ServiceAreaInclusion> serviceAreaInclusionList =
         ServiceAreaInclusionGroup.deserialize(
             "bloomington_Failed_1234,king-county_InArea_2222,seattle_InArea_5678,Arkansas_NotInArea_8765");
-    System.out.println(serviceAreaInclusionList);
     assertEquals("bloomington", serviceAreaInclusionList.get(0).getServiceAreaId());
     assertEquals(ServiceAreaState.FAILED, serviceAreaInclusionList.get(0).getState());
     assertEquals(1234, serviceAreaInclusionList.get(0).getTimeStamp());

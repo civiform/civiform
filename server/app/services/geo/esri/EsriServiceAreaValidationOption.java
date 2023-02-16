@@ -51,14 +51,14 @@ public abstract class EsriServiceAreaValidationOption {
 
   /**
    * Determine if this EsriServiceAreaValidationOption is in the provided list of {@link
-   * ServiceAreaInclusion}. Filters out FAILED states.
+   * ServiceAreaInclusion}. Filters out options with FAILED states, so that they may be re-fetched. FAILED states represent an error occurred when calling {@link EsriClient.getServiceAreaInclusionGroup} with the passed in {@link EsriServiceAreaValidationOption} argument.
    *
    * @return boolean.
    */
   public Boolean isServiceAreaOptionInInclusionGroup(
       ImmutableList<ServiceAreaInclusion> inclusionGroup) {
     return inclusionGroup.stream()
-        .filter((inclusion) -> inclusion.getState() != ServiceAreaState.FAILED)
+        .filter((inclusion) -> !inclusion.getState().equals(ServiceAreaState.FAILED))
         .map(ServiceAreaInclusion::getServiceAreaId)
         .collect(ImmutableList.toImmutableList())
         .contains(this.getId());
