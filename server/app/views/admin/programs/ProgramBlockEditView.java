@@ -616,6 +616,11 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
               blockDefinition.id(),
               questionDefinition,
               canRemove));
+    } else {
+        if (maybeOptionalToggle.isPresent) {
+          String label = isOptional ? "optional" : "required";
+          ret.with(makeReadOnlyLabel(label));
+        }
     }
     return ret;
   }
@@ -735,6 +740,21 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
             .withAction(toggleOptionalAction)
             .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
             .with(optionalButton));
+  }
+
+
+  // Creates label that can be used in the read only view, for example to replace a toggle.
+  private DivTag makeReadOnlyLabel(String label) {
+    DivTag ret = div().withClasses(
+        "flex",
+        "gap-2",
+        "items-center",
+       "text-gray-400",
+        "font-medium",
+        "bg-transparent",
+        "rounded-full")
+        .with(p(label));
+    return ret;
   }
 
   private Optional<FormTag> addressCorrectionEnabledToggle(
