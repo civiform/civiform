@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
@@ -51,11 +50,7 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.cloud.aws.SimpleEmail;
-import services.geo.AddressLocation;
-import services.geo.CorrectedAddressState;
-import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaInclusionGroup;
-import services.geo.esri.EsriServiceAreaValidationOption;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -271,16 +266,19 @@ public final class ApplicantService {
 
               if (addressServiceAreaValidationEnabled
                   && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
-                return serviceAreaUpdateResolver.getServiceAreaUpdate(blockBeforeUpdate, updateMap)
-                    .thenComposeAsync((serviceAreaUpdate) -> {
-                      return stageAndUpdateIfValid(
-                          applicant,
-                          baseUrl,
-                          blockBeforeUpdate,
-                          programDefinition,
-                          updates,
-                          serviceAreaUpdate); 
-                    }, httpExecutionContext.current());
+                return serviceAreaUpdateResolver
+                    .getServiceAreaUpdate(blockBeforeUpdate, updateMap)
+                    .thenComposeAsync(
+                        (serviceAreaUpdate) -> {
+                          return stageAndUpdateIfValid(
+                              applicant,
+                              baseUrl,
+                              blockBeforeUpdate,
+                              programDefinition,
+                              updates,
+                              serviceAreaUpdate);
+                        },
+                        httpExecutionContext.current());
               }
 
               return stageAndUpdateIfValid(
@@ -1050,7 +1048,8 @@ public final class ApplicantService {
 
     if (serviceAreaUpdate.isPresent() && serviceAreaUpdate.get().value().size() > 0) {
       applicantData.putString(
-        serviceAreaUpdate.get().path(), ServiceAreaInclusionGroup.serialize(serviceAreaUpdate.get().value()));
+          serviceAreaUpdate.get().path(),
+          ServiceAreaInclusionGroup.serialize(serviceAreaUpdate.get().value()));
     }
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.

@@ -4,13 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Results.ok;
 
-import java.time.Clock;
-import java.util.concurrent.CompletionStage;
-import java.util.Optional;
-
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.time.Clock;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,27 +71,26 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
         ProgramQuestionDefinition.create(
                 testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
             .setAddressCorrectionEnabled(true);
-    addressQuestion =
-            testQuestionBank.applicantAddress().getQuestionDefinition();
+    addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
     eligibilityDef =
-            EligibilityDefinition.builder()
-                .setPredicate(
-                    PredicateDefinition.create(
-                        PredicateExpressionNode.create(
-                            LeafAddressServiceAreaExpressionNode.create(
-                                addressQuestion.getId(), "Seattle")),
-                        PredicateAction.ELIGIBLE_BLOCK))
-                .build();
-      blockDefinition =
-                BlockDefinition.builder()
-                    .setId(1L)
-                    .setName("name")
-                    .setDescription("desc")
-                    .setEligibilityDefinition(eligibilityDef)
-                    .addQuestion(pqd)
-                    .build();
-        
-      block = new Block("id", blockDefinition, applicantData, Optional.empty());
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setEligibilityDefinition(eligibilityDef)
+            .addQuestion(pqd)
+            .build();
+
+    block = new Block("id", blockDefinition, applicantData, Optional.empty());
   }
 
   @Test
@@ -122,24 +120,31 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
                 "Bloomington_NotInArea_1234,Seattle_Failed_4567")
             .build();
 
-    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture = serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
-    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate = serviceAreaUpdateFuture.toCompletableFuture().join();
+    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture =
+        serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
+    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate =
+        serviceAreaUpdateFuture.toCompletableFuture().join();
     assertThat(maybeServiceAreaUpdate.isPresent()).isTrue();
     ServiceAreaUpdate serviceAreaUpdate = maybeServiceAreaUpdate.get();
-    assertEquals(serviceAreaUpdate.path(), Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA));
-    ServiceAreaInclusion bloomington = ServiceAreaInclusion.builder()
-        .setServiceAreaId("Bloomington")
-        .setState(ServiceAreaState.NOT_IN_AREA)
-        .setTimeStamp(1234)
-        .build();
-    ServiceAreaInclusion seattle = ServiceAreaInclusion.builder()
-        .setServiceAreaId("Seattle")
-        .setState(ServiceAreaState.IN_AREA)
-        .setTimeStamp(1234)
-        .build();
+    assertEquals(
+        serviceAreaUpdate.path(),
+        Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA));
+    ServiceAreaInclusion bloomington =
+        ServiceAreaInclusion.builder()
+            .setServiceAreaId("Bloomington")
+            .setState(ServiceAreaState.NOT_IN_AREA)
+            .setTimeStamp(1234)
+            .build();
+    ServiceAreaInclusion seattle =
+        ServiceAreaInclusion.builder()
+            .setServiceAreaId("Seattle")
+            .setState(ServiceAreaState.IN_AREA)
+            .setTimeStamp(1234)
+            .build();
     assertEquals(serviceAreaUpdate.value().get(0).getServiceAreaId(), seattle.getServiceAreaId());
     assertEquals(serviceAreaUpdate.value().get(0).getState(), seattle.getState());
-    assertEquals(serviceAreaUpdate.value().get(1).getServiceAreaId(), bloomington.getServiceAreaId());
+    assertEquals(
+        serviceAreaUpdate.value().get(1).getServiceAreaId(), bloomington.getServiceAreaId());
     assertEquals(serviceAreaUpdate.value().get(1).getState(), bloomington.getState());
     assertEquals(serviceAreaUpdate.value().get(1).getTimeStamp(), bloomington.getTimeStamp());
   }
@@ -149,28 +154,28 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
     ApplicantData applicantData = new ApplicantData();
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId));
+            testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId));
     QuestionDefinition addressQuestion =
-            testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.applicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
-            EligibilityDefinition.builder()
-                .setPredicate(
-                    PredicateDefinition.create(
-                        PredicateExpressionNode.create(
-                            LeafAddressServiceAreaExpressionNode.create(
-                                addressQuestion.getId(), "Moon")),
-                        PredicateAction.ELIGIBLE_BLOCK))
-                .build();
-      BlockDefinition blockDefinition =
-                BlockDefinition.builder()
-                    .setId(1L)
-                    .setName("name")
-                    .setDescription("desc")
-                    .setEligibilityDefinition(eligibilityDef)
-                    .addQuestion(pqd)
-                    .build();
-        
-      Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Moon")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setEligibilityDefinition(eligibilityDef)
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(
@@ -181,8 +186,10 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
             .build();
 
-    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture = serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
-    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate = serviceAreaUpdateFuture.toCompletableFuture().join();
+    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture =
+        serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
+    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate =
+        serviceAreaUpdateFuture.toCompletableFuture().join();
     assertThat(maybeServiceAreaUpdate.isEmpty()).isTrue();
   }
 
@@ -194,26 +201,26 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
                 testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
             .setAddressCorrectionEnabled(true);
     QuestionDefinition addressQuestion =
-            testQuestionBank.applicantAddress().getQuestionDefinition();
+        testQuestionBank.applicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
-            EligibilityDefinition.builder()
-                .setPredicate(
-                    PredicateDefinition.create(
-                        PredicateExpressionNode.create(
-                            LeafAddressServiceAreaExpressionNode.create(
-                                addressQuestion.getId(), "Moon")),
-                        PredicateAction.ELIGIBLE_BLOCK))
-                .build();
-      BlockDefinition blockDefinition =
-                BlockDefinition.builder()
-                    .setId(1L)
-                    .setName("name")
-                    .setDescription("desc")
-                    .setEligibilityDefinition(eligibilityDef)
-                    .addQuestion(pqd)
-                    .build();
-        
-      Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Moon")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setEligibilityDefinition(eligibilityDef)
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(
@@ -239,8 +246,10 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
                 "Bloomington_NotInArea_1234,Seattle_Failed_4567")
             .build();
 
-    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture = serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
-    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate = serviceAreaUpdateFuture.toCompletableFuture().join();
+    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture =
+        serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
+    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate =
+        serviceAreaUpdateFuture.toCompletableFuture().join();
     assertThat(maybeServiceAreaUpdate.isEmpty()).isTrue();
   }
 
@@ -256,8 +265,10 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
             .build();
 
-    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture = serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
-    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate = serviceAreaUpdateFuture.toCompletableFuture().join();
+    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture =
+        serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
+    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate =
+        serviceAreaUpdateFuture.toCompletableFuture().join();
     assertThat(maybeServiceAreaUpdate.isEmpty()).isTrue();
   }
 
@@ -288,22 +299,29 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
                 "Bloomington_NotInArea_1234,Seattle_InArea_4567")
             .build();
 
-    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture = serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
-    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate = serviceAreaUpdateFuture.toCompletableFuture().join();
+    CompletionStage<Optional<ServiceAreaUpdate>> serviceAreaUpdateFuture =
+        serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
+    Optional<ServiceAreaUpdate> maybeServiceAreaUpdate =
+        serviceAreaUpdateFuture.toCompletableFuture().join();
     assertThat(maybeServiceAreaUpdate.isPresent()).isTrue();
     ServiceAreaUpdate serviceAreaUpdate = maybeServiceAreaUpdate.get();
-    assertEquals(serviceAreaUpdate.path(), Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA));
-    ServiceAreaInclusion bloomington = ServiceAreaInclusion.builder()
-        .setServiceAreaId("Bloomington")
-        .setState(ServiceAreaState.NOT_IN_AREA)
-        .setTimeStamp(1234)
-        .build();
-    ServiceAreaInclusion seattle = ServiceAreaInclusion.builder()
-        .setServiceAreaId("Seattle")
-        .setState(ServiceAreaState.IN_AREA)
-        .setTimeStamp(4567)
-        .build();
-    assertEquals(serviceAreaUpdate.value().get(0).getServiceAreaId(), bloomington.getServiceAreaId());
+    assertEquals(
+        serviceAreaUpdate.path(),
+        Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA));
+    ServiceAreaInclusion bloomington =
+        ServiceAreaInclusion.builder()
+            .setServiceAreaId("Bloomington")
+            .setState(ServiceAreaState.NOT_IN_AREA)
+            .setTimeStamp(1234)
+            .build();
+    ServiceAreaInclusion seattle =
+        ServiceAreaInclusion.builder()
+            .setServiceAreaId("Seattle")
+            .setState(ServiceAreaState.IN_AREA)
+            .setTimeStamp(4567)
+            .build();
+    assertEquals(
+        serviceAreaUpdate.value().get(0).getServiceAreaId(), bloomington.getServiceAreaId());
     assertEquals(serviceAreaUpdate.value().get(0).getState(), bloomington.getState());
     assertEquals(serviceAreaUpdate.value().get(0).getTimeStamp(), bloomington.getTimeStamp());
     assertEquals(serviceAreaUpdate.value().get(1).getServiceAreaId(), seattle.getServiceAreaId());

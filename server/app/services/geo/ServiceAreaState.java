@@ -28,7 +28,9 @@ public enum ServiceAreaState {
   }
 
   /**
-   * Returns the the enum for the provided serialized format. This is useful in transforming serialized {@link ServiceAreaInclusion} groups with {@link ServiceAreaInclusionGroup.deserialize}.
+   * Returns the the enum for the provided serialized format. This is useful in transforming
+   * serialized {@link ServiceAreaInclusion} groups with {@link
+   * ServiceAreaInclusionGroup.deserialize}.
    */
   public static ServiceAreaState getEnumFromSerializedFormat(String serializedFormat) {
     for (ServiceAreaState serviceAreaStateEnum : ServiceAreaState.values()) {

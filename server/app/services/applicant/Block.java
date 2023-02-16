@@ -120,7 +120,8 @@ public final class Block {
   }
 
   /**
-   * Returns a list of address service area IDs defined for eligibility on this block. Returns empty if no service area IDs are configured for eligibility.
+   * Returns a list of address service area IDs defined for eligibility on this block. Returns empty
+   * if no service area IDs are configured for eligibility.
    */
   public Optional<ImmutableList<String>> getLeafAddressNodeServiceAreaIds() {
     Optional<EligibilityDefinition> eligibilityDefinition = getEligibilityDefinition();
@@ -138,7 +139,8 @@ public final class Block {
   }
 
   /**
-   * Returns a {@link ApplicantQuestion} that has address correction enabled if it exists. Returns empty if no questions have address correction enabled.
+   * Returns a {@link ApplicantQuestion} that has address correction enabled if it exists. Returns
+   * empty if no questions have address correction enabled.
    */
   public Optional<ApplicantQuestion> getAddressQuestionWithCorrectionEnabled() {
     return getQuestions().stream()
