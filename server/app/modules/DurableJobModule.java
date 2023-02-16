@@ -8,7 +8,8 @@ import com.typesafe.config.Config;
 import durablejobs.DurableJobName;
 import durablejobs.DurableJobRegistry;
 import durablejobs.DurableJobRunner;
-import durablejobs.RecurringJobSchedulers;
+import durablejobs.RecurringJobExecutionTimeResolvers;
+import durablejobs.RecurringJobScheduler;
 import durablejobs.jobs.OldJobCleanupJob;
 import java.time.Duration;
 import java.util.Random;
@@ -39,7 +40,8 @@ public final class DurableJobModule extends AbstractModule {
         ActorSystem actorSystem,
         Config config,
         ExecutionContext executionContext,
-        DurableJobRunner durableJobRunner) {
+        DurableJobRunner durableJobRunner,
+        RecurringJobScheduler recurringJobScheduler) {
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
       actorSystem
@@ -49,7 +51,10 @@ public final class DurableJobModule extends AbstractModule {
               // polling with another server.
               /* initialDelay= */ Duration.ofSeconds(new Random().nextInt(/* bound= */ 30)),
               /* interval= */ Duration.ofSeconds(pollIntervalSeconds),
-              durableJobRunner::runJobs,
+              () -> {
+                recurringJobScheduler.scheduleRecurringJobs();
+                durableJobRunner.runJobs();
+              },
               executionContext);
     }
   }
@@ -63,7 +68,7 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.OLD_JOB_CLEANUP,
         persistedDurableJob ->
             new OldJobCleanupJob(persistedDurableJobRepository, persistedDurableJob),
-        new RecurringJobSchedulers.Sunday2Am());
+        new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
     return durableJobRegistry;
   }

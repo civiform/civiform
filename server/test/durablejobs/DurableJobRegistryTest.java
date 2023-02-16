@@ -36,7 +36,7 @@ public class DurableJobRegistryTest {
     registry.register(
         DurableJobName.OLD_JOB_CLEANUP,
         new FakeJobFactory(),
-        new RecurringJobSchedulers.Sunday2Am());
+        new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
     assertThat(registry.getRecurringJobs().size()).isEqualTo(1);
   }
@@ -48,14 +48,14 @@ public class DurableJobRegistryTest {
     registry.register(
         DurableJobName.OLD_JOB_CLEANUP,
         new FakeJobFactory(),
-        new RecurringJobSchedulers.Sunday2Am());
+        new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
     assertThatThrownBy(
             () ->
                 registry.register(
                     DurableJobName.OLD_JOB_CLEANUP,
                     new FakeJobFactory(),
-                    new RecurringJobSchedulers.Sunday2Am()))
+                    new RecurringJobExecutionTimeResolvers.Sunday2Am()))
         .isInstanceOf(IllegalArgumentException.class);
   }
 

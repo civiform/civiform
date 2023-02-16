@@ -15,6 +15,8 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
+import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
@@ -61,15 +63,21 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final FeatureFlags featureFlags;
+  private final ProfileUtils profileUtils;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
-      ApplicantLayout layout, Config config, ZoneId zoneId, FeatureFlags featureFlags) {
+      ApplicantLayout layout,
+      Config config,
+      ZoneId zoneId,
+      FeatureFlags featureFlags,
+      ProfileUtils profileUtils) {
     this.layout = checkNotNull(layout);
     this.featureFlags = checkNotNull(featureFlags);
+    this.profileUtils = checkNotNull(profileUtils);
     this.maybeLogoUrl =
         checkNotNull(config).hasPath("whitelabel.logo_with_name_url")
             ? Optional.of(config.getString("whitelabel.logo_with_name_url"))
@@ -300,7 +308,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
     if (featureFlags.isProgramEligibilityConditionsEnabled(request)
         && cardData.isProgramMaybeEligible().isPresent()) {
-      programData.with(eligibilityTag(messages, cardData.isProgramMaybeEligible().get()));
+      programData.with(eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get()));
     }
     programData.with(title, description);
     // Use external link if it is present else use the default Program details page
@@ -367,15 +375,19 @@ public final class ProgramIndexView extends BaseHtmlView {
                 .withClasses("text-xs", "font-medium"));
   }
 
-  private PTag eligibilityTag(Messages messages, boolean isEligible) {
+  private PTag eligibilityTag(Http.Request request, Messages messages, boolean isEligible) {
+    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+    boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
+    MessageKey mayQualifyMessage =
+        isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
+    MessageKey mayNotQualifyMessage =
+        isTrustedIntermediary ? MessageKey.TAG_MAY_NOT_QUALIFY_TI : MessageKey.TAG_MAY_NOT_QUALIFY;
     Icons icon = isEligible ? Icons.CHECK_CIRCLE : Icons.INFO;
     String color = isEligible ? "bg-blue-100" : "bg-gray-200";
     String tagClass =
         isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
     String tagText =
-        isEligible
-            ? MessageKey.TAG_MAY_QUALIFY.getKeyName()
-            : MessageKey.TAG_MAY_NOT_QUALIFY.getKeyName();
+        isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName();
     return p().withClasses(tagClass, "border", "rounded-lg", "px-2", "py-1", "mb-4", color)
         .with(
             Icons.svg(icon)

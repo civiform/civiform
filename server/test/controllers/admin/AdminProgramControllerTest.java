@@ -108,6 +108,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                         "External program name",
                         "localizedDisplayDescription",
                         "External program description",
+                        "externalLink",
+                        "https://external.program.link",
                         "displayMode",
                         DisplayMode.PUBLIC.getValue())));
 
@@ -141,6 +143,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                         "External program name",
                         "localizedDisplayDescription",
                         "External program description",
+                        "externalLink",
+                        "https://external.program.link",
                         "displayMode",
                         DisplayMode.PUBLIC.getValue())));
 
@@ -273,6 +277,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "New external program name",
                     "localizedDisplayDescription",
                     "New external program description",
+                    "externalLink",
+                    "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue()));
 

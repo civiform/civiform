@@ -25,6 +25,16 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void findScheduledJob_findsJobsAtATime() {
+    Instant tomorrow = Instant.now().plus(1, ChronoUnit.DAYS);
+    var job = new PersistedDurableJob("fake-name", tomorrow);
+
+    assertThat(repo.findScheduledJob("fake-name", tomorrow)).isEmpty();
+    job.save();
+    assertThat(repo.findScheduledJob("fake-name", tomorrow)).contains(job);
+  }
+
+  @Test
   public void getJobForExecution_locksRowsForUpdateAndSkipsThem() throws Throwable {
     Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
     var jobA = new PersistedDurableJob("fake-name", yesterday);

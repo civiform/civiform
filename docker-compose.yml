@@ -38,7 +38,7 @@ services:
       - OIDC_PORT=3390
 
   db:
-    image: postgres:12.13
+    image: postgres:12.14
     restart: always
     expose:
       - '5432'

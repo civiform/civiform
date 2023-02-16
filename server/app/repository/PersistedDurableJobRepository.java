@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -22,6 +23,16 @@ public final class PersistedDurableJobRepository {
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider) {
     this.database = DB.getDefault();
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
+  }
+
+  public Optional<PersistedDurableJob> findScheduledJob(String jobName, Instant executionTime) {
+    return database
+        .find(PersistedDurableJob.class)
+        .where()
+        .eq("job_name", jobName)
+        .eq("execution_time", executionTime)
+        .setMaxRows(1)
+        .findOneOrEmpty();
   }
 
   /**
@@ -52,7 +63,7 @@ public final class PersistedDurableJobRepository {
   /** All {@link PersistedDurableJob}s ordered by execution time ascending. */
   public ImmutableList<PersistedDurableJob> getJobs() {
     return ImmutableList.copyOf(
-        database.find(PersistedDurableJob.class).orderBy("executionTime asc").findList());
+        database.find(PersistedDurableJob.class).orderBy("execution_time asc").findList());
   }
 
   /** Delete all {@link PersistedDurableJob}s that have an execution time older than six months. */
