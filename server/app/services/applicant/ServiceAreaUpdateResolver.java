@@ -25,7 +25,7 @@ import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
 
 /** Contains methods for resolving {@link ServiceAreaUpdate}s to udpate applicant data. */
-public final class ServiceAreaUpdateResolver {
+final class ServiceAreaUpdateResolver {
   private final EsriClient esriClient;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final HttpExecutionContext httpExecutionContext;
@@ -80,14 +80,14 @@ public final class ServiceAreaUpdateResolver {
         getExistingServiceAreaInclusionGroup(serviceAreaPath, updateMap);
 
     // filter out the serviceAreaOptions that have already been validated for this address
-    ImmutableList<EsriServiceAreaValidationOption> filteredServiceAreaOptions =
+    ImmutableList<EsriServiceAreaValidationOption> serviceAreaOptionsToValidate =
         serviceAreaOptions.stream()
             .filter(
                 (option) ->
                     !option.isServiceAreaOptionInInclusionGroup(existingServiceAreaInclusionGroup))
             .collect(ImmutableList.toImmutableList());
 
-    if (filteredServiceAreaOptions.size() == 0) {
+    if (serviceAreaOptionsToValidate.size() == 0) {
       // return an update with the existing service areas
       return CompletableFuture.completedFuture(
           Optional.of(
@@ -98,53 +98,50 @@ public final class ServiceAreaUpdateResolver {
 
     ImmutableList<CompletionStage<ImmutableList<ServiceAreaInclusion>>>
         serviceAreaInclusionGroupFutures =
-            filteredServiceAreaOptions.stream()
+            serviceAreaOptionsToValidate.stream()
                 .map(
                     (option) -> {
-                      return esriClient
-                          .getServiceAreaInclusionGroup(option, addressLocation)
-                          .thenApplyAsync(
-                              (serviceAreaInclusionGroup) -> serviceAreaInclusionGroup,
-                              httpExecutionContext.current());
+                      return esriClient.getServiceAreaInclusionGroup(option, addressLocation);
                     })
                 .collect(ImmutableList.toImmutableList());
 
     return CompletableFuture.allOf(
             serviceAreaInclusionGroupFutures.toArray(
                 new CompletableFuture[serviceAreaInclusionGroupFutures.size()]))
-        .thenComposeAsync(
+        .thenApplyAsync(
             (u) -> {
               ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup =
                   serviceAreaInclusionGroupFutures.stream()
                       .map((future) -> future.toCompletableFuture().join())
                       .flatMap(Collection::stream)
                       .collect(ImmutableList.toImmutableList());
-              ImmutableList<ServiceAreaInclusion> newServiceAreaInclusionGroup;
 
-              if (existingServiceAreaInclusionGroup.size() > 0) {
-                newServiceAreaInclusionGroup =
-                    Stream.of(existingServiceAreaInclusionGroup, serviceAreaInclusionGroup)
-                        .flatMap(List::stream)
-                        .collect(
-                            Collectors.toMap(
-                                ServiceAreaInclusion::getServiceAreaId,
-                                area -> area,
-                                (ServiceAreaInclusion existingInclusion,
-                                    ServiceAreaInclusion newInclusion) ->
-                                    newInclusion == null ? existingInclusion : newInclusion))
-                        .values()
-                        .stream()
-                        .collect(ImmutableList.toImmutableList());
-              } else {
-                newServiceAreaInclusionGroup = serviceAreaInclusionGroup;
-              }
+              ImmutableList<ServiceAreaInclusion> newServiceAreaInclusionGroup =
+                  existingServiceAreaInclusionGroup.isEmpty()
+                      ? serviceAreaInclusionGroup
+                      : mergeServiceAreaInclusionGroups(
+                          existingServiceAreaInclusionGroup, serviceAreaInclusionGroup);
 
-              ServiceAreaUpdate serviceAreaUpdate =
-                  ServiceAreaUpdate.create(serviceAreaPath, newServiceAreaInclusionGroup);
-
-              return CompletableFuture.completedFuture(Optional.of(serviceAreaUpdate));
+              return Optional.of(
+                  ServiceAreaUpdate.create(serviceAreaPath, newServiceAreaInclusionGroup));
             },
             httpExecutionContext.current());
+  }
+
+  private ImmutableList<ServiceAreaInclusion> mergeServiceAreaInclusionGroups(
+      ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup,
+      ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup) {
+    return Stream.of(existingServiceAreaInclusionGroup, serviceAreaInclusionGroup)
+        .flatMap(List::stream)
+        .collect(
+            Collectors.toMap(
+                ServiceAreaInclusion::getServiceAreaId,
+                area -> area,
+                (ServiceAreaInclusion existingInclusion, ServiceAreaInclusion newInclusion) ->
+                    newInclusion == null ? existingInclusion : newInclusion))
+        .values()
+        .stream()
+        .collect(ImmutableList.toImmutableList());
   }
 
   private Boolean doesUpdateContainCorrectedAddress(
