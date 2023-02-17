@@ -24,7 +24,7 @@ import services.geo.esri.EsriClient;
 import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
 
-/** Contains methods for resolving {@link ServiceAreaUpdate}s to udpate applicant data. */
+/** Contains methods for resolving {@link ServiceAreaUpdate}s to update applicant data. */
 public final class ServiceAreaUpdateResolver {
   private final EsriClient esriClient;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
