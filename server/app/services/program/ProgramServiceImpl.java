@@ -560,11 +560,18 @@ public final class ProgramServiceImpl implements ProgramService {
         .isPresent()) {
       throw new DuplicateStatusException(status.statusText());
     }
+    ImmutableList<StatusDefinitions.Status> currentStatuses =
+        program.statusDefinitions().getStatuses();
+    ImmutableList<StatusDefinitions.Status> updatedStatuses =
+        status.defaultStatus().orElse(false)
+            ? unsetDefaultStatus(currentStatuses, Optional.empty())
+            : currentStatuses;
+
     program
         .statusDefinitions()
         .setStatuses(
             ImmutableList.<StatusDefinitions.Status>builder()
-                .addAll(program.statusDefinitions().getStatuses())
+                .addAll(updatedStatuses)
                 .add(status)
                 .build());
 
@@ -573,6 +580,20 @@ public final class ProgramServiceImpl implements ProgramService {
                 programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  private ImmutableList<StatusDefinitions.Status> unsetDefaultStatus(
+      List<StatusDefinitions.Status> statuses, Optional<String> exceptStatusName) {
+    return statuses.stream()
+        .<StatusDefinitions.Status>map(
+            status -> {
+              if (exceptStatusName.map(name -> name.equals(status.statusText())).orElse(false)) {
+                return status;
+              } else {
+                return status.toBuilder().setDefaultStatus(Optional.of(false)).build();
+              }
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 
   @Override
@@ -601,8 +622,14 @@ public final class ProgramServiceImpl implements ProgramService {
         && statusNameToIndex.containsKey(editedStatus.statusText())) {
       throw new DuplicateStatusException(editedStatus.statusText());
     }
+
     statusesCopy.set(statusNameToIndex.get(toReplaceStatusName), editedStatus);
-    program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
+    ImmutableList<StatusDefinitions.Status> updatedStatuses =
+        editedStatus.defaultStatus().orElse(false)
+            ? unsetDefaultStatus(statusesCopy, Optional.of(editedStatus.statusText()))
+            : ImmutableList.copyOf(statusesCopy);
+
+    program.statusDefinitions().setStatuses(updatedStatuses);
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
