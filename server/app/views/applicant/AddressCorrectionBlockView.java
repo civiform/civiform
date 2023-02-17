@@ -1,31 +1,34 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.*;
-
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
+import static j2html.TagCreator.label;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
-import j2html.tags.specialized.*;
-
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
-import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import controllers.applicant.routes;
 import services.Address;
 import services.geo.AddressSuggestion;
-import services.geo.AddressSuggestionGroup;
 import services.MessageKey;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.Icons;
 import views.components.LinkElement;
-import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
@@ -94,7 +97,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private DivTag renderAsEnteredHeading(long applicantId, long programId, String blockId, Messages messages) {
-    var containerDiv = div().withClass("flex flex-nowrap mb-2");
+    DivTag containerDiv = div().withClass("flex flex-nowrap mb-2");
 
     ATag editElement =
       new LinkElement()
@@ -128,9 +131,9 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private LabelTag renderAddress(Address address, boolean selected, Optional<String> singleLineAddress) {
-    var containerDiv = label().withClass("flex flex-nowrap mb-2");
+    LabelTag containerDiv = label().withClass("flex flex-nowrap mb-2");
 
-    var input = TagCreator.input()
+    InputTag input = TagCreator.input()
       .withType("radio")
       .withName(SELECTED_ADDRESS_NAME)
       .withClass("cf-radio-input h-4 w-4 mr-4 align-middle");
@@ -147,7 +150,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
 
     containerDiv.with(div().with(input));
 
-    var addressDiv = div().with(div(address.getStreet()));
+    DivTag addressDiv = div().with(div(address.getStreet()));
 
     if (address.hasLine2()) {
       addressDiv.with(div(address.getLine2()));
