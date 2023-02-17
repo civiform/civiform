@@ -31,10 +31,3 @@ CMD ["/usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh
 # Save build results to anonymous volumes for reuse
 VOLUME ["/usr/src/civiform-browser-tests/node_modules"]
 VOLUME ["/usr/src/civiform-browser-tests"]
-
-# Symlink the fonts config
-# This is to solve https://github.com/civiform/civiform/issues/3225. It forces
-# `fc-match` to pick a font that contains bold styles for the `system-ui`
-# generic font family.
-RUN mkdir -p /root/.config/fontconfig/ && \
-    ln -s /usr/src/civiform-browser-tests/fonts.conf /root/.config/fontconfig/fonts.conf
