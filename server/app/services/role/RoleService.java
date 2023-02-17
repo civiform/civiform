@@ -2,6 +2,7 @@ package services.role;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import auth.Role;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -27,7 +28,7 @@ public final class RoleService {
   }
 
   /**
-   * Get a set of {@link Account}s that have the role {@link auth.Roles#ROLE_CIVIFORM_ADMIN}.
+   * Get a set of {@link Account}s that have the role {@link Role#ROLE_CIVIFORM_ADMIN}.
    *
    * @return an {@link ImmutableSet} of {@link Account}s that are CiviForm admins.
    */
@@ -37,10 +38,10 @@ public final class RoleService {
 
   /**
    * Promotes the set of accounts (identified by email) to the role of {@link
-   * auth.Roles#ROLE_PROGRAM_ADMIN} for the given program. If an account is currently a {@link
-   * auth.Roles#ROLE_CIVIFORM_ADMIN}, they will not be promoted, since CiviForm admins cannot be
-   * program admins. Instead, we return a {@link CiviFormError} listing the admin accounts that
-   * could not be promoted to program admins.
+   * Role#ROLE_PROGRAM_ADMIN} for the given program. If an account is currently a {@link
+   * Role#ROLE_CIVIFORM_ADMIN}, they will not be promoted, since CiviForm admins cannot be program
+   * admins. Instead, we return a {@link CiviFormError} listing the admin accounts that could not be
+   * promoted to program admins.
    *
    * @param programId the ID of the {@link models.Program} these accounts administer
    * @param accountEmails a {@link ImmutableSet} of account emails to make program admins
