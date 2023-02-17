@@ -27,7 +27,6 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
-import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.applicant.ApplicantProgramSummaryView;
@@ -214,22 +213,21 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                   Optional<String> applicantName =
                       applicantService.getName(applicantId).toCompletableFuture().join();
-                  try{
-                    String externalLink = programService.getProgramDefinition(programId).externalLink();
-                  return ok(
-                      ineligibleBlockView.render(
-                          request,
-                          submittingProfile,
-                          roApplicantProgramService,
-                          applicantName,
-                          messagesApi.preferred(request),
-                          applicantId,
-                        externalLink));
-                }
-                catch(ProgramNotFoundException e)
-                {
-                  notFound(e.toString());
-                }
+                  try {
+                    String externalLink =
+                        programService.getProgramDefinition(programId).externalLink();
+                    return ok(
+                        ineligibleBlockView.render(
+                            request,
+                            submittingProfile,
+                            roApplicantProgramService,
+                            applicantName,
+                            messagesApi.preferred(request),
+                            applicantId,
+                            externalLink));
+                  } catch (ProgramNotFoundException e) {
+                    notFound(e.toString());
+                  }
                 }
                 throw new RuntimeException(cause);
               }

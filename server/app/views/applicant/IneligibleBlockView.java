@@ -44,9 +44,9 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     // Use external link if it is present else use the default Program details page
     String programDetailsLink =
-      externalLink.isEmpty()
-        ? routes.ApplicantProgramsController.view(applicantId, programId).url()
-        : externalLink;
+        externalLink.isEmpty()
+            ? routes.ApplicantProgramsController.view(applicantId, programId).url()
+            : externalLink;
     ATag infoLink =
         new LinkElement()
             .setStyles("mb-4", "underline")
