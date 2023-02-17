@@ -73,6 +73,7 @@ public class ProgramTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setIsEligibilityGating(false)
             .build();
     Program program = new Program(definition);
 
@@ -146,6 +147,7 @@ public class ProgramTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
+            .setIsEligibilityGating(false)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -201,6 +203,7 @@ public class ProgramTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
+            .setIsEligibilityGating(false)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -299,6 +302,7 @@ public class ProgramTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
             .setBlockDefinitions(unorderedBlocks)
             .setProgramType(ProgramType.DEFAULT)
+            .setIsEligibilityGating(false)
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();
