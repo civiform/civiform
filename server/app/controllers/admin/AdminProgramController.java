@@ -24,6 +24,7 @@ import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.question.QuestionService;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
@@ -102,7 +103,7 @@ public final class AdminProgramController extends CiviFormController {
             program.getLocalizedDisplayDescription(),
             program.getExternalLink(),
             program.getDisplayMode(),
-            program.getIsCommonIntakeForm(),
+            program.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
             featureFlags.isIntakeFormEnabled(request));
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
@@ -175,7 +176,9 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
-            programData.getIsCommonIntakeForm(),
+            programData.getIsCommonIntakeForm()
+                ? ProgramType.COMMON_INTAKE_FORM
+                : ProgramType.DEFAULT,
             featureFlags.isIntakeFormEnabled(request));
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);

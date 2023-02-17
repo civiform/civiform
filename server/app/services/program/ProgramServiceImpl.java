@@ -184,8 +184,8 @@ public final class ProgramServiceImpl implements ProgramService {
       String defaultDisplayDescription,
       String externalLink,
       String displayMode,
-      Boolean isCommonIntakeForm,
-      Boolean isIntakeFormEnabled) {
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
 
@@ -211,13 +211,13 @@ public final class ProgramServiceImpl implements ProgramService {
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
     }
-    ProgramType programType = ProgramType.DEFAULT;
-    if (isIntakeFormEnabled && isCommonIntakeForm) {
-      if (programRepository.commonIntakeFormExists()) {
+    if (isIntakeFormFeatureEnabled) {
+      if (programType == ProgramType.COMMON_INTAKE_FORM
+          && programRepository.commonIntakeFormExists()) {
         errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
-      } else {
-        programType = ProgramType.COMMON_INTAKE_FORM;
       }
+    } else {
+      programType = ProgramType.DEFAULT;
     }
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
@@ -256,8 +256,8 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
-      Boolean isCommonIntakeForm,
-      Boolean isIntakeFormEnabled)
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
@@ -276,13 +276,14 @@ public final class ProgramServiceImpl implements ProgramService {
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
     }
-    ProgramType programType = ProgramType.DEFAULT;
-    if (isIntakeFormEnabled && isCommonIntakeForm) {
-      if (programRepository.commonIntakeFormExists() && !programDefinition.isCommonIntakeForm()) {
+    if (isIntakeFormFeatureEnabled) {
+      if (programType == ProgramType.COMMON_INTAKE_FORM
+          && programRepository.commonIntakeFormExists()
+          && !programDefinition.isCommonIntakeForm()) {
         errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
-      } else {
-        programType = ProgramType.COMMON_INTAKE_FORM;
       }
+    } else {
+      programType = ProgramType.DEFAULT;
     }
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {

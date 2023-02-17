@@ -23,6 +23,7 @@ import services.applicant.question.Scalar;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -332,8 +333,8 @@ public class DatabaseSeedController extends Controller {
               "display description",
               "https://github.com/seattle-uat/civiform",
               DisplayMode.PUBLIC.getValue(),
-              /* isCommonIntakeForm= */ false,
-              /* isIntakeFormEnabled= */ false);
+              /* programType= */ ProgramType.DEFAULT,
+              /* isIntakeFormFeatureEnabled= */ false);
       if (programDefinitionResult.isError()) {
         throw new Exception(programDefinitionResult.getErrors().toString());
       }
