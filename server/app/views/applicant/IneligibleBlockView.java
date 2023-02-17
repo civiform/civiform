@@ -38,14 +38,20 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Optional<String> applicantName,
       Messages messages,
-      long applicantId) {
+      long applicantId,
+      String externalLink) {
     long programId = roApplicantProgramService.getProgramId();
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
+    // Use external link if it is present else use the default Program details page
+    String programDetailsLink =
+      externalLink.isEmpty()
+        ? routes.ApplicantProgramsController.view(applicantId, programId).url()
+        : externalLink;
     ATag infoLink =
         new LinkElement()
             .setStyles("mb-4", "underline")
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase())
-            .setHref(routes.ApplicantProgramsController.view(applicantId, programId).url())
+            .setHref(programDetailsLink)
             .opensInNewTab()
             .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
             .asAnchorText()
