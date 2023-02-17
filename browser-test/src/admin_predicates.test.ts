@@ -273,7 +273,7 @@ describe('create and edit predicates', () => {
     const popup = await popupPromise
     const popupURL = await popup.evaluate('location.href')
 
-    // Verify if the program details page Url ends in "/programs/{program ID}"
+    // Verify if the program details page Url to be the external link"
     expect(popupURL).toMatch('https://usa.gov')
     // Return to the screen and fill it out to be eligible.
     await page.goBack()
