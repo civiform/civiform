@@ -39,6 +39,7 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import views.ApplicationBaseView;
@@ -67,6 +68,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final FeatureFlags featureFlags;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
+  private final ProgramService programService;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -83,7 +85,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Config configuration,
       FeatureFlags featureFlags,
       FileUploadViewStrategy fileUploadViewStrategy,
-      IneligibleBlockView ineligibleBlockView) {
+      IneligibleBlockView ineligibleBlockView,
+      ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -96,6 +99,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
+    this.programService = checkNotNull(programService);
   }
 
   /**
@@ -403,16 +407,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (featureFlags.isProgramEligibilityConditionsEnabled(request)
         && !roApplicantProgramService.isBlockEligible(blockId)) {
       CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
-      return supplyAsync(
-          () ->
-              ok(
-                  ineligibleBlockView.render(
-                      request,
-                      submittingProfile,
-                      roApplicantProgramService,
-                      applicantName,
-                      messagesApi.preferred(request),
-                      applicantId)));
+      try {
+        String externalLink = programService.getProgramDefinition(programId).externalLink();
+
+        return supplyAsync(
+            () ->
+                ok(
+                    ineligibleBlockView.render(
+                        request,
+                        submittingProfile,
+                        roApplicantProgramService,
+                        applicantName,
+                        messagesApi.preferred(request),
+                        applicantId,
+                        externalLink)));
+      } catch (ProgramNotFoundException e) {
+        notFound(e.toString());
+      }
     }
 
     Optional<String> nextBlockIdMaybe =
