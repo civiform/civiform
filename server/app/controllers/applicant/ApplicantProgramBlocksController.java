@@ -151,13 +151,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * This method renders all questions in the block of the program and presents to the applicant.
-   *
-   * <p>The difference between `edit` and `review` is the next block the applicant will see after
-   * submitting the answers.
-   *
-   * <p>`review` takes the applicant to the first incomplete block. If there are no more blocks,
-   * summary page is shown.
+   * This method handles the applicant's selection from the address correction options.
    */
   @Secure
   public CompletionStage<Result> confirmAddress(
