@@ -704,6 +704,30 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickSubmit()
       await logout(page)
     })
+
+    it('address correction page does not show if feature is disabled', async () => {
+      const {page, applicantQuestions} = ctx
+      await disableFeatureFlag(page, 'esri_address_correction_enabled')
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerAddressQuestion(
+        '305 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectAddressHasBeenCorrected(
+        'With Correction',
+        '305 Harrison',
+      )
+      await applicantQuestions.clickSubmit()
+      await logout(page)
+    })
   })
 
   // TODO: Add tests for "next" navigation
