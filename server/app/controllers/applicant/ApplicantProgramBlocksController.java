@@ -150,9 +150,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return editOrReview(request, applicantId, programId, blockId, true);
   }
 
-  /**
-   * This method handles the applicant's selection from the address correction options.
-   */
+  /** This method handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddress(
       Request request, long applicantId, long programId, String blockId) {
