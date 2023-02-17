@@ -16,7 +16,7 @@ public abstract class AddressLocation {
   public abstract Double getLatitude();
 
   /** returns a well-known ID for ArcGIS coordinate systems, used for spatial reference */
-  public abstract int getWellKnownId();
+  public abstract Integer getWellKnownId();
 
   @AutoValue.Builder
   public abstract static class Builder {

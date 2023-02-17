@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import services.Address;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -242,6 +243,16 @@ public final class AddressQuestion extends Question {
 
   public Path getWellKnownIdPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
+  }
+
+  public Address getAddress() {
+    return Address.builder()
+        .setStreet(getStreetValue().orElse(""))
+        .setLine2(getLine2Value().orElse(""))
+        .setCity(getCityValue().orElse(""))
+        .setState(getStateValue().orElse(""))
+        .setZip(getZipValue().orElse(""))
+        .build();
   }
 
   @Override

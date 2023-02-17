@@ -117,6 +117,11 @@ public final class Block {
     return blockDefinition.hasAddress();
   }
 
+  /** This block is an address block if its {@link BlockDefinition} contains an address question. */
+  public boolean hasAddressWithCorrectionEnabled() {
+    return blockDefinition.hasAddressWithCorrectionEnabled();
+  }
+
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
       this.questionsMemo =

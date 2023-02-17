@@ -492,5 +492,219 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectIneligiblePage()
     })
   })
+
+  describe('navigation with address correction enabled', () => {
+    const multiBlockMultiAddressProgram =
+      'Address correction multi-block, multi-address program'
+    const singleBlockMultiAddressProgram =
+      'Address correction single-block, multi-address program'
+    const singleBlockSingleAddressProgram =
+      'Address correction single-block, single-address program'
+
+    const addressWithCorrectionQuestionId = 'address-with-correction-q'
+    const addressWithoutCorrectionQuestionId = 'address-without-correction-q'
+    const textQuestionId = 'text-q'
+
+    beforeAll(async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+      // Create all questions
+      await adminQuestions.addAddressQuestion({
+        questionName: addressWithCorrectionQuestionId,
+        questionText: 'With Correction',
+      })
+
+      await adminQuestions.addAddressQuestion({
+        questionName: addressWithoutCorrectionQuestionId,
+        questionText: 'Without Correction',
+      })
+
+      await adminQuestions.addTextQuestion({
+        questionName: textQuestionId,
+        questionText: 'text',
+      })
+
+      // Create multi-block, multi-address program
+      await adminPrograms.addProgram(multiBlockMultiAddressProgram)
+
+      await adminPrograms.editProgramBlockWithOptional(
+        multiBlockMultiAddressProgram,
+        'first block',
+        [addressWithCorrectionQuestionId],
+        addressWithoutCorrectionQuestionId,
+      )
+
+      await adminPrograms.addProgramBlock(
+        multiBlockMultiAddressProgram,
+        'second block',
+        [textQuestionId],
+      )
+
+      await adminPrograms.goToBlockInProgram(
+        multiBlockMultiAddressProgram,
+        'Screen 1',
+      )
+      await adminPrograms.clickAddressCorrectionToggleByName(
+        addressWithCorrectionQuestionId,
+      )
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(multiBlockMultiAddressProgram)
+
+      // Create single-block, multi-address program
+      await adminPrograms.addProgram(singleBlockMultiAddressProgram)
+
+      await adminPrograms.editProgramBlockWithOptional(
+        singleBlockMultiAddressProgram,
+        'first block',
+        [addressWithCorrectionQuestionId],
+        addressWithoutCorrectionQuestionId,
+      )
+
+      await adminPrograms.goToBlockInProgram(
+        singleBlockMultiAddressProgram,
+        'Screen 1',
+      )
+      await adminPrograms.clickAddressCorrectionToggleByName(
+        addressWithCorrectionQuestionId,
+      )
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(singleBlockMultiAddressProgram)
+
+      // Create single-block, single-address program
+      await adminPrograms.addProgram(singleBlockSingleAddressProgram)
+
+      await adminPrograms.editProgramBlock(
+        singleBlockSingleAddressProgram,
+        'first block',
+        [addressWithCorrectionQuestionId],
+      )
+
+      await adminPrograms.goToBlockInProgram(
+        singleBlockSingleAddressProgram,
+        'Screen 1',
+      )
+      await adminPrograms.clickAddressCorrectionToggleByName(
+        addressWithCorrectionQuestionId,
+      )
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(singleBlockSingleAddressProgram)
+
+      // Log out admin
+      await logout(page)
+    })
+
+    it('can correct address multi-block, multi-address program', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerAddressQuestion(
+        '500 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+        0,
+      )
+      await applicantQuestions.answerAddressQuestion(
+        '305 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+        1,
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectVerifyAddressPage()
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerTextQuestion('Some text')
+      await applicantQuestions.clickNext()
+      await page.reload() // TODO: here temporarily while fixing page loading cached data.
+      await applicantQuestions.expectAddressHasBeenCorrected(
+        'With Correction',
+        '305 Harrison St',
+      )
+      await applicantQuestions.clickSubmit()
+      await logout(page)
+    })
+
+    it('can correct address single-block, multi-address program', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerAddressQuestion(
+        '500 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+        0,
+      )
+      await applicantQuestions.answerAddressQuestion(
+        '305 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+        1,
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectVerifyAddressPage()
+      await applicantQuestions.clickNext()
+      await page.reload() // TODO: here temporarily while fixing page loading cached data.
+      await applicantQuestions.expectAddressHasBeenCorrected(
+        'With Correction',
+        '305 Harrison St',
+      )
+      await applicantQuestions.clickSubmit()
+      await logout(page)
+    })
+
+    it('can correct address single-block, single-address program', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerAddressQuestion(
+        '305 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectVerifyAddressPage()
+
+      // Only doing accessibility and screenshot checks for address correction page
+      // once since they are all the same
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'verify-address-page')
+
+      await applicantQuestions.clickNext()
+      await page.reload() // TODO: here temporarily while fixing page loading cached data.
+      await applicantQuestions.expectAddressHasBeenCorrected(
+        'With Correction',
+        '305 Harrison St',
+      )
+      await applicantQuestions.clickSubmit()
+      await logout(page)
+    })
+  })
+
   // TODO: Add tests for "next" navigation
 })

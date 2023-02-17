@@ -19,6 +19,10 @@ public abstract class Address {
 
   public abstract String getZip();
 
+  public Boolean hasLine2() {
+    return !getLine2().isEmpty();
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setStreet(String address);

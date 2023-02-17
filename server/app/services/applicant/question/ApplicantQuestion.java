@@ -215,6 +215,10 @@ public final class ApplicantQuestion {
     return new AddressQuestion(this);
   }
 
+  public boolean isAddressCorrectionEnabled() {
+    return programQuestionDefinition.addressCorrectionEnabled();
+  }
+
   public CurrencyQuestion createCurrencyQuestion() {
     return new CurrencyQuestion(this);
   }

@@ -133,6 +133,17 @@ public abstract class BlockDefinition {
    * question ID that you are trying to enable it on.
    */
   @JsonIgnore
+  public boolean hasAddressWithCorrectionEnabled() {
+    return hasAddress()
+        && programQuestionDefinitions().stream()
+            .anyMatch(ProgramQuestionDefinition::addressCorrectionEnabled);
+  }
+
+  /**
+   * Check if block already contains a question with address correction enabled, ignoring the given
+   * question ID that you are trying to enable it on.
+   */
+  @JsonIgnore
   public boolean hasAddressCorrectionEnabledOnDifferentQuestion(long questionDefinitionId) {
     return programQuestionDefinitions().stream()
         .anyMatch(

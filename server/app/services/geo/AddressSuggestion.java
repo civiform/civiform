@@ -1,5 +1,6 @@
 package services.geo;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoValue;
 import services.Address;
 
@@ -43,5 +44,33 @@ public abstract class AddressSuggestion {
     public abstract Builder setAddress(Address address);
 
     public abstract AddressSuggestion build();
+
+    public AddressSuggestion fromJson(JsonNode node) {
+      JsonNode location = node.get("location");
+      JsonNode attributes = node.get("address");
+
+      AddressLocation addressLocation =
+          AddressLocation.builder()
+              .setLatitude(location.get("latitude").asDouble())
+              .setLongitude(location.get("longitude").asDouble())
+              .setWellKnownId(location.get("wellKnownId").asInt())
+              .build();
+
+      Address candidateAddress =
+          Address.builder()
+              .setStreet(attributes.get("street").asText())
+              .setLine2(attributes.get("line2").asText())
+              .setCity(attributes.get("city").asText())
+              .setState(attributes.get("state").asText())
+              .setZip(attributes.get("zip").asText())
+              .build();
+
+      return AddressSuggestion.builder()
+          .setSingleLineAddress(node.get("singleLineAddress").asText())
+          .setScore(node.get("score").asInt())
+          .setAddress(candidateAddress)
+          .setLocation(addressLocation)
+          .build();
+    }
   }
 }
