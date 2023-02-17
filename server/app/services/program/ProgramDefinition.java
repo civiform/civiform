@@ -100,6 +100,12 @@ public abstract class ProgramDefinition {
     return orderedProgramDefinition;
   }
 
+  /** Returns whether a program has eligibility conditions applied. */
+  public boolean hasEligibilityEnabled() {
+    return blockDefinitions().stream()
+        .anyMatch(blockDef -> blockDef.eligibilityDefinition().isPresent());
+  }
+
   private ImmutableList<BlockDefinition> orderBlockDefinitionsInner(
       ImmutableList<BlockDefinition> currentLevel) {
     ImmutableList.Builder<BlockDefinition> blockDefinitionBuilder = ImmutableList.builder();
