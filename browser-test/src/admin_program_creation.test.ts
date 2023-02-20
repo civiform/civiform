@@ -138,7 +138,7 @@ describe('program creation', () => {
     // ensure that non address question does not contain address correction button
     expect(
       await page.innerText(
-        adminPrograms.questionCardSelectorInProgramEditor('ace-name'),
+        adminPrograms.questionCardSelectorInProgramView('ace-name'),
       ),
     ).not.toContain('Address correction')
   })
@@ -227,7 +227,7 @@ describe('program creation', () => {
     // ensure that non address question does not contain address correction button
     expect(
       await page.innerText(
-        adminPrograms.questionCardSelectorInProgramEditor('ace-name'),
+        adminPrograms.questionCardSelectorInProgramView('ace-name'),
       ),
     ).not.toContain('Address correction')
   })

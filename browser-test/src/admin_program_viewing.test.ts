@@ -34,14 +34,17 @@ describe('admin program view page', () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'program_read_only_view_enabled')
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
     const programName = 'Apc program'
+    await adminQuestions.addAddressQuestion({questionName: 'address-q'})
     await adminQuestions.addDateQuestion({questionName: 'date-q'})
     await adminQuestions.addEmailQuestion({questionName: 'email-q'})
 
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
     await adminPrograms.editProgramBlock(programName, 'dummy description', [
+      'address-q',
       'date-q',
       'email-q',
     ])
@@ -53,13 +56,29 @@ describe('admin program view page', () => {
     await adminPrograms.expectReadOnlyProgramBlock('1')
     await adminPrograms.gotoToBlockInReadOnlyProgram('2')
     await adminPrograms.expectReadOnlyProgramBlock('2')
-    adminPrograms.expectQuestion('date-q')
-    adminPrograms.expectQuestion('email-q')
+
+    await adminPrograms.expectQuestionCardWithLabel(
+      'address-q',
+      'required question',
+    )
+    await adminPrograms.expectQuestionCardWithLabel(
+      'address-q',
+      'address correction: disabled',
+    )
+    await adminPrograms.expectQuestionCardWithLabel(
+      'date-q',
+      'required question',
+    )
+    await adminPrograms.expectQuestionCardWithLabel(
+      'email-q',
+      'required question',
+    )
 
     await validateScreenshot(page, 'view-program-block-2')
 
     await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
     await adminPrograms.expectProgramBlockEditPage(programName)
+    
     await validateScreenshot(page, 'view-program-start-editing')
   })
 })
