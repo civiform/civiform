@@ -65,3 +65,5 @@ tailwind.css
 
 # env-var-doc python things
 env-var-docs/venv
+env-var-docs/env_var_docs/build
+env-var-docs/env_var_docs/*.egg*
