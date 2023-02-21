@@ -22,6 +22,7 @@ import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 /** Renders a confirmation page after application submission. */
@@ -91,7 +92,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
             .with(
                 div(messages.at(
                         MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))
-                    .withClasses("mb-4"))
+                    .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4"))
             .with(div(customConfirmationMessage.getOrDefault(locale)).withClasses("mb-4"));
 
     // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
