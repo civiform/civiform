@@ -209,23 +209,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
                     ProgramDefinition programDefinition =
                         programService.getProgramDefinition(programId);
 
-                    var unusedFuture = applicantService
-                        .getReadOnlyApplicantProgramService(applicantId, programId)
-                        .toCompletableFuture()
-                        .thenCombineAsync(
-                            applicantService.getName(applicantId).toCompletableFuture(),
-                            (roApplicantProgramService, applicantName) -> {
-                              return ok(
-                                  ineligibleBlockView.render(
-                                      request,
-                                      submittingProfile,
-                                      roApplicantProgramService,
-                                      applicantName,
-                                      messagesApi.preferred(request),
-                                      applicantId,
-                                      programDefinition));
-                            },
-                            httpExecutionContext.current());
+                    var unusedFuture =
+                        applicantService
+                            .getReadOnlyApplicantProgramService(applicantId, programId)
+                            .toCompletableFuture()
+                            .thenCombineAsync(
+                                applicantService.getName(applicantId).toCompletableFuture(),
+                                (roApplicantProgramService, applicantName) -> {
+                                  return ok(
+                                      ineligibleBlockView.render(
+                                          request,
+                                          submittingProfile,
+                                          roApplicantProgramService,
+                                          applicantName,
+                                          messagesApi.preferred(request),
+                                          applicantId,
+                                          programDefinition));
+                                },
+                                httpExecutionContext.current());
                   } catch (ProgramNotFoundException e) {
                     notFound(e.toString());
                   }
