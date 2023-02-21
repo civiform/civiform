@@ -51,7 +51,7 @@ public abstract class ApplicationSubmissionsStat {
   /** The 99th percentile average of the submission time - creation time. */
   public abstract double submissionDurationSeconds99p();
 
-  static class Aggregator {
+  static final class Aggregator {
     private final String programName;
     private final Optional<Timestamp> timestamp;
     private long count = 0;
