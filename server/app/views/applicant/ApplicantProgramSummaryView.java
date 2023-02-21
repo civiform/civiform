@@ -186,7 +186,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     // application is ineligible.
     if (!data.isEligible() && data.isAnswered()) {
       actionAndTimestampDiv.with(
-          div(messages.at(MessageKey.CONTENT_NOT_ELIGIBLE.getKeyName()))
+          div(messages.at(MessageKey.CONTENT_DOES_NOT_QUALIFY.getKeyName()))
               .withClasses(
                   "text-m",
                   "font-medium",

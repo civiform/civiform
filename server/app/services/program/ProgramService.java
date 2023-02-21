@@ -86,6 +86,8 @@ public interface ProgramService {
    * @param defaultDisplayDescription a description for this program to display to applicants
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param programType ProgramType for this Program.
+   * @param isIntakeFormFeatureEnabled whether or not the common intake form feature is enabled.
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
@@ -95,7 +97,9 @@ public interface ProgramService {
       String defaultDisplayName,
       String defaultDisplayDescription,
       String externalLink,
-      String displayMode);
+      String displayMode,
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled);
 
   /**
    * Update a program's mutable fields: admin description, display name and description for
@@ -109,6 +113,8 @@ public interface ProgramService {
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param programType ProgramType for this program
+   * @param isIntakeFormFeatureEnabled whether or not the common intake for feature is enabled.
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
@@ -120,7 +126,9 @@ public interface ProgramService {
       String displayName,
       String displayDescription,
       String externalLink,
-      String displayMode)
+      String displayMode,
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled)
       throws ProgramNotFoundException;
 
   /**

@@ -49,6 +49,19 @@ import services.question.types.QuestionDefinition;
 /** Implementation class for {@link ProgramService} interface. */
 public final class ProgramServiceImpl implements ProgramService {
 
+  private static final String MISSING_DISPLAY_NAME_MSG =
+      "A public display name for the program is required";
+  private static final String MISSING_DISPLAY_DESCRIPTION_MSG =
+      "A public description for the program is required";
+  private static final String MISSING_DISPLAY_MODE_MSG =
+      "A program visibility option must be selected";
+  private static final String MISSING_ADMIN_DESCRIPTION_MSG = "A program note is required";
+  private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
+  private static final String INVALID_ADMIN_NAME_MSG =
+      "A program URL may only contain lowercase letters, numbers, and dashes";
+  private static final String DUPLICATE_INTAKE_FORM_MSG =
+      "A program set as the Common Intake Form already exists";
+
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -170,35 +183,42 @@ public final class ProgramServiceImpl implements ProgramService {
       String defaultDisplayName,
       String defaultDisplayDescription,
       String externalLink,
-      String displayMode) {
+      String displayMode,
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
 
     if (defaultDisplayName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A public display name for the program is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
     }
     if (defaultDisplayDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A public description for the program is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
     }
     if (adminName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program URL is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
-      errorsBuilder.add(
-          CiviFormError.of(
-              "A program URL may only contain lowercase letters, numbers, and dashes"));
+      errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
     } else if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
     }
     if (displayMode.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program visibility option must be selected"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
     }
     if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program note is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
     }
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
     }
-
+    if (isIntakeFormFeatureEnabled) {
+      if (programType == ProgramType.COMMON_INTAKE_FORM
+          && programRepository.commonIntakeFormExists()) {
+        errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
+      }
+    } else {
+      programType = ProgramType.DEFAULT;
+    }
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -222,7 +242,7 @@ public final class ProgramServiceImpl implements ProgramService {
             displayMode,
             ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersion(),
-            ProgramType.DEFAULT);
+            programType);
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -235,26 +255,36 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayName,
       String displayDescription,
       String externalLink,
-      String displayMode)
+      String displayMode,
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (displayName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A public display name for the program is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
     }
     if (displayDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A public description for the program is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
     }
     if (displayMode.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program visibility option must be selected"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
     }
     if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program note is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
     }
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
     }
-
+    if (isIntakeFormFeatureEnabled) {
+      if (programType == ProgramType.COMMON_INTAKE_FORM
+          && programRepository.commonIntakeFormExists()
+          && !programDefinition.isCommonIntakeForm()) {
+        errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
+      }
+    } else {
+      programType = ProgramType.DEFAULT;
+    }
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -271,6 +301,7 @@ public final class ProgramServiceImpl implements ProgramService {
                     .updateTranslation(locale, displayDescription))
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
+            .setProgramType(programType)
             .build()
             .toProgram();
     return ErrorAnd.of(

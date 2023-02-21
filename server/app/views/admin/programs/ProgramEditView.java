@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.FormTag;
@@ -23,14 +24,15 @@ public final class ProgramEditView extends ProgramFormBuilder {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramEditView(AdminLayoutFactory layoutFactory, Config configuration) {
-    super(configuration);
+  public ProgramEditView(
+      AdminLayoutFactory layoutFactory, Config configuration, FeatureFlags featureFlags) {
+    super(configuration, featureFlags);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
   public Content render(Request request, ProgramDefinition program) {
     FormTag formTag =
-        buildProgramForm(program, /* editExistingProgram = */ true)
+        buildProgramForm(request, program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
             .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
@@ -49,7 +51,7 @@ public final class ProgramEditView extends ProgramFormBuilder {
       ProgramForm program,
       Optional<ToastMessage> message) {
     FormTag formTag =
-        buildProgramForm(program, /* editExistingProgram = */ true)
+        buildProgramForm(request, program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(existingProgram.id()))
             .withAction(

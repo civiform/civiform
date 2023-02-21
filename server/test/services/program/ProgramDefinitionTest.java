@@ -173,6 +173,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
             programDefinition.isQuestionUsedInPredicate(
                 testQuestionBank.applicantKitchenTools().id))
         .isFalse();
+
+    // program has eligibility enabled
+    assertThat(programDefinition.hasEligibilityEnabled()).isTrue();
   }
 
   @Test
@@ -539,6 +542,21 @@ public class ProgramDefinitionTest extends ResetPostgres {
   }
 
   @Test
+  public void hasEligibilityEnabled_correctlyReturnsFalse() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .build()
+            .getProgramDefinition();
+
+    // program does not have eligibility enabled
+    assertThat(programDefinition.hasEligibilityEnabled()).isFalse();
+  }
+
+  @Test
   public void insertBlockDefinitionInTheRightPlace_repeatedBlock() throws Exception {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
@@ -727,6 +745,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.getBlockDefinitionByIndex(1)).isPresent();
     assertThat(result.getBlockDefinitionByIndex(1).get().eligibilityDefinition())
         .contains(eligibility);
+
+    // program has eligibility enabled
+    assertThat(programDefinition.hasEligibilityEnabled()).isTrue();
   }
 
   @Test
@@ -795,6 +816,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.getBlockDefinitionByIndex(0).get().eligibilityDefinition())
         .contains(eligibility);
     assertThat(result.getQuestionDefinition(0, 0).getId()).isEqualTo(predicateQuestion.id);
+
+    // program has eligibility enabled
+    assertThat(programDefinition.hasEligibilityEnabled()).isTrue();
   }
 
   @Test
