@@ -38,6 +38,7 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.program.PathNotInBlockException;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
@@ -408,7 +409,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         && !roApplicantProgramService.isBlockEligible(blockId)) {
       CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
       try {
-        String externalLink = programService.getProgramDefinition(programId).externalLink();
+        ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
 
         return supplyAsync(
             () ->
@@ -420,7 +421,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         applicantName,
                         messagesApi.preferred(request),
                         applicantId,
-                        externalLink)));
+                        programDefinition)));
       } catch (ProgramNotFoundException e) {
         notFound(e.toString());
       }

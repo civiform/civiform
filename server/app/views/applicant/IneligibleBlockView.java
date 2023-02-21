@@ -15,6 +15,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.ProgramDefinition;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.Icons;
@@ -39,14 +40,14 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       Optional<String> applicantName,
       Messages messages,
       long applicantId,
-      String externalLink) {
+      ProgramDefinition programDefinition) {
     long programId = roApplicantProgramService.getProgramId();
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     // Use external link if it is present else use the default Program details page
     String programDetailsLink =
-        externalLink.isEmpty()
+        programDefinition.externalLink().isEmpty()
             ? routes.ApplicantProgramsController.view(applicantId, programId).url()
-            : externalLink;
+            : programDefinition.externalLink();
     ATag infoLink =
         new LinkElement()
             .setStyles("mb-4", "underline")
