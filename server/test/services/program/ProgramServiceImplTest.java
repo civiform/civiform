@@ -455,7 +455,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
         .containsOnly(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program link must begin with 'http://' or 'https://'"),
             CiviFormError.of("A program note is required"));
   }
 
