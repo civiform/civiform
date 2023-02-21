@@ -52,7 +52,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     assertThat(def.id()).isEqualTo(123L);
@@ -78,7 +78,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).hasValue(blockA);
@@ -97,7 +97,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -220,7 +220,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     assertThat(program.hasQuestion(questionA)).isTrue();
@@ -241,7 +241,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -273,7 +273,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     program =
@@ -305,7 +305,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -353,7 +353,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -416,7 +416,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     // block1
@@ -517,7 +517,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockDEnum)
             .addBlockDefinition(blockE)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
 
     // blockA (applicantName)
@@ -936,7 +936,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setCreateTime(now)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
     assertThat(def.createTime().get()).isEqualTo(now);
   }
@@ -954,7 +954,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
     assertThat(def.createTime().isPresent()).isFalse();
   }
@@ -974,7 +974,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLastModifiedTime(now)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
     assertThat(def.lastModifiedTime().get()).isEqualTo(now);
   }
@@ -992,7 +992,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
-            .setIsEligibilityGating(true)
+            .setEligibilityIsGating(true)
             .build();
     assertThat(def.lastModifiedTime().isPresent()).isFalse();
   }

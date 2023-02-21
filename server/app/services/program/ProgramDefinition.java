@@ -85,7 +85,7 @@ public abstract class ProgramDefinition {
    * Whether or not eligibility criteria for this program blocks the application from being
    * submitted.
    */
-  public abstract Boolean isEligibilityGating();
+  public abstract Boolean eligibilityIsGating();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -712,7 +712,7 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setProgramType(ProgramType programType);
 
-    public abstract Builder setIsEligibilityGating(Boolean isEligibilityGating);
+    public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
     public abstract ProgramDefinition build();
 
