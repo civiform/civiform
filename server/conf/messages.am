@@ -208,12 +208,6 @@ title.applicantNotEligible=በምላሾችዎ መሰረት ለ{0} ብቁ ላይ�
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
 title.applicantNotEligibleTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
 
-# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
-content.mustMeetRequirements=እነዚህን የፕሮግራም መስፈርቶች ማሟላት አለብዎት፦
-
-# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
-content.mustMeetRequirementsTi=ደንበኛዎ እነዚህን የፕሮግራም መስፈርቶች ማሟላት አለባቸው፦
-
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
 

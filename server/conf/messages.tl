@@ -208,12 +208,6 @@ title.applicantNotEligible=Batay sa iyong mga tugon, posibleng hindi ka kwalipik
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
 title.applicantNotEligibleTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}.
 
-# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
-content.mustMeetRequirements=Dapat mong matugunan ang mga kinakailangang ito ng programa:
-
-# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
-content.mustMeetRequirementsTi=Dapat matugunan ng iyong kliyente ang mga kinakailangang ito ng programa:
-
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
 
