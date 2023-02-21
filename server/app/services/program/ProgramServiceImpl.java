@@ -314,8 +314,11 @@ public final class ProgramServiceImpl implements ProgramService {
   // Checks whether a URL would work correctly if an href attribute was set to it.
   // That is, it must start with http:// or https:// so that the href link doesn't
   // treat it as relative to the current URL.
+  //
+  // We treat blank links as an exception, so that we can default to the program
+  // details page if a link isn't provided.
   private boolean isValidAbsoluteLink(String url) {
-    return url.startsWith("http://") || url.startsWith("https://");
+    return url.isBlank() || url.startsWith("http://") || url.startsWith("https://");
   }
 
   /**
