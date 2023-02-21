@@ -798,6 +798,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setStatusDefinitions(new StatusDefinitions())
                 .setDisplayMode(DisplayMode.PUBLIC)
                 .setProgramType(ProgramType.DEFAULT)
+                .setEligibilityIsGating(true)
                 .build(),
             FAKE_BASE_URL);
 
