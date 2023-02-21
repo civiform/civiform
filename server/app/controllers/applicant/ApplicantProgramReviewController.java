@@ -209,7 +209,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                     ProgramDefinition programDefinition =
                         programService.getProgramDefinition(programId);
 
-                    applicantService
+                    var unusedFuture = applicantService
                         .getReadOnlyApplicantProgramService(applicantId, programId)
                         .toCompletableFuture()
                         .thenCombineAsync(
