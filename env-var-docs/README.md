@@ -27,7 +27,7 @@ repository](https://github.com/civiform/docs/tree/main/docs/it-manual/sre-playbo
 
 ## Developer setup
 
-Ensure you have a system installation of python version 3.9 or greater:
+Ensure you have a system installation of python version 3.10 or greater:
 
 ```sh
 $ python3 --version

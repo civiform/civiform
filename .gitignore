@@ -62,3 +62,6 @@ server/code-coverage/*
 
 # Compiled css
 tailwind.css
+
+# env-var-doc python things
+env-var-docs/venv
