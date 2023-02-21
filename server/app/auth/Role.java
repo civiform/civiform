@@ -1,7 +1,7 @@
 package auth;
 
 /** Enum class of all roles a civiform profile can have. */
-public enum Roles {
+public enum Role {
   ROLE_APPLICANT("ROLE_APPLICANT"),
   ROLE_TI("ROLE_TI"),
   ROLE_CIVIFORM_ADMIN("ROLE_CIVIFORM_ADMIN"),
@@ -9,7 +9,7 @@ public enum Roles {
 
   private final String roleName;
 
-  Roles(String roleName) {
+  Role(String roleName) {
     this.roleName = roleName;
   }
 

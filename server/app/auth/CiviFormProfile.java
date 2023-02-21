@@ -91,17 +91,17 @@ public class CiviFormProfile {
 
   /** Returns true if the profile has TI role. */
   public boolean isTrustedIntermediary() {
-    return getRoles().contains(Roles.ROLE_TI.toString());
+    return getRoles().contains(Role.ROLE_TI.toString());
   }
 
   /** Returns true if the profile has CiviForm Admin role. */
   public boolean isCiviFormAdmin() {
-    return profileData.getRoles().contains(Roles.ROLE_CIVIFORM_ADMIN.toString());
+    return profileData.getRoles().contains(Role.ROLE_CIVIFORM_ADMIN.toString());
   }
 
   /** Returns true if the profile has Program Admin role. */
   public boolean isProgramAdmin() {
-    return this.getRoles().contains(Roles.ROLE_PROGRAM_ADMIN.toString());
+    return this.getRoles().contains(Role.ROLE_PROGRAM_ADMIN.toString());
   }
 
   /** Returns the account ID associated with the profile. */

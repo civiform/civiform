@@ -5,7 +5,7 @@ import auth.CiviFormProfileData;
 import auth.CiviFormProfileMerger;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
-import auth.Roles;
+import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -53,9 +53,9 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
 
   protected abstract String emailAttributeName();
 
-  protected abstract ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile);
+  protected abstract ImmutableSet<Role> roles(CiviFormProfile profile, OidcProfile oidcProfile);
 
-  protected abstract void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles);
+  protected abstract void adaptForRole(CiviFormProfile profile, ImmutableSet<Role> roles);
 
   /** Create a totally new CiviForm profile informed by the provided OidcProfile. */
   public abstract CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile);
@@ -125,9 +125,9 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
     // Meaning: whatever you signed in with most recently is the role you have.
-    ImmutableSet<Roles> roles = roles(civiformProfile, oidcProfile);
+    ImmutableSet<Role> roles = roles(civiformProfile, oidcProfile);
     roles.stream()
-        .map(Roles::toString)
+        .map(Role::toString)
         .forEach(role -> civiformProfile.getProfileData().addRole(role));
     adaptForRole(civiformProfile, roles);
     return civiformProfile.getProfileData();
