@@ -52,6 +52,9 @@ content.mobileFileUploadHelp=On your phone? “Choose File” also allows you to
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=Login
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Please log in with your {0} account
 
