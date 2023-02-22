@@ -29,12 +29,12 @@ jobs:
       - name: Install test infrastructure dependencies
         run: pip install mypy pytest-cov
 
-      - name: Install var-env-docs dependencies
+      - name: Install env-var-docs dependencies
         run: |
-          pip install ./env-var-docs/env_var_docs
+          pip install env-var-docs/parser-package
 
       - name: Run mypy
-        run: mypy --install-types env-var-docs
+        run: mypy env-var-docs
 
       - name: Run pytest
         run: pytest --cov=env-var-docs
