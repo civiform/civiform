@@ -1,7 +1,0 @@
-README.md
-pyproject.toml
-setup.py
-env_var_docs.egg-info/PKG-INFO
-env_var_docs.egg-info/SOURCES.txt
-env_var_docs.egg-info/dependency_links.txt
-env_var_docs.egg-info/top_level.txt
