@@ -164,20 +164,22 @@ public class ApplicantProgramReviewController extends CiviFormController {
       Request request, long applicantId, long programId) {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
-    CompletionStage<Application> submitApp =
-        applicantService.submitApplication(
-            applicantId,
-            programId,
-            submittingProfile,
-            featureFlags.isProgramEligibilityConditionsEnabled(request));
+    CompletableFuture<Application> submitAppFuture =
+        applicantService
+            .submitApplication(
+                applicantId,
+                programId,
+                submittingProfile,
+                featureFlags.isProgramEligibilityConditionsEnabled(request))
+            .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService
             .getReadOnlyApplicantProgramService(applicantId, programId)
             .toCompletableFuture();
-    return readOnlyApplicantProgramServiceFuture
-        .thenComposeAsync(v -> submitApp.toCompletableFuture())
+    return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
         .thenApplyAsync(
-            application -> {
+            (v) -> {
+              Application application = submitAppFuture.join();
               Long applicationId = application.id;
               Call endOfProgramSubmission =
                   routes.RedirectController.considerRegister(
