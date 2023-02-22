@@ -1,94 +1,532 @@
-from visitor import Group, Variable, RegexTest, ParseError, _path, _ensure_no_extra_fields, _parse_field, _parse_group, _parse_variable
+from visitor import Group, Variable, RegexTest, ParseError, NodeParseError, NodeInfo, visit, _path, _ensure_no_extra_fields, _parse_field, _parse_group, _parse_variable
 import unittest
+import io
 
 
-class TestPath(unittest.TestCase):
+class TestVisit(unittest.TestCase):
 
-    def test_no_args(self):
-        with self.assertRaises(ValueError) as e:
-            _path()
-        self.assertIn("must have at least one argument", str(e.exception))
+    def donothing(_: NodeInfo):
+        pass
 
-    def test_one_args(self):
-        got = _path("root")
-        self.assertEqual(got, "root")
+    def test_empty_file(self):
+        f = io.StringIO("")
+        got = visit(f, self.donothing)
+        self.assertEqual(
+            got, [
+                NodeParseError(
+                    path="file",
+                    group_errors=[
+                        ParseError(
+                            "file",
+                            "file is not valid JSON: Expecting value: line 1 column 1 (char 0)"
+                        )
+                    ],
+                    variable_errors=[])
+            ])
 
-    def test_two_args(self):
-        got = _path("root", "field")
-        self.assertEqual(got, "root.field")
+    def test_file_not_object(self):
+        f = io.StringIO("[1, 2]")
+        got = visit(f, self.donothing)
+        self.assertEqual(
+            got, [
+                NodeParseError(
+                    path="file",
+                    group_errors=[
+                        ParseError("file", "file is not a single JSON object")
+                    ],
+                    variable_errors=[])
+            ])
 
-    def test_three_args(self):
-        got = _path("root", "field", "0")
-        self.assertEqual(got, "root.field.0")
+    def test_fn_not_called_if_parse_errors(self):
+        called = False
 
-    def test_empty_args(self):
-        want_err = "arguments should not be the empty string"
-        with self.assertRaises(ValueError) as e:
-            _path("", "field")
-        self.assertIn(want_err, str(e.exception))
+        def visit_fn(_):
+            nonlocal called
+            called = True
 
-        with self.assertRaises(ValueError):
-            _path("root", "")
-        self.assertIn(want_err, str(e.exception))
+        f = io.StringIO(
+            """{
+                "MY_VAR": {
+                    "description": "A new cool var"
+                }
+            }""")
+        got = visit(f, visit_fn)
+        self.assertTrue(len(got) != 0)
+        self.assertFalse(called)
 
-        with self.assertRaises(ValueError):
-            _path("root", "field", "")
-        self.assertIn(want_err, str(e.exception))
+    def test_fn_called_on_nodes_preorder(self):
+        nodes = []
+
+        def visit_fn(node_info):
+            nodes.append(node_info)
+
+        f = io.StringIO(
+            """{
+                "Group A": {
+                    "group_description": "Description A",
+                    "members": {
+                        "A_VAR": { "description": "Var A", "type": "string" },
+                        "Group B": {
+                            "group_description": "Description B",
+                            "members": {
+                                "B_VAR": { "description": "Var B", "type": "string" }
+                            }
+                        },
+                        "C_VAR": { "description": "Var C", "type": "string" }
+                    }
+                },
+                "MY_VAR": {
+                    "description": "A new cool var",
+                    "type": "bool"
+                }
+            }""")
+        got = visit(f, visit_fn)
+        self.assertEqual(got, [])
+
+        expected = [
+            NodeInfo(
+                level=1,
+                json_path="file",
+                name="Group A",
+                details=Group(group_description="Description A", members=None)),
+            NodeInfo(
+                level=2,
+                json_path="file.Group A",
+                name="A_VAR",
+                details=Variable(
+                    description="Var A",
+                    type="string",
+                    required=False,
+                    values=None,
+                    regex=None,
+                    regex_tests=None)),
+            NodeInfo(
+                level=2,
+                json_path="file.Group A",
+                name="Group B",
+                details=Group(group_description="Description B", members=None)),
+            NodeInfo(
+                level=3,
+                json_path="file.Group A.Group B",
+                name="B_VAR",
+                details=Variable(
+                    description="Var B",
+                    type="string",
+                    required=False,
+                    values=None,
+                    regex=None,
+                    regex_tests=None)),
+            NodeInfo(
+                level=2,
+                json_path="file.Group A",
+                name="C_VAR",
+                details=Variable(
+                    description="Var C",
+                    type="string",
+                    required=False,
+                    values=None,
+                    regex=None,
+                    regex_tests=None)),
+            NodeInfo(
+                level=1,
+                json_path="file",
+                name="MY_VAR",
+                details=Variable(
+                    description="A new cool var",
+                    type="bool",
+                    required=False,
+                    values=None,
+                    regex=None,
+                    regex_tests=None)),
+        ]
+
+        # Using self.assertEqual would require filling in 'members' details for
+        # each group which is repetative and unmaintainable. Instead, manually
+        # diff got and expected list.
+        i = -1
+        for got_info in nodes:
+            i += 1
+            with self.subTest(i=i):
+                if isinstance(got_info.details, Group):
+                    got_info.details.members = None
+
+                self.assertEqual(got_info, expected[i])
 
 
-class TestEnsureNoExtraFieldPresent(unittest.TestCase):
-    valid = ["one", "two"]
+class TestParseGroup(unittest.TestCase):
 
     def test_empty(self):
-        got = _ensure_no_extra_fields("", {}, self.valid)
-        self.assertEqual(got, [])
-
-    def test_no_invalid(self):
-        got = _ensure_no_extra_fields("", {"one": {}, "two": {}}, self.valid)
-        self.assertEqual(got, [])
-
-    def test_one_invalid(self):
-        got = _ensure_no_extra_fields("", {"three": {}}, self.valid)
+        got, gotErrors = _parse_group("root", {})
         self.assertEqual(
-            got, [
-                ParseError(
-                    "",
-                    "'three' is an invalid key, valid keys are ['one', 'two']")
+            gotErrors, [
+                ParseError("root", "'group_description' is a required field"),
+                ParseError("root", "'members' is a required field")
             ])
+        self.assertEqual(got, None)
 
-    def test_two_invalid(self):
-        got = _ensure_no_extra_fields(
+    def test_no_description(self):
+        got, gotErrors = _parse_group("root", {"members": {}})
+        self.assertEqual(
+            gotErrors, [
+                ParseError("root", "'group_description' is a required field"),
+            ])
+        self.assertEqual(got, None)
+
+    def test_description_wrong_type(self):
+        got, gotErrors = _parse_group(
             "root", {
-                "three": {},
-                "four": {}
-            }, self.valid)
+                "group_description": True,
+                "members": {}
+            })
         self.assertEqual(
-            got, [
+            gotErrors, [
+                ParseError("root.group_description", "must be a string"),
+            ])
+        self.assertEqual(got, None)
+
+    def test_no_members(self):
+        got, gotErrors = _parse_group("root", {"group_description": "A group"})
+        self.assertEqual(
+            gotErrors, [
+                ParseError("root", "'members' is a required field"),
+            ])
+        self.assertEqual(got, None)
+
+    def test_members_wrong_type(self):
+        got, gotErrors = _parse_group(
+            "root", {
+                "group_description": "A group",
+                "members": []
+            })
+        self.assertEqual(
+            gotErrors, [
+                ParseError("root.members", "must be a object"),
+            ])
+        self.assertEqual(got, None)
+
+    def test_has_required_but_also_extra_fields(self):
+        got, gotErrors = _parse_group(
+            "root", {
+                "group_description": "A group",
+                "members": {
+                    "MY_VAR": {}
+                },
+                "extra": "hi!"
+            })
+        self.assertEqual(
+            gotErrors, [
                 ParseError(
                     "root",
-                    "'three' is an invalid key, valid keys are ['one', 'two']"),
+                    "'extra' is an invalid key, valid keys are ['group_description', 'members']"
+                )
+            ])
+        self.assertEqual(got, None)
+
+    def test_has_only_extra_fields(self):
+        got, gotErrors = _parse_group(
+            "root", {
+                "extra": "hi!",
+                "MY_VAR": "is cool"
+            })
+        self.assertEqual(
+            gotErrors, [
                 ParseError(
                     "root",
-                    "'four' is an invalid key, valid keys are ['one', 'two']")
+                    "'extra' is an invalid key, valid keys are ['group_description', 'members']"
+                ),
+                ParseError(
+                    "root",
+                    "'MY_VAR' is an invalid key, valid keys are ['group_description', 'members']"
+                ),
+                ParseError("root", "'group_description' is a required field"),
+                ParseError("root", "'members' is a required field")
+            ])
+        self.assertEqual(got, None)
+
+    def test_valid(self):
+        got, gotErrors = _parse_group(
+            "root", {
+                "group_description": "A group",
+                "members": {
+                    "MY_VAR": {}
+                }
+            })
+        self.assertEqual(gotErrors, [])
+        self.assertEqual(got, Group("A group", {"MY_VAR": {}}))
+
+
+class TestParseVariable(unittest.TestCase):
+    basevar = {"description": "Var", "type": "string"}
+    basetests = [
+        {
+            "val": "hiya",
+            "should_match": True
+        }, {
+            "val": "hmmz",
+            "should_match": False
+        }
+    ]
+    basetests_parsed = [RegexTest("hiya", True), RegexTest("hmmz", False)]
+
+    def test_empty(self):
+        got, gotErrors = _parse_variable("root", {})
+        self.assertEqual(
+            gotErrors, [
+                ParseError("root", "'description' is a required field"),
+                ParseError("root", "'type' is a required field")
+            ])
+        self.assertEqual(got, None)
+
+    def test_no_description(self):
+        got, gotErrors = _parse_variable("root", {"type": "string"})
+        self.assertEqual(
+            gotErrors, [
+                ParseError("root", "'description' is a required field"),
+            ])
+        self.assertEqual(got, None)
+
+    def test_description_wrong_type(self):
+        got, gotErrors = _parse_variable(
+            "root", {
+                "description": {},
+                "type": "string"
+            })
+        self.assertEqual(
+            gotErrors, [
+                ParseError("root.description", "must be a string"),
+            ])
+        self.assertEqual(got, None)
+
+    def test_no_type(self):
+        got, gotErrors = _parse_variable("root", {"description": "A var"})
+        self.assertEqual(
+            gotErrors, [ParseError("root", "'type' is a required field")])
+        self.assertEqual(got, None),
+
+    def test_type_wrong_type(self):
+        got, gotErrors = _parse_variable(
+            "root", {
+                "description": "A var",
+                "type": True
+            })
+        self.assertEqual(
+            gotErrors, [ParseError("root.type", "must be a string")])
+        self.assertEqual(got, None)
+
+    def test_type_invalid_value(self):
+        got, gotErrors = _parse_variable(
+            "root", {
+                "description": "A var",
+                "type": "cooleo"
+            })
+        self.assertEqual(got, None),
+        self.assertEqual(
+            gotErrors, [
+                ParseError(
+                    "root.type",
+                    "'cooleo' is an invalid value, valid values are ['string', 'int', 'bool', 'index-list']"
+                )
             ])
 
-    def test_some_valid_some_invalid(self):
-        got = _ensure_no_extra_fields(
-            "root", {
-                "one": {},
-                "two": {},
-                "three": {},
-                "four": {}
-            }, self.valid)
+    def test_type_valid_values(self):
+        for v in ["string", "int", "bool", "index-list"]:
+            with self.subTest(type=v):
+                got, gotErrors = _parse_variable(
+                    "root", {
+                        "description": "A var",
+                        "type": v
+                    })
+                self.assertEqual(gotErrors, [])
+            self.assertEqual(got, Variable("A var", v, False, None, None, None))
+
+    def test_unrequired_fields_not_set(self):
+        got, gotErrors = _parse_variable("root", self.basevar)
+        self.assertEqual(gotErrors, [])
         self.assertEqual(
-            got, [
+            got, Variable("Var", "string", False, None, None, None))
+
+    def test_required_wrong_type(self):
+        v = dict(self.basevar, **{"required": "true"})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [ParseError("root.required", "must be a bool")])
+        self.assertEqual(got, None)
+
+    def test_required_false(self):
+        v = dict(self.basevar, **{"required": False})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(gotErrors, [])
+        self.assertEqual(
+            got, Variable("Var", "string", False, None, None, None))
+
+    def test_required_true(self):
+        v = dict(self.basevar, **{"required": True})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(gotErrors, [])
+        self.assertEqual(got, Variable("Var", "string", True, None, None, None))
+
+    def test_values_wrong_type(self):
+        v = dict(self.basevar, **{"values": "only one"})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [ParseError("root.values", "must be a list")])
+        self.assertEqual(got, None)
+
+    def test_values_empty(self):
+        v = dict(self.basevar, **{"values": []})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [ParseError("root.values", "must not be empty")])
+        self.assertEqual(got, None)
+
+    def test_values_not_all_strs(self):
+        v = dict(self.basevar, **{"values": ["one", 2]})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [ParseError("root.values.1", "must be a string")])
+        self.assertEqual(got, None)
+
+    def test_values_valid(self):
+        v = dict(self.basevar, **{"values": ["one", "two"]})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(gotErrors, [])
+        self.assertEqual(
+            got, Variable("Var", "string", False, ["one", "two"], None, None))
+
+    def test_regex_wrong_type(self):
+        v = dict(self.basevar, **{"regex": []})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [ParseError("root.regex", "must be a string")])
+        self.assertEqual(got, None)
+
+    def test_regex_tests_wrong_type(self):
+        v = dict(self.basevar, **{"regex_tests": {}})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [ParseError("root.regex_tests", "must be a list")])
+        self.assertEqual(got, None)
+
+    def test_regex_tests_item_wrong_type(self):
+        v = dict(
+            self.basevar, **{
+                "regex": ".*",
+                "regex_tests": [{
+                    "val": "word",
+                    "should_match": True
+                }, 12]
+            })
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [ParseError("root.regex_tests.1", "must be an object")])
+        self.assertEqual(got, None)
+
+    def test_regex_tests_item_missing_val(self):
+        v = dict(
+            self.basevar, **{
+                "regex": ".*",
+                "regex_tests": [{
+                    "should_match": True
+                }]
+            })
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors,
+            [ParseError("root.regex_tests.0", "'val' is a required field")])
+        self.assertEqual(got, None)
+
+    def test_regex_tests_item_missing_should_match(self):
+        v = dict(
+            self.basevar, **{
+                "regex": ".*",
+                "regex_tests": [{
+                    "val": "not missing"
+                }]
+            })
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [
                 ParseError(
-                    "root",
-                    "'three' is an invalid key, valid keys are ['one', 'two']"),
-                ParseError(
-                    "root",
-                    "'four' is an invalid key, valid keys are ['one', 'two']")
+                    "root.regex_tests.0", "'should_match' is a required field")
             ])
+        self.assertEqual(got, None)
+
+    def test_regex_tests_item_extra_field(self):
+        v = dict(
+            self.basevar, **{
+                "regex":
+                    ".*",
+                "regex_tests":
+                    [
+                        {
+                            "val": "not missing",
+                            "should_match": True,
+                            "override_test": True
+                        }
+                    ]
+            })
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [
+                ParseError(
+                    "root.regex_tests.0",
+                    "'override_test' is an invalid key, valid keys are ['val', 'should_match']"
+                )
+            ])
+        self.assertEqual(got, None)
+
+    def test_regex_no_tests(self):
+        v = dict(self.basevar, **{"regex": ".*"})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [
+                ParseError(
+                    "root",
+                    "'regex_tests' must be defined if 'regex' is defined")
+            ])
+        self.assertEqual(got, None)
+
+    def test_regex_tests_no_regex(self):
+        v = dict(self.basevar, **{"regex_tests": self.basetests})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [
+                ParseError(
+                    "root",
+                    "'regex' must be defined if 'regex_tests' is defined")
+            ])
+        self.assertEqual(got, None)
+
+    def test_regex_and_values(self):
+        v = dict(
+            self.basevar, **{
+                "values": ["one"],
+                "regex": ".*",
+                "regex_tests": []
+            })
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(
+            gotErrors, [
+                ParseError(
+                    "root",
+                    "'regex' can not be defined if 'values' is defined"),
+                ParseError(
+                    "root",
+                    "'regex_tests' can not be defined if 'values' is defined"),
+                ParseError(
+                    "root",
+                    "'values' can not be defined if 'regex' or 'regex_tests' is defined"
+                )
+            ])
+        self.assertEqual(got, None)
+
+    def test_regex_and_tests_valid(self):
+        v = dict(self.basevar, **{"regex": ".*", "regex_tests": self.basetests})
+        got, gotErrors = _parse_variable("root", v)
+        self.assertEqual(gotErrors, [])
+        self.assertEqual(
+            got,
+            Variable("Var", "string", False, None, ".*", self.basetests_parsed))
 
 
 class TestParseField(unittest.TestCase):
@@ -649,311 +1087,93 @@ class TestParseField(unittest.TestCase):
         self.assertEqual(got, "extract")
 
 
-class TestParseGroup(unittest.TestCase):
+class TestPath(unittest.TestCase):
+
+    def test_no_args(self):
+        with self.assertRaises(ValueError) as e:
+            _path()
+        self.assertIn("must have at least one argument", str(e.exception))
+
+    def test_one_args(self):
+        got = _path("root")
+        self.assertEqual(got, "root")
+
+    def test_two_args(self):
+        got = _path("root", "field")
+        self.assertEqual(got, "root.field")
+
+    def test_three_args(self):
+        got = _path("root", "field", "0")
+        self.assertEqual(got, "root.field.0")
+
+    def test_empty_args(self):
+        want_err = "arguments should not be the empty string"
+        with self.assertRaises(ValueError) as e:
+            _path("", "field")
+        self.assertIn(want_err, str(e.exception))
+
+        with self.assertRaises(ValueError):
+            _path("root", "")
+        self.assertIn(want_err, str(e.exception))
+
+        with self.assertRaises(ValueError):
+            _path("root", "field", "")
+        self.assertIn(want_err, str(e.exception))
+
+
+class TestEnsureNoExtraFieldPresent(unittest.TestCase):
+    valid = ["one", "two"]
 
     def test_empty(self):
-        got, gotErrors = _parse_group("root", {})
-        self.assertEqual(
-            gotErrors, [
-                ParseError("root", "'group_description' is a required field"),
-                ParseError("root", "'members' is a required field")
-            ])
-        self.assertEqual(got, None)
+        got = _ensure_no_extra_fields("", {}, self.valid)
+        self.assertEqual(got, [])
 
-    def test_no_description(self):
-        got, gotErrors = _parse_group("root", {"members": {}})
-        self.assertEqual(
-            gotErrors, [
-                ParseError("root", "'group_description' is a required field"),
-            ])
-        self.assertEqual(got, None)
+    def test_no_invalid(self):
+        got = _ensure_no_extra_fields("", {"one": {}, "two": {}}, self.valid)
+        self.assertEqual(got, [])
 
-    def test_description_wrong_type(self):
-        got, gotErrors = _parse_group(
+    def test_one_invalid(self):
+        got = _ensure_no_extra_fields("", {"three": {}}, self.valid)
+        self.assertEqual(
+            got, [
+                ParseError(
+                    "",
+                    "'three' is an invalid key, valid keys are ['one', 'two']")
+            ])
+
+    def test_two_invalid(self):
+        got = _ensure_no_extra_fields(
             "root", {
-                "group_description": True,
-                "members": {}
-            })
+                "three": {},
+                "four": {}
+            }, self.valid)
         self.assertEqual(
-            gotErrors, [
-                ParseError("root.group_description", "must be a string"),
-            ])
-        self.assertEqual(got, None)
-
-    def test_no_members(self):
-        got, gotErrors = _parse_group("root", {"group_description": "A group"})
-        self.assertEqual(
-            gotErrors, [
-                ParseError("root", "'members' is a required field"),
-            ])
-        self.assertEqual(got, None)
-
-    def test_members_wrong_type(self):
-        got, gotErrors = _parse_group(
-            "root", {
-                "group_description": "A group",
-                "members": []
-            })
-        self.assertEqual(
-            gotErrors, [
-                ParseError("root.members", "must be a object"),
-            ])
-        self.assertEqual(got, None)
-
-    def test_has_required_but_also_extra_fields(self):
-        got, gotErrors = _parse_group(
-            "root", {
-                "group_description": "A group",
-                "members": {
-                    "MY_VAR": {}
-                },
-                "extra": "hi!"
-            })
-        self.assertEqual(
-            gotErrors, [
+            got, [
                 ParseError(
                     "root",
-                    "'extra' is an invalid key, valid keys are ['group_description', 'members']"
-                )
+                    "'three' is an invalid key, valid keys are ['one', 'two']"),
+                ParseError(
+                    "root",
+                    "'four' is an invalid key, valid keys are ['one', 'two']")
             ])
-        self.assertEqual(got, None)
 
-    def test_has_only_extra_fields(self):
-        got, gotErrors = _parse_group(
+    def test_some_valid_some_invalid(self):
+        got = _ensure_no_extra_fields(
             "root", {
-                "extra": "hi!",
-                "MY_VAR": "is cool"
-            })
+                "one": {},
+                "two": {},
+                "three": {},
+                "four": {}
+            }, self.valid)
         self.assertEqual(
-            gotErrors, [
+            got, [
                 ParseError(
                     "root",
-                    "'extra' is an invalid key, valid keys are ['group_description', 'members']"
-                ),
+                    "'three' is an invalid key, valid keys are ['one', 'two']"),
                 ParseError(
                     "root",
-                    "'MY_VAR' is an invalid key, valid keys are ['group_description', 'members']"
-                ),
-                ParseError("root", "'group_description' is a required field"),
-                ParseError("root", "'members' is a required field")
+                    "'four' is an invalid key, valid keys are ['one', 'two']")
             ])
-        self.assertEqual(got, None)
-
-    def test_valid(self):
-        got, gotErrors = _parse_group(
-            "root", {
-                "group_description": "A group",
-                "members": {
-                    "MY_VAR": {}
-                }
-            })
-        self.assertEqual(gotErrors, [])
-        self.assertEqual(got, Group("A group", {"MY_VAR": {}}))
-
-
-class TestParseVariable(unittest.TestCase):
-    basevar = {"description": "Var", "type": "string"}
-    basetests = [
-        {
-            "val": "hiya",
-            "should_match": True
-        }, {
-            "val": "hmmz",
-            "should_match": False
-        }
-    ]
-    basetests_parsed = [RegexTest("hiya", True), RegexTest("hmmz", False)]
-
-    def test_empty(self):
-        got, gotErrors = _parse_variable("root", {})
-        self.assertEqual(
-            gotErrors, [
-                ParseError("root", "'description' is a required field"),
-                ParseError("root", "'type' is a required field")
-            ])
-        self.assertEqual(got, None)
-
-    def test_no_description(self):
-        got, gotErrors = _parse_variable("root", {"type": "string"})
-        self.assertEqual(
-            gotErrors, [
-                ParseError("root", "'description' is a required field"),
-            ])
-        self.assertEqual(got, None)
-
-    def test_description_wrong_type(self):
-        got, gotErrors = _parse_variable(
-            "root", {
-                "description": {},
-                "type": "string"
-            })
-        self.assertEqual(
-            gotErrors, [
-                ParseError("root.description", "must be a string"),
-            ])
-        self.assertEqual(got, None)
-
-    def test_no_type(self):
-        got, gotErrors = _parse_variable("root", {"description": "A var"})
-        self.assertEqual(
-            gotErrors, [ParseError("root", "'type' is a required field")])
-        self.assertEqual(got, None),
-
-    def test_type_wrong_type(self):
-        got, gotErrors = _parse_variable(
-            "root", {
-                "description": "A var",
-                "type": True
-            })
-        self.assertEqual(
-            gotErrors, [ParseError("root.type", "must be a string")])
-        self.assertEqual(got, None)
-
-    def test_type_invalid_value(self):
-        got, gotErrors = _parse_variable(
-            "root", {
-                "description": "A var",
-                "type": "cooleo"
-            })
-        self.assertEqual(got, None),
-        self.assertEqual(
-            gotErrors, [
-                ParseError(
-                    "root.type",
-                    "'cooleo' is an invalid value, valid values are ['string', 'int', 'bool', 'index-list']"
-                )
-            ])
-
-    def test_type_valid_values(self):
-        for v in ["string", "int", "bool", "index-list"]:
-            got, gotErrors = _parse_variable(
-                "root", {
-                    "description": "A var",
-                    "type": v
-                })
-            self.assertEqual(gotErrors, [])
-            self.assertEqual(got, Variable("A var", v, False, None, None, None))
-
-    def test_unrequired_fields_not_set(self):
-        got, gotErrors = _parse_variable("root", self.basevar)
-        self.assertEqual(gotErrors, [])
-        self.assertEqual(
-            got, Variable("Var", "string", False, None, None, None))
-
-    def test_required_wrong_type(self):
-        v = dict(self.basevar, **{"required": "true"})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(
-            gotErrors, [ParseError("root.required", "must be a bool")])
-        self.assertEqual(got, None)
-
-    def test_required_false(self):
-        v = dict(self.basevar, **{"required": False})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(gotErrors, [])
-        self.assertEqual(
-            got, Variable("Var", "string", False, None, None, None))
-
-    def test_required_true(self):
-        v = dict(self.basevar, **{"required": True})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(gotErrors, [])
-        self.assertEqual(got, Variable("Var", "string", True, None, None, None))
-
-    def test_values_wrong_type(self):
-        v = dict(self.basevar, **{"values": "only one"})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(
-            gotErrors, [ParseError("root.values", "must be a list")])
-        self.assertEqual(got, None)
-
-    def test_values_empty(self):
-        v = dict(self.basevar, **{"values": []})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(
-            gotErrors, [ParseError("root.values", "must not be empty")])
-        self.assertEqual(got, None)
-
-    def test_values_not_all_strs(self):
-        v = dict(self.basevar, **{"values": ["one", 2]})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(
-            gotErrors, [ParseError("root.values.1", "must be a string")])
-        self.assertEqual(got, None)
-
-    def test_values_valid(self):
-        v = dict(self.basevar, **{"values": ["one", "two"]})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(gotErrors, [])
-        self.assertEqual(
-            got, Variable("Var", "string", False, ["one", "two"], None, None))
-
-    def test_regex_wrong_type(self):
-        v = dict(self.basevar, **{"regex": []})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(
-            gotErrors, [ParseError("root.regex", "must be a string")])
-        self.assertEqual(got, None)
-
-    def test_regex_tests_wrong_type(self):
-        v = dict(self.basevar, **{"regex_tests": {}})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(
-            gotErrors, [ParseError("root.regex_tests", "must be a list")])
-        self.assertEqual(got, None)
-
-    def test_regex_no_tests(self):
-        v = dict(self.basevar, **{"regex": ".*"})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(
-            gotErrors, [
-                ParseError(
-                    "root",
-                    "'regex_tests' must be defined if 'regex' is defined")
-            ])
-        self.assertEqual(got, None)
-
-    def test_regex_tests_no_regex(self):
-        v = dict(self.basevar, **{"regex_tests": self.basetests})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(
-            gotErrors, [
-                ParseError(
-                    "root",
-                    "'regex' must be defined if 'regex_tests' is defined")
-            ])
-        self.assertEqual(got, None)
-
-    def test_regex_and_values(self):
-        v = dict(
-            self.basevar, **{
-                "values": ["one"],
-                "regex": ".*",
-                "regex_tests": []
-            })
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(
-            gotErrors, [
-                ParseError(
-                    "root",
-                    "'regex' can not be defined if 'values' is defined"),
-                ParseError(
-                    "root",
-                    "'regex_tests' can not be defined if 'values' is defined"),
-                ParseError(
-                    "root",
-                    "'values' can not be defined if 'regex' or 'regex_tests' is defined"
-                )
-            ])
-        self.assertEqual(got, None)
-
-    def test_regex_and_tests_valid(self):
-        v = dict(self.basevar, **{"regex": ".*", "regex_tests": self.basetests})
-        got, gotErrors = _parse_variable("root", v)
-        self.assertEqual(gotErrors, [])
-        self.assertEqual(
-            got,
-            Variable("Var", "string", False, None, ".*", self.basetests_parsed))
 
 
 if __name__ == "__main__":

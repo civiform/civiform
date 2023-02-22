@@ -57,34 +57,39 @@ MY_LIST.1 = "second item"
 
 ### Example
 
-Here is an example environment variable documentation file:
+Here is an example environment variable documentation file (validated in docs_test.py):
 
-```
+```env-var-docs-file-example
 {
-    "TITLE": {
-        "description": "Sets the CiviForm title.",
-        "type": "string"
+    "Branding": {
+        "group_description": "Configures CiviForm branding.",
+        "members": {
+            "TITLE": {
+                "description": "Sets the CiviForm title.",
+                "type": "string"
+            },
+            "LOGO_URL": {
+                "description": "URL of the logo.",
+                "type": "string",
+                "regex": "^https?://",
+                "regex_tests": [
+                    { "val": "http://mylogo.png", "should_match": true },
+                    { "val": "https://my-secure-logo.png", "should_match": true },
+                    { "val": "props-not-a-valid-URL", "should_match": false }
+                ]
+            }
+        }
     },
     "SOME_NUMBER": {
         "description": "Sets a very important number.",
         "type": "int",
         "required": true
     },
-    "LOGO_URL": {
-        "description": "URL of the logo.",
-        "type": "string",
-        "regex": "^https?://",
-        "regex_tests": [
-            { "val": "http://mylogo.png", "shouldMatch": true },
-            { "val": "https://my-secure-logo.png", "shouldMatch": true },
-            { "val": "props-not-a-valid-URL", "shouldMatch": false }
-        ]
-    },
     "CLOUD_PROVIDER": {
         "description": "What cloud services to connect to.",
         "type": "string",
         "values": ["aws", "azure", "gcp"]
-    }
+    },
     "LANGUAGES": {
         "description": "Supported languages.",
         "type": "index-list"

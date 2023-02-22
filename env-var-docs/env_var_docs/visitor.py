@@ -32,6 +32,35 @@ class Variable:
 
 
 @dataclasses.dataclass
+class ParseError:
+    path: str
+    """The JSON path of the invalid object."""
+
+    msg: str
+    """"Why the object is invalid."""
+
+
+ParseErrors = list[ParseError]
+
+
+@dataclasses.dataclass
+class NodeParseError:
+    """As the environment variable documentation file is parsed, any invalid
+    structures are reported through ParseErrors. A ParseError means that
+    neither a Group nor a Variable was able to be parsed.
+    """
+
+    path: str
+    """The JSON path of the invalid object."""
+
+    group_errors: ParseErrors
+    """Errors from attempting to parse as a Group."""
+
+    variable_errors: ParseErrors
+    """Errors from attempting to parse as a Variable."""
+
+
+@dataclasses.dataclass
 class NodeInfo:
     """A node within an environment variable documentation file.
 
@@ -60,25 +89,10 @@ VisitFn = typing.Callable[[NodeInfo], None]
 """A function that takes a NodeInfo and does something with it."""
 
 
-@dataclasses.dataclass
-class ParseError:
-    """
-    As the environment variable documentation file is parsed, any invalid
-    structures are reported through ParseErrors.
-    """
-
-    path: str
-    """The JSON path of the invalid object."""
-    msg: str
-    """"Why the object is invalid."""
-
-
-ParseErrors = list[ParseError]
-
-
-def visit(file: typing.TextIO, visit_fn: VisitFn) -> ParseErrors:
-    """Parses an environment variable documentation file. See README.md for the
-    expected structure.
+def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
+    """Parses an environment variable documentation file. The file must be
+    valid JSON and be a single object. See README.md for the expected
+    structure.
 
     The file is completely parsed before any visit_fn is run. If there are
     parsing errors, no visit_fn is run and the errors are returned.
@@ -92,12 +106,21 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> ParseErrors:
     try:
         docs = json.load(file)
     except json.JSONDecodeError as e:
-        return [ParseError(json_root, f"not valid JSON: {e.msg}")]
+        return [
+            NodeParseError(
+                json_root,
+                [ParseError(json_root, f"file is not valid JSON: {e}")], [])
+        ]
     if not isinstance(docs, dict):
-        return [ParseError(json_root, "is not a JSON object")]
+        return [
+            NodeParseError(
+                json_root,
+                [ParseError(json_root, f"file is not a single JSON object")],
+                [])
+        ]
 
     nodes_to_visit: list[NodeInfo] = []
-    parsing_errors: ParseErrors = []
+    parsing_errors: list[NodeParseError] = []
 
     # The file is an implicit root node. Recursively descend into each top-level field.
     for key, value in docs.items():
@@ -115,38 +138,35 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> ParseErrors:
 
 def _recursively_parse(
         level: int, parent_path: str, key: str, value: UnparsedJSON,
-        nodes_to_visit: list[NodeInfo], parsing_errors: ParseErrors):
+        nodes_to_visit: list[NodeInfo], parsing_errors: list[NodeParseError]):
     """Recursively visits a node and its children, in preorder traversal order (visit root then children)."""
+    path = _path(parent_path, key)
 
     # Is this a group?
-    group, group_errs = _parse_group(parent_path, value)
-    if len(group_errs) == 0:
+    group, group_errors = _parse_group(path, value)
+    if len(group_errors) == 0:
         assert group is not None  # appease mypy
         nodes_to_visit.append(
             NodeInfo(
                 level=level, json_path=parent_path, name=key, details=group))
 
-        # Recurse into group members
-        for key, value in group.members.items():
+        # Recurse into group members.
+        for sub_key, sub_value in group.members.items():
             _recursively_parse(
-                level + 1, f"{parent_path}.{key}", key, value, nodes_to_visit,
+                level + 1, path, sub_key, sub_value, nodes_to_visit,
                 parsing_errors)
         return
 
     # Is this a variable?
-    var, var_errs = _parse_variable(parent_path, value)
-    if len(var_errs) == 0:
+    var, var_errors = _parse_variable(path, value)
+    if len(var_errors) == 0:
         assert var is not None  # appease mypy
         nodes_to_visit.append(
             NodeInfo(level=level, json_path=parent_path, name=key, details=var))
         return
 
     # details is neither a group nor a variable.
-    parsing_errors.append(
-        ParseError(
-            f"{parent_path}.{key}",
-            "Could not parse a Group or Variable. Group parse errors: {group_errs}. Variable parse errors: {var_errs}"
-        ))
+    parsing_errors.append(NodeParseError(path, group_errors, var_errors))
 
 
 def _parse_group(parent_path: str,
@@ -233,7 +253,9 @@ def _parse_variable(parent_path: str,
         json_type=list,
         required=False,
         obj=obj,
-        checks=[_variable_check_values, _variable_check_regex_fields_not_defined],
+        checks=[
+            _variable_check_values, _variable_check_regex_fields_not_defined
+        ],
         return_type=list[str],
         extract_fn=convert_values)
     errors.extend(errs)
@@ -244,7 +266,10 @@ def _parse_variable(parent_path: str,
         json_type=str,
         required=False,
         obj=obj,
-        checks=[_variable_check_values_not_defined, _variable_check_regex_tests_defined])
+        checks=[
+            _variable_check_values_not_defined,
+            _variable_check_regex_tests_defined
+        ])
     errors.extend(errs)
 
     def convert_regex_tests(obj: UnparsedJSON) -> list[RegexTest]:
@@ -278,7 +303,6 @@ def _parse_variable(parent_path: str,
 T = typing.TypeVar("T")
 CheckFn = typing.Callable[[str, UnparsedJSON], ParseErrors]
 """A CheckFn takes in a parent_path and an object and returns any ParseErrors."""
-
 
 ExtractFn = typing.Callable[[UnparsedJSON], T]
 """An ExtractFn takes in an object and returns a complex type."""
@@ -386,11 +410,13 @@ def _ensure_no_extra_fields(
             errors.append(
                 ParseError(
                     parent_path,
-                    f"'{key}' is an invalid key, valid keys are {valid_fields}"))
+                    f"'{key}' is an invalid key, valid keys are {valid_fields}")
+            )
     return errors
 
 
-def _variable_check_type_is_valid(parent_path: str, obj: UnparsedJSON) -> ParseErrors:
+def _variable_check_type_is_valid(
+        parent_path: str, obj: UnparsedJSON) -> ParseErrors:
     errors = []
     valid = ["string", "int", "bool", "index-list"]
     t = obj["type"]
@@ -401,11 +427,13 @@ def _variable_check_type_is_valid(parent_path: str, obj: UnparsedJSON) -> ParseE
                 f"'{t}' is an invalid value, valid values are {valid}"))
     return errors
 
+
 def _variable_check_values(parent_path: str, obj: UnparsedJSON) -> ParseErrors:
     errors = []
 
     if len(obj["values"]) == 0:
-        errors.append(ParseError(_path(parent_path, "values"), "must not be empty"))
+        errors.append(
+            ParseError(_path(parent_path, "values"), "must not be empty"))
 
     i = -1
     for v in obj["values"]:
@@ -413,11 +441,12 @@ def _variable_check_values(parent_path: str, obj: UnparsedJSON) -> ParseErrors:
         if not isinstance(v, str):
             errors.append(
                 ParseError(
-                    _path(parent_path, "values", str(i)),
-                    "must be a string"))
+                    _path(parent_path, "values", str(i)), "must be a string"))
     return errors
 
-def _variable_check_values_not_defined(parent_path: str, obj: UnparsedJSON) -> ParseErrors:
+
+def _variable_check_values_not_defined(
+        parent_path: str, obj: UnparsedJSON) -> ParseErrors:
     errors = []
     if "values" in obj:
         errors.append(
@@ -427,13 +456,15 @@ def _variable_check_values_not_defined(parent_path: str, obj: UnparsedJSON) -> P
             ))
     return errors
 
+
 def _variable_check_regex_fields_not_defined(
         parent_path: str, obj: UnparsedJSON) -> ParseErrors:
     errors = []
     if "regex" in obj:
         errors.append(
             ParseError(
-                parent_path, "'regex' can not be defined if 'values' is defined"))
+                parent_path,
+                "'regex' can not be defined if 'values' is defined"))
     if "regex_tests" in obj:
         errors.append(
             ParseError(
@@ -441,25 +472,31 @@ def _variable_check_regex_fields_not_defined(
                 "'regex_tests' can not be defined if 'values' is defined"))
     return errors
 
-def _variable_check_regex_tests_defined(parent_path: str, obj: UnparsedJSON) -> ParseErrors:
+
+def _variable_check_regex_tests_defined(
+        parent_path: str, obj: UnparsedJSON) -> ParseErrors:
     errors = []
     if "regex_tests" not in obj:
         errors.append(
-                ParseError(
-                    parent_path,
-                    "'regex_tests' must be defined if 'regex' is defined"))
+            ParseError(
+                parent_path,
+                "'regex_tests' must be defined if 'regex' is defined"))
     return errors
 
-def _variable_check_regex_defined(parent_path: str, obj: UnparsedJSON) -> ParseErrors:
+
+def _variable_check_regex_defined(
+        parent_path: str, obj: UnparsedJSON) -> ParseErrors:
     errors = []
     if "regex" not in obj:
         errors.append(
-                ParseError(
-                    parent_path,
-                    "'regex' must be defined if 'regex_tests' is defined"))
+            ParseError(
+                parent_path,
+                "'regex' must be defined if 'regex_tests' is defined"))
     return errors
 
-def _variable_check_regex_tests(parent_path: str, obj: UnparsedJSON) -> ParseErrors:
+
+def _variable_check_regex_tests(
+        parent_path: str, obj: UnparsedJSON) -> ParseErrors:
     errors = []
     i = -1
     for test in obj["regex_tests"]:
