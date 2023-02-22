@@ -26,18 +26,11 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install test infrastructure dependencies
-        run: pip install mypy pytest-cov
+      - name: Install dependencies
+        run: bin/env-var-docs-create-venv
 
-      - name: Install env-var-docs dependencies
-        run: |
-          pip install env-var-docs/parser-package
-
-      - name: Run mypy
-        run: mypy env-var-docs --exclude env-var-docs/parser-package/build
-
-      - name: Run pytest
-        run: pytest --cov=env-var-docs
+      - name: Run tests
+        run: bin/env-var-docs-run-tests
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
