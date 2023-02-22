@@ -1,6 +1,6 @@
 import io
 import os
-import visitor
+import parser
 import unittest
 
 
@@ -25,7 +25,7 @@ class TestDocsExample(unittest.TestCase):
         def note_node(info):
             node_names.append(info.name)
 
-        errors = visitor.visit(io.StringIO(example), note_node)
+        errors = parser.visit(io.StringIO(example), note_node)
         self.assertEqual(errors, [])
         self.assertEqual(
             node_names, [
