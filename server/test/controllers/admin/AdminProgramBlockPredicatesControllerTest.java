@@ -5,11 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
