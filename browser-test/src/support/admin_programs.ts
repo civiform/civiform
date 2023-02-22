@@ -962,4 +962,12 @@ export class AdminPrograms {
       .locator('button:has-text("Address correction")')
       .click()
   }
+
+  getCommonIntakeFormToggle() {
+    return this.page.locator('input[name=isCommonIntakeForm]')
+  }
+
+  async clickCommonIntakeFormToggle() {
+    await this.page.click('input[name=isCommonIntakeForm]')
+  }
 }

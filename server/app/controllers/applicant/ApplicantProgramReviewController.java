@@ -27,7 +27,9 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.components.ToastMessage;
@@ -47,6 +49,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final IneligibleBlockView ineligibleBlockView;
   private final ProfileUtils profileUtils;
   private final FeatureFlags featureFlags;
+  private final ProgramService programService;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -56,7 +59,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantProgramSummaryView summaryView,
       IneligibleBlockView ineligibleBlockView,
       ProfileUtils profileUtils,
-      FeatureFlags featureFlags) {
+      FeatureFlags featureFlags,
+      ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
@@ -64,6 +68,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.profileUtils = checkNotNull(profileUtils);
     this.featureFlags = checkNotNull(featureFlags);
+    this.programService = checkNotNull(programService);
   }
 
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
@@ -209,14 +214,21 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                   Optional<String> applicantName =
                       applicantService.getName(applicantId).toCompletableFuture().join();
-                  return ok(
-                      ineligibleBlockView.render(
-                          request,
-                          submittingProfile,
-                          roApplicantProgramService,
-                          applicantName,
-                          messagesApi.preferred(request),
-                          applicantId));
+                  try {
+                    ProgramDefinition programDefinition =
+                        programService.getProgramDefinition(programId);
+                    return ok(
+                        ineligibleBlockView.render(
+                            request,
+                            submittingProfile,
+                            roApplicantProgramService,
+                            applicantName,
+                            messagesApi.preferred(request),
+                            applicantId,
+                            programDefinition));
+                  } catch (ProgramNotFoundException e) {
+                    notFound(e.toString());
+                  }
                 }
                 throw new RuntimeException(cause);
               }

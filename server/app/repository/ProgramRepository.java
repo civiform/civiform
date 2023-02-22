@@ -83,6 +83,10 @@ public final class ProgramRepository {
     return names.build();
   }
 
+  public Boolean commonIntakeFormExists() {
+    return database.find(Program.class).where().eq("program_type", "common_intake_form").exists();
+  }
+
   /**
    * Makes {@code existingProgram} the DRAFT revision configuration of the question, creating a new
    * DRAFT if necessary.

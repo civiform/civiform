@@ -34,6 +34,7 @@ import services.DateConverter;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.UrlUtils;
+import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
@@ -61,6 +62,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
+
+  private final ApplicantService applicantService;
   private final DateConverter dateConverter;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
@@ -68,9 +71,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   public ProgramApplicationListView(
       AdminLayoutFactory layoutFactory,
       ApplicantUtils applicantUtils,
+      ApplicantService applicantService,
       DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS).setOnlyProgramAdminType();
     this.applicantUtils = checkNotNull(applicantUtils);
+    this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
   }
 
@@ -84,6 +89,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       Optional<String> selectedApplicationUri) {
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
+    boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
+
     DivTag applicationListDiv =
         div()
             .with(
@@ -112,7 +119,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     application ->
                         renderApplicationListItem(
                             application,
-                            /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0)))
+                            /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
+                            hasEligibilityEnabled
+                                ? applicantService.getOptionalEligibilityStatus(
+                                    application.getApplicant().getApplicantData(), program)
+                                : Optional.empty())))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =
@@ -319,7 +330,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .build();
   }
 
-  private DivTag renderApplicationListItem(Application application, boolean displayStatus) {
+  private DivTag renderApplicationListItem(
+      Application application, boolean displayStatus, Optional<Boolean> maybeEligibilityStatus) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -348,6 +360,14 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     .with(
                         span("Status: "),
                         span(application.getLatestStatus().orElse("None"))
+                            .withClass("font-semibold")))
+            .condWith(
+                maybeEligibilityStatus.isPresent(),
+                p().withClasses("text-sm", "text-gray-700")
+                    .with(
+                        span(maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
+                                ? "Meets eligibility"
+                                : "Does not meet eligibility")
                             .withClass("font-semibold")))
             .with(
                 div()

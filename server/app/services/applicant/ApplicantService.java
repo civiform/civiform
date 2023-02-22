@@ -577,6 +577,19 @@ public final class ApplicantService {
             httpExecutionContext.current());
   }
 
+  /**
+   * Returns whether an application is maybe eligible for a program, and empty if there are no
+   * eligibility conditions for the program.
+   */
+  public Optional<Boolean> getOptionalEligibilityStatus(
+      ApplicantData applicantData, ProgramDefinition programDefinition) {
+    ReadOnlyApplicantProgramService roAppProgramService =
+        getReadOnlyApplicantProgramService(applicantData, programDefinition);
+    return programDefinition.hasEligibilityEnabled()
+        ? Optional.of(!roAppProgramService.isApplicationNotEligible())
+        : Optional.empty();
+  }
+
   private ApplicationPrograms relevantProgramsForApplicant(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<Application> applications,
@@ -639,7 +652,7 @@ public final class ApplicantService {
                     .setProgram(programDefinition)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime);
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
-                getOptionalEligiblityStatus(
+                getOptionalEligibilityStatus(
                     draftApp.getApplicant().getApplicantData(), programDefinition));
             inProgressPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);
@@ -671,7 +684,7 @@ public final class ApplicantService {
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus);
 
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
-                getOptionalEligiblityStatus(
+                getOptionalEligibilityStatus(
                     submittedApp.getApplicant().getApplicantData(), programDefinition));
 
             submittedPrograms.add(applicantProgramDataBuilder.build());
@@ -693,7 +706,7 @@ public final class ApplicantService {
                 findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
 
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
-                getOptionalEligiblityStatus(applicant.getApplicantData(), program));
+                getOptionalEligibilityStatus(applicant.getApplicantData(), program));
           }
 
           unappliedPrograms.add(applicantProgramDataBuilder.build());
@@ -709,15 +722,6 @@ public final class ApplicantService {
   private ProgramDefinition findProgramWithId(
       ImmutableList<ProgramDefinition> programList, long id) {
     return programList.stream().filter(p -> p.id() == id).findFirst().get();
-  }
-
-  private Optional<Boolean> getOptionalEligiblityStatus(
-      ApplicantData applicantData, ProgramDefinition programDefinition) {
-    ReadOnlyApplicantProgramService roAppProgramService =
-        getReadOnlyApplicantProgramService(applicantData, programDefinition);
-    return roAppProgramService.getActiveEligibilityQuestions().isEmpty()
-        ? Optional.empty()
-        : Optional.of(!roAppProgramService.isApplicationNotEligible());
   }
 
   private ImmutableList<ApplicantProgramData> sortByProgramId(

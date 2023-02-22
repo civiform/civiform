@@ -8,6 +8,7 @@ public final class ProgramForm {
   private String localizedDisplayDescription;
   private String externalLink;
   private String displayMode;
+  private Boolean isCommonIntakeForm;
 
   public ProgramForm() {
     adminName = "";
@@ -16,6 +17,7 @@ public final class ProgramForm {
     localizedDisplayDescription = "";
     externalLink = "";
     displayMode = "";
+    isCommonIntakeForm = false;
   }
 
   public String getAdminName() {
@@ -64,5 +66,13 @@ public final class ProgramForm {
 
   public void setLocalizedDisplayDescription(String localizedDisplayDescription) {
     this.localizedDisplayDescription = localizedDisplayDescription;
+  }
+
+  public Boolean getIsCommonIntakeForm() {
+    return isCommonIntakeForm;
+  }
+
+  public void setIsCommonIntakeForm(Boolean isCommonIntakeForm) {
+    this.isCommonIntakeForm = isCommonIntakeForm;
   }
 }

@@ -82,6 +82,12 @@ public abstract class ProgramDefinition {
   public abstract ProgramType programType();
 
   /**
+   * Whether or not eligibility criteria for this program blocks the application from being
+   * submitted.
+   */
+  public abstract Boolean eligibilityIsGating();
+
+  /**
    * Returns a program definition with block definitions such that each enumerator block is
    * immediately followed by all of its repeated and nested repeated blocks. This method should be
    * used when {@link #hasOrderedBlockDefinitions()} is a precondition for manipulating blocks.
@@ -98,6 +104,12 @@ public abstract class ProgramDefinition {
             .build();
     orderedProgramDefinition.hasOrderedBlockDefinitionsMemo = Optional.of(true);
     return orderedProgramDefinition;
+  }
+
+  /** Returns whether a program has eligibility conditions applied. */
+  public boolean hasEligibilityEnabled() {
+    return blockDefinitions().stream()
+        .anyMatch(blockDef -> blockDef.eligibilityDefinition().isPresent());
   }
 
   private ImmutableList<BlockDefinition> orderBlockDefinitionsInner(
@@ -663,6 +675,10 @@ public abstract class ProgramDefinition {
                     .map(ProgramQuestionDefinition::getQuestionDefinition));
   }
 
+  public boolean isCommonIntakeForm() {
+    return this.programType() == ProgramType.COMMON_INTAKE_FORM;
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -695,6 +711,8 @@ public abstract class ProgramDefinition {
     public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
 
     public abstract Builder setProgramType(ProgramType programType);
+
+    public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
     public abstract ProgramDefinition build();
 

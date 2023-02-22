@@ -194,6 +194,15 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void commonIntakeFormExists() {
+    resourceCreator.insertActiveProgram("regular program");
+    assertThat(repo.commonIntakeFormExists()).isFalse();
+
+    resourceCreator.insertActiveCommonIntakeForm("common intake form");
+    assertThat(repo.commonIntakeFormExists()).isTrue();
+  }
+
+  @Test
   public void returnsAllAdmins() throws ProgramNotFoundException {
     Program withAdmins = resourceCreator.insertActiveProgram("with admins");
     Account admin = new Account();

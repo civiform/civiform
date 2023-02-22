@@ -5,7 +5,7 @@ import auth.CiviFormProfileData;
 import auth.CiviFormProfileMerger;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
-import auth.Roles;
+import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -175,8 +175,8 @@ public class SamlProfileAdapter extends AuthenticatorProfileCreator {
 
     civiFormProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
-    ImmutableSet<Roles> roles = roles(civiFormProfile);
-    for (Roles role : roles) {
+    ImmutableSet<Role> roles = roles(civiFormProfile);
+    for (Role role : roles) {
       civiFormProfile.getProfileData().addRole(role.toString());
     }
     return civiFormProfile.getProfileData();
@@ -195,10 +195,10 @@ public class SamlProfileAdapter extends AuthenticatorProfileCreator {
     return sj.toString();
   }
 
-  protected ImmutableSet<Roles> roles(CiviFormProfile profile) {
+  protected ImmutableSet<Role> roles(CiviFormProfile profile) {
     if (profile.getAccount().join().getMemberOfGroup().isPresent()) {
-      return ImmutableSet.of(Roles.ROLE_APPLICANT, Roles.ROLE_TI);
+      return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
     }
-    return ImmutableSet.of(Roles.ROLE_APPLICANT);
+    return ImmutableSet.of(Role.ROLE_APPLICANT);
   }
 }

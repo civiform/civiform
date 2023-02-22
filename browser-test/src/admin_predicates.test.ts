@@ -268,6 +268,13 @@ describe('create and edit predicates', () => {
     await applicantQuestions.expectIneligiblePage()
     await validateScreenshot(page, 'ineligible')
 
+    await page.click('text=program details')
+    const popupPromise = page.waitForEvent('popup')
+    const popup = await popupPromise
+    const popupURL = await popup.evaluate('location.href')
+
+    // Verify if the program details page Url to be the external link"
+    expect(popupURL).toMatch('https://www.usa.gov/')
     // Return to the screen and fill it out to be eligible.
     await page.goBack()
     await applicantQuestions.answerTextQuestion('eligible')
