@@ -103,13 +103,8 @@ public final class AdminLayout extends BaseHtmlLayout {
 
     NavTag adminHeader = nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
 
-    // Don't include nav links for program admin.
-    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
-      return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
-    }
-
-    String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
+    String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
@@ -127,29 +122,45 @@ public final class AdminLayout extends BaseHtmlLayout {
             reportingLink,
             NavPage.REPORTING.equals(activeNavPage) ? activeNavStyle : "");
 
-    return adminHeader
-        .with(
-            headerLink(
-                "Programs",
-                programLink,
-                NavPage.PROGRAMS.equals(activeNavPage) ? activeNavStyle : ""))
-        .with(
-            headerLink(
-                "Questions",
-                questionLink,
-                NavPage.QUESTIONS.equals(activeNavPage) ? activeNavStyle : ""))
-        .with(
-            headerLink(
-                "Intermediaries",
-                intermediaryLink,
-                NavPage.INTERMEDIARIES.equals(activeNavPage) ? activeNavStyle : ""))
-        .with(
-            headerLink(
-                "API keys",
-                apiKeysLink,
-                NavPage.API_KEYS.equals(activeNavPage) ? activeNavStyle : ""))
-        .with(getFeatureFlags().isAdminReportingUiEnabled() ? reportingHeaderLink : null)
-        .with(headerLink("Logout", logoutLink, "float-right"));
+    ATag programsHeaderLink =
+        headerLink(
+            "Programs", programLink, NavPage.PROGRAMS.equals(activeNavPage) ? activeNavStyle : "");
+
+    ATag questionsHeaderLink =
+        headerLink(
+            "Questions",
+            questionLink,
+            NavPage.QUESTIONS.equals(activeNavPage) ? activeNavStyle : "");
+
+    ATag intermediariesHeaderLink =
+        headerLink(
+            "Intermediaries",
+            intermediaryLink,
+            NavPage.INTERMEDIARIES.equals(activeNavPage) ? activeNavStyle : "");
+
+    ATag apiKeysHeaderLink =
+        headerLink(
+            "API keys", apiKeysLink, NavPage.API_KEYS.equals(activeNavPage) ? activeNavStyle : "");
+
+    // Once feature flag is removed for reporting the program admin nav will include
+    // links for programs and reporting.
+    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)
+        && !getFeatureFlags().isAdminReportingUiEnabled()) {
+      return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
+    }
+
+    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
+      adminHeader.with(programsHeaderLink).with(reportingHeaderLink);
+    } else {
+      adminHeader
+          .with(programsHeaderLink)
+          .with(questionsHeaderLink)
+          .with(intermediariesHeaderLink)
+          .with(apiKeysHeaderLink)
+          .with(getFeatureFlags().isAdminReportingUiEnabled() ? reportingHeaderLink : null);
+    }
+
+    return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
   }
 
   private ATag headerLink(String text, String href, String... styles) {

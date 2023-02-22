@@ -55,9 +55,9 @@ public class ReportingServiceTest extends ResetPostgres {
 
     List<CSVRecord> records = parser.getRecords();
     assertThat(records.get(0).toList())
-        .containsExactly("12/2022", "4", "0:5:25", "0:6:40", "0:7:55", "0:9:7");
+        .containsExactly("12/2022", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.get(1).toList())
-        .containsExactly("1/2023", "8", "0:5:25", "0:6:40", "0:7:55", "0:9:7");
+        .containsExactly("1/2023", "8", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.size()).isEqualTo(2);
 
     parser =
@@ -75,9 +75,9 @@ public class ReportingServiceTest extends ResetPostgres {
 
     records = parser.getRecords();
     assertThat(records.get(0).toList())
-        .containsExactly("Fake Program B", "6", "0:3:45", "0:4:43", "0:5:41", "0:6:37");
+        .containsExactly("Fake Program B", "6", "00:03:45", "00:04:43", "00:05:41", "00:06:37");
     assertThat(records.get(1).toList())
-        .containsExactly("Fake Program A", "6", "0:7:5", "0:8:36", "0:10:8", "0:11:36");
+        .containsExactly("Fake Program A", "6", "00:07:05", "00:08:36", "00:10:08", "00:11:36");
     assertThat(records.size()).isEqualTo(2);
   }
 

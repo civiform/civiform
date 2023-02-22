@@ -242,11 +242,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
       result.append(":");
     }
 
-    result.append(hours);
-    result.append(":");
-    result.append(minutes);
-    result.append(":");
-    result.append(seconds);
+    result.append(String.format("%02d:%02d:%02d", hours, minutes, seconds));
 
     return result.toString();
   }
