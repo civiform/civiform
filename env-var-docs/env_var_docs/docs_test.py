@@ -20,15 +20,18 @@ class TestDocsExample(unittest.TestCase):
                 if copying:
                     example += line
 
-        nodes = 0
+        node_names = []
 
-        def count_nodes(_):
-            nonlocal nodes
-            nodes += 1
+        def note_node(info):
+            node_names.append(info.name)
 
-        errors = visitor.visit(io.StringIO(example), count_nodes)
+        errors = visitor.visit(io.StringIO(example), note_node)
         self.assertEqual(errors, [])
-        self.assertEqual(nodes, 6)
+        self.assertEqual(
+            node_names, [
+                "Branding", "TITLE", "LOGO_URL", "SOME_NUMBER",
+                "CLOUD_PROVIDER", "LANGUAGES"
+            ])
 
 
 if __name__ == "__main__":

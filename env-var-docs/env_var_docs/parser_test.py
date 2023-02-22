@@ -1,4 +1,4 @@
-from visitor import Group, Variable, RegexTest, ParseError, NodeParseError, NodeInfo, visit, _path, _ensure_no_extra_fields, _parse_field, _parse_group, _parse_variable
+from parser import Group, Variable, RegexTest, ParseError, NodeParseError, NodeInfo, visit, _path, _ensure_no_extra_fields, _parse_field, _parse_group, _parse_variable
 import unittest
 import io
 
