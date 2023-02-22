@@ -23,8 +23,6 @@ public class FeatureFlagsTest {
               "true",
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
               "true",
-              FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
-              "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
               "true"));
 
@@ -33,15 +31,11 @@ public class FeatureFlagsTest {
           ImmutableMap.of(
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
               "true",
-              FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
-              "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
               "true"));
   private static final Map<String, String> allFeaturesEnabledMap =
       Map.of(
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-          "true",
-          FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
           "true",
           FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
           "true");
@@ -51,8 +45,6 @@ public class FeatureFlagsTest {
   private static final Map<String, String> allFeaturesDisabledMap =
       Map.of(
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-          "false",
-          FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
           "false",
           FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
           "false");

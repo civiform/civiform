@@ -578,7 +578,7 @@ describe('view program statuses', () => {
         eligibilityProgramName,
         'Screen 1',
       )
-      await adminPredicates.addLegacyPredicate(
+      await adminPredicates.addPredicate(
         eligibilityQuestionId,
         /* action= */ null,
         'number',
