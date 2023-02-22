@@ -18,8 +18,8 @@ public interface ReadOnlyApplicantProgramService {
   Long getProgramId();
 
   /**
-   * Returns a custom message for the confirmation screen that renders after an applicant submits
-   * an application. If a custom message is not set, returns an empty string.
+   * Returns a custom message for the confirmation screen that renders after an applicant submits an
+   * application. If a custom message is not set, returns an empty string.
    */
   LocalizedStrings getCustomConfirmationMessage();
 
