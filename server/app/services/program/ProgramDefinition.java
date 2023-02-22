@@ -88,6 +88,12 @@ public abstract class ProgramDefinition {
   public abstract ProgramType programType();
 
   /**
+   * Whether or not eligibility criteria for this program blocks the application from being
+   * submitted.
+   */
+  public abstract Boolean eligibilityIsGating();
+
+  /**
    * Returns a program definition with block definitions such that each enumerator block is
    * immediately followed by all of its repeated and nested repeated blocks. This method should be
    * used when {@link #hasOrderedBlockDefinitions()} is a precondition for manipulating blocks.
@@ -716,6 +722,8 @@ public abstract class ProgramDefinition {
     public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
 
     public abstract Builder setProgramType(ProgramType programType);
+
+    public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
     public abstract ProgramDefinition build();
 
