@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
 import controllers.dev.routes;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -23,6 +24,7 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.Accordion;
 
 /**
  * Renders a page for a developer to seed the database. This is only available in non-prod
@@ -82,14 +84,19 @@ public class DatabaseSeedView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses("grid", "grid-cols-2")
-                    .with(div().with(h2("Current Draft Programs:")).with(pre(prettyDraftPrograms)))
                     .with(
-                        div().with(h2("Current Active Programs:")).with(pre(prettyActivePrograms)))
-                    .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
+                      accordion("Current Draft Programs", prettyDraftPrograms))
+                    .with(
+                      accordion("Current Active Programs", prettyActivePrograms))
+                  .with(accordion("Current questions", prettyQuestions)))
             .withClasses("px-6", "py-6");
 
     HtmlBundle bundle = layout.getBundle().setTitle(title).addMainContent(content);
     return layout.render(bundle);
+  }
+
+  private DomContent accordion(String title, String content) {
+    return new Accordion().setTitle(title).addContent(pre(content)).getContainer();
   }
 
   private <T> String getPrettyJson(ImmutableList<T> list) {
