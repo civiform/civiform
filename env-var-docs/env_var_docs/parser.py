@@ -464,7 +464,8 @@ def _variable_check_regex_fields_not_defined(
         errors.append(
             ParseError(
                 parent_path,
-                "'regex' and 'regex_tests' can not be defined if 'values' is defined"))
+                "'regex' and 'regex_tests' can not be defined if 'values' is defined"
+            ))
     return errors
 
 

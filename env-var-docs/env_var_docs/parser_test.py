@@ -252,7 +252,8 @@ class TestParseGroup(unittest.TestCase):
                 }
             })
         self.assertEqual(gotErrors, [])
-        self.assertEqual(got, Group(group_description="A group", members={"MY_VAR": {}}))
+        self.assertEqual(
+            got, Group(group_description="A group", members={"MY_VAR": {}}))
 
 
 class TestParseVariable(unittest.TestCase):
@@ -337,13 +338,28 @@ class TestParseVariable(unittest.TestCase):
                         "type": v
                     })
                 self.assertEqual(gotErrors, [])
-                self.assertEqual(got, Variable(description="A var", type=v, required=False, values=None, regex=None, regex_tests=None))
+                self.assertEqual(
+                    got,
+                    Variable(
+                        description="A var",
+                        type=v,
+                        required=False,
+                        values=None,
+                        regex=None,
+                        regex_tests=None))
 
     def test_unrequired_fields_not_set(self):
         got, gotErrors = _parse_variable("root", self.basevar)
         self.assertEqual(gotErrors, [])
         self.assertEqual(
-            got, Variable(description="Var", type="string", required=False, values=None, regex=None, regex_tests=None))
+            got,
+            Variable(
+                description="Var",
+                type="string",
+                required=False,
+                values=None,
+                regex=None,
+                regex_tests=None))
 
     def test_required_wrong_type(self):
         v = dict(self.basevar, **{"required": 42})
@@ -357,13 +373,28 @@ class TestParseVariable(unittest.TestCase):
         got, gotErrors = _parse_variable("root", v)
         self.assertEqual(gotErrors, [])
         self.assertEqual(
-            got, Variable(description="Var", type="string", required=False, values=None, regex=None, regex_tests=None))
+            got,
+            Variable(
+                description="Var",
+                type="string",
+                required=False,
+                values=None,
+                regex=None,
+                regex_tests=None))
 
     def test_required_true(self):
         v = dict(self.basevar, **{"required": True})
         got, gotErrors = _parse_variable("root", v)
         self.assertEqual(gotErrors, [])
-        self.assertEqual(got, Variable(description="Var", type="string", required=True, values=None, regex=None, regex_tests=None))
+        self.assertEqual(
+            got,
+            Variable(
+                description="Var",
+                type="string",
+                required=True,
+                values=None,
+                regex=None,
+                regex_tests=None))
 
     def test_values_wrong_type(self):
         v = dict(self.basevar, **{"values": "only one"})
@@ -391,7 +422,14 @@ class TestParseVariable(unittest.TestCase):
         got, gotErrors = _parse_variable("root", v)
         self.assertEqual(gotErrors, [])
         self.assertEqual(
-            got, Variable(description="Var", type="string", required=False, values=["one", "two"], regex=None, regex_tests=None))
+            got,
+            Variable(
+                description="Var",
+                type="string",
+                required=False,
+                values=["one", "two"],
+                regex=None,
+                regex_tests=None))
 
     def test_regex_wrong_type(self):
         v = dict(self.basevar, **{"regex": []})
@@ -509,7 +547,8 @@ class TestParseVariable(unittest.TestCase):
             gotErrors, [
                 ParseError(
                     "root",
-                    "'regex' and 'regex_tests' can not be defined if 'values' is defined"),
+                    "'regex' and 'regex_tests' can not be defined if 'values' is defined"
+                ),
                 ParseError(
                     "root",
                     "'values' can not be defined if 'regex' or 'regex_tests' is defined"
@@ -523,7 +562,13 @@ class TestParseVariable(unittest.TestCase):
         self.assertEqual(gotErrors, [])
         self.assertEqual(
             got,
-            Variable(description="Var", type="string", required=False, values=None, regex=".*", regex_tests=self.basetests_parsed))
+            Variable(
+                description="Var",
+                type="string",
+                required=False,
+                values=None,
+                regex=".*",
+                regex_tests=self.basetests_parsed))
 
 
 class TestParseField(unittest.TestCase):
