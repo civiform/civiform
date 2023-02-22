@@ -460,16 +460,11 @@ def _variable_check_values_not_defined(
 def _variable_check_regex_fields_not_defined(
         parent_path: str, obj: UnparsedJSON) -> ParseErrors:
     errors = []
-    if "regex" in obj:
+    if "regex" in obj or "regex_tests" in obj:
         errors.append(
             ParseError(
                 parent_path,
-                "'regex' can not be defined if 'values' is defined"))
-    if "regex_tests" in obj:
-        errors.append(
-            ParseError(
-                parent_path,
-                "'regex_tests' can not be defined if 'values' is defined"))
+                "'regex' and 'regex_tests' can not be defined if 'values' is defined"))
     return errors
 
 
