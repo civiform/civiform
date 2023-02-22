@@ -26,8 +26,8 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install mypy and pytest
-        run: pip install mypy pytest
+      - name: Install test infrastructure dependencies
+        run: pip install mypy pytest-cov
 
       - name: Install var-env-docs dependencies
         run: |
@@ -37,4 +37,13 @@ jobs:
         run: mypy --install-types env-var-docs
 
       - name: Run pytest
-        run: pytest env-var-docs
+        run: pytest --cov=env-var-docs --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.xml
+          verbose: true
+          # We're getting intermittent issues with codecov trying to upload lately
+          # disabling it from failing the entire pipeline for now.
+          fail_ci_if_error: false

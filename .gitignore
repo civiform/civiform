@@ -67,3 +67,4 @@ tailwind.css
 env-var-docs/venv
 env-var-docs/env_var_docs/build
 env-var-docs/env_var_docs/*.egg*
+coverage.xml
