@@ -118,17 +118,14 @@ public final class ReportingService {
       BiConsumer<CSVPrinter, ApplicationSubmissionsStat> printFn) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
 
+    String[] csvHeaders =
+        headers.stream()
+            .map(AdminReportingIndexView.ReportingTableHeader::headerText)
+            .toArray(String[]::new);
+
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
       var printer =
-          new CSVPrinter(
-              writer,
-              CSVFormat.DEFAULT
-                  .builder()
-                  .setHeader(
-                      headers.stream()
-                          .map(AdminReportingIndexView.ReportingTableHeader::headerText)
-                          .toArray(String[]::new))
-                  .build());
+          new CSVPrinter(writer, CSVFormat.DEFAULT.builder().setHeader(csvHeaders).build());
 
       for (var stat : stats) {
         printFn.accept(printer, stat);
