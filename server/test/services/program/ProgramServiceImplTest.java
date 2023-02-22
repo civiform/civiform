@@ -497,7 +497,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     LocalizedStrings expectedUsString =
         LocalizedStrings.create(ImmutableMap.of(Locale.US, "custom confirmation screen message"));
     ProgramDefinition firstProgramUpdate = resultOne.getResult();
-    assertThat(firstProgramUpdate.localizedConfirmationScreen()).isEqualTo(expectedUsString);
+    assertThat(firstProgramUpdate.localizedConfirmationMessage()).isEqualTo(expectedUsString);
 
     // update the confirmation screen with an translation and check that it saves correctly
     ErrorAnd<ProgramDefinition, CiviFormError> resultTwo =
@@ -513,7 +513,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             ProgramType.DEFAULT,
             false);
     ProgramDefinition secondProgramUpdate = resultTwo.getResult();
-    assertThat(secondProgramUpdate.localizedConfirmationScreen())
+    assertThat(secondProgramUpdate.localizedConfirmationMessage())
         .isEqualTo(
             expectedUsString.updateTranslation(
                 Locale.FRANCE, "french custom confirmation screen message"));
@@ -532,7 +532,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             ProgramType.DEFAULT,
             false);
     ProgramDefinition thirdProgramUpdate = resultThree.getResult();
-    assertThat(thirdProgramUpdate.localizedConfirmationScreen())
+    assertThat(thirdProgramUpdate.localizedConfirmationMessage())
         .isEqualTo(LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
   }
 
@@ -1586,7 +1586,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
-            .setLocalizedConfirmationScreen("")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1638,7 +1638,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
-            .withLocalizedConfirmationScreen(Locale.FRENCH, "")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -1647,7 +1647,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
-            .setLocalizedConfirmationScreen("")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1707,7 +1707,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("")
             .setLocalizedDisplayDescription("")
-            .setLocalizedConfirmationScreen("")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -1726,7 +1726,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("a name")
             .setLocalizedDisplayDescription("a description")
-            .setLocalizedConfirmationScreen("")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
             .build();
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
@@ -1740,7 +1740,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
-            .withLocalizedConfirmationScreen(Locale.FRENCH, "")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -1749,7 +1749,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
-            .setLocalizedConfirmationScreen("")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1804,7 +1804,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
-            .setLocalizedConfirmationScreen("")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1839,7 +1839,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
-            .setLocalizedConfirmationScreen("")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1859,7 +1859,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
-            .withLocalizedConfirmationScreen(Locale.FRENCH, "")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -1868,7 +1868,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
-            .setLocalizedConfirmationScreen("")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()

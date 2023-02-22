@@ -101,7 +101,7 @@ public final class AdminProgramController extends CiviFormController {
             program.getAdminDescription(),
             program.getLocalizedDisplayName(),
             program.getLocalizedDisplayDescription(),
-            program.getLocalizedConfirmationScreen(),
+            program.getLocalizedConfirmationMessage(),
             program.getExternalLink(),
             program.getDisplayMode(),
             program.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
@@ -175,7 +175,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
-            programData.getLocalizedConfirmationScreen(),
+            programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
             programData.getIsCommonIntakeForm()

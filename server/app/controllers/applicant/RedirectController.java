@@ -171,7 +171,7 @@ public final class RedirectController extends CiviFormController {
                         account,
                         roApplicantProgramService.getApplicantData().preferredLocale(),
                         roApplicantProgramService.getProgramTitle(),
-                        roApplicantProgramService.getCustomConfirmationScreenMessage(),
+                        roApplicantProgramService.getCustomConfirmationMessage(),
                         applicantName.toCompletableFuture().join(),
                         applicationId,
                         messagesApi.preferred(request),

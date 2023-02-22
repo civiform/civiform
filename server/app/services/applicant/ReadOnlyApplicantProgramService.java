@@ -17,7 +17,10 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns the ID of the program. */
   Long getProgramId();
 
-  LocalizedStrings getCustomConfirmationScreenMessage();
+  /** Returns a custom message for the confirmation screen that renders after an applicant
+   *  submits and application. If a custom message is not set, returns an empty string.
+   */
+  LocalizedStrings getCustomConfirmationMessage();
 
   /**
    * Get the {@link Block}s for this program and applicant. This includes all blocks an applicant

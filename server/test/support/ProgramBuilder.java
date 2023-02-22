@@ -205,8 +205,8 @@ public class ProgramBuilder {
     return this;
   }
 
-  public ProgramBuilder withLocalizedConfirmationScreen(Locale locale, String customText) {
-    builder.addLocalizedConfirmationScreen(locale, customText);
+  public ProgramBuilder withLocalizedConfirmationMessage(Locale locale, String customText) {
+    builder.addLocalizedConfirmationMessage(locale, customText);
     return this;
   }
 

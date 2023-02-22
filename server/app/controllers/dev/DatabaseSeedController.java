@@ -331,7 +331,7 @@ public class DatabaseSeedController extends Controller {
               "desc",
               displayName,
               "display description",
-              "",
+              /* defaultConfirmationMessage= */ "",
               "https://github.com/seattle-uat/civiform",
               DisplayMode.PUBLIC.getValue(),
               /* programType= */ ProgramType.DEFAULT,

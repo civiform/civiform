@@ -71,7 +71,7 @@ public abstract class ProgramDefinition {
    * A custom message to be inserted into the confirmation screen for the Program, localized for
    * each supported locale.
    */
-  public abstract LocalizedStrings localizedConfirmationScreen();
+  public abstract LocalizedStrings localizedConfirmationMessage();
 
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
@@ -696,8 +696,8 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
-    public abstract Builder setLocalizedConfirmationScreen(
-        LocalizedStrings localizedConfirmationScreen);
+    public abstract Builder setLocalizedConfirmationMessage(
+        LocalizedStrings localizedConfirmationMessage);
 
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
@@ -709,7 +709,7 @@ public abstract class ProgramDefinition {
 
     public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
 
-    public abstract LocalizedStrings.Builder localizedConfirmationScreenBuilder();
+    public abstract LocalizedStrings.Builder localizedConfirmationMessageBuilder();
 
     public abstract Builder setCreateTime(@Nullable Instant createTime);
 
@@ -734,8 +734,8 @@ public abstract class ProgramDefinition {
       return this;
     }
 
-    public Builder addLocalizedConfirmationScreen(Locale locale, String customText) {
-      localizedConfirmationScreenBuilder().put(locale, customText);
+    public Builder addLocalizedConfirmationMessage(Locale locale, String customText) {
+      localizedConfirmationMessageBuilder().put(locale, customText);
       return this;
     }
   }

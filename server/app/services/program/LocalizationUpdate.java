@@ -15,7 +15,7 @@ public abstract class LocalizationUpdate {
 
   public abstract String localizedDisplayDescription();
 
-  public abstract String localizedConfirmationScreen();
+  public abstract String localizedConfirmationMessage();
 
   public abstract ImmutableList<StatusUpdate> statuses();
 
@@ -29,7 +29,7 @@ public abstract class LocalizationUpdate {
 
     public abstract Builder setLocalizedDisplayDescription(String v);
 
-    public abstract Builder setLocalizedConfirmationScreen(String v);
+    public abstract Builder setLocalizedConfirmationMessage(String v);
 
     public abstract Builder setStatuses(ImmutableList<StatusUpdate> v);
 

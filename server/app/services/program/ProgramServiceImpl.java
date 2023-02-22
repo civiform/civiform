@@ -183,7 +183,7 @@ public final class ProgramServiceImpl implements ProgramService {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
-      String defaultConfirmationScreen,
+      String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
       ProgramType programType,
@@ -239,7 +239,7 @@ public final class ProgramServiceImpl implements ProgramService {
             adminDescription,
             defaultDisplayName,
             defaultDisplayDescription,
-            defaultConfirmationScreen,
+            defaultConfirmationMessage,
             externalLink,
             displayMode,
             ImmutableList.of(emptyBlock),
@@ -256,7 +256,7 @@ public final class ProgramServiceImpl implements ProgramService {
       String adminDescription,
       String displayName,
       String displayDescription,
-      String confirmationScreen,
+      String confirmationMessage,
       String externalLink,
       String displayMode,
       ProgramType programType,
@@ -293,8 +293,8 @@ public final class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    LocalizedStrings newConfirmationScreenTranslations =
-        maybeClearConfirmationScreenTranslations(programDefinition, locale, confirmationScreen);
+    LocalizedStrings newConfirmationMessageTranslations =
+        maybeClearConfirmationMessageTranslations(programDefinition, locale, confirmationMessage);
 
     Program program =
         programDefinition.toBuilder()
@@ -305,7 +305,7 @@ public final class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
-            .setLocalizedConfirmationScreen(newConfirmationScreenTranslations)
+            .setLocalizedConfirmationMessage(newConfirmationMessageTranslations)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setProgramType(programType)
@@ -332,18 +332,18 @@ public final class ProgramServiceImpl implements ProgramService {
    * When an admin deletes a custom confirmation screen, we want to also clear out all associated
    * translations
    */
-  private LocalizedStrings maybeClearConfirmationScreenTranslations(
-      ProgramDefinition programDefinition, Locale locale, String confirmationScreen) {
-    LocalizedStrings existingConfirmationScreenTranslations =
-        programDefinition.localizedConfirmationScreen();
-    LocalizedStrings newConfirmationScreenTranslations;
-    if (locale.equals(Locale.US) && confirmationScreen.equals("")) {
-      newConfirmationScreenTranslations = LocalizedStrings.create(ImmutableMap.of(Locale.US, ""));
+  private LocalizedStrings maybeClearConfirmationMessageTranslations(
+      ProgramDefinition programDefinition, Locale locale, String confirmationMessage) {
+    LocalizedStrings existingConfirmationMessageTranslations =
+        programDefinition.localizedConfirmationMessage();
+    LocalizedStrings newConfirmationMessageTranslations;
+    if (locale.equals(Locale.US) && confirmationMessage.equals("")) {
+      newConfirmationMessageTranslations = LocalizedStrings.create(ImmutableMap.of(Locale.US, ""));
     } else {
-      newConfirmationScreenTranslations =
-          existingConfirmationScreenTranslations.updateTranslation(locale, confirmationScreen);
+      newConfirmationMessageTranslations =
+          existingConfirmationMessageTranslations.updateTranslation(locale, confirmationMessage);
     }
-    return newConfirmationScreenTranslations;
+    return newConfirmationMessageTranslations;
   }
 
   /**
@@ -428,10 +428,10 @@ public final class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
-            .setLocalizedConfirmationScreen(
+            .setLocalizedConfirmationMessage(
                 programDefinition
-                    .localizedConfirmationScreen()
-                    .updateTranslation(locale, localizationUpdate.localizedConfirmationScreen()))
+                    .localizedConfirmationMessage()
+                    .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
             .setStatusDefinitions(
                 programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
             .build()

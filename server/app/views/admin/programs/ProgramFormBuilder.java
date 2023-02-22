@@ -47,7 +47,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedDisplayName(),
         program.getLocalizedDisplayDescription(),
         program.getExternalLink(),
-        program.getLocalizedConfirmationScreen(),
+        program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
         program.getIsCommonIntakeForm(),
         editExistingProgram);
@@ -63,7 +63,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
         program.externalLink(),
-        program.localizedConfirmationScreen().getDefault(),
+        program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         editExistingProgram);
@@ -104,8 +104,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(externalLink)
             .getInputTag(),
         FieldWithLabel.textArea()
-            .setId("program-confirmation-screen-textarea")
-            .setFieldName("localizedConfirmationScreen")
+            .setId("program-confirmation-message-textarea")
+            .setFieldName("localizedConfirmationMessage")
             .setLabelText(
                 "A custom message that will be shown on the confirmation page after an application"
                     + " has been submitted. You can use this message to explain next steps of the"

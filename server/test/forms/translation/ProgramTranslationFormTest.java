@@ -44,7 +44,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
-                .setLocalizedConfirmationScreen("")
+                .setLocalizedConfirmationMessage("")
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
@@ -72,7 +72,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
-                .setLocalizedConfirmationScreen("")
+                .setLocalizedConfirmationMessage("")
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
@@ -97,7 +97,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
-                .setLocalizedConfirmationScreen("")
+                .setLocalizedConfirmationMessage("")
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
@@ -122,7 +122,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
                     .put(
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
-                    .put(ProgramTranslationForm.CUSTOM_CONFIRMATION_SCREEN_FORM_NAME, "")
+                    .put(ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME, "")
                     .put(
                         ProgramTranslationForm.statusKeyToUpdateFieldName(0),
                         "first configured status text")
@@ -145,7 +145,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
-                .setLocalizedConfirmationScreen("")
+                .setLocalizedConfirmationMessage("")
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()
@@ -163,7 +163,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("english-name", "english-description")
             .withLocalizedName(Locale.FRENCH, "french-name")
             .withLocalizedDescription(Locale.FRENCH, "french-description")
-            .withLocalizedConfirmationScreen(Locale.FRENCH, "")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(
                     ImmutableList.of(
@@ -193,7 +193,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("french-name")
                 .setLocalizedDisplayDescription("french-description")
-                .setLocalizedConfirmationScreen("")
+                .setLocalizedConfirmationMessage("")
                 .setStatuses(
                     ImmutableList.of(
                         LocalizationUpdate.StatusUpdate.builder()

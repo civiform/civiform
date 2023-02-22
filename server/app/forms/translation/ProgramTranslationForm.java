@@ -28,7 +28,7 @@ public final class ProgramTranslationForm {
   private static final Lang DEFAULT_LANG = new Lang(LocalizedStrings.DEFAULT_LOCALE);
   public static final String DISPLAY_NAME_FORM_NAME = "displayName";
   public static final String DISPLAY_DESCRIPTION_FORM_NAME = "displayDescription";
-  public static final String CUSTOM_CONFIRMATION_SCREEN_FORM_NAME = "confirmationScreen";
+  public static final String CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME = "confirmationMessage";
 
   private final DynamicForm form;
   private final int maxStatusTranslations;
@@ -49,8 +49,8 @@ public final class ProgramTranslationForm {
                 DISPLAY_DESCRIPTION_FORM_NAME,
                 new String[] {program.localizedDescription().maybeGet(locale).orElse("")})
             .put(
-                CUSTOM_CONFIRMATION_SCREEN_FORM_NAME,
-                new String[] {program.localizedConfirmationScreen().maybeGet(locale).orElse("")});
+                CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME,
+                new String[] {program.localizedConfirmationMessage().maybeGet(locale).orElse("")});
     ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
     for (int i = 0; i < statuses.size(); i++) {
       StatusDefinitions.Status status = statuses.get(i);
@@ -97,7 +97,7 @@ public final class ProgramTranslationForm {
             .add(
                 DISPLAY_NAME_FORM_NAME,
                 DISPLAY_DESCRIPTION_FORM_NAME,
-                CUSTOM_CONFIRMATION_SCREEN_FORM_NAME);
+                CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME);
     for (int i = 0; i < maxStatusTranslations; i++) {
       builder.add(
           statusKeyToUpdateFieldName(i), localizedStatusFieldName(i), localizedEmailFieldName(i));
@@ -114,8 +114,8 @@ public final class ProgramTranslationForm {
         .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME).orElse(""))
         .setLocalizedDisplayDescription(
             getStringFormField(DISPLAY_DESCRIPTION_FORM_NAME).orElse(""))
-        .setLocalizedConfirmationScreen(
-            getStringFormField(CUSTOM_CONFIRMATION_SCREEN_FORM_NAME).orElse(""))
+        .setLocalizedConfirmationMessage(
+            getStringFormField(CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME).orElse(""))
         .setStatuses(parseStatusUpdatesFromRequest())
         .build();
   }

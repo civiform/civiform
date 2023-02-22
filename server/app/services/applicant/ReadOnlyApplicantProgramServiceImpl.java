@@ -81,8 +81,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public LocalizedStrings getCustomConfirmationScreenMessage() {
-    return this.programDefinition.localizedConfirmationScreen();
+  public LocalizedStrings getCustomConfirmationMessage() {
+    return this.programDefinition.localizedConfirmationMessage();
   }
 
   @Override
