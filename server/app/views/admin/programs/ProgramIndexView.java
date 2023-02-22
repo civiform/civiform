@@ -316,6 +316,13 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeManageTranslationsLink.isPresent()) {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
+      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(request, draftProgram.get());
+      if (maybeSettingsLink.isPresent()) {
+        System.out.println("*** is present$");
+        draftRowExtraActions.add(maybeSettingsLink.get());
+      } else {
+        System.out.println("*** not present");
+      }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
       draftRow =
           Optional.of(
@@ -465,5 +472,18 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withId("manage-program-admin-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectElement(button, adminLink);
+  }
+
+  private Optional<ButtonTag> maybeRenderSettingsLink(
+      Http.Request request, ProgramDefinition program) {
+    if (!featureFlags.isNongatedEligibilityEnabled(request)) {
+      return Optional.empty();
+    }
+    String linkDestination = routes.AdminProgramController.editProgramSettings(program.id()).url();
+    ButtonTag button =
+        makeSvgTextButton("Settings", Icons.LANGUAGE)
+            .withId("edit-settings-link-" + program.id())
+            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return Optional.of(asRedirectElement(button, linkDestination));
   }
 }
