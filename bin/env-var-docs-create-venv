@@ -5,8 +5,8 @@
 source bin/lib.sh
 
 if [[ "$(which python3)" == "" ]]; then
-    echo "System installation of python 3.10+ is required"
-    exit 1
+  echo "System installation of python 3.10+ is required"
+  exit 1
 fi
 
 python3 - <<EOF
@@ -19,8 +19,8 @@ else:
 EOF
 
 if [[ ! -d env-var-docs/venv ]]; then
-   echo "venv does not exist in env-var-docs, creating..."
-   python3 -m venv env-var-docs/venv
+  echo "venv does not exist in env-var-docs, creating..."
+  python3 -m venv env-var-docs/venv
 fi
 
 echo "To activate the virtual environment, run 'source env-var-docs/venv/bin/activate'. To deactivate the environment, run 'deactivate'"
