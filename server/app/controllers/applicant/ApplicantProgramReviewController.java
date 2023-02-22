@@ -175,7 +175,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
             .getReadOnlyApplicantProgramService(applicantId, programId)
             .toCompletableFuture();
     return readOnlyApplicantProgramServiceFuture
-        .thenComposeAsync(readOnlyApplicantProgramService -> submitApp.toCompletableFuture())
+        .thenComposeAsync(v -> submitApp.toCompletableFuture())
         .thenApplyAsync(
             application -> {
               Long applicationId = application.id;
