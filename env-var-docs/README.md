@@ -14,7 +14,7 @@ documentation on the format. As part of a CiviForm release, the documentation
 is rendered as markdown and added to our [documentation
 website](https://docs.civiform.us/it-manual/sre-playbook/server-environment-variables).
 
-## Scripts
+## GitHub actions automations
 
 - [check_vars_documentation.py](./check_vars_documented.py): Ensures all
   environment variables referenced in application.conf are defined in
@@ -41,59 +41,29 @@ system installation of python version 3.10 or greater:
 $ python3 --version
 ```
 
-### Installing code dependencies
+We use [virtual python
+environments](https://docs.python.org/3/library/venv.html) to manage python
+dependencies. To set up a virtual environment with the required dependencies,
+run `bin/env-var-docs-create-venv` from the repository root. To activate the
+virual environment in your shell, run `source env-var-docs/venv/bin/activate`.
+Re-running `bin/env-var-docs-create-venv` will delete and re-create the virtual
+environment. Doing so is a good way to get back to a known good state.
 
-Create a [virtual python
-environment](https://docs.python.org/3/library/venv.html). From the repository
-root, change your shell's working directory:
+### Tests
 
-```sh
-$ cd env-var-docs
-$ python3 -m venv venv
-```
+We run [mypy](https://mypy-lang.org/) to check any [type
+hints](https://docs.python.org/3/library/typing.html) and
+[pytest-cov](https://pypi.org/project/pytest-cov/) to ensure tests pass and to
+generate code coverage.
 
-Activate the new virtual environment:
+Run `bin/env-var-docs-run-tests` to run these tests.
 
-```sh
-$ source venv/bin/activate
-```
+### Formatting
 
-If you are ever unsure if you are using the system python installation or a
-virtual environment, run:
+Running `bin/fmt` from the repository root will format the files in-place.
 
-```sh
-$ which python
-```
-
-The path should point to the created virtual environment in this directory.
-
-Install the dependencies:
-
-```sh
-$ pip install ./env_var_docs
-$ pip install -r requirements.txt
-```
-
-To exit the virtual environment, run:
-
-```sh
-$ deactivate
-```
-
-### Tooling dependencies
-
-We run a formatter and type checker on all PRs before they are allowed to be merged.
-
-#### Formatting
-
-We use [yapf](https://github.com/google/yapf) with the following options:
+To integrate with your code editor, install
+[yapf](https://github.com/google/yapf) and configure it with the following
+options:
 
 `--verbose --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}'`
-
-See in the `python-formatting` job in the [format action](.github/workflows/format.yaml).
-
-#### Type checking
-
-We use [mypy](https://github.com/python/mypy) to check python [type
-hints](https://docs.python.org/3/library/typing.html). We use the default
-options.

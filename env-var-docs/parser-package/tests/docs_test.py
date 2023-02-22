@@ -1,6 +1,6 @@
 import io
 import os
-import parser
+import env_var_docs.parser
 import unittest
 
 
@@ -8,7 +8,7 @@ class TestDocsExample(unittest.TestCase):
 
     def test_example(self):
         example = ""
-        with open(f"{os.path.dirname(__file__)}/README.md") as readme:
+        with open(f"{os.path.dirname(__file__)}/../README.md") as readme:
             copying = False
             for line in readme:
                 if line == "```env-var-docs-file-example\n":
@@ -25,7 +25,7 @@ class TestDocsExample(unittest.TestCase):
         def note_node(info):
             node_names.append(info.name)
 
-        errors = parser.visit(io.StringIO(example), note_node)
+        errors = env_var_docs.parser.visit(io.StringIO(example), note_node)
         self.assertEqual(errors, [])
         self.assertEqual(
             node_names, [

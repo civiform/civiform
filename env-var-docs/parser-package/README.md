@@ -1,6 +1,6 @@
 # Environment variable documentation file visitor
 
-This directory contains a visitor python package that supports parsing and
+This directory contains a parser python module that supports parsing and
 visiting nodes within an environment variable documentation file.
 
 ## Developer Setup

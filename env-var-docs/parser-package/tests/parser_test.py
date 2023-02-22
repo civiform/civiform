@@ -1,16 +1,17 @@
-from parser import Group, Variable, RegexTest, ParseError, NodeParseError, NodeInfo, visit, _path, _ensure_no_extra_fields, _parse_field, _parse_group, _parse_variable
+from env_var_docs.parser import Group, Variable, RegexTest, ParseError, NodeParseError, NodeInfo, visit, _path, _ensure_no_extra_fields, _parse_field, _parse_group, _parse_variable
 import unittest
 import io
 
 
-class TestVisit(unittest.TestCase):
+def donothing(_: NodeInfo):
+    pass
 
-    def donothing(_: NodeInfo):
-        pass
+
+class TestVisit(unittest.TestCase):
 
     def test_empty_file(self):
         f = io.StringIO("")
-        got = visit(f, self.donothing)
+        got = visit(f, donothing)
         self.assertEqual(
             got, [
                 NodeParseError(
@@ -26,7 +27,7 @@ class TestVisit(unittest.TestCase):
 
     def test_file_not_object(self):
         f = io.StringIO("[1, 2]")
-        got = visit(f, self.donothing)
+        got = visit(f, donothing)
         self.assertEqual(
             got, [
                 NodeParseError(
