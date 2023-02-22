@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -169,7 +170,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
             programId,
             submittingProfile,
             featureFlags.isProgramEligibilityConditionsEnabled(request));
-    return submitApp
+    CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
+        applicantService
+            .getReadOnlyApplicantProgramService(applicantId, programId)
+            .toCompletableFuture();
+    return readOnlyApplicantProgramServiceFuture
+        .thenComposeAsync(readOnlyApplicantProgramService -> submitApp.toCompletableFuture())
         .thenApplyAsync(
             application -> {
               Long applicationId = application.id;
@@ -205,28 +211,25 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
+                  ReadOnlyApplicantProgramService roApplicantProgramService =
+                      readOnlyApplicantProgramServiceFuture.join();
+
                   try {
                     ProgramDefinition programDefinition =
                         programService.getProgramDefinition(programId);
 
-                    var unusedFuture =
-                        applicantService
-                            .getReadOnlyApplicantProgramService(applicantId, programId)
-                            .toCompletableFuture()
-                            .thenCombineAsync(
-                                applicantService.getName(applicantId).toCompletableFuture(),
-                                (roApplicantProgramService, applicantName) -> {
-                                  return ok(
-                                      ineligibleBlockView.render(
-                                          request,
-                                          submittingProfile,
-                                          roApplicantProgramService,
-                                          applicantName,
-                                          messagesApi.preferred(request),
-                                          applicantId,
-                                          programDefinition));
-                                },
-                                httpExecutionContext.current());
+                    Optional<String> applicantName =
+                        roApplicantProgramService.getApplicantData().getApplicantName();
+
+                    return ok(
+                        ineligibleBlockView.render(
+                            request,
+                            submittingProfile,
+                            roApplicantProgramService,
+                            applicantName,
+                            messagesApi.preferred(request),
+                            applicantId,
+                            programDefinition));
                   } catch (ProgramNotFoundException e) {
                     notFound(e.toString());
                   }
