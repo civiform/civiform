@@ -34,7 +34,7 @@ jobs:
           pip install env-var-docs/parser-package
 
       - name: Run mypy
-        run: mypy env-var-docs
+        run: mypy env-var-docs --exclude env-var-docs/parser-package/build
 
       - name: Run pytest
         run: pytest --cov=env-var-docs
