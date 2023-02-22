@@ -300,10 +300,10 @@ def _parse_variable(parent_path: str,
             description, type, required, values, regex, regex_tests), []
 
 
-T = typing.TypeVar("T")
 CheckFn = typing.Callable[[str, UnparsedJSON], ParseErrors]
 """A CheckFn takes in a parent_path and an object and returns any ParseErrors."""
 
+T = typing.TypeVar("T")
 ExtractFn = typing.Callable[[UnparsedJSON], T]
 """An ExtractFn takes in an object and returns a complex type."""
 
