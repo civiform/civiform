@@ -167,7 +167,8 @@ public class Program extends BaseModel {
     // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
-    this.localizedConfirmationMessage = LocalizedStrings.withDefaultValue(defaultConfirmationMessage);
+    this.localizedConfirmationMessage =
+        LocalizedStrings.withDefaultValue(defaultConfirmationMessage);
     this.externalLink = externalLink;
     this.displayMode = displayMode;
     this.blockDefinitions = blockDefinitions;

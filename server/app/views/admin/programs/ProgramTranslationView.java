@@ -109,7 +109,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                             FieldWithLabel.input()
                                 .setFieldName(
                                     ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
-                                .setLabelText("Custom Confirmation Message")
+                                .setLabelText("Custom Confirmation Screen Message")
                                 .setValue(updateData.localizedConfirmationMessage())
                                 .getInputTag(),
                             program.localizedConfirmationMessage()))));
