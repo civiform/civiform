@@ -81,7 +81,7 @@ public final class ProgramForm {
   public void setIsCommonIntakeForm(Boolean isCommonIntakeForm) {
     this.isCommonIntakeForm = isCommonIntakeForm;
   }
-  
+
   public void setLocalizedConfirmationScreen(String localizedConfirmationScreen) {
     this.localizedConfirmationScreen = localizedConfirmationScreen;
   }
