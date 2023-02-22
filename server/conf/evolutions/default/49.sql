@@ -1,5 +1,9 @@
 # --- !Ups
 
+ALTER TABLE applications
+ADD COLUMN submission_duration interval
+GENERATED ALWAYS AS (submit_time - create_time) STORED;
+
 CREATE MATERIALIZED VIEW monthly_submissions_reporting_view AS
 SELECT
   programs.name AS program_name,
@@ -18,10 +22,6 @@ INNER JOIN programs ON applications.program_id = programs.id
 WHERE applications.lifecycle_stage IN ('active', 'obsolete')
 GROUP BY programs.name, DATE_TRUNC('month', applications.submit_time)
 ORDER BY programs.name, DATE_TRUNC('month', applications.submit_time) DESC;
-
-ALTER TABLE applications
-ADD COLUMN submission_duration interval
-GENERATED ALWAYS AS (submit_time - create_time) STORED;
 
 # --- !Downs
 

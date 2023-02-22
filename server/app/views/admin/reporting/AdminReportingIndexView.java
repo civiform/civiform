@@ -11,24 +11,28 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.AdminReportingController;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TbodyTag;
+import j2html.tags.specialized.ThTag;
 import j2html.tags.specialized.TrTag;
 import java.text.DecimalFormat;
 import java.time.Duration;
+import java.util.Optional;
 import play.twirl.api.Content;
 import services.DateConverter;
 import services.reporting.ApplicationSubmissionsStat;
 import services.reporting.ReportingService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
-import views.components.LinkElement;
+import views.components.Icons;
 
 /** Summary view for reporting data. */
 public final class AdminReportingIndexView extends BaseHtmlView {
@@ -59,27 +63,64 @@ public final class AdminReportingIndexView extends BaseHtmlView {
 
     DivTag contentDiv = div().withClasses("px-20").with(headerDiv);
 
-    contentDiv.with(renderAllApplicationsMonthlyStats(allApplicationsMonthlyStats));
     contentDiv.with(renderAggregatedProgramStats(totalSubmissionsByProgram));
+    contentDiv.with(renderAllApplicationsMonthlyStats(allApplicationsMonthlyStats));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 
-  public static final ImmutableList<String> APPLICATION_COUNTS_BY_MONTH_HEADERS =
+  /** Represents a column header in a reporting view. */
+  @AutoValue
+  public abstract static class ReportingTableHeader {
+    public static ReportingTableHeader create(String headerText) {
+      return new AutoValue_AdminReportingIndexView_ReportingTableHeader(
+          headerText, /* helpText= */ Optional.empty());
+    }
+
+    public static ReportingTableHeader create(String headerText, String helpText) {
+      return new AutoValue_AdminReportingIndexView_ReportingTableHeader(
+          headerText, Optional.of(helpText));
+    }
+
+    /** The text in the header for this column. */
+    public abstract String headerText();
+
+    /** Optional help text that provides more detail on the data in the column. */
+    public abstract Optional<String> helpText();
+  }
+
+  public static final ImmutableList<ReportingTableHeader> APPLICATION_COUNTS_BY_MONTH_HEADERS =
       ImmutableList.of(
-          "Time period",
-          "Applications submitted",
-          "25p time to submit",
-          "50p time to submit",
-          "75p time to submit",
-          "99p time to submit");
+          ReportingTableHeader.create("Month"),
+          ReportingTableHeader.create(
+              "Submissions", "The total number of applications submitted during this month."),
+          ReportingTableHeader.create(
+              "Time to complete (25th percentile)",
+              "The 25th percentile time between when an applicant started and completed an"
+                  + " application. Meaning 25% of applicants completed their application in this"
+                  + " amount of time or less."),
+          ReportingTableHeader.create(
+              "Median time to complete",
+              "The median time between when an applicant started and completed an application."
+                  + " Meaning 50% of applicants completed their application in this amount of time"
+                  + " or less."),
+          ReportingTableHeader.create(
+              "Time to complete (75th percentile)",
+              "The 75th percentile time between when an applicant started and completed an"
+                  + " application. Meaning 75% of applicants completed their application in this"
+                  + " amount of time or less."),
+          ReportingTableHeader.create(
+              "Time to complete (99th percentile)",
+              "The 99th percentile time between when an applicant started and completed an"
+                  + " application. Meaning 99% of applicants completed their application in this"
+                  + " amount of time or less."));
 
   private DivTag renderAllApplicationsMonthlyStats(
       ImmutableList<ApplicationSubmissionsStat> allApplicationsMonthlyStats) {
 
     return renderTable(
-            "By month (all programs)",
+            "Submissions by month (all programs)",
             APPLICATION_COUNTS_BY_MONTH_HEADERS,
             allApplicationsMonthlyStats.stream()
                 .map(
@@ -101,30 +142,43 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                     .url()));
   }
 
-  public static final ImmutableList<String> APPLICATION_COUNTS_BY_PROGRAM_HEADERS =
+  public static final ImmutableList<ReportingTableHeader> APPLICATION_COUNTS_BY_PROGRAM_HEADERS =
       ImmutableList.of(
-          "Program",
-          "Applications submitted",
-          "25p time to submit",
-          "50p time to submit",
-          "75p time to submit",
-          "99p time to submit");
+          ReportingTableHeader.create("Program"),
+          ReportingTableHeader.create(
+              "Submissions", "The total number of applications submitted to this program."),
+          ReportingTableHeader.create(
+              "Time to complete (25th percentile)",
+              "The 25th percentile time between when an applicant started and completed an"
+                  + " application. Meaning 25% of applicants completed their application in this"
+                  + " amount of time or less."),
+          ReportingTableHeader.create(
+              "Median time to complete",
+              "The median time between when an applicant started and completed an application."
+                  + " Meaning 50% of applicants completed their application in this amount of time"
+                  + " or less."),
+          ReportingTableHeader.create(
+              "Time to complete (75th percentile)",
+              "The 75th percentile time between when an applicant started and completed an"
+                  + " application. Meaning 75% of applicants completed their application in this"
+                  + " amount of time or less."),
+          ReportingTableHeader.create(
+              "Time to complete (99th percentile)",
+              "The 99th percentile time between when an applicant started and completed an"
+                  + " application. Meaning 99% of applicants completed their application in this"
+                  + " amount of time or less."));
 
   private DivTag renderAggregatedProgramStats(
       ImmutableList<ApplicationSubmissionsStat> aggregatedProgramStats) {
 
     return renderTable(
-            "By program (all time)",
+            "Submissions by program (all time)",
             APPLICATION_COUNTS_BY_PROGRAM_HEADERS,
             aggregatedProgramStats.stream()
                 .map(
                     stat ->
                         tr(
-                            td(
-                                new LinkElement()
-                                    .setHref("/")
-                                    .setText(stat.programName())
-                                    .asAnchorText()),
+                            td(stat.programName()),
                             td(DECIMAL_FORMAT.format(stat.applicationCount())),
                             td(renderDuration(stat.submissionDurationSeconds25p())),
                             td(renderDuration(stat.submissionDurationSeconds50p())),
@@ -142,15 +196,21 @@ public final class AdminReportingIndexView extends BaseHtmlView {
   }
 
   private DivTag renderTable(
-      String title, ImmutableList<String> headers, Iterable<TrTag> dataRows) {
+      String title, ImmutableList<ReportingTableHeader> headers, Iterable<TrTag> dataRows) {
     DivTag content =
         div(h2(title)).withClasses("shadow border border-gray-300 rounded-lg p-6 mb-10");
 
     TbodyTag tbodyTag = tbody();
 
     TrTag headerRow = tr();
-    for (String header : headers) {
-      headerRow.with(th(header).withClasses("text-left pr-1"));
+    for (ReportingTableHeader header : headers) {
+      ThTag thTag = th(header.headerText()).withClasses("text-left pr-2 whitespace-nowrap");
+
+      header
+          .helpText()
+          .ifPresent(helpText -> thTag.with(ViewUtils.makeSvgToolTip(helpText, Icons.INFO)));
+
+      headerRow.with(thTag);
     }
 
     TableTag table =
@@ -162,8 +222,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     }
 
     DivTag tableInnerContainer = div(table).withClasses("shadow-sm overflow-hidden my-8");
-    DivTag tableOuterContainer =
-        div(tableInnerContainer).withClasses("relative rounded-xl overflow-auto");
+    DivTag tableOuterContainer = div(tableInnerContainer).withClasses("relative rounded-xl");
 
     return content.with(tableOuterContainer);
   }

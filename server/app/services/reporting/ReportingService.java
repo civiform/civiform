@@ -114,7 +114,7 @@ public final class ReportingService {
 
   private String buildCsv(
       ImmutableList<ApplicationSubmissionsStat> stats,
-      ImmutableList<String> headers,
+      ImmutableList<AdminReportingIndexView.ReportingTableHeader> headers,
       BiConsumer<CSVPrinter, ApplicationSubmissionsStat> printFn) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
 
@@ -122,7 +122,13 @@ public final class ReportingService {
       var printer =
           new CSVPrinter(
               writer,
-              CSVFormat.DEFAULT.builder().setHeader(headers.toArray(String[]::new)).build());
+              CSVFormat.DEFAULT
+                  .builder()
+                  .setHeader(
+                      headers.stream()
+                          .map(AdminReportingIndexView.ReportingTableHeader::headerText)
+                          .toArray(String[]::new))
+                  .build());
 
       for (var stat : stats) {
         printFn.accept(printer, stat);
