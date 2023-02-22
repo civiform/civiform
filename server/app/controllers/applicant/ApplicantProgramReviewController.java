@@ -218,15 +218,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
                     ProgramDefinition programDefinition =
                         programService.getProgramDefinition(programId);
 
-                    Optional<String> applicantName =
-                        roApplicantProgramService.getApplicantData().getApplicantName();
-
                     return ok(
                         ineligibleBlockView.render(
                             request,
                             submittingProfile,
                             roApplicantProgramService,
-                            applicantName,
                             messagesApi.preferred(request),
                             applicantId,
                             programDefinition));
