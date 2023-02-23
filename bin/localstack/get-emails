@@ -1,0 +1,14 @@
+#! /usr/bin/env bash
+source bin/lib.sh
+
+# DOC: Gets all emails sent by Civiform to the Localstack server in the dev environment. Uses jq if installed to be prettier.
+
+if hash curl 2>/dev/null; then
+  if hash jq 2>/dev/null; then
+    curl http://localhost:4566/_aws/ses | jq
+  else
+    curl http://localhost:4566/_aws/ses
+  fi
+else
+  echo "You must have 'curl' installed to use this script."
+fi
