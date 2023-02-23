@@ -348,21 +348,29 @@ public final class ProgramStatusesView extends BaseHtmlView {
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
 
+    Boolean isCurrentDefault = formData.getDefaultStatus().orElse(false);
     LabelTag defaultCheckbox =
         label()
             .with(
                 input()
                     .withType("checkbox")
                     .withName(ProgramStatusesForm.DEFAULT_CHECKBOX_NAME)
-                    .withCondChecked(formData.getDefaultStatus().orElse(false))
-                    .withClasses(BaseStyles.CHECKBOX),
+                    .withCondChecked(isCurrentDefault)
+                    .withClasses(BaseStyles.CHECKBOX, "cf-set-default-status-checkbox"),
                 span("Set as default status"));
-
+    Optional<StatusDefinitions.Status> currentDefaultStatus =
+        program.toProgram().getDefaultStatus();
+    String messagePart =
+        currentDefaultStatus
+            .map(status -> String.format("from %s to ", status.statusText()))
+            .orElse("to ");
     FormTag content =
         form()
             .withMethod("POST")
             .withAction(routes.AdminProgramStatusesController.createOrUpdate(program.id()).url())
-            .withClasses("px-6", "py-2")
+            .withClasses("cf-status-change-form", "px-6", "py-2")
+            .withData("dontshow", isCurrentDefault.toString())
+            .withData("messagepart", messagePart)
             .with(
                 makeCsrfTokenInputTag(request),
                 input()
