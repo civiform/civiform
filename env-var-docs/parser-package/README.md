@@ -57,7 +57,7 @@ MY_LIST.1 = "second item"
 ### Example
 
 Here is an example environment variable documentation file (validated in
-[./tests/docs_test.py](./tests/docs_test.py)):
+[./tests/readme_test.py](./tests/readme_test.py)):
 
 ```env-var-docs-file-example
 {

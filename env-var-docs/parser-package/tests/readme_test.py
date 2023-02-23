@@ -4,7 +4,7 @@ import env_var_docs.parser
 import unittest
 
 
-class TestDocsExample(unittest.TestCase):
+class TestReadmeExample(unittest.TestCase):
 
     def test_example(self):
         example = ""
