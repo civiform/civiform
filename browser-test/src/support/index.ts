@@ -258,7 +258,7 @@ export const endSession = async (browser: Browser) => {
   await browser.close()
 }
 
-export const gotoEndpoint = async (page: Page, endpoint: string = '') => {
+export const gotoEndpoint = async (page: Page, endpoint = '') => {
   return await page.goto(BASE_URL + endpoint)
 }
 
