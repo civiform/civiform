@@ -36,6 +36,7 @@ import services.PaginationResult;
 import services.UrlUtils;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -90,6 +91,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
+    Optional<StatusDefinitions.Status> defaultStatus = program.toProgram().getDefaultStatus();
 
     DivTag applicationListDiv =
         div()
@@ -123,7 +125,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             hasEligibilityEnabled
                                 ? applicantService.getOptionalEligibilityStatus(
                                     application.getApplicant().getApplicantData(), program)
-                                : Optional.empty())))
+                                : Optional.empty(),
+                            defaultStatus)))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =
@@ -331,7 +334,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private DivTag renderApplicationListItem(
-      Application application, boolean displayStatus, Optional<Boolean> maybeEligibilityStatus) {
+      Application application,
+      boolean displayStatus,
+      Optional<Boolean> maybeEligibilityStatus,
+      Optional<StatusDefinitions.Status> defaultStatus) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -339,6 +345,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             application.id);
     String viewLinkText = "View →";
 
+    String statusString = application.getLatestStatus().orElse("None");
+    statusString +=
+        defaultStatus.isPresent() && statusString.equals(defaultStatus.get().statusText())
+            ? " (default)"
+            : "";
     DivTag cardContent =
         div()
             .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")
@@ -357,10 +368,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .condWith(
                 displayStatus,
                 p().withClasses("text-sm", "text-gray-700")
-                    .with(
-                        span("Status: "),
-                        span(application.getLatestStatus().orElse("None"))
-                            .withClass("font-semibold")))
+                    .with(span("Status: "), span(statusString).withClass("font-semibold")))
             .condWith(
                 maybeEligibilityStatus.isPresent(),
                 p().withClasses("text-sm", "text-gray-700")
