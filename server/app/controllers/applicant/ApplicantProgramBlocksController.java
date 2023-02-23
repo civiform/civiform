@@ -7,14 +7,13 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
+import controllers.BadRequestException;
 import controllers.CiviFormController;
+import controllers.geo.AddressSuggestionJsonSerializer;
 import featureflags.FeatureFlags;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,6 +83,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final IneligibleBlockView ineligibleBlockView;
   private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final EsriClient esriClient;
+  private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -102,7 +102,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       FileUploadViewStrategy fileUploadViewStrategy,
       IneligibleBlockView ineligibleBlockView,
       AddressCorrectionBlockView addressCorrectionBlockView,
-      EsriClient esriClient) {
+      EsriClient esriClient,
+      AddressSuggestionJsonSerializer addressSuggestionJsonSerializer) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -115,6 +116,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.esriClient = checkNotNull(esriClient);
+    this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
   }
@@ -189,14 +191,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               try {
                 Block thisBlockUpdated = block.get();
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode rootNode = mapper.readTree(maybeAddressJson.get());
 
-                ImmutableList.Builder<AddressSuggestion> suggestionBuilder =
-                    ImmutableList.builder();
-                for (JsonNode node : rootNode) {
-                  suggestionBuilder.add(AddressSuggestion.builder().fromJson(node));
-                }
+                ImmutableList<AddressSuggestion> suggestions =
+                    addressSuggestionJsonSerializer.deserialize(maybeAddressJson.get());
 
                 ImmutableList<ApplicantQuestion> questions = thisBlockUpdated.getQuestions();
 
@@ -216,7 +213,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME);
 
                   Optional<AddressSuggestion> suggestionMaybe =
-                      suggestionBuilder.build().stream()
+                      suggestions.stream()
                           .filter(x -> x.getSingleLineAddress().equals(selectedAddress))
                           .findFirst();
 
@@ -270,7 +267,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 return redirect(
                     routes.ApplicantProgramBlocksController.edit(
                         applicantId, programId, nextBlockIdMaybe.get()));
-              } catch (JsonProcessingException e) {
+              } catch (BadRequestException e) {
                 throw new RuntimeException(e);
               }
             },
@@ -580,12 +577,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               esriClient.getAddressSuggestions(address).toCompletableFuture().get();
 
           if (suggestionsMaybe.isPresent() && addressQuestion.getCorrectedValue().isEmpty()) {
-            ObjectMapper mapper = new ObjectMapper();
-
             ImmutableList<AddressSuggestion> suggestions;
             suggestions = suggestionsMaybe.get().getAddressSuggestions();
-            String json = mapper.writeValueAsString(suggestions);
-
+            String json = addressSuggestionJsonSerializer.serialize(suggestions);
             return supplyAsync(
                 () ->
                     ok(addressCorrectionBlockView.render(
@@ -605,7 +599,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
           }
         }
-      } catch (InterruptedException | ExecutionException | JsonProcessingException ex) {
+      } catch (InterruptedException | ExecutionException ex) {
         throw new RuntimeException(ex);
       }
     }
