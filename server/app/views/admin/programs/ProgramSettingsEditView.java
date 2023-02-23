@@ -97,7 +97,7 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
                 p(ELIGIBILITY_IS_GATING_DESCRIPTION)
                     .withClasses("text-md", "max-w-prose", "mt-6", "text-gray-700"));
 
-    String title = program.adminName() + " settings";
+    String title = program.localizedName().getDefault() + " settings";
     DivTag contentDiv =
         div()
             .withClasses("px-12")
