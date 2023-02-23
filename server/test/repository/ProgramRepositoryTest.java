@@ -156,6 +156,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             "name",
             "description",
             "",
+            "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
             versionRepo.getDraftVersion(),

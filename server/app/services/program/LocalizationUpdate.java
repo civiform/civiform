@@ -15,6 +15,8 @@ public abstract class LocalizationUpdate {
 
   public abstract String localizedDisplayDescription();
 
+  public abstract String localizedConfirmationMessage();
+
   public abstract ImmutableList<StatusUpdate> statuses();
 
   public static Builder builder() {
@@ -26,6 +28,8 @@ public abstract class LocalizationUpdate {
     public abstract Builder setLocalizedDisplayName(String v);
 
     public abstract Builder setLocalizedDisplayDescription(String v);
+
+    public abstract Builder setLocalizedConfirmationMessage(String v);
 
     public abstract Builder setStatuses(ImmutableList<StatusUpdate> v);
 

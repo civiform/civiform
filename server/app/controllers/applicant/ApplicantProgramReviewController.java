@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -163,15 +164,22 @@ public class ApplicantProgramReviewController extends CiviFormController {
       Request request, long applicantId, long programId) {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
 
-    CompletionStage<Application> submitApp =
-        applicantService.submitApplication(
-            applicantId,
-            programId,
-            submittingProfile,
-            featureFlags.isProgramEligibilityConditionsEnabled(request));
-    return submitApp
+    CompletableFuture<Application> submitAppFuture =
+        applicantService
+            .submitApplication(
+                applicantId,
+                programId,
+                submittingProfile,
+                featureFlags.isProgramEligibilityConditionsEnabled(request))
+            .toCompletableFuture();
+    CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
+        applicantService
+            .getReadOnlyApplicantProgramService(applicantId, programId)
+            .toCompletableFuture();
+    return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
         .thenApplyAsync(
-            application -> {
+            (v) -> {
+              Application application = submitAppFuture.join();
               Long applicationId = application.id;
               Call endOfProgramSubmission =
                   routes.RedirectController.considerRegister(
@@ -205,24 +213,18 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return redirect(reviewPage).flashing("error", errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
-                  // TODO(#3744) Make asynchronous.
                   ReadOnlyApplicantProgramService roApplicantProgramService =
-                      applicantService
-                          .getReadOnlyApplicantProgramService(applicantId, programId)
-                          .toCompletableFuture()
-                          .join();
+                      readOnlyApplicantProgramServiceFuture.join();
 
-                  Optional<String> applicantName =
-                      applicantService.getName(applicantId).toCompletableFuture().join();
                   try {
                     ProgramDefinition programDefinition =
                         programService.getProgramDefinition(programId);
+
                     return ok(
                         ineligibleBlockView.render(
                             request,
                             submittingProfile,
                             roApplicantProgramService,
-                            applicantName,
                             messagesApi.preferred(request),
                             applicantId,
                             programDefinition));
