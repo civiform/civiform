@@ -2239,7 +2239,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ps.setEligibilityIsGating(
             programDefinition.id(),
             /* eligibilityIsGating= */ false,
-            /* isNonGatedEligibilityFeatureEnabled= */ true);
+            /* isNongatedEligibilityFeatureEnabled= */ true);
     assertThat(result.eligibilityIsGating()).isFalse();
   }
 
@@ -2250,7 +2250,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ps.setEligibilityIsGating(
             programDefinition.id(),
             /* eligibilityIsGating= */ false,
-            /* isNonGatedEligibilityFeatureEnabled= */ false);
+            /* isNongatedEligibilityFeatureEnabled= */ false);
     assertThat(result.eligibilityIsGating()).isTrue();
   }
 }
