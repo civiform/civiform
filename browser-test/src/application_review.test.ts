@@ -248,6 +248,9 @@ describe('Program admin review of submitted applications', () => {
     await waitForPageJsLoad(page)
 
     await validateScreenshot(page, 'applications-page')
+
+    await page.click('text=Reporting')
+    await validateScreenshot(page, 'reporting-page')
   })
 
   it('program applications listed most recent first', async () => {

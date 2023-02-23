@@ -100,9 +100,17 @@ public final class ViewUtils {
     DRAFT
   }
 
+  public static DivTag makeSvgToolTipRightAnchored(String toolTipText, Icons icon) {
+    return makeSvgToolTip(toolTipText, icon, Optional.of("right-1/2"));
+  }
+
   public static DivTag makeSvgToolTip(String toolTipText, Icons icon) {
+    return makeSvgToolTip(toolTipText, icon, /* classes= */ Optional.empty());
+  }
+
+  public static DivTag makeSvgToolTip(String toolTipText, Icons icon, Optional<String> classes) {
     return div()
-        .withClasses("group")
+        .withClasses("group inline")
         .with(
             Icons.svg(icon).withClasses("inline-block", "w-5", "relative"),
             span(toolTipText)
@@ -119,10 +127,11 @@ public final class ViewUtils {
                     "border-gray-200",
                     "border",
                     "text-left",
-                    "right-1/2",
                     "w-96",
                     "text-sm",
-                    "font-normal"));
+                    "font-normal",
+                    "whitespace-normal",
+                    classes.orElse("")));
   }
 
   /**

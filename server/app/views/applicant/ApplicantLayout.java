@@ -46,7 +46,7 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
-/** Contains methods rendering common compoments used across applicant pages. */
+/** Contains methods rendering common components used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicantLayout.class);
