@@ -209,12 +209,6 @@ title.applicantNotEligible=응답을 토대로 귀하는 {0}의 자격요건을 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
 title.applicantNotEligibleTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다.
 
-# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
-content.mustMeetRequirements=귀하는 다음과 같은 프로그램 요구사항을 충족해야 합니다.
-
-# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
-content.mustMeetRequirementsTi=클라이언트는 다음과 같은 프로그램 요구사항을 충족해야 합니다.
-
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
 

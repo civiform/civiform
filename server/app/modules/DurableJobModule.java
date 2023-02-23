@@ -11,9 +11,11 @@ import durablejobs.DurableJobRunner;
 import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
 import durablejobs.jobs.OldJobCleanupJob;
+import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import java.time.Duration;
 import java.util.Random;
 import repository.PersistedDurableJobRepository;
+import repository.ReportingRepository;
 import scala.concurrent.ExecutionContext;
 
 /**
@@ -61,7 +63,8 @@ public final class DurableJobModule extends AbstractModule {
 
   @Provides
   public DurableJobRegistry provideDurableJobRegistry(
-      PersistedDurableJobRepository persistedDurableJobRepository) {
+      PersistedDurableJobRepository persistedDurableJobRepository,
+      ReportingRepository reportingRepository) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -69,6 +72,12 @@ public final class DurableJobModule extends AbstractModule {
         persistedDurableJob ->
             new OldJobCleanupJob(persistedDurableJobRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
+
+    durableJobRegistry.register(
+        DurableJobName.REPORTING_DASHBOARD_MONTHLY_REFRESH,
+        persistedDurableJob ->
+            new ReportingDashboardMonthlyRefreshJob(reportingRepository, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
 
     return durableJobRegistry;
   }

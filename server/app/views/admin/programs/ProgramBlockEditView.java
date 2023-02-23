@@ -808,7 +808,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                 "w-6",
                                 "h-6",
                                 "rounded-full")))
-            .with(div(ViewUtils.makeSvgToolTip(toolTipText, Icons.HELP)));
+            .with(div(ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.HELP)));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinition.id(), blockDefinition.id(), questionDefinition.getId())

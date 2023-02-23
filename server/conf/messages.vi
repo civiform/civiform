@@ -208,12 +208,6 @@ title.applicantNotEligible=Dựa trên câu trả lời của bạn, bạn có t
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
 title.applicantNotEligibleTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}.
 
-# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
-content.mustMeetRequirements=Bạn phải đáp ứng các yêu cầu sau đây của chương trình:
-
-# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
-content.mustMeetRequirementsTi=Khách hàng của bạn phải đáp ứng các yêu cầu sau đây của chương trình:
-
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Để biết điều kiện tham gia, vui lòng tham khảo {0}
 
