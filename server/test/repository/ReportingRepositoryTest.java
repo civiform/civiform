@@ -71,6 +71,8 @@ public class ReportingRepositoryTest extends ResetPostgres {
 
     assertThat(repo.loadMonthlyReportingView())
         .containsExactly(
+          // The expected values here have submission duration percentile stats calculated from
+          // the submitted (i.e. active and obsolete) applications.
             ApplicationSubmissionsStat.create(
                 "Fake Program A", getMonthTimestamp(lastMonth), 3L, 300, 500, 750, 990),
             ApplicationSubmissionsStat.create(
@@ -111,6 +113,8 @@ public class ReportingRepositoryTest extends ResetPostgres {
 
     assertThat(repo.loadThisMonthReportingData())
         .containsExactly(
+            // The expected values here have submission duration percentile stats calculated from
+            // the submitted (i.e. active and obsolete) applications.
             ApplicationSubmissionsStat.create(
                 "Fake Program A", getMonthTimestamp(today), 3L, 300, 500, 750, 990),
             ApplicationSubmissionsStat.create(

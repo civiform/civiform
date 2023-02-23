@@ -69,7 +69,7 @@ public final class ReportingService {
         APPLICATION_COUNTS_BY_MONTH_HEADERS,
         (printer, stat) -> {
           try {
-            printer.print(dateConverter.renderMonthAndYear(stat.timestamp().get()));
+            printer.print(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get()));
             printer.print(stat.applicationCount());
             printer.print(
                 AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds25p()));

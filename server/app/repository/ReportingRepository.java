@@ -1,5 +1,7 @@
 package repository;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
@@ -87,12 +89,10 @@ public final class ReportingRepository {
   }
 
   private static double getSecondsFromPgIntervalRowValue(SqlRow row, String key) {
-    Object interval = row.get(key);
-
-    if (interval == null) {
-      throw new IllegalStateException(
-          String.format("Expected SqlRow to have key %s but not found in %s", key, row));
-    }
+    Object interval =
+        checkNotNull(
+            row.get(key),
+            String.format("Expected SqlRow to have key %s but not found in %s", key, row));
 
     if (!(interval instanceof PGInterval)) {
       throw new IllegalStateException(

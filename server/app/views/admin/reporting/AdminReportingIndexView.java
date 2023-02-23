@@ -126,7 +126,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                 .map(
                     stat ->
                         tr(
-                            td(dateConverter.renderMonthAndYear(stat.timestamp().get())),
+                            td(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get())),
                             td(DECIMAL_FORMAT.format(stat.applicationCount())),
                             td(renderDuration(stat.submissionDurationSeconds25p())),
                             td(renderDuration(stat.submissionDurationSeconds50p())),
@@ -216,9 +216,8 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     TableTag table =
         table().withClasses("border-collapse table-auto w-full").with(thead(headerRow), tbodyTag);
 
-    int rowCount = 0;
     for (TrTag dataRow : dataRows) {
-      tbodyTag.with(dataRow.withCondClass(rowCount++ % 2 == 0, "bg-slate-100"));
+      tbodyTag.with(dataRow.withClasses("even:bg-slate-100"));
     }
 
     DivTag tableInnerContainer = div(table).withClasses("shadow-sm overflow-hidden my-8");

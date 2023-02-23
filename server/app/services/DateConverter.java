@@ -95,7 +95,7 @@ public final class DateConverter {
   }
 
   /** Formats a {@link java.sql.Timestamp} to MM/YY. */
-  public String renderMonthAndYear(Timestamp timestamp) {
+  public String renderAsTwoDigitMonthAndYear(Timestamp timestamp) {
     var calendar = Calendar.getInstance(TimeZone.getTimeZone(zoneId));
     calendar.setTimeInMillis(timestamp.getTime());
 
