@@ -75,12 +75,6 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                             : MessageKey.TITLE_APPLICATION_NOT_ELIGIBLE.getKeyName(),
                         roApplicantProgramService.getProgramTitle()))
                     .withClasses("mb-4"))
-            .with(
-                div(messages.at(
-                        isTrustedIntermediary
-                            ? MessageKey.CONTENT_MUST_MEET_REQUIREMENTS_TI.getKeyName()
-                            : MessageKey.CONTENT_MUST_MEET_REQUIREMENTS.getKeyName()))
-                    .withClasses("mb-4"))
             .with(div().with(listTag).withClasses("mb-4"))
             .with(
                 div(rawHtml(
