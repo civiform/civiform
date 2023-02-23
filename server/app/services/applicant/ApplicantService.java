@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
+import models.ApplicationEvent;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.Program;
@@ -35,6 +37,7 @@ import models.StoredFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
+import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
@@ -42,6 +45,7 @@ import repository.UserRepository;
 import repository.VersionRepository;
 import services.Address;
 import services.DeploymentType;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -51,6 +55,7 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
+import services.application.ApplicationEventDetails;
 import services.cloud.aws.SimpleEmail;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
@@ -389,6 +394,68 @@ public final class ApplicantService {
                     applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
   }
 
+  /**
+   * Set the status for the newly submitted application to the given status.
+   *
+   * <p>Because this is done programmatically, we insert an event without an account attached to it.
+   * This should only be used when setting the application status to the default status for the
+   * program.
+   *
+   * @param application the application on which to set the status
+   * @param status the status to set the application to
+   */
+  private void setApplicationStatus(Application application, StatusDefinitions.Status status) {
+    // Set the status for the application automatically to the default status
+    ApplicationEventRepository aer = new ApplicationEventRepository();
+    ApplicationEventDetails.StatusEvent statusEvent =
+        ApplicationEventDetails.StatusEvent.builder()
+            .setStatusText(status.statusText())
+            .setEmailSent(true)
+            .build();
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(statusEvent)
+            .build();
+    // Because we are doing this automatically, set the Account to empty.
+    aer.insertSync(new ApplicationEvent(application, Optional.empty(), details));
+  }
+
+  /**
+   * Email the applicant with the status' defined email, if the applicant's email address exists and
+   * the status has an email associated with it.
+   *
+   * @param applicantId the ID of the applicant
+   * @param programDef the ProgramDefinition that the applicant applied for
+   * @param status the status from which to get the email body to send
+   */
+  private void maybeNotifyApplicantWithStatus(
+      long applicantId, ProgramDefinition programDef, StatusDefinitions.Status status) {
+    Optional<LocalizedStrings> emailBody = status.localizedEmailBodyText();
+    Optional<String> applicantEmail = getEmail(applicantId).toCompletableFuture().join();
+    if (emailBody.isPresent() && applicantEmail.isPresent()) {
+      Locale locale =
+          getPreferredLocale(applicantId)
+              .toCompletableFuture()
+              .join()
+              .orElse(LocalizedStrings.DEFAULT_LOCALE);
+      String programNameForEmail = programDef.localizedName().getOrDefault(locale);
+      // TODO(#3377): Similar to the code in ProgramAdminApplicationService, we are mixing english
+      // boilerplate with potentially translated body content. We should probably localize these
+      // particular strings.
+      String message =
+          String.format(
+              "%s\n\nLog in to CiviForm at %s.", emailBody.get().getOrDefault(locale), baseUrl);
+      String subject =
+          String.format("Your application to program %s is received", programNameForEmail);
+      if (isStaging) {
+        amazonSESClient.send(stagingApplicantNotificationMailingList, subject, message);
+      } else {
+        amazonSESClient.send(applicantEmail.get(), subject, message);
+      }
+    }
+  }
+
   @VisibleForTesting
   CompletionStage<Application> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
@@ -402,14 +469,25 @@ public final class ApplicantService {
               }
 
               Application application = applicationMaybe.get();
-              String programName = application.getProgram().getProgramDefinition().adminName();
+              Program applicationProgram = application.getProgram();
+              ProgramDefinition programDefinition = applicationProgram.getProgramDefinition();
+              String programName = programDefinition.adminName();
+
               notifyProgramAdmins(applicantId, programId, application.id, programName);
 
               if (tiSubmitterEmail.isPresent()) {
                 notifyTiSubmitter(tiSubmitterEmail.get(), applicantId, application.id, programName);
               }
 
-              maybeNotifyApplicant(applicantId, application.id, programName);
+              Optional<StatusDefinitions.Status> maybeDefaultStatus =
+                  applicationProgram.getDefaultStatus();
+              if (maybeDefaultStatus.isPresent()) {
+                StatusDefinitions.Status defaultStatus = maybeDefaultStatus.get();
+                setApplicationStatus(application, defaultStatus);
+                maybeNotifyApplicantWithStatus(applicantId, programDefinition, defaultStatus);
+              } else {
+                maybeNotifyApplicant(applicantId, application.id, programName);
+              }
 
               return updateStoredFileAclsForSubmit(applicantId, programId)
                   .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
@@ -607,6 +685,16 @@ public final class ApplicantService {
               }
               return Optional.of(emailAddress);
             },
+            httpExecutionContext.current());
+  }
+
+  /** Return the preferred locale of the given applicant id. */
+  public CompletionStage<Optional<Locale>> getPreferredLocale(long applicantId) {
+    return userRepository
+        .lookupApplicant(applicantId)
+        .thenApplyAsync(
+            applicant ->
+                applicant.map(Applicant::getApplicantData).map(ApplicantData::preferredLocale),
             httpExecutionContext.current());
   }
 
