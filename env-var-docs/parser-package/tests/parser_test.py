@@ -1,9 +1,9 @@
-from env_var_docs.parser import Group, Variable, RegexTest, ParseError, NodeParseError, NodeInfo, visit, _path, _ensure_no_extra_fields, _parse_field, _parse_group, _parse_variable
+from env_var_docs.parser import Group, Variable, RegexTest, ParseError, NodeParseError, Node, visit, _path, _ensure_no_extra_fields, _parse_field, _parse_group, _parse_variable
 import unittest
 import io
 
 
-def donothing(_: NodeInfo):
+def donothing(_: Node):
     pass
 
 
@@ -58,8 +58,8 @@ class TestVisit(unittest.TestCase):
     def test_fn_called_on_nodes_preorder(self):
         nodes = []
 
-        def visit_fn(node_info):
-            nodes.append(node_info)
+        def visit_fn(node):
+            nodes.append(node)
 
         f = io.StringIO(
             """{
@@ -85,12 +85,12 @@ class TestVisit(unittest.TestCase):
         self.assertEqual(got, [])
 
         expected = [
-            NodeInfo(
+            Node(
                 level=1,
                 json_path="file",
                 name="Group A",
                 details=Group(group_description="Description A", members=None)),
-            NodeInfo(
+            Node(
                 level=2,
                 json_path="file.Group A",
                 name="A_VAR",
@@ -101,12 +101,12 @@ class TestVisit(unittest.TestCase):
                     values=None,
                     regex=None,
                     regex_tests=None)),
-            NodeInfo(
+            Node(
                 level=2,
                 json_path="file.Group A",
                 name="Group B",
                 details=Group(group_description="Description B", members=None)),
-            NodeInfo(
+            Node(
                 level=3,
                 json_path="file.Group A.Group B",
                 name="B_VAR",
@@ -117,7 +117,7 @@ class TestVisit(unittest.TestCase):
                     values=None,
                     regex=None,
                     regex_tests=None)),
-            NodeInfo(
+            Node(
                 level=2,
                 json_path="file.Group A",
                 name="C_VAR",
@@ -128,7 +128,7 @@ class TestVisit(unittest.TestCase):
                     values=None,
                     regex=None,
                     regex_tests=None)),
-            NodeInfo(
+            Node(
                 level=1,
                 json_path="file",
                 name="MY_VAR",
@@ -145,13 +145,13 @@ class TestVisit(unittest.TestCase):
         # each group which is repetative and unmaintainable. Instead, manually
         # diff got and expected list.
         i = -1
-        for got_info in nodes:
+        for node in nodes:
             i += 1
             with self.subTest(i=i):
-                if isinstance(got_info.details, Group):
-                    got_info.details.members = None
+                if isinstance(node.details, Group):
+                    node.details.members = None
 
-                self.assertEqual(got_info, expected[i])
+                self.assertEqual(node, expected[i])
 
 
 class TestParseGroup(unittest.TestCase):

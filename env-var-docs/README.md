@@ -17,14 +17,14 @@ website](https://docs.civiform.us/it-manual/sre-playbook/server-environment-vari
 ## GitHub actions automations
 
 - [check_vars_documentation.py](./check_vars_documented.py): Ensures all
-  environment variables referenced in application.conf are defined in
+  environment variables referenced in application.conf are documented in
   env-var-docs.json and that env-var-docs.json does not document any variables
-  referenced in application.conf. Runs on any PR changing application.conf or
-  env-var-docs.json.
+  not referenced in application.conf (ensures a 1:1 mapping). Runs on any PR
+  changing application.conf or env-var-docs.json.
 
 - [run_regex_tests.py](./run_regex_tests.py): Ensures that all regular
   expression validation rules in env-var-docs.json compile and that all
-  provided regualar expressions tests pass. Runs on any PR changing
+  provided regular expressions tests pass. Runs on any PR changing
   application.conf or env-var-docs.json.
 
 - [generate_markdown.py](./generate_markdown.py): Generates markdown from
@@ -45,7 +45,7 @@ We use [virtual python
 environments](https://docs.python.org/3/library/venv.html) to manage python
 dependencies. To set up a virtual environment with the required dependencies,
 run `bin/env-var-docs-create-venv` from the repository root. To activate the
-virual environment in your shell, run `source env-var-docs/venv/bin/activate`.
+virtual environment in your shell, run `source env-var-docs/venv/bin/activate`.
 Re-running `bin/env-var-docs-create-venv` will delete and re-create the virtual
 environment. Doing so is a good way to get back to a known good state.
 

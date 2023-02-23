@@ -1,5 +1,9 @@
-"""Provides functionality for parsing and visiting an environment variable
-documentation file.
+"""Provides a 'visit' function that parses an environment variable
+documentation file and returns any parsing errors due to unexpected structure.
+If no parsing errors are found, 'visit' runs a user-provided function on each
+node in the file.
+
+See parser-package/README.md for a description of the expected structure.
 """
 
 import dataclasses
@@ -61,7 +65,7 @@ class NodeParseError:
 
 
 @dataclasses.dataclass
-class NodeInfo:
+class Node:
     """A node within an environment variable documentation file.
 
     An environment variable documentation file is a JSON object that has
@@ -85,14 +89,13 @@ class NodeInfo:
     """The group details or variable details."""
 
 
-VisitFn = typing.Callable[[NodeInfo], None]
-"""A function that takes a NodeInfo and does something with it."""
+VisitFn = typing.Callable[[Node], None]
+"""A function that takes a Node and does something with it."""
 
 
 def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
     """Parses an environment variable documentation file. The file must be
-    valid JSON and be a single object. See README.md for the expected
-    structure.
+    valid JSON and be a single object.
 
     The file is completely parsed before any visit_fn is run. If there are
     parsing errors, no visit_fn is run and the errors are returned.
@@ -119,7 +122,7 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
                 [])
         ]
 
-    nodes_to_visit: list[NodeInfo] = []
+    nodes_to_visit: list[Node] = []
     parsing_errors: list[NodeParseError] = []
 
     # The file is an implicit root node. Recursively descend into each top-level field.
@@ -138,7 +141,7 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
 
 def _recursively_parse(
         level: int, parent_path: str, key: str, value: UnparsedJSON,
-        nodes_to_visit: list[NodeInfo], parsing_errors: list[NodeParseError]):
+        nodes_to_visit: list[Node], parsing_errors: list[NodeParseError]):
     """Recursively visits a node and its children, in preorder traversal order (visit root then children)."""
     path = _path(parent_path, key)
 
@@ -147,8 +150,7 @@ def _recursively_parse(
     if len(group_errors) == 0:
         assert group is not None  # appease mypy
         nodes_to_visit.append(
-            NodeInfo(
-                level=level, json_path=parent_path, name=key, details=group))
+            Node(level=level, json_path=parent_path, name=key, details=group))
 
         # Recurse into group members.
         for sub_key, sub_value in group.members.items():
@@ -162,7 +164,7 @@ def _recursively_parse(
     if len(var_errors) == 0:
         assert var is not None  # appease mypy
         nodes_to_visit.append(
-            NodeInfo(level=level, json_path=parent_path, name=key, details=var))
+            Node(level=level, json_path=parent_path, name=key, details=var))
         return
 
     # details is neither a group nor a variable.

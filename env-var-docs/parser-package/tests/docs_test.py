@@ -22,8 +22,8 @@ class TestDocsExample(unittest.TestCase):
 
         node_names = []
 
-        def note_node(info):
-            node_names.append(info.name)
+        def note_node(node):
+            node_names.append(node.name)
 
         errors = env_var_docs.parser.visit(io.StringIO(example), note_node)
         self.assertEqual(errors, [])

@@ -10,7 +10,7 @@ See [../README.md#developer-setup](../README.md#developer-setup).
 ### Environment variable documentation file format
 
 An environment variable documentation file contains key-value pairs. Each key
-is either a group of environment variables or an environment variable
+references either a group of environment variables or an environment variable
 referenced in application.conf.
 
 Groups have the following fields:
@@ -39,7 +39,7 @@ Variables have the following fields:
   `regex` is defined, `regex_tests` must also be defined.
 - `regex_tests`: A list of objects. Each object contains a `val` field with a
   string value and a `should_match` field with a boolean value. If `regex_tests`
-  is defiend, `regex` must also be defined.
+  is defined, `regex` must also be defined.
 
 The `description` and `type` fields must be defined for each variable.
 
