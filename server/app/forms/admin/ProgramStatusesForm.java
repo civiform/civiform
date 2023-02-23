@@ -18,7 +18,7 @@ public final class ProgramStatusesForm implements Validatable<List<ValidationErr
   public static final String CONFIGURED_STATUS_TEXT_FORM_NAME = "configuredStatusText";
   public static final String STATUS_TEXT_FORM_NAME = "statusText";
   public static final String EMAIL_BODY_FORM_NAME = "emailBody";
-  public static final String DEFAULT_CHECKBOX_NAME = "defaultStatus";
+  public static final String DEFAULT_CHECKBOX_NAME = "defaultStatusCheckbox";
 
   public static final ImmutableList<String> FIELD_NAMES =
       ImmutableList.of(
