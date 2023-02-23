@@ -12,21 +12,19 @@ import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
-import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.components.ToastMessage;
 import views.style.StyleUtils;
 
-/** Renders a page for adding a new program. */
+/** Renders a page for editing program-level settings. */
 public final class ProgramSettingsEditView extends BaseHtmlView {
+  private static final String ELIGIBILITY_TOGGLE_ID = "eligibility-toggle";
   private static final String ELIGIBILITY_IS_GATING_DESCRIPTION =
       "When using eligibility conditions, you can set the experience to gating or non-gating. The"
           + " default is a gated experience that won’t allow an applicant to submit an application"
@@ -43,17 +41,11 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
   }
 
   public Content render(Request request, ProgramDefinition program) {
-    return render(request, program, /* message= */ Optional.empty());
-  }
-
-  public Content render(
-      Request request, ProgramDefinition program, Optional<ToastMessage> message) {
-    String title = program.adminName() + " settings";
-
     boolean eligibilityIsGating = program.eligibilityIsGating();
 
-    ButtonTag eligibilityIsGatingButton =
+    ButtonTag eligibilityIsGatingToggle =
         TagCreator.button()
+            .withId(ELIGIBILITY_TOGGLE_ID)
             .withClasses(
                 "flex",
                 "p-0",
@@ -88,7 +80,7 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
                                 "w-4",
                                 "h-4",
                                 "rounded-full")))
-            .with(p("Non-gating eligibility").withClasses("hover-group:text-white", "ml-1"));
+            .with(p("Non-gating e;ligibility").withClasses("hover-group:text-white", "ml-1"));
     String toggleAction =
         controllers.admin.routes.AdminProgramController.setEligibilityIsGating(program.id()).url();
     FormTag formTag =
@@ -100,21 +92,18 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
                     .isHidden()
                     .withName("eligibilityIsGating")
                     .withValue(eligibilityIsGating ? "false" : "true"))
-            .with(eligibilityIsGatingButton)
+            .with(eligibilityIsGatingToggle)
             .with(
                 p(ELIGIBILITY_IS_GATING_DESCRIPTION)
                     .withClasses("text-md", "max-w-prose", "mt-6", "text-gray-700"));
 
+    String title = program.adminName() + " settings";
     DivTag contentDiv =
         div()
             .withClasses("px-12")
             .with(div().withClasses("mt-12").with(h1(title)))
             .with(div(formTag));
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
-
-    message.ifPresent(htmlBundle::addToastMessages);
-
-    return layout.renderCentered(htmlBundle);
+    return layout.renderCentered(layout.getBundle().setTitle(title).addMainContent(contentDiv));
   }
 }

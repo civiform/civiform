@@ -203,7 +203,7 @@ public final class AdminProgramController extends CiviFormController {
     return ok(programSettingsEditView.render(request, program));
   }
 
-  /** POST endpoint for editing whether or not a eligibility is gating. */
+  /** POST endpoint for editing whether or not eligibility is gating for a specific program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result setEligibilityIsGating(Request request, long programId) {
     requestChecker.throwIfProgramNotDraft(programId);
@@ -213,7 +213,9 @@ public final class AdminProgramController extends CiviFormController {
 
     try {
       programService.setEligibilityIsGating(
-          programId, programSettingsForm.getEligibilityIsGating());
+          programId,
+          programSettingsForm.getEligibilityIsGating(),
+          featureFlags.isNongatedEligibilityEnabled(request));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     }

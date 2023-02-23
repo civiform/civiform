@@ -505,8 +505,11 @@ public interface ProgramService {
    *
    * @param programId the ID of the program to update
    * @param gating boolean representing whether eligibility is gating or non-gating.
+   * @param isNongatedEligibilityFeatureEnabled boolean representing whether non-gating eligibility
+   *     feature is enabled.
    * @return the updated program definition
    */
-  ProgramDefinition setEligibilityIsGating(long programId, boolean gating)
+  ProgramDefinition setEligibilityIsGating(
+      long programId, boolean gating, boolean isNongatedEligibilityFeatureEnabled)
       throws ProgramNotFoundException;
 }

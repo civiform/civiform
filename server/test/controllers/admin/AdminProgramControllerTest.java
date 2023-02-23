@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
+import featureflags.FeatureFlags;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import models.DisplayMode;
@@ -295,5 +296,54 @@ public class AdminProgramControllerTest extends ResetPostgres {
         .contains(
             "Create new program", "New external program name", "New external program description");
     assertThat(contentAsString(redirectResult)).doesNotContain("Existing one", "old description");
+  }
+
+  @Test
+  public void setEligibilityIsGating() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("one").build();
+    assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
+
+    RequestBuilder request =
+        Helpers.fakeRequest()
+            .session(FeatureFlags.NONGATED_ELIGIBILITY_ENABLED, "true")
+            .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
+    Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramController.editProgramSettings(program.id).url());
+
+    Program updatedDraft =
+        programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
+    assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isFalse();
+  }
+
+  @Test
+  public void setEligibilityIsGating_featureDisabled() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("one").build();
+    assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
+
+    RequestBuilder request =
+        Helpers.fakeRequest()
+            .session(FeatureFlags.NONGATED_ELIGIBILITY_ENABLED, "false")
+            .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
+    Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramController.editProgramSettings(program.id).url());
+
+    Program updatedDraft =
+        programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
+    assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isTrue();
+  }
+
+  @Test
+  public void setEligibilityIsGating_nonDraftProgram_throwsException() throws Exception {
+    Request request =
+        Helpers.fakeRequest().bodyForm(ImmutableMap.of("eligibilityIsGating", "true")).build();
+
+    assertThatThrownBy(() -> controller.setEligibilityIsGating(request, /* programId=*/ 1L))
+        .isInstanceOf(NotChangeableException.class);
   }
 }

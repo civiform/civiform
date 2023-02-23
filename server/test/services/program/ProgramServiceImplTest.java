@@ -2231,4 +2231,26 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
                     programId, blockDefinitionId, secondaryAddressQuestion.getId(), true));
   }
+
+  @Test
+  public void setEligibilityIsGating() throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition result =
+        ps.setEligibilityIsGating(
+            programDefinition.id(),
+            /* eligibilityIsGating= */ false,
+            /* isNonGatedEligibilityFeatureEnabled= */ true);
+    assertThat(result.eligibilityIsGating()).isFalse();
+  }
+
+  @Test
+  public void setEligibilityIsGating_featureDisabled() throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition result =
+        ps.setEligibilityIsGating(
+            programDefinition.id(),
+            /* eligibilityIsGating= */ false,
+            /* isNonGatedEligibilityFeatureEnabled= */ false);
+    assertThat(result.eligibilityIsGating()).isTrue();
+  }
 }
