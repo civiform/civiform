@@ -123,6 +123,12 @@ public class Program extends BaseModel {
     return checkNotNull(this.statusDefinitions);
   }
 
+  public Optional<StatusDefinitions.Status> getDefaultStatus() {
+    return this.statusDefinitions.getStatuses().stream()
+        .filter(status -> status.defaultStatus().orElse(false))
+        .findFirst();
+  }
+
   public Program(ProgramDefinition definition) {
     this(definition, Optional.empty());
   }
