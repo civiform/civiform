@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.time.Instant;
+import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -37,14 +38,14 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .setStatusEvent(
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, actor, details);
+    ApplicationEvent event = new ApplicationEvent(application, Optional.of(actor), details);
     ApplicationEvent insertedEvent = repo.insertSync(event);
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
     // Pass through values.
     assertThat(insertedEvent.getApplication()).isEqualTo(application);
-    assertThat(insertedEvent.getCreator()).isEqualTo(actor);
+    assertThat(insertedEvent.getCreator()).isEqualTo(Optional.of(actor));
     assertThat(insertedEvent.getDetails()).isEqualTo(details);
     assertThat(insertedEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
   }
@@ -64,10 +65,10 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
 
-    ApplicationEvent event1 = new ApplicationEvent(application, actor, details);
+    ApplicationEvent event1 = new ApplicationEvent(application, Optional.of(actor), details);
     ApplicationEvent insertedEvent1 = repo.insertSync(event1);
 
-    ApplicationEvent event2 = new ApplicationEvent(application, actor, details);
+    ApplicationEvent event2 = new ApplicationEvent(application, Optional.of(actor), details);
 
     ApplicationEvent insertedEvent2 = repo.insertSync(event2);
 
@@ -78,7 +79,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(insertedEvent2.getCreateTime()).isAfter(startInstant);
     // Pass through values.
     assertThat(insertedEvent2.getApplication()).isEqualTo(application);
-    assertThat(insertedEvent2.getCreator()).isEqualTo(actor);
+    assertThat(insertedEvent2.getCreator()).isEqualTo(Optional.of(actor));
     assertThat(insertedEvent2.getDetails()).isEqualTo(details);
     assertThat(insertedEvent2.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
   }
@@ -98,7 +99,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .setStatusEvent(
                 StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, actor, details);
+    ApplicationEvent event = new ApplicationEvent(application, Optional.of(actor), details);
     repo.insertSync(event);
 
     // Execute
@@ -112,7 +113,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(gotEvent.getCreateTime()).isAfter(startInstant);
     // Pass through values.
     assertThat(gotEvent.getApplication()).isEqualTo(application);
-    assertThat(gotEvent.getCreator()).isEqualTo(actor);
+    assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(actor));
     assertThat(gotEvent.getDetails()).isEqualTo(details);
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     // NoteEvent wasn't set and should be available as an empty Optional.

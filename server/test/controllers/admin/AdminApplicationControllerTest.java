@@ -431,7 +431,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(gotEvent.getDetails().statusEvent().get().statusText())
         .isEqualTo(APPROVED_STATUS.statusText());
     assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isTrue();
-    assertThat(gotEvent.getCreator()).isEqualTo(adminAccount);
+    assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(adminAccount));
     assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
 
@@ -546,7 +546,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.NOTE_CHANGE);
     assertThat(gotEvent.getDetails().noteEvent()).isPresent();
     assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
-    assertThat(gotEvent.getCreator()).isEqualTo(adminAccount);
+    assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(adminAccount));
     assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
 

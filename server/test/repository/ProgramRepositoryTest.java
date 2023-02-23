@@ -454,7 +454,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
               .setStatusEvent(
                   StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build())
               .build();
-      ApplicationEvent event = new ApplicationEvent(application, actorAccount, details);
+      ApplicationEvent event =
+          new ApplicationEvent(application, Optional.of(actorAccount), details);
       event.save();
 
       // When persisting models with @WhenModified fields, EBean

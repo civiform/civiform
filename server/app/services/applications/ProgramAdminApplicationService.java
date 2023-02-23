@@ -112,7 +112,7 @@ public final class ProgramAdminApplicationService {
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(newStatusEvent)
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, admin, details);
+    ApplicationEvent event = new ApplicationEvent(application, Optional.of(admin), details);
 
     // Send email if requested and present.
     if (sendEmail) {
@@ -199,7 +199,7 @@ public final class ProgramAdminApplicationService {
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
             .setNoteEvent(note)
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, admin, details);
+    ApplicationEvent event = new ApplicationEvent(application, Optional.of(admin), details);
     eventRepository.insertSync(event);
   }
 

@@ -1974,7 +1974,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEmailSent(false)
                     .build())
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, actorAccount, details);
+    ApplicationEvent event = new ApplicationEvent(application, Optional.of(actorAccount), details);
     event.save();
     application.refresh();
   }

@@ -23,7 +23,7 @@ public class ApplicationEventTest extends ResetPostgres {
     ApplicationEvent event =
         new ApplicationEvent(
             application,
-            adminAccount,
+            Optional.of(adminAccount),
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
                 .setNoteEvent(NoteEvent.create("some note"))
@@ -45,7 +45,7 @@ public class ApplicationEventTest extends ResetPostgres {
 
     new ApplicationEvent(
             application,
-            adminAccount,
+            Optional.of(adminAccount),
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
                 .setStatusEvent(
@@ -59,7 +59,7 @@ public class ApplicationEventTest extends ResetPostgres {
     // Create another event transitioning to empty and ensure that the result is empty.
     new ApplicationEvent(
             application,
-            adminAccount,
+            Optional.of(adminAccount),
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
                 .setStatusEvent(StatusEvent.builder().setStatusText("").setEmailSent(false).build())
@@ -82,7 +82,7 @@ public class ApplicationEventTest extends ResetPostgres {
     ApplicationEvent firstEvent =
         new ApplicationEvent(
             application,
-            adminAccount,
+            Optional.of(adminAccount),
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
                 .setStatusEvent(
@@ -100,7 +100,7 @@ public class ApplicationEventTest extends ResetPostgres {
     ApplicationEvent secondEvent =
         new ApplicationEvent(
             application,
-            adminAccount,
+            Optional.of(adminAccount),
             ApplicationEventDetails.builder()
                 .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
                 .setStatusEvent(

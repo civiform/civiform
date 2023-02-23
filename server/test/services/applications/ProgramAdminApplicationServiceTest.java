@@ -218,7 +218,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     assertThat(gotEvent.getDetails().statusEvent().get().statusText())
         .isEqualTo(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText());
     assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isTrue();
-    assertThat(gotEvent.getCreator()).isEqualTo(account);
+    assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(account));
     assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
 
@@ -432,7 +432,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().statusText()).isEqualTo(status);
     assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isFalse();
-    assertThat(gotEvent.getCreator()).isEqualTo(account);
+    assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(account));
     assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
 }
