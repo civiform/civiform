@@ -68,3 +68,4 @@ env-var-docs/venv
 env-var-docs/**/*build
 env-var-docs/**/*.egg*
 .coverage
+coverage.xml
