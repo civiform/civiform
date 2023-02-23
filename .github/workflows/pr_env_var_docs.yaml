@@ -40,3 +40,6 @@ jobs:
           # We're getting intermittent issues with codecov trying to upload lately
           # disabling it from failing the entire pipeline for now.
           fail_ci_if_error: false
+
+      - name: Check environment variables
+        run: bin/env-var-docs-check-vars
