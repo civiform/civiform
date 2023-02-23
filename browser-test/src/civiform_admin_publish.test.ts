@@ -2,6 +2,7 @@ import {
   AdminPrograms,
   AdminQuestions,
   dismissModal,
+  dropTables,
   enableFeatureFlag,
   loginAsAdmin,
   startSession,
@@ -24,6 +25,8 @@ describe('publishing all draft questions and programs', () => {
   beforeAll(async () => {
     const session = await startSession()
     pageObject = session.page
+
+    await dropTables(pageObject)
     adminPrograms = new AdminPrograms(pageObject)
     adminQuestions = new AdminQuestions(pageObject)
 
