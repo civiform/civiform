@@ -26,7 +26,7 @@ Variables have the following fields:
 - `description`: A human-readable description of what the environment variable
   configures.
 - `type`: The value type expected. Can be 'string', 'int', 'bool', or
-  'index-list'.
+  '[index-list(#index-lists)'.
 - `required`: If the environment variable is required to be set. If the
   `required` field is not set, the environment variable is not required.
 - `values`: If `type` is string, a list of valid strings can be provided. If
@@ -35,11 +35,10 @@ Variables have the following fields:
   syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax)
   can be provided. This regular expression defines the set of valid values.
   Because the regex is in a JSON string, any " or \ characters in it need to be
-  escaped like \" or \\. If `regex` is defined, `values` can not be defined. If
-  `regex` is defined, `regex_tests` must also be defined.
+  escaped like \\" or \\\. If `regex` is defined, `values` can not be defined.
+  If `regex` is defined, `regex_tests` must also be defined.
 - `regex_tests`: A list of objects. Each object contains a `val` field with a
-  string value and a `should_match` field with a boolean value. If `regex_tests`
-  is defined, `regex` must also be defined.
+  string value and a `should_match` field with a boolean value.
 
 The `description` and `type` fields must be defined for each variable.
 
@@ -57,7 +56,8 @@ MY_LIST.1 = "second item"
 
 ### Example
 
-Here is an example environment variable documentation file (validated in docs_test.py):
+Here is an example environment variable documentation file (validated in
+[./tests/docs_test.py](./tests/docs_test.py)):
 
 ```env-var-docs-file-example
 {

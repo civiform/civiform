@@ -9,14 +9,14 @@ using the `${?SOME_ENV_VAR}` substitution syntax.
 To aid in deploying the CiviForm server, we ensure every environment variable
 referenced in the configuration file has appropriate documentation. This
 documentation lives in [env-var-docs.json](../server/conf/env-var-docs.json).
-See [./env_var_docs/schema/README.md](./env_var_docs/schema/README.md) for
-documentation on the format. As part of a CiviForm release, the documentation
-is rendered as markdown and added to our [documentation
+See [./parser-package/README.md](./parser-package/README.md) for the expected
+structure of env-var-docs.json. As part of a CiviForm release, the
+documentation is rendered as markdown and added to our [documentation
 website](https://docs.civiform.us/it-manual/sre-playbook/server-environment-variables).
 
 ## GitHub actions automations
 
-- [check_vars_documentation.py](./check_vars_documented.py): Ensures all
+- [check_vars_documented.py](./check_vars_documented.py): Ensures all
   environment variables referenced in application.conf are documented in
   env-var-docs.json and that env-var-docs.json does not document any variables
   not referenced in application.conf (ensures a 1:1 mapping). Runs on any PR
@@ -42,7 +42,7 @@ $ python3 --version
 ```
 
 We use [virtual python
-environments](https://docs.python.org/3/library/venv.html) to manage python
+environments](https://docs.python.org/3/library/venv.html) to manage
 dependencies. To set up a virtual environment with the required dependencies,
 run `bin/env-var-docs-create-venv` from the repository root. To activate the
 virtual environment in your shell, run `source env-var-docs/venv/bin/activate`.
