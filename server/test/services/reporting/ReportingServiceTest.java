@@ -48,10 +48,10 @@ public class ReportingServiceTest extends ResetPostgres {
         .containsExactly(
             "Month",
             "Submissions",
-            "Time to complete (25th percentile)",
+            "Time to complete (p25)",
             "Median time to complete",
-            "Time to complete (75th percentile)",
-            "Time to complete (99th percentile)");
+            "Time to complete (p75)",
+            "Time to complete (p99)");
 
     List<CSVRecord> records = parser.getRecords();
     assertThat(records.get(0).toList())
@@ -68,10 +68,10 @@ public class ReportingServiceTest extends ResetPostgres {
         .containsExactly(
             "Program",
             "Submissions",
-            "Time to complete (25th percentile)",
+            "Time to complete (p25)",
             "Median time to complete",
-            "Time to complete (75th percentile)",
-            "Time to complete (99th percentile)");
+            "Time to complete (p75)",
+            "Time to complete (p99)");
 
     records = parser.getRecords();
     assertThat(records.get(0).toList())

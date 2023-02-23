@@ -96,7 +96,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
           ReportingTableHeader.create(
               "Submissions", "The total number of applications submitted during this month."),
           ReportingTableHeader.create(
-              "Time to complete (25th percentile)",
+              "Time to complete (p25)",
               "The 25th percentile time between when an applicant started and completed an"
                   + " application. Meaning 25% of applicants completed their application in this"
                   + " amount of time or less."),
@@ -106,12 +106,12 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                   + " Meaning 50% of applicants completed their application in this amount of time"
                   + " or less."),
           ReportingTableHeader.create(
-              "Time to complete (75th percentile)",
+              "Time to complete (p75)",
               "The 75th percentile time between when an applicant started and completed an"
                   + " application. Meaning 75% of applicants completed their application in this"
                   + " amount of time or less."),
           ReportingTableHeader.create(
-              "Time to complete (99th percentile)",
+              "Time to complete (p99)",
               "The 99th percentile time between when an applicant started and completed an"
                   + " application. Meaning 99% of applicants completed their application in this"
                   + " amount of time or less."));
@@ -148,7 +148,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
           ReportingTableHeader.create(
               "Submissions", "The total number of applications submitted to this program."),
           ReportingTableHeader.create(
-              "Time to complete (25th percentile)",
+              "Time to complete (p25)",
               "The 25th percentile time between when an applicant started and completed an"
                   + " application. Meaning 25% of applicants completed their application in this"
                   + " amount of time or less."),
@@ -158,12 +158,12 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                   + " Meaning 50% of applicants completed their application in this amount of time"
                   + " or less."),
           ReportingTableHeader.create(
-              "Time to complete (75th percentile)",
+              "Time to complete (p75)",
               "The 75th percentile time between when an applicant started and completed an"
                   + " application. Meaning 75% of applicants completed their application in this"
                   + " amount of time or less."),
           ReportingTableHeader.create(
-              "Time to complete (99th percentile)",
+              "Time to complete (p99)",
               "The 99th percentile time between when an applicant started and completed an"
                   + " application. Meaning 99% of applicants completed their application in this"
                   + " amount of time or less."));
