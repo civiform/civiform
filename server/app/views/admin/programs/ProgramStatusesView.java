@@ -273,6 +273,17 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                     .withClasses("mr-2", "inline-block"),
                                 span("Applicant notification email added"))),
                 div().withClass("flex-grow"),
+                div()
+                    .condWith(
+                        status.defaultStatus().isPresent()
+                            && status.defaultStatus().get().equals(true),
+                        p().withClasses("mt-1", "text-xs", "flex", "items-center")
+                            .with(
+                                Icons.svg(Icons.CHECK)
+                                    .withStyle("width: 18px; height: 18px;")
+                                    .withClasses("mr-2", "inline-block"),
+                                span("Default status"))),
+                div().withClass("flex-grow"),
                 deleteStatusTriggerButton,
                 editStatusTriggerButton),
         ImmutableList.of(editStatusModal, deleteStatusModal));
