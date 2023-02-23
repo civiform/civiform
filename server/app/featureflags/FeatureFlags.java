@@ -32,8 +32,6 @@ public final class FeatureFlags {
   public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
       "program_eligibility_conditions_enabled";
   public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
-  public static final String PREDICATES_MULTIPLE_QUESTIONS_ENABLED =
-      "predicates_multiple_questions_enabled";
 
   private final Config config;
 
@@ -68,15 +66,6 @@ public final class FeatureFlags {
   /** If the Eligibility Conditions feature is enabled in the system configuration. */
   public boolean isProgramEligibilityConditionsEnabled() {
     return config.getBoolean(PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
-  }
-
-  /**
-   * If specifying multiple questions in a predicate is enabled.
-   *
-   * <p>Allows for overrides set in {@code request}.
-   */
-  public boolean isPredicatesMultipleQuestionsEnabled(Request request) {
-    return getFlagEnabled(request, PREDICATES_MULTIPLE_QUESTIONS_ENABLED);
   }
 
   /** If the reporting view in the admin UI is enabled */
@@ -131,8 +120,6 @@ public final class FeatureFlags {
         showCiviformImageTagOnLandingPage(request),
         PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
         isProgramEligibilityConditionsEnabled(request),
-        PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
-        isPredicatesMultipleQuestionsEnabled(request),
         PROGRAM_READ_ONLY_VIEW_ENABLED,
         isReadOnlyProgramViewEnabled(request),
         ESRI_ADDRESS_CORRECTION_ENABLED,
