@@ -36,6 +36,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.IdentifierBasedPaginationSpec;
+import services.LocalizedStrings;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.ProgramBlockValidation;
@@ -182,6 +183,7 @@ public final class ProgramServiceImpl implements ProgramService {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
+      String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
       ProgramType programType,
@@ -231,13 +233,13 @@ public final class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
     BlockDefinition emptyBlock = maybeEmptyBlock.getResult();
-
     Program program =
         new Program(
             adminName,
             adminDescription,
             defaultDisplayName,
             defaultDisplayDescription,
+            defaultConfirmationMessage,
             externalLink,
             displayMode,
             ImmutableList.of(emptyBlock),
@@ -254,6 +256,7 @@ public final class ProgramServiceImpl implements ProgramService {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String confirmationMessage,
       String externalLink,
       String displayMode,
       ProgramType programType,
@@ -290,6 +293,9 @@ public final class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(errors);
     }
 
+    LocalizedStrings newConfirmationMessageTranslations =
+        maybeClearConfirmationMessageTranslations(programDefinition, locale, confirmationMessage);
+
     Program program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
@@ -299,6 +305,7 @@ public final class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
+            .setLocalizedConfirmationMessage(newConfirmationMessageTranslations)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setProgramType(programType)
@@ -319,6 +326,24 @@ public final class ProgramServiceImpl implements ProgramService {
   // details page if a link isn't provided.
   private boolean isValidAbsoluteLink(String url) {
     return url.isBlank() || url.startsWith("http://") || url.startsWith("https://");
+  }
+
+  /**
+   * When an admin deletes a custom confirmation screen, we want to also clear out all associated
+   * translations
+   */
+  private LocalizedStrings maybeClearConfirmationMessageTranslations(
+      ProgramDefinition programDefinition, Locale locale, String confirmationMessage) {
+    LocalizedStrings existingConfirmationMessageTranslations =
+        programDefinition.localizedConfirmationMessage();
+    LocalizedStrings newConfirmationMessageTranslations;
+    if (locale.equals(Locale.US) && confirmationMessage.equals("")) {
+      newConfirmationMessageTranslations = LocalizedStrings.create(ImmutableMap.of(Locale.US, ""));
+    } else {
+      newConfirmationMessageTranslations =
+          existingConfirmationMessageTranslations.updateTranslation(locale, confirmationMessage);
+    }
+    return newConfirmationMessageTranslations;
   }
 
   /**
@@ -353,7 +378,6 @@ public final class ProgramServiceImpl implements ProgramService {
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
     validateProgramText(
         errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
-
     validateLocalizationStatuses(localizationUpdate, programDefinition);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
@@ -404,6 +428,10 @@ public final class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
+            .setLocalizedConfirmationMessage(
+                programDefinition
+                    .localizedConfirmationMessage()
+                    .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
             .setStatusDefinitions(
                 programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
             .build()

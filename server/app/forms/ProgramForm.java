@@ -6,6 +6,7 @@ public final class ProgramForm {
   private String adminDescription;
   private String localizedDisplayName;
   private String localizedDisplayDescription;
+  private String localizedConfirmationMessage;
   private String externalLink;
   private String displayMode;
   private Boolean isCommonIntakeForm;
@@ -15,6 +16,7 @@ public final class ProgramForm {
     adminDescription = "";
     localizedDisplayName = "";
     localizedDisplayDescription = "";
+    localizedConfirmationMessage = "";
     externalLink = "";
     displayMode = "";
     isCommonIntakeForm = false;
@@ -60,6 +62,10 @@ public final class ProgramForm {
     return localizedDisplayDescription;
   }
 
+  public String getLocalizedConfirmationMessage() {
+    return localizedConfirmationMessage;
+  }
+
   public void setLocalizedDisplayName(String localizedDisplayName) {
     this.localizedDisplayName = localizedDisplayName;
   }
@@ -74,5 +80,9 @@ public final class ProgramForm {
 
   public void setIsCommonIntakeForm(Boolean isCommonIntakeForm) {
     this.isCommonIntakeForm = isCommonIntakeForm;
+  }
+
+  public void setLocalizedConfirmationMessage(String localizedConfirmationMessage) {
+    this.localizedConfirmationMessage = localizedConfirmationMessage;
   }
 }

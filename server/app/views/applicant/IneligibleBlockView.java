@@ -37,10 +37,11 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       Request request,
       CiviFormProfile submittingProfile,
       ReadOnlyApplicantProgramService roApplicantProgramService,
-      Optional<String> applicantName,
       Messages messages,
       long applicantId,
       ProgramDefinition programDefinition) {
+    Optional<String> applicantName =
+        roApplicantProgramService.getApplicantData().getApplicantName();
     long programId = roApplicantProgramService.getProgramId();
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     // Use external link if it is present else use the default Program details page

@@ -104,7 +104,15 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setLabelText("Program description")
                                 .setValue(updateData.localizedDisplayDescription())
                                 .getInputTag(),
-                            program.localizedDescription()))));
+                            program.localizedDescription()),
+                        fieldWithDefaultLocaleTextHint(
+                            FieldWithLabel.input()
+                                .setFieldName(
+                                    ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
+                                .setLabelText("Custom Confirmation Screen Message")
+                                .setValue(updateData.localizedConfirmationMessage())
+                                .getInputTag(),
+                            program.localizedConfirmationMessage()))));
     // Add Status Tracking messages.
     String programStatusesLink =
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();

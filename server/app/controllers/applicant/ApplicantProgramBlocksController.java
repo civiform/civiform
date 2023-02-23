@@ -418,7 +418,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         request,
                         submittingProfile,
                         roApplicantProgramService,
-                        applicantName,
                         messagesApi.preferred(request),
                         applicantId,
                         programDefinition)));
