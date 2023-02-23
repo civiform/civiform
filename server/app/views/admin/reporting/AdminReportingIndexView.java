@@ -14,6 +14,7 @@ import static j2html.TagCreator.tr;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.admin.AdminReportingController;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
@@ -41,11 +42,15 @@ public final class AdminReportingIndexView extends BaseHtmlView {
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###");
   private final AdminLayout layout;
   private final DateConverter dateConverter;
+  private final boolean useDeterministicStatsForBrowserTest;
 
   @Inject
-  public AdminReportingIndexView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {
-    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.REPORTING);
+  public AdminReportingIndexView(
+      AdminLayoutFactory layoutFactory, Config config, DateConverter dateConverter) {
+    this.useDeterministicStatsForBrowserTest =
+        config.getBoolean("reporting_use_deterministic_stats");
     this.dateConverter = checkNotNull(dateConverter);
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.REPORTING);
   }
 
   public Content render(ReportingService.MonthlyStats monthlyStats) {
@@ -128,10 +133,12 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                         tr(
                             td(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get())),
                             td(DECIMAL_FORMAT.format(stat.applicationCount())),
-                            td(renderDuration(stat.submissionDurationSeconds25p())),
-                            td(renderDuration(stat.submissionDurationSeconds50p())),
-                            td(renderDuration(stat.submissionDurationSeconds75p())),
-                            td(renderDuration(stat.submissionDurationSeconds99p()))))
+                            td(renderDurationWithTestStubbing(stat.submissionDurationSeconds25p())),
+                            td(renderDurationWithTestStubbing(stat.submissionDurationSeconds50p())),
+                            td(renderDurationWithTestStubbing(stat.submissionDurationSeconds75p())),
+                            td(
+                                renderDurationWithTestStubbing(
+                                    stat.submissionDurationSeconds99p()))))
                 .collect(ImmutableList.toImmutableList()))
         .with(
             redirectButton(
@@ -180,10 +187,12 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                         tr(
                             td(stat.programName()),
                             td(DECIMAL_FORMAT.format(stat.applicationCount())),
-                            td(renderDuration(stat.submissionDurationSeconds25p())),
-                            td(renderDuration(stat.submissionDurationSeconds50p())),
-                            td(renderDuration(stat.submissionDurationSeconds75p())),
-                            td(renderDuration(stat.submissionDurationSeconds99p()))))
+                            td(renderDurationWithTestStubbing(stat.submissionDurationSeconds25p())),
+                            td(renderDurationWithTestStubbing(stat.submissionDurationSeconds50p())),
+                            td(renderDurationWithTestStubbing(stat.submissionDurationSeconds75p())),
+                            td(
+                                renderDurationWithTestStubbing(
+                                    stat.submissionDurationSeconds99p()))))
                 .collect(ImmutableList.toImmutableList()))
         .with(
             redirectButton(
@@ -224,6 +233,17 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     DivTag tableOuterContainer = div(tableInnerContainer).withClasses("relative rounded-xl");
 
     return content.with(tableOuterContainer);
+  }
+
+  // We use browser snapshot tests to assert this page rendering correctly. The
+  // submission times can vary a bit, so we stub the durations so the page
+  // renders deterministically.
+  private String renderDurationWithTestStubbing(double durationSeconds) {
+    if (useDeterministicStatsForBrowserTest) {
+      return "11:11:11";
+    }
+
+    return renderDuration(durationSeconds);
   }
 
   public static String renderDuration(double durationSeconds) {
