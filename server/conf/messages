@@ -192,6 +192,9 @@ title.activeProgramsUpdated=Not started
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Submitted
 
+# Badge on an application that has a status assigned to it
+title.status=Status
+
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}
 

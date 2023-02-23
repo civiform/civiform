@@ -126,6 +126,7 @@ public enum MessageKey {
   TITLE_PROGRAMS_IN_PROGRESS_UPDATED("title.inProgressProgramsUpdated"),
   TITLE_PROGRAM_SUMMARY("title.programSummary"),
   TITLE_PROGRAMS_SUBMITTED("title.submittedPrograms"),
+  TITLE_STATUS("title.status"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_APPLICATION_OUT_OF_DATE("toast.applicationOutOfDate"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),

@@ -349,7 +349,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
-              preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
+              messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
     if (shouldShowEligibilityTag(request, cardData)) {
       programData.with(eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get()));
@@ -431,7 +431,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private PTag programCardApplicationStatus(
-      Locale preferredLocale, StatusDefinitions.Status status) {
+      Messages messages, Locale preferredLocale, StatusDefinitions.Status status) {
     return p().withClasses(
             "border",
             "rounded-full",
@@ -447,7 +447,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                 .withClasses("inline-block")
                 .withStyle("width: 18px; height: 18px;"),
             span(String.format(
-                    "Status: %s", status.localizedStatusText().getOrDefault(preferredLocale)))
+                    "%s: %s",
+                    messages.at(MessageKey.TITLE_STATUS.getKeyName()),
+                    status.localizedStatusText().getOrDefault(preferredLocale)))
                 .withClasses("p-2", "text-xs", "font-medium"));
   }
 
