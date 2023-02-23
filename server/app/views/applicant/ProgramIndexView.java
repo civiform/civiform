@@ -432,10 +432,23 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private PTag programCardApplicationStatus(
       Locale preferredLocale, StatusDefinitions.Status status) {
-    return p().withClasses("border", "rounded-lg", "px-2", "py-1", "mb-4", "bg-blue-100")
+    return p().withClasses(
+            "border",
+            "rounded-full",
+            "px-2",
+            "py-1",
+            "mb-4",
+            "gap-x-2",
+            "inline-block",
+            "w-auto",
+            "bg-blue-100")
         .with(
-            span(status.localizedStatusText().getOrDefault(preferredLocale))
-                .withClasses("text-xs", "font-medium"));
+            Icons.svg(Icons.INFO)
+                .withClasses("inline-block")
+                .withStyle("width: 18px; height: 18px;"),
+            span(String.format(
+                    "Status: %s", status.localizedStatusText().getOrDefault(preferredLocale)))
+                .withClasses("p-2", "text-xs", "font-medium"));
   }
 
   private PTag eligibilityTag(Http.Request request, Messages messages, boolean isEligible) {
