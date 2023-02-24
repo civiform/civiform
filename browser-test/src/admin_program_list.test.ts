@@ -4,9 +4,10 @@ import {
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
+  validateScreenshot,
 } from './support'
 
-describe('Most recently updated program is at top of list.', () => {
+describe('Program list page.', () => {
   const ctx = createTestContext()
   it('sorts by last updated, preferring draft over active', async () => {
     const {page, adminPrograms} = ctx
@@ -77,6 +78,29 @@ describe('Most recently updated program is at top of list.', () => {
       programOne,
       programTwo,
     ])
+  })
+
+  it('shows which program is the common intake when enabled', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'intake_form_enabled')
+
+    const programOne = 'List test program one'
+    const programTwo = 'List test program two'
+    await adminPrograms.addProgram(programOne)
+    await adminPrograms.addProgram(
+      programTwo,
+      'program description',
+      'https://usa.gov',
+      /* hidden= */ false,
+      'admin description',
+      /* isCommonIntake= */ true,
+    )
+
+    await expectProgramListElements(adminPrograms, [programTwo, programOne])
+
+    await validateScreenshot(page, 'intake-form-indicator')
   })
 
   async function expectProgramListElements(

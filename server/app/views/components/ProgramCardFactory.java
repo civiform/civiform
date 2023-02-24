@@ -7,6 +7,7 @@ import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
@@ -14,7 +15,9 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.style.AdminStyles;
@@ -25,13 +28,15 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
 
   private final ViewUtils viewUtils;
+  private final FeatureFlags featureFlags;
 
   @Inject
-  public ProgramCardFactory(ViewUtils viewUtils) {
+  public ProgramCardFactory(ViewUtils viewUtils, FeatureFlags featureFlags) {
     this.viewUtils = checkNotNull(viewUtils);
+    this.featureFlags = featureFlags;
   }
 
-  public DivTag renderCard(ProgramCardData cardData) {
+  public DivTag renderCard(Request request, ProgramCardData cardData) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
     String programTitleText = displayProgram.localizedName().getDefault();
@@ -65,9 +70,19 @@ public final class ProgramCardFactory {
                                 ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
                                 "text-black",
                                 "font-bold",
-                                "text-xl"),
+                                "text-xl"))
+                    .with(
                         p(programDescriptionText)
-                            .withClasses("line-clamp-2", "text-gray-700", "text-base")),
+                            .withClasses("line-clamp-2", "text-gray-700", "text-base"))
+                    .condWith(
+                        featureFlags.isIntakeFormEnabled(request)
+                            && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM),
+                        div()
+                            .withClasses("text-black", "items-center", "flex", "pt-4")
+                            .with(
+                                Icons.svg(Icons.CHECK)
+                                    .withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
+                            .with(span("Pre-screener").withClasses("text-base", "font-semibold"))),
                 statusDiv.withClasses(
                     "flex-grow", "text-sm", StyleUtils.responsiveLarge("text-base")));
 
@@ -165,11 +180,16 @@ public final class ProgramCardFactory {
 
   public static Comparator<ProgramCardData> lastModifiedTimeThenNameComparator() {
     Comparator<ProgramCardData> c =
-        Comparator.<ProgramCardData, Instant>comparing(
-                cardData -> getDisplayProgram(cardData).lastModifiedTime().orElse(Instant.EPOCH))
-            .reversed();
+        Comparator.comparingInt(
+            (cardData) ->
+                getDisplayProgram(cardData).programType() == ProgramType.COMMON_INTAKE_FORM
+                    ? 0
+                    : 1);
     return c.thenComparing(
-        cardData -> getDisplayProgram(cardData).localizedName().getDefault().toLowerCase());
+            cardData -> getDisplayProgram(cardData).lastModifiedTime().orElse(Instant.EPOCH),
+            Comparator.reverseOrder())
+        .thenComparing(
+            cardData -> getDisplayProgram(cardData).localizedName().getDefault().toLowerCase());
   }
 
   @AutoValue

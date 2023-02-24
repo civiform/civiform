@@ -14,6 +14,7 @@ import j2html.tags.specialized.DivTag;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
@@ -43,6 +44,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   }
 
   public Content render(
+      Request request,
       ActiveAndDraftPrograms programs,
       List<String> authorizedPrograms,
       Optional<CiviFormProfile> civiformProfile) {
@@ -63,7 +65,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
                         .map(this::buildCardData)
                         .sorted(ProgramCardFactory.lastModifiedTimeThenNameComparator())
-                        .map(programCardFactory::renderCard)));
+                        .map(cardData -> programCardFactory.renderCard(request, cardData))));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
