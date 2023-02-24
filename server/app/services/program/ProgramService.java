@@ -503,7 +503,7 @@ public interface ProgramService {
   /**
    * Set a program's eligibility criteria to gating or non-gating.
    *
-   * @param programId the ID of the program to update
+   * @param programId the ID of the program to update.
    * @param gating boolean representing whether eligibility is gating or non-gating.
    * @param isNongatedEligibilityFeatureEnabled boolean representing whether non-gating eligibility
    *     feature is enabled.

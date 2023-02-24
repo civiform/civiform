@@ -25,12 +25,12 @@ import views.style.StyleUtils;
 /** Renders a page for editing program-level settings. */
 public final class ProgramSettingsEditView extends BaseHtmlView {
   private static final String ELIGIBILITY_TOGGLE_ID = "eligibility-toggle";
+  private static final String ELIGIBILITY_IS_GATING_LABEL =
+      "Eligibility criteria does not block submission";
   private static final String ELIGIBILITY_IS_GATING_DESCRIPTION =
-      "When using eligibility conditions, you can set the experience to gating or non-gating. The"
-          + " default is a gated experience that won’t allow an applicant to submit an application"
-          + " if they do not meet eligibility criteria. Whereas a non-gated experience can be"
-          + " turned on to allow application/form submission regardless of whether or not they’ve"
-          + " met eligibility.";
+      "When enabled, applicants can submit applications even if the eligibility criteria are not"
+          + " met. When disabled, applications must meet all eligibility criteria in order to"
+          + " submit an application.";
 
   private final AdminLayout layout;
 
@@ -80,7 +80,7 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
                                 "w-4",
                                 "h-4",
                                 "rounded-full")))
-            .with(p("Non-gating e;ligibility").withClasses("hover-group:text-white", "ml-1"));
+            .with(p(ELIGIBILITY_IS_GATING_LABEL).withClasses("hover-group:text-white", "ml-1"));
     String toggleAction =
         controllers.admin.routes.AdminProgramController.setEligibilityIsGating(program.id()).url();
     FormTag formTag =

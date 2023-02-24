@@ -473,8 +473,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Optional<ButtonTag> maybeRenderSettingsLink(
       Http.Request request, ProgramDefinition program) {
-    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)
-        || !featureFlags.isNongatedEligibilityEnabled(request)) {
+    if (!(featureFlags.isProgramEligibilityConditionsEnabled(request)
+        && featureFlags.isNongatedEligibilityEnabled(request))) {
       return Optional.empty();
     }
     String linkDestination = routes.AdminProgramController.editProgramSettings(program.id()).url();
