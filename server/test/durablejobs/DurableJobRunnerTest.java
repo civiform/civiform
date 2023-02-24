@@ -14,22 +14,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 import models.PersistedDurableJob;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import play.api.inject.BindingKey;
 import repository.PersistedDurableJobRepository;
 import repository.ResetPostgres;
+import services.cloud.aws.SimpleEmail;
 
 public class DurableJobRunnerTest extends ResetPostgres {
 
+  private SimpleEmail simpleEmailMock;
   private DurableJobRunner durableJobRunner;
   private DurableJobRegistry durableJobRegistry;
 
   @Before
   public void setUp() {
+    simpleEmailMock = Mockito.mock(SimpleEmail.class);
+
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.of(
-                "durable_jobs.job_timeout_minutes", 0,
-                "durable_jobs.poll_interval_seconds", 0));
+                "it_email_address",
+                "test@example.com",
+                "base_url",
+                "https://civiform-test.dev",
+                "durable_jobs.job_timeout_minutes",
+                0,
+                "durable_jobs.poll_interval_seconds",
+                0));
 
     durableJobRegistry = new DurableJobRegistry();
 
@@ -43,6 +54,7 @@ public class DurableJobRunnerTest extends ResetPostgres {
                 instanceOf(
                     new BindingKey<>(LocalDateTime.class)
                         .qualifiedWith(BindingAnnotations.Now.class)),
+            simpleEmailMock,
             instanceOf(ZoneId.class));
   }
 
@@ -117,6 +129,8 @@ public class DurableJobRunnerTest extends ResetPostgres {
     assertThat(jobA.getSuccessTime()).isPresent();
     assertThat(jobB.getSuccessTime()).isPresent();
     assertThat(jobC.getSuccessTime()).isEmpty();
+
+    Mockito.verifyNoInteractions(simpleEmailMock);
   }
 
   @Test
@@ -128,6 +142,13 @@ public class DurableJobRunnerTest extends ResetPostgres {
     job.refresh();
     assertThat(job.getErrorMessage().get()).contains("JobRunner_JobFailed JobNotFound");
     assertThat(job.getRemainingAttempts()).isEqualTo(0);
+    Mockito.verify(simpleEmailMock, Mockito.times(1))
+        .send(
+            Mockito.eq("test@example.com"),
+            Mockito.eq("ERROR: CiviForm Durable job failure on civiform-test.dev"),
+            Mockito.contains(
+                String.format(
+                    "Error report for: job_name=\"%s\", job_ID=%d", job.getJobName(), job.id)));
   }
 
   private PersistedDurableJob createPersistedJobScheduledInFuture() {

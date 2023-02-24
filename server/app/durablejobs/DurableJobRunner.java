@@ -24,6 +24,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.PersistedDurableJobRepository;
+import services.cloud.aws.SimpleEmail;
 
 /**
  * Executes {@link DurableJob}s when their time has come.
@@ -36,12 +37,15 @@ public final class DurableJobRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobRunner.class);
 
+  private final String hostName;
   private final Database database = DB.getDefault();
   private final DurableJobExecutionContext durableJobExecutionContext;
   private final DurableJobRegistry durableJobRegistry;
+  private final String itEmailAddress;
   private final int jobTimeoutMinutes;
   private final PersistedDurableJobRepository persistedDurableJobRepository;
   private final Provider<LocalDateTime> nowProvider;
+  private final SimpleEmail simpleEmail;
   private final ZoneOffset zoneOffset;
   private final int runnerLifespanSeconds;
 
@@ -52,12 +56,17 @@ public final class DurableJobRunner {
       DurableJobRegistry durableJobRegistry,
       PersistedDurableJobRepository persistedDurableJobRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
+      SimpleEmail simpleEmail,
       ZoneId zoneId) {
+    this.hostName =
+        config.getString("base_url").replace("https", "").replace("http", "").replace("://", "");
     this.durableJobExecutionContext = Preconditions.checkNotNull(durableJobExecutionContext);
     this.durableJobRegistry = Preconditions.checkNotNull(durableJobRegistry);
+    this.itEmailAddress = config.getString("it_email_address");
     this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
     this.persistedDurableJobRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
     this.runnerLifespanSeconds = config.getInt("durable_jobs.poll_interval_seconds");
+    this.simpleEmail = Preconditions.checkNotNull(simpleEmail);
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
     this.zoneOffset = zoneId.getRules().getOffset(nowProvider.get());
   }
@@ -76,18 +85,41 @@ public final class DurableJobRunner {
 
     LocalDateTime stopTime = resolveStopTime();
     Transaction transaction = database.beginTransaction();
-    Optional<PersistedDurableJob> jobToRun = persistedDurableJobRepository.getJobForExecution();
+    Optional<PersistedDurableJob> maybeJobToRun =
+        persistedDurableJobRepository.getJobForExecution();
 
-    while (jobToRun.isPresent() && nowProvider.get().isBefore(stopTime)) {
-      runJob(jobToRun.get());
+    while (maybeJobToRun.isPresent() && nowProvider.get().isBefore(stopTime)) {
+      PersistedDurableJob jobToRun = maybeJobToRun.get();
+      runJob(jobToRun);
+      notifyUponFinalFailure(jobToRun);
       transaction.commit();
 
       transaction = database.beginTransaction();
-      jobToRun = persistedDurableJobRepository.getJobForExecution();
+      maybeJobToRun = persistedDurableJobRepository.getJobForExecution();
     }
     transaction.close();
 
     LOGGER.info("JobRunner_Stop thread_ID={}", Thread.currentThread().getId());
+  }
+
+  private void notifyUponFinalFailure(PersistedDurableJob job) {
+    if (!job.hasFailedWithNoRemainingAttempts()) {
+      return;
+    }
+
+    String subject = String.format("ERROR: CiviForm Durable job failure on %s", hostName);
+    StringBuilder contents = new StringBuilder("A durable job has failed repeatedly on ");
+    contents.append(hostName);
+    contents.append("\n\n");
+
+    contents.append(
+        "This needs to be investigated by IT staff or the CiviForm core team"
+            + " (civiform-technical@googlegroups.com).\n\n");
+    contents.append(
+        String.format("Error report for: job_name=\"%s\", job_ID=%d\n", job.getJobName(), job.id));
+    contents.append(job.getErrorMessage().orElse("Job is missing error messages."));
+
+    simpleEmail.send(itEmailAddress, subject, contents.toString());
   }
 
   private void runJob(PersistedDurableJob persistedDurableJob) {
