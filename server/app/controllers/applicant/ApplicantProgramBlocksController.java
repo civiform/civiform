@@ -80,7 +80,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
 
-
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
