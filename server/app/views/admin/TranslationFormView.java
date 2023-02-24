@@ -6,7 +6,6 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.pre;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
@@ -114,7 +113,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
                 .withClasses("px-2", "py-1", "text-sm", "bg-gray-100")
                 .with(
                     p("English text:").withClass("font-medium"),
-                    pre(localizedStrings.getDefault()).withClasses("font-sans")));
+                    p(localizedStrings.getDefault()).withClasses("font-sans")));
   }
 
   /** Creates a fieldset wrapping several form fields to be rendered. */
