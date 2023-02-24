@@ -15,7 +15,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Provider;
-import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -94,11 +93,6 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
   @Override
   protected final void adaptForRole(CiviFormProfile profile, ImmutableSet<Role> roles) {
     // Not used for applicants.
-  }
-
-  @Override
-  protected void possiblyModifyConfigBasedOnCred(Credentials cred) {
-    // Only used for Idcs.
   }
 
   /** Merge the two provided profiles into a new CiviFormProfileData. */

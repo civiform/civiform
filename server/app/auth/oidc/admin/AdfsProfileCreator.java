@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.util.List;
 import javax.inject.Provider;
-import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -86,10 +85,5 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
       return profileFactory.wrapProfileData(profileFactory.createNewAdmin());
     }
     return profileFactory.wrapProfileData(profileFactory.createNewProgramAdmin());
-  }
-
-  @Override
-  protected void possiblyModifyConfigBasedOnCred(Credentials cred) {
-    // No need!
   }
 }

@@ -12,8 +12,12 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.inject.Provider;
+import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
+import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
@@ -48,7 +52,13 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
   }
 
   @Override
-  protected void possiblyModifyConfigBasedOnCred(Credentials cred) {
+  public Optional<UserProfile> create(
+      Credentials cred, WebContext context, SessionStore sessionStore) {
+    possiblyModifyConfigBasedOnCred(cred);
+    return super.create(cred, context, sessionStore);
+  }
+
+  private void possiblyModifyConfigBasedOnCred(Credentials cred) {
     // The flow here is not immediately intuitive. IDCS is to blame. :) The normal
     // flow for authenticating a user is "get user's data via POST. Decode it, check
     // that it is signed, and use it." IDCS throws in an extra step here - in order
