@@ -255,6 +255,10 @@ public final class AddressQuestion extends Question {
         .build();
   }
 
+  public Boolean needsAddressCorrection(Boolean isAddressCorrectionEnabled) {
+    return isAddressCorrectionEnabled && getCorrectedValue().isEmpty();
+  }
+
   @Override
   public String getAnswerString() {
     String displayLine1 = getStreetValue().orElse("");

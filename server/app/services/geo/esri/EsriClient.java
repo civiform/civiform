@@ -214,6 +214,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                   AddressSuggestionGroup.builder()
                       .setWellKnownId(wkid)
                       .setAddressSuggestions(suggestionBuilder.build())
+                      .setOriginalAddress(address)
                       .build();
               return Optional.of(addressCandidates);
             });

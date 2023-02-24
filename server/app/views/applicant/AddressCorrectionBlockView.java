@@ -26,6 +26,7 @@ import play.twirl.api.Content;
 import services.Address;
 import services.MessageKey;
 import services.geo.AddressSuggestion;
+import services.geo.AddressSuggestionGroup;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.Icons;
@@ -49,13 +50,18 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   public Content render(
       Params params,
       Messages messages,
-      Address addressAsEntered,
-      ImmutableList<services.geo.AddressSuggestion> suggestions) {
+      AddressSuggestionGroup addressSuggestionGroup,
+      Boolean isEligibilityEnabled) {
+
+    Address addressAsEntered = addressSuggestionGroup.getOriginalAddress();
+    ImmutableList<services.geo.AddressSuggestion> suggestions =
+        addressSuggestionGroup.getAddressSuggestions();
 
     DivTag content =
         div()
             .withClass("my-8 m-auto")
-            .with(renderForm(params, messages, addressAsEntered, suggestions));
+            .with(
+                renderForm(params, messages, addressAsEntered, suggestions, isEligibilityEnabled));
 
     HtmlBundle bundle =
         layout
@@ -76,10 +82,11 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       Params params,
       Messages messages,
       Address addressAsEntered,
-      ImmutableList<AddressSuggestion> suggestions) {
+      ImmutableList<AddressSuggestion> suggestions,
+      Boolean isEligibilityEnabled) {
     String formAction =
         routes.ApplicantProgramBlocksController.confirmAddress(
-                params.applicantId(), params.programId(), params.block().getId())
+                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
 
     FormTag form =
@@ -90,23 +97,33 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
             .with(makeCsrfTokenInputTag(params.request()));
 
     form.with(
-        h2(messages.at(MessageKey.ADDRESS_CORRECTION_SUB_HEADING.getKeyName()))
-            .withClass("font-bold mb-2"));
-    form.with(
-        div(messages.at(MessageKey.ADDRESS_CORRECTION_PAGE_INSTRUCTIONS.getKeyName()))
-            .withClass("mb-8"));
+            h2(messages.at(MessageKey.ADDRESS_CORRECTION_HEADING.getKeyName()))
+                .withClass("font-bold mb-2"))
+        .with(
+            div(messages.at(MessageKey.ADDRESS_CORRECTION_PAGE_INSTRUCTIONS.getKeyName()))
+                .withClass("mb-8"));
+
+    if (!isEligibilityEnabled) {
+      form.with(
+          div()
+              .withClasses("mb-8")
+              .with(
+                  renderAsEnteredHeading(
+                      params.applicantId(), params.programId(), params.block().getId(), messages),
+                  renderAddress(addressAsEntered, false, Optional.empty())));
+    }
+
+    MessageKey suggestionsHeadingMessageKey =
+        suggestions.size() <= 1
+            ? MessageKey.ADDRESS_CORRECTION_SUGGESTED_ADDRESS_HEADING
+            : MessageKey.ADDRESS_CORRECTION_SUGGESTED_ADDRESSES_HEADING;
 
     form.with(
-            div()
-                .withClasses("mb-8")
-                .with(
-                    renderAsEnteredHeading(
-                        params.applicantId(), params.programId(), params.block().getId(), messages),
-                    renderAddress(addressAsEntered, false, Optional.empty())),
-            h3(messages.at(MessageKey.ADDRESS_CORRECTION_SUGGESTIONS_HEADING.getKeyName()))
-                .withClass("font-bold mb-2"))
-        .with(div().withClasses("mb-8").with(renderSuggestedAddresses(suggestions)))
-        .with(renderBottomNavButtons(params));
+        h3(messages.at(suggestionsHeadingMessageKey.getKeyName())).withClass("font-bold mb-2"),
+        div()
+            .withClasses("mb-8")
+            .with(renderSuggestedAddresses(suggestions))
+            .with(renderBottomNavButtons(params)));
 
     return form;
   }

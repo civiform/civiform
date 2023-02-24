@@ -11,17 +11,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
-import controllers.BadRequestException;
 import controllers.CiviFormController;
 import controllers.geo.AddressSuggestionJsonSerializer;
 import featureflags.FeatureFlags;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import models.StoredFile;
 import org.pac4j.play.java.Secure;
@@ -34,7 +31,6 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
-import services.Address;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
@@ -44,11 +40,8 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
-import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
-import services.geo.CorrectedAddressState;
-import services.geo.esri.EsriClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
@@ -82,7 +75,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
   private final AddressCorrectionBlockView addressCorrectionBlockView;
-  private final EsriClient esriClient;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -102,7 +94,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       FileUploadViewStrategy fileUploadViewStrategy,
       IneligibleBlockView ineligibleBlockView,
       AddressCorrectionBlockView addressCorrectionBlockView,
-      EsriClient esriClient,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
@@ -115,7 +106,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.featureFlags = checkNotNull(featureFlags);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
-    this.esriClient = checkNotNull(esriClient);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
@@ -155,137 +145,45 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   /** This method handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddress(
-      Request request, long applicantId, long programId, String blockId) {
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
 
-    CompletableFuture<Void> applicantAuthCompletableFuture =
-        applicantStage
-            .thenComposeAsync(
-                v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-                httpExecutionContext.current())
-            .toCompletableFuture();
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+    String selectedAddress = form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME);
+    Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
 
-    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
-        applicantStage
-            .thenComposeAsync(
-                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-                httpExecutionContext.current())
-            .toCompletableFuture();
+    if (maybeAddressJson.isEmpty()) {
+      throw new RuntimeException("Address JSON missing");
+    }
 
-    return CompletableFuture.allOf(
-            applicantAuthCompletableFuture, applicantProgramServiceCompletableFuture)
-        .thenApplyAsync(
-            (v) -> {
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  applicantProgramServiceCompletableFuture.join();
-              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
-              Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
+    ImmutableList<AddressSuggestion> suggestions =
+        addressSuggestionJsonSerializer.deserialize(maybeAddressJson.get());
 
-              if (block.isEmpty()) {
-                return notFound();
-              }
-
-              if (maybeAddressJson.isEmpty()) {
-                throw new RuntimeException("Address JSON missing");
-              }
-
-              try {
-                Block thisBlockUpdated = block.get();
-
-                ImmutableList<AddressSuggestion> suggestions =
-                    addressSuggestionJsonSerializer.deserialize(maybeAddressJson.get());
-
-                ImmutableList<ApplicantQuestion> questions = thisBlockUpdated.getQuestions();
-
-                Optional<ApplicantQuestion> addressQuestionMaybe =
-                    questions.stream()
-                        .filter(
-                            m ->
-                                m.getQuestionDefinition().isAddress()
-                                    && m.isAddressCorrectionEnabled())
-                        .findFirst();
-
-                if (addressQuestionMaybe.isPresent()) {
-                  AddressQuestion addressQuestion =
-                      addressQuestionMaybe.get().createAddressQuestion();
-                  DynamicForm form = formFactory.form().bindFromRequest(request);
-                  String selectedAddress =
-                      form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME);
-
-                  Optional<AddressSuggestion> suggestionMaybe =
-                      suggestions.stream()
-                          .filter(x -> x.getSingleLineAddress().equals(selectedAddress))
-                          .findFirst();
-
-                  Map<String, String> map = new HashMap<>(Map.of());
-
-                  if (suggestionMaybe.isPresent()) {
-                    AddressSuggestion suggestion = suggestionMaybe.get();
-                    Address address = suggestion.getAddress();
-                    AddressLocation location = suggestion.getLocation();
-
-                    map.put(addressQuestion.getStreetPath().toString(), address.getStreet());
-                    map.put(addressQuestion.getLine2Path().toString(), address.getLine2());
-                    map.put(addressQuestion.getCityPath().toString(), address.getCity());
-                    map.put(addressQuestion.getStatePath().toString(), address.getState());
-                    map.put(addressQuestion.getZipPath().toString(), address.getZip());
-                    map.put(
-                        addressQuestion.getLatitudePath().toString(),
-                        location.getLatitude().toString());
-                    map.put(
-                        addressQuestion.getLongitudePath().toString(),
-                        location.getLongitude().toString());
-                    map.put(
-                        addressQuestion.getWellKnownIdPath().toString(),
-                        location.getWellKnownId().toString());
-                    map.put(
-                        addressQuestion.getCorrectedPath().toString(),
-                        CorrectedAddressState.CORRECTED.toString());
-                  } else if (selectedAddress.equals(
-                      AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
-                    map.put(
-                        addressQuestion.getCorrectedPath().toString(),
-                        CorrectedAddressState.AS_ENTERED_BY_USER.toString());
-                  } else {
-                    map.put(
-                        addressQuestion.getCorrectedPath().toString(),
-                        CorrectedAddressState.FAILED.toString());
-                  }
-
-                  ImmutableMap<String, String> formData = cleanForm(map);
-                  applicantService.stageAndUpdateIfValid(applicantId, programId, blockId, formData);
-                }
-
-                Optional<String> nextBlockIdMaybe =
-                    roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
-                // No next block so go to the program review page.
-                if (nextBlockIdMaybe.isEmpty()) {
-                  return redirect(
-                      routes.ApplicantProgramReviewController.review(applicantId, programId));
-                }
-
-                return redirect(
-                    routes.ApplicantProgramBlocksController.edit(
-                        applicantId, programId, nextBlockIdMaybe.get()));
-              } catch (BadRequestException e) {
-                throw new RuntimeException(e);
-              }
-            },
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof SecurityException) {
-                  return unauthorized();
-                }
-                if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
-                }
-                throw new RuntimeException(cause);
-              }
-              throw new RuntimeException(ex);
-            });
+        .thenComposeAsync(
+            roApplicantProgramService ->
+                applicantService.getCorrectedAddress(
+                    applicantId, programId, blockId, selectedAddress, suggestions),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            questionPathToValueMap ->
+                applicantService.stageAndUpdateIfValid(
+                    applicantId, programId, blockId, cleanForm(questionPathToValueMap)),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService ->
+                renderErrorOrRedirectToNextBlock(
+                    request,
+                    applicantId,
+                    programId,
+                    blockId,
+                    applicantService.getName(applicantId).toCompletableFuture().join(),
+                    inReview,
+                    roApplicantProgramService),
+            httpExecutionContext.current())
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   /** This method navigates to the previous page of the application. */
@@ -561,46 +459,39 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     if (featureFlags.isEsriAddressCorrectionEnabled(request)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
-      try {
-        ImmutableList<ApplicantQuestion> questions = thisBlockUpdated.getQuestions();
 
-        Optional<ApplicantQuestion> applicantQuestionMaybe =
-            questions.stream()
-                .filter(
-                    m -> m.getQuestionDefinition().isAddress() && m.isAddressCorrectionEnabled())
-                .findFirst();
+      ApplicantQuestion applicantQuestion =
+          applicantService.getFirstAddressCorrectionEnabledApplicantQuestion(thisBlockUpdated);
 
-        if (applicantQuestionMaybe.isPresent()) {
-          AddressQuestion addressQuestion = applicantQuestionMaybe.get().createAddressQuestion();
-          Address address = addressQuestion.getAddress();
-          Optional<AddressSuggestionGroup> suggestionsMaybe =
-              esriClient.getAddressSuggestions(address).toCompletableFuture().get();
+      AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-          if (suggestionsMaybe.isPresent() && addressQuestion.getCorrectedValue().isEmpty()) {
-            ImmutableList<AddressSuggestion> suggestions;
-            suggestions = suggestionsMaybe.get().getAddressSuggestions();
-            String json = addressSuggestionJsonSerializer.serialize(suggestions);
-            return supplyAsync(
-                () ->
-                    ok(addressCorrectionBlockView.render(
-                            buildApplicationBaseViewParams(
-                                request,
-                                applicantId,
-                                programId,
-                                blockId,
-                                inReview,
-                                roApplicantProgramService,
-                                thisBlockUpdated,
-                                applicantName,
-                                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
-                            messagesApi.preferred(request),
-                            address,
-                            suggestions))
-                        .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
-          }
-        }
-      } catch (InterruptedException | ExecutionException ex) {
-        throw new RuntimeException(ex);
+      if (addressQuestion.needsAddressCorrection(applicantQuestion.isAddressCorrectionEnabled())) {
+        AddressSuggestionGroup addressSuggestionGroup =
+            applicantService.getAddressSuggestionGroup(thisBlockUpdated);
+        ImmutableList<AddressSuggestion> suggestions =
+            addressSuggestionGroup.getAddressSuggestions();
+        String json = addressSuggestionJsonSerializer.serialize(suggestions);
+
+        // TODO: Check if eligibility is enabled
+        Boolean isEligibilityEnabled = false;
+
+        return supplyAsync(
+            () ->
+                ok(addressCorrectionBlockView.render(
+                        buildApplicationBaseViewParams(
+                            request,
+                            applicantId,
+                            programId,
+                            blockId,
+                            inReview,
+                            roApplicantProgramService,
+                            thisBlockUpdated,
+                            applicantName,
+                            ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
+                        messagesApi.preferred(request),
+                        addressSuggestionGroup,
+                        isEligibilityEnabled))
+                    .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
       }
     }
 

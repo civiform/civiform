@@ -627,7 +627,6 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.answerTextQuestion('Some text')
       await applicantQuestions.clickNext()
-      await page.reload() // TODO: here temporarily while fixing page loading cached data.
       await applicantQuestions.expectAddressHasBeenCorrected(
         'With Correction',
         '305 Harrison St',
@@ -663,7 +662,6 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.expectVerifyAddressPage()
       await applicantQuestions.clickNext()
-      await page.reload() // TODO: here temporarily while fixing page loading cached data.
       await applicantQuestions.expectAddressHasBeenCorrected(
         'With Correction',
         '305 Harrison St',
@@ -696,7 +694,6 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(page, 'verify-address-page')
 
       await applicantQuestions.clickNext()
-      await page.reload() // TODO: here temporarily while fixing page loading cached data.
       await applicantQuestions.expectAddressHasBeenCorrected(
         'With Correction',
         '305 Harrison St',

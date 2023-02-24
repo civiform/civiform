@@ -264,6 +264,27 @@ public class EsriClientTest {
   }
 
   @Test
+  public void getAddressSuggestionsIncludesOriginalAddress() {
+    Address address =
+        Address.builder()
+            .setStreet("380 New York St")
+            .setLine2("")
+            .setCity("Redlands")
+            .setState("CA")
+            .setZip("92373")
+            .build();
+
+    CompletionStage<Optional<AddressSuggestionGroup>> group = client.getAddressSuggestions(address);
+    Address originalAddress = group.toCompletableFuture().join().get().getOriginalAddress();
+
+    assertEquals(address.getStreet(), originalAddress.getStreet());
+    assertEquals(address.getLine2(), originalAddress.getLine2());
+    assertEquals(address.getCity(), originalAddress.getCity());
+    assertEquals(address.getState(), originalAddress.getState());
+    assertEquals(address.getZip(), originalAddress.getZip());
+  }
+
+  @Test
   public void getAddressSuggestionsWithNoCandidates() {
     Address address =
         Address.builder()
