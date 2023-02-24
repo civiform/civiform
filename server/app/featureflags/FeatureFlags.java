@@ -42,7 +42,7 @@ public final class FeatureFlags {
 
   // Common Intake Form flags.
   private static final String INTAKE_FORM_ENABLED = "intake_form_enabled";
-  private static final String NONGATED_ELIGIBILITY_ENABLED = "nongated_eligibility_enabled";
+  public static final String NONGATED_ELIGIBILITY_ENABLED = "nongated_eligibility_enabled";
 
   @Inject
   FeatureFlags(Config config) {

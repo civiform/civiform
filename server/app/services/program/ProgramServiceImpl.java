@@ -1036,6 +1036,20 @@ public final class ProgramServiceImpl implements ProgramService {
         .collect(ImmutableList.toImmutableList());
   }
 
+  @Override
+  public ProgramDefinition setEligibilityIsGating(
+      long programId, boolean gating, boolean isNongatedEligibilityFeatureEnabled)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    if (!isNongatedEligibilityFeatureEnabled) {
+      return programDefinition;
+    }
+    programDefinition = programDefinition.toBuilder().setEligibilityIsGating(gating).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
+  }
+
   private ProgramDefinition updateProgramDefinitionWithBlockDefinitions(
       ProgramDefinition programDefinition, ImmutableList<BlockDefinition> blocks)
       throws IllegalPredicateOrderingException {
